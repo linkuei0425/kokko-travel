@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bangkok Food Guide | Bangkok Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Bangkok Pass Food Map
+            </h1>
+            <a href="https://linkuei0425.github.io/BANGKOK-US/index.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Region</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Category</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <p class="text-lg">Please select a region and category above to explore.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Data Structure
+        const db = {
+            "siam": {
+                name: "Siam & Pratunam",
+                categories: {
+                    "michelin": [
+                        { name: "Go-Ang Pratunam Chicken Rice", feature: "An absolute classic at Pratunam Market! Tender and juicy chicken paired with fragrant rice slow-cooked in chicken fat and broth.", address: "960-962 Phetchaburi Rd / 10 min walk from BTS Chit Lom." },
+                        { name: "Pe Aor Tom Yum Kung", feature: "Signature is the spicy and sour thick soup noodle topped with a whole lobster or giant fresh shrimp. The visual impact is simply stunning.", address: "68/51 Soi Phetchaburi 5 / 10 min walk from BTS Phaya Thai." },
+                        { name: "Chakki (Beef Noodles)", feature: "A hidden gem in the alleys. Thick, rich meat gravy poured over crispy fried noodles, served steaming hot.", address: "1/1-2 Ratchawithi Rd / 8 min walk from BTS Victory Monument." }
+                    ],
+                    "greenbowl": [
+                        { name: "Kuang Heng Pratunam Chicken Rice", feature: "Another giant in Pratunam Market, easily recognized by their green uniforms. Great atmosphere with the smoky aroma of charcoal-roasted satay skewers.", address: "930 Phetchaburi Rd / 10 min walk from BTS Chit Lom." },
+                        { name: "Rod Dee Ded (Beef Noodles)", feature: "An old brand in Siam Square. Famous for its dark, secret beef broth simmered in a large pot, paired with tender beef slices.", address: "420-420/1 Rama I Rd / 3 min walk from BTS Siam." },
+                        { name: "Somtam Nua", feature: "Refined Northern Thai cuisine. A table full of vibrant green papaya salad, fried chicken, and sticky rice, rich in color and flavor.", address: "392/14 Siam Square Soi 5 / 3 min walk from BTS Siam." }
+                    ],
+                    "dessert": [
+                        { name: "After You Dessert Cafe", feature: "Legendary Thai tea Japanese shaved ice (kakigori) and sea salt whipped cream honey toast. The dense ice mountain hides grass jelly and toast cubes inside.", address: "Siam Square One, Ground Floor, 388 Rama I Rd / 1 min walk from BTS Siam." },
+                        { name: "Pang Cha (CentralWorld)", feature: "Michelin-recommended giant Thai tea shaved ice, served in a luxurious copper pot, topped with whipped cream and three kinds of pearls and agar.", address: "3rd Floor, CentralWorld, 999/9 Rama I Rd / 8 min walk from BTS Chit Lom." },
+                        { name: "Mango Tango", feature: "A popular spot specializing in mango desserts. The classic combo is their golden mango smoothie with mango sticky rice.", address: "Siam Square Soi 3, Rama I Rd / 3 min walk from BTS Siam." },
+                        { name: "Karun Thai Tea", feature: "Premium boutique Thai milk tea with exquisite packaging. Offers a luxurious Thai tea slush topped with gold leaf.", address: "G Floor, Siam Paragon, 991 Rama I Rd / 2 min walk from BTS Siam." }
+                    ],
+                    "cafe": [
+                        { name: "The Cassette Coffee Bar", feature: "Retro pink exterior featuring a highly Instagrammable pink aesthetic wall and a classic revolving door.", address: "264/4 Siam Square Soi 3 / 3 min walk from BTS Siam." },
+                        { name: "Factory Coffee", feature: "Helmed by a Thai champion barista. A must-order is the signature cold brew prepared table-side.", address: "49 Phayathai Rd / 2 min walk from BTS Phaya Thai." },
+                        { name: "Peace Oriental Teahouse", feature: "A minimalist Japanese Zen space in the bustling city, offering premium pour-over matcha and exquisite tea snacks.", address: "120/1 Siam Square Soi 1 / 4 min walk from BTS Siam." },
+                        { name: "Pour Over Lab", feature: "Laboratory industrial design focusing on exquisite pour-over specialty coffee, with various brewing equipment lined up like a lab.", address: "1st Floor, Siam Discovery, 989 Rama I Rd / 5 min walk from BTS Siam." }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Red Sky (Centara Grand)", feature: "55th-floor rooftop bar, landmarked by a giant color-changing semi-circular arch, offering a 360-degree panoramic night view.", address: "55th Floor, Centara Grand at CentralWorld / 8 min walk from BTS Chit Lom." },
+                        { name: "CRU Champagne Bar", feature: "The highest panoramic champagne bar in Bangkok on the 59th floor. The luxurious pure white and red design is extremely photogenic.", address: "59th Floor, Centara Grand at CentralWorld / 8 min walk from BTS Chit Lom." },
+                        { name: "Wisdom International Buffet", feature: "Bangkok's top international buffet offering wagyu, caviar, baked lobster, and giant river prawns.", address: "5th Floor, Siam Square One, Rama I Rd / 1 min walk from BTS Siam." },
+                        { name: "Burn Whale", feature: "A premium seafood BBQ buffet located in the busy district. Known for 'no need to peel shrimp yourself', full of grilled shrimp and oysters.", address: "238 Siam Square Soi 2, Rama I Rd / 2 min walk from BTS Siam." }
+                    ]
+                }
+            },
+            "sukhumvit": {
+                name: "Sukhumvit",
+                categories: {
+                    "michelin": [
+                        { name: "Rung Rueang Pork Noodles", feature: "A legendary noodle shop with over half a century of history. The broth is rich and sweet, topped with tender minced pork, offal, and fish cakes.", address: "10/3 Soi Sukhumvit 26 / 5 min walk from BTS Phrom Phong." },
+                        { name: "Here Hai (Seafood Fried Rice)", feature: "A crazy popular hidden gem on the second floor, famous for its 'cost-no-object' massive crab meat fried rice.", address: "112/1 Ekkamai Rd / Walk or take a taxi from BTS Ekkamai." },
+                        { name: "Saengchai Phochana", feature: "Late-night stir-fry shop with celebrity photos all over the walls. Features excellent stir-fried morning glory and raw marinated crab.", address: "762/5-7 Sukhumvit Rd / 5 min walk from BTS Thong Lo." }
+                    ],
+                    "greenbowl": [
+                        { name: "Wattana Panich (Beef Noodles)", feature: "Recognizable by the giant pot at the entrance that has been simmering their secret beef broth continuously for over half a century.", address: "336-338 Ekkamai Rd / Take a taxi from BTS Ekkamai." },
+                        { name: "Mae Varee", feature: "Super popular mango sticky rice. You can see a spectacular pile of golden mangoes at the storefront. Ripe mangoes drenched in pure coconut cream.", address: "1 Soi Thong Lo / 2 min walk from BTS Thong Lo." },
+                        { name: "Bamee Kon Sae Lee", feature: "Handmade egg noodles passed down for generations, paired with honey-roasted crispy pork and crab meat.", address: "1081 Sukhumvit Rd / 3 min walk from BTS Thong Lo." }
+                    ],
+                    "dessert": [
+                        { name: "Thongyoy Cafe", feature: "Tropical floral decor serving traditional Thai desserts on gorgeous brass trays, exuding a luxurious Thai aesthetic.", address: "88/2 Ekkamai Rd (Soi Sukhumvit 63) / Take a taxi from BTS Ekkamai." },
+                        { name: "Paris Mikki", feature: "Bangkok's top French patisserie featuring delicate, art-like French cakes and pastries.", address: "27 Metha Watthana, Sukhumvit Soi 19 / 4 min walk from BTS Asok." },
+                        { name: "Mae Varee", feature: "Super popular takeaway mango sticky rice with golden mangoes piled high at the front.", address: "1 Thong Lo Rd (Soi Sukhumvit 55) / 2 min walk from BTS Thong Lo." },
+                        { name: "Kyo Roll En", feature: "Japanese Uji matcha desserts, bamboo cylinder soft serve ice cream, and signature roll cakes.", address: "EmQuartier, M Floor, 689 Sukhumvit Rd / 2 min walk from BTS Phrom Phong." }
+                    ],
+                    "cafe": [
+                        { name: "Flat+White Cafe", feature: "Pure white streamlined design with floating staircases, full of futuristic vibes.", address: "810/5 Thara Rom 2 Alley / Take a taxi from BTS Thong Lo." },
+                        { name: "ROAST (The Commons)", feature: "A benchmark for Bangkok brunch, offering house-roasted specialty coffee in a comfortable space.", address: "335 Thong Lo 17 Alley (The Commons) / Take a taxi from BTS Thong Lo." },
+                        { name: "CPS Coffee", feature: "A crossover by a clothing brand featuring a cool, edgy black interior design with plenty of personality.", address: "63/1 Sukhumvit Soi 53 / 5 min walk from BTS Thong Lo." },
+                        { name: "% Arabica (EmQuartier)", feature: "Known for its minimalist white design, providing high-quality, mellow lattes.", address: "EmQuartier, M Floor, 689 Sukhumvit Rd / 2 min walk from BTS Phrom Phong." }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Tichuca Rooftop Bar", feature: "Features a giant illuminated jellyfish with tentacles swaying in the wind above the bar. Cyberpunk vibes and incredible visuals.", address: "46th Floor, T-One Building, 8 Soi Sukhumvit 40 / 3 min walk from BTS Thong Lo." },
+                        { name: "Octave Rooftop Lounge & Bar", feature: "A three-level rooftop bar. The top floor offers a glass-free 360-degree open view.", address: "45th Floor, Bangkok Marriott Hotel Sukhumvit, 2 Sukhumvit Soi 57 / 3 min walk from BTS Thong Lo." },
+                        { name: "Goji Kitchen & Bar (Marriott Buffet)", feature: "Extremely lavish seafood section offering freshly shucked oysters, Alaskan king crab legs, and charcoal-grilled seafood.", address: "Bangkok Marriott Marquis Queen’s Park, 199 Sukhumvit Soi 22 / 8 min walk from BTS Phrom Phong." },
+                        { name: "The Seafood Cafe & Restaurant", feature: "A-la-carte seafood buffet offering unlimited fresh oysters, giant river prawns, raw marinated shrimp, and crabs.", address: "10 Sukhumvit Soi 24/1 / 5 min walk from BTS Phrom Phong." }
+                    ]
+                }
+            },
+            "silom": {
+                name: "Silom & Sathon",
+                categories: {
+                    "michelin": [
+                        { name: "Charoen Saeng Silom (Pork Knuckle)", feature: "Pork knuckle stewed to a caramel color, melting in your mouth. The signature sour and spicy dipping sauce perfectly balances the rich collagen.", address: "492/6 Soi Charoen Krung 49 / 10 min walk from BTS Saphan Taksin." },
+                        { name: "Jok Prince (Pork Congee)", feature: "Known for its unique 'charcoal smoky flavor'. The congee is extremely smooth and served with giant handmade pork meatballs.", address: "1391 Charoen Krung Rd / 8 min walk from BTS Saphan Taksin." },
+                        { name: "Soi Polo Fried Chicken", feature: "Legendary Bangkok fried chicken topped with a 'mountain of golden crispy garlic'. The skin is thin and crispy while the meat remains juicy.", address: "137/1-3 Sanam Khli Alley / 10 min walk from MRT Lumphini." }
+                    ],
+                    "greenbowl": [
+                        { name: "Khao Kha Moo Trok Sung", feature: "Hidden in a narrow alley, serving perfectly balanced fatty and lean stewed pork knuckle with green kale and soft-boiled braised eggs.", address: "106/5 Charoen Wiang Rd / 5 min walk from BTS Saphan Taksin." },
+                        { name: "Sa-nguan Sri", feature: "Retains the appearance of a traditional Thai family dining table. Their green curry has a rich and mellow color and flavor.", address: "59/1 Witthayu Rd / 5 min walk from BTS Phloen Chit." },
+                        { name: "Som Tam Jay So", feature: "Northeastern cuisine in the alleys featuring charcoal-grilled chicken wings and pork neck with a perfect char.", address: "Soi Phiphat 2, Convent Rd / 8 min walk from BTS Chong Nonsi." }
+                    ],
+                    "dessert": [
+                        { name: "Brioche from Heaven", feature: "A Parisian-style bakery, famous for their extremely indulgent, oozing caramel pecan brioche rolls.", address: "156 Naradhiwas Rajanagarindra Rd / 1 min walk from BTS Chong Nonsi." },
+                        { name: "KIN Donut", feature: "Freshly handmade shaped donuts daily with innovative and rich flavors.", address: "156 Naradhiwas Rajanagarindra Rd / 1 min walk from BTS Chong Nonsi." },
+                        { name: "Chu Chocolate Bar", feature: "A paradise for chocolate lovers, offering rich hot chocolate and oozing lava cakes.", address: "1/6 Soi Sathon 10 / 4 min walk from BTS Saint Louis." },
+                        { name: "Bua Loy Khai Keng", feature: "A local favorite street stall selling colorful Thai glutinous rice balls in coconut milk. Recommend adding a soft-boiled egg.", address: "Soi Silom 20 / 8 min walk from BTS Sala Daeng." }
+                    ],
+                    "cafe": [
+                        { name: "Luka Bangkok", feature: "Retro chic style combined with a select shop, offering highly aesthetic brunch plates.", address: "64/3 Pan Rd / 6 min walk from BTS Saint Louis." },
+                        { name: "Sarnies Bangkok", feature: "A century-old boat repair shop turned cafe, retaining its rough, mottled brick walls and heavy industrial style.", address: "101-103 Charoen Krung 44 Alley / 5 min walk from BTS Saphan Taksin." },
+                        { name: "Roots at Sathon", feature: "Focuses on local Thai specialty coffee beans. A high-quality wooden interior space hidden within an office building.", address: "1st Floor, Bhiraj Tower, 31/1 Sathon Tai Rd / 2 min walk from BTS Surasak." },
+                        { name: "The Commons Saladaeng", feature: "A multi-complex red-brick building with a semi-open space for coffee and dining communities.", address: "126 Sala Daeng 1 Alley / 8 min walk from BTS Sala Daeng." }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Mahanakhon Bangkok SkyBar", feature: "Thailand's tallest building featuring an all-glass skywalk and an unmatched 'God's eye' view.", address: "78th Floor, King Power Mahanakhon, 114 Naradhiwas Rajanagarindra Rd / 1 min walk from BTS Chong Nonsi." },
+                        { name: "Vertigo & Moon Bar", feature: "A narrow ship-deck design suspended on the 61st floor. Completely open-air with a breathtaking view.", address: "61st Floor, Banyan Tree Bangkok, 21/100 Sathon Tai Rd / 10 min walk from MRT Lumphini." },
+                        { name: "Red Oven (SO/ Bangkok Buffet)", feature: "Famous for its massive 'seafood ice island' piled high with lobsters, crabs, and oysters.", address: "7th Floor, SO/ Bangkok, 2 N Sathon Rd / 3 min walk from MRT Lumphini." },
+                        { name: "Praya Kitchen (Surawongse Marriott Buffet)", feature: "All-you-can-eat giant river prawns and crabs grilled live by chefs over charcoal, full of 'wok hei' and umami.", address: "3rd Floor, Bangkok Marriott Hotel The Surawongse, 262 Surawong Rd / 12 min walk from BTS Chong Nonsi." }
+                    ]
+                }
+            },
+            "oldtown": {
+                name: "Old Town",
+                categories: {
+                    "michelin": [
+                        { name: "Pad Thai Thipsamai", feature: "A golden egg omelet perfectly wrapping the reddish Pad Thai. The moment you cut it open is incredibly satisfying.", address: "313-315 Maha Chai Rd / 10 min walk from MRT Sam Yot." },
+                        { name: "Kor Panit (Mango Sticky Rice)", feature: "A royal secret recipe. The sticky rice is distinct grain by grain, radiating a beautiful gloss.", address: "431-433 Tanao Rd / 12 min walk from MRT Sam Yot." },
+                        { name: "Krua Apsorn", feature: "Signature 'Golden Crab Meat Omelet', thick and round like a UFO, bursting with crab meat when cut open.", address: "169 Dinso Rd / Near Democracy Monument, taxi recommended." }
+                    ],
+                    "greenbowl": [
+                        { name: "Mont Nomsod", feature: "Bangkok's national dessert: thick toast drenched in abundant green pandan custard.", address: "160/1-3 Dinso Rd / 12 min walk from MRT Sam Yot." },
+                        { name: "Udom Pochana", feature: "A Chinese-Thai fusion old establishment. Serving dark brown beef curry stew poured over rice, paired with crispy spring rolls.", address: "78 Phraeng Phuthon Rd / 10 min walk from MRT Sam Yot." },
+                        { name: "Nattaporn Ice Cream", feature: "Handmade, pure natural coconut milk ice cream with no additives. You can freely add retro toppings like corn and peanuts.", address: "94 Phraeng Phuthon Rd / 10 min walk from MRT Sam Yot." }
+                    ],
+                    "dessert": [
+                        { name: "Mont Nomsod", feature: "Bangkok's favorite late-night snack, freshly toasted thick bread drenched in green pandan sauce.", address: "160/1-3 Dinso Rd, Sao Chingcha / 12 min walk from MRT Sam Yot." },
+                        { name: "Nattaporn Ice Cream", feature: "Hidden in an old neighborhood, offering traditional handmade, pure natural coconut milk ice cream.", address: "94 Phraeng Phuthon Rd / 10 min walk from MRT Sam Yot." },
+                        { name: "Kor Panit", feature: "A century-old brand of mango sticky rice passed down from a royal secret recipe.", address: "431-433 Tanao Rd / 10 min walk from MRT Sam Yot." },
+                        { name: "Cheng Sim Ei", feature: "Traditional Thai shaved ice with dozens of vibrant toppings to mix and match freely.", address: "312, 314 Dinso Rd / 12 min walk from MRT Sam Yot." }
+                    ],
+                    "cafe": [
+                        { name: "Baan Khanom Pang Khing", feature: "A 200-year-old traditional Thai teak house. Exquisite Thai afternoon tea is served on brass utensils.", address: "47 Phraeng Phuthon Rd / 10 min walk from MRT Sam Yot." },
+                        { name: "Simiao Kafe", feature: "An old house cafe right next to a Chinese temple, retaining its mottled walls and traditional medicine cabinet design.", address: "121 Fueang Nakhon Rd / 8 min walk from MRT Sam Yot." },
+                        { name: "ELEFIN Coffee", feature: "A rare high-quality cafe near the Grand Palace with exquisite latte art.", address: "394 Maha Rat Rd / 6 min walk from MRT Sanam Chai." },
+                        { name: "Kopi Hya Tai Kee", feature: "A 70-year-old shop retaining traditional Thai marble tables and serving hot Thai coffee in glass cups.", address: "37 Siriphong Rd / 5 min walk from MRT Sam Yot." }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Eagle Nest Bar", feature: "The best unobstructed open-air bar to enjoy the sunset over Wat Arun (Temple of Dawn) and the Grand Palace night view.", address: "5th Floor, Sala Arun, 47-49 Maha Rat Rd / 8 min walk from MRT Sanam Chai." },
+                        { name: "Sala Rattanakosin Rooftop Bar", feature: "Right on the Chao Phraya River, facing the beautiful silhouette of Wat Arun. Extremely romantic.", address: "5th Floor, Sala Rattanakosin, 39 Maha Rat Rd / 8 min walk from MRT Sanam Chai." },
+                        { name: "Jay Fai", feature: "Michelin 1-star legendary street food. The golden crab meat omelet reveals massive, sweet crab chunks when cut open.", address: "327 Maha Chai Rd / 8 min walk from MRT Sam Yot." },
+                        { name: "Tom Yum Goong Banglamphu", feature: "Hidden next to Khaosan Road. A pot of rich seafood Tom Yum soup overflowing with ingredients.", address: "Soi Kraisi, Talat Yot, Phra Nakhon / Near Khaosan Road." }
+                    ]
+                }
+            },
+            "riverside": {
+                name: "Chao Phraya Riverside",
+                categories: {
+                    "michelin": [
+                        { name: "Somsak Pu Ob", feature: "Rows of red clay pots simmering over charcoal. Lifting the lid reveals steaming heat and bright red crabs over glass noodles.", address: "Charoen Rat Rd / 5 min walk from BTS Wongwian Yai." },
+                        { name: "Baan Phadthai", feature: "A retro blue wooden building serving exquisite Pad Thai and grilled giant prawns in a highly photogenic environment.", address: "21-23 Soi Charoen Krung 44 / 5 min walk from BTS Saphan Taksin." },
+                        { name: "Ten Suns (Beef Soup)", feature: "Clear but deeply flavorful beef broth with large chunks of beef brisket and tendons stewed until translucent.", address: "Wisut Kasat Rd / Recommend taking a Tuk-Tuk from the ferry pier." }
+                    ],
+                    "greenbowl": [
+                        { name: "Prachak Roasted Duck", feature: "A century-old shop with windows full of shiny, reddish roasted ducks, drizzled with dark sweet bean sauce.", address: "1415 Charoen Krung Rd / 3 min walk from BTS Saphan Taksin." },
+                        { name: "Volcanic Fried Mussel", feature: "Batter sizzles on the iron griddle creating crispy edges resembling a volcanic eruption, piled high with fresh seafood.", address: "3 Charoen Krung 50 Alley / 3 min walk from BTS Saphan Taksin." },
+                        { name: "Tuptim Krob Wongwian Yai", feature: "Ruby-red water chestnuts soaked in snow-white, rich coconut milk slush. The ultimate heat buster.", address: "316 Lat Ya Rd / 10 min walk from BTS Wongwian Yai." }
+                    ],
+                    "dessert": [
+                        { name: "Tuptim Krob Wongwian Yai", feature: "Vibrant red water chestnuts soaked in coconut milk slush, dreamy colors and very refreshing.", address: "316 Lat Ya Rd / 10 min walk from BTS Wongwian Yai." },
+                        { name: "Panlee Bakery", feature: "A 70-year-old retro bakery. Must-try their oozing Thai tea and pandan leaf soft buns.", address: "1335 Charoen Krung Rd / 3 min walk from BTS Saphan Taksin." },
+                        { name: "Bua Loy Somwang", feature: "Hand-rolled small glutinous rice balls in a warm, fragrant, and perfectly sweetened broth.", address: "Charoen Krung Soi 44 / 4 min walk from BTS Saphan Taksin." },
+                        { name: "Karun Thai Tea (ICONSIAM)", feature: "Luxurious Thai tea slush sprinkled with gold leaf, served in beautifully designed cups.", address: "G Floor, ICONSIAM, 299 Charoen Nakhon Rd / 1 min walk from BTS Charoen Nakhon." }
+                    ],
+                    "cafe": [
+                        { name: "Hong Sieng Kong", feature: "A 200-year-old antique building with a ruined aesthetic. Outdoor ancient trees with tangled roots right by the Chao Phraya River.", address: "734, 736 Soi Wanit 2 / 15 min walk from MRT Hua Lamphong." },
+                        { name: "Woodbrook Bangkok", feature: "Features an excellent wooden deck terrace overlooking the river, a hidden gem for watching the Chao Phraya sunset.", address: "1222/1 Song Wat Rd / 10 min walk from MRT Wat Mangkon." },
+                        { name: "Mother Roaster", feature: "A legendary cafe hidden in an alley of scrap metal. Hand-poured by an elderly grandmother in an old wooden house.", address: "117 San Chao Rong Kueak Alley / 15 min walk from MRT Hua Lamphong." },
+                        { name: "The Jam Factory", feature: "A creative park converted from an old warehouse, featuring large lawns and green trees, combining industrial and natural aesthetics.", address: "41/1-5 Charoen Nakhon Rd / 8 min walk from BTS Charoen Nakhon." }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Sky Bar at Lebua", feature: "Filming location of 'The Hangover Part II'. Iconic golden dome and Bangkok's most luxurious rooftop bar.", address: "63rd Floor, State Tower, 1055 Silom Rd / 10 min walk from BTS Saphan Taksin." },
+                        { name: "Three Sixty Lounge", feature: "A 360-degree panoramic glass UFO-shaped bar perfectly capturing the S-curve of the Chao Phraya River.", address: "32nd Floor, Millennium Hilton Bangkok / 3 min walk from BTS Charoen Nakhon." },
+                        { name: "Next2 Cafe (Shangri-La Buffet)", feature: "Unlimited Boston lobsters and Alaskan snow crab legs with outdoor river view dining.", address: "Shangri-La Bangkok, 89 Wat Suan Phlu Alley / 5 min walk from BTS Saphan Taksin." },
+                        { name: "Jumbo Seafood (ICONSIAM)", feature: "Singapore's national treasure seafood. Signature chili crab and black pepper crab using massive live crabs.", address: "G Floor, ICONSIAM, 299 Charoen Nakhon Rd / 1 min walk from BTS Charoen Nakhon." }
+                    ]
+                }
+            },
+            "chinatown": {
+                name: "Yaowarat Chinatown",
+                categories: {
+                    "michelin": [
+                        { name: "Nai Ek Roll Noodle", feature: "Milky-white peppery broth with curled rice noodles and crispy fried pork belly.", address: "408 Yaowarat Rd / 5 min walk from MRT Wat Mangkon." },
+                        { name: "Nai Mong Hoi Thod (Oyster Omelet)", feature: "The master chef fries the oyster omelet to a golden crisp on a giant iron plate with oil sizzling around.", address: "539 Phlap Phla Chai Rd / 3 min walk from MRT Wat Mangkon." },
+                        { name: "Pa Tong Go Savoey", feature: "Short, plump fried dough sticks further grilled over charcoal for a crisscross char, dipped in pandan custard.", address: "Yaowarat Rd / 5 min walk from MRT Wat Mangkon." }
+                    ],
+                    "greenbowl": [
+                        { name: "Si Morakot (Crispy Pork Rice)", feature: "Golden crispy pork and reddish char siu laid over rice, drenched in a thick red gravy.", address: "80-82 Sukon 1 Alley / 5 min walk from MRT Hua Lamphong." },
+                        { name: "Odean Wonton Noodle", feature: "Clear broth noodles boldly topped with a complete, giant fresh crab claw.", address: "724 Charoen Krung Rd / 5 min walk from MRT Wat Mangkon." },
+                        { name: "Sweettime", feature: "A popular dessert cart. Under the pink sign, bowls of black sesame glutinous rice balls gleam under neon lights.", address: "436 Yaowarat Rd / 5 min walk from MRT Wat Mangkon." }
+                    ],
+                    "dessert": [
+                        { name: "Ba Hao Tian Mi", feature: "A trendy Chinese-style dessert shop. Signature goji berry pudding. The neon lighting gives it a Wong Kar-wai movie vibe.", address: "8 Phadung Dao Rd / 5 min walk from MRT Wat Mangkon." },
+                        { name: "Yaowarat Toasted Bread", feature: "Famous grilled buns with oozing kaya and chocolate fillings that are incredibly decadent.", address: "452 Yaowarat Rd / 6 min walk from MRT Wat Mangkon." },
+                        { name: "Sweettime", feature: "A hot dessert cart under the pink neon lights of Yaowarat Road, serving bird's nest and black sesame glutinous rice balls.", address: "436 Yaowarat Rd / 5 min walk from MRT Wat Mangkon." },
+                        { name: "Nam Dao Huu", feature: "A retro hipster tofu pudding shop. Various Thai-Chinese fusion healthy sweet soups served in vintage bowls.", address: "33 Plaeng Nam Rd / 3 min walk from MRT Wat Mangkon." }
+                    ],
+                    "cafe": [
+                        { name: "Wallflowers Cafe", feature: "A combination of a flower shop and a cafe, full of dried flowers, wood tones, and decadent romanticism.", address: "31-33 Soi Nana / 5 min walk from MRT Hua Lamphong." },
+                        { name: "Lhong Tou Cafe", feature: "Creative double-deck ladder seating design inspired by Hong Kong tea houses. The most famous photo spot in Chinatown.", address: "538 Yaowarat Rd / 4 min walk from MRT Wat Mangkon." },
+                        { name: "CHATA Specialty Coffee", feature: "Hidden in a glass greenhouse among mottled old red brick walls, blending the old with the new.", address: "98 Phat Sai Rd / 6 min walk from MRT Wat Mangkon." },
+                        { name: "As.is", feature: "Exposed raw concrete and red bricks, presenting a highly personalized industrial style.", address: "45 Rama IV Rd / 4 min walk from MRT Hua Lamphong." }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Sky View 360", feature: "The highest viewpoint in Chinatown, featuring a retro 360-degree slowly rotating panorama.", address: "25th Floor, Grand China Hotel, 215 Yaowarat Rd / 8 min walk from MRT Wat Mangkon." },
+                        { name: "Wallflowers Rooftop", feature: "An open-air garden bar blending decadent industrial style with psychedelic floral art, serving gorgeously garnished cocktails.", address: "Rooftop, 31-33 Soi Nana / 5 min walk from MRT Hua Lamphong." },
+                        { name: "T&K Seafood (Green Uniforms)", feature: "The hottest seafood stall in Chinatown. Charcoal-grilled giant river prawns and curry crab.", address: "49, 51 Phadung Dao Rd / 5 min walk from MRT Wat Mangkon." },
+                        { name: "Rut & Uri Seafood (Red Uniforms)", feature: "Raw marinated oysters, grilled fish, and sour/spicy seafood soup with heavy, authentic flavors and a lively atmosphere.", address: "Yaowarat Rd / 5 min walk from MRT Wat Mangkon." }
+                    ]
+                }
+            },
+            "ratchada": {
+                name: "Ratchada & Huai Khwang",
+                categories: {
+                    "michelin": [
+                        { name: "Somboon Seafood Ratchada", feature: "Signature 'Curry Fried Crab'. The smooth yellow egg sauce and red chili crab meat intertwine, making it irresistible with rice.", address: "167 Ratchadaphisek Rd / Right outside MRT Huai Khwang Exit 3." },
+                        { name: "Zabb One Ratchada", feature: "Giant grilled fish, bright red spicy seafood salad, and raw shrimp, showcasing hot and spicy Northeastern flavors.", address: "Ratchadaphisek Rd / 5 min walk from MRT Thailand Cultural Centre." },
+                        { name: "Raan Nae-Naw (Volcano Pork Ribs)", feature: "A mountain of 'Volcano Pork Ribs' in sour and spicy soup, with fresh green chilies scattered all over the meat mountain.", address: "Pracha Songkhro Rd / Recommend taxi from MRT Huai Khwang." }
+                    ],
+                    "greenbowl": [
+                        { name: "Meng Pochana", feature: "An old local brand in Huai Khwang. Wok-tossed Cantonese fried noodles and roasted pork with Chinese broccoli full of 'wok hei'.", address: "Pracha Songkhro Rd / Walk or transit from MRT Huai Khwang." },
+                        { name: "Kuang Seafood", feature: "Garlic steamed/grilled oysters and curry crab are spectacular. Fresh seafood from live tanks.", address: "Soi Ratchadaphisek 10 / 8 min walk from MRT Huai Khwang." },
+                        { name: "Huai Khwang Night Market Pork Knuckle", feature: "Late night at Huai Khwang Night Market, the steaming pot of braised pork knuckle gives a true sense of Bangkok's nightlife.", address: "Pracha Songkhro Rd / Right outside MRT Huai Khwang." }
+                    ],
+                    "dessert": [
+                        { name: "Bua Loy Parinya", feature: "Huai Khwang night market glutinous rice balls. Seven-color bursting sesame balls soaked in hot fresh milk, showcasing street food vibes.", address: "Pracha Songkhro Rd, Din Daeng / 4 min walk from MRT Huai Khwang." },
+                        { name: "Cheng Sim Ei (Ratchada)", feature: "A traditional sweet soup and shaved ice chain with 40-50 toppings, drizzled with brown sugar syrup to beat the heat.", address: "G Floor, Esplanade, 99 Ratchadaphisek Rd / 2 min walk from MRT Thailand Cultural Centre." },
+                        { name: "Hollys Coffee", feature: "24-hour Korean cafe. Signature is the giant bingsu (snow ice) piled with fresh strawberries or mangoes.", address: "1st Floor, The Street Ratchada / 6 min walk from MRT Thailand Cultural Centre." },
+                        { name: "After You (The Street)", feature: "Classic Thai tea shaved ice and decadent desserts, the perfect ending after locals finish touring the night market.", address: "1st Floor, The Street Ratchada / 6 min walk from MRT Thailand Cultural Centre." }
+                    ],
+                    "cafe": [
+                        { name: "Greytown Cafe", feature: "A minimalist grey-black toned quality cafe hidden in the alleys of Ratchada, offering a calm and quiet space.", address: "80 Ratchadaphisek Soi 18 / 8 min walk from MRT Huai Khwang." },
+                        { name: "A Lot of Love", feature: "A greenhouse style filled with green plants located inside a mall, offering healthy brunch and smoothies.", address: "3rd Floor, Fortune Town, 1 Ratchadaphisek Rd / 2 min walk from MRT Rama 9." },
+                        { name: "Casa Lapin (Rama 9)", feature: "A famous boutique coffee brand in Bangkok. Wooden industrial design offering high-quality espresso.", address: "3rd Floor, Central Plaza Rama 9 / 2 min walk from MRT Rama 9." },
+                        { name: "% Arabica (Rama 9)", feature: "Pure white, minimalist space capsule geometric design offering mellow, high-quality lattes. Very modern.", address: "G Floor, Central Plaza Rama 9 / 2 min walk from MRT Rama 9." }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "180 Sky Lounge", feature: "Offers a 180-degree view of Bangkok's new CBD skyline. The space is comfortable and not overcrowded.", address: "29th Floor, Grand Mercure Bangkok Fortune / 2 min walk from MRT Rama 9." },
+                        { name: "Vela Rooftop", feature: "An open-air rooftop bar next to the Skytrain, featuring a highly energetic live band atmosphere.", address: "5th Floor, 1029/2 Phahon Yothin Rd / 1 min walk from BTS Sanam Pao." },
+                        { name: "Mungkorn Seafood", feature: "Affordable seafood BBQ buffet offering unlimited live giant river prawns, crabs, and shellfish.", address: "Ratchadaphisek Soi 36 / Take a taxi from MRT Phahon Yothin." },
+                        { name: "Best Beef (Ratchada)", feature: "All-you-can-eat BBQ. Unlimited fresh seafood and meats grilled over iron plates, extremely satisfying.", address: "Ratchadaphisek Rd / 10 min walk from MRT Huai Khwang." }
+                    ]
+                }
+            },
+            "chatuchak": {
+                name: "Chatuchak & Ari",
+                categories: {
+                    "michelin": [
+                        { name: "Ong Tong Khao Soi", feature: "Golden coconut milk curry broth topped with a bunch of crispy fried noodles, served in wooden tableware.", address: "31 Phahon Yothin 7 Alley / 5 min walk from BTS Ari." },
+                        { name: "Lay Lao", feature: "A combination of Hua Hin seafood and Northeastern flavors. Fresh spicy squid and green papaya served in wooden bowls.", address: "65 Phahon Yothin 7 Alley / 5 min walk from BTS Ari." },
+                        { name: "Somsak Mhu Ping", feature: "A famous stall on the edge of Chatuchak Market. Sizzling secret sauce grilled pork skewers over charcoal.", address: "153 Kamphaeng Phet 2 Rd / 5 min walk from MRT Kamphaeng Phet." }
+                    ],
+                    "greenbowl": [
+                        { name: "Thanee Khao Moo Daeng", feature: "Legendary roasted meat in the Ari area. Thick crispy pork in the window display, the crispy skin layer is clearly visible when cut.", address: "1061 Phahon Yothin Rd / 5 min walk from BTS Ari." },
+                        { name: "Sudjai Kai Yang", feature: "Inside the premium market, the stall is filled with golden Isan grilled chicken and various spicy salads.", address: "Or Tor Kor Market / MRT Kamphaeng Phet Exit 3." },
+                        { name: "Prik Yuak", feature: "Various Thai curries displayed like a jewelry box, pots of vibrant red and green curry.", address: "Or Tor Kor Market / MRT Kamphaeng Phet Exit 3." }
+                    ],
+                    "dessert": [
+                        { name: "Coco JJ", feature: "A must-eat at Chatuchak Market! Coconut milk ice cream served in a half coconut shell, accompanied by refreshing coconut water.", address: "Section 1, Chatuchak Market, Kamphaeng Phet 2 Rd / 2 min walk from MRT Kamphaeng Phet." },
+                        { name: "Waan D", feature: "A retro Thai dessert shop in Ari, offering cool and smooth grass jelly and traditional shaved ice.", address: "16 Ari 1 Alley / 3 min walk from BTS Ari." },
+                        { name: "Qraft.", feature: "Japanese wooden aesthetics, specializing in freshly baked croissants and graded intensity matcha ice cream.", address: "9/3 Ari Soi 1 / 3 min walk from BTS Ari." },
+                        { name: "Kanom Krok Bai Toey", feature: "A popular stall in Chatuchak, freshly baked traditional green pandan cakes with slightly charred edges.", address: "Section 22, Chatuchak Market / 8 min walk from BTS Mo Chit." }
+                    ],
+                    "cafe": [
+                        { name: "Nana Coffee Roasters Ari", feature: "An award-winning old house transformed into a tropical garden. Sunlight filters through the leaves onto the red brick building.", address: "24/2 Ari 4 Fang Tai Alley / 8 min walk from BTS Ari." },
+                        { name: "Porcupine Café", feature: "White cave-style design paired with warm wooden furniture and dried flowers, full of bohemian vibes.", address: "48 Ari 4 Fang Nua Alley / 7 min walk from BTS Ari." },
+                        { name: "Bar Storia del Caffè", feature: "European retro green exterior. Sitting in the outdoor seating area feels like being on the streets of Europe.", address: "13 Ari 4 Fang Nua Alley / 7 min walk from BTS Ari." },
+                        { name: "Yellow Lane", feature: "Combining brunch and courtyard slow-living style, with a large lawn perfect for relaxing.", address: "2/16 Phahon Yothin 5 Alley / 8 min walk from BTS Ari." }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Blue Sky Rooftop Bar", feature: "Overlooking the massive green space of Chatuchak Park and the vast skyline of northern Bangkok, the view is stunning.", address: "24th Floor, Centara Grand Ladprao, 1695 Phahon Yothin Rd / 3 min walk from BTS Ha Yaek Lat Phrao." },
+                        { name: "Dumbo Jazz & Vinyl Bar", feature: "An American retro jazz bar. Vinyl records and neon lights intertwine, offering an eye-level view of passing BTS trains.", address: "6th Floor, INN-Office Building, Phahon Yothin Rd / 2 min walk from BTS Saphan Khwai." },
+                        { name: "Best Beef (Saphan Khwai)", feature: "High-quality meats and shellfish, all-you-can-eat fresh live shrimp BBQ, affordable with a lively atmosphere.", address: "1530 Phahon Yothin Rd / 5 min walk from BTS Saphan Khwai." },
+                        { name: "Or Tor Kor Seafood Center", feature: "Bangkok's cleanest premium market, with numerous made-to-order stalls offering top-tier grilled giant prawns, crab meat, and oysters.", address: "Or Tor Kor Market, Kamphaeng Phet Rd / 2 min walk from MRT Kamphaeng Phet." }
+                    ]
+                }
+            }
+        };
+
+        const categoriesMap = {
+            "michelin": { name: "🌟 Michelin Guide", color: "bg-red-100 text-red-700 hover:bg-red-500 hover:text-white border-red-500" },
+            "greenbowl": { name: "🟢 Green Bowl", color: "bg-green-100 text-green-700 hover:bg-green-500 hover:text-white border-green-500" },
+            "dessert": { name: "🍧 Desserts & Drinks", color: "bg-pink-100 text-pink-700 hover:bg-pink-500 hover:text-white border-pink-500" },
+            "cafe": { name: "☕ Cafes", color: "bg-amber-100 text-amber-700 hover:bg-amber-500 hover:text-white border-amber-500" },
+            "rooftop_seafood": { name: "🍸 Rooftop & Seafood", color: "bg-purple-100 text-purple-700 hover:bg-purple-500 hover:text-white border-purple-500" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-colors font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-blue-500');
+            clickedBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('michelin', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500', 'shadow-md');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500', 'shadow-md');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-gray-500">No data available in this category currently.</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL
+                const encodedQuery = encodeURIComponent(`${item.name} ${item.address.split('/')[0]}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col fade-in hover:shadow-md transition-shadow";
+                card.style.animationDelay = `${index * 0.05}s`;
+
+                card.innerHTML = `
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4 leading-relaxed"><span class="font-semibold text-gray-700">Feature: </span>${item.feature}</p>
+                        
+                        <div class="bg-gray-50 p-3 rounded-lg flex items-start gap-2 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight">${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-5 pb-5 mt-auto">
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            Get Directions
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>
