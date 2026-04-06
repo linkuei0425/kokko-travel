@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seoul Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #fff1f2; /* Light rose pink background */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color for Seoul (Rose Pink vibe) */
+        .btn-nav {
+            background-color: #e11d48; /* rose-600 */
+        }
+        .btn-nav:hover {
+            background-color: #be123c; /* rose-700 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-rose-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Seoul Pass Food Map
+            </h1>
+            <!-- Back to Home Link -->
+            <a href="https://linkuei0425.github.io/Seoul-US/index.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-rose-700 hover:bg-rose-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-rose-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Region</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Category</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">Please select a region and category above to explore Seoul.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Seoul Data Structure (3 items per category strictly)
+        const db = {
+            "hongdae": {
+                name: "Hongdae / Sinchon",
+                categories: {
+                    "bbq": [
+                        { name: "Yeonnam Seo Sikdang (Standing BBQ)", feature: "Legendary Seoul BBQ! Specializing in bone-in short ribs, guests stand around steel drums to grill. The meat is tender and juicy with an unforgettable secret dipping sauce.", address: "21 Baekbeom-ro 2-gil, Mapo-gu, Seoul / Near Sinchon Station" },
+                        { name: "Tong Tong Dwaeji (Chubby Pig BBQ)", feature: "Highly popular and affordable BBQ in Hongdae. Known for thick skin-on pork belly and pork neck. Crispy on the outside, juicy on the inside.", address: "126-1 Eoulmadang-ro, Mapo-gu, Seoul / 3 mins from Hongdae Station" },
+                        { name: "Don Juneun Namja (The Man Giving Pork)", feature: "Famous for Jeju black pork. The meat is low-temperature aged and professionally grilled by the staff. Best enjoyed with Jeju anchovy sauce.", address: "34.5 Jandari-ro 6-gil, Mapo-gu, Seoul / Hongdae Area" }
+                    ],
+                    "chicken": [
+                        { name: "Gongneung Dak Hanmari (Sinchon)", feature: "A Seoul must-eat! Tender chicken in a sweet, clear broth. Finishing the meal by cooking rice, egg, and seaweed in the broth to make porridge is absolute perfection!", address: "54 Yonsei-ro 2-gil, Seodaemun-gu, Seoul / 5 mins from Sinchon Station" },
+                        { name: "Baeknyeon Tojong Samgyetang", feature: "Located on Hongdae's main street. Premium Korean native chicken brewed with high-quality ginseng. The golden rich broth is perfect for vitality and health.", address: "118 Yanghwa-ro, Mapo-gu, Seoul / 2 mins from Hongdae Station" },
+                        { name: "Hongdae Dak Hanmari", feature: "A local favorite in Hongdae. The broth has a hint of garlic and leek sweetness. Pair the chicken with their special spicy sauce and chives for an amazing taste.", address: "143-3 Eoulmadang-ro, Mapo-gu, Seoul / Hongdae Area" }
+                    ],
+                    "traditional": [
+                        { name: "Sinseon Seolleongtang (Hongdae)", feature: "A frequent K-drama filming spot! Open 24/7. Snow-white broth slow-cooked from ox bones, served with green onions and tender beef slices. Very comforting.", address: "140 Yanghwa-ro, Mapo-gu, Seoul / Hongdae Station Exit 9" },
+                        { name: "Donsubaek Pork Soup (Hongdae Main)", feature: "A Busan specialty that's highly rated in Seoul! Rich, odorless broth. The boiled pork set is incredibly tender. Open 24 hours.", address: "56 Hongik-ro 6-gil, Mapo-gu, Seoul / 3 mins from Hongdae Station" },
+                        { name: "Chuncheon Dakgalbi (Sinchon)", feature: "Classic spicy stir-fried chicken cooked on a large iron grill right in front of you with cabbage, sweet potatoes, and rice cakes. Cheese fried rice at the end is a must.", address: "1 Yonsei-ro 5ga-gil, Seodaemun-gu, Seoul / 4 mins from Sinchon Station" }
+                    ],
+                    "cafe": [
+                        { name: "Sinleedoga", feature: "Stunning Hanok cafe hidden in bustling Hongdae. It perfectly blends a traditional Hanok with a modern garden pool. Roasted marshmallows and black sesame latte are signatures.", address: "20-12 Jandari-ro, Mapo-gu, Seoul / Hongdae Alleys" },
+                        { name: "Cafe Layered (Yeonnam-dong)", feature: "Seoul's hottest English scone shop! Vintage European country decor. A whole table of extravagant scones and cakes makes choosing difficult.", address: "161-4 Seongmisan-ro, Mapo-gu, Seoul / Yeonnam-dong Area" },
+                        { name: "Pie in the shop", feature: "A booming pie shop in Yeonnam-dong. The building is surrounded by greenery with a beautiful outdoor terrace. Offers various exquisite sweet and savory handmade pies.", address: "26 Seongmisan-ro 27-gil, Mapo-gu, Seoul / Yeonnam-dong Area" }
+                    ],
+                    "street_food": [
+                        { name: "Hongdae Main Street Chicken Skewers", feature: "Classic Hongdae street food. Super long charcoal-grilled chicken and green onion skewers brushed with a special sweet and spicy sauce.", address: "Eoulmadang-ro, Mapo-gu, Seoul / Hongdae Pedestrian Street" },
+                        { name: "Yeonnam-dong Tanghulu & Churros", feature: "Favorite after-meal dessert for the youth! Food trucks near the park sell fresh fruit with a crispy sugar coating and freshly fried churros.", address: "Yeonnam-dong, Mapo-gu, Seoul / Gyeongui Line Forest Park" },
+                        { name: "Sinchon Pojangmacha (Tent Bars)", feature: "Late at night in Sinchon, orange tents line up. Order spicy pork and seafood pancake with soju to experience authentic Korean nightlife.", address: "Yonsei-ro, Seodaemun-gu, Seoul / Streets around Sinchon Station" }
+                    ]
+                }
+            },
+            "myeongdong": {
+                name: "Myeongdong / Namdaemun",
+                categories: {
+                    "bbq": [
+                        { name: "Wangbijib (Myeongdong Main)", feature: "High-quality BBQ representing Myeongdong. Staff grills at your table. Highly recommend the 'Grilled Beef Rib Set' and premium Hanwoo. Side dishes are rich and exquisite.", address: "2F, 26 Myeongdong 8ga-gil, Jung-gu, Seoul / 3 mins from Myeongdong Station" },
+                        { name: "Eongteori Saenggogi (Myeongdong)", feature: "High CP value all-you-can-eat pork belly! Unlimited thick skin-on pork belly and soybean paste stew. Perfect for hungry shoppers.", address: "23 Myeongdong 4-gil, Jung-gu, Seoul / Myeongdong Area" },
+                        { name: "Kang Ho-dong Baekjeong (Myeongdong)", feature: "Chain owned by the famous Korean host. The special grill pan cooks cheese corn and steamed egg on the sides. Pork neck and skirt meat are must-orders.", address: "19-3 Myeongdong 10-gil, Jung-gu, Seoul / Myeongdong Area" }
+                    ],
+                    "chicken": [
+                        { name: "Gobong Samgyetang (Myeongdong)", feature: "Michelin recommended! Unique golden broth brewed with Phellinus linteus and medicinal herbs. The chicken is fall-off-the-bone tender and the broth is extremely rich.", address: "21 Myeongdong 7-gil, Jung-gu, Seoul / 4 mins from Euljiro 1-ga Station" },
+                        { name: "Myeongdong Baekje Samgyetang", feature: "A 50-year-old establishment using premium silky fowl (black chicken) and Korean ginseng. Comes with a small cup of ginseng wine. Traditional health food.", address: "8-10 Myeongdong 8-gil, Jung-gu, Seoul / Myeongdong Alleys" },
+                        { name: "Myeongdong Yeongyang Center", feature: "Not just samgyetang, their 'Electric Roasted Whole Chicken' with crispy skin and tender meat is a classic childhood memory for many Koreans.", address: "52 Myeongdong 2-gil, Jung-gu, Seoul / Walk from Myeongdong Station Exit 5" }
+                    ],
+                    "traditional": [
+                        { name: "Myeongdong Kyoja (Main)", feature: "Michelin Bib Gourmand for consecutive years! Signature handmade kalguksu (knife-cut noodles) and thin-skinned dumplings. Rich meat broth pairs perfectly with their strong garlic kimchi.", address: "29 Myeongdong 10-gil, Jung-gu, Seoul / 3 mins from Myeongdong Station" },
+                        { name: "Hadongkwan (Myeongdong Main)", feature: "Historic Seoul seolleongtang. Clear broth full of ox bone essence, served with rice and beef slices at the bottom. A favorite of past Korean presidents.", address: "12 Myeongdong 9-gil, Jung-gu, Seoul / Walk from Euljiro 1-ga Station" },
+                        { name: "Namdaemun Suncheon-jib", feature: "Hidden traditional Korean jokbal (pig's trotters) and bossam (boiled pork) in Namdaemun Market. Jokbal is deeply flavored and gelatinous. Highly recommended by locals.", address: "Namdaemunsijang 4-gil, Jung-gu, Seoul / Inside Namdaemun Market" }
+                    ],
+                    "cafe": [
+                        { name: "The Spot Fabulous", feature: "Converted from a 60-year-old retro western-style house. Large windows face the Chinese Embassy in Myeongdong. Beautiful seasonal views. The fig tart is a must-eat.", address: "22 Myeongdong 2-gil, Jung-gu, Seoul / Near Chinese Embassy" },
+                        { name: "Blue Bottle Coffee (Myeongdong)", feature: "Minimalist textured space in Myeongdong. No dine-in seating. Focuses on takeout specialty drip coffee and exclusive merchandise. Full of design sense.", address: "14 Myeongdong-gil, Jung-gu, Seoul / Myeongdong Main Street" },
+                        { name: "Cafe Coin (Myeongdong Main)", feature: "Operating for over 30 years, this retro European cafe has a Taisho romance vibe with wooden decor. Signature items are fresh cream strawberry waffles and rich matcha latte.", address: "10 Myeongdong 6-gil, Jung-gu, Seoul / 2F, Myeongdong Area" }
+                    ],
+                    "street_food": [
+                        { name: "Namdaemun Vegetable Hotteok", feature: "Long queue for this street food! Golden crispy outside, filled with glass noodles, chives, and veggies. Savory and delicious for just a few coins.", address: "Namdaemunsijang 4-gil, Jung-gu, Seoul / Namdaemun Market Gate 2" },
+                        { name: "Myeongdong Street Food Stalls", feature: "Super night market that appears at dusk. Recommend grilled cheese lobster, egg bread, rose-shaped ice cream, and butter-grilled scallops. Eat your way through the street.", address: "Myeongdong 8-gil, Jung-gu, Seoul / Myeongdong Main Street" },
+                        { name: "Namdaemun Hairtail Alley", feature: "An entire alley selling 'Spicy Braised Hairtail'. Simmered with special spicy sauce and large radish chunks. Sweet fish meat, incredibly appetizing traditional flavor.", address: "22-6 Namdaemunsijang-gil, Jung-gu, Seoul / Inside Hairtail Alley" }
+                    ]
+                }
+            },
+            "gangnam": {
+                name: "Gangnam / Apgujeong",
+                categories: {
+                    "bbq": [
+                        { name: "Hanam Pig House (Gangnam)", feature: "Top pick for Gangnam office workers! 500°C charcoal pre-grilling locks in juices. Staff cuts and grills perfectly. Wrapping meat in Myeongi leaves is the soul of this dish.", address: "42 Seocho-daero 73-gil, Seocho-gu, Seoul / 5 mins from Gangnam Station" },
+                        { name: "Yeongdong-gyo Meat Shop (Cheongdam)", feature: "Visited by many K-pop stars and idols! Famous for thin-sliced frozen Jeju black pork belly. Eat wrapped in lettuce with abundant side dishes.", address: "34 Seolleung-ro 152-gil, Gangnam-gu, Seoul / Walk from Apgujeong Rodeo Station" },
+                        { name: "Yeongcheon Yeonghwa (Cheongdam)", feature: "Seoul's top premium Hanwoo (Korean beef) restaurant, open 24/7. Besides melt-in-your-mouth charcoal-grilled Hanwoo, their Yukhoe (raw beef) Bibimbap is a favorite among stars.", address: "3 Dosan-daero 90-gil, Gangnam-gu, Seoul / Cheongdam-dong Area" }
+                    ],
+                    "chicken": [
+                        { name: "Nonhyeon Samgyetang", feature: "Super strong 24/7 veteran shop in Gangnam. Broth is uniquely refreshing without greasiness. Chicken is stuffed with glutinous rice and jujube. Abalone samgyetang is the premium choice.", address: "720 Eonju-ro, Gangnam-gu, Seoul / Near Hak-dong Station" },
+                        { name: "Gangnam Dak Hanmari", feature: "Hidden gem in Gangnam alleys. Broth brewed with lots of vegetables and bones. Dip chicken in special mustard spicy sauce. Add kalguksu (noodles) at the end.", address: "28-9 Teheran-ro 1-gil, Gangnam-gu, Seoul / Near Gangnam Station" },
+                        { name: "Apgujeong Baeknyeon Samgyetang", feature: "High-quality samgyetang in Apgujeong with an elegant environment. Offers various health flavors like black garlic and perilla. Chicken is extremely tender.", address: "10 Nonhyeon-ro 163-gil, Gangnam-gu, Seoul / Walk from Apgujeong Station" }
+                    ],
+                    "traditional": [
+                        { name: "Manjok Ohyang Jokbal (Gangnam)", feature: "One of Seoul's top 3 jokbal! Braised with a 5-spice secret recipe including star anise and cinnamon. Gelatinous skin, tender meat. Comes with complimentary rice cake dumpling soup.", address: "11.5 Gangnam-daero 96-gil, Gangnam-gu, Seoul / Gangnam Station Exit 11" },
+                        { name: "Seocho-dong Kalguksu (Gangnam Kyoja)", feature: "Super popular noodle shop in Gangnam. Signature traditional kalguksu with rich bone broth and thin-skinned juicy steamed dumplings. A lunch staple for office workers.", address: "40 Seocho-daero 73-gil, Seocho-gu, Seoul / Walk from Gangnam Station" },
+                        { name: "Gangnam Myeonok (Main)", feature: "Famous for 'Galbijjim' (Braised Beef Short Ribs). Huge ribs braised until fall-off-the-bone tender. Sweet sauce pairs perfectly with Korean cold noodles.", address: "34 Nonhyeon-ro 152-gil, Gangnam-gu, Seoul / Near Apgujeong Station" }
+                    ],
+                    "cafe": [
+                        { name: "London Bagel Museum (Dosan)", feature: "Seoul's hardest-to-get-into bakery! English country vintage decor. Extravagant and chewy bagels (like Scallion Cream Cheese, Black Truffle) are absolute must-eats.", address: "33 Eonju-ro 168-gil, Gangnam-gu, Seoul / Walk from Apgujeong Rodeo Station" },
+                        { name: "Cafe Knotted (Cheongdam)", feature: "Korea's super popular cream-filled donut brand. Iconic yellow smiley face packaging. Fresh cream, vanilla, and Earl Grey donuts are fully stuffed but not overly sweet.", address: "15 Dosan-daero 53-gil, Gangnam-gu, Seoul / Apgujeong Rodeo Area" },
+                        { name: "Nudake (Haus Dosan)", feature: "Artistic dessert shop by Gentle Monster. Famous for its unconventional, avant-garde black volcano matcha lava bread (Peak). A visual and gustatory shock.", address: "50 Apgujeong-ro 46-gil, Gangnam-gu, Seoul / Apgujeong Rodeo Area" }
+                    ],
+                    "street_food": [
+                        { name: "Gangnam Station Underground Food", feature: "Fast food must-eats while shopping in Gangnam Underground Mall! Eat piping hot fish cake skewers, tteokbokki, and gimbap standing up. Cheap and authentic.", address: "396 Gangnam-daero, Gangnam-gu, Seoul / Inside Gangnam Station Mall" },
+                        { name: "Sinnonhyeon Pojangmacha", feature: "The soul corner of Gangnam nights. After work, Koreans gather here to eat spicy chicken feet, gizzards, and drink soju, experiencing the real Gangnam nightlife.", address: "Sapyeong-daero, Seocho-gu, Seoul / Streets around Sinnonhyeon Station" },
+                        { name: "Apgujeong Rodeo Street Food", feature: "Food stalls hidden in the boutique district. In winter, find delicious freshly baked Bungeoppang (fish-shaped pastry) and hot egg bread. A small joy while shopping.", address: "Apgujeong-ro, Gangnam-gu, Seoul / Around Apgujeong Rodeo Main Street" }
+                    ]
+                }
+            },
+            "seongsu": {
+                name: "Seongsu / Seoul Forest",
+                categories: {
+                    "bbq": [
+                        { name: "Daeseong Galbi", feature: "The king of Seongsu-dong BBQ street! Specializes in charcoal-grilled marinated pork ribs. Tender meat, flavorful sauce. Complimentary doenjang jjigae and rich side dishes are sincere.", address: "27 Seoulsup 4-gil, Seongdong-gu, Seoul / Seoul Forest BBQ Street" },
+                        { name: "Mongtan Style BBQ (Seongsu)", feature: "While Mongtan's main branch is in Samgakji, Seongsu-dong has recently seen many high-quality industrial-style BBQ places featuring 'straw pre-grilling' or 'bone-in short ribs'.", address: "Seongsu-dong Area, Seongdong-gu, Seoul / Seongsu BBQ District" },
+                        { name: "Seongsu Pork Shop", feature: "High CP value BBQ with industrial decor. Offers high-quality thick-cut pork belly. Great atmosphere, very popular among young trendsetters in Seongsu-dong.", address: "36 Yeonmujang-gil, Seongdong-gu, Seoul / Near Seongsu Cafe Street" }
+                    ],
+                    "chicken": [
+                        { name: "Seongsu Eomma Samgyetang", feature: "Health restaurant recommended by Seongsu locals. Uses premium tender chicken. Broth has a strong herbal aroma, perfect for recovering energy after walking Seoul Forest.", address: "113 Seongsui-ro, Seongdong-gu, Seoul / Walk from Seongsu Station" },
+                        { name: "Seoul Forest Dak Hanmari", feature: "Located near Seoul Forest. Features light and healthy chicken hot pot. Bouncy chicken meat. Adding handmade noodles to absorb the rich broth at the end is a must.", address: "100 Wangsimni-ro, Seongdong-gu, Seoul / Near Seoul Forest Station" },
+                        { name: "Ttukseom Hanbang Samgyetang", feature: "Traditional old shop near Ttukseom Station. Besides the classic original, offers a special version with various oriental herbs. Rich and sweet broth.", address: "380 Ttukseom-ro, Seongdong-gu, Seoul / Around Ttukseom Station" }
+                    ],
+                    "traditional": [
+                        { name: "Rumored Seongsu Gamjatang", feature: "An absolute must-eat queueing legend in Seongsu-dong! 24/7. Mountain-like stacked pork spine is extremely tender, meat falls off the bone easily. Rich and spicy broth.", address: "45 Yeonmujang-gil, Seongdong-gu, Seoul / 3 mins from Seongsu Station Exit 4" },
+                        { name: "Seongsu Myeonok", feature: "Features traditional Pyongyang Naengmyeon (cold noodles) and hot Korean dumplings. The cold noodle broth is light and elegant, a top choice for cooling down in summer.", address: "89 Seongsuil-ro, Seongdong-gu, Seoul / Around Seongsu Station" },
+                        { name: "Seoul Forest Gimbap", feature: "Super popular takeout snack. Offers giant gimbap with abundant fillings (like fried pork cutlet, bulgogi). Perfect for picking up before a picnic in Seoul Forest.", address: "11 Seoulsup 2-gil, Seongdong-gu, Seoul / Near Seoul Forest Station" }
+                    ],
+                    "cafe": [
+                        { name: "Cafe Onion (Seongsu)", feature: "The pioneer of ruined industrial style cafes! Converted from an abandoned metal factory, keeping the peeling red bricks and concrete walls. Signature is the mountain-like 'Pandoro' bread.", address: "8 Achasan-ro 9-gil, Seongdong-gu, Seoul / Seongsu Station Exit 2" },
+                        { name: "Daelim Changgo", feature: "A massive rice mill converted into a complex gallery cafe. High wooden ceilings and large skylights. Combines art exhibitions with delicious hand-drip coffee.", address: "78 Seongsui-ro, Seongdong-gu, Seoul / Seongsu-dong Main Street" },
+                        { name: "Blue Bottle Coffee (Seongsu No.1)", feature: "Blue Bottle's first store in Korea! Iconic red brick building and minimalist concrete basement space. Offers professional hand-drip and delicious pound cake.", address: "7 Achasan-ro, Seongdong-gu, Seoul / Ttukseom Station Exit 1" }
+                    ],
+                    "street_food": [
+                        { name: "Seoul Forest Picnic Boxes & Snacks", feature: "Around Seoul Forest are many aesthetic small shops selling exquisite picnic lunch boxes, chicken nuggets, and sandwiches. Buy them and walk straight to the park grass to chill.", address: "Seoulsup-gil, Seongdong-gu, Seoul / Streets around Seoul Forest entrance" },
+                        { name: "Seongsu Handmade Croquettes", feature: "Queueing snack hidden next to the traditional market in Seongsu-dong. Freshly fried potato and cheese croquettes are crispy outside, soft inside, and aromatic.", address: "Ttukseom-ro, Seongdong-gu, Seoul / Around Ttukseom Market" },
+                        { name: "Seongsu Street Creative Churros", feature: "Recently trendy new-style street dessert in Seongsu-dong. Freshly fried churros dipped in chocolate sauce or eaten with milk ice cream. Very sinful.", address: "Yeonmujang-gil, Seongdong-gu, Seoul / Along Seongsu Cafe Street" }
+                    ]
+                }
+            },
+            "jongno": {
+                name: "Jongno / Ikseon-dong",
+                categories: {
+                    "bbq": [
+                        { name: "Jongno 3-ga BBQ Alley", feature: "Seoul's most atmospheric BBQ street! At dusk, the street fills with outdoor iron tables. Grill pork belly and skirt meat outside with soju. Unbeatable vibe.", address: "Donhwamun-ro 11ga-gil, Jongno-gu, Seoul / Jongno 3-ga Station Exit 6" },
+                        { name: "Ikseondong Mokjang", feature: "Located next to Ikseon-dong Hanok Village. Features Iberico pork and high-quality pork belly. Decor has a modern Hanok vibe, staff has professional grilling skills.", address: "14 Donhwamun-ro 11da-gil, Jongno-gu, Seoul / Edge of Ikseon-dong Area" },
+                        { name: "Palsaik BBQ (Insadong Main)", feature: "A classic must-eat! Taste thick-cut pork belly marinated in eight unique flavors like garlic, wine, ginseng, and pine needles at once. Rich visually and tastefully.", address: "15 Insadong 8-gil, Jongno-gu, Seoul / Inside Insadong Area" }
+                    ],
+                    "chicken": [
+                        { name: "Jin Ok-hwa Original Dak Hanmari", feature: "Seoul's most legendary Dak Hanmari! Between Jongno and Dongdaemun. Garlic broth is sweet, chicken is extremely tender. Adding noodles and special chili paste at the end is the soul.", address: "18 Jongno 40ga-gil, Jongno-gu, Seoul / 5 mins from Dongdaemun Station" },
+                        { name: "Tosokchon Samgyetang", feature: "The most representative famous shop next to Gyeongbokgung. Antique Hanok building. Broth brewed with nuts and ginseng is extremely rich, white, and smooth. Full of milky and ginseng aroma.", address: "5 Jahamun-ro 5-gil, Jongno-gu, Seoul / Gyeongbokgung Station Exit 2" },
+                        { name: "Jongno Samgyetang (Half-Chicken)", feature: "Famous shop perfect for solo dining. Offers a perfectly portioned half-chicken samgyetang. Clear and sweet broth. Loved by nearby office workers and solo travelers.", address: "388 Samil-daero, Jongno-gu, Seoul / Near Jonggak Station" }
+                    ],
+                    "traditional": [
+                        { name: "Gwangjang Market Buchon Yukhoe", feature: "Michelin Bib Gourmand recommended! Fresh raw beef mixed with live octopus, raw egg yolk, and sliced pear. Melts in the mouth with sesame oil aroma, zero fishiness.", address: "200-12 Jongno, Jongno-gu, Seoul / Gwangjang Market Yukhoe Alley" },
+                        { name: "Sunhui-ne Mung Bean Pancake", feature: "The hottest stall in Gwangjang Market. Freshly ground mung bean paste is pan-fried in a lot of oil. Extremely crispy outside. Great with onion soy sauce and Makgeolli.", address: "5 Jongno 32-gil, Jongno-gu, Seoul / Inside Gwangjang Market" },
+                        { name: "Insadong Traditional Sujebi", feature: "Hanok restaurant hidden in Insadong alleys. Signature is seafood sujebi (hand-torn noodle soup) served in a small earthenware pot. Sweet broth, chewy hand-kneaded dough.", address: "11-1 Insadong 10-gil, Jongno-gu, Seoul / Insadong Alleys" }
+                    ],
+                    "cafe": [
+                        { name: "Cheongsudang", feature: "Ikseon-dong's most famous stunning cafe! Entrance features a pond and bamboo lantern landscaping. Full of Japanese Zen and Hanok vibes. Signature is freshly baked soufflé and matcha desserts.", address: "31-9 Donhwamun-ro 11na-gil, Jongno-gu, Seoul / Inside Ikseon-dong Hanok Village" },
+                        { name: "Seoul Coffee (Ikseondong)", feature: "Retro cafe retaining traditional Hanok structure. Most famous for 'Vienna Butter Bread' sandwiching a thick block of butter and red bean paste, and cube ice cream.", address: "33-3 Supyo-ro 28-gil, Jongno-gu, Seoul / Inside Ikseon-dong Hanok Village" },
+                        { name: "Onsu Gonggan", feature: "Hanok dessert shop themed around a hot bathhouse. Elegant vintage decor. They combine traditional Korean pastries with modern French dessert techniques. Exquisite and photogenic.", address: "31-8 Donhwamun-ro 11na-gil, Jongno-gu, Seoul / Inside Ikseon-dong Hanok Village" }
+                    ],
+                    "street_food": [
+                        { name: "Gwangjang Market Mayak Gimbap", feature: "Gwangjang Market must-eat! Bite-sized gimbap brushed with sesame oil. Dipped in special mustard soy sauce (Mayak/Drug sauce), making you unable to stop eating.", address: "88 Changgyeonggung-ro, Jongno-gu, Seoul / Gwangjang Market Main Road" },
+                        { name: "Jongno 3-ga Pojangmacha Street", feature: "One of Seoul's largest street food stall gatherings! At night, the whole street lights up with orange lights, selling stir-fries, udon, and seafood. Very K-drama vibe.", address: "Donhwamun-ro 11-gil, Jongno-gu, Seoul / Outside Jongno 3-ga Station Exits 3, 4, 6" },
+                        { name: "Insadong Dragon's Beard Candy & Poop Bread", feature: "Traditional specialty snacks on Insadong's main street. Watch masters perform making pulled sugar Dragon's Beard Candy, and funny poop-shaped baked bread filled with red bean or chocolate.", address: "Insadong-gil, Jongno-gu, Seoul / Insadong Pedestrian Street" }
+                    ]
+                }
+            },
+            "dongdaemun": {
+                name: "Dongdaemun / Hyehwa",
+                categories: {
+                    "bbq": [
+                        { name: "Yukjeon Sikdang (Dongdaemun Main)", feature: "Synonymous with Seoul's super thick BBQ! Astounding pork belly thickness. Staff uses a thermometer for precise grilling. Meat juices burst in the mouth. Myeongi leaf wrap is a must.", address: "16 Nangye-ro 30-gil, Dongdaemun-gu, Seoul / 3 mins from Sinseol-dong Station" },
+                        { name: "Daetongryeong BBQ", feature: "Famous Dongdaemun BBQ. Biggest feature is roasting pork belly inside 'bamboo tubes' in a high-temp kiln, giving the pork a faint bamboo fragrance and reducing greasiness.", address: "249-24 Jangchungdan-ro, Jung-gu, Seoul / Dongdaemun History & Culture Park Station" },
+                        { name: "Daehak-ro Hyehwa BBQ Area", feature: "Near Sungkyunkwan University. Many affordable, large-portion BBQ places loved by students. Marinated pork ribs and grilled beef brisket are mainstream.", address: "Daehak-ro, Jongno-gu, Seoul / Hyehwa Station Area" }
+                    ],
+                    "chicken": [
+                        { name: "Myeongdong Dak Hanmari (Dongdaemun)", feature: "A strong competitor located right next to Jin Ok-hwa! Broth is equally sweet. Advantage is generous side dishes like gizzards, and you avoid the overly crazy queues.", address: "14 Jongno 40ga-gil, Jongno-gu, Seoul / Inside Dongdaemun Dak Hanmari Alley" },
+                        { name: "Gongneung One Bird (Dongdaemun)", feature: "Dongdaemun branch of another famous Dak Hanmari. Their soul lies in the garlic aroma and special dipping sauce. The final egg seaweed porridge is unmissable.", address: "20 Jongno 40ga-gil, Jongno-gu, Seoul / Inside Dongdaemun Dak Hanmari Alley" },
+                        { name: "Hyehwa Daehak-ro Samgyetang", feature: "Cozy old shop loved by local students and professors. Glutinous rice in the samgyetang is stewed extremely soft. Environment is quieter and more comfortable than tourist areas.", address: "258-4 Changgyeonggung-ro, Jongno-gu, Seoul / Near Hyehwa Station" }
+                    ],
+                    "traditional": [
+                        { name: "Hyehwa Stone Uncle Pizza", feature: "Daehak-ro legendary food! Called a pizza place, but the craziest part is ordering a wood-fired cheese pizza gets you a large pot of 'Korean Cheese Tteokbokki' and Shin Ramyun. East meets West.", address: "129-8 Daehak-ro, Jongno-gu, Seoul / 2 mins from Hyehwa Station" },
+                        { name: "Donghwa Banjum (Jajangmyeon)", feature: "Historic Chinese-Korean restaurant in Dongdaemun open late. A must-eat after shopping the wholesale markets! Rich black bean sauce noodles and crispy sweet & sour pork.", address: "282-1 Jangchungdan-ro, Jung-gu, Seoul / Dongdaemun History & Culture Park Station" },
+                        { name: "Kyochon Chicken (Dongdaemun No.1)", feature: "Though a chain, this Dongdaemun branch is open 24/7 and is huge! Half-and-half chicken (Honey/Kyochon Spicy) with cold beer is the king of late-night snacks.", address: "2F, 294 Jongno, Jongno-gu, Seoul / Dongdaemun Station Exit 6" }
+                    ],
+                    "cafe": [
+                        { name: "Hakrim Dabang", feature: "Seoul's oldest existing cafe (founded 1956), filming location for 'My Love from the Star'. Retro vinyl records and old leather sofas. Signature is Vienna Coffee.", address: "2F, 119 Daehak-ro, Jongno-gu, Seoul / 1 min from Hyehwa Station" },
+                        { name: "DDP Design Cafes", feature: "Located inside Dongdaemun Design Plaza (DDP). Spaces full of futuristic and streamlined design. Perfect for enjoying minimalist modern desserts after viewing exhibitions.", address: "281 Eulji-ro, Jung-gu, Seoul / Inside DDP building" },
+                        { name: "Naksan Park View Cafes", feature: "Walking up the city wall behind Hyehwa Station leads to Naksan Park. Many tranquil cafes here offer views of Seoul's nightscape and Seoul Tower. Extremely romantic vibe.", address: "Naksan-gil Area, Jongno-gu, Seoul / Next to Naksan Park City Wall" }
+                    ],
+                    "street_food": [
+                        { name: "DDP Street Food Stalls", feature: "Energy source for late-night wholesale buyers! Tents around DDP sell piping hot gimbap, tteokbokki, fish cake soup, and fried hotdogs. Gets livelier as the night deepens.", address: "Around 281 Eulji-ro, Jung-gu, Seoul / Around DDP and Wholesale Markets" },
+                        { name: "Daehak-ro Chicken Skewers & Hotteok", feature: "Common student snacks outside Hyehwa Station exits. Giant skewers with special sauce and fried hotteok filled with brown sugar and nuts. Friendly prices.", address: "Daehak-ro, Jongno-gu, Seoul / Hyehwa Station Exits to Main Street" },
+                        { name: "Gwanghui-dong Russian/Central Asian Snacks", feature: "Exotic district behind Dongdaemun. Find hidden meat skewers, naan bread, and Central Asian desserts here. A unique street food experience in Seoul.", address: "Gwanghui-dong, Jung-gu, Seoul / Next to Dongdaemun History & Culture Park Station" }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Seoul
+        const categoriesMap = {
+            "bbq": { name: "🥩 Korean BBQ", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "chicken": { name: "🍗 Samgyetang & Chicken", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "traditional": { name: "🍲 Traditional & Stews", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-400" },
+            "cafe": { name: "☕ Aesthetic Cafes", color: "bg-rose-100 text-rose-800 hover:bg-rose-600 hover:text-white border-rose-400" },
+            "street_food": { name: "🍢 Street & Market Food", color: "bg-purple-100 text-purple-800 hover:bg-purple-600 hover:text-white border-purple-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-rose-600', 'text-white', 'border-rose-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-rose-600');
+            clickedBtn.classList.add('bg-rose-600', 'text-white', 'border-rose-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('bbq', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-rose-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-rose-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-gray-500">No data available for this category.</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (Focus query on Seoul)
+                const encodedQuery = encodeURIComponent(`${item.name} Seoul ${item.address.split('/')[0]}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded mr-1">Feature</span>${item.feature}</p>
+                        
+                        <div class="bg-gray-50/80 p-3.5 rounded-xl flex items-start gap-3 border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium"><span class="font-bold text-rose-800">Address: </span>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto">
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            Open Google Maps
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>
