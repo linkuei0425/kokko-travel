@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okinawa Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f9ff; /* Light blue background for an Okinawa ocean vibe */
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Exclusive Okinawa button color (Ocean Blue) */
+        .btn-nav { background-color: #0284c7; /* sky-600 */ }
+        .btn-nav:hover { background-color: #0369a1; /* sky-700 */ }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-sky-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                </svg>
+                Okinawa Food Pass
+            </h1>
+            <a href="https://linkuei0425.github.io/Okinawa-US/index.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-sky-700 hover:bg-sky-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-sky-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Region</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide"></div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Category</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2"></div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">Please select a region and category above to explore Okinawa's food.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const db = {
+            "naha": {
+                name: "Naha City (Monorail Area)",
+                categories: {
+                    "soba": [
+                        { name: "Danbo Ramen (Naha Makishi)", feature: "Although it's a Kyushu-style ramen, it's extremely popular in Okinawa! With its rich broth and late-night hours, it's the perfect midnight snack after strolling down Kokusai Dori.", address: "2-16-10 Makishi, Naha / 5-min walk from Miebashi Station (Monorail)" },
+                        { name: "Shuri Soba", feature: "A famous Okinawa soba spot! Chewy handmade noodles paired with a clear bonito broth and melt-in-your-mouth pork. Highly popular, sells out quickly daily.", address: "1-7 Akatacho, Shuri, Naha / 5-min walk from Shuri Station (Monorail)" }
+                    ],
+                    "meat": [
+                        { name: "Ryukyu no Ushi (Kokusai Dori)", feature: "Premium Okinawa Wagyu beef! Evenly marbled and melts in your mouth. A bit pricey, but absolutely worth the experience.", address: "3-2-3 Makishi, Naha / 5-min walk from Makishi Station (Monorail)" },
+                        { name: "Jack's Steak House", feature: "A vintage American-style steakhouse loved by locals. Famous for its great value and classic retro atmosphere.", address: "1-7-3 Nishi, Naha / 8-min walk from Asahibashi Station (Monorail)" }
+                    ],
+                    "izakaya": [
+                        { name: "Mekiki no Ginji (Shintoshin)", feature: "An izakaya famous for its huge wooden barrel exterior! Offers fresh seafood directly from the source and high-value sashimi platters. Reservation highly recommended.", address: "1-9-19 Ameku, Naha / 15-min walk from Omoromachi Station (Monorail) or by taxi" },
+                        { name: "Kokusai Dori Yataimura", feature: "A food village gathering over 20 unique street-food-style izakayas. Lively atmosphere, perfect for enjoying Orion draft beer and skewers.", address: "3-11-16 Makishi, Naha / 4-min walk from Makishi Station (Monorail)" }
+                    ],
+                    "cafe": [
+                        { name: "A Happy Pancake (Senagajima)", feature: "Souffle pancakes so fluffy they bring you happiness! Enjoy them alongside gorgeous ocean views and planes taking off at Senagajima.", address: "Inside Senagajima Umikaji Terrace / Direct via Umikaji Liner bus from Akamine Station" },
+                        { name: "Pork Tamago Onigiri", feature: "Okinawa's classic soul food. Made to order with thick slices of spam and a fluffy fried egg. Extremely satisfying!", address: "2-8-35 Matsuo, Naha (Makishi Market Main Store) / 10-min walk from Makishi Station" }
+                    ]
+                }
+            },
+            "chatan": {
+                name: "Chatan / American Village",
+                categories: {
+                    "meat": [
+                        { name: "Jojoen (Urasoe PARCO CITY)", feature: "A top-tier Japanese BBQ chain! This specific branch offers stunning ocean views, allowing you to enjoy premium Wagyu while watching the sea.", address: "3-1-1 Irijima, Urasoe (PARCO CITY 3F) / Take a bus from Naha Bus Terminal to 'PARCO CITY Mae'" },
+                        { name: "Blue Ocean Steak", feature: "A stylish steakhouse located in American Village. Specializes in Ryukyu Wagyu and seafood, offering beautiful sunset views.", address: "51-2 Mihama, Chatan / 15-min walk from 'Kuwae' bus stop" }
+                    ],
+                    "taco": [
+                        { name: "Taco Rice Cafe Kijimuna", feature: "Famous for Okinawa's signature 'Taco Rice'! Their specialty 'Omu-Taco' topped with a fluffy omelet and mildly spicy meat sauce is a must-try.", address: "9-1 Mihama, Chatan (Depot Island) / 10-min walk from 'Kuwae' bus stop" },
+                        { name: "A&W Burger (Chatan)", feature: "An Okinawa-exclusive American fast food chain! You must try their famous 'Root Beer'—and the best part is, dine-in root beer comes with free refills.", address: "2-5-5 Mihama, Chatan / 10-min walk from 'Kuwae' bus stop" }
+                    ],
+                    "cafe": [
+                        { name: "ZHYVAGO COFFEE WORKS", feature: "A West Coast industrial-style cafe with an ocean view! The coffee quality is excellent. Sipping a latte by the seawall is a must-do in American Village.", address: "9-46 Mihama, Chatan / 12-min walk from 'Kuwae' bus stop" },
+                        { name: "Seaside Cafe hanon", feature: "A dreamy, pure-white Greek-style pancake house! Serves exquisite sweet and savory pancakes and boasts the best outdoor terrace in American Village.", address: "9-39 Mihama, Chatan / 12-min walk from 'Kuwae' bus stop" }
+                    ]
+                }
+            },
+            "onna": {
+                name: "Onna Village / West Coast",
+                categories: {
+                    "meat": [
+                        { name: "Ryukyu no Ushi (Onna Main Store)", feature: "The hardest-to-book premium BBQ on the West Coast! Treating yourself to top-tier Wagyu here after a day of diving is a dream come true for many.", address: "909-2 Maeganeku, Onna / 3-min walk from 'Maeganeku' bus stop" },
+                        { name: "Agu no Kakurega", feature: "Specializes in Okinawa's local 'Agu Pork' shabu-shabu and BBQ. The meat is incredibly sweet, rich in fat, and has no gaminess at all.", address: "1-1 Fuchaku, Onna / 2-min walk from 'Fuchaku' bus stop" }
+                    ],
+                    "cafe": [
+                        { name: "Hoshino Resorts Banta Cafe", feature: "One of Japan's largest ocean-view cafes! Built on a cliff, offering breathtaking views from various seating areas including the beach, rocks, and terrace.", address: "560 Gima, Yomitan / No public transport, rental car required" },
+                        { name: "Hawaiian Pancakes House Paanilani", feature: "A super popular Hawaiian pancake breakfast spot in Onna! Opens at 7 AM. Their signature 'Nut Sauce Pancake' is incredibly rich and sweet.", address: "698 Seragaki, Onna / 1-min walk from 'Seragaki' bus stop" }
+                    ],
+                    "soba": [
+                        { name: "Bansho-tei", feature: "A beloved local spot in Yomitan. Uses homemade noodles. Highly recommend the Okinawa Soba topped with rich, collagen-filled pork cartilage.", address: "473 Kina, Yomitan / 2-min walk from 'Kina' bus stop" }
+                    ]
+                }
+            },
+            "nago": {
+                name: "Nago / North / Kouri Island",
+                categories: {
+                    "soba": [
+                        { name: "Kishimoto Shokudo", feature: "A century-old pioneer of Okinawa soba! Uses traditional noodles made with wood ash, giving them a unique aroma. Their handmade mixed rice (Jushi) is also a must.", address: "5 Toguchi, Motobu / 5-min walk from 'Motobu Museum Mae' bus stop" },
+                        { name: "Ufuya", feature: "Dine inside a traditional century-old Ryukyu house! Famous for Agu pork soba and set meals. The atmosphere is incredible, complete with a small waterfall nearby.", address: "90 Nakayama, Nago / No public transport, rental car required" }
+                    ],
+                    "cafe": [
+                        { name: "KOURI SHRIMP", feature: "A must-eat on Kouri Island! Hawaiian-style garlic butter shrimp. The amazing aroma, combined with beautiful ocean views and a cold beer, is absolute perfection.", address: "Kouri Island / No public transport, rental car required" },
+                        { name: "Pizza in the Sky (Kajinho)", feature: "A scenic pizza place located on a hillside. Enjoy rich, cheesy pizza on the porch of a traditional wooden house overlooking an endless ocean.", address: "1153-2 Yamazato, Motobu / Located on a hillside, rental car required" }
+                    ]
+                }
+            }
+        };
+
+        const categoriesMap = {
+            "soba": { name: "🍜 Okinawa Soba & Ramen", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "meat": { name: "🥩 Premium Wagyu & Agu Pork", color: "bg-rose-100 text-rose-800 hover:bg-rose-600 hover:text-white border-rose-400" },
+            "taco": { name: "🌮 Taco Rice & Fast Food", color: "bg-green-100 text-green-800 hover:bg-green-600 hover:text-white border-green-400" },
+            "izakaya": { name: "🍻 Izakaya & Seafood", color: "bg-indigo-100 text-indigo-800 hover:bg-indigo-600 hover:text-white border-indigo-400" },
+            "cafe": { name: "☕ Ocean View Cafes & Desserts", color: "bg-sky-100 text-sky-800 hover:bg-sky-600 hover:text-white border-sky-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-sky-600 hover:text-white hover:border-sky-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-sky-600', 'text-white', 'border-sky-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-sky-600');
+            clickedBtn.classList.add('bg-sky-600', 'text-white', 'border-sky-600');
+
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('soba', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-sky-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-sky-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-400 fade-in">
+                        <p class="text-lg">No recommendations for this category in this region yet. Please explore other food!</p>
+                    </div>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                const encodedQuery = encodeURIComponent(`${item.name} Okinawa`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-sky-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded mr-1">Must Try</span>${item.feature}</p>
+                        
+                        <div class="bg-slate-50 p-3.5 rounded-xl flex items-start gap-3 border border-slate-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium"><span class="font-bold text-sky-800">Address & Transport:</span><br>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto">
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            Open Google Maps
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+    </script>
+</body>
+</html>

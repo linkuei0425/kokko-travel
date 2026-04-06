@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okinawa Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom scrollbar for categories */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Okinawa Sky Blue Active State */
+        .tab-btn.active {
+            background-color: #0284c7; /* sky-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.3);
+            border-color: #0284c7;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-sky-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>OKINAWA SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/Okinawa-US/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-gradient-to-r from-cyan-600 via-sky-500 to-blue-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">Okinawa Shopping Guide</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">From the massive AEON Mall and ocean-view PARCO CITY to Kokusai Dori souvenirs, the best part of a road trip is filling the trunk with your shopping haul!</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Category Buttons (Horizontal Scroll) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('fashion', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-sky-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👗</span> Fashion & Malls
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-sky-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> Beauty & Pharmacy
+            </button>
+            <button onclick="filterCategory('souvenir', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-sky-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🎁</span> Souvenirs
+            </button>
+            <button onclick="filterCategory('mart', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-sky-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛒</span> Marts & Groceries
+            </button>
+            <button onclick="filterCategory('lifestyle', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-sky-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👟</span> Sneakers & Toys
+            </button>
+            <button onclick="filterCategory('outlet', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-sky-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛍️</span> Outlets
+            </button>
+        </div>
+
+        <!-- Content Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be generated dynamically by JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">© 2026 Okinawa Shopping Guide. The best shopping recommendations tailored for island road-trippers.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Shop Database - Okinawa Recommendations (English Version)
+        const shopData = [
+            // --- Fashion & Malls ---
+            { cat: 'fashion', name: 'SAN-A Urasoe West Coast PARCO CITY', feature: 'The closest large mall to Naha. Entirely ocean-facing, featuring many brands and beauty counters landing in Okinawa for the first time. Great for shopping and photos.', loc: 'Irijima, Urasoe City', transit: 'Public Transit: Take bus No. 32, 39, or 43 from Naha Bus Terminal and get off at "PARCO CITY Mae". By Car: About 15 mins from the airport.' },
+            { cat: 'fashion', name: 'AEON MALL Okinawa Rycom', feature: 'The largest in Okinawa! A massive mall with a huge aquarium on the first floor. Packed with Japanese fashion brands and a large supermarket. You can\'t finish shopping here in a day.', loc: 'Kitanakagusuku Village', transit: 'Public Transit: Take bus No. 152, 111, or 117 from Naha Bus Terminal to "Higa (AEON MALL)". By Car: Large free parking lot available.' },
+            { cat: 'fashion', name: 'American Village', feature: 'Full of American West Coast vibes. Features many vintage clothing stores, unique boutiques, Hawaiian shirts, and ocean-view cafes.', loc: 'Mihama, Chatan Town', transit: 'Public Transit: Take bus No. 120 from Naha Bus Terminal and get off at "Kuwae", then walk 5 mins. By Car: About 40 mins from Naha city.' },
+            { cat: 'fashion', name: 'Kokusai Dori (International Street)', feature: 'The bustling "Miracle Mile" of Naha. Besides souvenirs, "Ukishima Dori" in the alleys hides many high-quality Japanese hipster fashion and select shops.', loc: 'Kokusai Dori, Naha City', transit: 'Public Transit: Take the monorail to Kenchomae, Miebashi, or Makishi Station. 1-5 mins walk to the shopping areas.' },
+            { cat: 'fashion', name: 'iias Okinawa Toyosaki', feature: 'A new type of mall combined with the DMM Kariyushi Aquarium. Features a large LOFT, H&M, and a stunning rooftop ocean-view BBQ area.', loc: 'Tomigusuku City (Next to ASHIBINAA)', transit: 'Public Transit: Take TK02 bus directly from Naha Airport, or a 10-min walk from ASHIBINAA Outlet. By Car: About 20 mins from the airport.' },
+
+            // --- Beauty & Pharmacy ---
+            { cat: 'beauty', name: 'Daikoku Drug / Matsumoto Kiyoshi', feature: 'The best place for the cheapest cosmetics in Okinawa! Chinese-speaking staff available. Stock up on Alinamin, EVE, and various face masks.', loc: 'Naha Kokusai Dori / Chatan American Village', transit: 'Public Transit: For Kokusai Dori, 3 mins walk from Makishi Station. For American Village, 5 mins walk from Kuwae bus stop.' },
+            { cat: 'beauty', name: 'Don Quijote (Kokusai Dori / Ginowan)', feature: '24-hour tax-free paradise. Perfect for late-night shopping, covering popular cosmetics, appliances, and large-pack Okinawa limited snacks.', loc: 'Naha Kokusai Dori / Ginowan', transit: 'Public Transit: Kokusai Dori store is 5 mins walk from Makishi Station. Ginowan store is best visited by car.' },
+            { cat: 'beauty', name: 'Sapporo Drug Store', feature: 'Spacious and bright aisles. Besides cosmetics, they offer a rich selection of Hokkaido exclusive products and local Okinawa souvenirs.', loc: 'Kokusai Dori / Various locations', transit: 'Public Transit: Kokusai Dori store is 3 mins walk from Kenchomae Station. Other branches are mostly inside malls.' },
+            { cat: 'beauty', name: 'Cosme Kitchen', feature: 'Specializes in organic, natural cosmetics and skincare. Highly popular among Japanese women, featuring exquisite packaging.', loc: 'PARCO CITY 1F', transit: 'Public Transit: Take bus No. 32, 39, or 43 from Naha Bus Terminal to "PARCO CITY Mae".' },
+
+            // --- Souvenirs ---
+            { cat: 'souvenir', name: 'Okashigoten (Beni Imo Tart)', feature: 'The most iconic souvenir in Okinawa! Made with local purple sweet potato (Beni Imo), shaped like a small boat. Soft and not too sweet.', loc: 'Kokusai Dori / Onna Village Main Store (Ocean view)', transit: 'Public Transit: Matsuo store on Kokusai Dori is 5 mins walk from Kenchomae Station. Driving is recommended for the Onna Village store.' },
+            { cat: 'souvenir', name: 'Yukishio (Snow Salt) Shop', feature: 'Miyakojima\'s specialty. Snow salt Chinsuko (traditional cookie) and snow salt ice cream are a must! Also sells beauty bath salts.', loc: 'Various on Kokusai Dori', transit: 'Public Transit: Kokusai Dori main store is 5 mins walk from Kenchomae Station. Also available at Naha Airport.' },
+            { cat: 'souvenir', name: 'Pengin Shokudo Ishigaki Island Chili Oil', feature: 'A legendary seasoning loved by housewives! Not too spicy, filled with garlic and sesame aroma. Super delicious with noodles or rice.', loc: 'Major souvenir shops / Kokusai Dori', transit: 'Public Transit: Available at souvenir shops on Kokusai Dori or Don Quijote. Accessible from Makishi or Kenchomae stations.' },
+            { cat: 'souvenir', name: 'Orion Beer Merch & Snacks', feature: 'The pride of Okinawa! Besides draft beer, Orion T-shirts, towels, and nuts made from beer yeast are great gifts.', loc: 'Convenience Stores / Don Quijote', transit: 'Public Transit: Beer available at all convenience stores; merch at Don Quijote Kokusai Dori (Makishi Station).' },
+            { cat: 'souvenir', name: 'Fukugiya Baumkuchen', feature: 'Freshly baked Okinawa baumkuchen. Available in honey, purple sweet potato, and brown sugar flavors. Smells amazing and beautifully packaged.', loc: 'Naha Kokusai Dori', transit: 'Public Transit: 5 mins walk from Kenchomae Station along Kokusai Dori.' },
+
+            // --- Marts & Groceries ---
+            { cat: 'mart', name: 'SAN-A Naha Main Place', feature: 'A favorite supermarket and mall for locals in the new city center. Great for cheap seasonal fruits, Japanese green tea, and discounted deli foods.', loc: 'Naha Shintoshin', transit: 'Public Transit: 5 mins walk from Omoromachi Station.' },
+            { cat: 'mart', name: 'Union Supermarket', feature: 'A 24-hour local chain supermarket in Okinawa. Affordable prices and known for staying open even during typhoons. Great for local ingredients.', loc: 'Various in Central & Southern Okinawa', transit: 'Public Transit: Mostly in residential areas; driving recommended. (Akamine branch is 10 mins walk from Akamine Station).' },
+            { cat: 'mart', name: 'MaxValu 24H Supermarket', feature: 'Large supermarket owned by AEON. The Makishi branch is very close to Kokusai Dori, perfect for late-night fruit and instant noodle runs.', loc: 'Makishi Branch / Island-wide', transit: 'Public Transit: Makishi branch is 5 mins walk from Makishi Station. Super convenient as it\'s open 24 hours.' },
+            { cat: 'mart', name: 'Gyomu Super', feature: 'Extremely cheap wholesale supermarket. Best place to bulk buy matcha snacks, konjac jelly, and Japanese condiments.', loc: 'Near Shintoshin / Island-wide', transit: 'Public Transit: Branches are mostly away from monorail stations. Strongly recommend driving to haul your bulk purchases.' },
+
+            // --- Sneakers & Toys ---
+            { cat: 'lifestyle', name: 'Pokemon Center Okinawa', feature: 'Located inside AEON MALL Rycom. Features Okinawa-exclusive Pikachu in traditional Ryukyu dress and Shisa dog merch. A must-visit for fans.', loc: 'Inside AEON MALL Rycom', transit: 'Public Transit: Take bus No. 152, 111, or 117 from Naha Bus Terminal to "Higa (AEON MALL)".' },
+            { cat: 'lifestyle', name: 'ABC-MART GRAND STAGE', feature: 'The highest tier ABC-MART. The place to find Japan-exclusive colors for Converse 1970s, NIKE, or Vans.', loc: 'Inside PARCO CITY / Urasoe', transit: 'Public Transit: Take bus No. 32 or 39 from Naha directly to the PARCO CITY branch.' },
+            { cat: 'lifestyle', name: 'Sports Depot (Shintoshin / American Village)', feature: 'Massive sporting goods store. Best place to hunt for Japan-exclusive running shoes, camping gear, or baseball gloves.', loc: 'Ameku, Shintoshin / American Village', transit: 'Public Transit: Ameku store is 15 mins walk from Omoromachi Station. American Village store is near Kuwae bus stop.' },
+            { cat: 'lifestyle', name: 'T Galleria by DFS Okinawa', feature: 'Japan\'s only duty-free (tax-free) street-level store! Full of luxury brands like LV and Chanel, connected to the monorail station. Also a car rental pick-up spot.', loc: 'Naha Shintoshin', transit: 'Public Transit: Direct bridge connection from Omoromachi Station.' },
+            { cat: 'lifestyle', name: 'Manga Souko', feature: 'Treasure hunting paradise! A massive second-hand shop with anime figures, games, manga, vintage clothes, and fun claw machines.', loc: 'Naha Akamine / Urasoe', transit: 'Public Transit: Akamine branch is 3 mins walk from Akamine Station. Urasoe branch requires a car.' },
+
+            // --- Outlets ---
+            { cat: 'outlet', name: 'Okinawa ASHIBINAA Outlet', feature: 'Okinawa\'s only outlet! Close to Naha Airport with a tropical resort vibe. Over 100 brands with great discounts on Coach, Adidas, GAP. Perfect for pre-flight or post-arrival shopping.', loc: 'Tomigusuku City (South)', transit: 'Public Transit: Take bus No. 95 from Naha Airport Stop 4 (15 mins); or take bus No. 55, 56, 88 from Naha Bus Terminal to "Outlet Mall Mae".' }
+        ];
+
+        // Function to render cards
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; // Clear existing content
+
+            const filteredData = shopData.filter(item => item.cat === category);
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; // Simple entrance animation delay
+                
+                // Generate Google Map search URL (Add Okinawa for accuracy)
+                const mapSearchQuery = encodeURIComponent(`${shop.name} Okinawa`);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
+                
+                // Change border color and icon if it's a closure warning
+                const isWarning = shop.name.includes('Closed') || shop.name.includes('Warning');
+                const cardBorderColor = isWarning ? 'border-orange-300 bg-orange-50' : 'border-gray-100 bg-white';
+                const starIconColor = isWarning ? 'text-orange-500' : 'text-yellow-400';
+
+                const card = document.createElement('div');
+                card.className = `${cardBorderColor} rounded-2xl shadow-sm border p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fa-solid ${isWarning ? 'fa-triangle-exclamation' : 'fa-star'} ${starIconColor} mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">${isWarning ? 'Important Notice' : 'Highlight'}</p>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${shop.feature}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-sky-500 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Location</p>
+                                    <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-car text-orange-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Transport</p>
+                                    <span class="inline-block bg-sky-50 text-sky-700 text-xs px-2 py-1 rounded-md font-medium">${shop.transit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Google Map Navigation Button -->
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${isWarning ? 'bg-orange-500 hover:bg-orange-600' : 'bg-sky-600 hover:bg-sky-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                            <i class="fa-solid fa-map-location-dot mr-2"></i> ${isWarning ? 'View on Map' : 'Open Google Maps'}
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Logic for clicking category buttons
+        function filterCategory(category, btnElement) {
+            // Remove active state from all buttons
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            // Add active state to the clicked button
+            btnElement.classList.add('active');
+
+            // Render the corresponding data
+            renderCards(category);
+        }
+
+        // Add simple entrance animation CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Display the first category (Fashion) on initial load
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('fashion', firstBtn);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okinawa Trip Guide | Explore Okinawa</title>
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM (CDN) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel for JSX (CDN) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Hide horizontal scrollbar but keep functionality */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- SVG Icon Components ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const Waves = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+
+        // Categories
+        const CATEGORIES = [
+            { id: 'Attraction Tickets', icon: Ticket },
+            { id: 'Day Tours', icon: Sun },
+            { id: 'Water Activities', icon: Waves },
+            { id: 'Transport & Wi-Fi', icon: TrainFront }
+        ];
+
+        // Regions in Okinawa
+        const REGIONS = ['Okinawa Main Island', 'Kerama Islands', 'Miyakojima'];
+
+        // Dynamic categories per region
+        const getAvailableCategoryIds = (region) => {
+            if (region === 'Kerama Islands') return ['Water Activities'];
+            if (region === 'Miyakojima') return ['Day Tours', 'Water Activities', 'Transport & Wi-Fi'];
+            return ['Attraction Tickets', 'Day Tours', 'Transport & Wi-Fi']; // Okinawa Main Island (Water activities removed)
+        };
+
+        // Itinerary Data (Each category configured with actual Klook search results and affiliate code)
+        const itineraryData = {
+            'Okinawa Main Island': {
+                'Attraction Tickets': [
+                    {
+                        title: 'Okinawa Churaumi Aquarium Ticket',
+                        description: 'A must-visit in Okinawa! Admire the stunning whale sharks and manta rays in the massive "Kuroshio Sea" tank. Don\'t miss the free dolphin shows!',
+                        link: 'https://www.klook.com/en-US/activity/1421-churaumi-aquarium-okinawa/?spm=SearchResult.SearchResult_LIST&clickId=fc977ca12c&aid=115612'
+                    },
+                    {
+                        title: 'Okinawa World & Gyokusendo Cave Ticket',
+                        description: 'Explore the spectacular Gyokusendo Cave, formed over 300,000 years. Experience traditional Ryukyuan dress and watch an energetic Super Eisa drum performance.',
+                        link: 'https://www.klook.com/en-US/activity/37791-okinawa-world-ticket/?spm=SearchResult.SearchResult_LIST&clickId=f77dc42285&aid=115612'
+                    },
+                    {
+                        title: 'DMM Kariyushi Aquarium Ticket',
+                        description: 'The newest aquarium in Toyosaki! Combining visual technology and spatial design, you can interact up close with sloths and penguins. Great for families.',
+                        link: 'https://www.klook.com/en-US/activity/55241-dmm-kariyushi-aquarium-ticket-okinawa/?spm=SearchResult.SearchResult_LIST&clickId=1c5675a884&aid=115612'
+                    },
+                    {
+                        title: 'Southeast Botanical Gardens Ticket',
+                        description: 'A tropical botanical paradise! Admire exotic flora, interact closely with capybaras and squirrel monkeys, and enjoy romantic night illuminations in winter.',
+                        link: 'https://www.klook.com/en-US/activity/13582-southeast-botanical-gardens-e-ticket-okinawa/?spm=Activity.SearchSuggest_LIST&clickId=39db559cd8&aid=115612'
+                    },
+                    {
+                        title: 'Kouri Ocean Tower Ticket',
+                        description: 'Ride the automated audio guide cart to the top and take in the stunning panoramic views of the "Kouri Blue" gradient ocean and the spectacular Kouri Bridge.',
+                        link: 'https://www.klook.com/en-US/activity/29033-kouri-ocean-tower-observation-deck-ticket-okinawa/?spm=Activity.SearchSuggest_LIST&clickId=d2b83acc13&aid=115612'
+                    }
+                ],
+                'Day Tours': [
+                    {
+                        title: 'Okinawa Hip Hop Bus Tour',
+                        description: 'Explore the north without driving! Take a comfortable bus to Cape Manzamo, Kouri Island, and Churaumi Aquarium. Multi-language audio guide included.',
+                        link: 'https://www.klook.com/en-US/activity/828-okinawa-churaumi-aquarium-bus-tour-okinawa/?aid=115612'
+                    },
+                    {
+                        title: 'Okinawa Southern Half-Day Bus Tour',
+                        description: 'Easily visit southern highlights: the expansive Cape Chinen Park, the spiritual Mibaru Beach, and Umikaji Terrace, known as the Little Greece of Okinawa.',
+                        link: 'https://www.klook.com/en-US/activity/28223-okinawa-masahiro-brewery-tamagusuku-maekawa-half-day-trip/?spm=SearchResult.SearchResult_LIST&clickId=a89c6f0167&aid=115612'
+                    },
+                    {
+                        title: 'Okinawa Yukata & Kimono Rental',
+                        description: 'Change into a beautiful traditional Japanese kimono or summer yukata, stroll around Naminoue Shrine and nearby beaches in Naha, and capture unforgettable memories.',
+                        link: 'https://www.klook.com/en-US/activity/6336-chura-sakura-kimono-okinawa/?spm=SearchResult.SearchResult_LIST&clickId=bb29595926&aid=115612'
+                    }
+                ],
+                'Transport & Wi-Fi': [
+                    {
+                        title: 'Japan 4G/5G High-Speed eSIM',
+                        description: 'No physical card needed. Scan the QR code and connect upon arrival! Enjoy stable internet for navigation, finding food, and seamless social media updates.',
+                        link: 'https://www.klook.com/en-US/activity/109393-japan-esim-high-speed-internet-qr-code-voucher/?aid=115612'
+                    },
+                    {
+                        title: 'Okinawa Monorail (Yui Rail) 1-Day Pass',
+                        description: 'Essential for exploring Naha without a car! Unlimited rides for 24 hours. Easily reach Shuri Castle, Kokusai Dori, Shintoshin, and the airport.',
+                        link: 'https://www.klook.com/en-US/activity/94557-okinawa-monorail-yuirail/?spm=SearchResult.SearchResult_LIST&clickId=c5566e5807&aid=115612'
+                    }
+                ]
+            },
+            'Kerama Islands': {
+                'Water Activities': [
+                    {
+                        title: 'Kerama Islands Half-Day Snorkeling',
+                        description: 'Depart from Naha by boat to the waters known as "Kerama Blue". Reach stunning snorkeling spots in just 30 minutes. Convenient hotel pick-up included.',
+                        link: 'https://www.klook.com/en-US/activity/149209-okinawa-kerama-islands-snorkeling-from-naha-with-free-transfer/?aid=115612'
+                    },
+                    {
+                        title: 'Kerama Islands Diving Experience (SEASIR)',
+                        description: 'Ride Okinawa\'s fastest diving boat. Enjoy scuba diving with certified guides and swim among magnificent coral reefs and schools of fish.',
+                        link: 'https://www.klook.com/en-US/activity/279-island-diving-okinawa/?aid=115612'
+                    },
+                    {
+                        title: 'Tokashiki Island Snorkeling, Kerama',
+                        description: 'Take a boat to Tokashiki Island. Enjoy summer water fun at the famous Aharen Beach, and follow instructors to spot wild sea turtles.',
+                        link: 'https://www.klook.com/en-US/activity/12454-kerama-tokashiki-island-swimming-and-snorkeling-experience-in-okinawa/?aid=115612'
+                    },
+                    {
+                        title: 'Tokashiki Island, Kerama Islands Day Tour',
+                        description: 'Includes round-trip ferry tickets and transfers! Enjoy the tranquility of an uninhabited island vibe and pristine white beaches. Perfect for relaxing and photos.',
+                        link: 'https://www.klook.com/en-US/activity/47789-join-tokashiki-island-day-tour-lunch-naha/?aid=115612'
+                    },
+                    {
+                        title: 'Kerama Islands Snorkeling and Diving Experience',
+                        description: 'No diving experience required! Accompanied by professional instructors, enjoy a high chance of swimming with sea turtles, and have a relaxing lunch on board.',
+                        link: 'https://www.klook.com/en-US/activity/13407-snorkeling-diving-fun-diving-experience-with-sea-turtle-in-kerama-okinawa/?aid=115612'
+                    }
+                ]
+            },
+            'Miyakojima': {
+                'Day Tours': [
+                    {
+                        title: 'Miyakojima Sightseeing Bus Day Tour',
+                        description: 'Explore Miyakojima without driving! Covers popular spots: Sunayama Beach, Yukishio Museum, Higashi-Hennazaki, and the beautiful Ikema Bridge.',
+                        link: 'https://www.klook.com/en-US/activity/196969-okinawa-miyakojima-bus-day-trip/?aid=115612'
+                    },
+                    {
+                        title: 'Miyakojima Half-Day Private Hidden Gems Tour',
+                        description: 'Follow a guide to visit the spectacular 17END beach, Sankakuten cliff, and the hidden Hazama Beach. Collect Miyakojima\'s most beautiful scenery in one go.',
+                        link: 'https://www.klook.com/en-US/activity/196527-miyakojima-half-day-private-hidden-gems-tour/?aid=115612'
+                    },
+                    {
+                        title: 'Miyakojima Customizable Private Car Tour',
+                        description: 'Customize your route to hidden beaches and trending spots. A comfortable choice for a day trip to explore Miyakojima at your own pace.',
+                        link: 'https://www.klook.com/en-US/activity/166371-miyako-island-private-customizable-one-day-charter-tour/?aid=115612'
+                    },
+                    {
+                        title: 'LeaLea Miyakojima 1-Day Bus Tour',
+                        description: 'Cross Miyakojima\'s 3 main bridges, tour 5 islands from south to north, and enjoy a local specialty lunch at a fantastic ocean-view restaurant.',
+                        link: 'https://www.klook.com/en-US/activity/76994-lealea-one-day-bus-tour-in-miyakojima/?aid=115612'
+                    },
+                    {
+                        title: 'Miyakojima Private Car - Sunayama Beach & Irabu Bridge',
+                        description: 'Flexible private car service designed for popular routes. Ensures plenty of time for sightseeing and photos, easily crossing the Irabu Bridge.',
+                        link: 'https://www.klook.com/en-US/activity/192540-miyako-car-rental-with-driver-to-sunayama-beach-irabu-bridge/?aid=115612'
+                    }
+                ],
+                'Water Activities': [
+                    {
+                        title: 'Miyakojima Sea Turtle Snorkeling Half-Day',
+                        description: 'Snorkel with sea turtles in the clear "Miyako Blue" waters! Led by experienced guides for a guaranteed high encounter rate with sea turtles.',
+                        link: 'https://www.klook.com/en-US/activity/120302-miyakojima-sea-turtle-snorkeling-half-day-experience-okinawa/?aid=115612'
+                    },
+                    {
+                        title: 'Miyakojima Sea Turtle Snorkel & Beach SUP',
+                        description: 'Full-day/Half-day value package! Enjoy SUP walking on the Miyako Blue ocean, snorkel to find wild sea turtles, and get free high-quality photos.',
+                        link: 'https://www.klook.com/en-US/activity/120769-miyakojima-sea-turtle-snorkeling-beach-sup-or-canoeing-1-day-half/?aid=115612'
+                    },
+                    {
+                        title: 'Miyakojima Coral Snorkeling Experience',
+                        description: 'Extremely safe diving spots allowing beginners and children to easily observe colorful tropical fish and beautiful coral reefs in shallow waters.',
+                        link: 'https://www.klook.com/en-US/activity/46718-coral-snorkeling-miyako-island/?aid=115612'
+                    }
+                ],
+                'Transport & Wi-Fi': [
+                    {
+                        title: 'Japan 4G/5G High-Speed eSIM',
+                        description: 'No physical card needed. Scan the QR code and connect upon arrival! Maintain smooth internet even on outer islands, making navigation a breeze.',
+                        link: 'https://www.klook.com/en-US/activity/109393-japan-esim-high-speed-internet-qr-code-voucher/?aid=115612'
+                    }
+                ]
+            }
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState('Okinawa Main Island');
+            const [selectedCategory, setSelectedCategory] = useState('Attraction Tickets');
+
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen font-sans text-slate-800 flex flex-col">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-slate-200">
+                        <div className="max-w-5xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="text-blue-600 w-6 h-6 md:w-8 md:h-8" />
+                                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-400">
+                                    Okinawa Trip Guide
+                                    </h1>
+                                </div>
+                                <div className="hidden md:block">
+                                    <a
+                                        href="https://linkuei0425.github.io/Okinawa-US/"
+                                        className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                                    >
+                                        <Home className="w-4 h-4" />
+                                        Home
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            {/* Region Selection */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide items-center">
+                                <a
+                                    href="https://linkuei0425.github.io/Okinawa-US/"
+                                    className="md:hidden flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 shadow-sm shrink-0"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    Home
+                                </a>
+
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            const allowed = getAvailableCategoryIds(region);
+                                            if (!allowed.includes(selectedCategory)) {
+                                                setSelectedCategory(allowed[0]);
+                                            }
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                                            selectedRegion === region
+                                            ? 'bg-slate-800 text-white shadow-md'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
+                        {/* Categories */}
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                            {CATEGORIES.filter(cat => getAvailableCategoryIds(selectedRegion).includes(cat.id)).map(({ id, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSelectedCategory(id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                        selectedCategory === id
+                                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {id}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Results Heading */}
+                        <div className="mb-6">
+                            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 border-l-4 border-teal-400 pl-3">
+                                Top Picks: {selectedRegion} - {selectedCategory}
+                            </h2>
+                        </div>
+
+                        {/* Item List */}
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                {currentData.map((item, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300"
+                                    >
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight">
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="mt-auto pt-4 border-t border-slate-100 flex justify-end">
+                                            <a
+                                                href={item.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-sm w-full sm:w-auto"
+                                            >
+                                                <Info className="w-4 h-4" />
+                                                <span>View Details</span>
+                                                <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
+                                <div className="bg-slate-50 p-4 rounded-full mb-4">
+                                    <Sparkles className="w-8 h-8 text-slate-400" />
+                                </div>
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                                    We haven't added any {selectedCategory} recommendations for {selectedRegion} yet.
+                                </h3>
+                                <p className="text-slate-500">
+                                    We will keep updating our curated list. Stay tuned!
+                                </p>
+                            </div>
+                        )}
+
+                        {/* CTA Button */}
+                        <div className="mt-12 flex justify-center pb-8">
+                            <a 
+                                href="https://www.klook.com/en-US/search/result/?query=Okinawa&aid=115612" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3.5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                <Sparkles className="w-5 h-5" />
+                                <span className="tracking-wide">Explore more Okinawa activities on Klook</span>
+                                <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
+                            </a>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

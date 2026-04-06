@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okinawa Hotel Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .area-btn-active { background-color: #0284c7; color: white; border-color: #0284c7; } /* sky-600 */
+        .area-btn-inactive { background-color: white; color: #4b5563; border-color: #d1d5db; }
+        .cat-btn-active { background-color: #38bdf8; color: white; border-color: #38bdf8; } /* sky-400 */
+        .cat-btn-inactive { background-color: #f8fafc; color: #64748b; }
+        body { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <header class="text-center mb-8 flex justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800">🏨 Okinawa Hotel Selection</h1>
+            <a href="https://linkuei0425.github.io/Okinawa-US/" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-bold rounded-lg hover:bg-slate-300 transition-colors">Back to Home</a>
+        </header>
+
+        <!-- Region selection buttons (adjusted to lg:grid-cols-5 to fit 5 regions) -->
+        <div id="district-buttons" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6"></div>
+        <!-- Category selection buttons -->
+        <div id="category-buttons" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-slate-200 hidden"></div>
+        <!-- Content area -->
+        <div id="content-area" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[300px]"></div>
+    </div>
+
+    <script>
+        // Use ? for direct urls
+        const affParams = "?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13754260&curr=USD&locale=en_xx";
+        // Use & for urls that already contain query parameters
+        const affParamsAnd = "&Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13754260&curr=USD&locale=en_xx";
+
+        const hotelData = {
+            "naha": {
+                name: "Naha City (Best without car)",
+                categories: {
+                    "Star Rating / Infinity Pool": [
+                        { name: "Hewitt Resort Naha", feature: "The top floor features a stunning infinity pool. Enjoy a rich breakfast with a DIY burger experience. Excellent location.", address: "3 mins walk from Asato Station", url: "https://www.trip.com/hotels/naha-hotel-detail-68564677/hewitt-resort-naha/" + affParams },
+                        { name: "Hotel Collective", feature: "Luxury 5-star hotel right in the center of Kokusai Dori. Opened in 2020 with brand new facilities and an outdoor pool.", address: "7 mins walk from Kenchomae / Miebashi Station", url: "https://www.trip.com/hotels/naha-hotel-detail-35953012/hotel-collective/" + affParams },
+                        { name: "JR Kyushu Hotel Blossom Naha", feature: "High-quality Japanese-style hotel, quiet amidst the bustle. Features a popular library lounge and public bath.", address: "5 mins walk from Miebashi Station", url: "https://www.trip.com/hotels/naha-hotel-detail-7420938/jr-kyushu-hotel-blossom-naha/" + affParams }
+                    ],
+                    "High CP Business / Family": [
+                        { name: "Almont Hotel Naha Kenchomae", feature: "Offers a free public bath, plus free popsicles and Yakult on the 1st floor. Incredible value for money.", address: "3 mins walk from Kenchomae Station", url: "https://www.trip.com/hotels/naha-hotel-detail-3916196/almont-hotel-naha-kenchomae/" + affParams },
+                        { name: "Hotel Aqua Citta Naha by WBF", feature: "Famous for its transparent infinity pool on the roof. Breakfast includes all-you-can-eat pasta. Perfect for young travelers.", address: "7 mins walk from Miebashi Station", url: "https://www.trip.com/hotels/naha-hotel-detail-8067516/hotel-aqua-citta-naha-by-wbf/" + affParams }
+                    ],
+                    "Guesthouse & Hostel": [
+                        { name: "Kitchen Hostel AO", feature: "Stylish and high-quality youth hostel. Features a spacious lobby and great bed privacy. Ideal for solo travelers and backpackers.", address: "5 mins walk from Kenchomae Station", url: "https://www.trip.com/hotels/detail/?cityEnName=Naha&cityId=92573&hotelId=7818336&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-Naz8TFJMEktYKJ4_bHS09YhRgNLCYKOZ49AwRTah08ry8usOVybXAI4JnB-GDGXeaNjFwgoVXuDjsY2U4w-ixg6pg2W_UUCyvHRlYJlkssOxmjq5WyUyuVrEx0lEoyS3JSlayUni6a97Rhz_MVrUo6SimpxclAISArMTe_NK8EyDbTs7AE8ksSKzxTwPqSE3OSS3MSS1JDKguA-s10lDKLnUuKMguCUnMzS0pSgarSEnOKU0HiQanFQJlksKCSH9CYIqhAZn4eRLshilhYYk5pKsQBQAvdUqF2GNbGPmJhio79xMLwi4WhiZWhi5VhEisrxzxrCZZdrNz-fkEWQaG6ToG6rlIKhgYGBkampkbmugaJlolmhgaWuiaWRqZmJrrGJmZGZgYaSw7Mf3bW2MhYgVFLID7EMyQ8v6gkO7moKDuptMKA8RSjlKG5maGlmYWpsaGFhYleoolpUmV5hKW3Y5ifB2MQm5GFmamxSZQNF7NXQKQgd6LptA1my-ylmEODXRTdpnxji6-QdtACyRnC5AIZwOCDfeSs8jmLlCulHZJYqzJ0PbwzDokUMDYwMnUxcgswejBGMFYAeYyrGNm5mA3MjATYNjAy7mD8DwOMrxhBlgAAzB16jRQCAAA&masterhotelid_tracelogid=100025527-0a9a6109-492564-346260&detailFilters=17%7C1%7E17%7E1*19%7C92573%7E19%7E92573*75%7CTAG_510%7E75%7E510*75%7CTAG_519%7E75%7E519*75%7CTAG_520%7E75%7E520*75%7CTAG_499%7E75%7E499*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&hotelType=normal&display=incavg&subStamp=867&isCT=true&isFlexible=F" + affParamsAnd }
+                    ]
+                }
+            },
+            "chatan": {
+                name: "Chatan / American Village",
+                categories: {
+                    "Ocean View Resort": [
+                        { name: "Vessel Hotel Campana Okinawa", feature: "The boss of American Village accommodations! Rooftop ocean view bath, right next to Sunset Beach. Free for children under 18 sharing a bed, highly recommended for families.", address: "Inside American Village, Next to Sunset Beach", url: "https://www.trip.com/hotels/chatan-hotel-detail-705561/vessel-hotel-campana-okinawa/" + affParams },
+                        { name: "Lequ Okinawa Chatan Spa & Resort", feature: "Retro modern design, beautiful infinity pool and natural hot spring on the top floor. Located right above the bustling shopping area.", address: "Inside American Village", url: "https://www.trip.com/hotels/chatan-hotel-detail-52769968/lequ-okinawa-chatan-spa-resort/" + affParams },
+                        { name: "Hilton Okinawa Chatan Resort", feature: "International 5-star standard. Boasts multiple huge outdoor pools, offering top-notch service and dining quality.", address: "Inside American Village", url: "https://www.trip.com/hotels/chatan-hotel-detail-1779182/hilton-okinawa-chatan-resort/" + affParams }
+                    ],
+                    "Condo Hotel": [
+                        { name: "Condominium Hotel Monpa", feature: "Spacious rooms with a kitchenette and microwave. Ocean views from the balcony. Perfect for long stays or families with babies.", address: "In front of Sunset Beach, American Village", url: "https://www.trip.com/hotels/detail/?cityEnName=Chatan&cityId=62278&hotelId=2803849&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMNDQxTNY1sTQyNTPRNTQwMTTR2HVm-bOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYjJ3NnS2do_ikmEODXRTdpnxji6-QdkhircrQ9fDOOCQCADhV2suBAAAA&masterhotelid_tracelogid=100051355-0a9a141c-492564-10414&detailFilters=17%7C1%7E17%7E1*31%7C2803849%7E31%7E2803849*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=1116&isCT=true&isFlexible=F" + affParamsAnd }
+                    ],
+                    "Guesthouse & Hostel": [
+                        { name: "AIEN Coffee & Hostel", feature: "A highly popular ocean-view cafe by day, turning into a cozy hostel by night. Full of West Coast surfing vibes.", address: "Sunabe, Chatan", url: "https://www.trip.com/hotels/detail/?cityEnName=Chatan&cityId=62278&hotelId=11006606&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMTLUwTNY1sTQyNTPRNTQ2MjHU2Dx1_bOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYLCxNLBxdovikmEODXRTdpnxji6-QdkhircrQ9fDOOCQCAHY1_5KBAAAA&masterhotelid_tracelogid=100051355-0a9ae81c-492564-13241&detailFilters=17%7C1%7E17%7E1*31%7C11006606%7E31%7E11006606*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=380&isCT=true&isFlexible=F" + affParamsAnd },
+                        { name: "Seawall Hostel", feature: "Located right next to the Sunabe seawall. Step out to see the sea and dive. Friendly owner and an affordable choice for backpackers.", address: "Sunabe, Chatan", url: "https://www.trip.com/hotels/detail/?cityEnName=Chatan&cityId=62278&hotelId=10522761&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMTE5JM9E1sTQyNTPRNTI0sDDXWPfh4LOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYzE2MDZxdovikmEODXRTdpnxji6-QdkhircrQ9fDOOCQCAEyX3dGBAAAA&masterhotelid_tracelogid=100051355-0a9acdf4-492564-21087&detailFilters=17%7C1%7E17%7E1*31%7C10522761%7E31%7E10522761*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=1440&isCT=true&isFlexible=F" + affParamsAnd }
+                    ]
+                }
+            },
+            "onna": {
+                name: "Onna Village (West Coast Resorts)",
+                categories: {
+                    "Luxury Ocean View": [
+                        { name: "Halekulani Okinawa", feature: "Hawaii's top luxury hotel brand! Features five pools (including the stunning orchid pool) and a private beach for an impeccable dream stay.", address: "West Coast, Onna Village", url: "https://www.trip.com/hotels/onna-hotel-detail-29755144/halekulani-okinawa/" + affParams },
+                        { name: "ANA InterContinental Manza Beach Resort", feature: "Classic resort across from Cape Manzamo. The hotel is shaped like a large ship and features Okinawa's best ocean inflatable water park.", address: "Manza Beach, Onna Village", url: "https://www.trip.com/hotels/detail/?cityEnName=Onna&cityId=35725&hotelId=1572600&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-N6yczFJMEk9YiZY8L1B39YhRiNDCQsJgs57pBrfR1oPdnBE0jtkOOa4RDAM4Pxx9_4jYzGIGBd7LCDkekE4wPGBUxbP4qfYmHlOMAswXSJ5TNTdLVSdmqlkpWJjlJJZklOqpKV0tNF85427Hm-olVJRykltTgZKARkJebml-aVANmG5nqWRkCBksQKzxSwxuTEnOTSnMSS1JDKAqABZjpKmcXOJUWZBUGpuZklJalAVWmJOcWpIPGg1GKgTDJYUMkPaEwRVCAzPw-i3RBFLCwxpzQV4gKghW6pUDsMa3UwHf5sTu_T7pkvNu3G7nAjMz0LC4TDzQfE4ca1sY9YmKJjP7Ew_GJhaGJl6GJlmMTKzPGAcRcrT6BnqKu3j66hbpSuoZS8oYGBgamhsamprkGiZaKFRWqiromlkamZia6RkaGJgcal2UeenTU2MlZg1BKID_EMCc8vKslOLirKTiqtMGA8xShlaG5maGlmYWpsaGFhopdoYppUWR5h6e0Y5ufBGMTm5mjo4mQeZcPF7BUQKWgX59HebrDMXoo5NNhFsa5nZzZnpbSDFkjOECYXyAAGH-wjYfJJrFUZuh7eGYdEChgbGJm6GLkFGD0YIxgrgDzGVYzsXMwGRoYCTBsYGXcw_ocBxleMIEsAPZjdTc0CAAA&masterhotelid_tracelogid=100051355-0a9a88ea-492564-22140&detailFilters=17%7C1%7E17%7E1*31%7C1572600%7E31%7E1572600*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=540&isCT=true&isFlexible=F" + affParamsAnd }
+                    ],
+                    "Family Resort": [
+                        { name: "Monterey Okinawa Spa & Resort", feature: "All ocean-view rooms! Offers a rich kids' pool and wave pool, making it the top choice for family trips on the West Coast.", address: "Next to Tiger Beach, Onna Village", url: "https://www.trip.com/hotels/detail/?cityEnName=Onna&cityId=35725&hotelId=1005498&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLS0SDU2SdM1sTQyNTPRNTIxMTXRuLro5LOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYTB0tnJ3MovikmEODXRTrenZmc1ZKOySxVmXoenhnHBIBAKtFz9-BAAAA&masterhotelid_tracelogid=100051355-0a98e34f-492564-24454&detailFilters=17%7C1%7E17%7E1*31%7C1005498%7E31%7E1005498*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=900&isCT=true&isFlexible=F" + affParamsAnd },
+                        { name: "Kafuu Resort Fuchaku Condo Hotel", feature: "Provides both hotel and condo (with kitchen) type rooms. Known for huge rooms and mesmerizing sunset ocean views.", address: "Fuchaku, Onna Village", url: "https://www.trip.com/hotels/detail/?cityEnName=Onna&cityId=35725&hotelId=993460&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMTE5JM9E1sTQyNTPRNTK1tDTRaGg7--yssZG-lkB8iGdIeH5RSXZyUVF2UmnFKUYpQ3MzQ0szC1NjQwsLE71EE9OkyvIIS2_HMD8PxiA2N2dnM0OnKD4p5tBgF8W6np3ZnJXSDkmsVRm6Ht4Zh0QAQcfAjIEAAAA&masterhotelid_tracelogid=100051355-0a9acdf4-492564-25994&detailFilters=17%7C1%7E17%7E1*31%7C993460%7E31%7E993460*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=803&isCT=true&isFlexible=F" + affParamsAnd }
+                    ],
+                    "Guesthouse & Hostel": [
+                        { name: "Mr. KINJO in Rinzu SERAGAKI", feature: "Famous affordable chain condo hotel. Rooms include a washing machine and kitchenette, providing high cost-performance for road trips.", address: "Seragaki, Onna Village", url: "https://www.trip.com/hotels/detail/?cityEnName=Onna&cityId=35725&hotelId=25098061&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLS0SDZMM9M1sTQyNTPRNTI3sjDTaJ1-4dlZYyN9LYH4EM-Q8PyikuzkoqLspNKKU4xShuZmhpZmFqbGhhYWJnqJJqZJleURlt6OYX4ejEFsRm6Wbi4uUXxSzKHBLop1PTuzOSulHZJYqzJ0PbwzDokAALaHl-uBAAAA&masterhotelid_tracelogid=100051355-0a98c1f6-492564-27286&detailFilters=17%7C1%7E17%7E1*31%7C25098061%7E31%7E25098061*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=1140&isCT=true&isFlexible=F" + affParamsAnd }
+                    ]
+                }
+            },
+            "nago": {
+                name: "Nago / Motobu (Near Aquarium)",
+                categories: {
+                    "Star Hotel": [
+                        { name: "Hotel Orion Motobu Resort & Spa", feature: "Located right next to Churaumi Aquarium! All ocean-view rooms. Features Jurassic hot spring and Emerald Beach, the most convenient 5-star choice.", address: "Motobu Town (7 mins walk to Aquarium)", url: "https://www.trip.com/hotels/detail/?cityEnName=Motobu&cityId=50335&hotelId=1916427&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMNDIxTNU1sTQyNTPRNTEwNTHQmLr03bOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYTC1cnSyMo_ikmEODXRTrenZmc1ZKOySxVmXoenhnHBIBAAAKE6yBAAAA&masterhotelid_tracelogid=100051355-0a9a241e-492564-38770&detailFilters=17%7C1%7E17%7E1*31%7C1916427%7E31%7E1916427*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=864&isCT=true&isFlexible=F" + affParamsAnd },
+                        { name: "The Busena Terrace", feature: "Top resort that hosted the G8 Summit. Full of tropical vibes, features a beautiful private beach and underwater observatory.", address: "Kise, Nago City", url: "https://www.trip.com/hotels/nago-hotel-detail-2935664/the-busena-terrace/" + affParams }
+                    ],
+                    "High CP Condo / Villa": [
+                        { name: "Ala Mahaina Condo Hotel", feature: "Super popular condo hotel near the aquarium. Starbucks and food court downstairs, with an infinity pool overlooking Sesoko Island.", address: "Motobu Town (Near Aquarium)", url: "https://www.trip.com/hotels/motobu-hotel-detail-23202638/ala-mahaina-condo-hotel/" + affParams }
+                    ],
+                    "Guesthouse & Hostel": [
+                        { name: "All Friends Guesthouse", feature: "Cozy hostel in Nago city with a wooden design. Surrounded by restaurants and convenience stores, a great stopover for northern attractions.", address: "Nago City", url: "https://www.trip.com/hotels/detail/?cityEnName=Nago&cityId=35747&hotelId=6651121&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMNDIxTNU1sTQyNTPRNTEwNTHQmLr03bOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYTC1cnSyMo_ikmEODXRTrenZmc1ZKOySxVmXoenhnHBIBAAAKE6yBAAAA&masterhotelid_tracelogid=100051355-0a9a241e-492564-40540&detailFilters=17%7C1%7E17%7E1*31%7C6651121%7E31%7E6651121*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=616&isCT=true&isFlexible=F" + affParamsAnd },
+                        { name: "Yanbaru Hostel", feature: "Industrial-style hostel with a great sense of design! Fully equipped and high-quality, the 1st-floor cafe is a popular photo hotspot.", address: "Kunigami District", url: "https://www.trip.com/hotels/detail/?cityEnName=Kunigami&cityId=50333&hotelId=42340586&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&hoteluniquekey=H4sIAAAAAAAA_-PazMTFJMEktYaJY-3cD9tYhRiNDLbxWzzNcuS6vrjAdludgyeY8aTBIYBnBuOrhTNENjIG7ZBrfT3Rw2EHI9MJRv8FTHMOd8ieYmHlOM0qwXKJZSdjdLVSdmqlkpWJjlJJZklOqpKV0tNF85427Hm-olVJRykltTgZKARkJebml-aVANnmeoamQH5JYoVnClhfcmJOcmlOYklqSGUBUL-ZjlJmsXNJUWZBUGpuZklJKlBVWmJOcSpIPCi1GCiTDBZU8gMaUwQVyMzPg2g3RBELS8wpTYU4AGihWyrUDsPa2EcsTNGxn1gYfrEwNLEydLEyTGJl5ZjMJsG0i5XHz9nDNchJ11A3StdQSt7QwMDA1NDY1FTXINEy0dDEMFnXxNLI1MxE18TQ0tRcY-unD8_OGhsZKzBqCcSHeIaE5xeVZCcXFWUnlVYYMJ5ilDI0NzO0NLMwNTa0sDDRSzQxTaosj7D0dgzz82AMYnM0NDAyN42y4WIODXYRrOvZmc1ZKe0gBeIpwnhazF4BkYZ2cR7t7QbL7AMZwOCDfeSFzZFfd1ZJOySxVmXoenhnHBIpYGxgZOpi5BZg9GCMYKwA8hhXMbJzMRsYGQowbWBk3MH4HwYYXzGCLAEA5bRQQxcCAAA&masterhotelid_tracelogid=100051355-0a9a141c-492564-41957&detailFilters=17%7C1%7E17%7E1*31%7C42340586%7E31%7E42340586*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=1140&isCT=true&isFlexible=F" + affParamsAnd }
+                    ]
+                }
+            },
+            "miyako": {
+                name: "Miyakojima (Island Hopping)",
+                categories: {
+                    "Top Luxury Resort": [
+                        { name: "Miyakojima Tokyu Hotel & Resorts", feature: "Located right next to Yonaha Maehama Beach, the most beautiful beach in the Orient. Well-equipped with ultimate ocean views, it is the most classic top resort choice in Miyakojima.", address: "Miyakojima City (Near Yonaha Maehama)", url: "https://www.trip.com/hotels/miyakojima-hotel-detail-705119/miyakojima-tokyu-hotel-and-resorts/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637&curr=USD&locale=en_xx" },
+                        { name: "Shigira Bayside Suite Allamanda", feature: "Top luxury suites within the Shigira Resort. All rooms are suites, and some feature private pools where you can even see sea turtles swimming.", address: "South Coast, Shigira Resort", url: "https://www.trip.com/hotels/miyakojima-hotel-detail-5528050/shigira-bayside-suite-allamanda/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637&curr=USD&locale=en_xx" },
+                        { name: "IRAPH SUI, a Luxury Collection Hotel, Miyako Okinawa", feature: "A top luxury brand under Marriott, located on Irabu Island connected to Miyakojima. Enjoy ultimate tranquility and invincible sunset ocean views.", address: "Irabu Island", url: "https://www.trip.com/hotels/miyakojima-hotel-detail-23217500/iraph-sui-a-luxury-collection-hotel-miyako-okinawa/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637&curr=USD&locale=en_xx" }
+                    ],
+                    "High CP Ocean View / Design": [
+                        { name: "HOTEL LOCUS", feature: "A highly design-oriented modern ocean-view hotel. All rooms face the sea, with a pool and lounge area on the top floor. Convenient transportation and extremely high value.", address: "Around Hirara Port", url: "https://www.trip.com/hotels/miyakojima-hotel-detail-11536559/hotel-locus/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637&curr=USD&locale=en_xx" },
+                        { name: "Hotel Torifito Miyakojima Resort", feature: "Close to Miyako Airport with new facilities and affordable prices. Features a large outdoor pool, making it perfect for families and self-driving tourists.", address: "Around Miyako Airport", url: "https://www.trip.com/hotels/miyakojima-hotel-detail-64802670/hoteltorifito-miyakojima-resort/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637&curr=USD&locale=en_xx" }
+                    ],
+                    "Condo Hotel": [
+                        { name: "Palm Springs Miyakojima Resort", feature: "Spacious condo hotel offering a fully equipped kitchen and washing machine. Suitable for long stays and family trips, as comfortable as home.", address: "Around Miyakojima City Area", url: "https://www.trip.com/hotels/miyakojima-hotel-detail-22220137/palm-springs-miyakojima-resort/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637&curr=USD&locale=en_xx" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        let curDist = null, curCat = null;
+
+        function init() {
+            Object.keys(hotelData).forEach(k => {
+                let b = document.createElement('button');
+                b.className = 'px-2 py-2.5 rounded-lg font-bold text-[13px] md:text-sm border area-btn-inactive transition-colors duration-200';
+                b.innerText = hotelData[k].name;
+                b.onclick = () => selectDist(k, b);
+                districtContainer.appendChild(b);
+            });
+            selectDist('naha', districtContainer.children[0]);
+        }
+
+        function selectDist(k, b) {
+            curDist = k;
+            Array.from(districtContainer.children).forEach(btn => btn.className = 'px-2 py-2.5 rounded-lg font-bold text-[13px] md:text-sm border area-btn-inactive transition-colors duration-200');
+            b.className = 'px-2 py-2.5 rounded-lg font-bold text-[13px] md:text-sm border area-btn-active transition-colors duration-200 shadow-md';
+            categoryContainer.classList.remove('hidden');
+            renderCats();
+        }
+
+        function renderCats() {
+            categoryContainer.innerHTML = '';
+            Object.keys(hotelData[curDist].categories).forEach(c => {
+                let b = document.createElement('button');
+                b.className = 'px-2 py-2 rounded-lg font-bold text-[13px] md:text-sm border cat-btn-inactive transition-colors duration-200';
+                b.innerText = c;
+                b.onclick = () => selectCat(c, b);
+                categoryContainer.appendChild(b);
+            });
+            selectCat(Object.keys(hotelData[curDist].categories)[0], categoryContainer.children[0]);
+        }
+
+        function selectCat(c, b) {
+            curCat = c;
+            Array.from(categoryContainer.children).forEach(btn => btn.className = 'px-2 py-2 rounded-lg font-bold text-[13px] md:text-sm border cat-btn-inactive transition-colors duration-200');
+            b.className = 'px-2 py-2 rounded-lg font-bold text-[13px] md:text-sm border cat-btn-active transition-colors duration-200 shadow-sm';
+            renderHotels();
+        }
+
+        function renderHotels() {
+            let h = hotelData[curDist].categories[curCat];
+            contentArea.innerHTML = h.map((x, index) => `
+                <div class="mb-5 p-5 border border-sky-100 rounded-xl bg-slate-50 hover:shadow-md transition-shadow">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                        <h3 class="font-bold text-lg text-sky-800 flex items-start sm:items-center gap-2">
+                            <span class="bg-sky-200 text-sky-800 px-2 py-0.5 rounded-md text-sm shrink-0">${index + 1}</span>
+                            <span>${x.name}</span>
+                        </h3>
+                        <a href="${x.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white text-[13px] font-bold py-1.5 px-3 rounded-lg shadow-sm transition-colors shrink-0">
+                            View Details
+                        </a>
+                    </div>
+                    <p class="text-sm text-gray-700 mt-3 leading-relaxed">
+                        <strong class="text-sky-700 bg-sky-100 px-1.5 py-0.5 rounded">Feature</strong> ${x.feature}
+                    </p>
+                    <p class="text-sm text-gray-600 mt-2">
+                        <strong class="text-slate-600 bg-slate-200 px-1.5 py-0.5 rounded">Location</strong> ${x.address}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
