@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>關西賞景名所導覽</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 隱藏卷軸但保留滑動功能 */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body id="app-body" class="min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800">
+
+  <!-- Header -->
+  <header id="app-header" class="bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500">
+    
+    <!-- 回到首頁按鈕 -->
+    <div class="max-w-6xl mx-auto px-4 pt-4">
+      <a href="https://linkuei0425.github.io/Osaka/index.html" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 bg-white/60 hover:bg-white hover:text-gray-900 rounded-full border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-x-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        回到首頁
+      </a>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 pb-6 pt-2">
+      <div class="flex items-center justify-center space-x-3 mb-2">
+        <div id="title-icon-left" class="animate-pulse"></div>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 transition-colors duration-500">
+          關西賞景名所導覽
+        </h1>
+        <div id="title-icon-right" class="animate-pulse"></div>
+      </div>
+      <p class="text-center text-gray-500 text-sm md:text-base">
+        精選大阪、京都、奈良、神戶、宇治、姬路絕美<span id="season-text">賞櫻</span>勝地
+      </p>
+    </div>
+
+    <!-- Season Toggle -->
+    <div class="flex justify-center mb-4">
+      <div class="bg-gray-100/80 backdrop-blur-sm p-1.5 rounded-full inline-flex border border-gray-200 shadow-inner">
+        <button id="btn-sakura" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M12 5a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 8 6.17 6A3 3 0 1 1 12 5z"/><path d="M12 22v-9"/><path d="M12 13a3 3 0 1 0-5.83-1c0-2 3-3 5.83-3s5.83 1 5.83 3A3 3 0 1 0 12 13z"/><path d="M12 13a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 16 6.17 14A3 3 0 1 1 12 13z"/></svg>
+          春季賞櫻
+        </button>
+        <button id="btn-momiji" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+          秋季賞楓
+        </button>
+      </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="max-w-4xl mx-auto px-4 pb-4">
+      <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar space-x-2 md:justify-center py-2">
+        <!-- Tabs injected by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 mt-8">
+    <div class="mb-6 flex items-center space-x-2 transition-colors duration-500" id="section-title-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <h2 id="section-title" class="text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500">
+        大阪 精選景點
+      </h2>
+    </div>
+
+    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Cards injected by JS -->
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="max-w-6xl mx-auto px-4 mt-16 text-center text-gray-400 text-sm">
+    <p id="footer-text">※ 櫻花開花狀況受氣候影響，建議出發前查詢日本氣象廳或各大預測網站的最新資訊。</p>
+  </footer>
+
+  <script>
+    const sakuraData = {
+      '大阪': [
+        { name: '大阪城公園', feature: '以宏偉的大阪城天守閣為背景，園內種植約 3000 棵櫻花樹。特別是「西之丸庭園」的夜櫻點燈，櫻花與打上燈光的天守閣交織出的畫面極具代表性，是關西最經典的賞櫻勝地。', transport: '搭乘 JR 大阪環狀線至「大阪城公園站」或「森之宮站」；或搭乘地下鐵谷町線至「谷町四丁目站」，出站步行約 5-10 分鐘即可抵達。' },
+        { name: '造幣局櫻花通道 (櫻花隧道)', feature: '每年僅在 4 月中旬開放短短 7 天。這裡以種植高達百種、約 300 棵的「八重櫻」聞名，花瓣繁複且顏色多樣（粉、白、黃綠等），是大阪春季最受歡迎的期間限定景點。', transport: '搭乘地下鐵谷町線或京阪本線至「天滿橋站」，從 2 號出口步行約 15 分鐘；或搭乘 JR 東西線至「大阪天滿宮站」步行約 15 分鐘。' },
+        { name: '萬博紀念公園', feature: '園內擁有約 5500 棵櫻花樹，規模宏大。以地標「太陽之塔」為中心，廣大的草皮非常適合家庭野餐。櫻花祭期間也會舉辦夜間點燈及各種熱鬧的市集攤位。', transport: '搭乘大阪單軌電車（Osaka Monorail）至「萬博紀念公園站」或「公園東口站」，出站後即可抵達。' }
+      ],
+      '京都': [
+        { name: '清水寺', feature: '世界文化遺產，春季時約 1500 棵吉野櫻與山櫻綻放。從著名的「清水舞台」向下眺望，彷彿被粉色雲海包圍。夜間特別拜觀的點燈活動更是神秘且令人驚嘆。', transport: '於 JR「京都站」搭乘京都市營巴士 206 路或 100 路，至「五条坂」或「清水道」站下車，沿坡道步行約 10-15 分鐘。' },
+        { name: '哲學之道', feature: '沿著琵琶湖疏水溝渠，長約 2 公里的散步小徑。兩旁種滿了約 500 棵的關雪櫻，花瓣飄落在水面上形成浪漫的「櫻花絨毯」，是極具詩意與靜謐氛圍的散步首選。', transport: '搭乘京都市營巴士至「銀閣寺道」或「銀閣寺前」站下車，步行約 3 分鐘即可到達步道起點。' },
+        { name: '嵐山 (渡月橋與周邊)', feature: '以桂川上的「渡月橋」與後方滿山粉白櫻花的嵐山為絕景。可搭乘嵯峨野浪漫小火車穿梭於山林櫻花之間，或在河畔享受悠閒的春日風情。', transport: '搭乘 JR 嵯峨野線至「嵯峨嵐山站」；或搭乘阪急電鐵京都線至「嵐山站」；或搭乘嵐電至「嵐山站」，出站後皆為徒步圈內。' }
+      ],
+      '奈良': [
+        { name: '奈良公園', feature: '佔地廣闊，可以拍到「櫻花與野生小鹿」同框的夢幻療癒畫面。園內的浮見堂在櫻花點綴下更顯古典之美，這裡也種植了特殊的「奈良八重櫻」。', transport: '搭乘近鐵奈良線至「近鐵奈良站」步行約 5 分鐘；或搭乘 JR 大和路線至「奈良站」步行約 20 分鐘（也可轉乘市區巴士）。' },
+        { name: '吉野山', feature: '日本最著名的賞櫻名所，被譽為「一目千本」。全山種有約 3 萬棵白山櫻，由山麓到山頂分為下千本、中千本、上千本、奧千本，花期可長達近一個月，滿山粉色極度壯觀。', transport: '搭乘近鐵吉野線至終點「吉野站」，轉搭吉野山纜車至「吉野山站」，或搭乘賞櫻期臨時接駁巴士上山。' },
+        { name: '冰室神社', feature: '位於奈良公園周邊，以樹齡超過 400 年的巨大「枝垂櫻」（垂櫻）聞名。是奈良地區最早開花的賞櫻名所之一，垂下的櫻花瀑布非常壯觀且充滿魄力。', transport: '從「近鐵奈良站」或 JR「奈良站」搭乘市內循環巴士，於「冰室神社・國立博物館前」站下車即達。' }
+      ],
+      '神戶': [
+        { name: '夙川公園', feature: '名列日本櫻花百選，沿著夙川長達 2.8 公里的河岸兩側，種植了近 1700 棵櫻花樹與松樹。粉紅櫻花與常綠松樹交織的「松櫻對比」是這裡最大的特色。', transport: '搭乘阪急電鐵神戶線至「夙川站」；或搭乘 JR 神戶線至「櫻花夙川站」（さくら夙川駅），出站後即是公園。' },
+        { name: '須磨浦山上遊園', feature: '搭乘纜車登上鉢伏山，園區內有約 3200 棵櫻花樹。這裡最大的特色是可以同時俯瞰大阪灣、明石海峽大橋的無敵海景與滿山櫻花，視野極佳。', transport: '搭乘山陽電車至「須磨浦公園站」，出站後直接轉乘「須磨浦纜車」上山。' },
+        { name: '生田川公園', feature: '位於新神戶站南側的帶狀公園，被當地人稱為「布引櫻花」。河岸兩側約有 400 棵櫻花樹形成櫻花隧道，夜間會點上燈籠，是神戶市民喜愛的賞櫻私房景點。', transport: '搭乘新幹線或神戶市營地下鐵至「新神戶站」步行約 5 分鐘；或從各線「三宮站」向東步行約 15 分鐘。' }
+      ],
+      '宇治': [
+        { name: '宇治川沿岸 / 宇治橋', feature: '宇治川兩岸種植了約 2000 棵櫻花樹，搭配朱紅色的朝霧橋與古老的宇治橋，充滿平安時代的風情。春季還可搭乘屋形船，在水面上愜意賞櫻。', transport: '搭乘 JR 奈良線至「宇治站」步行約 10 分鐘；或搭乘京阪電車宇治線至「宇治站」，出站即達河岸。' },
+        { name: '平等院', feature: '印在日幣 10 圓硬幣上的世界遺產「鳳凰堂」，在春季時會有阿字池畔的櫻花作為點綴。雖然櫻花數量不多，但紅柱白壁的古剎與粉櫻的倒影交織出極高的藝術美感。', transport: '搭乘 JR 奈良線至「宇治站」步行約 10 分鐘；或搭乘京阪電車宇治線至「宇治站」步行約 10 分鐘。' },
+        { name: '宇治市植物公園', feature: '園內有一棵著名的巨大「夜櫻（枝垂櫻）」，姿態優美，夜間點燈時猶如粉紅色的瀑布流瀉而下。園內其他區域也有多種櫻花，避開了市區的擁擠人潮。', transport: '從 JR「宇治站」或京阪「宇治站」搭乘京都京阪巴士（往太陽之丘方向），於「植物公園站」下車即達。' }
+      ],
+      '姬路': [
+        { name: '姬路城', feature: '日本第一名城、世界文化遺產，擁有「白鷺城」的美名。潔白的城牆與約 1000 棵粉色染井吉野櫻、枝垂櫻相互輝映，是日本極具代表性的明信片級賞櫻絕景。', transport: '搭乘 JR 姬新線/神戶線/山陽新幹線 至「姬路站」，或搭乘山陽電車至「山陽姬路站」，出站沿大手前通直行步行約 15-20 分鐘，或搭乘市區巴士 5 分鐘。' },
+        { name: '好古園', feature: '位於姬路城旁的池泉迴遊式日本庭園。春季時，古典的庭園建築、瀑布流水與盛開的枝垂櫻完美融合，展現出靜謐雅致的江戶時代風情。', transport: '交通方式與姬路城相同，位於姬路城西御屋敷跡（姬路城入口旁步行的距離內）。' },
+        { name: '手柄山中央公園', feature: '位於姬路市區的小山丘上，種植了約 400 棵櫻花。公園內不僅能賞花，還能從山丘上的展望台遠眺姬路城與姬路市區全景，是在地家庭週末休閒的熱門去處。', transport: '搭乘山陽電車至「手柄站」，下車後步行約 10 分鐘即可抵達公園入口。' }
+      ]
+    };
+
+    const momijiData = {
+      '大阪': [
+        { name: '箕面公園 (箕面瀑布)', feature: '大阪最著名的賞楓勝地，被選為日本百大瀑布之一。沿著溪谷的散步道長約 3 公里，秋季時滿山楓紅與氣勢磅礴的瀑布交織，還能品嚐當地特色小吃「炸楓葉」。', transport: '搭乘阪急電鐵至「石橋阪大前站」轉乘箕面線至終點「箕面站」，出站後沿著散步道步行約 40 分鐘可達瀑布。' },
+        { name: '勝尾寺', feature: '以祈求「勝運」聞名的寺廟，境內擺滿了信徒奉納的祈願「達摩不倒翁」。秋季時廣大的腹地被紅葉染紅，達摩與紅葉同框的景色極具特色，夜間也會舉辦點燈活動。', transport: '從北大阪急行電鐵「千里中央站」或阪急電鐵「北千里站」搭乘阪急巴士至「勝尾寺」站下車。' },
+        { name: '萬博紀念公園 (紅葉谷)', feature: '除了春櫻，秋季的萬博公園也極具看頭。園內的「自然文化園」與「日本庭園」種植了約 1 萬棵紅葉樹，包含楓樹與銀杏。紅葉瀑布與紅葉谷的景觀令人心曠神怡。', transport: '搭乘大阪單軌電車（Osaka Monorail）至「萬博紀念公園站」或「公園東口站」，出站後即可抵達。' }
+      ],
+      '京都': [
+        { name: '東福寺', feature: '京都首屈一指的紅葉名所。從木造的「通天橋」望出去，名為「洗玉澗」的溪谷被約 2000 棵的楓葉染成如火般的艷紅，彷彿紅葉之海，視覺極度震撼。', transport: '搭乘 JR 奈良線或京阪本線至「東福寺站」，步行約 10 分鐘即可抵達。' },
+        { name: '嵐山 (天龍寺與渡月橋)', feature: '秋季的嵐山以桂川、渡月橋為中心，背景的群山被紅葉層層渲染。除了漫步河畔，也推薦搭乘「嵯峨野浪漫小火車」或參拜世界遺產「天龍寺」的曹源池庭園欣賞秋景。', transport: '搭乘 JR 嵯峨野線至「嵯峨嵐山站」；或搭乘阪急電鐵京都線至「嵐山站」；或搭乘嵐電至「嵐山站」。' },
+        { name: '清水寺', feature: '春櫻秋楓皆是絕景。秋季時清水舞台下方會被茂密的紅葉包圍，從本堂遠眺奧之院的景色更是經典。秋季限定的夜間特別拜觀，燈光打在紅葉上的夢幻景象不容錯過。', transport: '搭乘京都市營巴士 206 路或 100 路，至「五条坂」或「清水道」站下車，步行約 10-15 分鐘。' }
+      ],
+      '奈良': [
+        { name: '奈良公園', feature: '廣闊的公園內不僅有常綠樹，還有紅色的楓葉與金黃色的銀杏交錯。看著野生的奈良鹿在落葉絨毯上漫步，或是以東大寺、春日大社為背景拍下秋日美照，非常療癒。', transport: '搭乘近鐵奈良線至「近鐵奈良站」步行約 5 分鐘；或搭乘 JR 大和路線至「奈良站」步行約 20 分鐘。' },
+        { name: '談山神社', feature: '被譽為「關西的日光」，境內擁有世界唯一的木造「十三層塔」。秋季時約 3000 棵的楓樹將整座神社包圍，古老的建築與鮮豔的紅葉相映成趣，極具歷史氛圍。', transport: '搭乘近鐵大阪線或 JR 櫻井線至「櫻井站」，轉搭奈良交通巴士（往多武峯、談山神社方向）於終點站下車。' },
+        { name: '長谷寺', feature: '以牡丹聞名的長谷寺也是賞楓秘境。擁有 399 階的迴廊「登廊」兩側秋色滿佈，從國寶「本堂」的舞台向外眺望，能將滿山的紅葉與五重塔盡收眼底。', transport: '搭乘近鐵大阪線至「長谷寺站」，下車後步行約 15-20 分鐘即可抵達。' }
+      ],
+      '神戶': [
+        { name: '有馬溫泉 (瑞寶寺公園)', feature: '位於日本三大名湯之一的有馬溫泉區內，曾讓豐臣秀吉讚嘆「百看不厭」而有「日暮之庭」的美稱。擁有約 2000 棵楓樹，泡湯後穿著浴衣散步賞楓是一大享受。', transport: '搭乘神戶電鐵有馬線至「有馬溫泉站」步行約 15 分鐘；或搭乘巴士至有馬溫泉區後徒步前往。' },
+        { name: '神戶市立森林植物園', feature: '佔地廣大，擁有豐富多樣的樹種。秋季時這裡的「水杉林」會轉為耀眼的金磚色，楓樹區則有一片火紅。園區內也會舉辦「森林紅葉散步」及夜間點燈活動。', transport: '從神戶電鐵「北鈴蘭台站」搭乘免費接駁巴士約 10 分鐘即可抵達。' },
+        { name: '布引香草園', feature: '日本最大的香草園。最推薦的賞楓方式是搭乘「神戶布引纜車」上山，在空中俯瞰滿山秋色與神戶市區、大阪灣的壯麗全景。園區內的歐風建築與秋景也相當好拍。', transport: '搭乘新幹線或市營地下鐵至「新神戶站」，步行約 5 分鐘至纜車站，搭乘纜車上山。' }
+      ],
+      '宇治': [
+        { name: '興聖寺 (琴坂)', feature: '前往寺廟參道的坡道被稱為「琴坂」，兩旁種滿了茂密的楓樹，秋季時會形成一條長達 200 公尺的絕美「紅葉隧道」，是宇治地區最具代表性的賞楓名所。', transport: '搭乘京阪電車宇治線至「宇治站」步行約 15 分鐘；或搭乘 JR 奈良線至「宇治站」步行約 20 分鐘。' },
+        { name: '平等院', feature: '世界遺產的鳳凰堂在秋季也有獨特的美。雖然紅葉數量不像其他專門名所那麼密集，但在阿字池畔的楓紅點綴下，與朱紅色的殿宇、水中倒影構成了一幅完美的極樂淨土圖。', transport: '搭乘 JR 奈良線至「宇治站」步行約 10 分鐘；或搭乘京阪電車宇治線至「宇治站」步行約 10 分鐘。' },
+        { name: '三室戶寺', feature: '素有「花之寺」美稱，除了初夏的紫陽花，秋季的紅葉也十分迷人。近年寺方整理了紅葉庭園，秋季特別公開時，可以欣賞到層次豐富的紅、黃、橘秋景。', transport: '搭乘京阪電車宇治線至「三室戶站」，下車步行約 15 分鐘。' }
+      ],
+      '姬路': [
+        { name: '好古園', feature: '緊鄰姬路城的廣大日式池泉迴遊式庭園。秋季時園內的紅葉與古典的日式建築、鯉魚池、流水完美結合，11 月中下旬還會舉辦浪漫的夜間點燈「紅葉會」。', transport: '搭乘 JR 或山陽電車至「姬路站」，步行約 15 分鐘或搭乘巴士於「姬路城大手門前」下車。' },
+        { name: '書寫山 圓教寺', feature: '擁有千年歷史的天台宗古剎，也是電影《末代武士》的拍攝地。搭乘纜車上山，在莊嚴的木造古建築與幽靜的山林中欣賞參天紅葉，氛圍特別神聖寧靜。', transport: '從「姬路站」搭乘神姬巴士至終點「書寫纜車站」，轉搭書寫山纜車上山。' },
+        { name: '姬路城 (紅葉山)', feature: '在姬路城西側的「紅葉山」周邊，秋季時可以拍到雪白的城牆天守閣與火紅楓葉同框的絕美畫面。城內三之丸廣場的巨大銀杏樹轉黃時也是不可錯過的焦點。', transport: '搭乘 JR 或山陽電車至「姬路站」，沿大手前通直行步行約 15-20 分鐘即可抵達。' }
+      ]
+    };
+
+    // 狀態
+    let activeSeason = 'sakura';
+    let activeTab = '大阪';
+
+    // SVG 圖示
+    const svgFlower = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 8 6.17 6A3 3 0 1 1 12 5z"/><path d="M12 22v-9"/><path d="M12 13a3 3 0 1 0-5.83-1c0-2 3-3 5.83-3s5.83 1 5.83 3A3 3 0 1 0 12 13z"/><path d="M12 13a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 16 6.17 14A3 3 0 1 1 12 13z"/></svg>`;
+    const svgLeaf = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`;
+    const svgSparkles = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400 mr-2 flex-shrink-0 mt-0.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`;
+    const svgTrain = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 mr-2 flex-shrink-0 mt-0.5"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><path d="M8 15h0"/><path d="M16 15h0"/></svg>`;
+
+    const themeConfig = {
+      sakura: {
+        bg: 'bg-pink-50', selection: 'selection:bg-pink-300', textMain: 'text-pink-500',
+        borderMain: 'border-pink-100', tabActive: 'bg-pink-500 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-pink-100 hover:text-pink-600', iconH2: 'text-pink-600', borderH2: 'border-pink-200',
+        cardGradient: 'from-pink-300 via-pink-400 to-pink-300 group-hover:from-pink-400 group-hover:to-pink-500',
+        numberBg: 'bg-pink-100 text-pink-600', transportBg: 'bg-pink-50',
+        btnActive: 'bg-white text-pink-500 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-pink-400 hover:bg-white/50'
+      },
+      momiji: {
+        bg: 'bg-orange-50', selection: 'selection:bg-orange-300', textMain: 'text-orange-500',
+        borderMain: 'border-orange-100', tabActive: 'bg-orange-500 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-orange-100 hover:text-orange-600', iconH2: 'text-orange-600', borderH2: 'border-orange-200',
+        cardGradient: 'from-orange-300 via-orange-400 to-orange-300 group-hover:from-orange-400 group-hover:to-orange-500',
+        numberBg: 'bg-orange-100 text-orange-600', transportBg: 'bg-orange-50',
+        btnActive: 'bg-white text-orange-500 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-orange-400 hover:bg-white/50'
+      }
+    };
+
+    function updateTheme() {
+      const t = themeConfig[activeSeason];
+      
+      // Body & Header
+      document.getElementById('app-body').className = `min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800 ${t.bg} ${t.selection} selection:text-white`;
+      document.getElementById('app-header').className = `bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500 ${t.borderMain}`;
+      
+      // Icons & Text
+      const iconSvg = activeSeason === 'sakura' ? svgFlower : svgLeaf;
+      document.getElementById('title-icon-left').innerHTML = iconSvg;
+      document.getElementById('title-icon-right').innerHTML = iconSvg;
+      document.getElementById('title-icon-left').className = `animate-pulse ${t.textMain}`;
+      document.getElementById('title-icon-right').className = `animate-pulse ${t.textMain}`;
+      
+      document.getElementById('season-text').innerText = activeSeason === 'sakura' ? '賞櫻' : '賞楓';
+      document.getElementById('footer-text').innerText = `※ ${activeSeason === 'sakura' ? '櫻花開花' : '紅葉變色'}狀況受氣候影響，建議出發前查詢日本氣象廳或各大預測網站的最新資訊。`;
+
+      // Section Title
+      document.getElementById('section-title-container').className = `mb-6 flex items-center space-x-2 transition-colors duration-500 ${t.iconH2}`;
+      document.getElementById('section-title').className = `text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500 ${t.borderH2}`;
+
+      // Toggle Buttons
+      document.getElementById('btn-sakura').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeSeason === 'sakura' ? t.btnActive : t.btnInactive}`;
+      document.getElementById('btn-momiji').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeSeason === 'momiji' ? t.btnActive : t.btnInactive}`;
+    }
+
+    function renderTabs() {
+      const t = themeConfig[activeSeason];
+      const data = activeSeason === 'sakura' ? sakuraData : momijiData;
+      const cities = Object.keys(data);
+      const container = document.getElementById('tabs-container');
+      
+      container.innerHTML = cities.map(city => `
+        <button
+          onclick="setTab('${city}')"
+          class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-in-out ${activeTab === city ? t.tabActive : t.tabHover}"
+        >
+          ${city}
+        </button>
+      `).join('');
+    }
+
+    function renderCards() {
+      const t = themeConfig[activeSeason];
+      const data = activeSeason === 'sakura' ? sakuraData : momijiData;
+      const spots = data[activeTab];
+      
+      document.getElementById('section-title').innerText = `${activeTab} 精選景點`;
+
+      const container = document.getElementById('cards-container');
+      container.innerHTML = spots.map((spot, index) => `
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-50 flex flex-col h-full group">
+          <div class="h-2 w-full bg-gradient-to-r transition-colors duration-500 ${t.cardGradient}"></div>
+          <div class="p-6 flex-grow flex flex-col">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-start">
+              <span class="rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5 transition-colors duration-500 ${t.numberBg}">
+                ${index + 1}
+              </span>
+              ${spot.name}
+            </h3>
+            
+            <div class="mb-6 flex-grow">
+              <div class="flex items-start text-gray-600 mb-1">
+                ${svgSparkles}
+                <span class="font-semibold text-gray-700">景點特色</span>
+              </div>
+              <p class="text-gray-600 leading-relaxed pl-7 text-sm">
+                ${spot.feature}
+              </p>
+            </div>
+
+            <div class="rounded-xl p-4 mt-auto transition-colors duration-500 ${t.transportBg}">
+              <div class="flex items-start text-gray-700 mb-1">
+                ${svgTrain}
+                <span class="font-semibold">交通方式</span>
+              </div>
+              <p class="text-gray-600 text-sm pl-7 leading-relaxed">
+                ${spot.transport}
+              </p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 事件與更新邏輯
+    function setSeason(season) {
+      if (activeSeason === season) return;
+      activeSeason = season;
+      updateTheme();
+      renderTabs();
+      renderCards();
+    }
+
+    function setTab(tab) {
+      if (activeTab === tab) return;
+      activeTab = tab;
+      renderTabs();
+      renderCards();
+    }
+
+    document.getElementById('btn-sakura').addEventListener('click', () => setSeason('sakura'));
+    document.getElementById('btn-momiji').addEventListener('click', () => setSeason('momiji'));
+
+    // 初始化
+    updateTheme();
+    renderTabs();
+    renderCards();
+  </script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>關西住宿推薦指南 | Kansai Hotel Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 自訂滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fca5a5; /* rose-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fb7185; /* rose-400 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* 區域按鈕樣式 - 玫瑰紅主題 */
+        .area-btn-active {
+            background-color: #be123c; /* rose-700 */
+            color: white;
+            border-color: #be123c;
+            box-shadow: 0 4px 6px -1px rgba(190, 18, 60, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #fff1f2; /* rose-50 */
+            color: #9f1239; /* rose-800 */
+            border-color: #fda4af; /* rose-300 */
+        }
+
+        /* 分類按鈕樣式 */
+        .cat-btn-active {
+            background-color: #e11d48; /* rose-600 */
+            color: white;
+            border-color: #e11d48;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #fff1f2; /* rose-50 */
+            color: #e11d48;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#fff1f2] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-rose-900 tracking-wide">
+                    <i class="fa-solid fa-hotel mr-2 text-rose-600"></i>關西住宿推薦指南
+                </h1>
+                <a href="https://linkuei0425.github.io/Osaka/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-rose-100 text-rose-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-rose-200">
+                    <i class="fa-solid fa-house mr-2"></i>
+                    回到首頁
+                </a>
+            </div>
+            <p class="text-rose-600 font-medium text-sm md:text-base">精選大阪、京都與關西近郊優質飯店，讓您的日本之旅住得舒心又便利</p>
+        </header>
+
+        <!-- 第一層：區域按鈕 (橫向滾動) -->
+        <div class="mb-6 overflow-hidden">
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-3 pb-2 md:flex-wrap md:justify-center">
+                <!-- 區域按鈕將由 JS 動態生成 -->
+            </div>
+        </div>
+
+        <!-- 第二層：分類按鈕 -->
+        <div id="category-buttons" class="flex flex-wrap justify-center gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-rose-100 hidden">
+            <!-- 分類按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 內容顯示區 -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-rose-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-rose-300 pt-20 pb-20">
+                <p class="font-bold text-lg"><i class="fa-solid fa-spinner fa-spin mr-2"></i>載入推薦住宿中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 依照關西熱門區域建置的資料結構 (每個分類各5間，包含分潤 Allianceid=299526438)
+        const hotelData = {
+            "osaka": {
+                name: "大阪 (Osaka)",
+                categories: {
+                    "五星奢華飯店": [
+                        { name: "Conrad Osaka (大阪康萊德酒店)", feature: "位於中之島，被稱為「天空中的地址」，擁有無敵的大阪全景落地窗與極致奢華的藝術空間設計。", address: "大阪市北區中之島 3-2-4 / 渡邊橋站直結", url: "https://hk.trip.com/hotels/osaka-hotel-detail-8033133/conrad-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Swissotel Nankai Osaka (大阪南海輝盛庭國際公寓)", feature: "難波車站正上方！交通與購物無可挑剔，搭乘南海電鐵去機場最方便的頂級五星選擇。", address: "大阪市中央區難波 5-1-60 / 南海難波站直結", url: "https://hk.trip.com/hotels/osaka-hotel-detail-976800/swissotel-nankai-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "InterContinental Osaka (大阪洲際酒店)", feature: "坐落於梅田 Grand Front Osaka 內，交通樞紐的靜謐綠洲，客房寬敞且享有大阪無死角美景。", address: "大阪市北區大深町 3-60 / JR大阪站步行5分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-1836788/intercontinental-hotel-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "The Ritz-Carlton Osaka (大阪麗思卡爾頓酒店)", feature: "濃厚古典歐洲莊園風格，提供極致尊榮的英式管家服務與米其林星級餐廳，氣派非凡。", address: "大阪市北區梅田 2-5-25 / JR大阪站步行7分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-1280987/the-ritz-carlton-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "St. Regis Osaka (大阪瑞吉酒店)", feature: "位於御堂筋的精華地段，全房型皆配備標誌性管家服務，完美詮釋日本款待精神與法式優雅。", address: "大阪市中央區本町 3-6-12 / 本町站直結", url: "https://hk.trip.com/hotels/osaka-hotel-detail-992466/st-regis-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ],
+                    "平價高CP值": [
+                        { name: "Hotel Hankyu RESPIRE OSAKA (大阪阪急呼吸飯店)", feature: "梅田站旁的大型新穎飯店，與Yodobashi商場直結。交通極度便利，房間乾淨且衛浴分離。", address: "大阪市北區大深町 1-1 / JR大阪站步行3分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-37082416/hotel-hankyu-respire-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Sotetsu Grand Fresa Osaka-Namba (相鐵 Grand Fresa 大阪難波)", feature: "距離道頓堀僅一步之遙！逛街吃宵夜超方便，CP值爆表，是自由行旅客的最愛。", address: "大阪市中央區日本橋 1-1-13 / 日本橋站步行2分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-4064224/hotel-sunroute-osaka-namba/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Hotel Keihan Namba Grande (京阪難波格蘭德飯店)", feature: "近年新開幕！位於難波Parks旁，設計感極佳，部分房型適合多人入住，性價比極高。", address: "大阪市浪速區難波中 2-11-13 / 難波站步行6分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-99513876/hotel-keihan-namba-grande/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "VIA INN PRIME Shinsaibashi (心齋橋四橋維亞高級酒店)", feature: "位於心齋橋與四橋之間，逛街無敵方便。設有舒適的頂樓大浴場，逛一天後能徹底放鬆。", address: "大阪市西區新町 1-4-12 / 四橋站步行1分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-37193125/via-inn-prime-shinsaibashi-yotsubashi-jr-west-group/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ],
+                    "設計風/公寓式": [
+                        { name: "Kamon Hotel Namba (難波嘉門飯店)", feature: "濃濃和風與現代設計結合的精品旅館，氣氛溫馨，提供多樣的日式早餐與免費腳踏車租借。", address: "大阪市中央區千日前 2-3-33 / 日本橋站步行3分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-9135244/kamon-hotel-namba/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "MIMARU Osaka Namba Station (美滿如大阪難波站)", feature: "超受家庭歡迎的連鎖公寓式酒店，房內附有小廚房與餐桌，空間寬敞，適合多人或親子入住。", address: "大阪市浪速區日本橋 3-6-24 / 難波站步行5分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-94176886/mimaru-osaka-namba-station/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "OMO7 Osaka by Hoshino Resorts (星野集團 OMO7 大阪)", feature: "星野集團旗下主打都市觀光的品牌！擁有大片草坪廣場與免費在地導覽，新今宮站旁超吸睛地標。", address: "大阪市浪速區惠美須西 3-16-30 / 新今宮站步行1分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-84903681/7-da-ban-by-xing-ye-ji-tuan/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Zentis Osaka (大阪臻庭酒店)", feature: "位於堂島，由著名設計師操刀的設計酒店。風格溫暖高雅，英式復古風的公共空間極具質感。", address: "大阪市北區堂島濱 1-4-26 / 渡邊橋站步行4分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-63006776/zentis-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Citadines Namba Osaka (大阪難波馨樂庭公寓酒店)", feature: "將擁有歷史的百貨建築翻新而成的法式公寓酒店，挑高大廳與精美的廚房房型深受長住客喜愛。", address: "大阪市浪速區日本橋 3-5-25 / 日本橋站步行6分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-52647143/citadines-namba-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ]
+                }
+            },
+            "kyoto": {
+                name: "京都 (Kyoto)",
+                categories: {
+                    "頂級奢華飯店": [
+                        { name: "THE THOUSAND KYOTO (京都千飯店)", feature: "京都車站旁的綠洲，融合極簡美學與京都禪意，一踏入大廳便能感受令人驚豔的光影與靜謐。", address: "京都市下京區東鹽小路町 570 / JR京都站步行2分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-25658991/the-thousand-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Park Hyatt Kyoto (京都柏悅酒店)", feature: "位於二年坂旁，無與倫比的地段。完美融合傳統日式庭園與現代奢華，能近距離欣賞八坂塔夕陽。", address: "京都市東山區高台寺桝屋町 360 / 位於清水寺周邊", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-42370779/park-hyatt-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Aman Kyoto (京都安縵)", feature: "隱身於洛北森林的頂級避世之所，融合天然溫泉與絕美青苔庭園，是金字塔頂端客群的最愛。", address: "京都市北區大北山鷲峯町 1 / 金閣寺周邊", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-58048525/aman-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "The Ritz-Carlton Kyoto (京都麗思卡爾頓酒店)", feature: "坐落於鴨川畔，將京都的歷史底蘊與現代頂級服務完美結合，從房間即可眺望鴨川或東山美景。", address: "京都市中京區鉾田町 543 / 京都市役所前站步行3分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-1848311/the-ritz-carlton-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Four Seasons Hotel Kyoto (京都四季酒店)", feature: "擁有一座擁有800年歷史的「積翠園」，在都市中營造出寧靜的高級度假村氛圍，服務無微不至。", address: "京都市東山區妙法院前側町 445-3 / 位於七条周邊", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-5708589/four-seasons-hotel-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ],
+                    "傳統日式旅館": [
+                        { name: "Kyoto Nanzenji Ryokan Yachiyo (南禪寺 八千代)", feature: "位於南禪寺旁的百年老字號旅館，擁有絕美的池泉庭園，並提供精緻美味的傳統京懷石料理。", address: "京都市左京區南禪寺福地町 34 / 蹴上站步行5分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-706415/kyoto-nanzenji-ryokan-yachiyo-established-in-1915/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Hoshinoya Kyoto (星野集團 虹夕諾雅 京都)", feature: "需乘船才能抵達的頂級渡假旅館！位於嵐山保津川畔，遠離塵囂，享受最極致的京都貴族體驗。", address: "京都市西京區嵐山元錄山町 11-2 / 嵐山站乘船抵達", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-2137357/hoshinoya-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Seikoro Ryokan (晴鴨樓)", feature: "超過180年歷史的日式旅館，被登錄為國家有形文化財。大正浪漫風情的裝潢與高野槙木風呂是其特色。", address: "京都市東山區問屋町通五条下ル / 清水五条站步行2分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-706191/seikoro-ryokan/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Hiiragiya Ryokan (柊家旅館)", feature: "京都三大百年御三家旅館之一。歷代文人雅士與皇室的愛店，提供最高級別的「一期一會」日式款待。", address: "京都市中京區中白山町 277 / 京都市役所前站步行3分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-1636227/zhong-jia-ri-shi-lv-guan/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ],
+                    "質感高CP值": [
+                        { name: "Sakura Terrace The Gallery", feature: "深受外國遊客喜愛！擁有充滿度假風情的開放式火爐大廳、免費迎賓飲料與大浴場，氣氛極佳。", address: "京都市南區東九条上殿田町 39 / JR京都站八條口步行3分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-2074622/sakura-terrace-the-gallery/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Cross Hotel Kyoto (京都十字飯店)", feature: "位於河原町與三条商圈交界，逛街吃美食絕佳位置。內部裝潢現代且帶有京都木質元素。", address: "京都市中京區大黑町 71-1 / 京阪三条站步行4分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-21869296/cross-hotel-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Hotel Resol Trinity Kyoto (京都御池 蕾索爾翠怡飯店)", feature: "日系和風質感極佳的連鎖旅館。大廳充滿古雅氣息，頂樓設有景觀大浴場，價格十分合理。", address: "京都市中京區上白山町 249 / 京都市役所前站步行2分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-21831414/hotel-resol-trinity-kyoto-oikefuyacho/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Richmond Hotel Premier Kyoto Shijo (京都四条里士滿尊貴飯店)", feature: "服務評價極高的連鎖品牌。房間寬敞、早餐豐盛，並提供免費迎賓點心與專屬休息室。", address: "京都市下京區四条通油小路東入傘鉾町 50 / 四条站步行5分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-86134094/richmond-hotel-kyoto-shijo/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "sequence KYOTO GOJO (京都五條 序列飯店)", feature: "主打年輕人與文青的潮流飯店。無紙化入住、房間設計極簡舒適，地下室還設有時尚的蒸氣浴設施。", address: "京都市下京區五条烏丸町 409 / 五条站步行3分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-56695314/sequence-kyoto-gojo/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ]
+                }
+            },
+            "miyama": {
+                name: "美山 (Miyama)",
+                categories: {
+                    "特色茅葺民宿": [
+                        { name: "Miyama Nature Culture Village (美山自然文化村 河鹿莊)", feature: "位於美山川畔，結合自然與傳統的住宿體驗。提供大浴場，晚餐能享用道地的山豬肉牡丹鍋或地雞料理。", address: "南丹市美山町中下向 56 / 需搭乘南丹市營巴士前往", url: "https://hk.trip.com/hotels/nantan-hotel-detail-6257197/miyama-nature-and-culture-village-kajikaso/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Miyama Kaya Villas (美山茅葺別墅)", feature: "提供整棟租借的茅草屋別墅，內部翻新得非常現代舒適，適合家庭或一群朋友一同體驗日本鄉村的靜謐。", address: "南丹市美山町島英 / 建議租車自駕", url: "https://hk.trip.com/hotels/nantan-hotel-detail-3464034/miyama-kaya-villa/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Ryokan Kigusuriya (料理旅館 きぐすりや)", feature: "大正時代創立的老字號料理旅館，原為藥局。現在以極其美味的當季山產、溪魚與農村料理聞名。", address: "南丹市美山町鶴ケ岡 / 需搭乘巴士或自駕", url: "https://hk.trip.com/hotels/nantan-hotel-detail-3160862/ryokan-kigusuriya/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Chinsenro (料理旅館 枕川樓)", feature: "雖然位於美山邊緣，但這裡的天然溫泉與絕美的由良川溪流景觀，是探索美山後極佳的落腳處。", address: "南丹市美山町周邊 / 建議租車自駕", url: "https://hk.trip.com/hotels/nantan-hotel-detail-7833610/ryokan-chinsen-rou-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ]
+                }
+            },
+            "nara": {
+                name: "奈良 (Nara)",
+                categories: {
+                    "經典奢華飯店": [
+                        { name: "Nara Hotel (奈良飯店)", feature: "創立於1909年的「關西迎賓館」，愛因斯坦與奧黛麗赫本都曾入住。充滿明治時代的古典洋風與歷史韻味。", address: "奈良市高畑町 1096 / 近鐵奈良站步行15分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-705006/nara-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "JW Marriott Hotel Nara (奈良 JW 萬豪酒店)", feature: "奈良首家國際奢華品牌酒店。將奈良的自然元素(如小鹿圖騰)巧妙融入現代設計，服務無微不至。", address: "奈良市三條大路 1-1-1 / 新大宮站步行10分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-53088204/jw-marriott-hotel-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Shisui, a Luxury Collection Hotel (紫翠 豪華精選酒店)", feature: "位於奈良公園腹地內，融合日式傳統庭園與現代奢華。部分客房設有私人露天溫泉，尊榮感極高。", address: "奈良市登大路町 62 / 近鐵奈良站步行12分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-107946295/shisui-a-luxury-collection-hotel-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Fufu Nara (馥翠 奈良)", feature: "高級度假旅館品牌「馥翠」。全房型皆為附設私人天然溫泉的套房，並提供奈良當地食材製作的頂級懷石料理。", address: "奈良市高畑町 1184-1 / 奈良公園周邊", url: "https://hk.trip.com/hotels/nara-hotel-detail-60062327/fufu-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Noborioji Hotel Nara (登大路飯店)", feature: "獲得米其林指南高度評價的小型精品酒店。隱私性極高，以其精緻的法式料理與無可挑剔的服務聞名。", address: "奈良市登大路町 40-1 / 近鐵奈良站步行3分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-2487886/noborioji-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ],
+                    "溫泉與高CP值": [
+                        { name: "Onyado Nono Nara Natural Hot Spring (天然溫泉 吉野櫻之湯 御宿野乃)", feature: "Dormy Inn 旗下的高級和風商旅。全館鋪設榻榻米，擁有極佳的天然溫泉大浴場與免費宵夜拉麵。", address: "奈良市大宮町 1-1-6 / JR奈良站步行1分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-9788198/onyado-nono-nara-natural-hot-spring/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Piazza Hotel Nara (奈良廣場飯店)", feature: "位於JR車站旁，交通無敵。房間寬敞舒適，高樓層房型可眺望若草山與奈良市區景緻。", address: "奈良市三條本町 11-20 / JR奈良站步行2分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-9028312/piazza-hotel-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Daiwa Roynet Hotel Nara (奈良大和魯內酒店)", feature: "緊鄰JR奈良站，設有天然溫泉大浴場。房間明亮寬敞，是商務與觀光客的高CP值首選。", address: "奈良市三條本町 11-20 / JR奈良站步行3分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-39457895/daiwaroyalhotel-d-premium-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Centurion Hotel Classic Nara (奈良百夫長經典飯店)", feature: "價格親民且裝潢帶有現代古典風格。步行前往近鐵車站或商店街都非常方便，CP值極佳。", address: "奈良市油阪地方町 1-1 / JR奈良站步行5分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-11221547/centurion-hotel-classic-nara-station/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ]
+                }
+            },
+            "uji": {
+                name: "宇治 (Uji)",
+                categories: {
+                    "景觀與便利商旅": [
+                        { name: "Hanayashiki Ukifune-en (花屋敷浮舟園)", feature: "位於宇治川畔的絕美景觀旅館。所有客房皆面朝河流，提供頂級的京懷石料理與靜謐的茶鄉住宿體驗。", address: "宇治市宇治塔川 20 / JR宇治站步行15分鐘", url: "https://hk.trip.com/hotels/uji-hotel-detail-704709/hanayashiki-ukifune-en-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Hotel Trend JR Uji Station (JR宇治站前觀光潮流飯店)", feature: "就位在車站前，是遊覽宇治最方便、CP值最高的商務型旅館。步行至平等院與各茶舖都非常近。", address: "宇治市宇治宇文字 15-2 / JR宇治站步行2分鐘", url: "https://hk.trip.com/hotels/uji-hotel-detail-62446121/hotel-trend-jr-uji-ekimae/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ]
+                }
+            },
+            "kobe": {
+                name: "神戶 (Kobe)",
+                categories: {
+                    "港灣夜景飯店": [
+                        { name: "Kobe Meriken Park Oriental Hotel (神戶美利堅公園東方酒店)", feature: "外觀宛如白色波浪，矗立於神戶港灣上。房間陽台能獨享被譽為價值千萬的海港璀璨夜景。", address: "神戶市中央區波止場町 5-6 / 元町站步行15分鐘(有接駁車)", url: "https://tw.trip.com/hotels/list/?keyword=Kobe%20Meriken%20Park%20Oriental%20Hotel&Allianceid=299526438" },
+                        { name: "Hotel Okura Kobe (神戶大倉酒店)", feature: "日系頂級飯店的代名詞，比鄰神戶港塔，服務細膩到位，早餐的法式吐司極為著名。", address: "神戶市中央區波止場町 2-1 / 元町站步行10分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Hotel%20Okura%20Kobe&Allianceid=299526438" },
+                        { name: "Kobe Portopia Hotel (神戶波多比亞飯店)", feature: "位於人工島上，擁有大型水療中心與絕佳的海景視野。飯店腹地廣大，充滿濃厚的度假氛圍。", address: "神戶市中央區港島中町 6-10-1 / 市民廣場站直結", url: "https://tw.trip.com/hotels/list/?keyword=Kobe%20Portopia%20Hotel&Allianceid=299526438" },
+                        { name: "Hotel La Suite Kobe Harborland (神戶臨海樂園套房酒店)", feature: "全館皆為附設按摩浴缸與海景露台的大坪數套房！提供最高級的南法度假體驗與神戶牛料理。", address: "神戶市中央區波止場町 7-2 / 美紀公園站步行4分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Hotel%20La%20Suite%20Kobe&Allianceid=299526438" },
+                        { name: "Oriental Hotel (神戶東方酒店)", feature: "位於舊居留地，歷史悠久的傳奇酒店。內部裝潢低調奢華，完美展現神戶融合東西方文化的迷人魅力。", address: "神戶市中央區京町 25 / 元町站步行7分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Oriental%20Hotel%20Kobe&Allianceid=299526438" }
+                    ],
+                    "有馬溫泉名宿": [
+                        { name: "Arima Onsen Taketoritei Maruyama (有馬溫泉 竹取亭圓山)", feature: "以竹取物語為主題的高級溫泉旅館，提供金泉與銀泉的私人包場露天風呂，極具私密性與情調。", address: "神戶市北區有馬町 1364-1 / 有馬溫泉站提供接駁服務", url: "https://tw.trip.com/hotels/list/?keyword=Arima%20Onsen%20Taketoritei%20Maruyama&Allianceid=299526438" },
+                        { name: "Gekkoen Yugetsusanso (月光園 游月山莊)", feature: "依山傍水，擁有極富詩意的溪流露天溫泉。建築本身保留了傳統的數寄屋造風格，古色古香。", address: "神戶市北區有馬町 318 / 有馬溫泉站提供接駁服務", url: "https://tw.trip.com/hotels/list/?keyword=Gekkoen%20Yugetsusanso&Allianceid=299526438" },
+                        { name: "Arima Grand Hotel (有馬大飯店)", feature: "有馬溫泉區規模最大、設施最完善的豪華飯店。頂樓的展望露天大浴場能將有馬的山嵐美景一覽無遺。", address: "神戶市北區有馬町 1304-1 / 有馬溫泉站提供接駁服務", url: "https://tw.trip.com/hotels/list/?keyword=Arima%20Grand%20Hotel&Allianceid=299526438" },
+                        { name: "Arima Onsen Gekkoen Korokan (月光園 鴻朧館)", feature: "游月山莊的姐妹館，走現代高雅路線。擁有絕佳的視野，並提供頂級的神戶牛與季節懷石料理。", address: "神戶市北區有馬町 318 / 有馬溫泉站提供接駁服務", url: "https://tw.trip.com/hotels/list/?keyword=Arima%20Onsen%20Gekkoen%20Korokan&Allianceid=299526438" },
+                        { name: "Tocen Goshoboh (陶泉 御所坊)", feature: "有馬溫泉最古老的旅館！曾是谷崎潤一郎等文豪的愛店，其半混浴設計的金泉大浴場非常具有歷史特色。", address: "神戶市北區有馬町 858 / 有馬溫泉站步行5分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Tocen%20Goshoboh&Allianceid=299526438" }
+                    ],
+                    "市區高CP值": [
+                        { name: "Remm Plus Kobe Sannomiya (雷姆 Plus 神戶三宮)", feature: "與三宮車站直結的質感商旅！以「好眠」為宗旨，全房配備高規格床墊與按摩椅，消除旅途疲憊。", address: "神戶市中央區加納町 4-2-1 / 阪急三宮站直結", url: "https://tw.trip.com/hotels/list/?keyword=Remm%20Plus%20Kobe%20Sannomiya&Allianceid=299526438" },
+                        { name: "Daiwa Roynet Hotel Kobe Sannomiya (神戶三宮大和魯內酒店)", feature: "深受好評的連鎖品牌。距離繁華的三宮商店街極近，房間明亮整潔，是商務與觀光購物的理想據點。", address: "神戶市中央區御幸通 5-1-6 / JR三宮站步行7分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Daiwa%20Roynet%20Hotel%20Kobe%20Sannomiya&Allianceid=299526438" },
+                        { name: "Candeo Hotels Kobe Tor Road (神戶托亞之路光芒飯店)", feature: "充滿現代設計感。最大的賣點是頂樓的「天空大浴場」，可以一邊泡湯一邊欣賞神戶市區迷人的夜景。", address: "神戶市中央區三宮町 3-8-8 / JR元町站步行3分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Candeo%20Hotels%20Kobe%20Tor%20Road&Allianceid=299526438" },
+                        { name: "Brenza Hotel (布倫扎飯店)", feature: "神戶極具風格的精品旅館。磚牆外觀與工業風客房設計非常吸引年輕人，交通與周邊餐飲機能極佳。", address: "神戶市中央區雲井通 6-1-1 / JR三宮站步行3分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Brenza%20Hotel&Allianceid=299526438" },
+                        { name: "Hotel Monte Hermana Kobe Amalie (神戶阿瑪麗埃蒙特埃馬納酒店)", feature: "外觀與內裝洋溢著神戶特有的歐洲復古風情。價格親民且氣氛溫馨，距離生田神社與商店街都不遠。", address: "神戶市中央區中山手通 2-2-28 / JR三宮站步行7分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Hotel%20Monte%20Hermana%20Kobe&Allianceid=299526438" }
+                    ]
+                }
+            },
+            "himeji": {
+                name: "姬路 (Himeji)",
+                categories: {
+                    "城景與便利高CP": [
+                        { name: "Hotel Monterey Himeji (姬路蒙特利酒店)", feature: "就在姬路車站旁，完美融合古典歐風設計。部分房型與大浴場可直接遠眺純白的姬路城。", address: "姬路市駅前町 60 / JR姬路站步行1分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Hotel%20Monterey%20Himeji&Allianceid=299526438" },
+                        { name: "Daiwa Roynet Hotel Himeji (姬路大和魯內酒店)", feature: "日本知名連鎖商務飯店，房間寬敞明亮，乾濕分離衛浴。距離車站與商店街極近，性價比極高。", address: "姬路市駅前町 353 / JR姬路站步行4分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Daiwa%20Roynet%20Hotel%20Himeji&Allianceid=299526438" },
+                        { name: "Dormy Inn Himeji (天然溫泉 白鷺之湯)", feature: "溫泉控首選！頂樓設有天然溫泉大浴場與露天風呂，泡湯後還有免費冰棒與著名的宵夜醬油拉麵。", address: "姬路市豐澤町 160 / JR姬路站南口步行3分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Dormy%20Inn%20Himeji&Allianceid=299526438" },
+                        { name: "Richmond Hotel Himeji (姬路里士滿飯店)", feature: "日本常勝軍商務旅館品牌！服務細膩、房內設施齊全且床鋪舒適，非常適合在意住宿品質的旅客。", address: "姬路市南畝町 2-7 / JR姬路站步行6分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Richmond%20Hotel%20Himeji&Allianceid=299526438" },
+                        { name: "Hotel Nikko Himeji (姬路日航酒店)", feature: "JR姬路站南口正前方的高級飯店。擁有舒適寬敞的客房與高樓層餐廳，是姬路市內最具代表性的星級飯店。", address: "姬路市南駅前町 100 / JR姬路站步行1分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Hotel%20Nikko%20Himeji&Allianceid=299526438" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. 初始化區域按鈕
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70"></i>${hotelData[key].name}`;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. 選擇區域
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. 渲染分類按鈕
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive shadow-sm`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // 預設點擊第一個分類
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. 選擇分類
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. 渲染飯店資料
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-rose-100 animate-fade-in">
+                    <h2 class="text-2xl font-bold text-rose-900 mr-3">
+                        <i class="fa-solid fa-location-dot mr-2 text-rose-500"></i>${districtData.name}
+                    </h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-rose-100 text-rose-700 text-sm font-bold rounded-full border border-rose-200">
+                        <i class="fa-solid fa-tag mr-1"></i>${currentCategoryName}
+                    </span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in">此分類目前無推薦資料。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5">`;
+                
+                hotels.forEach((hotel, index) => {
+                    const linkTagHTML = hotel.url 
+                        ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 mt-3 sm:mt-0 rounded-xl text-sm font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-auto">
+                               <i class="fa-solid fa-magnifying-glass mr-1.5"></i>詳細說明
+                           </a>`
+                        : '';
+
+                    htmlContent += `
+                        <div class="bg-[#fff9f9] border border-rose-50 p-5 md:p-6 rounded-2xl hover:shadow-md transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 0.05}s;">
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2">
+                                <h4 class="text-xl font-bold text-rose-900 flex items-start leading-tight pt-1">
+                                    <span class="text-white bg-rose-400 rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2 flex-shrink-0">${index + 1}</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-0 sm:pl-8 space-y-3">
+                                <div class="flex items-start">
+                                    <span class="font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded mr-2 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-star mr-1"></i>亮點</span> 
+                                    <span class="text-sm text-slate-700 leading-relaxed font-medium">${hotel.feature}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded mr-2 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-map-pin mr-1"></i>位置</span> 
+                                    <span class="text-sm text-slate-700 leading-relaxed font-medium">${hotel.address}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict('osaka', firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

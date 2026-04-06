@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>關西自由行 行程魔法師</title>
+  
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 載入 FontAwesome 圖示庫 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- 載入 React 核心庫與 Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    @media print {
+      body { background-color: white !important; }
+      .print-hidden { display: none !important; }
+      .print-break-avoid { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+  
+  <div id="root"></div>
+
+  <!-- React 應用程式邏輯 -->
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // --- 景點資料庫 (結合關西景點與排程所需的精確時間視窗、時數) ---
+    const ATTRACTIONS = [
+      // ================= 機場與住宿 (必須的邏輯節點) =================
+      { id: 'kix_airport', city: 'osaka', name: '關西國際機場 (KIX)', stay: 1.5, region: 10, regionName: '機場', type: '機場', desc: '行程開始！抵達關西辦理入境。建議出發前先準備好交通票券與網卡。', transport: '搭乘南海電鐵(Rapi:t)、JR(Haruka)或利木津巴士進入市區。', 
+        bookingLinks: [
+          { url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241225&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F599-kansai-airport-namba-train-ticket-osaka%2F', text: '南海電鐵特急' },
+          { url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241224&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F18400-jr-haruka-airport-express-train-tickets-osaka%2F', text: 'JR Haruka 車票' },
+          { url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241226&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F18203-kansai-airport-one-way-transfer-osaka%2F', text: '利木津巴士' },
+          { url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241223&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F82312-amazing-pass-osaka%2F', text: '大阪周遊卡' },
+          { url: 'https://www.klook.com/zh-TW/activity/11515-osaka-metro-1-2-day-pass-osaka/?aid=116515', text: '大阪地鐵乘車券' },
+          { url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241228&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F3276-4-day-jr-west-kansai-rail-pass-jr-pass%2F', text: 'JR關西鐵路周遊券' },
+          { url: 'https://www.klook.com/zh-TW/activity/9882-kyoto-osaka-sightseeing-pass-japan/?aid=116515', text: '京阪電車乘車券' },
+          { url: 'https://www.klook.com/zh-TW/activity/1512-hankyu-1-day-tourist-pass-osaka/?aid=116515', text: '阪急 Tourist Pass' },
+          { url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241229&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F91434-klook-pass-kansai%2F', text: '關西地區景點通票' },
+          { url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241220&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F109393-japan-esim-high-speed-internet-qr-code-voucher%2F', text: 'eSIM 吃到飽' },
+          { url: 'https://www.klook.com/zh-TW/activity/87444-4g-japan-sim-japan-airport-pick-up-unlimited-data/?aid=116515', text: '5G 上網 SIM 卡' }
+        ] 
+      },
+      { id: 'acc_osaka', city: 'osaka', name: '住宿: 大阪市區', stay: 1, region: 12, regionName: '市中心', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李。', transport: '依據飯店位置搭乘大阪地鐵前往。' },
+      { id: 'acc_kyoto', city: 'kyoto', name: '住宿: 京都市區', stay: 1, region: 22, regionName: '市中心', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李。', transport: '依據飯店位置搭乘地鐵或巴士前往。' },
+
+      // ================= 大阪 (Osaka) =================
+      { id: 'usj', city: 'osaka', name: '日本環球影城 (USJ)', stay: 8, timeWindow: [8, 21], region: 15, regionName: '大阪灣區', type: '觀光景點', desc: '關西最具代表性的主題樂園，除了瑪利歐和哈利波特園區，各種期間限定的遊行與設施總是充滿驚喜。', transport: 'JR 夢咲線至「環球城站 (Universal City)」。', bookingLinks: [{url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241221&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F46604-universal-studios-japan-e-ticket-osaka-qr-code-direct-entry%2F', text: '門票及快速通關'}, {url: 'https://www.klook.com/zh-TW/activity/86890-dotonbori-usj-bus-ticket/?aid=116515', text: '道頓堀出發巴士'}] },
+      { id: 'dotonbori', city: 'osaka', name: '道頓堀', stay: 3, timeWindow: [11, 22.5], region: 12, regionName: '大阪中區', type: '商圈', desc: '大阪最具活力的靈魂地帶。浮誇的立體招牌、固力果跑跑人，以及琳瑯滿目的章魚燒與大阪燒店，完美展現了這座城市的熱情。', transport: '地鐵至「難波站」或「心齋橋站」。' },
+      { id: 'osaka_castle_park', city: 'osaka', name: '大阪城公園', stay: 2.5, timeWindow: [9, 17], region: 13, regionName: '大阪東區', type: '公園', desc: '廣闊的城市綠洲，以宏偉的大阪城天守閣為中心。春季的櫻花與秋季的銀杏，搭配護城河的倒影，是極佳的取景點。', transport: '地鐵「谷町四丁目站/森之宮站」或 JR「大阪城公園站/森之宮站」皆可抵達。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/30110-osaka-castle-ticket/?aid=116515', text: '大阪城門票'}] },
+      { id: 'namba_yasaka', city: 'osaka', name: '難波八阪神社', stay: 1, timeWindow: [9, 17], region: 12, regionName: '大阪中區', type: '私房景點', desc: '隱身在市區中，以震撼的「巨型獅子頭」舞台聞名。不僅視覺衝擊力十足，也被認為能吸走厄運、招來好運。', transport: '搭乘地鐵至「難波站」，步行約 8 分鐘。' },
+      { id: 'tsutenkaku', city: 'osaka', name: '通天閣 & 新世界', stay: 2, timeWindow: [10, 21], region: 14, regionName: '大阪南區', type: '觀光景點', desc: '充滿濃厚的昭和復古風情，這裡是吃「大阪串炸」的聖地。', transport: '地鐵御堂筋線/堺筋線至「動物園前站」等。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/76766-osaka-tsutenkaku-admission-ticket/?aid=116515', text: '通天閣門票'}] },
+      { id: 'harukas', city: 'osaka', name: '阿倍野 Harukas 300 展望台', stay: 1.5, timeWindow: [16, 22], region: 14, regionName: '大阪南區', type: '觀光景點', desc: '日本第一高樓，擁有 360 度全景玻璃帷幕，推薦傍晚前往看夕陽與夜景。', transport: '地鐵或 JR 至「天王寺站」，出站即達。', bookingLinks: [{url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241231&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F2424-harukas-300-observatory-ticket-osaka%2F', text: '展望台門票'}] },
+      { id: 'umeda', city: 'osaka', name: '梅田商圈 (Umeda)', stay: 3, timeWindow: [10, 21], region: 11, regionName: '大阪北區', type: '商圈', desc: '大型交通與百貨樞紐，適合主攻流行服飾、精品與文創商品採購。', transport: '搭乘 JR 至「大阪站」或地鐵至「梅田站」。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/35861-umeda-sky-building-kuchu-teien-observatory-ticket/?aid=116515', text: '空中庭園門票'}] },
+      { id: 'kuromon', city: 'osaka', name: '黑門市場', stay: 1.5, timeWindow: [9, 15], region: 12, regionName: '大阪中區', type: '商圈', desc: '「大阪的廚房」，能邊走邊吃體驗當地朝氣。主打海鮮與和牛。', transport: '地鐵千日前線/堺筋線至「日本橋站」。' },
+      { id: 'kaiyukan', city: 'osaka', name: '海遊館 (Kaiyukan)', stay: 2.5, timeWindow: [10, 20], region: 15, regionName: '大阪灣區', type: '觀光景點', desc: '世界最大級別室內水族館，以太平洋水槽與「鯨鯊」聞名。', transport: '地鐵中央線至「大阪港站」。' },
+      { id: 'legoland', city: 'osaka', name: '大阪樂高樂園探索中心', stay: 2.5, timeWindow: [10, 18], region: 15, regionName: '大阪灣區', type: '觀光景點', desc: '適合親子同樂的室內樂園，充滿創意的樂高積木世界與遊樂設施。', transport: '地鐵中央線至「大阪港站」步行即可抵達天保山購物中心。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/9612-legoland-discovery-center-ticket-osaka/?aid=116515', text: '樂高樂園門票'}] },
+      { id: 'rinku_outlet', city: 'osaka', name: '臨空城 Outlet', stay: 3, timeWindow: [10, 20], region: 16, regionName: '機場周邊', type: '商圈', desc: '西日本最大級別的 Outlet，緊鄰大阪灣，適合抵達或離開機場時順遊。', transport: '搭乘 JR 或南海電鐵至「臨空城站 (Rinku Town)」。' },
+      { id: 'solaniwa', city: 'osaka', name: '空庭溫泉', stay: 2.5, timeWindow: [11, 22], region: 15, regionName: '大阪灣區', type: '私房景點', desc: '關西最大級別溫泉主題樂園！可穿著美麗浴衣在日式庭園拍美照。', transport: '搭乘 JR 或地鐵中央線至「弁天町站」直達。' },
+      { id: 'teamlab_botanical', city: 'osaka', name: '長居植物園 teamLab', stay: 2, timeWindow: [18, 21.5], region: 14, regionName: '大阪南區', type: '私房景點', desc: '由 teamLab 打造的夜間戶外光影藝術展，植物與燈光互動非常夢幻，是晚上絕佳去處。', transport: '地鐵御堂筋線至「長居站」。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/73632-teamlab-botanical-garden-osaka/?aid=116515', text: 'teamLab 門票'}] },
+      { id: 'tennoji_zoo', city: 'osaka', name: '天王寺動物園', stay: 2.5, timeWindow: [9.5, 17], region: 14, regionName: '大阪南區', type: '觀光景點', desc: '日本歷史悠久的動物園，重現動物棲息地環境的「生態展示」大受好評。', transport: '地鐵至「動物園前站」或「天王寺站」。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/168730-tennoji-zoo/?aid=116515', text: '動物園門票'}] },
+      { id: 'akiba_kart', city: 'osaka', name: '大阪卡丁車體驗', stay: 2, timeWindow: [10, 20], region: 12, regionName: '大阪中區', type: '私房景點', desc: '穿上角色服裝，駕駛卡丁車穿梭在大阪街頭，感受獨一無二的城市觀光體驗！', transport: '依預訂集合地點前往，通常位於難波或梅田周邊。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/search/result/?query=%E5%A4%A7%E9%98%AA%E5%8D%A1%E4%B8%81%E8%BB%8A%E9%AB%94%E9%A9%97&needQueryIdentification=true&spm=Activity.SearchSuggest_LIST&clickId=2fcc0ce1c5&aid=116515', text: '卡丁車體驗'}] },
+      { id: 'sumo_show', city: 'osaka', name: '相撲秀體驗', stay: 2, timeWindow: [11, 21], region: 12, regionName: '大阪中區', type: '觀光景點', desc: '體驗日本傳統國技！不僅能觀賞充滿魄力的相撲表演，還能品嚐相撲力士吃的「相撲火鍋」。', transport: '多位於難波、新世界等大阪市中心區域。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/111070-the-sumo-hall-hirakuza-osaka-admission-ticket-in-osaka/?aid=116515', text: '相撲秀體驗'}] },
+      { id: 'koyasan', city: 'osaka', name: '高野山', stay: 4, timeWindow: [9, 17], region: 17, regionName: '關西近郊', type: '私房景點', desc: '日本佛教真言宗的聖地。奧之院參道兩旁古木參天，充滿莊嚴神聖的靈氣，秋季更是賞楓秘境。', transport: '從南海電鐵「難波站」搭乘特急至極樂橋，轉乘高野山纜車 (約 2 小時)。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/158473-a/?aid=116515', text: '高野山小眾秘境一日遊'}] },
+      { id: 'kumano', city: 'osaka', name: '熊野古道', stay: 5, timeWindow: [8, 17], region: 17, regionName: '關西近郊', type: '私房景點', desc: '世界遺產級的朝聖之路，漫步於神聖的紀伊山脈森林中。建議安排那智瀑布與熊野那智大社。', transport: '從新大阪搭乘 JR 特急「黑潮號」至紀伊勝浦 (約 3.5-4 小時)。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/158473-a/?aid=116515', text: '熊野古道秘境一日遊'}] },
+
+      // ================= 京都 (Kyoto) =================
+      { id: 'kiyomizu', city: 'kyoto', name: '清水寺', stay: 3, timeWindow: [9, 17.5], region: 23, regionName: '京都東山', type: '觀光景點', desc: '建立在音羽山上的千年古剎，懸空的「清水舞台」與周邊的傳統街區，是感受古都風華的必訪之地。', transport: '搭乘巴士至「五條坂」或「清水道」站，步行約 10-15 分鐘上坡。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/114571-kimono-rental-japanese-makeup-photoshoot-by-ookini-kiyomizudera/?aid=116515', text: '和服及浴衣租借'}, {url: 'https://www.klook.com/zh-TW/activity/137180-kyoto-classic-in-depth-one-day-tour-from-osaka-or-kyoto/?aid=116515', text: '清水寺&金閣寺深度一日遊'}] },
+      { id: 'nishiki', city: 'kyoto', name: '錦市場', stay: 1.5, timeWindow: [10, 16], region: 22, regionName: '京都洛中', type: '商圈', desc: '被譽為「京都的廚房」，這條擁有400年歷史的室內街道匯集了各種醃漬物、抹茶甜點與現烤海鮮。', transport: '地鐵「四条站」或阪急「京都河原町站」步行 3-5 分鐘。' },
+      { id: 'maruyama', city: 'kyoto', name: '圓山公園', stay: 1.5, timeWindow: [0, 24], region: 23, regionName: '京都東山', type: '公園', desc: '京都最古老的公園，緊鄰八坂神社。以園內那株巨大的「祇園枝垂櫻」最為著名。', transport: '搭乘巴士至「祇園」站，步行約 3 分鐘。' },
+      { id: 'otagi', city: 'kyoto', name: '愛宕念佛寺', stay: 1.5, timeWindow: [9, 16], region: 25, regionName: '京都洛西', type: '私房景點', desc: '位於嵐山較深處的秘境。寺院內佈滿了1200多尊由參拜者親手雕刻的「羅漢石像」，極具神秘與療癒感。', transport: '搭乘巴士至「愛宕寺前」站下車即達。' },
+      { id: 'fushimi', city: 'kyoto', name: '伏見稻荷大社', stay: 2.5, timeWindow: [8, 18], region: 24, regionName: '京都洛南', type: '觀光景點', desc: '以綿延不絕、通往稻荷山的「千本鳥居」聞名全球。', transport: 'JR「稻荷站」出站即達，或京阪本線「伏見稻荷站」步行 5 分鐘。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/156282-uji-byodo-in-fushimi-inari-taisha-katsuoji-minoh-falls-day-tour/?aid=116515', text: '伏見稻荷&宇治一日遊'}] },
+      { id: 'kinkakuji', city: 'kyoto', name: '金閣寺 (鹿苑寺)', stay: 1.5, timeWindow: [9, 17], region: 21, regionName: '京都洛北', type: '觀光景點', desc: '外牆貼滿純金箔的三層樓閣，倒影在鏡湖池上金碧輝煌。', transport: '搭乘巴士至「金閣寺道」站，步行約 3 分鐘。' },
+      { id: 'arashiyama', city: 'kyoto', name: '嵐山 & 竹林小徑', stay: 4, timeWindow: [9, 17], region: 25, regionName: '京都洛西', type: '觀光景點', desc: '結合自然與人文。必訪「竹林小徑」、「渡月橋」及觀光小火車。', transport: 'JR「嵯峨嵐山站」或阪急/嵐電「嵐山站」。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/158704-kyoto-osaka-top-attractions-day-tour-from-osaka/?aid=116515', text: '嵐山&金閣寺一日遊'}, {url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241227&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F110001-kyoto-nara-deer-arashiyama-train-cherry-blossom-one-day-tour%2F', text: '嵐山&奈良一日遊'}] },
+      { id: 'hozugawa', city: 'kyoto', name: '保津川遊船', stay: 2.5, timeWindow: [9, 15], region: 25, regionName: '京都洛西', type: '觀光景點', desc: '從龜岡順流而下至嵐山，兩岸四季風景如畫，船夫撐篙的技術令人驚嘆。', transport: '搭乘 JR 至「龜岡站」，步行至乘船處。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/74947-kyoto-arashiyama-hozugawa-river-boat-ride/?spm=SearchResult.SearchResult_LIST&clickId=0ea5d45678&aid=116515', text: '保津川遊船體驗'}] },
+      { id: 'nijo', city: 'kyoto', name: '二条城', stay: 2, timeWindow: [9, 16.5], region: 22, regionName: '京都洛中', type: '觀光景點', desc: '德川家康在京都的寓所。擁有華麗壁畫與會發出聲響的「鸝鳴地板」。', transport: '地鐵東西線至「二条城前站」，出站即達。' },
+      { id: 'yasaka_gion', city: 'kyoto', name: '八坂神社 & 祇園', stay: 2, timeWindow: [15, 21], region: 23, regionName: '京都東山', type: '私房景點', desc: '香火鼎盛的神社。旁邊「花見小路」傍晚有機會遇見藝妓。', transport: '京阪本線至「祇園四条站」步行 5 分鐘。' },
+      { id: 'tofukuji', city: 'kyoto', name: '東福寺', stay: 2, timeWindow: [9, 16], region: 24, regionName: '京都洛南', type: '觀光景點', desc: '京都秋季最具代表性賞楓勝地。', transport: 'JR 或京阪本線至「東福寺站」，步行約 10 分鐘。' },
+      { id: 'amanohashidate', city: 'kyoto', name: '天橋立', stay: 2.5, timeWindow: [9, 17], region: 26, regionName: '京都丹後', type: '觀光景點', desc: '日本三景之一，被譽為「通往天空的橋樑」，可搭乘纜車至傘松公園俯瞰壯麗的沙洲奇景。', transport: '從京都搭乘特急列車「橋立號」直達天橋立站 (約 2 小時)。', bookingLinks: [{url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241230&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F146607-amanohashidate-funaya-ine-bay-beautiful-scenery-tour-osaka-kyoto%2F', text: '天橋立&伊根一日遊'}] },
+      { id: 'ine_funaya', city: 'kyoto', name: '伊根舟屋', stay: 2, timeWindow: [9, 17], region: 26, regionName: '京都丹後', type: '私房景點', desc: '擁有「日本最美村莊」美譽的水上舟屋聚落，獨特的建築臨海而建。', transport: '從天橋立轉乘丹海巴士約 1 小時可達。', bookingLinks: [{url: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241230&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F146607-amanohashidate-funaya-ine-bay-beautiful-scenery-tour-osaka-kyoto%2F', text: '天橋立&伊根一日遊'}] },
+      { id: 'ine_bay', city: 'kyoto', name: '伊根灣賞鷗', stay: 1, timeWindow: [9, 16], region: 26, regionName: '京都丹後', type: '觀光景點', desc: '搭乘伊根灣遊覽船，從海面上欣賞舟屋群的全貌，還能體驗餵食海鷗。', transport: '位於伊根舟屋聚落內，可於伊根灣遊覽船乘船處搭乘。' },
+
+      // ================= 奈良 (Nara) =================
+      { id: 'todaiji', city: 'nara', name: '東大寺', stay: 1.5, timeWindow: [9, 17], region: 41, regionName: '奈良市區', type: '觀光景點', desc: '擁有世界最大的木造建築「大佛殿」與宏偉的青銅大佛，令人屏息。', transport: '位於奈良公園內，步行抵達。' },
+      { id: 'higashimuki', city: 'nara', name: '東向商店街', stay: 1.5, timeWindow: [10, 20], region: 41, regionName: '奈良市區', type: '商圈', desc: '從近鐵奈良站一出來就能抵達的拱廊街道。充滿傳統工藝品與在地餐廳。', transport: '近鐵「近鐵奈良站」出站即達。' },
+      { id: 'nara_park', city: 'nara', name: '奈良公園', stay: 2.5, timeWindow: [9, 17.5], region: 41, regionName: '奈良市區', type: '公園', desc: '與城市完美融合的開放式公園，成群的鹿穿梭其間。餵食仙貝是最經典的體驗。', transport: '近鐵「近鐵奈良站」步行約 5 分鐘。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/87236-kyoto-tour-nara/?aid=116515', text: '清水寺&奈良一日遊'}, {url: 'https://www.klook.com/zh-TW/activity/186586-uji-nara-hot-spring-day-tour-osaka-hotel-pick-up-service-available/?spm=SearchResult.SearchResult_LIST&clickId=8f082f11ed&aid=116515', text: '奈良&宇治一日遊'}] },
+      { id: 'ukimido', city: 'nara', name: '浮見堂', stay: 1, timeWindow: [0, 24], region: 41, regionName: '奈良市區', type: '私房景點', desc: '位於奈良公園鷺池上的一座六角形木造涼亭，清晨起霧時宛如一幅水墨畫。', transport: '位於奈良公園內，步行可達。' },
+      { id: 'kasuga', city: 'nara', name: '春日大社', stay: 1.5, timeWindow: [9, 17], region: 41, regionName: '奈良市區', type: '觀光景點', desc: '擁有成千上萬座石燈籠的古老神社，周圍被古老森林環繞。', transport: '從奈良公園內部步行約 15 分鐘上坡。' },
+
+      // ================= 宇治 (Uji) =================
+      { id: 'byodoin', city: 'uji', name: '平等院', stay: 2, timeWindow: [9, 17], region: 31, regionName: '宇治市', type: '觀光景點', desc: '印在日本十圓硬幣上的經典建築「鳳凰堂」，倒映在清澈的阿字池中。', transport: 'JR 或京阪宇治線至「宇治站」，步行約 10 分鐘。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/145012-limited-time-event-yodogawa-sewaritei-sakura-festival/?aid=116515', text: '宇治&勝尾寺一日遊'}] },
+      { id: 'byodoin_omotesando', city: 'uji', name: '平等院表參道', stay: 1.5, timeWindow: [10, 17], region: 31, regionName: '宇治市', type: '商圈', desc: '通往平等院的步道，空氣中時常瀰漫著茶葉香氣。是品嚐頂級抹茶的最佳地點。', transport: 'JR 或京阪宇治線至「宇治站」，步行約 5 分鐘。' },
+      { id: 'uji_park', city: 'uji', name: '宇治公園 (中之島)', stay: 1, timeWindow: [0, 24], region: 31, regionName: '宇治市', type: '公園', desc: '位於宇治川中心的沙洲公園，水流平緩，非常適合買點心坐著享受微風。', transport: '從平等院步行約 5 分鐘過橋可達。' },
+      { id: 'shojuin', city: 'uji', name: '正壽院', stay: 2, timeWindow: [9, 16], region: 32, regionName: '宇治郊區', type: '私房景點', desc: '以客殿裡浪漫的心型「豬目窗」及夏季舉辦的「風鈴祭」聞名的隱藏版角落。', transport: '從宇治站搭乘京阪宇治巴士至「維中前」，轉乘社區巴士前往。' },
+
+      // ================= 神戶 (Kobe) =================
+      { id: 'kobe_port_tower', city: 'kobe', name: '神戶港塔', stay: 1.5, timeWindow: [10, 22], region: 51, regionName: '神戶港區', type: '觀光景點', desc: '獨特的雙曲面紅色管狀結構。登上觀景台可以將神戶港灣與六甲山景緻盡收眼底。', transport: '搭乘 JR 至「元町站」步行約 15 分鐘。' },
+      { id: 'kobe_umie', city: 'kobe', name: '神戶臨海樂園 umie', stay: 2.5, timeWindow: [10, 21], region: 51, regionName: '神戶港區', type: '商圈', desc: '結合購物與美食。緊鄰港邊的木棧道與馬賽克廣場，在傍晚點燈後充滿異國情調。', transport: '搭乘 JR 至「神戶站」步行 5 分鐘。' },
+      { id: 'meriken_park', city: 'kobe', name: '美利堅公園', stay: 1.5, timeWindow: [0, 24], region: 51, regionName: '神戶港區', type: '公園', desc: '除了知名的「BE KOBE」紀念碑，這裡還保留了神戶大地震的紀念遺址。', transport: '位於神戶港塔旁，步行可達。' },
+      { id: 'nunobiki', city: 'kobe', name: '神戶布引香草園', stay: 3, timeWindow: [10, 17], region: 52, regionName: '神戶市區', type: '私房景點', desc: '搭乘纜車才能抵達的山頂花園。能俯瞰壯麗的港口城市全景。', transport: '搭乘新幹線或地鐵至「新神戶站」，轉乘空中纜車上山。' },
+      { id: 'kitano', city: 'kobe', name: '北野異人館街', stay: 2, timeWindow: [10, 17], region: 52, regionName: '神戶市區', type: '觀光景點', desc: '明治時代外國人居住的洋樓群，漫步其中彷彿置身歐洲。', transport: '搭乘 JR/阪急/阪神至「三宮站」，向北上坡步行約 15 分鐘。' },
+      { id: 'arima', city: 'kobe', name: '有馬溫泉', stay: 3.5, timeWindow: [10, 20], region: 54, regionName: '神戶郊區', type: '私房景點', desc: '日本三大古湯之一。擁有富含鐵質的「金泉」與透明的「銀泉」。', transport: '從三宮或梅田搭乘高速巴士直達，或搭乘神戶電鐵至「有馬溫泉站」。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/141926-kobe-port-arima-onsen-mt-rokko-night-view-tour-from-osaka/?aid=116515', text: '有馬溫泉&六甲山一日遊'}] },
+      { id: 'maya', city: 'kobe', name: '摩耶山 掬星台', stay: 2, timeWindow: [17, 21.5], region: 55, regionName: '神戶郊區', type: '私房景點', desc: '日本三大夜景之一！視野開闊可俯瞰整個大阪灣。', transport: '搭乘市營巴士至「摩耶纜車站」，轉乘纜車至星之站。' },
+
+      // ================= 姬路 (Himeji) =================
+      { id: 'himeji_castle', city: 'himeji', name: '姬路城', stay: 3, timeWindow: [9, 16.5], region: 61, regionName: '姬路市', type: '觀光景點', desc: '日本第一名城，也是世界文化遺產。保留了極為完整的木造天守閣與防禦迷宮。', transport: '搭乘 JR 神戶線或新幹線至「姬路站」，直行步行約 15 分鐘。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/195510-ono-cherry-blossom-corridor-himeji-castle-kobe-mentai-park-tour/?aid=116515', text: '姬路城一日遊'}, {url: 'https://www.klook.com/zh-TW/activity/94348-himeji-castle-arima-onse-mt-rokko-day-tour-osaka/?aid=116515', text: '姬路城&有馬一日遊'}] },
+      { id: 'miyuki_dori', city: 'himeji', name: '御幸通路商店街', stay: 1.5, timeWindow: [10, 19], region: 61, regionName: '姬路市', type: '商圈', desc: '從姬路車站筆直延伸向姬路城的帶狀商圈。充滿在地人的生活氣息。', transport: 'JR「姬路站」出站即達。' },
+      { id: 'kokoen', city: 'himeji', name: '好古園', stay: 1.5, timeWindow: [9, 17], region: 61, regionName: '姬路市', type: '公園', desc: '緊鄰姬路城池畔的池泉迴遊式日本庭園。展現了極致的庭園工藝。', transport: '從姬路城出口步行約 5 分鐘即可抵達。' },
+      { id: 'engyoji', city: 'himeji', name: '書寫山 圓教寺', stay: 3, timeWindow: [9, 17], region: 62, regionName: '姬路郊區', type: '私房景點', desc: '搭乘纜車登上書寫山後，隱藏在茂密森林中的千年古剎。電影《末代武士》取景地。', transport: '從姬路站搭乘巴士至書寫纜車站，再轉乘纜車上山。' },
+
+      // ================= 美山町 (Miyama) =================
+      { id: 'kayabuki', city: 'miyama', name: '茅葺部落（かやぶきの里）', stay: 2.5, timeWindow: [9, 17], region: 71, regionName: '美山町', type: '觀光景點', desc: '與合掌村並列為日本三大茅葺屋集落。保留了傳統茅草屋頂的古老農舍，宛如走入童話世界。', transport: '搭乘 JR 至「日吉站」，轉乘南丹市營巴士至「北」站。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/189675-miyama-village-katsuo-ji-temple-one-day-tour/?spm=SearchResult.SearchResult_LIST&clickId=55c143f4d1&aid=116515', text: '美山合掌村一日遊'}] },
+      { id: 'miyama_hiroba', city: 'miyama', name: '道之驛 美山廣場', stay: 1, timeWindow: [9, 17], region: 71, regionName: '美山町', type: '商圈', desc: '美山町沒有繁華的商店街，這座公路休息站就是當地最熱鬧的聚集地，別錯過超濃郁美山牛乳。', transport: '搭乘南丹市營巴士至「安掛」站。' },
+      { id: 'ono_dam', city: 'miyama', name: '大野水壩公園', stay: 1.5, timeWindow: [0, 24], region: 71, regionName: '美山町', type: '公園', desc: '被稱為「虹之湖」，春天有櫻花盛開，秋天則是滿山遍野的紅葉。非常適合野餐。', transport: '搭乘南丹市營巴士或開車自駕前往。' },
+      { id: 'chii_hachiman', city: 'miyama', name: '知井八幡神社', stay: 1, timeWindow: [0, 24], region: 71, regionName: '美山町', type: '私房景點', desc: '隱身在茅葺部落深處的古老神社。長滿青苔的石階與木造建築散發著空靈氣息。', transport: '位於茅葺部落內，步行可達。' }
+    ];
+
+    const CITIES = [
+      { id: 'osaka', name: '大阪', color: 'blue' },
+      { id: 'kyoto', name: '京都', color: 'emerald' },
+      { id: 'miyama', name: '美山', color: 'fuchsia' },
+      { id: 'nara', name: '奈良', color: 'amber' },
+      { id: 'uji', name: '宇治', color: 'teal' },
+      { id: 'kobe', name: '神戶', color: 'indigo' },
+      { id: 'himeji', name: '姬路', color: 'rose' }
+    ];
+
+    // --- 核心交通與排程邏輯區 ---
+    const formatTime = (h) => {
+      let hh = Math.floor(h) % 24;
+      let mm = Math.round((h - Math.floor(h)) * 60);
+      if (mm === 60) { hh++; mm = 0; }
+      return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+    };
+
+    const getCityColor = (cityId) => {
+      const colors = { osaka: 'blue', kyoto: 'emerald', miyama: 'fuchsia', nara: 'amber', uji: 'teal', kobe: 'indigo', himeji: 'rose' };
+      const c = colors[cityId] || 'slate';
+      return `text-${c}-600 bg-${c}-100 border-${c}-200`;
+    };
+
+    const getSmartTransit = (prev, curr) => {
+      if (curr.id === 'ret') return '✈️ 【準備回國】搭乘 JR Haruka 或南海電鐵前往關西國際機場 (KIX) 報到。';
+
+      if (curr.region === 26) return `🚆 【郊區長途移動】前往京都北部的海之京都 (天橋立/伊根)，搭乘特急列車與巴士約需 2~2.5 小時。\n💡 建議：購買關西廣域鐵路周遊券(JR Kansai Wide Area Pass)最划算！`;
+      if (curr.id === 'koyasan') return `🚆 【近郊長途移動】搭乘南海電鐵特急前往極樂橋，轉乘纜車上高野山 (約 2 小時)。`;
+      if (curr.id === 'kumano') return `🚆 【近郊長途移動】前往熊野古道搭乘 JR 特急黑潮號約需 3.5-4 小時。\n💡 建議：路途遙遠，強烈建議安排兩天一夜並使用 JR Pass。`;
+
+      if (!prev || prev.id.startsWith('acc_') || prev.type === '起點') {
+        if (curr.type === '機場') return `🛬 【抵達關西】搭乘南海電鐵、利木津巴士或 JR 前往市區 ${curr.name}。`;
+        return `🏨 【出發前往】搭乘大眾運輸前往 ${curr.name}。`;
+      }
+
+      if (prev.city !== curr.city && prev.id !== 'osaka_origin') {
+         let text = '';
+         const route = `${prev.city}-${curr.city}`;
+         if (route.includes('miyama')) text = '搭乘 JR 轉乘南丹市營巴士，或租車自駕 (約 1.5~2 小時)。';
+         else if (route === 'osaka-kyoto' || route === 'kyoto-osaka') text = '搭乘 JR京都線新快速 或 阪急/京阪本線 (約 30-45 分)。';
+         else if (route === 'osaka-nara' || route === 'nara-osaka') text = '搭乘 近鐵奈良線 或 JR大和路線 (約 40-50 分)。';
+         else if (route === 'osaka-kobe' || route === 'kobe-osaka') text = '搭乘 JR神戶線新快速 或 阪急/阪神本線 (約 25-35 分)。';
+         else if (route === 'osaka-himeji' || route === 'himeji-osaka') text = '搭乘 JR神戶線新快速 或 新幹線 (約 30-65 分)。';
+         else if (route === 'kyoto-nara' || route === 'nara-kyoto') text = '搭乘 近鐵京都線 或 JR奈良線 (約 35-45 分)。';
+         else text = `搭乘 JR 或 地區私鐵進行跨城移動。`;
+         return `🚄 【跨縣市轉乘】${text}\n💡 建議：可善用周遊卡或交通神券。`;
+      }
+
+      return `🚇 【市區移動】從 ${prev.name} 轉乘電車或公車前往 ${curr.name}。`;
+    };
+
+    // --- 主應用程式 ---
+    function App() {
+      const [activeCity, setActiveCity] = useState('osaka');
+      const [selectedIds, setSelectedIds] = useState([]);
+      const [showPrintView, setShowPrintView] = useState(false);
+      const [tripDuration, setTripDuration] = useState(5);
+
+      const toggleAttr = (id) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+      const itineraryDays = useMemo(() => {
+        if (selectedIds.length === 0) return [];
+
+        let idsToSchedule = [...selectedIds];
+        
+        // 綁定邏輯：如果選了東大寺或春日大社，自動帶入奈良公園
+        if (idsToSchedule.includes('todaiji') || idsToSchedule.includes('kasuga')) {
+            if (!idsToSchedule.includes('nara_park')) idsToSchedule.push('nara_park');
+        }
+        idsToSchedule = [...new Set(idsToSchedule)];
+
+        // 排序權重定義 (確保城市分群與時間合理性)
+        const getPriority = (item) => {
+            if (item.id === 'ret') return 999;
+            if (item.type === '起點') return 10;
+            if (item.type === '機場') return 15;
+            if (item.type === '住宿區域') return 20; 
+            
+            let win = item.timeWindow || [9.5, 21.5];
+
+            // 晚上才去的行程排後面 (營業到較晚的商圈或特定夜景)
+            const isNight = (['商圈', '溫泉泡湯'].includes(item.type) && win[1] >= 19) || item.id === 'maya' || item.id === 'harukas' || item.id === 'teamlab_botanical';
+            if (isNight) return 90; 
+            
+            // 寺廟、歷史人文、動物園優先排白天 (因為通常 17:00 關門)
+            if (win[1] <= 17.5) return 30; 
+            
+            return 50; 
+        };
+
+        const sorted = idsToSchedule
+          .map(id => ATTRACTIONS.find(a => a.id === id))
+          .filter(a => a)
+          .sort((a, b) => {
+            const getSortKey = (item) => {
+              let sk = getPriority(item);
+              // 強制將同城市的資料分群
+              let cityGroup = CITIES.findIndex(c => c.id === item.city);
+              return cityGroup * 100000 + sk * 1000; 
+            };
+            return getSortKey(a) - getSortKey(b);
+          });
+
+        let remaining = [...sorted];
+        let days = [];
+        
+        // ★ 第一天強制從 12:00 開始 (假設中午抵達關西機場或放完行李)
+        let curDay = { items: [], dayCity: 'osaka', dayType: null, currentTime: 12.0 }; 
+        let lCity = 'osaka', lReg = 12;
+        let prevItemObj = null; 
+
+        // 交通時間計算 (針對關西地區)
+        const getTTime = (isNewDay, fCity, tCity, fReg, tReg) => {
+            // 針對長途近郊景點的額外交通時間
+            let extraFarTime = 0;
+            if ((fReg === 17 && tReg !== 17) || (tReg === 17 && fReg !== 17)) extraFarTime += 1.5; // 高野山、熊野古道
+            if ((fReg === 26 && tReg !== 26) || (tReg === 26 && fReg !== 26)) extraFarTime += 1.5; // 天橋立、伊根
+            
+            // 處理天橋立與伊根之間的微轉乘
+            if (fReg === 26 && tReg === 26 && fCity === tCity && !isNewDay) return 0.8;
+
+            // 跨城市移動
+            if (fCity && tCity && fCity !== tCity) {
+                if (fCity === 'miyama' || tCity === 'miyama') return 2.0 + extraFarTime;
+                const pair = [fCity, tCity].sort().join('-');
+                if (pair === 'himeji-osaka') return 1.5 + extraFarTime;
+                if (pair === 'kobe-kyoto') return 1.5 + extraFarTime;
+                return 1.0 + extraFarTime; // 一般跨城 (大阪-京都, 大阪-奈良)
+            }
+            if (isNewDay) return 0.5 + extraFarTime; // 新的一天出發
+            return (fReg !== tReg ? 0.8 : 0.3) + extraFarTime; // 同城市跨區 vs 同區域
+        };
+
+        const checkValid = (a, isF, curTime) => {
+            let tTime = getTTime(isF, lCity, a.city, lReg, a.region);
+            let arrivalTime = curTime + tTime;
+            let isLastDay = days.length === tripDuration - 1;
+            
+            if (!isF) {
+                let isBasic = ['住宿區域', '機場', '起點'].includes(a.type);
+                if (!isBasic) {
+                    // 同城市景點排同一天：強制鎖定同城市
+                    if (a.city !== lCity) {
+                        // 1. 檢查是否還有同城市的景點尚未安排
+                        let hasSameCityLeft = remaining.some(r => r.city === lCity && !['住宿區域', '機場', '起點'].includes(r.type));
+                        if (hasSameCityLeft) return false; // 如果還有同城市景點，絕對不允許換城市
+                        
+                        // 2. 如果同城市已排完，但時間已經過中午後，寧願換天也不要跨城奔波
+                        if (curTime > 14) return false;
+                    }
+                }
+            }
+
+            let win = a.timeWindow || [9, 21.5]; 
+            if (['住宿區域', '機場'].includes(a.type)) win = [0, 24];
+
+            let waitTime = 0;
+            if (arrivalTime < win[0]) {
+                waitTime = win[0] - arrivalTime;
+                if (waitTime > 2.0 && !isF) return false; // 等太久跳過
+            }
+
+            let actStart = arrivalTime + waitTime;
+            let actEnd = actStart + a.stay;
+
+            // 抵達時已過營業時間 (關西很多寺廟 17:00 關門)
+            if (actStart >= win[1] - 0.5) return false; 
+            
+            // 最後一天的時間鎖死 (接 14:00 去機場)
+            if (isLastDay) {
+                let retTFromA = getTTime(false, a.city, 'osaka', a.region, 10);
+                let maxEndTime = 14.0 - 2.5 - retTFromA; 
+                if (actEnd > maxEndTime) return false;
+            } else {
+                if (!isF && actEnd > 22.0) return false; // 每天不超過晚上 10 點
+            }
+
+            return { valid: true, tTime, waitTime, actStart, actEnd };
+        };
+
+        while (remaining.length > 0) {
+            const isF = curDay.items.length === 0;
+            let chosenIdx = -1;
+            let chosenStats = null;
+
+            // 尋找最適合的行程
+            let validCands = [];
+            for (let i = 0; i < remaining.length; i++) {
+                let stats = checkValid(remaining[i], isF, curDay.currentTime);
+                if (stats && stats.valid) {
+                    validCands.push({ a: remaining[i], idx: i, prio: getPriority(remaining[i]), stats });
+                }
+            }
+
+            if (validCands.length > 0) {
+                // 排序: 1.同城市優先 2.優先權 3.車程 4.營業結束時間早的先去 5.原始城市分群順序
+                validCands.sort((ca, cb) => {
+                    let isSameCityA = ca.a.city === lCity ? 1 : 0;
+                    let isSameCityB = cb.a.city === lCity ? 1 : 0;
+                    if (isSameCityA !== isSameCityB) return isSameCityB - isSameCityA;
+
+                    if (ca.prio !== cb.prio) return ca.prio - cb.prio;
+                    if (ca.stats.tTime !== cb.stats.tTime) return ca.stats.tTime - cb.stats.tTime;
+                    let winA = ca.a.timeWindow || [9, 21.5];
+                    let winB = cb.a.timeWindow || [9, 21.5];
+                    if (winA[1] !== winB[1]) return winA[1] - winB[1];
+                    
+                    return ca.idx - cb.idx; // 保留原始的城市分群排序，避免跨天時城市亂跳
+                });
+                chosenIdx = validCands[0].idx;
+                chosenStats = validCands[0].stats;
+            }
+
+            // 本日塞不下了，強制換天
+            if (chosenIdx === -1) {
+                days.push(curDay);
+                if (days.length >= tripDuration) break; // 天數已滿
+                
+                curDay = { items: [], dayCity: remaining[0].city, dayType: null, currentTime: 9.0 };
+                continue;
+            }
+
+            const a = remaining.splice(chosenIdx, 1)[0];
+            const { tTime, waitTime, actStart, actEnd } = chosenStats;
+
+            if (isF && days.length === 0) prevItemObj = { id: 'osaka_origin', city: 'osaka', name: '機場/抵達點', type: '起點' };
+            if (isF && days.length > 0) prevItemObj = { id: 'acc_osaka', city: a.city, name: `住宿地 (${CITIES.find(c=>c.id===a.city)?.name || '大阪'})`, type: '住宿區域' }; 
+
+            let sTime = curDay.currentTime;
+            let aTime = sTime + tTime;
+            let finalWaitTime = actStart - aTime; 
+
+            let transitMsg = getSmartTransit(prevItemObj, a);
+            transitMsg += `\n📍 路線指南：${a.transport}`;
+            
+            let win = a.timeWindow || [9, 21.5];
+            if (finalWaitTime > 0 && win[0] > 0 && !['住宿區域', '機場'].includes(a.type)) {
+                transitMsg += `\n💡 建議：此景點建議 ${win[0]}:00 後開始，預計 ${formatTime(aTime)} 抵達，可於周邊稍作休息。`;
+            }
+
+            let isFirstAirport = (days.length === 0 && isF && a.type === '機場');
+
+            curDay.items.push({
+                ...a, tTime: tTime, prevName: prevItemObj.name, transitTransport: transitMsg,
+                tStr: `${formatTime(sTime)} - ${formatTime(aTime)}`,
+                sStr: isFirstAirport ? '抵達通關' : `${formatTime(actStart)} - ${formatTime(actEnd)}`,
+                isFirstAirport,
+                endTime: actEnd
+            });
+
+            curDay.currentTime = actEnd;
+            lCity = a.city; lReg = a.region; prevItemObj = a;
+            if (isF) curDay.dayCity = a.city;
+        }
+        
+        if (curDay.items.length > 0 && days.length < tripDuration) {
+            days.push(curDay);
+        }
+        while (days.length < tripDuration) {
+            days.push({ items: [], dayCity: lCity, dayType: null, currentTime: 9.0 });
+        }
+
+        // ================= ★ 壓軸機場 (強制定死在最後一天 14:00) =================
+        let lastD = days[days.length-1];
+        if (!lastD) {
+            lastD = { items: [], dayCity: 'osaka', dayType: null, currentTime: 9.0 };
+            days.push(lastD);
+        }
+        
+        let retT = getTTime(lastD.items.length === 0, lCity, 'osaka', lReg, 10);
+
+        // 如果最後一天加上前往機場的時間超過了 14:00，把超過限制的行程吐掉
+        while (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            let testRetT = getTTime(false, lastItem.city, 'osaka', lastItem.region, 10);
+            if (lastItem.endTime > (14.0 - 2.5 - testRetT)) {
+                lastD.items.pop();
+            } else {
+                break;
+            }
+        }
+
+        if (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            lastD.currentTime = lastItem.endTime;
+            lCity = lastItem.city;
+            lReg = lastItem.region;
+            prevItemObj = lastItem;
+        } else {
+            lastD.currentTime = 9.0;
+            lReg = 12;
+            prevItemObj = { name: '住宿地', city: lCity };
+        }
+        
+        retT = getTTime(lastD.items.length === 0, lCity, 'osaka', lReg, 10);
+        let startTransit = 14.0 - 2.5 - retT;
+        let transitMsg = '🚐 搭乘 JR Haruka、南海電鐵 或 利木津巴士 前往關西機場 (KIX) 報到。';
+        
+        if (lastD.currentTime < startTransit) {
+            transitMsg = `💡 距離前往機場還有空檔時間，建議於 ${formatTime(startTransit)} 準備出發。\n🚐 搭乘大眾運輸前往機場。`;
+        }
+        
+        let retPrev = prevItemObj || {name: '住宿地', city: 'osaka'};
+        lastD.items.push({
+            id: 'ret', city: 'osaka', name: '結束旅程前往機場回國', stay: 2.5, region: 999, regionName: '機場', type: '機場',
+            desc: '祝您有趟完美的關西回憶！請務必提早報到，還能在機場免稅店做最後採購。', transport: '於最後行程地點搭乘電車直達或轉乘至關西機場。',
+            tTime: retT, prevName: retPrev.name, transitTransport: transitMsg,
+            tStr: `${formatTime(startTransit)} - ${formatTime(14.0 - 2.5)}`,
+            sStr: `${formatTime(14.0 - 2.5)} - 14:00`,
+            isFirstAirport: false,
+            endTime: 14.0
+        });
+        
+        lastD.currentTime = 14.0;
+
+        return days.map((d, i) => {
+          const base = (i === 0 && d.items[0]?.isFirstAirport ? 12.0 : (i === 0 ? 12.0 : 9.0));
+          const end = d.currentTime;
+          return { dayNum: i+1, totalH: (end - base > 0 ? (end - base).toFixed(1) : "0.0"), cityName: CITIES.find(c => c.id === d.dayCity)?.name || '大阪', items: d.items };
+        });
+      }, [selectedIds, tripDuration]);
+
+      if (showPrintView) {
+        return (
+          <div className="min-h-screen bg-white p-4 sm:p-8">
+            <div className="max-w-3xl mx-auto border-2 border-slate-800 p-4 sm:p-8 rounded-2xl">
+              <div className="text-center mb-10"><h1 className="text-2xl sm:text-3xl font-bold">⛩️ 專屬關西自由行 行程表</h1><p className="mt-2 text-slate-500 text-sm">智慧排程系統自動為您計算跨區交通與寺廟營業時間</p></div>
+              {itineraryDays.map(d => (
+                <div key={d.dayNum} className="mb-10 print-break-avoid">
+                  <h2 className="text-xl font-bold border-b-2 pb-2 mb-6">🌞 第 {d.dayNum} 天 - 【{d.cityName} 區域】 ({d.totalH}h)</h2>
+                  <div className="space-y-6 ml-2 sm:ml-4 border-l-2 pl-4 sm:pl-6 border-slate-300">
+                    {d.items.map((it, idx) => (
+                      <div key={`${it.id}-${idx}`} className="relative mb-8">
+                        {!it.isFirstAirport && (
+                          <div className="mb-4 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs sm:text-sm">
+                             <div className="font-bold mb-2">{it.prevName} ➔ {it.name}</div>
+                             <div className="flex gap-3 mb-2"><span className="bg-white px-2 py-1 rounded border font-mono text-blue-500"><i className="fa-regular fa-clock"></i> {it.tStr}</span><span>車程估計：{it.tTime}h</span></div>
+                             <div className="whitespace-pre-wrap text-slate-600">{it.transitTransport}</div>
+                          </div>
+                        )}
+                        <div className="relative">
+                          <div className="absolute -left-[23px] sm:-left-[31px] top-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>
+                          <div className="font-bold text-xs sm:text-sm text-slate-500 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留：'}{it.sStr}</div>
+                          <h4 className="text-lg sm:text-xl font-bold text-slate-900">{it.name}</h4>
+                          <p className="text-xs sm:text-sm text-slate-600 my-2 leading-relaxed">{it.desc}</p>
+                          {it.bookingLinks && <div className="mt-3 flex gap-2 flex-wrap print:hidden">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] text-white text-xs px-2.5 py-1.5 rounded font-bold hover:bg-[#e05000]"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="mt-10 text-center flex flex-col sm:flex-row justify-center gap-4 print-hidden">
+                <button onClick={() => setShowPrintView(false)} className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700">返回編輯</button>
+                <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-500">列印行程 / 儲存 PDF</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const grouped = ATTRACTIONS.filter(a => a.city === activeCity && !a.id.startsWith('acc_')).reduce((acc, c) => { (acc[c.type] = acc[c.type] || []).push(c); return acc; }, {});
+
+      return (
+        <div className="min-h-screen bg-slate-50 pb-10">
+          <header className="bg-white p-4 shadow-sm flex flex-wrap justify-between items-center sticky top-0 z-20 border-b gap-3">
+            <div className="flex items-center gap-4">
+              <h1 className="font-bold text-xl flex items-center gap-2"><i className="fa-solid fa-train-tram text-blue-600"></i>關西行程魔法師</h1>
+              <a 
+                href="https://linkuei0425.github.io/Osaka/index.html" 
+                className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-full transition-colors border border-slate-200"
+              >
+                <i className="fa-solid fa-house"></i> 回到首頁
+              </a>
+            </div>
+            <div className="flex items-center gap-3">
+              {selectedIds.length > 0 && (
+                <button 
+                  onClick={() => setSelectedIds([])} 
+                  className="text-xs font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-3 py-1.5 rounded-full shadow-sm transition-colors flex items-center gap-1 cursor-pointer"
+                  title="清空所有已選景點"
+                >
+                  <i className="fa-solid fa-trash-can"></i> 清空
+                </button>
+              )}
+              <div className="text-xs font-bold bg-slate-800 text-white px-3 py-1.5 rounded-full shadow-sm">已選 {selectedIds.length} 站</div>
+            </div>
+          </header>
+          
+          <main className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-6 mt-2">
+            
+            {/* 左側：景點選擇 */}
+            <div className="lg:w-1/2 flex flex-col gap-4">
+              <div className="bg-white p-2 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar">
+                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all duration-200 ${activeCity === c.id ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}>{c.name}</button>)}
+              </div>
+              
+              <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+                <h2 className="text-sm font-bold flex items-center gap-2 mb-1">
+                  <i className="fa-solid fa-circle-info text-blue-500"></i>
+                  智慧排程提示
+                </h2>
+                <p className="text-xs text-slate-500">
+                  系統會自動將<strong className="text-orange-500">傍晚關門的寺廟</strong>排在白天，並將<strong className="text-indigo-500">商圈/夜景</strong>排在晚上。<br/>跨城市(如大阪去京都)會自動計算交通時間！
+                </p>
+              </div>
+
+              <div className="max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+                {Object.entries(grouped).map(([type, items]) => (
+                  <div key={type} className="mb-6">
+                    <h3 className="font-bold text-slate-700 mb-3 sticky top-0 bg-slate-50/90 py-2 backdrop-blur-sm z-10 border-b border-slate-200">{type}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {items.map(it => (
+                        <div key={it.id} onClick={() => toggleAttr(it.id)} className={`p-4 rounded-xl cursor-pointer border-2 transition-all duration-200 ${selectedIds.includes(it.id) ? 'bg-blue-50 border-blue-500 scale-[1.02] shadow-md' : 'bg-white border-transparent shadow-sm hover:border-slate-300'}`}>
+                          <div className="font-bold text-slate-900 leading-tight mb-2">{it.name}</div>
+                          <div className="text-[10px] flex gap-2 mb-2">
+                            <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600"><i className="fa-regular fa-clock mr-1"></i>{it.stay}h</span>
+                            <span className={`px-1.5 py-0.5 rounded border ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot"></i> {it.regionName}</span>
+                          </div>
+                          <p className="text-xs text-slate-500 line-clamp-2">{it.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 右側：自動生成的行程表 */}
+            <div className="lg:w-1/2">
+              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] sticky top-24">
+                <div className="bg-slate-800 text-white p-5 lg:p-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2"><i className="fa-regular fa-calendar-check text-blue-400"></i>您的行程表</h2>
+                  <p className="text-xs opacity-80 mt-1.5">💡 若行程過多，系統會依營業時間與交通為您自動分天數</p>
+                  
+                  {/* 行動版友善：調整為 flex-wrap 以免按鈕被擠壓無法點擊 */}
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      <select 
+                        value={tripDuration} 
+                        onChange={(e) => setTripDuration(Number(e.target.value))}
+                        className="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-3 rounded-xl outline-none cursor-pointer transition-colors shadow-lg border border-slate-600"
+                        title="選擇旅遊總天數"
+                      >
+                        <option value={4}>4 日遊</option>
+                        <option value={5}>5 日遊</option>
+                        <option value={6}>6 日遊</option>
+                        <option value={7}>7 日遊</option>
+                        <option value={8}>8 日遊</option>
+                      </select>
+                      <button 
+                        onClick={() => setSelectedIds([])} 
+                        className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl font-bold shadow-lg transition-all cursor-pointer ${selectedIds.length > 0 ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-slate-600 text-slate-400 hover:bg-slate-500 hover:text-white'}`}
+                        title="清空並重新輸入行程"
+                      >
+                        <i className="fa-solid fa-rotate-right"></i>
+                        <span>重設</span>
+                      </button>
+                    </div>
+                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="w-full sm:flex-1 bg-blue-500 hover:bg-blue-600 py-3 px-2 rounded-xl font-bold shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm sm:text-base cursor-pointer">
+                      產出詳細行程
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-24 flex flex-col items-center gap-4"><i className="fa-brands fa-fort-awesome text-6xl opacity-10"></i><p>尚未選擇任何景點</p></div> : 
+                    itineraryDays.map(d => (
+                      <div key={d.dayNum} className="mb-10">
+                        <h3 className="font-bold text-lg mb-4 border-b-2 border-slate-200 pb-2 flex items-center gap-2 text-slate-800"><i className="fa-solid fa-sun text-orange-500"></i> 第 {d.dayNum} 天 - 【{d.cityName}】 <span className="text-xs font-normal text-slate-400 ml-auto">總計: {d.totalH}h</span></h3>
+                        <div className="space-y-5 border-l-[3px] border-slate-200 ml-4 pl-7 relative pb-4">
+                          {d.items.map((it, idx) => (
+                            <div key={`${it.id}-${idx}`} className="relative mb-6">
+                              {!it.isFirstAirport && (
+                                <div className="mb-4 relative">
+                                  <div className="absolute -left-[40px] top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-100 rounded-full border-2 border-slate-300 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[8px] text-slate-400"></i></div>
+                                  <div className={`rounded-lg p-3 text-[11px] border shadow-sm ${it.transitTransport.includes('跨縣市') ? 'bg-red-50/70 border-red-100' : 'bg-blue-50/70 border-blue-100'}`}>
+                                    <div className={`font-bold mb-1.5 ${it.transitTransport.includes('跨縣市') ? 'text-red-800' : 'text-blue-800'}`}>{it.prevName} ➔ {it.name}</div>
+                                    <div className="flex items-center gap-3 mb-1.5">
+                                      <span className={`bg-white px-2 py-0.5 rounded border font-mono shadow-sm ${it.transitTransport.includes('跨縣市') ? 'border-red-200 text-red-600' : 'border-blue-200 text-blue-600'}`}>
+                                        <i className="fa-regular fa-clock mr-1"></i> {it.tStr}
+                                      </span>
+                                      <span className={`font-medium ${it.transitTransport.includes('跨縣市') ? 'text-red-600' : 'text-blue-600'}`}>車程 {it.tTime}h</span>
+                                    </div>
+                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{it.transitTransport}</div>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative hover:shadow-md transition-shadow">
+                                <div className="absolute -left-[37px] top-4 w-4.5 h-4.5 bg-blue-500 rounded-full border-[3px] border-white shadow-sm z-10"></div>
+                                <div className="text-xs font-bold text-slate-400 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留: '}{it.sStr}</div>
+                                <h4 className="font-bold text-base mb-1">{it.name}</h4>
+                                <p className="text-xs text-slate-500 leading-relaxed">{it.desc}</p>
+                                {it.bookingLinks && <div className="mt-3 flex gap-1.5 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[9px] px-2.5 py-1 rounded-lg font-bold transition-colors shadow-sm"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

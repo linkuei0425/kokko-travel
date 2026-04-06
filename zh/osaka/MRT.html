@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大阪交通 (Metro/JR/私鐵) 路線與景點查詢</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f8fafc; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- 1. 資料庫建置 ---
+        const mrtData = {
+            M: [ // 御堂筋線
+                { c: "M11", n: "江坂", e: "Esaka", a: "" },
+                { c: "M12", n: "東三國", e: "Higashi-Mikuni", a: "" },
+                { c: "M13", n: "新大阪", e: "Shin-Osaka", a: "新幹線轉乘、新大阪車站商場" },
+                { c: "M14", n: "西中島南方", e: "Nishinakajima-Minamigata", a: "" },
+                { c: "M15", n: "中津", e: "Nakatsu", a: "" },
+                { c: "M16", n: "梅田", e: "Umeda", a: "梅田商圈、藍天大廈、HEP FIVE" },
+                { c: "M17", n: "淀屋橋", e: "Yodoyabashi", a: "中之島公園" },
+                { c: "M18", n: "本町", e: "Hommachi", a: "船場中心大廈" },
+                { c: "M19", n: "心齋橋", e: "Shinsaibashi", a: "心齋橋筋商店街、美國村" },
+                { c: "M20", n: "難波", e: "Namba", a: "道頓堀、千日前、難波八阪神社" },
+                { c: "M21", n: "大國町", e: "Daikokucho", a: "木津市場" },
+                { c: "M22", n: "動物園前", e: "Dobutsuen-mae", a: "新世界、通天閣、天王寺動物園" },
+                { c: "M23", n: "天王寺", e: "Tennoji", a: "阿倍野Harukas、天王寺公園" },
+                { c: "M24", n: "昭和町", e: "Showacho", a: "" },
+                { c: "M25", n: "西田邊", e: "Nishitanabe", a: "" },
+                { c: "M26", n: "長居", e: "Nagai", a: "長居公園、大阪市立植物園" },
+                { c: "M27", n: "我孫子", e: "Abiko", a: "" },
+                { c: "M28", n: "北花田", e: "Kitahanada", a: "" },
+                { c: "M29", n: "新金岡", e: "Shinkanaoka", a: "" },
+                { c: "M30", n: "中百舌鳥", e: "Nakamozu", a: "" }
+            ],
+            T: [ // 谷町線
+                { c: "T11", n: "大日", e: "Dainichi", a: "" },
+                { c: "T12", n: "守口", e: "Moriguchi", a: "" },
+                { c: "T13", n: "太子橋今市", e: "Taishibashi-Imaichi", a: "" },
+                { c: "T14", n: "千林大宮", e: "Sembayashi-Omiya", a: "千林商店街" },
+                { c: "T15", n: "關目高殿", e: "Sekime-Takadono", a: "" },
+                { c: "T16", n: "野江內代", e: "Noe-Uchindai", a: "" },
+                { c: "T17", n: "都島", e: "Miyakojima", a: "" },
+                { c: "T18", n: "天神橋筋六丁目", e: "Tenjimbashisuji 6-chome", a: "大阪今昔生活館、天神橋筋" },
+                { c: "T19", n: "中崎町", e: "Nakazakicho", a: "中崎町文青咖啡街" },
+                { c: "T20", n: "東梅田", e: "Higashi-Umeda", a: "曾根崎初天神通" },
+                { c: "T21", n: "南森町", e: "Minamimorimachi", a: "大阪天滿宮" },
+                { c: "T22", n: "天滿橋", e: "Temmabashi", a: "造幣局 (賞櫻名所)、八軒家濱" },
+                { c: "T23", n: "谷町四丁目", e: "Tanimachi 4-chome", a: "大阪城公園、大阪歷史博物館" },
+                { c: "T24", n: "谷町六丁目", e: "Tanimachi 6-chome", a: "空堀商店街" },
+                { c: "T25", n: "谷町九丁目", e: "Tanimachi 9-chome", a: "" },
+                { c: "T26", n: "四天王寺前夕陽丘", e: "Shitennoji-mae Yuhigaoka", a: "四天王寺" },
+                { c: "T27", n: "天王寺", e: "Tennoji", a: "阿倍野Harukas" },
+                { c: "T28", n: "阿倍野", e: "Abeno", a: "Q's Mall" },
+                { c: "T29", n: "文之里", e: "Fuminosato", a: "" },
+                { c: "T30", n: "田邊", e: "Tanabe", a: "" },
+                { c: "T31", n: "駒川中野", e: "Komagawa-Nakano", a: "駒川商店街" },
+                { c: "T32", n: "平野", e: "Hirano", a: "" },
+                { c: "T33", n: "喜連瓜破", e: "Kire-Uriwari", a: "" },
+                { c: "T34", n: "出戶", e: "Deto", a: "" },
+                { c: "T35", n: "長原", e: "Nagahara", a: "" },
+                { c: "T36", n: "八尾南", e: "Yaominami", a: "" }
+            ],
+            Y: [ // 四橋線
+                { c: "Y11", n: "西梅田", e: "Nishi-Umeda", a: "HERBIS PLAZA" },
+                { c: "Y12", n: "肥後橋", e: "Higobashi", a: "國立國際美術館" },
+                { c: "Y13", n: "本町", e: "Hommachi", a: "靭公園" },
+                { c: "Y14", n: "四橋", e: "Yotsubashi", a: "南堀江" },
+                { c: "Y15", n: "難波", e: "Namba", a: "湊町河川園區" },
+                { c: "Y16", n: "大國町", e: "Daikokucho", a: "" },
+                { c: "Y17", n: "花園町", e: "Hanazonocho", a: "" },
+                { c: "Y18", n: "岸里", e: "Kishinosato", a: "" },
+                { c: "Y19", n: "玉出", e: "Tamade", a: "" },
+                { c: "Y20", n: "北加賀屋", e: "Kitakagaya", a: "加賀屋藝術村" },
+                { c: "Y21", n: "住之江公園", e: "Suminoekoen", a: "住之江賽艇場、天然露天溫泉" }
+            ],
+            C: [ // 中央線
+                { c: "C10", n: "宇宙廣場", e: "Cosmosquare", a: "" },
+                { c: "C11", n: "大阪港", e: "Osakako", a: "海遊館、天保山摩天輪" },
+                { c: "C12", n: "朝潮橋", e: "Asashiobashi", a: "丸善Intec競技場" },
+                { c: "C13", n: "弁天町", e: "Bentencho", a: "空庭溫泉" },
+                { c: "C14", n: "九條", e: "Kujo", a: "" },
+                { c: "C15", n: "阿波座", e: "Awaza", a: "" },
+                { c: "C16", n: "本町", e: "Hommachi", a: "" },
+                { c: "C17", n: "堺筋本町", e: "Sakaisuji-Hommachi", a: "" },
+                { c: "C18", n: "谷町四丁目", e: "Tanimachi 4-chome", a: "大阪城公園" },
+                { c: "C19", n: "森之宮", e: "Morinomiya", a: "大阪城公園、Q's Mall" },
+                { c: "C20", n: "綠橋", e: "Midoribashi", a: "" },
+                { c: "C21", n: "深江橋", e: "Fukaebashi", a: "" },
+                { c: "C22", n: "高井田", e: "Takaida", a: "" },
+                { c: "C23", n: "長田", e: "Nagata", a: "" }
+            ],
+            K: [ // 堺筋線
+                { c: "K11", n: "天神橋筋六丁目", e: "Tenjimbashisuji 6-chome", a: "大阪今昔生活館" },
+                { c: "K12", n: "扇町", e: "Ogimachi", a: "兒童廣場 (Kids Plaza Osaka)" },
+                { c: "K13", n: "南森町", e: "Minamimorimachi", a: "" },
+                { c: "K14", n: "北濱", e: "Kitahama", a: "中之島玫瑰園、復古建築街區" },
+                { c: "K15", n: "堺筋本町", e: "Sakaisuji-Hommachi", a: "" },
+                { c: "K16", n: "長堀橋", e: "Nagahoribashi", a: "" },
+                { c: "K17", n: "日本橋", e: "Nippombashi", a: "黑門市場、日本橋動漫街" },
+                { c: "K18", n: "惠美須町", e: "Ebisucho", a: "通天閣、新世界" },
+                { c: "K19", n: "動物園前", e: "Dobutsuen-mae", a: "鏘鏘橫丁" },
+                { c: "K20", n: "天下茶屋", e: "Tengachaya", a: "" }
+            ],
+            S: [ // 千日前線
+                { c: "S11", n: "野田阪神", e: "Nodahanshin", a: "" },
+                { c: "S12", n: "玉川", e: "Tamagawa", a: "" },
+                { c: "S13", n: "阿波座", e: "Awaza", a: "" },
+                { c: "S14", n: "西長堀", e: "Nishinagahori", a: "" },
+                { c: "S15", n: "櫻川", e: "Sakuragawa", a: "" },
+                { c: "S16", n: "難波", e: "Namba", a: "BIC CAMERA 難波店、法善寺橫丁" },
+                { c: "S17", n: "日本橋", e: "Nippombashi", a: "國立文樂劇場" },
+                { c: "S18", n: "谷町九丁目", e: "Tanimachi 9-chome", a: "生國魂神社" },
+                { c: "S19", n: "鶴橋", e: "Tsuruhashi", a: "鶴橋韓國街、燒肉街" },
+                { c: "S20", n: "今里", e: "Imazato", a: "" },
+                { c: "S21", n: "新深江", e: "Shinfukae", a: "" },
+                { c: "S22", n: "小路", e: "Shoji", a: "" },
+                { c: "S23", n: "北巽", e: "Kita-Tatsumi", a: "" },
+                { c: "S24", n: "南巽", e: "Minami-Tatsumi", a: "" }
+            ],
+            N: [ // 長堀鶴見綠地線
+                { c: "N11", n: "大正", e: "Taisho", a: "" },
+                { c: "N12", n: "巨蛋前千代崎", e: "Dome-mae Chiyozaki", a: "京瓷巨蛋" },
+                { c: "N13", n: "西長堀", e: "Nishinagahori", a: "" },
+                { c: "N14", n: "西大橋", e: "Nishiohashi", a: "堀江商圈" },
+                { c: "N15", n: "心齋橋", e: "Shinsaibashi", a: "大丸百貨心齋橋店" },
+                { c: "N16", n: "長堀橋", e: "Nagahoribashi", a: "Crysta 長堀地下街" },
+                { c: "N17", n: "松屋町", e: "Matsuyamachi", a: "松屋町筋商店街" },
+                { c: "N18", n: "谷町六丁目", e: "Tanimachi 6-chome", a: "" },
+                { c: "N19", n: "玉造", e: "Tamatsukuri", a: "玉造稻荷神社" },
+                { c: "N20", n: "森之宮", e: "Morinomiya", a: "大阪城公園" },
+                { c: "N21", n: "大阪商務園區", e: "Osaka Business Park", a: "大阪商務園區" },
+                { c: "N22", n: "京橋", e: "Kyobashi", a: "京阪購物中心" },
+                { c: "N23", n: "蒲生四丁目", e: "Gamo 4-chome", a: "" },
+                { c: "N24", n: "今福鶴見", e: "Imafuku-Tsurumi", a: "" },
+                { c: "N25", n: "橫堤", e: "Yokozutsumi", a: "" },
+                { c: "N26", n: "鶴見綠地", e: "Tsurumi-ryokuchi", a: "花博紀念公園" },
+                { c: "N27", n: "門真南", e: "Kadoma-minami", a: "三井 Outlet Park 大阪鶴見" }
+            ],
+            I: [ // 今里筋線
+                { c: "I11", n: "井高野", e: "Itakano", a: "" },
+                { c: "I12", n: "瑞光四丁目", e: "Zuiko 4-chome", a: "" },
+                { c: "I13", n: "大桐豐里", e: "Daido-Toyosato", a: "" },
+                { c: "I14", n: "太子橋今市", e: "Taishibashi-Imaichi", a: "" },
+                { c: "I15", n: "清水", e: "Shimizu", a: "" },
+                { c: "I16", n: "新森古市", e: "Shimmori-Furuichi", a: "" },
+                { c: "I17", n: "關目成育", e: "Sekime-Seiiku", a: "" },
+                { c: "I18", n: "蒲生四丁目", e: "Gamo 4-chome", a: "" },
+                { c: "I19", n: "鴫野", e: "Shigino", a: "" },
+                { c: "I20", n: "綠橋", e: "Midoribashi", a: "" },
+                { c: "I21", n: "今里", e: "Imazato", a: "" }
+            ],
+            P: [ // 南港港城線
+                { c: "P09", n: "宇宙廣場", e: "Cosmosquare", a: "" },
+                { c: "P10", n: "貿易中心前", e: "Trade Center-mae", a: "ATC 亞洲太平洋貿易中心" },
+                { c: "P11", n: "中埠頭", e: "Nakafuto", a: "Intex Osaka (展覽館)" },
+                { c: "P12", n: "港城西", e: "Port Town-nishi", a: "" },
+                { c: "P13", n: "港城東", e: "Port Town-higashi", a: "" },
+                { c: "P14", n: "渡船大樓", e: "Ferry Terminal", a: "南港客運碼頭" },
+                { c: "P15", n: "南港東", e: "Nanko-higashi", a: "" },
+                { c: "P16", n: "南港口", e: "Nankoguchi", a: "" },
+                { c: "P17", n: "平林", e: "Hirabayashi", a: "" },
+                { c: "P18", n: "住之江公園", e: "Suminoekoen", a: "" }
+            ],
+            JR_O: [ // JR 環狀線
+                { c: "JR_O11", n: "大阪", e: "Osaka", a: "LUCUA、大丸百貨" },
+                { c: "JR_O12", n: "福島", e: "Fukushima", a: "福島美食街" },
+                { c: "JR_O13", n: "野田", e: "Noda", a: "" },
+                { c: "JR_O14", n: "西九條", e: "Nishikujo", a: "轉乘往環球影城" },
+                { c: "JR_O15", n: "弁天町", e: "Bentencho", a: "" },
+                { c: "JR_O16", n: "大正", e: "Taisho", a: "沖繩風情小鎮" },
+                { c: "JR_O17", n: "蘆原橋", e: "Ashiharabashi", a: "" },
+                { c: "JR_O18", n: "今宮", e: "Imamiya", a: "" },
+                { c: "JR_O19", n: "新今宮", e: "Shin-Imamiya", a: "星野 OMO7" },
+                { c: "JR_O01", n: "天王寺", e: "Tennoji", a: "阿倍野" },
+                { c: "JR_O02", n: "寺田町", e: "Teradacho", a: "" },
+                { c: "JR_O03", n: "桃谷", e: "Momodani", a: "" },
+                { c: "JR_O04", n: "鶴橋", e: "Tsuruhashi", a: "韓國街" },
+                { c: "JR_O05", n: "玉造", e: "Tamatsukuri", a: "" },
+                { c: "JR_O06", n: "森之宮", e: "Morinomiya", a: "大阪城" },
+                { c: "JR_O07", n: "大阪城公園", e: "Osakajokoen", a: "大阪城公園、水上巴士" },
+                { c: "JR_O08", n: "京橋", e: "Kyobashi", a: "京橋繁華街" },
+                { c: "JR_O09", n: "櫻之宮", e: "Sakuranomiya", a: "毛馬櫻之宮公園 (賞櫻)" },
+                { c: "JR_O10", n: "天滿", e: "Temma", a: "天滿美食街、天神橋筋" }
+            ],
+            JR_P: [ // JR 夢咲線
+                { c: "JR_P14", n: "西九條", e: "Nishikujo", a: "" },
+                { c: "JR_P15", n: "安治川口", e: "Ajikawaguchi", a: "" },
+                { c: "JR_P16", n: "環球城", e: "Universal City", a: "日本環球影城 (USJ)、CityWalk" },
+                { c: "JR_P17", n: "櫻島", e: "Sakurajima", a: "" }
+            ],
+            NK: [ // 南海電鐵
+                { c: "NK01", n: "南海難波", e: "Namba (Nankai)", a: "南海難波車站、高島屋、難波Parks" },
+                { c: "NK03", n: "新今宮", e: "Shin-Imamiya", a: "" },
+                { c: "NK05", n: "天下茶屋", e: "Tengachaya", a: "轉乘至關西機場最佳站點" },
+                { c: "NK32", n: "關西機場", e: "Kansai Airport", a: "關西國際機場 (KIX)" }
+            ],
+            HK: [ // 阪急電鐵
+                { c: "HK01", n: "大阪梅田", e: "Osaka-Umeda (Hankyu)", a: "阪急百貨" },
+                { c: "HK03", n: "十三", e: "Juso", a: "十三美食街" }
+            ],
+            HS: [ // 阪神電鐵
+                { c: "HS01", n: "大阪梅田", e: "Osaka-Umeda (Hanshin)", a: "阪神百貨" },
+                { c: "HS03", n: "野田", e: "Noda (Hanshin)", a: "" },
+                { c: "HS41", n: "大阪難波", e: "Osaka-Namba", a: "" }
+            ],
+            KN: [ // 近鐵
+                { c: "KN01", n: "大阪難波", e: "Osaka-Namba", a: "" },
+                { c: "KN02", n: "近鐵日本橋", e: "Kintetsu-Nippombashi", a: "" },
+                { c: "KN03", n: "大阪上本町", e: "Osaka-Uehommachi", a: "上本町YUFURA" },
+                { c: "KN04", n: "鶴橋", e: "Tsuruhashi", a: "" },
+                { c: "KN_A", n: "大阪阿部野橋", e: "Osaka-Abenobashi", a: "阿倍野Harukas" }
+            ],
+            KH: [ // 京阪電車
+                { c: "KH01", n: "淀屋橋", e: "Yodoyabashi", a: "" },
+                { c: "KH02", n: "北濱", e: "Kitahama", a: "" },
+                { c: "KH03", n: "天滿橋", e: "Temmabashi", a: "京阪CityMall" },
+                { c: "KH04", n: "京橋", e: "Kyobashi", a: "" }
+            ]
+        };
+
+        const lineColors = {
+            M: { bg: 'bg-red-600', border: 'border-red-600', text: 'text-red-700', name: '🔴 御堂筋線' },
+            T: { bg: 'bg-purple-600', border: 'border-purple-600', text: 'text-purple-700', name: '🟣 谷町線' },
+            Y: { bg: 'bg-blue-600', border: 'border-blue-600', text: 'text-blue-700', name: '🔵 四橋線' },
+            C: { bg: 'bg-green-600', border: 'border-green-600', text: 'text-green-700', name: '🟢 中央線' },
+            K: { bg: 'bg-amber-800', border: 'border-amber-800', text: 'text-amber-900', name: '🟤 堺筋線' },
+            S: { bg: 'bg-pink-500', border: 'border-pink-500', text: 'text-pink-600', name: '🩷 千日前線' },
+            N: { bg: 'bg-lime-500', border: 'border-lime-500', text: 'text-lime-600', name: '📗 長堀鶴見綠地線' },
+            I: { bg: 'bg-orange-500', border: 'border-orange-500', text: 'text-orange-600', name: '🟠 今里筋線' },
+            P: { bg: 'bg-sky-400', border: 'border-sky-400', text: 'text-sky-500', name: '🩵 南港港城線' },
+            JR_O: { bg: 'bg-red-500', border: 'border-red-500', text: 'text-red-600', name: '⭕ JR 環狀線' },
+            JR_P: { bg: 'bg-indigo-800', border: 'border-indigo-800', text: 'text-indigo-900', name: '🎢 JR 夢咲線' },
+            NK: { bg: 'bg-orange-600', border: 'border-orange-600', text: 'text-orange-700', name: '🚆 南海電鐵' },
+            HK: { bg: 'bg-rose-900', border: 'border-rose-900', text: 'text-rose-900', name: '🍷 阪急電鐵' },
+            HS: { bg: 'bg-blue-800', border: 'border-blue-800', text: 'text-blue-900', name: '🌊 阪神電鐵' },
+            KN: { bg: 'bg-red-800', border: 'border-red-800', text: 'text-red-900', name: '🦌 近鐵' },
+            KH: { bg: 'bg-emerald-700', border: 'border-emerald-700', text: 'text-emerald-800', name: '🌿 京阪電車' }
+        };
+
+        // 解決大阪同站不同名的問題，讓底層圖(Graph)能夠自動相連
+        const aliasMap = {
+            "東梅田": "梅田", "西梅田": "梅田", "大阪": "梅田", "大阪梅田": "梅田",
+            "南海難波": "難波", "大阪難波": "難波", "JR難波": "難波",
+            "大阪阿部野橋": "天王寺", "阿倍野": "天王寺",
+            "動物園前": "新今宮",
+            "野田阪神": "野田", "海老江": "野田",
+            "近鐵日本橋": "日本橋",
+            "谷町九丁目": "大阪上本町"
+        };
+
+        // 扁平化所有站點，建立 graph 與選單資料
+        let allStationsMap = {};
+        let allStationsList = [];
+        let uniquePhysicalStations = {}; 
+
+        Object.keys(mrtData).forEach(lineKey => {
+            mrtData[lineKey].forEach(st => {
+                allStationsMap[st.c] = { ...st, line: lineKey };
+                allStationsList.push(allStationsMap[st.c]);
+
+                // 若有群組對應，使用主站名作為底層的 ID 進行節點綁定
+                let baseName = aliasMap[st.n] || st.n;
+
+                if (!uniquePhysicalStations[baseName]) {
+                    uniquePhysicalStations[baseName] = { name: baseName, en: st.e, codes: [], attractions: st.a };
+                }
+                uniquePhysicalStations[baseName].codes.push(st.c);
+                if (st.a && !uniquePhysicalStations[baseName].attractions.includes(st.a)) {
+                    uniquePhysicalStations[baseName].attractions += (uniquePhysicalStations[baseName].attractions ? "、" : "") + st.a;
+                }
+            });
+        });
+
+        // 建立圖 (Graph)
+        const graph = {};
+        const RIDE_TIME = 2; // 搭乘一站約2分鐘
+        const TRANSFER_TIME = 6; // 大阪站內換線約6分鐘
+        const LOOP_TIME = 2; // JR環狀線閉環時間
+
+        function addEdge(u, v, weight, type, line) {
+            if (!graph[u]) graph[u] = [];
+            graph[u].push({ node: v, weight, type, line });
+        }
+
+        // 1. 同線相鄰站連線
+        Object.keys(mrtData).forEach(lineKey => {
+            const lineArr = mrtData[lineKey];
+            for (let i = 0; i < lineArr.length - 1; i++) {
+                addEdge(lineArr[i].c, lineArr[i+1].c, RIDE_TIME, 'ride', lineKey);
+                addEdge(lineArr[i+1].c, lineArr[i].c, RIDE_TIME, 'ride', lineKey);
+            }
+            // JR 環狀線閉環
+            if (lineKey === 'JR_O') {
+                addEdge(lineArr[lineArr.length - 1].c, lineArr[0].c, LOOP_TIME, 'ride', lineKey);
+                addEdge(lineArr[0].c, lineArr[lineArr.length - 1].c, LOOP_TIME, 'ride', lineKey);
+            }
+        });
+
+        // 2. 轉乘站連線 (包含被 aliasMap 同化進同一群組的車站)
+        Object.values(uniquePhysicalStations).forEach(station => {
+            if (station.codes.length > 1) {
+                for (let i = 0; i < station.codes.length; i++) {
+                    for (let j = i + 1; j < station.codes.length; j++) {
+                        let tTime = station.name === '梅田' ? 8 : TRANSFER_TIME; // 梅田迷宮加成
+                        addEdge(station.codes[i], station.codes[j], tTime, 'transfer', null);
+                        addEdge(station.codes[j], station.codes[i], tTime, 'transfer', null);
+                    }
+                }
+            }
+        });
+
+        // --- 2. 核心演算法 Dijkstra ---
+        function findShortestPath(startBaseName, endBaseName) {
+            if (startBaseName === endBaseName) return null;
+
+            const startCodes = uniquePhysicalStations[startBaseName].codes;
+            const endCodes = uniquePhysicalStations[endBaseName].codes;
+
+            const dist = {};
+            const prev = {};
+            const pq = [];
+
+            Object.keys(allStationsMap).forEach(node => {
+                dist[node] = Infinity;
+                prev[node] = null;
+            });
+
+            startCodes.forEach(code => {
+                dist[code] = 0;
+                pq.push({ node: code, dist: 0 });
+            });
+
+            while (pq.length > 0) {
+                pq.sort((a, b) => a.dist - b.dist);
+                const { node, dist: currentDist } = pq.shift();
+
+                if (dist[node] < currentDist) continue;
+                if (endCodes.includes(node)) {
+                    return reconstructPath(prev, node);
+                }
+
+                if (graph[node]) {
+                    graph[node].forEach(edge => {
+                        const alt = currentDist + edge.weight;
+                        if (alt < dist[edge.node]) {
+                            dist[edge.node] = alt;
+                            prev[edge.node] = { node: node, edgeFromPrev: edge };
+                            pq.push({ node: edge.node, dist: alt });
+                        }
+                    });
+                }
+            }
+            return null;
+        }
+
+        function reconstructPath(prev, endNode) {
+            const path = [];
+            let curr = endNode;
+            
+            while (curr) {
+                const step = prev[curr];
+                if (step) {
+                    path.unshift({ node: curr, edge: step.edgeFromPrev });
+                    curr = step.node;
+                } else {
+                    path.unshift({ node: curr, edge: null }); 
+                    curr = null;
+                }
+            }
+
+            const legs = [];
+            if (path.length < 2) return [];
+
+            let currentLeg = { 
+                type: path[1].edge.type, 
+                line: path[1].edge.line, 
+                nodes: [path[0].node, path[1].node],
+                time: path[1].edge.weight,
+                stops: path[1].edge.type === 'ride' ? 1 : 0
+            };
+
+            for (let i = 2; i < path.length; i++) {
+                const edge = path[i].edge;
+                if (edge.type === currentLeg.type && edge.line === currentLeg.line) {
+                    currentLeg.nodes.push(path[i].node);
+                    currentLeg.time += edge.weight;
+                    if(edge.type === 'ride') currentLeg.stops += 1;
+                } else {
+                    legs.push(currentLeg);
+                    currentLeg = { 
+                        type: edge.type, 
+                        line: edge.line, 
+                        nodes: [path[i-1].node, path[i].node],
+                        time: edge.weight,
+                        stops: edge.type === 'ride' ? 1 : 0
+                    };
+                }
+            }
+            legs.push(currentLeg);
+            return legs;
+        }
+
+        // --- 3. React 元件 ---
+        const { useState, useEffect } = React;
+
+        const App = () => {
+            const [startStation, setStartStation] = useState("梅田");
+            const [endStation, setEndStation] = useState("環球城");
+            const [route, setRoute] = useState(null);
+
+            // 確保 React 每次渲染完畢後，強制繪製圖示 (解決圖示消失的問題)
+            useEffect(() => {
+                lucide.createIcons();
+            });
+
+            useEffect(() => {
+                if(startStation && endStation && startStation !== endStation) {
+                    const legs = findShortestPath(startStation, endStation);
+                    setRoute(legs);
+                } else {
+                    setRoute(null);
+                }
+            }, [startStation, endStation]);
+
+            const handleSwap = () => {
+                const temp = startStation;
+                setStartStation(endStation);
+                setEndStation(temp);
+            };
+
+            return (
+                <div className="min-h-screen pb-12">
+                    {/* Header */}
+                    <header className="bg-slate-900 text-white shadow-md pt-12 pb-8 px-6 text-center">
+                        <div className="flex items-center justify-center gap-4 mb-3">
+                            <a href="https://linkuei0425.github.io/Osaka/index.html" title="回到首頁" className="inline-flex items-center justify-center text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 p-2.5 rounded-full transition-colors shadow-sm">
+                                <i data-lucide="home" className="w-5 h-5"></i>
+                            </a>
+                            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+                                <i data-lucide="train" className="w-8 h-8 text-amber-400"></i>
+                                大阪交通 (Metro/JR/私鐵)
+                            </h1>
+                        </div>
+                        <p className="text-slate-400 text-sm">快速查詢路線、搭乘時間與景點指南</p>
+                    </header>
+
+                    <main className="max-w-2xl mx-auto px-4 -mt-6">
+                        {/* Search Box */}
+                        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 relative">
+                            <div className="flex flex-col gap-4">
+                                <div className="relative">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">出發站 (Start)</label>
+                                    <select 
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 pr-8 truncate font-medium appearance-none"
+                                        value={startStation}
+                                        onChange={(e) => setStartStation(e.target.value)}
+                                    >
+                                        {Object.keys(mrtData).map(lineKey => (
+                                            <optgroup key={`start-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                {mrtData[lineKey].map(st => {
+                                                    const baseName = aliasMap[st.n] || st.n;
+                                                    return (
+                                                        <option key={`start-${st.c}`} value={baseName}>
+                                                            [{st.c}] {st.n} ({st.e}){st.a ? ` 📍 ${st.a.split('、')[0]}` : ''}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </optgroup>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                    </div>
+                                </div>
+
+                                <div className="relative flex justify-center -my-3 z-10">
+                                    <button 
+                                        onClick={handleSwap}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-full shadow-md transition-transform hover:scale-105"
+                                        title="反轉路線"
+                                    >
+                                        <i data-lucide="arrow-down-up" className="w-5 h-5"></i>
+                                    </button>
+                                </div>
+
+                                <div className="relative">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">抵達站 (Destination)</label>
+                                    <select 
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 pr-8 truncate font-medium appearance-none"
+                                        value={endStation}
+                                        onChange={(e) => setEndStation(e.target.value)}
+                                    >
+                                        {Object.keys(mrtData).map(lineKey => (
+                                            <optgroup key={`end-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                {mrtData[lineKey].map(st => {
+                                                    const baseName = aliasMap[st.n] || st.n;
+                                                    return (
+                                                        <option key={`end-${st.c}`} value={baseName}>
+                                                            [{st.c}] {st.n} ({st.e}){st.a ? ` 📍 ${st.a.split('、')[0]}` : ''}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </optgroup>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Route Results */}
+                        {startStation === endStation ? (
+                            <div className="bg-yellow-50 text-yellow-800 p-4 rounded-xl text-center shadow-sm">
+                                📍 起點與終點位於同一個站點/群組唷！
+                            </div>
+                        ) : route ? (
+                            <RouteTimeline legs={route} destName={endStation} />
+                        ) : (
+                            <div className="text-center text-slate-500 py-8">
+                                正在計算路線...
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const RouteTimeline = ({ legs, destName }) => {
+            const totalTime = legs.reduce((acc, leg) => acc + leg.time, 0);
+            const totalTransfers = legs.filter(l => l.type === 'transfer').length;
+            
+            const destInfo = uniquePhysicalStations[destName];
+
+            return (
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div className="bg-slate-50 border-b border-slate-100 p-5 flex justify-between items-center">
+                        <div>
+                            <p className="text-sm font-semibold text-slate-500 mb-1">預估時間</p>
+                            <p className="text-3xl font-bold text-slate-800">
+                                {totalTime} <span className="text-base font-normal text-slate-500">分鐘</span>
+                            </p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-sm font-semibold text-slate-500 mb-1">轉乘次數</p>
+                            <p className="text-lg font-bold text-slate-700">
+                                {totalTransfers} <span className="text-sm font-normal text-slate-500">次</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="p-6">
+                        <div className="ml-4">
+                            {legs.map((leg, idx) => (
+                                <LegItem key={idx} leg={leg} isLast={idx === legs.length - 1} destName={destName} />
+                            ))}
+                        </div>
+                        
+                        {/* Destination Marker */}
+                        <div className="relative pl-8 border-l-4 border-transparent">
+                            <div className="absolute left-[-10px] top-1 w-4 h-4 bg-slate-800 rounded-full border-4 border-white shadow-sm z-10"></div>
+                            <div className="absolute left-[-16px] top-[-5px] w-7 h-7 bg-slate-200 rounded-full opacity-50 z-0 animate-pulse"></div>
+                            <h3 className="text-lg font-bold text-slate-800">{destInfo.name} <span className="text-sm font-normal text-slate-500 ml-1">{destInfo.en}</span></h3>
+                            <p className="text-sm text-slate-500 mb-2">抵達目的地 (Arrive)</p>
+                            
+                            {destInfo.attractions && (
+                                <div className="mt-2 bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-sm flex gap-2">
+                                    <i data-lucide="map-pin" className="w-5 h-5 text-indigo-500 shrink-0"></i>
+                                    <div>
+                                        <span className="font-semibold text-indigo-900 block mb-0.5">周邊景點：</span>
+                                        <span className="text-indigo-800">{destInfo.attractions}</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const LegItem = ({ leg, isLast, destName }) => {
+            const startNodeCode = leg.nodes[0];
+            const endNodeCode = leg.nodes[leg.nodes.length - 1];
+            const startStation = allStationsMap[startNodeCode];
+            const endStation = allStationsMap[endNodeCode];
+
+            if (leg.type === 'transfer') {
+                return (
+                    <div className="relative pl-8 pb-8 border-l-4 border-dashed border-slate-300">
+                        <div className="absolute left-[-14px] top-1 w-6 h-6 bg-white rounded-full border-2 border-slate-300 z-10 flex items-center justify-center">
+                            <i data-lucide="footprints" className="w-3.5 h-3.5 text-slate-500"></i>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 inline-block">
+                            <p className="text-sm font-semibold text-slate-700">
+                                於 <span className="text-slate-900">{aliasMap[startStation.n] || startStation.n}</span> 站內轉乘
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                <i data-lucide="clock" className="w-3 h-3"></i> 步行約 {leg.time} 分鐘
+                            </p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Ride Type
+            const lineTheme = lineColors[leg.line] || { bg: 'bg-slate-500', border: 'border-slate-500', text: 'text-slate-600', name: leg.line };
+            
+            return (
+                <div className={`relative pl-8 pb-8 border-l-4 ${lineTheme.border}`}>
+                    {/* Circle Node */}
+                    <div className={`absolute left-[-10px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm z-10 ${lineTheme.bg}`}></div>
+                    
+                    {/* Leg Start Info */}
+                    <div className="mb-2">
+                        <h3 className="text-base font-bold text-slate-800">
+                            {startStation.n} <span className="text-sm font-normal text-slate-500 ml-1">{startStation.e}</span>
+                        </h3>
+                        
+                        {startStation.a && (
+                            <p className="text-xs text-indigo-600 mt-1 flex items-start gap-1">
+                                <i data-lucide="star" className="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
+                                <span>{startStation.a}</span>
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Line Details Card */}
+                    <div className={`mt-3 border-l-4 rounded-r-lg p-4 bg-white shadow-sm border-y border-r border-slate-100 ${lineTheme.border}`}>
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className={`${lineTheme.bg} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider`}>
+                                {startNodeCode}
+                            </span>
+                            <span className={`text-sm font-semibold ${lineTheme.text}`}>搭乘 {lineTheme.name}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 flex items-center gap-2 mt-2">
+                            <span>前往 <strong>{endStation.n}</strong></span>
+                            <span className="text-slate-300">|</span>
+                            <span>{leg.stops} 站</span>
+                            <span className="text-slate-300">|</span>
+                            <span>約 {leg.time} 分鐘</span>
+                        </p>
+                        
+                        {/* Pass through stations toggle could go here, keeping it clean for now */}
+                        <div className="mt-2 text-xs text-slate-400">
+                            途經: {leg.nodes.slice(1, -1).map(c => allStationsMap[c].n).join(' ➔ ') || '無中途站'}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Render App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
