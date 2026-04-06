@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Koh Samui Itinerary Wizard</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- React & Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    @media print {
+      body { background-color: white !important; }
+      .print-hidden { display: none !important; }
+      .print-break-avoid { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+  
+  <div id="root"></div>
+
+  <!-- React Logic -->
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // --- Attractions Database (Koh Samui) ---
+    const ATTRACTIONS = [
+      // ================= Airport & Accommodation =================
+      { id: 'usm_airport', city: 'chaweng', name: 'Samui International Airport (USM)', stay: 1.5, region: 10, regionName: 'Airport', type: 'Airport', desc: 'A boutique airport with a tropical garden vibe! Get ready to start your island holiday.', transport: 'Take an airport minibus, taxi, or pre-booked hotel transfer.', 
+        bookingLinks: [
+          { url: 'https://www.trip.com/flights/welcome/?to=home&Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14577558&locale=en_xx&curr=USD', text: 'Compare Flights' },
+          { url: 'https://www.klook.com/en-US/search/result/?query=%E8%98%87%E6%A2%85%E5%B3%B6%E6%A9%9F%E5%A0%B4%E6%8E%A5%E9%80%81%E9%A0%90%E7%B4%84&aid=117067', text: 'Book Airport Transfer' },
+          { url: 'https://www.klook.com/en-US/activity/110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher/?spm=SearchResult.SearchResult_LIST&clickId=e708aaab33&aid=117067', text: 'Thailand eSIM' },
+          { url: 'https://www.klook.com/en-US/activity/74427-truemoveh-thailand-tourist-sim-card/?spm=SearchResult.SearchResult_LIST&clickId=0413be6e53&aid=117067', text: 'Thailand Physical SIM' }
+        ] 
+      },
+      { id: 'acc_chaweng', city: 'chaweng', name: 'Accommodation: Chaweng Area', stay: 1, region: 11, regionName: 'Chaweng', type: 'Accommodation', desc: 'Check in, drop off your luggage, and get ready for the beach!', transport: 'Head to your hotel.' },
+      { id: 'acc_bophut', city: 'bophut', name: 'Accommodation: Bophut/Maenam', stay: 1, region: 12, regionName: 'Bophut', type: 'Accommodation', desc: 'Check in and drop off your luggage.', transport: 'Head to your hotel.' },
+      { id: 'acc_lamai', city: 'lamai', name: 'Accommodation: Lamai Area', stay: 1, region: 13, regionName: 'Lamai', type: 'Accommodation', desc: 'Check in and drop off your luggage.', transport: 'Head to your hotel.' },
+
+      // ================= Chaweng Area =================
+      { id: 'chaweng_beach', city: 'chaweng', name: 'Chaweng Beach', stay: 3, timeWindow: [8, 18], region: 11, regionName: 'Chaweng', type: 'Attractions', desc: 'The longest and most lively beach in Koh Samui. Fine white sand, perfect for sunbathing, swimming, and jet skiing.', transport: 'Take a songthaew to Chaweng Beach Road.' },
+      { id: 'central_samui', city: 'chaweng', name: 'Central Samui', stay: 2.5, timeWindow: [11, 22], region: 11, regionName: 'Chaweng', type: 'Shopping', desc: 'The largest open-air mall on the island. Features international brands, restaurants, and Tops supermarket.', transport: 'Located right in the center of Chaweng Beach Road.' },
+      { id: 'chaweng_night_market', city: 'chaweng', name: 'Chaweng Night Market', stay: 2, timeWindow: [17, 23], region: 11, regionName: 'Chaweng', type: 'Shopping', desc: 'Bustling at night! Offers various cheap Thai street food, seafood BBQ, and banana pancakes.', transport: 'Walk along Chaweng Beach Road or take a songthaew.' },
+      { id: 'ark_bar', city: 'chaweng', name: 'Ark Bar Beach Club', stay: 3, timeWindow: [18, 24], region: 11, regionName: 'Chaweng', type: 'Nightlife', desc: 'The most iconic beach party venue in Koh Samui! Fire shows and DJ music at night, great vibe.', transport: 'Located on Chaweng Beach, just follow the music.' },
+      { id: 'elephant_sanctuary', city: 'chaweng', name: 'Elephant Sanctuary', stay: 3, timeWindow: [9, 16], region: 11, regionName: 'Chaweng', type: 'Hidden Gems', desc: 'An ethical experience with no riding. Make elephant food, feed them, and interact in the mud pool.', transport: 'Usually includes round-trip hotel transfer.', bookingLinks: [{url: 'https://www.klook.com/en-US/activity/28103-elephant-jungle-sanctuary-experience-koh-samui/?spm=Activity.SearchSuggest_LIST&clickId=96f44b6e86&aid=117067', text: 'Elephant Sanctuary Tour'}] },
+
+      // ================= Bophut / Maenam =================
+      { id: 'big_buddha', city: 'bophut', name: 'Big Buddha', stay: 1.5, timeWindow: [8, 18], region: 12, regionName: 'Bophut', type: 'Attractions', desc: 'Koh Samui\'s most iconic landmark! A 12-meter golden Buddha sits on Koh Phan, very solemn.', transport: 'Take a taxi or rent a scooter, close to the airport.' },
+      { id: 'wat_plai_laem', city: 'bophut', name: 'Wat Plai Laem', stay: 1.5, timeWindow: [8, 18], region: 12, regionName: 'Bophut', type: 'Attractions', desc: 'Colorful temple complex built over a lake. Features a giant 18-arm Guanyin and Maitreya Buddha.', transport: 'Close to Big Buddha, recommend visiting both together.' },
+      { id: 'fishermans_village', city: 'bophut', name: 'Fisherman\'s Village', stay: 2.5, timeWindow: [17, 23], region: 12, regionName: 'Bophut', type: 'Shopping', desc: 'A street full of hipster vibes and old wooden buildings. Night markets on Mon, Wed, Fri are a must-visit!', transport: 'Take a songthaew to Bophut Beach.' },
+      { id: 'coco_tams', city: 'bophut', name: 'Coco Tam\'s Beach Bar', stay: 2.5, timeWindow: [17, 24], region: 12, regionName: 'Bophut', type: 'Nightlife', desc: 'A must-visit for Instagrammers! Sit on beanbags on the beach for sunset, and watch the spectacular fire show at night.', transport: 'At the end of Fisherman\'s Village beach.' },
+      { id: 'maenam_beach', city: 'bophut', name: 'Maenam Beach', stay: 2, timeWindow: [9, 18], region: 12, regionName: 'Bophut', type: 'Attractions', desc: 'Quieter and more pristine than Chaweng and Lamai, with clear waters. A favorite hideaway for Western tourists.', transport: 'Located on the north coast, accessible by scooter or songthaew.' },
+
+      // ================= Lamai =================
+      { id: 'lamai_beach', city: 'lamai', name: 'Lamai Beach', stay: 2.5, timeWindow: [8, 18], region: 13, regionName: 'Lamai', type: 'Attractions', desc: 'The second largest beach in Koh Samui. More relaxed than Chaweng, deeper water, good for swimming and water sports.', transport: 'Take a songthaew to Lamai area.' },
+      { id: 'hin_ta_hin_yai', city: 'lamai', name: 'Hin Ta Hin Yai (Grandfather/Grandmother Rocks)', stay: 1.5, timeWindow: [8, 18], region: 13, regionName: 'Lamai', type: 'Attractions', desc: 'Bizarre rock formations shaped by nature resembling male and female genitalia. A famous photo spot.', transport: 'Located at the south end of Lamai Beach, walking distance from the sand.' },
+      { id: 'silver_beach', city: 'lamai', name: 'Silver Beach (Crystal Bay)', stay: 2, timeWindow: [8, 18], region: 13, regionName: 'Lamai', type: 'Hidden Gems', desc: 'Hidden bay between Chaweng and Lamai. Extremely fine sand and giant granite rocks. Known as Samui\'s most beautiful secret beach.', transport: 'Hidden entrance, usually passing through a resort.' },
+      { id: 'overlap_stone', city: 'lamai', name: 'Overlap Stone', stay: 1.5, timeWindow: [8, 17], region: 13, regionName: 'Lamai', type: 'Hidden Gems', desc: 'A giant boulder secret spot on top of a hill. Requires a steep hike, but offers breathtaking ocean views.', transport: 'Rent a scooter to the base, then hike up (small private toll required).' },
+      { id: 'jungle_club', city: 'lamai', name: 'The Jungle Club', stay: 2.5, timeWindow: [11, 21], region: 13, regionName: 'Lamai', type: 'Hidden Gems', desc: 'A resort restaurant built on a hillside. Offers fantastic infinity ocean views, recommend coming for sunset cocktails.', transport: 'Steep mountain road, requires booking their 4WD jeep transfer.' },
+
+      // ================= West & South =================
+      { id: 'na_muang', city: 'west_south', name: 'Na Muang Waterfalls', stay: 2, timeWindow: [9, 17], region: 14, regionName: 'West/South', type: 'Attractions', desc: 'Koh Samui\'s most famous waterfalls (No.1 and No.2). You can swim in the cool natural pools.', transport: 'Located in the south-central part, recommend a private car or island day tour.' },
+      { id: 'magic_garden', city: 'west_south', name: 'Tarnim Magic Garden', stay: 1.5, timeWindow: [9, 17], region: 14, regionName: 'West/South', type: 'Hidden Gems', desc: 'A mysterious garden hidden deep in the jungle, filled with stone statues of deities and animals carved by a local farmer.', transport: 'Located high in the mountains, poor road conditions. Highly recommend a 4WD jeep tour.', bookingLinks: [{url: 'https://www.klook.com/en-US/activity/2733-4wd-jungle-safari-tour-koh-samui/?aid=117067', text: '4WD Jungle Safari'}] },
+      { id: 'nathon_pier', city: 'west_south', name: 'Nathon Town & Pier', stay: 2, timeWindow: [15, 20], region: 14, regionName: 'West/South', type: 'Attractions', desc: 'The administrative center and main ferry pier. Retains old wooden Chinese shophouses, and is the best spot for sunset.', transport: 'On the west side, take a songthaew or private car.' },
+
+      // ================= Island Hopping =================
+      { id: 'ang_thong', city: 'islands', name: 'Ang Thong National Marine Park', stay: 8, timeWindow: [8, 17], region: 20, regionName: 'Island Hopping', type: 'Attractions', desc: 'An archipelago of 42 limestone islands. Includes kayaking through caves, snorkeling, and hiking for a stunning panoramic view.', transport: 'Requires joining a local tour with hotel pickup and speedboat/big boat.', bookingLinks: [{url: 'https://www.klook.com/en-US/activity/1301-ang-thong-national-marine-park-full-day-tour-koh-samui/?aid=117067', text: 'Ang Thong Speedboat Tour'}] },
+      { id: 'koh_tao', city: 'islands', name: 'Koh Tao & Koh Nang Yuan', stay: 8, timeWindow: [8, 17], region: 20, regionName: 'Island Hopping', type: 'Attractions', desc: 'World-class diving spot! Koh Tao has crystal clear water; Koh Nang Yuan is famous for its iconic sandbar.', transport: 'Further away, requires a speedboat day tour.', bookingLinks: [{url: 'https://www.klook.com/en-US/activity/1283-koh-tao-koh-nangyuan-full-day-tour-koh-samui/?aid=117067', text: 'Koh Tao Snorkeling Tour'}] },
+      { id: 'pig_island', city: 'islands', name: 'Koh Madsum (Pig Island) & Koh Tan', stay: 5, timeWindow: [9, 15], region: 20, regionName: 'Island Hopping', type: 'Hidden Gems', desc: 'A viral hidden gem! Interact and take photos with cute wild pigs on the beach, and snorkel nearby.', transport: 'Requires taking a longtail boat from the southern pier or a half-day tour.', bookingLinks: [{url: 'https://www.klook.com/en-US/activity/41223-koh-matsum-koh-tan-half-day-tour-from-koh-samui/?aid=117067', text: 'Pig Island Longtail Tour'}] },
+      { id: 'koh_phangan', city: 'islands', name: 'Koh Phangan - Full Moon Party', stay: 6, timeWindow: [18, 24], region: 20, regionName: 'Island Hopping', type: 'Nightlife', desc: 'One of the top 3 rave parties globally! Tens of thousands gather on the beach under the full moon with neon paint and drinks.', transport: 'Speedboats from various Samui piers (approx. 30 mins), overnight shuttles available during the party.', bookingLinks: [{url: 'https://www.klook.com/en-US/activity/22818-full-moon-party-ticket-transfer-koh-samui-phangan/?aid=117067', text: 'Full Moon Party Transfer'}] }
+    ];
+
+    const CITIES = [
+      { id: 'chaweng', name: 'Chaweng', color: 'blue' },
+      { id: 'bophut', name: 'Bophut', color: 'teal' },
+      { id: 'lamai', name: 'Lamai', color: 'amber' },
+      { id: 'west_south', name: 'West/South', color: 'rose' },
+      { id: 'islands', name: 'Island Hopping', color: 'emerald' }
+    ];
+
+    // --- Core Logic ---
+    const formatTime = (h) => {
+      let hh = Math.floor(h) % 24;
+      let mm = Math.round((h - Math.floor(h)) * 60);
+      if (mm === 60) { hh++; mm = 0; }
+      return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+    };
+
+    const getCityColor = (cityId) => {
+      const colors = { chaweng: 'blue', bophut: 'teal', lamai: 'amber', west_south: 'rose', islands: 'emerald' };
+      const c = colors[cityId] || 'slate';
+      return `text-${c}-600 bg-${c}-100 border-${c}-200`;
+    };
+
+    const getSmartTransit = (prev, curr) => {
+      if (curr.id === 'ret') return '✈️ [Departure] Take a taxi, minibus, or pre-booked transfer to Samui International Airport (USM).';
+
+      if (curr.region === 20) return `🚤 [Island Hopping] Take a speedboat or longtail boat to the outer islands (30 mins - 1.5 hrs).\n💡 Tip: Take motion sickness pills 30 mins prior if needed.`;
+      if (prev && prev.region === 20) return `🚤 [Return] Finish the island tour, take a boat back to Samui pier and transfer to hotel.`;
+
+      if (!prev || prev.id.startsWith('acc_') || prev.type === 'Start Point') {
+        if (curr.type === 'Airport') return `🛬 [Arrival] Take a minibus or hotel transfer to ${curr.name}.`;
+        return `🏨 [Depart] Take a songthaew or taxi to ${curr.name}.`;
+      }
+
+      if (prev.city !== curr.city && prev.id !== 'origin') {
+         return `🛺 [Cross-Region] Take a songthaew or use Grab/inDrive.\n💡 Tip: Songthaews can be flagged down anywhere, agree on the price before boarding.`;
+      }
+
+      return `🛺 [Local Move] Walk, ride a scooter, or take a songthaew from ${prev.name} to ${curr.name}.`;
+    };
+
+    // --- Main App ---
+    function App() {
+      const [activeCity, setActiveCity] = useState('chaweng');
+      const [selectedIds, setSelectedIds] = useState([]);
+      const [showPrintView, setShowPrintView] = useState(false);
+      const [tripDuration, setTripDuration] = useState(5);
+
+      const toggleAttr = (id) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+      const itineraryDays = useMemo(() => {
+        if (selectedIds.length === 0) return [];
+
+        let idsToSchedule = [...selectedIds];
+        idsToSchedule = [...new Set(idsToSchedule)];
+
+        // Weights
+        const getPriority = (item) => {
+            if (item.id === 'ret') return 999;
+            if (item.type === 'Start Point') return 10;
+            if (item.type === 'Airport') return 15;
+            if (item.type === 'Accommodation') return 20; 
+            
+            let win = item.timeWindow || [9.5, 21.5];
+
+            // Nightlife and shopping
+            const isNight = ['Nightlife', 'Shopping'].includes(item.type) && win[0] >= 16;
+            if (isNight) return 90; 
+            
+            // Island hopping takes full day
+            if (item.region === 20 && item.stay >= 5) return 25;
+
+            // General daytime
+            if (win[1] <= 18) return 30; 
+            
+            return 50; 
+        };
+
+        const sorted = idsToSchedule
+          .map(id => ATTRACTIONS.find(a => a.id === id))
+          .filter(a => a)
+          .sort((a, b) => {
+            const getSortKey = (item) => {
+              let sk = getPriority(item);
+              let cityGroup = CITIES.findIndex(c => c.id === item.city);
+              return cityGroup * 100000 + sk * 1000; 
+            };
+            return getSortKey(a) - getSortKey(b);
+          });
+
+        let remaining = [...sorted];
+        let days = [];
+        
+        let curDay = { items: [], dayCity: 'chaweng', dayType: null, currentTime: 13.0 }; 
+        let lCity = 'chaweng', lReg = 11;
+        let prevItemObj = null; 
+
+        // Transit times
+        const getTTime = (isNewDay, fCity, tCity, fReg, tReg) => {
+            if (fReg === 20 && tReg !== 20) return 1.5; 
+            if (tReg === 20 && fReg !== 20) return 1.5;
+            if (isNewDay) return 0.5; 
+            if (fCity && tCity && fCity !== tCity) {
+                return 0.6; 
+            }
+            return 0.3; 
+        };
+
+        const checkValid = (a, isF, curTime) => {
+            let tTime = getTTime(isF, lCity, a.city, lReg, a.region);
+            let arrivalTime = curTime + tTime;
+            let isLastDay = days.length === tripDuration - 1;
+            
+            if (!isF) {
+                let isBasic = ['Accommodation', 'Airport', 'Start Point'].includes(a.type);
+                if (!isBasic) {
+                    if (a.city !== lCity) {
+                        let hasSameCityLeft = remaining.some(r => r.city === lCity && !['Accommodation', 'Airport', 'Start Point'].includes(r.type));
+                        if (hasSameCityLeft) return false; 
+                        
+                        if (curTime > 15 && a.type !== 'Shopping' && a.type !== 'Nightlife') return false;
+                    }
+                }
+            }
+
+            let win = a.timeWindow || [8, 22]; 
+            if (['Accommodation', 'Airport'].includes(a.type)) win = [0, 24];
+
+            let waitTime = 0;
+            if (arrivalTime < win[0]) {
+                waitTime = win[0] - arrivalTime;
+                if (waitTime > 2.0 && !isF) return false;
+            }
+
+            let actStart = arrivalTime + waitTime;
+            let actEnd = actStart + a.stay;
+
+            if (actStart >= win[1] - 0.5) return false; 
+            
+            if (a.region === 20 && a.stay >= 5 && actStart > 10) return false;
+
+            if (isLastDay) {
+                let retTFromA = getTTime(false, a.city, 'chaweng', a.region, 10);
+                let maxEndTime = 14.0 - 2.5 - retTFromA; 
+                if (actEnd > maxEndTime) return false;
+            } else {
+                if (!isF && actEnd > 24.0) return false; 
+            }
+
+            return { valid: true, tTime, waitTime, actStart, actEnd };
+        };
+
+        while (remaining.length > 0) {
+            const isF = curDay.items.length === 0;
+            let chosenIdx = -1;
+            let chosenStats = null;
+
+            let validCands = [];
+            for (let i = 0; i < remaining.length; i++) {
+                let stats = checkValid(remaining[i], isF, curDay.currentTime);
+                if (stats && stats.valid) {
+                    validCands.push({ a: remaining[i], idx: i, prio: getPriority(remaining[i]), stats });
+                }
+            }
+
+            if (validCands.length > 0) {
+                validCands.sort((ca, cb) => {
+                    let isSameCityA = ca.a.city === lCity ? 1 : 0;
+                    let isSameCityB = cb.a.city === lCity ? 1 : 0;
+                    if (isSameCityA !== isSameCityB) return isSameCityB - isSameCityA;
+
+                    if (ca.prio !== cb.prio) return ca.prio - cb.prio;
+                    if (ca.stats.tTime !== cb.stats.tTime) return ca.stats.tTime - cb.stats.tTime;
+                    let winA = ca.a.timeWindow || [8, 22];
+                    let winB = cb.a.timeWindow || [8, 22];
+                    if (winA[1] !== winB[1]) return winA[1] - winB[1];
+                    
+                    return ca.idx - cb.idx;
+                });
+                chosenIdx = validCands[0].idx;
+                chosenStats = validCands[0].stats;
+            }
+
+            if (chosenIdx === -1) {
+                days.push(curDay);
+                if (days.length >= tripDuration) break; 
+                
+                curDay = { items: [], dayCity: remaining[0].city, dayType: null, currentTime: 9.0 };
+                continue;
+            }
+
+            const a = remaining.splice(chosenIdx, 1)[0];
+            const { tTime, waitTime, actStart, actEnd } = chosenStats;
+
+            if (isF && days.length === 0) prevItemObj = { id: 'origin', city: 'chaweng', name: 'Airport / Arrival', type: 'Start Point' };
+            if (isF && days.length > 0) prevItemObj = { id: 'acc_hotel', city: a.city, name: `Accommodation (${CITIES.find(c=>c.id===a.city)?.name || 'Chaweng'})`, type: 'Accommodation' }; 
+
+            let sTime = curDay.currentTime;
+            let aTime = sTime + tTime;
+            let finalWaitTime = actStart - aTime; 
+
+            let transitMsg = getSmartTransit(prevItemObj, a);
+            if(a.transport) transitMsg += `\n📍 Route Guide: ${a.transport}`;
+            
+            let win = a.timeWindow || [8, 22];
+            if (finalWaitTime > 0 && win[0] > 0 && !['Accommodation', 'Airport'].includes(a.type)) {
+                transitMsg += `\n💡 Tip: Recommend starting this after ${win[0]}:00. Est. arrival at ${formatTime(aTime)}, take a rest nearby.`;
+            }
+
+            let isFirstAirport = (days.length === 0 && isF && a.type === 'Airport');
+
+            curDay.items.push({
+                ...a, tTime: tTime.toFixed(1), prevName: prevItemObj.name, transitTransport: transitMsg,
+                tStr: `${formatTime(sTime)} - ${formatTime(aTime)}`,
+                sStr: isFirstAirport ? 'Arrival & Customs' : `${formatTime(actStart)} - ${formatTime(actEnd)}`,
+                isFirstAirport,
+                endTime: actEnd
+            });
+
+            curDay.currentTime = actEnd;
+            lCity = a.city; lReg = a.region; prevItemObj = a;
+            if (isF) curDay.dayCity = a.city;
+        }
+        
+        if (curDay.items.length > 0 && days.length < tripDuration) {
+            days.push(curDay);
+        }
+        while (days.length < tripDuration) {
+            days.push({ items: [], dayCity: lCity, dayType: null, currentTime: 9.0 });
+        }
+
+        // ================= Return Flight =================
+        let lastD = days[days.length-1];
+        if (!lastD) {
+            lastD = { items: [], dayCity: 'chaweng', dayType: null, currentTime: 9.0 };
+            days.push(lastD);
+        }
+        
+        let retT = getTTime(lastD.items.length === 0, lCity, 'chaweng', lReg, 10);
+
+        while (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            let testRetT = getTTime(false, lastItem.city, 'chaweng', lastItem.region, 10);
+            if (lastItem.endTime > (14.0 - 2.5 - testRetT)) {
+                lastD.items.pop();
+            } else {
+                break;
+            }
+        }
+
+        if (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            lastD.currentTime = lastItem.endTime;
+            lCity = lastItem.city;
+            lReg = lastItem.region;
+            prevItemObj = lastItem;
+        } else {
+            lastD.currentTime = 9.0;
+            lReg = 11;
+            prevItemObj = { name: 'Accommodation', city: lCity };
+        }
+        
+        retT = getTTime(lastD.items.length === 0, lCity, 'chaweng', lReg, 10);
+        let startTransit = 14.0 - 2.5 - retT;
+        let transitMsg = '🚐 Take a minibus, taxi, or hotel transfer to Samui Airport (USM).';
+        
+        if (lastD.currentTime < startTransit) {
+            transitMsg = `💡 You have some free time before heading to the airport. Recommend departing at ${formatTime(startTransit)}.\n🚐 Take a ride to the airport.`;
+        }
+        
+        let retPrev = prevItemObj || {name: 'Accommodation', city: 'chaweng'};
+        lastD.items.push({
+            id: 'ret', city: 'chaweng', name: 'End trip and head to airport', stay: 2.5, region: 999, regionName: 'Airport', type: 'Airport',
+            desc: 'Head home with beautiful island memories! Samui Airport is gorgeous; check in early and relax at the open-air lounge.', transport: 'Take a ride from your last spot to Samui Airport.',
+            tTime: retT.toFixed(1), prevName: retPrev.name, transitTransport: transitMsg,
+            tStr: `${formatTime(startTransit)} - ${formatTime(14.0 - 2.5)}`,
+            sStr: `${formatTime(14.0 - 2.5)} - 14:00`,
+            isFirstAirport: false,
+            endTime: 14.0
+        });
+        
+        lastD.currentTime = 14.0;
+
+        return days.map((d, i) => {
+          const base = (i === 0 && d.items[0]?.isFirstAirport ? 13.0 : (i === 0 ? 13.0 : 9.0));
+          const end = d.currentTime;
+          return { dayNum: i+1, totalH: (end - base > 0 ? (end - base).toFixed(1) : "0.0"), cityName: CITIES.find(c => c.id === d.dayCity)?.name || 'Chaweng', items: d.items };
+        });
+      }, [selectedIds, tripDuration]);
+
+      if (showPrintView) {
+        return (
+          <div className="min-h-screen bg-white p-4 sm:p-8">
+            <div className="max-w-3xl mx-auto border-2 border-slate-800 p-4 sm:p-8 rounded-2xl">
+              <div className="text-center mb-10"><h1 className="text-2xl sm:text-3xl font-bold">🌴 Koh Samui Exclusive Itinerary</h1><p className="mt-2 text-slate-500 text-sm">The smart scheduling system automatically calculates island transit and recommends best time slots.</p></div>
+              {itineraryDays.map(d => (
+                <div key={d.dayNum} className="mb-10 print-break-avoid">
+                  <h2 className="text-xl font-bold border-b-2 pb-2 mb-6">🌞 Day {d.dayNum} - 【{d.cityName} Area】 ({d.totalH}h)</h2>
+                  <div className="space-y-6 ml-2 sm:ml-4 border-l-2 pl-4 sm:pl-6 border-slate-300">
+                    {d.items.map((it, idx) => (
+                      <div key={`${it.id}-${idx}`} className="relative mb-8">
+                        {!it.isFirstAirport && (
+                          <div className="mb-4 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs sm:text-sm">
+                             <div className="font-bold mb-2">{it.prevName} ➔ {it.name}</div>
+                             <div className="flex gap-3 mb-2"><span className="bg-white px-2 py-1 rounded border font-mono text-teal-500"><i className="fa-regular fa-clock"></i> {it.tStr}</span><span>Est. Transit: {it.tTime}h</span></div>
+                             <div className="whitespace-pre-wrap text-slate-600">{it.transitTransport}</div>
+                          </div>
+                        )}
+                        <div className="relative">
+                          <div className="absolute -left-[23px] sm:-left-[31px] top-1 w-3 h-3 bg-teal-500 rounded-full border-2 border-white"></div>
+                          <div className="font-bold text-xs sm:text-sm text-slate-500 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : 'Stay: '}{it.sStr}</div>
+                          <h4 className="text-lg sm:text-xl font-bold text-slate-900">{it.name}</h4>
+                          <p className="text-xs sm:text-sm text-slate-600 my-2 leading-relaxed">{it.desc}</p>
+                          {it.bookingLinks && <div className="mt-3 flex gap-2 flex-wrap print:hidden">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] text-white text-xs px-2.5 py-1.5 rounded font-bold hover:bg-[#e05000]"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="mt-10 text-center flex flex-col sm:flex-row justify-center gap-4 print-hidden">
+                <button onClick={() => setShowPrintView(false)} className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700">Back to Edit</button>
+                <button onClick={() => window.print()} className="bg-teal-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-teal-500">Print / Save PDF</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const grouped = ATTRACTIONS.filter(a => a.city === activeCity && !a.id.startsWith('acc_')).reduce((acc, c) => { (acc[c.type] = acc[c.type] || []).push(c); return acc; }, {});
+
+      return (
+        <div className="min-h-screen bg-slate-50 pb-10">
+          <header className="bg-white p-4 shadow-sm flex flex-wrap justify-between items-center sticky top-0 z-20 border-b gap-3">
+            <div className="flex items-center gap-4">
+              <h1 className="font-bold text-xl flex items-center gap-2"><i className="fa-solid fa-umbrella-beach text-teal-500"></i>Samui Itinerary Wizard</h1>
+              <a 
+                href="https://linkuei0425.github.io/KohSamui-US/" 
+                className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-teal-600 bg-slate-100 hover:bg-teal-50 px-3 py-1.5 rounded-full transition-colors border border-slate-200"
+              >
+                <i className="fa-solid fa-house"></i> Back to Home
+              </a>
+            </div>
+            <div className="flex items-center gap-3">
+              {selectedIds.length > 0 && (
+                <button 
+                  onClick={() => setSelectedIds([])} 
+                  className="text-xs font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-3 py-1.5 rounded-full shadow-sm transition-colors flex items-center gap-1 cursor-pointer"
+                  title="Clear all selected attractions"
+                >
+                  <i className="fa-solid fa-trash-can"></i> Clear
+                </button>
+              )}
+              <div className="text-xs font-bold bg-slate-800 text-white px-3 py-1.5 rounded-full shadow-sm">Selected {selectedIds.length}</div>
+            </div>
+          </header>
+          
+          <main className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-6 mt-2">
+            
+            {/* Left: Select Attractions */}
+            <div className="lg:w-1/2 flex flex-col gap-4">
+              <div className="bg-white p-2 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar">
+                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all duration-200 ${activeCity === c.id ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}>{c.name}</button>)}
+              </div>
+              
+              <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+                <h2 className="text-sm font-bold flex items-center gap-2 mb-1">
+                  <i className="fa-solid fa-circle-info text-teal-500"></i>
+                  Smart Scheduling Tips
+                </h2>
+                <p className="text-xs text-slate-500">
+                  The system will automatically schedule <strong className="text-orange-500">boat tours</strong> during the day and <strong className="text-indigo-500">beach clubs/night markets</strong> at night. <br/>Travel time via songthaew or taxi across regions is automatically calculated!
+                </p>
+              </div>
+
+              <div className="max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+                {Object.entries(grouped).map(([type, items]) => (
+                  <div key={type} className="mb-6">
+                    <h3 className="font-bold text-slate-700 mb-3 sticky top-0 bg-slate-50/90 py-2 backdrop-blur-sm z-10 border-b border-slate-200">{type}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {items.map(it => (
+                        <div key={it.id} onClick={() => toggleAttr(it.id)} className={`p-4 rounded-xl cursor-pointer border-2 transition-all duration-200 ${selectedIds.includes(it.id) ? 'bg-teal-50 border-teal-500 scale-[1.02] shadow-md' : 'bg-white border-transparent shadow-sm hover:border-slate-300'}`}>
+                          <div className="font-bold text-slate-900 leading-tight mb-2">{it.name}</div>
+                          <div className="text-[10px] flex gap-2 mb-2">
+                            <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600"><i className="fa-regular fa-clock mr-1"></i>{it.stay}h</span>
+                            <span className={`px-1.5 py-0.5 rounded border ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot"></i> {it.regionName}</span>
+                          </div>
+                          <p className="text-xs text-slate-500 line-clamp-2">{it.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: Generated Itinerary */}
+            <div className="lg:w-1/2">
+              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] sticky top-24">
+                <div className="bg-slate-800 text-white p-5 lg:p-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2"><i className="fa-regular fa-calendar-check text-teal-400"></i>Your Itinerary</h2>
+                  <p className="text-xs opacity-80 mt-1.5">💡 If there are too many items, the system will auto-split days based on opening hours and transit times.</p>
+                  
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      <select 
+                        value={tripDuration} 
+                        onChange={(e) => setTripDuration(Number(e.target.value))}
+                        className="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-3 rounded-xl outline-none cursor-pointer transition-colors shadow-lg border border-slate-600"
+                        title="Select Trip Duration"
+                      >
+                        <option value={4}>4 Days</option>
+                        <option value={5}>5 Days</option>
+                        <option value={6}>6 Days</option>
+                        <option value={7}>7 Days</option>
+                        <option value={8}>8 Days</option>
+                      </select>
+                      <button 
+                        onClick={() => setSelectedIds([])} 
+                        className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl font-bold shadow-lg transition-all cursor-pointer ${selectedIds.length > 0 ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-slate-600 text-slate-400 hover:bg-slate-500 hover:text-white'}`}
+                        title="Clear and restart"
+                      >
+                        <i className="fa-solid fa-rotate-right"></i>
+                        <span>Reset</span>
+                      </button>
+                    </div>
+                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="w-full sm:flex-1 bg-teal-500 hover:bg-teal-600 py-3 px-2 rounded-xl font-bold shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm sm:text-base cursor-pointer">
+                      Generate Detailed Itinerary
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-24 flex flex-col items-center gap-4"><i className="fa-solid fa-plane-departure text-6xl opacity-10"></i><p>No attractions selected yet.</p></div> : 
+                    itineraryDays.map(d => (
+                      <div key={d.dayNum} className="mb-10">
+                        <h3 className="font-bold text-lg mb-4 border-b-2 border-slate-200 pb-2 flex items-center gap-2 text-slate-800"><i className="fa-solid fa-sun text-orange-500"></i> Day {d.dayNum} - 【{d.cityName}】 <span className="text-xs font-normal text-slate-400 ml-auto">Total: {d.totalH}h</span></h3>
+                        <div className="space-y-5 border-l-[3px] border-slate-200 ml-4 pl-7 relative pb-4">
+                          {d.items.map((it, idx) => (
+                            <div key={`${it.id}-${idx}`} className="relative mb-6">
+                              {!it.isFirstAirport && (
+                                <div className="mb-4 relative">
+                                  <div className="absolute -left-[40px] top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-100 rounded-full border-2 border-slate-300 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[8px] text-slate-400"></i></div>
+                                  <div className={`rounded-lg p-3 text-[11px] border shadow-sm ${it.transitTransport.includes('Cross-Region') || it.transitTransport.includes('Sailing') ? 'bg-orange-50/70 border-orange-100' : 'bg-teal-50/70 border-teal-100'}`}>
+                                    <div className={`font-bold mb-1.5 ${it.transitTransport.includes('Cross-Region') || it.transitTransport.includes('Sailing') ? 'text-orange-800' : 'text-teal-800'}`}>{it.prevName} ➔ {it.name}</div>
+                                    <div className="flex items-center gap-3 mb-1.5">
+                                      <span className={`bg-white px-2 py-0.5 rounded border font-mono shadow-sm ${it.transitTransport.includes('Cross-Region') || it.transitTransport.includes('Sailing') ? 'border-orange-200 text-orange-600' : 'border-teal-200 text-teal-600'}`}>
+                                        <i className="fa-regular fa-clock mr-1"></i> {it.tStr}
+                                      </span>
+                                      <span className={`font-medium ${it.transitTransport.includes('Cross-Region') || it.transitTransport.includes('Sailing') ? 'text-orange-600' : 'text-teal-600'}`}>Est. Transit: {it.tTime}h</span>
+                                    </div>
+                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{it.transitTransport}</div>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative hover:shadow-md transition-shadow">
+                                <div className="absolute -left-[37px] top-4 w-4.5 h-4.5 bg-teal-500 rounded-full border-[3px] border-white shadow-sm z-10"></div>
+                                <div className="text-xs font-bold text-slate-400 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : 'Stay: '}{it.sStr}</div>
+                                <h4 className="font-bold text-base mb-1">{it.name}</h4>
+                                <p className="text-xs text-slate-500 leading-relaxed">{it.desc}</p>
+                                {it.bookingLinks && <div className="mt-3 flex gap-1.5 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[9px] px-2.5 py-1 rounded-lg font-bold transition-colors shadow-sm"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koh Samui Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Custom Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Active State for Tabs */
+        .tab-btn.active {
+            background-color: #0ea5e9; /* sky-500 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
+            border-color: #0ea5e9;
+        }
+        .city-btn.active {
+            background-color: #075985; /* sky-800 */
+            color: white;
+            border-color: #075985;
+        }
+        .tab-btn, .city-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button Hover */
+        .btn-maps {
+            background-color: #0ea5e9; /* sky-500 */
+        }
+        .btn-maps:hover {
+            background-color: #0284c7; /* sky-600 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-sky-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-sky-700 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>SAMUI SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/KohSamui-US/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-sky-800 via-sky-600 to-teal-500 py-10 lg:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm drop-shadow-md">Koh Samui Shopping Guide</h1>
+            <p class="text-base md:text-lg text-sky-100 max-w-2xl mx-auto font-medium">Handpicked shopping spots across 4 major regions in Koh Samui, from large shopping malls and supercenters to Fisherman's Village night markets for unique crafts and Thai fragrances!</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- City Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot mr-1"></i> Select Region</h2>
+            <div id="city-container" class="flex overflow-x-auto hide-scrollbar space-x-2 pb-2">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> Select Category</h2>
+            <div id="category-container" class="flex overflow-x-auto hide-scrollbar space-x-3 pb-2">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Shop Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected dynamically via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Koh Samui Shopping Guide. Your best shopping companion for the island trip.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data Structure: n=Name, f=Feature, a=Address, t=Transport, cLink=CouponLink, cName=CouponName, cIcon=CouponIcon
+        const db = {
+            chaweng: {
+                name: "Chaweng",
+                cat: {
+                    souvenir: [
+                        {n:"Tropicana Oil (Cold-pressed Coconut Oil)",f:"Island must-buy! 100% natural cold-pressed coconut oil, great for cooking, skin, and hair care.",a:"Chaweng Beach Road Stores",t:"Walk or Songthaew"},
+                        {n:"Blue Elephant Spices",f:"Premium Thai royal cuisine brand! Exquisite green curry, Tom Yum, and basil pork spice packs.",a:"Central Samui 1F Souvenir Area",t:"Direct by Songthaew"},
+                        {n:"Doi Kham (Honey/Dried Fruits)",f:"Royal Project agricultural products. 100% natural honey and dried mangoes are supermarket must-buys.",a:"Big C or Tops Market, Chaweng",t:"Walk or Songthaew"},
+                        {n:"Koh-Kae Peanuts",f:"Classic Thai snack. Wasabi and Tom Yum flavors are the most popular. Cans are great for gifting.",a:"7-Eleven or convenience stores in Chaweng",t:"Walk"},
+                        {n:"Chaweng Painted Coconut Bowls",f:"Polished and hand-painted natural coconut shells. Perfect for smoothies or fruit bowls with a tropical vibe.",a:"Chaweng Night Market stalls",t:"Walk"}
+                    ],
+                    fashion: [
+                        {n:"Central Samui",f:"The largest open-air mall on the island! Features Zara, Uniqlo, and various Thai specialty restaurants.",a:"209, 209/1-209/2 Moo 2, Chaweng",t:"Center of Chaweng Beach Rd, Songthaew accessible"},
+                        {n:"Rip Curl / Quiksilver",f:"World-renowned surf brands. Huge selection of bikinis, boardshorts, and rash guards.",a:"Central Samui 1F",t:"Direct by Songthaew"},
+                        {n:"Jim Thompson",f:"Thailand's iconic premium silk brand. Elegant silk scarves, clothing, and exquisite bags.",a:"Central Samui 1F",t:"Direct by Songthaew"},
+                        {n:"Chandra Exotic",f:"Linen shirts and sarong dresses with Bali and tropical Thai prints. Soft and flowing.",a:"Chaweng Beach Road",t:"Walk"},
+                        {n:"CC Double O / CPS Chaps",f:"Highly popular Thai designer brands. Unique cuts and their signature store fragrance.",a:"Central Samui 1F",t:"Direct by Songthaew"}
+                    ],
+                    beauty: [
+                        {n:"Watsons (Central)",f:"A must-visit! The best place to stock up on popular affordable Thai makeup like Mistine and 4U2.",a:"Inside Central Samui",t:"Direct by Songthaew"},
+                        {n:"Boots (Chaweng)",f:"Classic UK pharmacy chain. Easy to find Banana Boat sunscreen, No.7 skincare, and Thai household medicines.",a:"Chaweng Beach Road",t:"Walk"},
+                        {n:"Harnn / Thann",f:"Premium spa brands used by the Thai Royal Family. Essential oils, diffusers, and handmade soaps in luxurious packaging.",a:"Inside Central Samui",t:"Direct by Songthaew"},
+                        {n:"Tiger Balm / Wat Pho Balm",f:"Thai miracle balms for mosquito bites and muscle aches. A must-buy household medicine.",a:"Local pharmacies in Chaweng",t:"Walk"},
+                        {n:"Sabai-Arom",f:"Hand creams and essential oil rollers made from local Thai herbs. Jasmine scent is the best seller.",a:"Inside Boots Pharmacy",t:"Walk"}
+                    ],
+                    mart: [
+                        {n:"Tops Market (Central B1)",f:"High-quality supermarket with imported cheeses, wines, and beautifully packaged premium Thai snacks.",a:"Central Samui B1",t:"Direct by Songthaew"},
+                        {n:"Big C Supercenter",f:"A must-visit hypermarket! Best prices for bulk seaweed, Pocky, Thai tea, and Koh-Kae peanuts.",a:"129/19 Moo 1, Bophut (Near Chaweng)",t:"Taxi or Songthaew"},
+                        {n:"Lotus's",f:"Another hypermarket giant. Extremely cheap house brands and bulk Thai seafood noodles (MAMA).",a:"Main road outer Chaweng",t:"Taxi"},
+                        {n:"Makro (Chaweng)",f:"Wholesale warehouse. Perfect for heavy shoppers buying massive snack packs for friends back home. Unbeatable prices.",a:"11/7 Moo 6, Bophut",t:"Taxi"},
+                        {n:"7-Eleven",f:"Thai 7-11 is amazing! Must-try toasted sandwiches, Thailand-exclusive Lay's flavors, and bird's nest drinks.",a:"Everywhere in Chaweng",t:"Walk"}
+                    ],
+                    hobby: [
+                        {n:"Elephant Parade",f:"Global conservation organization store. Exquisite, artist-painted miniature elephant sculptures with a charitable cause.",a:"Central Samui 1F",t:"Direct by Songthaew"},
+                        {n:"Karmakamet",f:"Top-tier Thai fragrance brand. Their woven burlap bags and room sprays exude elegance.",a:"Near Central Samui",t:"Walk"},
+                        {n:"Panpuri",f:"Premium clean beauty and fragrance brand. Known for natural essential oils, gorgeous diffusers, and candles.",a:"Inside Central Samui",t:"Direct by Songthaew"},
+                        {n:"B2S",f:"Large Thai stationery chain. Fine creative goods, planners, and well-designed lifestyle products.",a:"Inside Central Samui",t:"Direct by Songthaew"},
+                        {n:"Miniso",f:"Forgot your charging cable, neck pillow, mini fan, or travel bottles? Get them here cheap and fast.",a:"Inside Central Samui",t:"Direct by Songthaew"}
+                    ]
+                }
+            },
+            bophut: {
+                name: "Bophut / Maenam",
+                cat: {
+                    souvenir: [
+                        {n:"Fisherman's Village Night Market",f:"Open Mon, Wed, Fri evenings. Gathers the finest handicrafts, creative souvenirs, and street food on the island.",a:"Bophut Beach Road",t:"Songthaew"},
+                        {n:"Dreamcatcher Samui",f:"Cultural shops selling bohemian dreamcatchers woven from natural hemp rope, feathers, and shells.",a:"Fisherman's Village Walking St",t:"Walk"},
+                        {n:"Magic Alambic Rum",f:"Locally brewed Samui rum made from fresh sugarcane juice with hints of coconut and tropical fruits.",a:"Bophut souvenir/liquor shops",t:"Walk"},
+                        {n:"Soap Carving Studio",f:"Soaps hand-carved into lifelike orchids and lotuses, packed in painted wooden boxes. Smells amazing.",a:"Fisherman's Village Night Market",t:"Walk"},
+                        {n:"Taste of Samui",f:"Farmer-made sweet chili sauce, seafood dips, and freshly boiled coconut sugar. Great gifts for cooking lovers.",a:"Fisherman's Village stalls",t:"Walk"}
+                    ],
+                    fashion: [
+                        {n:"Paul Ropp",f:"Premium boutique full of Bali and island vibes. Hand-dyed silk and linen clothing in vibrant colors.",a:"Fisherman's Village Walking St",t:"Walk"},
+                        {n:"Bikinibird Samui",f:"High-quality bikinis and swimsuits with European and Australian cuts. Stylish and unique.",a:"Independent store in Bophut",t:"Walk"},
+                        {n:"Chang Thai (Elephant Pants)",f:"A Thailand must-wear! Extremely thin and cool fabric. The night market offers the most styles and colors.",a:"Fisherman's Village Night Market",t:"Walk"},
+                        {n:"Saona Collection",f:"Independent designer leather shop selling handmade cowhide sandals and fringed woven bags.",a:"Fisherman's Village Walking St",t:"Walk"},
+                        {n:"Samui Tie-Dye",f:"Colorful, naturally hand-dyed t-shirts, cover-ups, and bandanas full of island hippie vibes.",a:"Stalls around Bophut Beach",t:"Walk"}
+                    ],
+                    beauty: [
+                        {n:"Bophut Spa & Aromatherapy",f:"High-end spas selling premium natural rose essential oils and sea salt body scrubs.",a:"Inside major Bophut Spas",t:"Walk or Songthaew"},
+                        {n:"Morya Pharmacy",f:"Island essential! Buy large tubs of pure aloe vera gel here to cool down after a day in the sun.",a:"Bophut Main Road",t:"Walk"},
+                        {n:"Boots (Bophut)",f:"Convenient for restocking UK imported affordable skincare, sunscreens, and drugstore makeup.",a:"Bophut Main Road",t:"Walk"},
+                        {n:"Khaokho Talaypu",f:"Natural shampoo made from Thai herbs (like butterfly pea and kaffir lime). Great for oily scalps.",a:"Bophut Supermarkets/Pharmacies",t:"Walk"},
+                        {n:"OTOP Silk Cocoon Facial Balls",f:"Thai beauty secret. Wear on fingers and massage with cleanser to gently remove blackheads.",a:"Fisherman's Village Night Market",t:"Walk"}
+                    ],
+                    mart: [
+                        {n:"Lotus's Go Fresh",f:"Convenience supermarket. Great prices for large water bottles, fruits, and midnight snacks.",a:"Bophut Main Road",t:"Walk or Songthaew"},
+                        {n:"Bophut Fresh Market",f:"Best place to experience local life! Buy the cheapest and freshest mangoes, rambutans, and tropical fruits.",a:"Bophut Main Intersection",t:"Songthaew"},
+                        {n:"FamilyMart (Fisherman's Village)",f:"Local convenience store inside the walking street. Best place to grab a Chang or Singha beer.",a:"Inside Fisherman's Village",t:"Walk"},
+                        {n:"Tops Daily (Bophut)",f:"24-hour mini Tops. Higher quality fresh produce and bread. Good for breakfast or microwave meals.",a:"Bophut Roadside",t:"Walk"},
+                        {n:"Khanom Krok",f:"Freshly made traditional Thai coconut pancakes at the night market. Crispy outside, bursting with coconut inside.",a:"Fisherman's Village Night Market",t:"Walk"}
+                    ],
+                    hobby: [
+                        {n:"Samui Art Gallery",f:"Oil paintings of island scenery and watercolor elephants by local artists. Highly memorable art pieces.",a:"Fisherman's Village Walking St",t:"Walk"},
+                        {n:"Macrame Samui",f:"Handwoven cotton macrame tapestries and plant hangers to add a resort vibe to your home.",a:"Bophut Creative Shops",t:"Walk"},
+                        {n:"Eco Samui Bamboo Tableware",f:"Eco-friendly natural bamboo straws, wooden spoons, and coconut wood coasters. Warm and practical.",a:"Bophut Stalls",t:"Walk"},
+                        {n:"Siam Celadon",f:"Celadon bowls and elephant-shaped sauce dishes with traditional Thai patterns. Very elegant.",a:"Bophut Craft Shops",t:"Walk"},
+                        {n:"Fisherman's Decor",f:"Lampshades adapted from traditional Thai bamboo fishing traps. Perfect for unique home decor.",a:"Bophut Home Decor Shops",t:"Walk"}
+                    ]
+                }
+            },
+            lamai: {
+                name: "Lamai",
+                cat: {
+                    souvenir: [
+                        {n:"Lamai Night Plaza Spices",f:"Colorful freshly ground spices and authentic Thai curry powder. Rich aromas, sold by weight.",a:"Lamai Night Plaza",t:"Walk"},
+                        {n:"Hin Ta Hin Yai Coconut Sugar",f:"Famous local product! Hand-boiled coconut sugar (Kalamae). Rich, mellow, and not overly sweet.",a:"Stalls near Grandfather/Grandmother Rocks",t:"Walk"},
+                        {n:"Samui Souvenir Shop",f:"Cheap and iconic elephant keychains engraved with Koh Samui. Perfect for bulk gifting.",a:"Lamai Night Market",t:"Walk"},
+                        {n:"ChaTraMue",f:"The soul of Thai milk tea! Buy the red or gold tins of tea leaves to brew authentic Thai tea at home.",a:"Lamai Supermarkets & Souvenir Shops",t:"Walk"},
+                        {n:"My Choice Dried Fruit Gummies",f:"Rich durian and mangosteen gummies. Bulk packs are priced reasonably in Lamai wholesale shops.",a:"Lamai Beach Road Souvenir Shops",t:"Walk"}
+                    ],
+                    fashion: [
+                        {n:"Lamai Beachwear",f:"Streets lined with colorful bikinis and boardshorts. Easy to grab one if you forgot yours.",a:"Lamai Beach Road",t:"Walk"},
+                        {n:"Ash Tailor Samui",f:"A Lamai specialty. Indian tailors offering extremely cheap and fast custom suits and linen shirts.",a:"Lamai Beach Road",t:"Walk"},
+                        {n:"Lamai Sunday Market",f:"Wide-brimmed resort straw hats and brightly colored woven bags are top sellers here.",a:"Lamai Sunday Market",t:"Walk"},
+                        {n:"Lamai Muay Thai Camp Gear",f:"Famous boxing gyms are here. Shops nearby sell cool embroidered Muay Thai shorts and gloves.",a:"Near Lamai Muay Thai Gyms",t:"Walk"},
+                        {n:"Havaianas / Roxy",f:"Need quality anti-slip flip-flops, dry bags, or surfwear? Sports shops are everywhere on the main street.",a:"Lamai Beach Road",t:"Walk"}
+                    ],
+                    beauty: [
+                        {n:"Watsons (Lamai)",f:"The largest pharmacy in Lamai with AC. Convenient for restocking sunscreens, toners, and masks.",a:"Center of Lamai Beach Road",t:"Walk"},
+                        {n:"Fascino Pharmacy",f:"Landmark pharmacy in Lamai. Safe place to buy Five Pagodas Powder, Poy-Sian inhalers, and Tiger Balm.",a:"Lamai Beach Road",t:"Walk"},
+                        {n:"Tropicana Coconut Lip Balm",f:"Extra moisturizing lip balms made from cold-pressed coconut oil with a light coconut scent. Compact packaging.",a:"Lamai Night Market & Souvenir Shops",t:"Walk"},
+                        {n:"Madame Heng Soap",f:"Historic Thai herbal soap famous for deep cleaning and clearing back acne. A Thai household staple.",a:"Lamai Pharmacies",t:"Walk"},
+                        {n:"Snake Brand Cooling Powder",f:"Apply after a shower for instant icy cooling! Traditional lifesaver against Thai heat. Rose & Lavender scents.",a:"Lamai Supermarkets & Convenience Stores",t:"Walk"}
+                    ],
+                    mart: [
+                        {n:"Lotus's (Lamai)",f:"Largest hypermarket in Lamai. Full of Thai snacks, bulk instant noodles, and daily necessities.",a:"131/1 Moo 4, Lamai",t:"Songthaew or Scooter"},
+                        {n:"Makro (Lamai)",f:"Warehouse store where local restaurants shop. Incredible prices for bulk souvenirs like Tao Kae Noi seaweed.",a:"Lamai Main Road",t:"Taxi"},
+                        {n:"Lamai Fresh Market",f:"Wake up early for the local market! Buy ridiculously cheap mangosteens, rambutans, and seasonal fruits.",a:"Center of Lamai",t:"Walk"},
+                        {n:"7-Eleven (Lamai)",f:"Several branches on the main road. Grab NPB bird's nest, Meiji milk, and hot snacks before heading back to the hotel.",a:"Lamai Beach Road",t:"Walk"},
+                        {n:"CJ More",f:"Local Thai supermarket chain selling cheap daily goods and unique local snack brands.",a:"Outer Lamai",t:"Songthaew"}
+                    ],
+                    hobby: [
+                        {n:"Lamai Pearl & Shell",f:"Handmade necklaces, bracelets, and wind chimes made from local shells, starfish, and freshwater pearls.",a:"Lamai Beach Road Craft Shops",t:"Walk"},
+                        {n:"Lamai Watersports Shop",f:"Buy cheap sand toys and light snorkeling masks on the street before taking kids to the beach.",a:"Lamai Beach Entrance",t:"Walk"},
+                        {n:"Thai Silk Shop",f:"Silk or linen cushion covers embroidered with gold elephant totems. Light, easy to fold, great for gifts.",a:"Lamai Night Market & Main Street",t:"Walk"},
+                        {n:"Samui Handicraft Fans",f:"Handwoven fans made from natural coconut leaves by local grandmas. Eco-friendly and great for photos.",a:"Lamai Traditional Market",t:"Walk"},
+                        {n:"Hin Ta Hin Yai Market Magnets",f:"Finely crafted 3D wooden elephant fridge magnets. A must-buy for travel magnet collectors.",a:"Souvenir shops near Grandfather/Grandmother Rocks",t:"Walk"}
+                    ]
+                }
+            },
+            nathon: {
+                name: "Nathon / West & South",
+                cat: {
+                    souvenir: [
+                        {n:"Nathon Pier Market",f:"The administrative center of Samui. Features the cheapest wholesale souvenir shops on the island. Perfect for bulk snacks.",a:"Main street in front of Nathon Pier",t:"Songthaew or Car"},
+                        {n:"Thai Silk Nathon",f:"Old clothing stores where you can buy Thai silk shawls in various colors and patterns at very low wholesale prices.",a:"Nathon Walking Street",t:"Walk"},
+                        {n:"Siam Pewter",f:"Exquisite traditional Thai pewter cups and tea sets with detailed carvings. A very respectable premium gift for elders.",a:"Nathon Traditional Craft Shops",t:"Walk"},
+                        {n:"Kunna / Greenday",f:"Dried mango, coconut chips, and dried banana. You can negotiate much better discounts here for bulk purchases than at convenience stores.",a:"Dried goods shops around Nathon Pier",t:"Walk"},
+                        {n:"Bo Sang Umbrella",f:"Painted paper umbrellas and bamboo kites full of folk colors. Highly representative traditional Thai crafts.",a:"Nathon Old Street",t:"Walk"}
+                    ],
+                    fashion: [
+                        {n:"Nathon Walking Street",f:"Nathon preserves its old Chinese street charm and hides many wholesale shops selling traditional Thai dresses and sarongs at the lowest prices.",a:"Nathon Old Street",t:"Walk"},
+                        {n:"Samui T-Shirt Shop",f:"100% cotton T-shirts printed with Samui landscapes and texts. Buy a matching set for the whole family.",a:"Clothing shops around Nathon Pier",t:"Walk"},
+                        {n:"Nathon Uniform Shop",f:"A viral trend! Buy a Thai high school uniform at a local traditional uniform shop for photos.",a:"Nathon Local Clothing Stores",t:"Walk"},
+                        {n:"Nathon Sunday Market",f:"Before island hopping, buy cheap long-sleeve sun shirts and wide-brimmed hats at the weekend market if you're under-equipped.",a:"Around Nathon Pier",t:"Walk"},
+                        {n:"Nathon Wholesale Market",f:"If you want to buy 10+ elephant pants as gifts, the wholesale market here is absolutely the most cost-effective choice.",a:"Nathon Traditional Wholesale Market",t:"Walk"}
+                    ],
+                    beauty: [
+                        {n:"Save Drug",f:"No fancy decor, but sells various affordable local Thai makeup (like Srichand translucent powder) and basic skincare.",a:"Nathon Main Street",t:"Walk"},
+                        {n:"Royal Thai Herb",f:"A favorite among elders. Said to work wonders for joint and muscle pain. Available at local old pharmacies.",a:"Old pharmacies in Nathon",t:"Walk"},
+                        {n:"Takabb Cough Pills",f:"Cough drops packed with a centipede logo but made of pure herbal medicine. Soothes the throat. A must-buy traditional gift.",a:"Nathon Traditional Pharmacies",t:"Walk"},
+                        {n:"Pha Khao Ma",f:"Thai herbs bundled in cotton cloth. Microwave at home and use to massage shoulders and neck for ultimate relaxation.",a:"Nathon Traditional Herbal Shops",t:"Walk"},
+                        {n:"Wat Pho Balm Wholesale",f:"Pharmacies in Nathon sell whole boxes (half-dozen packs) of Wat Pho or Golden Cup balms. The more you buy, the cheaper it gets.",a:"Nathon Old Pharmacies",t:"Walk"}
+                    ],
+                    mart: [
+                        {n:"Lotus's Nathon",f:"Huge hypermarket on the outskirts of Nathon. Has the richest inventory of fresh produce, groceries, and Thai snacks (like Bento squid).",a:"Nathon Outer Main Road",t:"Car or Songthaew"},
+                        {n:"Nathon Night Food Market",f:"Sunset market by the pier! Experience the cheapest local Thai skewers, banana pancakes, and freshly cut tropical fruits.",a:"Square beside Nathon Pier",t:"Walk"},
+                        {n:"Nathon Dried Seafood Market",f:"Specializes in dried squid, dried shrimp, dried chilies, and cashews. Full of local market vitality and aromas.",a:"Nathon Market Area",t:"Walk"},
+                        {n:"Samui OTOP Center",f:"Buy natural honey, cold-pressed coconut oil, and pickled tropical fruits directly from farmers around Koh Samui.",a:"Around Nathon Old Street",t:"Walk"},
+                        {n:"Manora Shrimp Crackers",f:"Raw bulk packs of traditional Thai shrimp crackers. Crispy and slightly spicy. Perfect late-night beer snack at the hotel.",a:"Nathon Wholesale Dried Goods Shops",t:"Walk"}
+                    ],
+                    hobby: [
+                        {n:"Nathon Hainan Shrine Area",f:"Nathon retains many century-old wooden Chinese shophouses hiding antique clocks, old coins, and Chinese porcelain.",a:"Nathon Chinese Old Street",t:"Walk"},
+                        {n:"Samui Teak Wood Furniture",f:"Specializes in large solid wood furniture and rattan swing chairs. Shipping services are available near the pier to send them home.",a:"Nathon Outer Furniture Stores",t:"Car"},
+                        {n:"Sangkapan",f:"Mystical shops selling shiny shrines, gold leaf, and traditional incense. Experience local Theravada Buddhist culture.",a:"Nathon Main Street",t:"Walk"},
+                        {n:"Nathon Marine Supply",f:"Being a fishing port, there are hardware stores selling advanced snorkeling gear, fishing tackle, and ropes. Fun for treasure hunting.",a:"Around Nathon Pier",t:"Walk"},
+                        {n:"Thai Traditional Music Shop",f:"Occasionally, you can find unique shops selling Thai xylophones (Ranat) and traditional long drums. A treasure trove for music collectors.",a:"Inside Nathon Old Street",t:"Walk"}
+                    ]
+                }
+            }
+        };
+
+        const catsMap = {
+            souvenir: { icon: "🛍️", name: "Must-Buy Souvenirs", bg: "bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white border-rose-200" },
+            fashion:  { icon: "👗", name: "Fashion & Accessories", bg: "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-600 hover:text-white border-fuchsia-200" },
+            beauty:   { icon: "🥥", name: "Beauty & Pharmacy", bg: "bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border-sky-200" },
+            mart:     { icon: "🛒", name: "Supermarkets", bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200" },
+            hobby:    { icon: "🐘", name: "Crafts & Sundries", bg: "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border-amber-200" }
+        };
+
+        let currentCity = "chaweng";
+        let currentCat = "fashion"; // Default view testing
+
+        const cityContainer = document.getElementById('city-container');
+        const categoryContainer = document.getElementById('category-container');
+        const shopContainer = document.getElementById('shop-container');
+
+        function initUI() {
+            // Render Cities
+            Object.keys(db).forEach(cityKey => {
+                const btn = document.createElement('button');
+                btn.className = `city-btn whitespace-nowrap px-6 py-2.5 rounded-full border border-sky-200 bg-white text-sky-700 font-bold hover:bg-sky-100 hover:text-sky-900 shadow-sm ${cityKey === currentCity ? 'active' : ''}`;
+                btn.innerText = db[cityKey].name;
+                btn.onclick = () => {
+                    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCity = cityKey;
+                    renderContent();
+                };
+                cityContainer.appendChild(btn);
+            });
+
+            // Render Categories
+            Object.keys(catsMap).forEach(catKey => {
+                const c = catsMap[catKey];
+                const btn = document.createElement('button');
+                btn.className = `tab-btn whitespace-nowrap px-5 py-2.5 rounded-full border transition-all font-bold shadow-sm flex items-center ${c.bg} ${catKey === currentCat ? 'active' : ''}`;
+                btn.innerHTML = `<span class="mr-1.5 text-lg">${c.icon}</span> ${c.name}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCat = catKey;
+                    renderContent();
+                };
+                categoryContainer.appendChild(btn);
+            });
+
+            // Load Default View
+            currentCat = "souvenir";
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            renderContent();
+        }
+
+        function renderContent() {
+            shopContainer.innerHTML = '';
+            const items = db[currentCity].cat[currentCat];
+
+            if(!items || items.length === 0) {
+                shopContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-lg font-bold">No recommendations found for this category.</div>`;
+                return;
+            }
+
+            const sortedItems = [...items].sort((a, b) => {
+                if (a.cLink && !b.cLink) return -1;
+                if (!a.cLink && b.cLink) return 1;
+                return 0;
+            });
+
+            sortedItems.forEach((item, index) => {
+                const pureAddress = item.a.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.n} Koh Samui Thailand ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const couponHtml = item.cLink ? `
+                    <a href="${item.cLink}" target="_blank" rel="noopener noreferrer" 
+                       class="w-full flex items-center justify-center gap-2 px-4 py-3 mb-3 border border-rose-300 rounded-xl shadow-sm text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-400 focus:outline-none transition-colors">
+                        <i class="${item.cIcon} text-lg"></i>
+                        Get Free: ${item.cName}
+                    </a>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border ${item.cLink ? 'border-rose-200' : 'border-sky-50'} p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                ${item.n}
+                                ${item.cLink ? '<span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">COUPON</span>' : ''}
+                            </h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-amber-400 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">Highlights</p>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-medium">${item.f}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">Address</p>
+                                    <p class="text-sm text-slate-600 font-medium">${item.a}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-car text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">Transport</p>
+                                    <span class="inline-block bg-sky-50 text-sky-700 text-xs px-2.5 py-1 rounded-md font-bold text-left leading-normal">${item.t}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-sky-50">
+                        ${couponHtml}
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white btn-maps focus:outline-none transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            Open in Google Maps
+                        </a>
+                    </div>
+                `;
+                shopContainer.appendChild(card);
+            });
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>
