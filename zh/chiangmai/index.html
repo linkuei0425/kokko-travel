@@ -3,24 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>清邁通 - 深度旅行助手</title>
+    <!-- SEO 與 AEO 優化標籤 -->
+    <title>清邁通 - 您的終極清邁深度旅行助手 | Chiang Mai Travel Guide</title>
+    <meta name="description" content="清邁通提供最完整的清邁自由行攻略，包含景點探索、美食推薦、購物指南、住宿安排、城際交通與機場攻略。您的專屬清邁旅遊規劃師。">
+    <meta name="keywords" content="清邁旅遊, 清邁自由行, 清邁景點, 清邁美食, 清邁交通, 清邁住宿, 清邁行程規劃, 泰北旅遊, 泰國旅遊, Chiang Mai travel guide">
+    <meta property="og:title" content="清邁通 - 深度旅行助手">
+    <meta property="og:description" content="最完整的清邁自由行攻略，提供精準交通、景點、美食與行程推薦！">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kokko-travel.com/zh/chiangmai/index.html">
+    <meta name="robots" content="index, follow">
+    
+    <!-- 自動偵測語言並導向外國旅客 -->
+    <script>
+        (function() {
+            var userLang = navigator.language || navigator.userLanguage;
+            if (userLang && !userLang.toLowerCase().startsWith('zh')) {
+                // 非中文使用者自動導向英文版
+                window.location.replace('https://kokko-travel.com/en/chiangmai/');
+            }
+        })();
+    </script>
+
+    <!-- 結構化資料 (AEO / SEO) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "清邁通 - 深度旅行助手",
+      "url": "https://kokko-travel.com/zh/chiangmai/index.html",
+      "description": "提供清邁景點、美食、購物、住宿與交通規劃的全方位旅遊指南工具。",
+      "applicationCategory": "TravelApplication",
+      "operatingSystem": "All"
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .app-container { max-width: 414px; margin: 0 auto; background-color: #f9fafb; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow-x: hidden; }
         
-        /* 更改為黃色/琥珀色漸層 */
+        /* 調整響應式寬度，適應手機、平板與電腦 */
+        .app-container { width: 100%; margin: 0 auto; background-color: #f9fafb; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow-x: hidden; }
+        @media (min-width: 768px) {
+            .app-container { max-width: 768px; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; }
+        }
+        @media (min-width: 1024px) {
+            .app-container { max-width: 1024px; }
+        }
+        
+        /* 漸層色彩 */
         .bg-chiangmai-gradient { background: linear-gradient(135deg, #f59e0b 0%, #facc15 100%); }
-        
         .bg-attraction-gradient { background: linear-gradient(135deg, #6b21a8 0%, #c026d3 100%); }
         .bg-food-gradient { background: linear-gradient(135deg, #ea580c 0%, #e11d48 100%); }
         .bg-itinerary-gradient { background: linear-gradient(135deg, #059669 0%, #0284c7 100%); }
         .bg-hotel-gradient { background: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%); }
-        
-        /* 將原本的河運藍色改為代表城際小巴的暖棕橘色 */
         .bg-van-gradient { background: linear-gradient(135deg, #9a3412 0%, #ea580c 100%); }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -30,80 +68,89 @@
         .dyn-tab-content { display: none; animation: fadeIn 0.3s ease-out; }
         .dyn-tab-content.active { display: block; }
         .carousel-track { display: flex; transition: transform 0.5s ease-out; }
+        
     </style>
 </head>
 <body>
 
-<div class="app-container pb-20">
+<div class="app-container pb-10">
     
     <!-- 頂部 Header -->
     <div class="bg-chiangmai-gradient text-white pt-6 pb-4 px-5 rounded-b-[2rem] shadow-md relative z-20">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center max-w-5xl mx-auto">
             <div>
                 <p id="datetime-display" class="text-[10px] font-medium text-amber-50 tracking-wide opacity-90">時間載入中...</p>
                 <p id="weather-display" class="text-xs opacity-100 font-bold flex items-center gap-1"><i class="ph ph-sun-dim"></i> 讀取天氣...</p>
                 <h1 class="text-2xl font-extrabold tracking-tight mt-0.5 drop-shadow-sm">清邁通</h1>
             </div>
             <div class="flex gap-2">
-                <a href="https://linkuei0425.github.io/ChiangMai-US/index.html" target="_blank" rel="noopener noreferrer" class="w-9 h-9 bg-black/10 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform text-sm font-bold">EN</a>
+                <a href="https://kokko-travel.com/en/chiangmai/index.html" rel="noopener noreferrer" class="w-9 h-9 bg-black/10 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform text-sm font-bold">EN</a>
             </div>
         </div>
     </div>
 
-    <!-- 照片輪播區 -->
+    <!-- 照片輪播區 (適應電腦版並排顯示) -->
     <div class="px-5 mt-4 relative overflow-hidden">
-        <div id="carousel-track" class="carousel-track gap-3">
-            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
-                <img src="https://linkuei0425.github.io/ChiangMai/A.jpeg" alt="清邁古城">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">絕美清邁古城之旅</span></div>
+        <div id="carousel-track" class="carousel-track gap-3 md:gap-5">
+            <div class="shrink-0 w-[90%] md:w-[45%] lg:w-[31%] h-44 md:h-52 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
+                <img src="https://linkuei0425.github.io/ChiangMai/A.jpeg" alt="清邁古城" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm md:text-base tracking-wide">絕美清邁古城之旅</span></div>
             </div>
-            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
-                <img src="https://linkuei0425.github.io/ChiangMai/B.jpeg" alt="清萊藍廟">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">清萊藍廟之旅</span></div>
+            <div class="shrink-0 w-[90%] md:w-[45%] lg:w-[31%] h-44 md:h-52 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
+                <img src="https://linkuei0425.github.io/ChiangMai/B.jpeg" alt="清萊藍廟" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm md:text-base tracking-wide">清萊藍廟之旅</span></div>
             </div>
-            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
-                <img src="https://linkuei0425.github.io/ChiangMai/C.jpeg" alt="大象保護區">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">探索大象保護園區</span></div>
+            <div class="shrink-0 w-[90%] md:w-[45%] lg:w-[31%] h-44 md:h-52 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
+                <img src="https://linkuei0425.github.io/ChiangMai/C.jpeg" alt="大象保護區" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm md:text-base tracking-wide">探索大象保護園區</span></div>
             </div>
         </div>
     </div>
 
-    <!-- 快速導航工具 -->
-    <div class="px-5 mt-4">
-        <h2 class="text-sm font-bold text-gray-500 mb-4 px-1">快速導航工具</h2>
-        <div class="grid grid-cols-4 gap-y-6 gap-x-3">
-            <!-- 旅遊必備 (移至第一位並改為外連) -->
-            <button onclick="window.open('https://linkuei0425.github.io/togeter/buy.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(139,92,246,0.2)]"><i class="ph ph-suitcase text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">旅遊必備</span></button>
+    <!-- 快速導航工具 (適應平板與電腦排版) -->
+    <div class="px-5 mt-6 md:mt-8">
+        <h2 class="text-sm md:text-base font-bold text-gray-500 mb-4 px-1 border-l-4 border-amber-400 pl-2">快速導航工具</h2>
+        <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-y-6 gap-x-3">
+            <!-- 工具按鈕位置不變，替換最新網址 -->
+            <button onclick="window.open('https://linkuei0425.github.io/togeter/buy.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-hover:bg-violet-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(139,92,246,0.2)]"><i class="ph ph-suitcase text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">旅遊必備</span></button>
 
-            <button onclick="window.openModal('airportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(14,165,233,0.2)]"><i class="ph ph-airplane-tilt text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">機場攻略</span></button>
-            <button onclick="window.openModal('mapModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-teal-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(20,184,166,0.2)]"><i class="ph ph-bus text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">公車路線</span></button>
-            <button onclick="window.openModal('boatModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(234,88,12,0.2)]"><i class="ph ph-van text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">城際交通</span></button>
-            <button onclick="window.openModal('attractionModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-purple-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(147,51,234,0.2)]"><i class="ph ph-camera text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">景點探索</span></button>
+            <button onclick="window.openModal('airportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-500 group-hover:bg-sky-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(14,165,233,0.2)]"><i class="ph ph-airplane-tilt text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">機場攻略</span></button>
+            <button onclick="window.openModal('mapModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-teal-500 group-hover:bg-teal-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(20,184,166,0.2)]"><i class="ph ph-bus text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">公車路線</span></button>
+            <button onclick="window.openModal('boatModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-600 group-hover:bg-orange-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(234,88,12,0.2)]"><i class="ph ph-van text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">城際交通</span></button>
+            <button onclick="window.openModal('attractionModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-purple-600 group-hover:bg-purple-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(147,51,234,0.2)]"><i class="ph ph-camera text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">景點探索</span></button>
             
-            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai/food.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(249,115,22,0.2)]"><i class="ph ph-fork-knife text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">美食推薦</span></button>
-            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai/shopping.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,63,94,0.2)]"><i class="ph ph-handbag text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">購物推薦</span></button>
+            <button onclick="window.open('https://kokko-travel.com/zh/chiangmai/food.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-hover:bg-orange-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(249,115,22,0.2)]"><i class="ph ph-fork-knife text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">美食推薦</span></button>
+            <button onclick="window.open('https://kokko-travel.com/zh/chiangmai/shopping.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-hover:bg-rose-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(244,63,94,0.2)]"><i class="ph ph-handbag text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">購物推薦</span></button>
             
-            <!-- 行程表 (外連) -->
-            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai/S.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(236,72,153,0.2)]"><i class="ph ph-calendar-check text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">行程表</span></button>
+            <!-- 行程魔法師 (S.html) -->
+            <button onclick="window.open('https://kokko-travel.com/zh/chiangmai/S.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-hover:bg-pink-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(236,72,153,0.2)]"><i class="ph ph-calendar-check text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">行程表</span></button>
             
-            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai/trip.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(16,185,129,0.2)]"><i class="ph ph-ticket text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">行程推薦</span></button>
+            <button onclick="window.open('https://kokko-travel.com/zh/chiangmai/trip.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-hover:bg-emerald-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(16,185,129,0.2)]"><i class="ph ph-ticket text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">行程推薦</span></button>
             
-            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai/hotel.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(99,102,241,0.2)]"><i class="ph ph-bed text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">住宿推薦</span></button>
+            <button onclick="window.open('https://kokko-travel.com/zh/chiangmai/hotel.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500 group-hover:bg-indigo-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(99,102,241,0.2)]"><i class="ph ph-bed text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">住宿推薦</span></button>
             
-            <!-- 全球通 (外連) -->
-            <button onclick="window.open('https://linkuei0425.github.io/togeter/go.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-cyan-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(6,182,212,0.2)]"><i class="ph ph-globe text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">全球通</span></button>
+            <button onclick="window.open('https://linkuei0425.github.io/togeter/go.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-cyan-500 group-hover:bg-cyan-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(6,182,212,0.2)]"><i class="ph ph-globe text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">全球通</span></button>
             
-            <button onclick="window.openModal('aboutModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(71,85,105,0.2)]"><i class="ph ph-info text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">關於我們</span></button>
+            <button onclick="window.openModal('aboutModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-hover:bg-slate-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(71,85,105,0.2)]"><i class="ph ph-info text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">關於我們</span></button>
             
-            <button onclick="window.openModal('fanModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-red-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(239,68,68,0.2)]"><i class="ph ph-heart text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">加入粉絲</span></button>
+            <button onclick="window.openModal('fanModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-red-500 group-hover:bg-red-50 group-active:scale-90 transition-all shadow-[0_4px_10px_rgba(239,68,68,0.2)]"><i class="ph ph-heart text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">加入粉絲</span></button>
         </div>
+    </div>
+
+    <!-- 版權宣告區塊 -->
+    <div class="mt-12 mb-6 text-center px-6">
+        <hr class="border-gray-200 mb-6">
+        <p class="text-xs text-gray-400 font-medium">© 2024-2026 清邁通 ChiangMai Travel Guide. All Rights Reserved.</p>
+        <p class="mt-1.5 text-[10px] text-gray-400 leading-relaxed max-w-lg mx-auto">
+            本網站之所有圖文內容、版面設計與程式原始碼均受當地與國際著作權法保護。未經本站授權，嚴禁任何形式之轉載、重製、改作、散佈或進行商業營利用途。違者必究。
+        </p>
     </div>
 
     <!-- ==================== Modals ==================== -->
 
     <!-- 機場攻略 Modal -->
-    <div id="airportModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-cyan-600 to-blue-700 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
+    <div id="airportModal" class="fixed inset-0 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col md:max-w-3xl md:mx-auto md:shadow-2xl md:border-x md:border-slate-800 bg-slate-950 md:h-[90vh]">
+        <div class="bg-gradient-to-br from-cyan-600 to-blue-700 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10 md:pt-6">
             <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> 機場攻略</h2>
             <button onclick="window.closeModal('airportModal')"><i class="ph ph-x text-2xl"></i></button>
         </div>
@@ -114,22 +161,19 @@
             </div>
         </div>
         <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
-            
             <!-- CNX 內容 -->
             <div id="airport-cnx" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
-                <div class="flex gap-3 w-full mb-2">
+                <div class="flex flex-col md:flex-row gap-3 w-full mb-2">
                     <a href="https://affiliate.klook.com/redirect?aid=115196&aff_adid=1232867&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white py-3 px-2 rounded-xl font-bold shadow-lg active:scale-95 transition-transform">
-                        <i class="ph-fill ph-sim-card text-2xl"></i>
-                        <span class="text-[11px] text-center leading-tight">超好用 e-sim</span>
+                        <i class="ph-fill ph-sim-card text-2xl"></i><span class="text-[11px] text-center leading-tight">超好用 e-sim</span>
                     </a>
                     <a href="https://www.klook.com/zh-TW/airport-transfers/" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-2 rounded-xl font-bold shadow-lg active:scale-95 transition-transform">
-                        <i class="ph-fill ph-car-profile text-2xl"></i>
-                        <span class="text-[11px] text-center leading-tight">機場接送預約</span>
+                        <i class="ph-fill ph-car-profile text-2xl"></i><span class="text-[11px] text-center leading-tight">機場接送預約</span>
                     </a>
                 </div>
                 <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
                     <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-taxi text-lg"></i> (1) 機場計程車 (Airport Taxi)</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                    <ul class="text-[11px] md:text-sm text-slate-300 space-y-2 leading-relaxed pl-1">
                         <li><span class="text-white font-bold">位置：</span> 抵達大廳 1 號出口外。</li>
                         <li><span class="text-white font-bold">費用：</span> 到古城或尼曼區通常為公定價 150 泰銖，大車約 200 泰銖。</li>
                         <li><span class="text-white font-bold">特點：</span> 不需跳錶，價格透明，適合攜帶大型行李的旅客。</li>
@@ -137,46 +181,44 @@
                 </div>
                 <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
                     <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-device-mobile text-lg"></i> (2) 手機叫車 (Grab / Bolt / Maxim)</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                    <ul class="text-[11px] md:text-sm text-slate-300 space-y-2 leading-relaxed pl-1">
                         <li><span class="text-white font-bold">位置：</span> 可在抵達大廳外側指定載客點上車。</li>
                         <li><span class="text-white font-bold">費用：</span> 依距離與時段變動，進市區約 100 - 180 泰銖。Bolt 與 Maxim 通常比 Grab 便宜。</li>
                     </ul>
                 </div>
                 <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
                     <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-bus text-lg"></i> (3) RTC 城市公車 (City Bus)</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                    <ul class="text-[11px] md:text-sm text-slate-300 space-y-2 leading-relaxed pl-1">
                         <li><span class="text-white font-bold">路線：</span> 搭乘綠線 (Green Line) 可前往清邁門、塔佩門及瓦洛洛市場。</li>
                         <li><span class="text-white font-bold">費用：</span> 單程一律 30 泰銖。</li>
                         <li><span class="text-white font-bold">特點：</span> 有冷氣，最便宜的選擇，但班次較不密集。</li>
                     </ul>
                 </div>
             </div>
-
             <!-- CEI 內容 -->
             <div id="airport-cei" class="hidden space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
                 <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
                     <h3 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-taxi text-lg"></i> (1) 清萊機場計程車</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                    <ul class="text-[11px] md:text-sm text-slate-300 space-y-2 leading-relaxed pl-1">
                         <li><span class="text-white font-bold">位置：</span> 抵達大廳外。</li>
                         <li><span class="text-white font-bold">費用：</span> 至清萊市區（鐘樓附近）公定價約 200 泰銖。</li>
                     </ul>
                 </div>
                 <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
                     <h3 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-bus text-lg"></i> (2) 前往清邁市區</h3>
-                    <p class="text-[10px] text-yellow-300 mb-2 pl-1">— 需轉乘長途巴士</p>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                    <p class="text-[10px] md:text-xs text-yellow-300 mb-2 pl-1">— 需轉乘長途巴士</p>
+                    <ul class="text-[11px] md:text-sm text-slate-300 space-y-2 leading-relaxed pl-1">
                         <li><span class="text-white font-bold">方式：</span> 先搭車至清萊巴士總站 (Terminal 1 或 2)，再轉乘 Green Bus 客運前往清邁。</li>
                         <li><span class="text-white font-bold">車程：</span> 清萊至清邁客運約需 3 - 3.5 小時。</li>
                     </ul>
                 </div>
             </div>
-
         </div>
     </div>
     
-    <!-- 捷運規劃 Modal (改為清邁公車 RTC) -->
-    <div id="mapModal" class="fixed inset-0 bg-gray-900 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto">
-        <div class="pt-10 pb-6 px-5 flex justify-between items-center border-b border-gray-800 shadow-md">
+    <!-- 捷運規劃 Modal (清邁公車 RTC) -->
+    <div id="mapModal" class="fixed inset-0 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col md:max-w-3xl md:mx-auto md:shadow-2xl md:border-x md:border-slate-800 bg-gray-900 md:h-[90vh]">
+        <div class="pt-10 pb-6 px-5 flex justify-between items-center border-b border-gray-800 shadow-md md:pt-6">
             <div class="flex items-center gap-2"><i class="ph-fill ph-bus text-2xl text-teal-400"></i><div><h2 class="text-white font-bold text-lg leading-tight">清邁公車路線規劃</h2><p class="text-[10px] text-gray-400">RTC City Bus 路網導航</p></div></div>
             <button onclick="window.closeModal('mapModal')" class="text-white bg-white/10 p-1.5 rounded-full"><i class="ph ph-x text-xl"></i></button>
         </div>
@@ -185,30 +227,29 @@
                 <div class="absolute left-[29px] top-9 bottom-12 w-0.5 bg-gray-600 border-dashed border-l-2"></div>
                 <div class="flex items-center gap-3 mb-4 relative z-10">
                     <div class="w-3 h-3 rounded-full bg-teal-400 shrink-0 shadow-[0_0_8px_rgba(45,212,191,0.8)]"></div>
-                    <div class="relative w-full"><select id="mrt-origin" class="w-full bg-gray-900 text-white border border-gray-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-teal-400 text-sm"><option value="" disabled selected>請選擇出發站...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
+                    <div class="relative w-full"><select id="mrt-origin" class="w-full bg-gray-900 text-white border border-gray-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-teal-400 text-sm md:text-base"><option value="" disabled selected>請選擇出發站...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
                 </div>
                 <div class="flex items-center gap-3 relative z-10 mb-4">
                     <div class="w-3 h-3 rounded-full bg-rose-500 shrink-0 shadow-[0_0_8px_rgba(244,63,94,0.8)]"></div>
-                    <div class="relative w-full"><select id="mrt-dest" class="w-full bg-gray-900 text-white border border-gray-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-rose-400 text-sm"><option value="" disabled selected>請選擇目的站...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
+                    <div class="relative w-full"><select id="mrt-dest" class="w-full bg-gray-900 text-white border border-gray-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-rose-400 text-sm md:text-base"><option value="" disabled selected>請選擇目的站...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
                 </div>
                 <button onclick="window.calcMrt()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-transform shadow-lg relative z-10">開始規劃路線</button>
             </div>
-            
             <div id="mrt-result" class="hidden mt-6 animate-[fadeIn_0.3s]">
                 <div class="bg-gray-800 rounded-2xl p-5 border border-teal-900/50 shadow-lg">
                     <div class="flex justify-between items-end border-b border-gray-700 pb-3 mb-4">
-                        <div><p class="text-[10px] text-gray-400 mb-0.5">總計經過</p><div id="mrt-stops-count" class="text-xl font-bold text-teal-400"></div></div>
-                        <div class="text-right"><p class="text-[10px] text-gray-400 mb-0.5">預估時間</p><span id="mrt-time" class="text-lg font-bold text-white mr-2"></span></div>
+                        <div><p class="text-[10px] md:text-xs text-gray-400 mb-0.5">總計經過</p><div id="mrt-stops-count" class="text-xl font-bold text-teal-400"></div></div>
+                        <div class="text-right"><p class="text-[10px] md:text-xs text-gray-400 mb-0.5">預估時間</p><span id="mrt-time" class="text-lg font-bold text-white mr-2"></span></div>
                     </div>
-                    <div id="mrt-path-detail" class="text-sm text-gray-200"></div>
+                    <div id="mrt-path-detail" class="text-sm text-gray-200 md:text-base"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 船運規劃 Modal (改為城際小巴 Minivan) -->
-    <div id="boatModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto">
-        <div class="bg-van-gradient pt-10 pb-6 px-5 flex justify-between items-center text-white shadow-md">
+    <!-- 船運規劃 Modal (城際小巴 Minivan) -->
+    <div id="boatModal" class="fixed inset-0 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col md:max-w-3xl md:mx-auto md:shadow-2xl md:border-x md:border-slate-800 bg-slate-950 md:h-[90vh]">
+        <div class="bg-van-gradient pt-10 pb-6 px-5 flex justify-between items-center text-white shadow-md md:pt-6">
             <div class="flex items-center gap-2"><i class="ph-fill ph-van text-2xl text-orange-200"></i><div><h2 class="font-bold text-lg leading-tight">泰北城際小巴導航</h2><p class="text-[10px] text-orange-200">拜縣、清萊、南邦長途路線</p></div></div>
             <button onclick="window.closeModal('boatModal')" class="bg-white/20 p-1.5 rounded-full"><i class="ph ph-x text-xl"></i></button>
         </div>
@@ -217,58 +258,58 @@
                 <div class="absolute left-[29px] top-9 bottom-12 w-0.5 bg-slate-600 border-dashed border-l-2"></div>
                 <div class="flex items-center gap-3 mb-4 relative z-10">
                     <div class="w-3 h-3 rounded-full bg-orange-400 shrink-0 shadow-[0_0_8px_rgba(251,146,60,0.8)]"></div>
-                    <div class="relative w-full"><select id="boat-origin" class="w-full bg-slate-900 text-white border border-slate-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-orange-400 text-sm"><option value="" disabled selected>請選擇出發地...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div>
+                    <div class="relative w-full"><select id="boat-origin" class="w-full bg-slate-900 text-white border border-slate-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-orange-400 text-sm md:text-base"><option value="" disabled selected>請選擇出發地...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div>
                 </div>
                 <div class="flex items-center gap-3 relative z-10 mb-4">
                     <div class="w-3 h-3 rounded-full bg-yellow-500 shrink-0 shadow-[0_0_8px_rgba(234,179,8,0.8)]"></div>
-                    <div class="relative w-full"><select id="boat-dest" class="w-full bg-slate-900 text-white border border-slate-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-yellow-400 text-sm"><option value="" disabled selected>請選擇目的地...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div>
+                    <div class="relative w-full"><select id="boat-dest" class="w-full bg-slate-900 text-white border border-slate-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-yellow-400 text-sm md:text-base"><option value="" disabled selected>請選擇目的地...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div>
                 </div>
                 <button onclick="window.calcBoat()" class="w-full bg-orange-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-transform shadow-lg relative z-10">開始規劃路線</button>
             </div>
             <div id="boat-result" class="hidden mt-6 bg-slate-800 rounded-2xl p-5 border border-orange-900/50 space-y-4 shadow-lg animate-[fadeIn_0.3s]">
                 <div class="flex justify-between items-end border-b border-slate-700 pb-3">
-                    <div><p class="text-[10px] text-slate-400 mb-0.5">總計經過</p><span id="boat-stops-count" class="text-xl font-bold text-orange-400"></span></div>
-                    <div class="text-right"><p class="text-[10px] text-slate-400 mb-0.5">預估時間 (視山路而定)</p><span id="boat-time" class="text-lg font-bold text-white mr-2"></span></div>
+                    <div><p class="text-[10px] md:text-xs text-slate-400 mb-0.5">總計經過</p><span id="boat-stops-count" class="text-xl font-bold text-orange-400"></span></div>
+                    <div class="text-right"><p class="text-[10px] md:text-xs text-slate-400 mb-0.5">預估時間 (視山路而定)</p><span id="boat-time" class="text-lg font-bold text-white mr-2"></span></div>
                 </div>
-                <div id="boat-path-detail" class="pt-2 text-sm text-gray-200 space-y-3 relative pl-4"></div>
+                <div id="boat-path-detail" class="pt-2 text-sm md:text-base text-gray-200 space-y-3 relative pl-4"></div>
             </div>
         </div>
     </div>
 
     <!-- 景點探索 Modal -->
-    <div id="attractionModal" class="fixed inset-0 bg-purple-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-attraction-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">清邁景點探索</h2><button onclick="window.closeModal('attractionModal')"><i class="ph ph-x text-2xl"></i></button></div>
+    <div id="attractionModal" class="fixed inset-0 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col md:max-w-3xl md:mx-auto md:shadow-2xl md:border-x md:border-slate-800 bg-purple-950 md:h-[90vh]">
+        <div class="bg-attraction-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10 md:pt-6"><h2 class="font-bold text-lg">清邁景點探索</h2><button onclick="window.closeModal('attractionModal')"><i class="ph ph-x text-2xl"></i></button></div>
         <div class="p-4 flex-1 overflow-y-auto bg-purple-950 no-scrollbar text-white relative">
-            <div id="attr-cat-grid" class="grid grid-cols-4 gap-2"></div>
-            <div id="attr-detail-view" class="hidden animate-[fadeIn_0.3s]">
-                <button onclick="window.resetAttrView()" class="mb-3 text-fuchsia-300 flex items-center gap-1 bg-purple-900/50 px-3 py-1.5 rounded-lg text-sm"><i class="ph ph-arrow-left"></i> 返回重新選擇</button>
+            <div id="attr-cat-grid" class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2"></div>
+            <div id="attr-detail-view" class="hidden animate-[fadeIn_0.3s] max-w-2xl mx-auto">
+                <button onclick="window.resetAttrView()" class="mb-3 text-fuchsia-300 flex items-center gap-1 bg-purple-900/50 px-3 py-1.5 rounded-lg text-sm hover:bg-purple-800 transition"><i class="ph ph-arrow-left"></i> 返回重新選擇</button>
                 <div id="attr-subcat-tabs" class="flex gap-2 mb-3 overflow-x-auto no-scrollbar"></div>
                 <div class="relative">
-                    <select id="attraction-select" class="w-full bg-purple-900 border border-purple-700 rounded-xl p-3 pr-8 mb-4 focus:outline-none focus:border-fuchsia-400 text-sm"></select>
+                    <select id="attraction-select" class="w-full bg-purple-900 border border-purple-700 rounded-xl p-3 pr-8 mb-4 focus:outline-none focus:border-fuchsia-400 text-sm md:text-base"></select>
                     <i class="ph ph-caret-down absolute right-3 top-4 text-purple-400 pointer-events-none"></i>
                 </div>
                 <div id="attr-result" class="hidden space-y-4 pb-8">
                     <div class="bg-purple-900/50 p-5 rounded-2xl border border-purple-800 space-y-3">
-                        <h3 id="attr-name" class="font-bold text-xl"></h3>
-                        <p id="attr-desc" class="text-sm text-purple-100 leading-relaxed"></p>
+                        <h3 id="attr-name" class="font-bold text-xl md:text-2xl"></h3>
+                        <p id="attr-desc" class="text-sm md:text-base text-purple-100 leading-relaxed"></p>
                         <div class="pt-3 border-t border-purple-800/50 space-y-2.5">
-                            <p class="text-[11px] text-amber-300 flex items-start gap-1.5"><i class="ph-fill ph-clock mt-0.5 shrink-0 text-sm"></i> <span id="attr-hours" class="leading-relaxed font-mono"></span></p>
-                            <p class="text-[11px] text-teal-300 flex items-start gap-1.5"><i class="ph-fill ph-navigation-arrow mt-0.5 shrink-0 text-sm"></i> <span id="attr-transport" class="leading-relaxed"></span></p>
-                            <p class="text-[11px] text-gray-300 flex items-start gap-1.5"><i class="ph-fill ph-map-pin mt-0.5 shrink-0 text-sm"></i> <span id="attr-address" class="leading-relaxed font-mono"></span></p>
+                            <p class="text-[11px] md:text-sm text-amber-300 flex items-start gap-1.5"><i class="ph-fill ph-clock mt-0.5 shrink-0"></i> <span id="attr-hours" class="leading-relaxed font-mono"></span></p>
+                            <p class="text-[11px] md:text-sm text-teal-300 flex items-start gap-1.5"><i class="ph-fill ph-navigation-arrow mt-0.5 shrink-0"></i> <span id="attr-transport" class="leading-relaxed"></span></p>
+                            <p class="text-[11px] md:text-sm text-gray-300 flex items-start gap-1.5"><i class="ph-fill ph-map-pin mt-0.5 shrink-0"></i> <span id="attr-address" class="leading-relaxed font-mono"></span></p>
                         </div>
                     </div>
                     <div id="attr-tabs-header" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
                     <div id="attr-tabs-container" class="space-y-2"></div>
-                    <a id="attr-map-link" href="#" target="_blank" class="block w-full bg-blue-600 text-center py-3.5 rounded-xl font-bold shadow-lg mt-2">開啟GOOGLE導航</a>
+                    <a id="attr-map-link" href="#" target="_blank" class="block w-full bg-blue-600 hover:bg-blue-500 text-center py-3.5 rounded-xl font-bold shadow-lg mt-2 transition-colors">開啟 GOOGLE 導航</a>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 關於我們 Modal -->
-    <div id="aboutModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-slate-800 text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">關於我們</h2><button onclick="window.closeModal('aboutModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-6 text-sm">
+    <div id="aboutModal" class="fixed inset-0 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col md:max-w-3xl md:mx-auto md:shadow-2xl md:border-x md:border-slate-800 bg-slate-950 md:h-[60vh]">
+        <div class="bg-slate-800 text-white pt-10 pb-6 px-5 flex justify-between items-center md:pt-6"><h2 class="font-bold text-lg">關於我們</h2><button onclick="window.closeModal('aboutModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-6 text-sm md:text-base">
             <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-2 flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> 品牌初衷</h3><p class="leading-relaxed text-gray-300">我們陪伴旅人從尋找靈感的第一秒，到踏上歸途的最後一刻。帶您深入泰北，寫下專屬於您的清邁故事。</p></div>
             <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-3 flex items-center gap-2 text-amber-400"><i class="ph-fill ph-briefcase"></i> 合作模式</h3><ul class="space-y-3 text-gray-300"><li>📍 目的地營銷與品牌推廣</li><li>🎟️ 旅遊產品 API 串接與分潤</li><li>⛺ 在地商家與品牌贊助</li></ul></div>
             <div class="bg-blue-900/30 p-5 rounded-2xl border border-blue-800/50"><h3 class="font-bold mb-2 flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> 聯絡信箱</h3><p class="text-blue-400 font-bold break-all">imimdesignstudio@yahoo.com</p></div>
@@ -276,15 +317,15 @@
     </div>
 
     <!-- 加入粉絲 Modal -->
-    <div id="fanModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">加入粉絲</h2><button onclick="window.closeModal('fanModal')"><i class="ph ph-x text-2xl"></i></button></div>
+    <div id="fanModal" class="fixed inset-0 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col md:max-w-3xl md:mx-auto md:shadow-2xl md:border-x md:border-slate-800 bg-slate-950 md:h-[60vh]">
+        <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10 md:pt-6"><h2 class="font-bold text-lg">加入粉絲</h2><button onclick="window.closeModal('fanModal')"><i class="ph ph-x text-2xl"></i></button></div>
         <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white flex flex-col items-center gap-6 no-scrollbar">
-            <div class="w-full space-y-3 mt-4">
-                <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-instagram-logo text-xl"></i> 追蹤 Instagram</a>
-                <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-zinc-800 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform border border-zinc-700"><i class="ph-fill ph-threads-logo text-xl"></i> 關注 Threads</a>
-                <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-chat-circle text-xl"></i> 加入 LINE 官方帳號</a>
+            <div class="w-full space-y-4 mt-4 md:max-w-md mx-auto">
+                <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 hover:opacity-90 transition-all"><i class="ph-fill ph-instagram-logo text-xl"></i> 追蹤 Instagram</a>
+                <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-zinc-800 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 hover:bg-zinc-700 transition-all border border-zinc-700"><i class="ph-fill ph-threads-logo text-xl"></i> 關注 Threads</a>
+                <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 hover:bg-[#00a000] transition-all"><i class="ph-fill ph-chat-circle text-xl"></i> 加入 LINE 官方帳號</a>
             </div>
-            <p class="text-xs text-gray-400 mt-2 text-center leading-relaxed">追蹤我們，獲取第一手泰北清邁私藏情報、<br>隱藏版美食與限時優惠！</p>
+            <p class="text-xs md:text-sm text-gray-400 mt-2 text-center leading-relaxed">追蹤我們，獲取第一手泰北清邁私藏情報、<br>隱藏版美食與限時優惠！</p>
         </div>
     </div>
 
@@ -295,11 +336,13 @@
 // --- 全域變數與開關定義 ---
 window.currentAttrCatIdx = -1;
 
+// 根據裝置寬度決定是否鎖定背景滾動
 window.openModal = function(id) {
     const el = document.getElementById(id);
     if (el) { 
         el.classList.remove('hidden'); 
-        setTimeout(() => el.classList.remove('opacity-0'), 10); 
+        setTimeout(() => el.classList.remove('opacity-0'), 10);
+        document.body.style.overflow = 'hidden';
     }
 };
 
@@ -307,7 +350,10 @@ window.closeModal = function(id) {
     const el = document.getElementById(id);
     if (el) { 
         el.classList.add('opacity-0'); 
-        setTimeout(() => el.classList.add('hidden'), 300); 
+        setTimeout(() => {
+            el.classList.add('hidden');
+            document.body.style.overflow = '';
+        }, 300); 
     }
 };
 
@@ -360,7 +406,6 @@ const busLinesDataLocal = [
     ] }
 ];
 
-// 建立用於顯示名字的字典
 const codeToNameLocal = {};
 busLinesDataLocal.forEach(lineGroup => {
     lineGroup.items.forEach(item => {
@@ -369,7 +414,6 @@ busLinesDataLocal.forEach(lineGroup => {
     });
 });
 
-// 建立包含完整清邁公車節點的圖
 const buildBusGraphLocal = () => {
     const edges = [];
     const addLine = (lineName, nodes) => {
@@ -392,11 +436,10 @@ const buildBusGraphLocal = () => {
         edges.push({ v, u, line: '同站轉乘', type: 'transfer' });
     };
     
-    // 轉乘節點對應
-    addTransfer('G4', 'R2'); // 塔佩門
-    addTransfer('G5', 'R1'); // 瓦洛洛市場
-    addTransfer('R1', 'Y1'); // 瓦洛洛市場
-    addTransfer('G5', 'Y1'); // 瓦洛洛市場
+    addTransfer('G4', 'R2'); 
+    addTransfer('G5', 'R1'); 
+    addTransfer('R1', 'Y1'); 
+    addTransfer('G5', 'Y1'); 
     
     const graph = {};
     edges.forEach(e => {
@@ -408,7 +451,6 @@ const buildBusGraphLocal = () => {
 
 const mrtGraphLocal = buildBusGraphLocal();
 
-// 城際小巴網路 (Minivan / Intercity Bus)
 const boatLinesDataLocal = [
     { line: "北線 (往清萊/金三角)", items: ["Arcade 清邁巴士總站","MaeKhachan 溫泉休息站","WhiteTemple 白廟","ChiangRai 清萊市區","BlackHouse 黑廟","MaeSai 美塞邊境","GoldenTriangle 金三角"] },
     { line: "西北線 (往拜縣/夜豐頌)", items: ["Arcade 清邁巴士總站","MaeRim 湄林","MaeMalai 轉運站","Pai 拜縣","PangOung 潘紅湖","MaeHongSon 夜豐頌"] },
@@ -428,7 +470,6 @@ boatLinesDataLocal.forEach(line => {
     }
 });
 
-// --- 探索資料庫 (清邁專屬) ---
 const attractionsData = [
     {
         category: "💵 換匯推薦",
@@ -598,8 +639,6 @@ const attractionsData = [
 
 window.resetAttrView = () => { document.getElementById('attr-cat-grid').classList.remove('hidden'); document.getElementById('attr-detail-view').classList.add('hidden'); document.getElementById('attr-result').classList.add('hidden'); };
 
-
-// --- 精準路線規劃 BFS 與渲染 ---
 const bfsEdgeTrack = (g, s, e) => {
     if (s === e) return { path: [s], edges: [] };
     let q = [{ node: s, path: [s], edges: [] }];
@@ -611,11 +650,7 @@ const bfsEdgeTrack = (g, s, e) => {
             for (let edge of g[curr.node]) {
                 if (!v.has(edge.node)) {
                     v.add(edge.node);
-                    q.push({
-                        node: edge.node,
-                        path: [...curr.path, edge.node],
-                        edges: [...curr.edges, edge]
-                    });
+                    q.push({ node: edge.node, path: [...curr.path, edge.node], edges: [...curr.edges, edge] });
                 }
             }
         }
@@ -652,27 +687,12 @@ window.calcMrt = () => {
         let edge = result.edges[i];
         
         if (edge.type === 'transfer') {
-            if (currentSegment) {
-                segments.push(currentSegment);
-                currentSegment = null;
-            }
-            segments.push({
-                line: '同站轉乘',
-                startNode: result.path[i],
-                endNode: edge.node,
-                stops: 0,
-                isTransfer: true
-            });
+            if (currentSegment) { segments.push(currentSegment); currentSegment = null; }
+            segments.push({ line: '同站轉乘', startNode: result.path[i], endNode: edge.node, stops: 0, isTransfer: true });
         } else {
             if (!currentSegment || currentSegment.line !== edge.line) {
                 if (currentSegment) segments.push(currentSegment);
-                currentSegment = {
-                    line: edge.line,
-                    startNode: result.path[i],
-                    endNode: edge.node,
-                    stops: 1,
-                    isTransfer: false
-                };
+                currentSegment = { line: edge.line, startNode: result.path[i], endNode: edge.node, stops: 1, isTransfer: false };
             } else {
                 currentSegment.endNode = edge.node;
                 currentSegment.stops++;
@@ -683,7 +703,7 @@ window.calcMrt = () => {
 
     let totalStops = segments.reduce((sum, seg) => sum + seg.stops, 0);
     let totalTransfers = segments.filter(s => s.isTransfer).length + segments.filter((s, idx) => idx > 0 && !s.isTransfer && !segments[idx-1].isTransfer).length;
-    let estimatedTime = totalStops * 5 + totalTransfers * 5 + 5; // 清邁公車較慢，每站抓 5 分鐘
+    let estimatedTime = totalStops * 5 + totalTransfers * 5 + 5; 
 
     document.getElementById('mrt-stops-count').innerHTML = `<span class="text-2xl">${totalStops}</span><span class="text-sm ml-1 text-gray-400">站</span>`;
     document.getElementById('mrt-time').textContent = `約 ${estimatedTime} 分`;
@@ -693,14 +713,8 @@ window.calcMrt = () => {
 
     let detailHtml = `
         <div class="bg-teal-900/30 p-3.5 rounded-xl border border-teal-800 mb-6 shadow-sm">
-            <div class="flex items-center gap-2.5 mb-2">
-                <span class="text-[10px] text-teal-400 font-bold bg-teal-950 px-1.5 py-0.5 rounded shadow-sm">出發</span> 
-                <span class="text-xs font-bold text-white">${originName}</span>
-            </div>
-            <div class="flex items-center gap-2.5">
-                <span class="text-[10px] text-rose-400 font-bold bg-rose-950 px-1.5 py-0.5 rounded shadow-sm">目的</span> 
-                <span class="text-xs font-bold text-white">${destName}</span>
-            </div>
+            <div class="flex items-center gap-2.5 mb-2"><span class="text-[10px] text-teal-400 font-bold bg-teal-950 px-1.5 py-0.5 rounded shadow-sm">出發</span> <span class="text-xs font-bold text-white">${originName}</span></div>
+            <div class="flex items-center gap-2.5"><span class="text-[10px] text-rose-400 font-bold bg-rose-950 px-1.5 py-0.5 rounded shadow-sm">目的</span> <span class="text-xs font-bold text-white">${destName}</span></div>
         </div>
         <div class="relative ml-2">
             <div class="absolute left-[13px] top-2 bottom-2 w-0.5 bg-gray-600 border-l-2 border-dotted"></div>
@@ -713,29 +727,11 @@ window.calcMrt = () => {
         if (seg.isTransfer) {
             let prevLine = segments[idx - 1] ? segments[idx - 1].line : '';
             let nextLine = segments[idx + 1] ? segments[idx + 1].line : '';
-            detailHtml += `
-                <div class="relative flex items-center gap-3 my-5">
-                    <div class="w-7 h-7 rounded-full bg-rose-500 z-10 shadow-[0_0_8px_rgba(244,63,94,0.8)] flex items-center justify-center">
-                        <i class="ph-fill ph-person-simple-walk text-white text-sm"></i>
-                    </div>
-                    <div class="bg-rose-950/70 px-3 py-1.5 rounded-lg border border-rose-800/50">
-                        <span class="text-[11px] font-bold text-rose-300">從 ${prevLine} 換乘 ${nextLine} <br>(${endName.split(' ')[0]} 站)</span>
-                    </div>
-                </div>
-            `;
+            detailHtml += `<div class="relative flex items-center gap-3 my-5"><div class="w-7 h-7 rounded-full bg-rose-500 z-10 shadow-[0_0_8px_rgba(244,63,94,0.8)] flex items-center justify-center"><i class="ph-fill ph-person-simple-walk text-white text-sm"></i></div><div class="bg-rose-950/70 px-3 py-1.5 rounded-lg border border-rose-800/50"><span class="text-[11px] font-bold text-rose-300">從 ${prevLine} 換乘 ${nextLine} <br>(${endName.split(' ')[0]} 站)</span></div></div>`;
         } else {
             if (idx > 0 && !segments[idx - 1].isTransfer) {
                 let prevLine = segments[idx - 1].line;
-                detailHtml += `
-                    <div class="relative flex items-center gap-3 my-5">
-                        <div class="w-7 h-7 rounded-full bg-amber-500 z-10 shadow-[0_0_8px_rgba(245,158,11,0.8)] flex items-center justify-center">
-                            <i class="ph-fill ph-arrows-left-right text-white text-sm"></i>
-                        </div>
-                        <div class="bg-amber-950/70 px-3 py-1.5 rounded-lg border border-amber-800/50">
-                            <span class="text-[11px] font-bold text-amber-400">於 ${startName.split(' ')[0]} 轉乘至 ${seg.line}</span>
-                        </div>
-                    </div>
-                `;
+                detailHtml += `<div class="relative flex items-center gap-3 my-5"><div class="w-7 h-7 rounded-full bg-amber-500 z-10 shadow-[0_0_8px_rgba(245,158,11,0.8)] flex items-center justify-center"><i class="ph-fill ph-arrows-left-right text-white text-sm"></i></div><div class="bg-amber-950/70 px-3 py-1.5 rounded-lg border border-amber-800/50"><span class="text-[11px] font-bold text-amber-400">於 ${startName.split(' ')[0]} 轉乘至 ${seg.line}</span></div></div>`;
             }
 
             let dotColor = "bg-teal-400";
@@ -746,19 +742,10 @@ window.calcMrt = () => {
             detailHtml += `
                 <div class="relative my-4 ml-8 bg-gray-800/80 p-3.5 rounded-xl border border-gray-700 shadow-md">
                     <div class="absolute -left-[26px] top-4 w-3.5 h-3.5 rounded-full ${dotColor} z-10 shadow-[0_0_8px_rgba(45,212,191,0.5)] border-2 border-gray-900"></div>
-                    <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-gray-700/50">
-                        <span class="text-xs font-bold text-white">${seg.line}</span>
-                        <span class="text-[10px] text-gray-400 bg-gray-900 px-2 py-0.5 rounded-md font-mono">共 ${seg.stops} 站</span>
-                    </div>
+                    <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-gray-700/50"><span class="text-xs font-bold text-white">${seg.line}</span><span class="text-[10px] text-gray-400 bg-gray-900 px-2 py-0.5 rounded-md font-mono">共 ${seg.stops} 站</span></div>
                     <div class="space-y-2 pt-0.5">
-                        <div class="flex items-start gap-2">
-                            <span class="text-[10px] text-gray-500 w-6 mt-0.5 shrink-0">起點</span>
-                            <span class="text-xs text-gray-200 leading-tight">${startName}</span>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-[10px] text-gray-500 w-6 mt-0.5 shrink-0">終點</span>
-                            <span class="text-xs text-gray-200 leading-tight">${endName}</span>
-                        </div>
+                        <div class="flex items-start gap-2"><span class="text-[10px] text-gray-500 w-6 mt-0.5 shrink-0">起點</span><span class="text-xs text-gray-200 leading-tight">${startName}</span></div>
+                        <div class="flex items-start gap-2"><span class="text-[10px] text-gray-500 w-6 mt-0.5 shrink-0">終點</span><span class="text-xs text-gray-200 leading-tight">${endName}</span></div>
                     </div>
                 </div>
             `;
@@ -793,7 +780,6 @@ window.calcBoat = () => {
     r.classList.remove('hidden');
     if (!p) { document.getElementById('boat-stops-count').textContent = '需換線'; document.getElementById('boat-path-detail').innerHTML = '此路線無法直達'; return; }
     document.getElementById('boat-stops-count').textContent = `${p.length - 1} 站`;
-    // 山路車程估算
     document.getElementById('boat-time').textContent = `約 ${(p.length - 1) * 45 + 30} 分鐘`;
     document.getElementById('boat-path-detail').innerHTML = `<div class="absolute left-[5px] top-2 bottom-2 w-0.5 bg-slate-600 border-l-2 border-dotted"></div>` + p.map((n, i) => `<div class="relative flex items-center gap-3"><div class="absolute -left-[14px] w-2 h-2 rounded-full ${i === 0 ? 'bg-orange-400' : (i === p.length - 1 ? 'bg-yellow-500' : 'bg-slate-500')}"></div><span class="${(i === 0 || i === p.length - 1) ? 'text-white font-bold' : 'text-slate-400 text-xs'}">${n}</span></div>`).join('');
 };
@@ -816,7 +802,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchWeather = async () => {
         try { 
-            // 改為清邁經緯度 (18.7883, 98.9853)
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=18.7883&longitude=98.9853&current=temperature_2m&timezone=Asia%2FBangkok'); 
             const data = await res.json(); 
             const el = document.getElementById('weather-display'); 
@@ -826,8 +811,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     fetchWeather();
 
-    const track = document.getElementById('carousel-track'); let slide = 0;
-    if (track) setInterval(() => { slide = (slide + 1) % 3; track.style.transform = `translateX(-${slide * 93}%)`; }, 3000);
+    const track = document.getElementById('carousel-track'); 
+    let slide = 0;
+    
+    // 響應式輪播計算
+    const getSlidesVisible = () => window.innerWidth >= 1024 ? 3 : (window.innerWidth >= 768 ? 2 : 1);
+    
+    if (track) setInterval(() => { 
+        const visible = getSlidesVisible();
+        const maxSlides = 3;
+        if (visible >= maxSlides) return; // 電腦版若可視範圍足以顯示全部，則不滾動
+        
+        slide = (slide + 1) % maxSlides; 
+        const offset = window.innerWidth >= 768 ? 47 : 93; // 依寬度不同調整位移百分比
+        track.style.transform = `translateX(-${slide * offset}%)`; 
+    }, 4000);
 
     const mo = document.getElementById('mrt-origin'), md = document.getElementById('mrt-dest');
     busLinesDataLocal.forEach(g => { let opt = `<optgroup label="${g.line}">${g.items.map(i=>`<option value="${i.split(' ')[0]}">${i}</option>`).join('')}</optgroup>`; if(mo) mo.innerHTML += opt; if(md) md.innerHTML += opt; });
@@ -839,8 +837,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if(aG){
         attractionsData.forEach((c,idx)=>{
             let b = document.createElement('button');
-            b.className = "bg-purple-900 border border-purple-800 rounded-xl p-3 flex flex-col items-center justify-center gap-2 active:scale-95 shadow-md";
-            b.innerHTML = `<span class="text-2xl">${c.category.split(' ')[0]}</span><span class="text-[11px] font-bold text-purple-200">${c.category.split(' ')[1]}</span>`;
+            b.className = "bg-purple-900 border border-purple-800 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center gap-2 hover:bg-purple-800 active:scale-95 shadow-md transition-all";
+            b.innerHTML = `<span class="text-2xl md:text-3xl">${c.category.split(' ')[0]}</span><span class="text-[11px] md:text-xs font-bold text-purple-200 whitespace-nowrap">${c.category.split(' ')[1]}</span>`;
             b.onclick = () => {
                 window.currentAttrCatIdx = idx;
                 document.getElementById('attr-cat-grid').classList.add('hidden');
