@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thailand Travel Guide</title>
+    
+    <!-- 引入 Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 React & ReactDOM (CDN) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- 引入 Babel 用於在瀏覽器中編譯 JSX (CDN) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* 隱藏水平捲軸但保留滾動功能 */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- 定義 SVG 圖示元件 (取代原本從 lucide-react 引入的圖示) ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const Utensils = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+
+        // 定義分類與圖示
+        const CATEGORIES = [
+            { id: 'Tickets', icon: Ticket },
+            { id: 'Day Tours', icon: Sun },
+            { id: 'Dining', icon: Utensils },
+            { id: 'Massage & Spa', icon: Sparkles },
+            { id: 'Transport & E-sim', icon: TrainFront }
+        ];
+
+        const REGIONS = ['Bangkok', 'Hua Hin', 'Pattaya', 'Ayutthaya', 'Kanchanaburi'];
+
+        // 取得指定地區可用的分類
+        const getAvailableCategoryIds = (region) => {
+            if (region === 'Ayutthaya' || region === 'Kanchanaburi') return ['Day Tours', 'Transport & E-sim'];
+            if (region === 'Hua Hin') return ['Tickets', 'Day Tours', 'Massage & Spa', 'Transport & E-sim'];
+            return ['Tickets', 'Day Tours', 'Dining', 'Massage & Spa', 'Transport & E-sim'];
+        };
+
+        // 行程資料庫 (Translated to English)
+        const itineraryData = {
+            'Bangkok': {
+                'Tickets': [
+                {
+                    title: 'Mahanakhon SkyWalk Ticket in Bangkok',
+                    description: 'One of the highest landmarks in Bangkok, featuring a thrilling glass tray with 360-degree panoramic views of stunning sunsets and the dazzling city skyline at night.',
+                    link: 'https://affiliate.klook.com/redirect?aid=105907&aff_adid=1231991&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F16870-king-power-mahanakhon-skywalk-ticket-bangkok%2F'
+                },
+                {
+                    title: 'Ancient City & Erawan Museum Ticket',
+                    description: '"Ancient City" is a massive outdoor museum featuring scaled-down replicas of Thailand\'s famous landmarks, perfect for photos. "Erawan Museum" is renowned for its spectacular giant pink three-headed elephant statue and exquisite interior carvings.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231992&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F368-ancient-city-erawan-museum-ticket-bangkok%2F'
+                },
+                {
+                    title: 'Safari World Ticket in Bangkok',
+                    description: 'Thailand\'s largest open zoo. Visitors can drive through to see lions, zebras, and other wildlife up close. It also features highly popular giraffe feeding experiences and various animal shows.',
+                    link: 'https://www.klook.com/en-US/activity/365-safari-world-bangkok/?aid=114993&aff_adid=1231928&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124092825260-114993-1231928-60cac2c'
+                },
+                {
+                    title: 'SEA LIFE Bangkok Ocean World',
+                    description: 'A massive aquarium located in the basement of Siam Paragon mall in the city center. It\'s easily accessible and a perfect indoor attraction to escape the heat or rain.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231990&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F357-sea-life-bangkok-ocean-world-bangkok%2F'
+                }
+                ],
+                'Day Tours': [
+                {
+                    title: 'Damnoen Saduak Floating Market & Maeklong Railway Market Tour',
+                    description: 'The most classic day trip from Bangkok. Witness the incredible sight of a train passing right through the market stalls (Maeklong) and experience traditional Thai trading on boats at the floating market.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231993&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F127327-damnoen-saduak-floating-market-maeklong-railway-market%2F'
+                },
+                {
+                    title: 'Bangkok Must-Visit Landmarks Day Tour',
+                    description: 'Visit the Grand Palace, Temple of the Emerald Buddha, Wat Pho (famous for the giant Reclining Buddha), and Wat Arun (Temple of Dawn, where you can rent Thai traditional costumes for photos). Deep dive into Thai Buddhism and royal culture.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231994&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F3021-bangkok-must-visit-landmarks-day-tour%2F'
+                },
+                {
+                    title: 'Jurassic World: The Exhibition at Asiatique',
+                    description: 'Walk among life-sized dinosaurs in Bangkok and experience scenes from the classic movie franchise firsthand.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232020&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F187815-jurassic-world-the-experience-bangkok-at-asiatique-the-riverfront%2F'
+                },
+                {
+                    title: 'Chao Phraya Princess Cruise',
+                    description: 'Cruise along the "River of Kings" in Bangkok at night. The experience includes an international buffet, live music, and stunning views of the illuminated Grand Palace, Wat Arun, and modern skyscrapers from the water.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232022&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F375-chao-phraya-princess-cruise-bangkok%2F'
+                },
+                {
+                    title: 'White Orchid River Cruise',
+                    description: 'Enjoy a luxurious night cruise on the Chao Phraya River. Includes an international buffet dinner, live entertainment, and spectacular night views of historic temples and the city skyline.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231927&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F10538-chao-phraya-white-orchid-river-cruise-bangkok%2F'
+                },
+                {
+                    title: 'Meridian Dinner Cruise',
+                    description: 'A premium dinner cruise experience on the Chao Phraya River, offering a grand international buffet and live music while you take in the majestic sights of Bangkok by night.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231930&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F29626-meridian-dinner-cruise-bangkok%2F'
+                }
+                ],
+                'Dining': [
+                {
+                    title: 'Copper Beyond Buffet (Gaysorn Amarin)',
+                    description: 'An unmissable premium international buffet. The new branch is located in the heart of Bangkok, just 200 meters from BTS Chit Lom.',
+                    link: 'https://www.klook.com/en-US/activity/133148-copper-beyond-buffet-at-gaysorn-amarin/?spm=SearchResult.SearchResult_LIST&clickId=bd3a3d3033'
+                },
+                {
+                    title: 'Great Harbour International Buffet at ICONSIAM',
+                    description: 'Enjoy stunning riverside views while savoring a top-tier buffet featuring global cuisines, fresh seafood, and live cooking stations.',
+                    link: 'https://www.klook.com/en-US/activity/108520-greatharbour-buffet-iconsiam/?spm=SearchResult.SearchResult_LIST&clickId=68740c56d7'
+                },
+                {
+                    title: 'You&I Premium Suki Buffet',
+                    description: 'Unlimited premium meats, fresh seafood, and seasonal vegetables. Enjoy wagyu beef, kurobuta pork, and end your meal with a wonderful selection of desserts and drinks.',
+                    link: 'https://www.klook.com/en-US/activity/17696-youi-premium-suki-buffet-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=00397f941e'
+                },
+                {
+                    title: 'Erawan Tea Room Afternoon Tea (Michelin Guide)',
+                    description: 'Located in the Grand Hyatt Erawan, this tea room offers a truly unique space and was named one of the "world\'s best afternoon teas" by Lonely Planet.',
+                    link: 'https://www.klook.com/en-US/activity/144457-erawan-tea-room-grand-hyatt-erawan-bangkok-michelin-guide-winner/?spm=SearchResult.SearchResult_LIST&clickId=70652c1fb2'
+                }
+                ],
+                'Massage & Spa': [
+                {
+                    title: 'One More Thai Massage & Spa (Chit Lom)',
+                    description: 'Relieve travel fatigue with an authentic Thai massage and spa treatment. Enjoy traditional Thai snacks and herbal drinks afterwards. Just a 1-minute walk from BTS Chit Lom.',
+                    link: 'https://www.klook.com/en-US/activity/18533-one-more-thai-spa-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=d52006bdf6'
+                },
+                {
+                    title: 'Health Land Spa (Asok Branch)',
+                    description: 'Choose from various packages, ranging from relaxing full-body massages to pampering facial treatments. Vouchers can be used at multiple branches across Bangkok.',
+                    link: 'https://www.klook.com/en-US/activity/4014-health-land-spa-coupons-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=1cbf5fe85b'
+                },
+                {
+                    title: 'Let\'s Relax Spa at Phayathai',
+                    description: 'Escape stress and anxiety at Let\'s Relax Spa in Phayathai. Easily accessible via the Airport Rail Link and BTS. Enjoy Thai snacks and herbal drinks post-treatment.',
+                    link: 'https://www.klook.com/en-US/activity/65632-lets-relax-spa-treatment-phayathai-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=90e7ecc323'
+                },
+                {
+                    title: 'Divana Scentuara Spa (Chit Lom)',
+                    description: 'A hidden gem situated in a 90-year-old heritage palace, offering a tranquil retreat near the British Embassy. The floral-inspired sanctuary symbolizes love and eternal beauty.',
+                    link: 'https://www.klook.com/en-US/activity/12585-divana-massage-spa-experience-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=fbdde0c84d'
+                },
+                {
+                    title: 'Lek Foot Massage and Spa Experience',
+                    description: 'Enjoy convenient access to Lek Massage\'s 20 branches across Bangkok, located near popular BTS stations like Siam, Thong Lo, Asok, and Nana. Book your voucher now for a rejuvenating journey!',
+                    link: 'https://www.klook.com/en-US/activity/12585-divana-massage-spa-experience-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=fbdde0c84d'
+                }
+                ],
+                'Transport & E-sim': [
+                {
+                    title: 'Thailand eSIM',
+                    description: 'The best eSIM deal! Activate with one click in the App. Top up instantly as you go. Features pre-activation cancellation and a refund policy for unstable internet, with 24/7 customer service.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232067&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F'
+                },
+                {
+                    title: 'Private Airport Transfers',
+                    description: 'Private transfers from the airport to downtown Bangkok, Pattaya, Ayutthaya, Hua Hin, and surrounding cities.',
+                    link: 'https://www.klook.com/en-US/activity/30353-private-city-transfers-bangkok-pattaya-ayutthaya-hua-hin/?spm=SearchResult.SearchResult_LIST&clickId=5975eee923'
+                },
+                {
+                    title: 'Bangkok Airport Car Rental',
+                    description: 'Convenient car rental options picking up directly from Suvarnabhumi Airport.',
+                    link: 'https://www.klook.com/en-US/car-rentals/results/?pick=Suvarnabhumi%20Airport&drop=Suvarnabhumi%20Airport&diffLoc=false&pDate=2026-03-11%2010%3A00&dDate=2026-03-14%2010%3A00&age=30&lat=13.68109989&long=100.7470016&dLat=13.68109989&dLong=100.7470016&code=TH&dCode=TH&iata=BKK&dIata=BKK&spm=SearchResult.SearchResult_LIST&clickId=0df72200de'
+                },
+                {
+                    title: 'Koh Tao Joint Bus & Ferry Ticket (by Lomprayah)',
+                    description: 'Lomprayah is a trusted ferry company ensuring your journey to Koh Tao from Bangkok is reliable and enjoyable.',
+                    link: 'https://www.klook.com/en-US/activity/19241-lomprayah-ferry-bus-ticket-koh-tao-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=2eead97a65'
+                }
+                ]
+            },
+            'Hua Hin': {
+                'Tickets': [
+                {
+                    title: 'Vana Nava Waterpark Ticket',
+                    description: 'Experience the thrills and joy of Asia\'s first water jungle.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232045&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F3871-vana-nava-waterpark-hua-hin%2F'
+                },
+                {
+                    title: 'Tree Top Adventure Park Hua Hin',
+                    description: 'Experience exciting new games in Hua Hin like zip lines, zig-zag swinging bridges, and flying skateboards soaring over the canopy and a beautiful lake!',
+                    link: 'https://www.klook.com/en-US/activity/44174-zipline-experience-hua-hin/?aid=114993&aff_adid=1232047&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124109853205-114993-1232047-bf744e0'
+                }
+                ],
+                'Day Tours': [
+                {
+                    title: 'Phra Nakhon Khiri (Khao Wang) Day Tour',
+                    description: 'Discover the beauty of Hua Hin, a resort town that was once the summer retreat for Thai royalty.',
+                    link: 'https://www.klook.com/en-US/activity/2577-phra-nakhon-khiri-tham-khao-luang-hua-hin-thailand/?aid=114993&aff_adid=1231907&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124092967559-114993-1231907-ad507d9'
+                },
+                {
+                    title: 'Khao Sam Roi Yot National Park',
+                    description: 'Visit mysterious caves, enjoy beautiful beaches, hike, and take a scenic boat ride through lotus ponds.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232046&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F77299-khao-sam-roi-yod-nature-tour-experience-start-from-hua-hin%2F'
+                },
+                {
+                    title: 'Hua Hin Highlights & Monsoon Valley Vineyards',
+                    description: 'Enjoy playful monkeys at Khao Takiab, visit Wat Huay Mongkol, feel the classic vibe at Hua Hin Railway Station, and learn about winemaking at Monsoon Valley Vineyards.',
+                    link: 'https://www.klook.com/en-US/activity/4142-hua-hin-highlights-monsoon-valley-vineyards-tour-hua-hin/?aid=114993&aff_adid=1232049&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124110007631-114993-1232049-0d64643'
+                },
+                {
+                    title: 'Khao Sam Roi Yot Private Custom Tour',
+                    description: 'Immerse yourself in the tranquility of the national park, enjoy a pleasant boat ride, explore Phraya Nakhon Cave, and relax on white sandy beaches.',
+                    link: 'https://www.klook.com/en-US/activity/74146-khao-sam-roi-yot-customize-tour/?aid=114993&aff_adid=1232050&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124110171271-114993-1232050-8b9271f'
+                },
+                {
+                    title: 'Hua Hin Railway & Beach Leisure Day Tour (From Bangkok)',
+                    description: 'Visit Khao Luang Cave, Khao Wang Palace, Hua Hin Railway Station, and Hua Hin Beach.',
+                    link: 'https://www.klook.com/en-US/activity/9759-leisurely-day-tour-hua-hin-bangkok/?aid=114993&aff_adid=1232051&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124110292988-114993-1232051-ccb6823'
+                },
+                {
+                    title: 'Authentic Thai Cooking Course',
+                    description: 'Learn to cook authentic Thai dishes from experts! Shop for fresh ingredients at a local market and uncover the secrets of Thai cuisine. Suitable for all skill levels.',
+                    link: 'https://www.klook.com/en-US/activity/4310-thai-cooking-course-hua-hin/?aid=114993&aff_adid=1232052&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124110586487-114993-1232052-8d69cec'
+                }
+                ],
+                'Massage & Spa': [
+                {
+                    title: 'Let\'s Relax Spa (Hua Hin Soi 100)',
+                    description: 'Known for excellent value and quality service with over 20 years of experience. Winner of multiple awards and recommended by Lonely Planet.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232054&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F4392-let\'s-relax-spa-hua-hin%2F'
+                },
+                {
+                    title: 'THE BARAI Spa at Hyatt Regency Hua Hin',
+                    description: 'Experience unparalleled luxury and relaxation at this award-winning spa.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232055&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F17248-barai-spa-hyatt-regency-hua-hin%2F'
+                },
+                {
+                    title: 'Anantara Spa at Anantara Hua Hin Resort',
+                    description: 'Indulge in soothing spa therapies set within a lush, tropical oasis.',
+                    link: 'https://www.klook.com/en-US/activity/135194-anantara-spa-at-anantara-hua-hin-resort/?aid=114993&aff_adid=1232057&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124111016559-114993-1232057-7632a88'
+                },
+                {
+                    title: 'Breeze Spa at Amari Hua Hin',
+                    description: 'Rejuvenate your senses with signature massages and treatments in a serene environment.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232059&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F64270-breeze-spa-amari-hua-hin-massage%2F'
+                }
+                ],
+                'Transport & E-sim': [
+                {
+                    title: 'Thailand eSIM',
+                    description: 'Stay connected with high-speed internet. Easy QR code activation.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232067&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F'
+                },
+                {
+                    title: 'Private Customize City Transfers',
+                    description: 'Point-to-point roundtrip transfer services for a flexible journey.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232062&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F73610-huahin-private-customize-point-to-point-roundtrips-transfer-service%2F'
+                },
+                {
+                    title: 'Hua Hin Car Rental',
+                    description: 'Explore Hua Hin at your own pace with convenient car rental options.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232063&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Fcar-rentals%2Fresults%2F%3Fpick%3DHua%2520Hin%2520Railway%2520Station%26drop%3DHua%2520Hin%2520Railway%2520Station%26diffLoc%3Dfalse%26pDate%3D2026-03-11%252010%3A00%26dDate%3D2026-03-14%252010%3A00%26age%3D30%26lat%3D12.5673417%26long%3D99.9547101%26dLat%3D12.5673417%26dLong%3D99.9547101%26code%3DTH%26dCode%3DTH%26iata%3D%26dIata%3D'
+                },
+                {
+                    title: 'Shared Bus Transfer between Bangkok and Hua Hin',
+                    description: 'Affordable and comfortable shared bus services.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232060&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F44571-shared-bus-transfer-hua-hin-bangkok%2F'
+                }
+                ]
+            },
+            'Pattaya': {
+                'Transport & E-sim': [
+                {
+                    title: 'Thailand eSIM',
+                    description: 'The best eSIM deal! Activate with one click in the App.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232067&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F'
+                },
+                {
+                    title: 'Private City Transfers',
+                    description: 'Private transfers from the airport to Bangkok, Pattaya, Ayutthaya, and Hua Hin.',
+                    link: 'https://www.klook.com/en-US/activity/30353-private-city-transfers-bangkok-pattaya-ayutthaya-hua-hin/?spm=SearchResult.SearchResult_LIST&clickId=5975eee923'
+                },
+                {
+                    title: 'Bangkok - Pattaya Bus/Minivan Tickets',
+                    description: 'Convenient shared city transfers between Pattaya and Bangkok.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232100&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F9820-shared-city-transfers-between-pattaya-and-bangkok%2F'
+                }
+                ],
+                'Day Tours': [
+                {
+                    title: 'Coral Island (Koh Larn) Day Tour with Water Activities',
+                    description: 'Embark on a snorkeling tour to explore the stunning waters of Coral Island. Enjoy a speedboat ride and thrilling activities like jet skiing and banana boats.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232103&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F1168-coral-island-snorkeling-tour-pattaya%2F'
+                },
+                {
+                    title: 'Elephant Jungle Sanctuary Pattaya',
+                    description: 'An ethical experience where you can play with, touch, and feed elephants in a natural environment.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232105&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F8053-elephant-jungle-sanctuary-pattaya-experience%2F'
+                },
+                {
+                    title: 'Koh Larn and Koh Sak Day Tour',
+                    description: 'Chase the ocean breeze with parasailing, sea walking, or riding jet skis and banana boats, plus other exciting water sports.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232107&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F43117-water-activity-koh-larn%2F'
+                },
+                {
+                    title: 'Tappia Floating Cafe Squid Fishing',
+                    description: 'Enjoy squid fishing on a floating cafe! The chef will prepare your freshly caught squid as sashimi or grilled.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232111&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F58264-tappia-floating-cafe-pattaya-pattaya%2F'
+                },
+                {
+                    title: 'Tandem Skydiving Experience',
+                    description: 'Experience the ultimate thrill of skydiving from 13,500 feet, overlooking the Gulf of Thailand and Pattaya.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232112&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F13959-tandem-skydiving-pattaya%2F'
+                }
+                ],
+                'Tickets': [
+                {
+                    title: 'The Sanctuary of Truth',
+                    description: 'A magnificent seaside architectural marvel constructed entirely of wood without a single metal nail. Every carved corner tells philosophical and religious myths.',
+                    link: 'https://www.klook.com/en-US/activity/1109-the-sanctuary-of-truth-pattaya/'
+                },
+                {
+                    title: 'Nong Nooch Tropical Garden',
+                    description: 'A vast recreational park featuring beautifully designed themed gardens (French, Cactus, Orchid) and an impressive life-sized dinosaur valley. Great for families.',
+                    link: 'https://www.klook.com/en-US/activity/335-nong-nooch-tropical-garden-pattaya/'
+                },
+                {
+                    title: 'Tiffany\'s Show Pattaya',
+                    description: 'Thailand\'s oldest and most iconic transgender cabaret show, featuring spectacular stage sets, dazzling costumes, and highly professional performances.',
+                    link: 'https://www.klook.com/en-US/activity/336-tiffanys-show-pattaya/'
+                },
+                {
+                    title: 'Columbia Pictures Aquaverse',
+                    description: 'Step into scenes from Ghostbusters, Jumanji, and Hotel Transylvania. Offers thrilling water slides, a wave pool, and a kids\' zone.',
+                    link: 'https://www.klook.com/en-US/activity/85772-columbia-pictures-aquaverse-admission-ticket/'
+                },
+                {
+                    title: 'Underwater World Pattaya',
+                    description: 'An immersive journey through the marine life of the Gulf of Thailand. Features a long underwater tunnel where sharks, giant rays, and colorful fish swim right above you.',
+                    link: 'https://www.klook.com/en-US/activity/1106-underwater-world-pattaya/'
+                },
+                {
+                    title: 'Khao Kheow Open Zoo',
+                    description: 'Thailand\'s largest open zoo, emphasizing zero-distance interaction and animal feeding experiences.',
+                    link: 'https://www.klook.com/en-US/activity/338-khao-kheow-open-zoo-pattaya/'
+                },
+                {
+                    title: 'Art in Paradise Pattaya',
+                    description: 'Contains over a hundred lifelike 3D murals across various themes like the underwater world and fantasy adventures. Interact with the art for hilarious and creative photos.',
+                    link: 'https://www.klook.com/en-US/activity/337-art-in-paradise-pattaya/'
+                },
+                {
+                    title: '89 Adult Show Ticket',
+                    description: 'Explore Pattaya\'s unique, bold, and sensory-stimulating nightlife culture (Strictly 18+ only).',
+                    link: 'https://www.klook.com/en-US/activity/20608-89-adult-show-ticket-pattaya/'
+                }
+                ],
+                'Dining': [
+                {
+                    title: 'King Seafood Waterfront Dining Buffet',
+                    description: 'Enjoy an unlimited seafood buffet right on the waterfront. A perfect place to feast on shrimp, crab, and oysters while enjoying the sunset and sea breeze.',
+                    link: 'https://www.klook.com/en-US/activity/180524-king-seafood-pattaya-fresh-seafood-buffet/?spm=SearchResult.SearchResult_LIST&clickId=4e648c7f50'
+                },
+                {
+                    title: 'Thale Seafood Buffet at Akara Hotel',
+                    description: 'A refined and high-quality seafood buffet inside the Akara Hotel. Enjoy fresh oysters, sashimi, and diverse international dishes in an air-conditioned, comfortable environment.',
+                    link: 'https://www.klook.com/en-US/activity/187624-seafood-buffet-at-thale-akara-hotel-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=be12d5fd92'
+                },
+                {
+                    title: 'Virgin Rooftop Bar',
+                    description: 'Boasting panoramic elevated ocean views of Pattaya, combining exquisite cocktails with a romantic atmosphere.',
+                    link: 'https://www.klook.com/en-US/activity/184151-virgin-rooftop-pattaya-with-panorama-beachview/?spm=SearchResult.SearchResult_LIST&clickId=d4444c4b8b'
+                }
+                ],
+                'Massage & Spa': [
+                {
+                    title: 'Baansuan Massage',
+                    description: 'Authentic and affordable massage experience set in a tropical garden atmosphere.',
+                    link: 'https://www.klook.com/en-US/activity/91962-baansuan-tropical-health-massage-thailand-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=e14777b692'
+                },
+                {
+                    title: 'Let\'s Relax Spa (Terminal 21 Pattaya)',
+                    description: 'Thailand\'s most famous premium spa chain, highly convenient for transport and shopping.',
+                    link: 'https://www.klook.com/en-US/activity/13369-lets-relax-spa-treatment-packages-pattaya-beachfront-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=f64b820aed'
+                },
+                {
+                    title: 'Let\'s Relax Onsen and Spa (Grand Center Point Space)',
+                    description: 'A luxurious dual experience combining "Japanese Onsen + Thai Spa" within a sci-fi space-themed hotel.',
+                    link: 'https://www.klook.com/en-US/activity/74145-lets-relax-onsen-spa-grand-center-point-space-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=07e56b4db0'
+                },
+                {
+                    title: 'Grace Spa',
+                    description: 'Immersive cultural spa experience located in an authentic traditional Thai teakwood building.',
+                    link: 'https://www.klook.com/en-US/activity/10085-grace-spa-massage-treatment-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=1e46bc7aa6'
+                },
+                {
+                    title: 'Yunomori Onsen & Spa Pattaya',
+                    description: 'The perfect fusion of authentic Japanese Zen onsen and traditional Thai massage.',
+                    link: 'https://www.klook.com/en-US/activity/9852-yunomori-onsen-spa-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=734435d504'
+                }
+                ]
+            },
+            'Ayutthaya': {
+                'Day Tours': [
+                {
+                    title: 'Ayutthaya Historical Temples Tour',
+                    description: 'Head north of Bangkok to this UNESCO World Heritage ancient capital. See magnificent stupa ruins, historic temples, and the famous "Buddha Head in Tree Roots".',
+                    link: 'https://www.klook.com/en-US/activity/33742-ayuthaya-must-visit-temples-tour-bangkok/?aid=114993&aff_adid=1232024&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124108105254-114993-1232024-c92bb96'
+                },
+                {
+                    title: 'Ayutthaya Must-Visit: Summer Palace & Temples Day Tour',
+                    description: 'Visit the Summer Palace, which blends Thai, Chinese, and European architecture. Explore Wat Mahathat, Wat Ratchaburana, Wat Phra Si Sanphet, and Wat Yai Chai Mongkhon.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232025&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F127780-ayutthaya-must-visit-tour-summer-palace-temples-full-day%2F'
+                },
+                {
+                    title: 'Ayutthaya Zoo & Temple Tour with Thai Costume Experience',
+                    description: 'Get up close with animals at a new zoo, experience wearing traditional Thai costumes, and capture memorable photos.',
+                    link: 'https://www.klook.com/en-US/activity/100262-ayutthaya-cafe-thai-costume-tour/?spm=SearchResult.SearchResult_LIST&clickId=8dee1fdb79'
+                },
+                {
+                    title: 'Ayutthaya Full-Day Private UNESCO Heritage Tour',
+                    description: 'A private custom tour to the ancient capital. Visit classic temples, take photos in Thai costumes, and flexibly choose to visit the scenic "Rakna Cafe" or feast on giant grilled river prawns at the local shrimp market.',
+                    link: 'https://www.klook.com/en-US/activity/175886-ayutthaya-one-day-private-temple-cafe-tour-from-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=2012bcec22'
+                }
+                ],
+                'Transport & E-sim': [
+                {
+                    title: 'Thailand eSIM',
+                    description: 'The best eSIM deal! Activate with one click in the App.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232067&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F'
+                },
+                {
+                    title: 'Private City Transfers',
+                    description: 'Private transfers connecting the airport, Bangkok, Pattaya, Ayutthaya, and Hua Hin.',
+                    link: 'https://www.klook.com/en-US/activity/30353-private-city-transfers-bangkok-pattaya-ayutthaya-hua-hin/?spm=SearchResult.SearchResult_LIST&clickId=5975eee923'
+                }
+                ]
+            },
+            'Kanchanaburi': {
+                'Day Tours': [
+                {
+                    title: 'Kanchanaburi Safari Park & River Kwai Bridge',
+                    description: 'Interact directly with animals in an open zoo! The highlight is getting up close to feed giraffes, zebras, and camels right from your vehicle window.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231986&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F73965-kanchanaburi-safari-park-from-bangkok-by-ak-travel%2F'
+                },
+                {
+                    title: 'Kanchanaburi Highlights Day Tour',
+                    description: 'Step back in time at the Bridge on the River Kwai, explore the famous WWII Death Railway, stroll along historic riverside streets, and enjoy an educational and deeply moving journey.',
+                    link: 'https://www.klook.com/en-US/activity/13209-kanchanaburi-full-day-tour-by-ak-travel-kanchanaburi/?aid=114993&aff_adid=1231989&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124105068560-114993-1231989-dc0fc5d'
+                },
+                {
+                    title: 'Kanchanaburi Essential Tour: Safari, Mallika City & Death Railway',
+                    description: 'Ride the historic retro train along the "Death Railway", experience the Safari Park giraffe encounters, and visit beautiful rice paddy cafes or the retro Mallika City. Highly photogenic routes.',
+                    link: 'https://www.klook.com/en-US/activity/78677-kanchanaburi-historical-instagrammable-photogenic-routes-one-day-tour-from-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=430a7c3248'
+                }
+                ],
+                'Transport & E-sim': [
+                {
+                    title: 'Thailand eSIM',
+                    description: 'The best eSIM deal! Activate with one click in the App.',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232067&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F'
+                },
+                {
+                    title: 'Private City Transfers',
+                    description: 'Private transfers from the airport to downtown and surrounding cities.',
+                    link: 'https://www.klook.com/en-US/activity/30353-private-city-transfers-bangkok-pattaya-ayutthaya-hua-hin/?spm=SearchResult.SearchResult_LIST&clickId=5975eee923'
+                }
+                ]
+            }
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState('Bangkok');
+            const [selectedCategory, setSelectedCategory] = useState('Tickets');
+
+            // 取得當前選定地區與分類的資料
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+                    {/* 頂部導覽列 */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10">
+                        <div className="max-w-5xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <MapPin className="text-orange-500 w-6 h-6 md:w-8 md:h-8" />
+                                <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-500">
+                                Thailand Travel Guide
+                                </h1>
+                            </div>
+                            
+                            {/* 地區選擇按鈕 */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                {/* 回到首頁按鈕 */}
+                                <a
+                                    href="https://linkuei0425.github.io/BANGKOK-US/index.html"
+                                    className="flex items-center gap-1.5 whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    Home
+                                </a>
+
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            // 判斷該地區可用的分類，若目前選擇的分類不在其中，則自動切換至第一個可用分類
+                                            const allowed = getAvailableCategoryIds(region);
+                                            if (!allowed.includes(selectedCategory)) {
+                                                setSelectedCategory(allowed[0]);
+                                            }
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                                            selectedRegion === region
+                                            ? 'bg-slate-800 text-white shadow-md'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-5xl mx-auto px-4 py-6">
+                        {/* 分類標籤 */}
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                            {CATEGORIES.filter(cat => getAvailableCategoryIds(selectedRegion).includes(cat.id)).map(({ id, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSelectedCategory(id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                        selectedCategory === id
+                                        ? 'border-orange-500 bg-orange-50 text-orange-600 shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {id}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* 內容區域標題 */}
+                        <div className="mb-6">
+                            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                {selectedRegion} - {selectedCategory} Recommendations
+                            </h2>
+                        </div>
+
+                        {/* 項目列表 */}
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                {currentData.map((item, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 md:p-6 flex flex-col justify-between hover:shadow-md transition-shadow"
+                                    >
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight">
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                        
+                                        {/* 詳細說明連結按鈕 */}
+                                        <div className="mt-auto pt-4 border-t border-slate-50 flex justify-end">
+                                            <a
+                                                href={item.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 px-5 rounded-lg transition-colors w-full sm:w-auto"
+                                            >
+                                                <Info className="w-4 h-4" />
+                                                <span>Details & Booking</span>
+                                                <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            /* 無資料時的空狀態提示 */
+                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
+                                <div className="bg-slate-50 p-4 rounded-full mb-4">
+                                    <Sparkles className="w-8 h-8 text-slate-400" />
+                                </div>
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                                    No recommendations for "{selectedCategory}" in {selectedRegion} yet.
+                                </h3>
+                                <p className="text-slate-500">
+                                    We are currently curating the best travel options for you. Stay tuned!
+                                </p>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        // 渲染 React 應用程式到 DOM
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
