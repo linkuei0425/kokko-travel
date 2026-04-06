@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ho Chi Minh City Trip Guide</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Hide scrollbar but keep functionality */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- Icons ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+
+        const REGIONS = ['Ho Chi Minh City Center', 'Cu Chi Tunnels', 'Mekong Delta', 'Tay Ninh / Ba Den Mountain', 'Nearby Cities (Mui Ne / Vung Tau)'];
+        const CATEGORIES = [
+            { id: 'Attraction Tickets', icon: Ticket },
+            { id: 'Day Tours', icon: Sun },
+            { id: 'Experiences & Entertainment', icon: Sparkles },
+            { id: 'Transport & Wi-Fi', icon: TrainFront }
+        ];
+
+        // --- Ho Chi Minh Itinerary Data (English) ---
+        const itineraryData = {
+            'Ho Chi Minh City Center': {
+                'Attraction Tickets': [
+                    { title: 'Landmark 81 SkyView Ticket', description: 'Ascend Southeast Asia\'s tallest skyscraper for a breathtaking sunset and night view of the HCMC skyline from an incredible vantage point.', link: 'https://www.klook.com/en-US/search/result/?query=Landmark%2081%20%E8%A7%80%E6%99%AF%E5%8F%B0&aid=117167' },
+                    { title: 'Saigon Skydeck (Bitexco Financial Tower) Ticket', description: 'Step onto the Saigon Skydeck for a 360-degree, unobstructed view of Ho Chi Minh City\'s stunning sunset and sparkling nightscape.', link: 'https://www.klook.com/en-US/activity/5496-saigon-skydeck-bitexco-financial-tower-admission-ticket-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=95663493fd&aid=117167' },
+                    { title: 'Golden Dragon Water Puppet Show Ticket', description: 'A must-see traditional Vietnamese art form! Lively water puppets combined with traditional instruments offer a deeply cultural experience.', link: 'https://www.klook.com/en-US/activity/7795-traditional-water-puppet-theater-admission-ticket-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=31fcdd3fb6&aid=117167' },
+                    { title: 'A O Show Ticket at Saigon Opera House', description: 'Known as the Cirque du Soleil of Vietnam! Enjoy a spectacular performance combining bamboo cirque, acrobatics, and contemporary dance inside the century-old Opera House.', link: 'https://www.klook.com/en-US/activity/7980-a-o-show-ticket-at-saigon-opera-house-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=a2ab3bd695&aid=117167' },
+                    { title: 'Saigon Zoo and Botanical Gardens Ticket', description: 'One of the oldest zoos in the world. With towering trees and a serene environment, it\'s an oasis in the city center perfect for families.', link: 'https://www.klook.com/en-US/search/result/?query=Saigon%20Zoo&aid=117167' },
+                    { title: 'Ho Chi Minh City Hop-On Hop-Off Sightseeing Bus', description: 'Hop on an open-top double-decker bus to easily explore iconic French-colonial landmarks like the Notre Dame Cathedral, Central Post Office, Opera House, and Ben Thanh Market.', link: 'https://affiliate.klook.com/redirect?aid=117167&aff_adid=1246124&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F87162-ho-chi-minh-city-sightseeing-bus-ticket%2F' },
+                    { title: 'War Remnants Museum & Independence Palace Half-Day Tour', description: 'Led by professional guides, dive deep into the history of the Vietnam War and the Republic of Vietnam era. Witness the historic fighter jets and powerful photographs firsthand.', link: 'https://www.klook.com/en-US/search/result/?query=Independence%20Palace%20War%20Remnants&aid=117167' }
+                ],
+                'Day Tours': [
+                    { title: 'Saigon Motorbike Street Food Half-Day Tour', description: 'The most authentic way to explore! Hop on a local guide\'s motorbike, weave through alleys, and taste authentic Banh Mi, Banh Xeo, and Bun Cha.', link: 'https://www.klook.com/en-US/search/result/?query=Ho%20Chi%20Minh%20Motorbike%20Food&aid=117167' },
+                    { title: 'Ao Dai Rental & City Photography Experience', description: 'Dress in an elegant traditional Vietnamese "Ao Dai" and capture beautiful memorial photos in front of the Pink Church and Central Post Office.', link: 'https://www.klook.com/en-US/activity/135492-ao-dai-experience-with-iconic-instagram-tour-in-saigon/?spm=SearchResult.SearchResult_LIST&clickId=516d9a87bb&aid=117167' }
+                ],
+                'Experiences & Entertainment': [
+                    { title: 'Saigon River Luxury Dinner Cruise', description: 'Enjoy an incredibly romantic night on the Saigon River! Savor a premium Vietnamese or Western set menu while admiring the sparkling city nightscape.', link: 'https://www.klook.com/en-US/search/result/?query=Saigon%20River%20Cruise&aid=117167' },
+                    { title: 'Noir. Dining in the Dark Experience', description: 'Dine in complete darkness guided by visually impaired staff. Once deprived of sight, your senses of taste and smell will be infinitely amplified for a unique culinary journey.', link: 'https://www.klook.com/en-US/search/result/?query=Noir.%20Dining%20in%20the%20Dark&aid=117167' },
+                    { title: 'Authentic Vietnamese Hair Wash & Premium SPA Massage', description: 'A must-try in Vietnam! A full-service relaxation package including face wash, shampoo, head massage, facial mask, and even ear cleaning to wipe out your travel fatigue.', link: 'https://www.klook.com/en-US/search/result/?query=Ho%20Chi%20Minh%20SPA%20Hair%20Wash&aid=117167' },
+                    { title: 'Vietnamese Cooking Class with Local Market Tour', description: 'Follow a local chef into a traditional market to pick fresh spices and ingredients, then learn to make classic dishes like fresh spring rolls and Pho.', link: 'https://www.klook.com/en-US/search/result/?query=Ho%20Chi%20Minh%20Cooking%20Class&aid=117167' }
+                ],
+                'Transport & Wi-Fi': [
+                    { title: 'Tan Son Nhat Airport (SGN) to HCMC Private Transfer', description: 'Avoid the hassle of haggling outside the airport. Your private driver will wait with a sign, ensuring a safe, comfortable, and quick ride straight to your downtown hotel.', link: 'https://www.klook.com/en-US/airport-transfers/?flightDirection=1&code=SGN&spm=SearchResult.SearchResult_LIST&clickId=55b43213e9&aid=117167' },
+                    { title: 'VIP Fast Track Service for Immigration at SGN Airport', description: 'Skip the long immigration lines! Let a dedicated assistant guide you through the premium VIP lane, saving you precious travel time.', link: 'https://affiliate.klook.com/redirect?aid=117167&aff_adid=1246126&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F196249-vip-fast-track-service-for-immigration-at-ho-chi-minh-city-tan-son-nhat-international-airport-sgn%2F' },
+                    { title: '5G eSIM for Vietnam | Unlimited Data', description: 'Simply scan the QR code to activate your internet without swapping physical cards. Stable and fast connection, essential for navigation and social media check-ins in HCMC.', link: 'https://affiliate.klook.com/redirect?aid=117167&aff_adid=1246123&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F123902-vietnam-esim-high-speed-internet-qr-code-voucher%2F' },
+                    { title: 'Vietnam 4G SIM Card (Pick up at SGN Airport)', description: 'Pick up your SIM card right upon arrival with on-site activation assistance. Enjoy stable internet connectivity for worry-free navigation.', link: 'https://www.klook.com/en-US/activity/16599-3g-4g-sim-card-vietnam/?spm=SearchResult.SearchResult_LIST&clickId=d18cf68252&aid=117167' },
+                    { title: 'Private Car Charter for Half/Full Day in HCMC', description: 'You dictate the itinerary! Whether sightseeing in the city or visiting suburban attractions, a private driver makes moving around in the tropical heat effortless.', link: 'https://www.klook.com/en-US/search/result/?query=Ho%20Chi%20Minh%20Private%20Car&aid=117167' }
+                ]
+            },
+            'Cu Chi Tunnels': {
+                'Day Tours': [
+                    { title: 'Cu Chi Tunnels Half-Day Tour (from HCMC)', description: 'Explore the intricate underground maze from the Vietnam War. Crawl into the narrow tunnels to experience the history and survival ingenuity of the guerrillas.', link: 'https://www.klook.com/en-US/activity/1471-cu-chi-tunnels-experience-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=60dec49b13&aid=117167' },
+                    { title: 'Cu Chi Tunnels & Mekong Delta Luxury Full-Day Tour', description: 'Visit two must-see attractions in one day! Dive into the mysterious tunnels in the morning and take a traditional rowboat to feel the Mekong water town vibe in the afternoon.', link: 'https://www.klook.com/en-US/activity/858-cu-chi-tunnesl-mekong-river-day-tour-hochiminh/?spm=SearchResult.SearchResult_LIST&clickId=9c949d009f&aid=117167' },
+                    { title: 'Cu Chi Tunnels & Cao Dai Temple Day Tour', description: 'A perfect blend of history and unique religious culture. After the tunnels, visit the colorful Cao Dai Holy See, a fascinating religion that blends major world faiths.', link: 'https://www.klook.com/en-US/search/result/?query=Cu%20Chi%20Tunnels%20Cao%20Dai&aid=117167' },
+                    { title: 'Cu Chi Tunnels Luxury Speedboat Half-Day Tour', description: 'Skip the traffic jams! Take a speedboat along the Saigon River directly to the Cu Chi Tunnels, enjoying the scenic riverbanks and cooling breeze along the way.', link: 'https://www.klook.com/en-US/search/result/?query=Cu%20Chi%20Tunnels%20Speedboat&aid=117167' }
+                ],
+                'Experiences & Entertainment': [
+                    { title: 'Cu Chi Tunnels AK-47 Firing Range Experience', description: 'Under professional guidance in a safe shooting range, pull the trigger and experience the powerful recoil of classic Vietnam War-era rifles.', link: 'https://www.klook.com/en-US/search/result/?query=Cu%20Chi%20Shooting&aid=117167' }
+                ]
+            },
+            'Mekong Delta': {
+                'Day Tours': [
+                    { title: 'Mekong Delta Day Tour (My Tho & Ben Tre)', description: 'Ride a traditional wooden rowboat through lush water coconut forests, taste local honey tea, coconut candy, and tropical fruits, immersing yourself in the southern water town atmosphere.', link: 'https://www.klook.com/en-US/activity/2016-full-day-excursion-mekong-delta-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=44e480e69e&aid=117167' },
+                    { title: 'Can Tho Cai Rang Floating Market Day Tour', description: 'Feel the authentic vibrancy of the Mekong! Take an early morning boat into the floating market to watch locals trade produce, and enjoy a hot bowl of Pho right on the water.', link: 'https://www.klook.com/en-US/activity/37667-private-hidden-cai-rang-floating-market-tour-can-tho/?spm=SearchResult.SearchSuggest_LIST&clickId=fb65cfc0cc&aid=117167' },
+                    { title: 'Mekong Delta Eco 2-Day Tour', description: 'An immersive experience at a slower pace. Spend the night at a riverside homestay, cycle through villages, and deeply experience the rustic life of rural South Vietnam.', link: 'https://www.klook.com/en-US/search/result/?query=Mekong%20Delta%202%20Day&aid=117167' },
+                    { title: 'Mekong Delta Firefly Watching Night Cruise', description: 'Set sail at dusk to admire the enchanting sunset over the Mekong, then search for sparkling fireflies among the bushes in the tranquil waterways—romantic and mysterious.', link: 'https://www.klook.com/en-US/search/result/?query=Mekong%20Delta%20Firefly&aid=117167' }
+                ]
+            },
+            'Tay Ninh / Ba Den Mountain': {
+                'Attraction Tickets': [
+                    { title: 'Sun World Ba Den Mountain Cable Car Ticket', description: 'Ride the Guinness World Record-holding cable car system to the highest peak in South Vietnam. Enjoy the spectacular sea of clouds and the magnificent giant Buddha statue at the summit.', link: 'https://www.klook.com/en-US/search/result/?query=Sun%20World%20Ba%20Den&aid=117167' }
+                ],
+                'Day Tours': [
+                    { title: 'Ba Den Mountain & Cu Chi Tunnels Day Tour', description: 'Visit two major South Vietnamese landmarks in one day! Ascend the misty Ba Den Mountain in the morning, and explore the historic Cu Chi Tunnels in the afternoon.', link: 'https://www.klook.com/en-US/search/result/?query=Ba%20Den%20Cu%20Chi&aid=117167' },
+                    { title: 'Cao Dai Holy See & Ba Den Mountain Day Tour', description: 'Explore the architectural aesthetics of Cao Dai, which blends Buddhism, Christianity, and Taoism, then climb Ba Den Mountain for a panoramic view of the Tay Ninh region.', link: 'https://www.klook.com/en-US/search/result/?query=Ba%20Den%20Cao%20Dai&aid=117167' }
+                ]
+            },
+            'Nearby Cities (Mui Ne / Vung Tau)': {
+                'Day Tours': [
+                    { title: 'Mui Ne Sand Dunes Day Tour', description: 'Depart from Ho Chi Minh City to the stunning White and Red Sand Dunes of Mui Ne. Experience thrilling sandboarding and a jeep ride across the desert landscapes.', link: 'https://www.klook.com/en-US/activity/88282-mui-ne-tour/?spm=SearchResult.SearchResult_LIST&clickId=142f270280&aid=117167' },
+                    { title: 'Mui Ne Jeep Desert & Fairy Stream Adventure', description: 'A colorful private jeep takes you to shoot fashionable desert photos! Visit the otherworldly Fairy Stream and the vibrant local fishing village.', link: 'https://www.klook.com/en-US/search/result/?query=Mui%20Ne%20Jeep&aid=117167' },
+                    { title: 'Vung Tau Day Tour (from HCMC)', description: 'The closest beach resort town to Ho Chi Minh City. Visit the majestic Christ the King statue, the White Palace (Bach Dinh), and enjoy the beautiful coastal scenery.', link: 'https://www.klook.com/en-US/activity/41303-vung-tau-day-tour-vietnamese-speaking-guide/?spm=SearchResult.SearchResult_LIST&clickId=cee3b88f46&aid=117167' },
+                    { title: 'Vung Tau Private Car Day Tour', description: 'A private driver takes you along the Vung Tau coastline, Christ the King statue, and hidden spots. The flexible itinerary is perfect for families and friend groups.', link: 'https://www.klook.com/en-US/activity/136430-ho-chi-minh-car-rental-with-driver-to-vung-tau-ho-tram-long-hai/?spm=SearchResult.SearchResult_LIST&clickId=01d974d47c&aid=117167' }
+                ],
+                'Transport & Wi-Fi': [
+                    { title: 'Luxury Sleeper Bus Ticket (HCMC to Mui Ne / Vung Tau)', description: 'Lie down on your way to the beach! Experience Vietnam\'s unique luxury sleeper buses—not only extremely comfortable but also a great way to save on transportation costs.', link: 'https://www.klook.com/en-US/activity/20542-sleeper-bus-transfers-phan-thiet-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=b2bd8b8165&aid=117167' },
+                    { title: 'Private Transfer (HCMC to Mui Ne)', description: 'A direct 3-hour ride to major Mui Ne resorts. Ideal for families or groups, offering maximum flexibility in departure times and ultimate comfort.', link: 'https://www.klook.com/en-US/activity/71114-private-transfer-ho-chi-minh-city-phan-thiet/?spm=SearchResult.SearchResult_LIST&clickId=824364db5b&aid=117167' }
+                ]
+            }
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState('Ho Chi Minh City Center');
+            const [selectedCategory, setSelectedCategory] = useState('Attraction Tickets');
+
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen bg-rose-50 font-sans text-slate-800 pb-12">
+                    {/* Top Navigation */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-rose-100">
+                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center justify-between gap-2 mb-4">
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="text-rose-600 w-6 h-6 md:w-8 md:h-8" />
+                                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-orange-500">
+                                        Ho Chi Minh City Trip Guide
+                                    </h1>
+                                </div>
+                                <a
+                                    href="https://linkuei0425.github.io/HoChiMinh-US/"
+                                    className="hidden md:flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 bg-rose-600 text-white hover:bg-rose-700 shadow-sm"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    Home
+                                </a>
+                            </div>
+                            
+                            {/* Region Selector */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                <a
+                                    href="https://linkuei0425.github.io/HoChiMinh-US/"
+                                    className="md:hidden flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-rose-600 text-white hover:bg-rose-700 shadow-sm"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    Home
+                                </a>
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            // Auto-select the first available category if the current one doesn't exist in the new region
+                                            if (!itineraryData[region]?.[selectedCategory]) {
+                                                const availableCategories = Object.keys(itineraryData[region] || {});
+                                                if (availableCategories.length > 0) {
+                                                    setSelectedCategory(availableCategories[0]);
+                                                }
+                                            }
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${
+                                            selectedRegion === region
+                                            ? 'bg-orange-500 text-white shadow-md'
+                                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-orange-50 hover:text-orange-600'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 py-8">
+                        {/* Category Tags */}
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                            {CATEGORIES.map(({ id, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSelectedCategory(id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border text-sm font-bold transition-all ${
+                                        selectedCategory === id
+                                        ? 'border-rose-500 bg-rose-50 text-rose-700 shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {id}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Content Title */}
+                        <div className="mb-6 flex items-center gap-2">
+                            <h2 className="text-2xl font-bold text-slate-800">
+                                {selectedRegion} - {selectedCategory} <span className="text-rose-600">Top Picks</span>
+                            </h2>
+                        </div>
+
+                        {/* Card List */}
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
+                                {currentData.map((item, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-fade-in"
+                                        style={{ animationDelay: `${index * 0.05}s` }}
+                                    >
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight flex items-start gap-2">
+                                                <span className="text-orange-500 mt-1"><Sparkles className="w-5 h-5"/></span>
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed font-medium">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="mt-auto pt-4 border-t border-slate-100 flex justify-end">
+                                            <a
+                                                href={item.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-sm hover:shadow-md w-full sm:w-auto"
+                                            >
+                                                <Info className="w-4 h-4" />
+                                                <span>Details & Booking</span>
+                                                <ExternalLink className="w-4 h-4 ml-1 opacity-80" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                                    No recommendations available for this category in this region.
+                                </h3>
+                                <p className="text-slate-500">Please try selecting a different category or region.</p>
+                            </div>
+                        )}
+
+                        {/* Global Explore Button */}
+                        <div className="mt-12 flex justify-center">
+                            <a 
+                                href={`https://www.klook.com/en-US/search/result/?query=${encodeURIComponent(selectedRegion)}&aid=117167`}
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-700 hover:to-orange-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                <span className="tracking-wide">Explore more activities in {selectedRegion}</span>
+                                <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
+                            </a>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

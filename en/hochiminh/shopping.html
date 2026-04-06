@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ho Chi Minh Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Custom Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Active State for Tabs */
+        .tab-btn.active {
+            background-color: #e11d48; /* rose-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.3);
+            border-color: #e11d48;
+        }
+        .city-btn.active {
+            background-color: #881337; /* rose-900 */
+            color: white;
+            border-color: #881337;
+        }
+        .tab-btn, .city-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button Hover */
+        .btn-maps {
+            background-color: #e11d48; /* rose-600 */
+        }
+        .btn-maps:hover {
+            background-color: #be123c; /* rose-700 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-rose-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-rose-700 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>HCM SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/HoChiMinh-US/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-rose-800 via-rose-600 to-orange-500 py-10 lg:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm drop-shadow-md">Ho Chi Minh City Shopping Guide</h1>
+            <p class="text-base md:text-lg text-rose-100 max-w-2xl mx-auto font-medium">Curated selection across 7 major districts: top souvenirs, cashews, G7 coffee, premium chocolate, and local supermarkets. Shop till you drop!</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- City Selector -->
+        <section class="mb-6 relative">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot mr-1"></i> Select District</h2>
+            <div class="relative group">
+                <!-- Left Arrow -->
+                <button onclick="scrollNav('city-container', -250)" class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center w-9 h-9 bg-white border border-rose-200 rounded-full shadow-md text-rose-600 hover:bg-rose-50 hover:text-rose-800 hover:scale-110 transition-all focus:outline-none opacity-0 group-hover:opacity-100">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                
+                <div id="city-container" class="flex overflow-x-auto hide-scrollbar space-x-2 pb-2 scroll-smooth px-1">
+                    <!-- JS Inject -->
+                </div>
+
+                <!-- Right Arrow -->
+                <button onclick="scrollNav('city-container', 250)" class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center w-9 h-9 bg-white border border-rose-200 rounded-full shadow-md text-rose-600 hover:bg-rose-50 hover:text-rose-800 hover:scale-110 transition-all focus:outline-none opacity-0 group-hover:opacity-100">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 relative" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> Select Category</h2>
+            <div class="relative group">
+                <!-- Left Arrow -->
+                <button onclick="scrollNav('category-container', -250)" class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center w-9 h-9 bg-white border border-rose-200 rounded-full shadow-md text-rose-600 hover:bg-rose-50 hover:text-rose-800 hover:scale-110 transition-all focus:outline-none opacity-0 group-hover:opacity-100">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <div id="category-container" class="flex overflow-x-auto hide-scrollbar space-x-3 pb-2 scroll-smooth px-1">
+                    <!-- JS Inject -->
+                </div>
+
+                <!-- Right Arrow -->
+                <button onclick="scrollNav('category-container', 250)" class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center w-9 h-9 bg-white border border-rose-200 rounded-full shadow-md text-rose-600 hover:bg-rose-50 hover:text-rose-800 hover:scale-110 transition-all focus:outline-none opacity-0 group-hover:opacity-100">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Shop Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected dynamically via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Ho Chi Minh Shopping Guide. Providing the best shopping recommendations for your Vietnam trip.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data Structure for Ho Chi Minh (English Version)
+        const db = {
+            d1: {
+                name: "District 1 (City Center)",
+                cat: {
+                    souvenir: [
+                        {n:"Maison Marou Saigon",f:"Praised by the NYT as the 'Best Chocolate'! Made with Vietnamese cacao beans, stunning packaging, perfect for premium gifting.",a:"167-169, Calmette, Quận 1",t:"10 mins walk from Ben Thanh Metro Station, or 3 mins by Grab."},
+                        {n:"Ben Thanh Market (Chợ Bến Thành)",f:"The most iconic traditional market in the city center. Great for coffee beans, cashews with skin, handicrafts, and wood carvings.",a:"Chợ Bến Thành, Lê Lợi, Quận 1",t:"Right at Ben Thanh Metro Station. Also the main hub for city buses (e.g., 152 airport line)."},
+                        {n:"The Craft House",f:"Showcases local young designers. High-quality wooden puzzles, canvas bags, and postcards with great aesthetic.",a:"53a Nguyễn Du, Bến Nghé, Quận 1",t:"8 mins walk from Opera House Metro Station; 2-3 mins walk from Notre-Dame Cathedral along Nguyen Du St."},
+                        {n:"Trung Nguyen Legend",f:"Vietnam's #1 coffee brand. Besides G7 instant coffee, their 'Legend' drip coffee powder is highly recommended for gifting.",a:"80 Đồng Khởi, Bến Nghé, Quận 1",t:"3 mins walk from Opera House Metro Station, located on the bustling Dong Khoi Street."},
+                        {n:"L'angfarm (Da Lat Specialties)",f:"Specializes in Da Lat agricultural products. Beautifully packaged dried fruits, artichoke tea, and veggie chips. Healthy souvenir choices.",a:"112 Đường Trần Hưng Đạo, Quận 1",t:"10 mins walk from Ben Thanh Metro Station, near the backpacker street (Pham Ngu Lao)."},
+                        {n:"Phuc Long Coffee & Tea",f:"Known as the Starbucks of Vietnam! Famous for milk tea, lotus tea, and peach tea bags.",a:"Various malls and street corners",t:"Easily accessible near Opera House or Ben Thanh Metro. Found in major malls (Takashimaya, Vincom) and streets.", cLink:"#", cName:"Phuc Long 10% Off Coupon (Example)", cIcon:"fa-solid fa-mug-hot"},
+                        {n:"Sense Market (Underground)",f:"Underground mall at 23/9 Park with a large supermarket and a food court. Great to buy souvenirs and eat local street food.",a:"Khu B, Công Viên 23/9, Quận 1",t:"5-8 mins walk from Ben Thanh Metro Station, located at the underground entrance of 23/9 Park."},
+                        {n:"The Cafe Apartment",f:"Old apartment block turned into a cafe hub. Great for photos, and many shops sell their own roasted coffee beans.",a:"42 Nguyễn Huệ, Bến Nghé, Quận 1",t:"3-5 mins walk from Opera House Metro Station, located mid-way along Nguyen Hue Pedestrian Street."}
+                    ],
+                    fashion: [
+                        {n:"Saigon Centre / Takashimaya",f:"The most upscale and modern shopping mall in HCMC. Features international luxury brands, cosmetics, and renowned restaurants.",a:"65 Lê Lợi, Bến Nghé, Quận 1",t:"5-8 mins walk from Opera House or Ben Thanh Metro Station. The core shopping landmark of D1.", cLink:"#", cName:"Takashimaya Tourist Privilege Card (Example)", cIcon:"fa-solid fa-building"},
+                        {n:"Vincom Center Dong Khoi",f:"Massive twin-tower mall featuring fast-fashion brands like ZARA, H&M, and a large basement supermarket.",a:"72 Lê Thánh Tôn, Bến Nghé, Quận 1",t:"3-5 mins walk from Opera House Metro Station, located at a prime intersection."},
+                        {n:"Saigon Square",f:"Known as the 'air-conditioned market'. Famous for replica apparel, sneakers, and backpacks. Bargaining is required.",a:"81 Nam Kỳ Khởi Nghĩa, Bến Nghé, Quận 1",t:"5-8 mins walk from Opera House or Ben Thanh Metro. Right across the street from Takashimaya."},
+                        {n:"Miss Ao Dai (Custom Tailoring)",f:"Best place to experience traditional Vietnamese dresses. Offers quick custom tailoring with a huge fabric selection.",a:"19 Nguyễn Thái Học, Quận 1",t:"Take a Grab from Ben Thanh Metro Station, takes about 5 mins (Fare: 30k-50k VND)."},
+                        {n:"Diamond Plaza",f:"Classic department store behind Notre-Dame Cathedral, focusing on cosmetics, perfumes, and features a rooftop bowling alley.",a:"34 Lê Duẩn, Bến Nghé, Quận 1",t:"8-10 mins walk from Opera House Metro Station, right behind the Cathedral and Post Office."},
+                        {n:"Ginkgo T-shirts",f:"Original T-shirts inspired by Vietnamese culture. Comfortable fabric and humorous designs, perfect as memory shirts.",a:"254 Đề Thám, Phạm Ngũ Lão, Quận 1",t:"10-15 mins walk from Ben Thanh Metro Station, located in the Pham Ngu Lao backpacker area."}
+                    ],
+                    beauty: [
+                        {n:"Watsons (Vincom)",f:"One of the largest Watsons in the city, selling Western, Thai, and Asian cosmetics. Often runs Buy 1 Get 1 Free promos.",a:"Vincom Center B1, Quận 1",t:"Take the elevator to B1 in Vincom Center. 3 mins walk from Opera House Metro.", cLink:"#", cName:"Watsons Tourist Tax-Free Promo (Example)", cIcon:"fa-solid fa-prescription-bottle-medical"},
+                        {n:"Guardian Pharmacy",f:"The most common pharmacy chain in Vietnam. Perfect for stocking up on sunscreen, aloe vera gel, Tiger Balm, and affordable masks.",a:"Various streets in D1",t:"Dense coverage. Search Google Maps for the nearest branch from Opera House or Ben Thanh Metro."},
+                        {n:"Hasaki Beauty & Clinic",f:"A local favorite multi-brand beauty store. Huge selection (including La Roche-Posay, Vichy) at highly competitive prices.",a:"71 Hoàng Hoa Thám, Quận 1",t:"Located slightly outside the core center. Take a 10 mins Grab ride from Ben Thanh Metro."},
+                        {n:"Saigon Cosmetics (Miss Saigon Perfume)",f:"Classic Vietnamese perfume brand. The iconic Ao Dai wearing ceramic bottle exudes Vietnamese charm.",a:"Various mall counters",t:"Available at cosmetic counters in major malls (Takashimaya, Vincom). Easy to browse while walking around D1."},
+                        {n:"L'Apothiquaire (French Fragrance)",f:"Premium fragrance and SPA brand full of French colonial charm. Excellent handmade soaps and essential oils.",a:"100 Mạc Thị Bưởi, Quận 1",t:"3 mins walk from Opera House Metro, located in a French-style alley in the Dong Khoi shopping district."}
+                    ],
+                    mart: [
+                        {n:"Lucky Plaza / Tax Supermarket",f:"A secret base for tourists buying local goods! The 3rd-floor supermarket has a complete stock of coffee, cashews, and Pho packs.",a:"69 Đồng Khởi, Bến Nghé, Quận 1",t:"3 mins walk from Opera House Metro. Entrance is subtle; look for signs pointing to the 3rd floor."},
+                        {n:"Annam Gourmet",f:"HCMC's 'Premium Supermarket'. Specializes in high-end imported foods, cheese, wines, and premium Vietnamese coffee beans.",a:"Saigon Centre B2, Quận 1",t:"5-8 mins walk from Opera House or Ben Thanh Metro. Located on B2 of Takashimaya (Saigon Centre)."},
+                        {n:"WinMart (Vincom)",f:"One of Vietnam's largest supermarket chains. Best place for fresh fruits, snacks, and local Vietnamese condiments.",a:"Vincom Center B3, Quận 1",t:"5 mins walk from Opera House Metro. Located on B3 of Vincom Center."},
+                        {n:"Co.opmart (Cong Quynh)",f:"Large local supermarket on the edge of D1. A top choice for locals' daily needs; souvenir prices are cheaper than the city center.",a:"189C Cống Quỳnh, Quận 1",t:"15 mins walk from Ben Thanh Metro. If buying in bulk, recommend taking a 3-min Grab ride back."},
+                        {n:"Farmer's Market",f:"A refined supermarket focusing on organic and healthy foods. Fruit quality is excellent, perfect for hotel snacking.",a:"104 Hai Bà Trưng, Quận 1",t:"Take a 5-8 min Grab ride from Opera House Metro, or walk 15 mins from Notre-Dame Cathedral."}
+                    ],
+                    hobby: [
+                        {n:"Book Street (Đường Sách)",f:"A gorgeous tree-lined pedestrian street next to the Cathedral, filled with bookstores, cafes, postcards, and artsy goods.",a:"Đường Nguyễn Văn Bình, Quận 1",t:"8-10 mins walk from Opera House Metro. Right next to the Post Office and Cathedral."},
+                        {n:"Artbook",f:"A chic store specializing in art & design books and vintage posters. The retro Vietnam propaganda posters are highly collectible.",a:"43 Đồng Khởi, Quận 1",t:"2 mins walk from Opera House Metro, perfect for an artsy stroll along Dong Khoi Street."},
+                        {n:"Sadec District",f:"A home decor store combining Southeast Asian crafts. The ceramic plates and bamboo woven items are breathtaking.",a:"101 Đồng Khởi, Quận 1",t:"3 mins walk from Opera House Metro, located upstairs in an old apartment or alleyway."},
+                        {n:"Couleurs by Rehahn",f:"Gallery of the famous photographer Rehahn, selling impactful Vietnamese cultural photography books and postcards.",a:"74 Đồng Khởi, Quận 1",t:"2 mins walk from Opera House Metro, located next to major luxury boutiques."},
+                        {n:"The Box Market",f:"A weekend-only youth creative market featuring indie handmade jewelry, fragrances, and vintage clothing.",a:"Cultural Center, Quận 1 (Schedule varies)",t:"Weekend market locations change. Check their FB page first, then take a Grab from Ben Thanh Metro."}
+                    ]
+                }
+            },
+            d2: {
+                name: "District 2 (Thao Dien)",
+                cat: {
+                    souvenir: [
+                        {n:"Amaï (Chic Ceramics)",f:"A must-visit in Thao Dien! Beautiful, irregularly shaped ceramic plates in Morandi colors that instantly upgrade your dining table.",a:"83 Xuân Thủy, Thảo Điền, Quận 2",t:"Take a 5-min GrabBike from Thao Dien Metro Station, or walk for 15 mins."},
+                        {n:"Sông (Premium Linen)",f:"Sells high-quality linen clothing and home fabrics with a resort vibe, highly favored by Western expats.",a:"Thảo Điền, Quận 2",t:"From Thao Dien Metro Station, take a GrabBike directly to the door, as sidewalks here are narrow."},
+                        {n:"Liti Florist & Gifts",f:"Exquisite imported floral arrangements and European-style gift shop with exceptionally careful packaging services.",a:"Quận 2 Commercial Area",t:"Walk or take a short GrabBike ride from Thao Dien Metro Station."}
+                    ],
+                    fashion: [
+                        {n:"Vincom Mega Mall (Thao Dien)",f:"The largest mall in D2, featuring an indoor ice rink, and a full range of international casual wear and sports brands.",a:"161 Xa lộ Hà Nội, Thảo Điền, Quận 2",t:"Right outside Thao Dien Metro Station. Located along the Hanoi Highway."},
+                        {n:"Xuan Thuy Street (Boutiques)",f:"This street hides many independent clothing and concept stores opened by Western designers. Vibe is relaxed and chic.",a:"Đường Xuân Thủy, Quận 2",t:"10 mins walk from Thao Dien Metro Station to the start of the street. Great for a half-day stroll."},
+                        {n:"The Oxygen",f:"A mixed-use community mall featuring refined children's clothing and casual wear brands.",a:"628C Xa lộ Hà Nội, Quận 2",t:"5 mins walk from An Phu Metro Station."}
+                    ],
+                    beauty: [
+                        {n:"Watsons (Vincom Mega Mall)",f:"Large Watsons. Due to the high expat population, Western sunscreen and bath brands are particularly well-stocked here.",a:"Vincom Mega Mall B1, Quận 2",t:"Right outside Thao Dien Metro Station, located in the B1 basement of Vincom Mega Mall."},
+                        {n:"Thao Dien Spa Skincare",f:"Thao Dien has many luxury Villa Spas. They usually sell their own all-natural essential oils and body scrubs.",a:"Various Spas in Thảo Điền",t:"Hidden inside luxury villas. Take a GrabBike from Thao Dien Metro Station directly to the Spa entrances."},
+                        {n:"Organik Thao Dien",f:"A beauty section inside an organic supermarket, selling all-natural, cruelty-free eco-soaps and shampoo bars.",a:"Thảo Điền, Quận 2",t:"Take a GrabBike from Thao Dien Metro Station deep into the Thao Dien area."}
+                    ],
+                    mart: [
+                        {n:"MM Mega Market",f:"Massive warehouse-style supermarket (like Costco). The most cost-effective place to buy 'whole boxes' of Pho or coffee.",a:"Khu B, KĐT mới An Phú, Quận 2",t:"5-10 mins walk from An Phu Metro Station. If buying in bulk, take a Grab Car back to your hotel."},
+                        {n:"Annam Gourmet (Thao Dien)",f:"A massive premium supermarket with a rich cheese counter, cold cuts, and imported wines. An expat favorite.",a:"41 Thảo Điền, Quận 2",t:"10-15 mins walk or a GrabBike ride from Thao Dien Metro. Great for picking up cheese for your hotel room."},
+                        {n:"Nam An Market",f:"Another high-quality fresh supermarket. Fruit and vegetable quality is superb, and the store is bright and comfortable.",a:"Thảo Điền, Quận 2",t:"15 mins walk or a GrabBike ride from Thao Dien Metro Station."}
+                    ],
+                    hobby: [
+                        {n:"The Snap Cafe (Shop Cluster)",f:"More than just a cafe, it houses a small cluster of shops selling children's books, creative crafts, and eco-friendly goods.",a:"32 Trần Ngọc Diện, Thảo Điền, Quận 2",t:"Take a 5-8 min Grab ride from Thao Dien Metro Station. It's a relaxed, semi-open-air cluster."},
+                        {n:"Vesta Lifestyle & Gifts",f:"Specializes in well-designed home decor, stationery, and scented candles. A great place to pick up tasteful gifts.",a:"34 Ngô Quang Huy, Thảo Điền, Quận 2",t:"Located in a quiet alley. Take a 5-8 min Grab ride from Thao Dien Metro Station."}
+                    ]
+                }
+            },
+            d3: {
+                name: "District 3 (Fashion & Markets)",
+                cat: {
+                    souvenir: [
+                        {n:"Tan Dinh Market (Chợ Tân Định)",f:"Local market next to the Pink Church. The 'cashews with skin' and 'macadamia nuts' here are cheap and fresh. A must-buy!",a:"336 Hai Bà Trưng, Quận 1/3 border",t:"Take a 10-min Grab ride from Opera House or Ben Thanh Metro (right across from the Pink Church)."},
+                        {n:"Fabric Street (Inside Tan Dinh)",f:"Besides nuts, the market has numerous fabric stalls. You can pick fabrics and have custom clothes tailored nearby.",a:"Chợ Tân Định, Quận 3",t:"Take a 10-min Grab ride from the Metro to Tan Dinh Market. Walk straight into the 1st/2nd floors."},
+                        {n:"Phuc Long Tea Brands",f:"High-quality Vietnamese tea brands. The Oolong and floral teas come in elegant packaging, perfect for elders.",a:"Nguyễn Đình Chiểu, Quận 3",t:"Located in D3. Take a 10-min Grab ride from the Metro Station or Pink Church."}
+                    ],
+                    fashion: [
+                        {n:"Van Hanh Mall",f:"A massive mall in D10! Loved by local youth, featuring local fast-fashion brands and a huge food court.",a:"11 Sư Vạn Hạnh, Quận 10",t:"Far from the Metro. Highly recommend taking a 20-25 min Grab ride from Ben Thanh Metro Station."},
+                        {n:"Nguyen Dinh Chieu Street",f:"Famous 'Apparel Street' in D3. Lined with local designer brands and women's boutiques at affordable prices.",a:"Đường Nguyễn Đình Chiểu, Quận 3",t:"A long one-way street. Take a 10-min Grab from Opera House Metro to the start, then stroll down."},
+                        {n:"Le Van Sy Fashion Street",f:"An ultra-long street spanning D3 and Phu Nhuan. Extremely lively at night with endless clothing, shoes, and street food.",a:"Đường Lê Văn Sỹ, Quận 3",t:"Very long shopping street. Take a 15-min Grab from Ben Thanh Metro to the middle section and walk."}
+                    ],
+                    beauty: [
+                        {n:"Hasaki (D10 Flagship)",f:"Massive stock of beauty products at highly competitive prices. Features many local skincare brands loved by Vietnamese influencers.",a:"Sư Vạn Hạnh, Quận 10",t:"Near Van Hanh Mall. Take a 20-min Grab from Ben Thanh Metro. Combine with a mall visit."},
+                        {n:"Pharmacity",f:"Vietnam's largest modern pharmacy chain. Clean and bright, with a full range of common medicines and supplements.",a:"Various corners in D3",t:"Found everywhere in D3 and the city center. Walk or Grab to the nearest one from any Metro Station."},
+                        {n:"The Body Shop",f:"A standalone store on the street in D3, often running discounts on bath and body care gift sets during holidays.",a:"Hai Bà Trưng, Quận 3",t:"Near the Pink Church. Take a 10-min Grab ride from Opera House Metro Station."}
+                    ],
+                    mart: [
+                        {n:"Co.opmart Nguyen Dinh Chieu",f:"A large local supermarket in the core of D3. Well-stocked, and many locals come here for groceries in the evening.",a:"168 Nguyễn Đình Chiểu, Quận 3",t:"Take a 10-min Grab ride from Opera House Metro, or walk 20 mins along Nguyen Dinh Chieu St."},
+                        {n:"Lotte Mart (Phu Tho)",f:"Lotte Mart on the border of D11. Smaller than the D7 one, but still very convenient for buying coffee and snacks.",a:"Đường 3/2, Quận 11",t:"Far from Metro stations. Recommend taking a 25-min Grab directly from Ben Thanh Metro."},
+                        {n:"Aeon Citimart",f:"Japanese-affiliated medium-sized supermarket. Clean environment, with a good selection of fresh goods and Japanese condiments.",a:"Around Quận 3",t:"A community supermarket in D3. Take a 10-min Grab ride from Opera House Metro."}
+                    ],
+                    hobby: [
+                        {n:"Guitar Street (Nguyen Thien Thuat)",f:"The famous Guitar and Instrument Street! Packed with handmade guitar shops, a treasure trove for music lovers.",a:"Đường Nguyễn Thiện Thuật, Quận 3",t:"The whole street is guitar shops. Take a 10-15 min Grab ride from Ben Thanh Metro."},
+                        {n:"Ban Co Model/Gaming Shops",f:"Gaming and model shops hidden in the alleys of D3. You can find various action figures and assembly models.",a:"Cư xá Đô Thành, Quận 3",t:"Located in a complex residential alleyway. Highly recommend taking a 15-min Grab from Ben Thanh Metro directly to the door."}
+                    ]
+                }
+            },
+            d4: {
+                name: "District 4 (Local Life)",
+                cat: {
+                    souvenir: [
+                        {n:"Xom Chieu Market (Chợ Xóm Chiếu)",f:"The kitchen of D4 locals! Buy the most authentic Vietnamese snacks, rice noodles, and specialty dry goods inside and out.",a:"Đinh Tiên Hoàng, Phường 12, Quận 4",t:"Take a 10-min Grab ride across the bridge from Ben Thanh Metro to reach this vibrant traditional market."},
+                        {n:"Local Seafood Dry Goods",f:"D4 is famous for seafood snacks. You can buy cheap and fresh shredded squid and dried roasted fish around the market.",a:"Around Chợ Xóm Chiếu",t:"Stalls located outside Xom Chieu Market. Take a Grab from Ben Thanh Metro and wander around."}
+                    ],
+                    fashion: [
+                        {n:"Hoang Dieu Fashion Street",f:"The main artery of D4, flanked by many affordable local Vietnamese fashion, shoe, and bag stores.",a:"Đường Hoàng Diệu, Quận 4",t:"Take a 5-min Grab ride across the bridge from Ben Thanh Metro, then stroll along the street."},
+                        {n:"Local Garment Shops",f:"Weaving through the alleys of D4, you can often find cheap casual wear and local pajamas.",a:"Alleys in Quận 4",t:"Great for wandering and digesting after eating at D4's famous 'seafood food stalls' (Take Grab from Ben Thanh)."}
+                    ],
+                    beauty: [
+                        {n:"Pharmacity (D4)",f:"Modern pharmacy chain. Clean and bright, with a full range of common medicines, vitamins, and supplements.",a:"Hoàng Diệu, Quận 4",t:"Located on the main road Hoang Dieu in D4. Take a Grab from Ben Thanh Metro; very easy to spot."},
+                        {n:"Guardian (D4)",f:"A great place to restock on sunscreen, aloe vera gel, Tiger Balm, and affordable sheet masks.",a:"Bến Vân Đồn, Quận 4",t:"Take a Grab from Ben Thanh Metro to the beautiful riverside road of Ben Van Don."}
+                    ],
+                    mart: [
+                        {n:"Bách Hóa XANH",f:"A highly dense community fresh supermarket chain. Though small, buying local snacks and drinks here is very cheap.",a:"Various corners in Quận 4",t:"Found everywhere in the alleys of D4. Take a Grab from Ben Thanh Metro to experience local daily grocery shopping."},
+                        {n:"Co.op Food (D4)",f:"A convenience fresh food store under Co.opmart. Perfect for picking up fresh fruits or Vietnamese instant noodles before heading back.",a:"Đường Khánh Hội, Quận 4",t:"Take a Grab from Ben Thanh Metro to Khanh Hoi, the main street of D4."}
+                    ],
+                    hobby: [
+                        {n:"Local Hardware & Sundries",f:"Sundry shops full of life. You can dig up classic Vietnamese drip coffee filters and traditional stainless steel tableware.",a:"Tôn Đản, Quận 4",t:"Take a Grab from Ben Thanh Metro to the bustling Ton Dan Street, then treasure hunt in the traditional shops along both sides."}
+                    ]
+                }
+            },
+            d5: {
+                name: "District 5 (An Dong/Chinatown)",
+                cat: {
+                    souvenir: [
+                        {n:"An Dong Market (Chợ An Đông)",f:"The ultimate holy grail in HCMC for 'cashews with skin, mixed dried fruits, and bird's nest'! Cheap prices, and many sellers speak Chinese/English.",a:"Công trường An Đông, Quận 5",t:"Take a 15-20 min Grab Car from Ben Thanh Metro (Fare: 50k-80k VND) directly to the entrance."},
+                        {n:"Lam Tran Huong / Guangdong Jerky",f:"Old-brand meat jerky and cured meat shop in D5, full of traditional Chinatown flavor. The jerky aroma is mouthwatering.",a:"Châu Văn Liêm, Quận 5",t:"Located on a bustling D5 street. Take a 15-20 min Grab from Ben Thanh Metro. Best combined with a Chinatown tour."},
+                        {n:"An Dong Market (Dry Seafood)",f:"Besides cashews, the bird's nest, fish maw, and various dried seafood here are abundant and loved by the local Chinese community.",a:"Công trường An Đông, Quận 5",t:"Take a Grab from Ben Thanh Metro directly to the 1st floor and basement of An Dong Market."}
+                    ],
+                    fashion: [
+                        {n:"An Dong Plaza",f:"High-rise mall next to An Dong Market. Focuses on 'wholesale' clothing, shoes, and bags. Styles skew more mature.",a:"18 An Dương Vương, Quận 5",t:"Right next to An Dong Market. A 1-min walk connects the two buildings (Take Grab from Ben Thanh)."},
+                        {n:"Silver & Gold Street (Nhiêu Tâm)",f:"Famous gold and jewelry street in D5, where many local Chinese trade gold ornaments.",a:"Đường Nhiêu Tâm, Quận 5",t:"Far from the Metro. Take a 20-min Grab ride from Ben Thanh Metro into the Chinatown area."},
+                        {n:"Ao Dai Fabric Shops (Near Da Niang Dumplings)",f:"D5 has many traditional fabric shops, cheaper than D1. Great for travelers who know their fabrics.",a:"Alleys in Quận 5",t:"Recommend taking a Grab from Ben Thanh Metro to Da Niang Dumplings or nearby landmarks, then walking into the alleys."}
+                    ],
+                    beauty: [
+                        {n:"Hoa Binh Market Trad. Medicine St.",f:"Hai Thuong Lan Ong Street is packed with traditional Chinese medicine shops, filling the air with a strong herbal scent.",a:"Hải Thượng Lãn Ông, Quận 5",t:"Take a Grab from Ben Thanh Metro to Thien Hau Temple, then stroll for 5-10 mins along this long street."},
+                        {n:"Local Hair Salon Suppliers",f:"Shops specializing in wholesale for local hair salons. You can find cheap, bulk-sized shampoos and hair masks.",a:"Around Cho Lon, Quận 5",t:"Scattered in the traditional alleys of D5. Recommend going during the day via Grab from Ben Thanh Metro."}
+                    ],
+                    mart: [
+                        {n:"Co.opmart Cho Lon",f:"The largest local supermarket in Chinatown. Given the demographics, Chinese-style condiments and ingredients are very abundant here.",a:"96 Hùng Vương, Quận 5",t:"Take a 15-20 min Grab from Ben Thanh Metro to the center of D5. A short Grab ride away if you're at An Dong Plaza."},
+                        {n:"An Dong Plaza Supermarket",f:"A supermarket inside An Dong Plaza, convenient for wholesale shoppers to grab snacks and souvenirs after buying clothes.",a:"18 An Dương Vương, Quận 5",t:"Can be found upstairs directly inside An Dong Plaza (Take Grab from Ben Thanh)."}
+                    ],
+                    hobby: [
+                        {n:"Lantern Street (Lương Nhữ Học)",f:"A breathtaking street that appears right before the Mid-Autumn Festival! Filled with traditional paper lanterns. A top photo spot.",a:"Lương Nhữ Học, Quận 5",t:"Busiest a month before Mid-Autumn. Take a 20-min Grab from Ben Thanh Metro; get off early and walk due to crowds."},
+                        {n:"Incense & Religious Goods",f:"Around temples like Thien Hau, there are many old shops selling traditional incense, statues, and Chinese religious goods.",a:"Nguyễn Trãi, Quận 5",t:"Concentrated near Thien Hau Temple. Take a 20-min Grab from Ben Thanh Metro and wander while visiting the temple."}
+                    ]
+                }
+            },
+            d6: {
+                name: "District 6 (Binh Tay/Wholesale)",
+                cat: {
+                    souvenir: [
+                        {n:"Binh Tay Market (Chợ Bình Tây)",f:"The largest wholesale market in Cho Lon with antique architecture. The main hub for dry goods, mushrooms, and hardware wholesale.",a:"57A Tháp Mười, Quận 6",t:"Located deep in Chinatown. Recommend taking a 25-30 min Grab ride from Ben Thanh Metro."},
+                        {n:"Traditional Dry Goods St.",f:"Surrounding Binh Tay Market, the whole street sells bulk-sized northern/southern dry goods, rice noodles, and fish sauce.",a:"Trần Bình, Quận 6",t:"Take a Grab from Ben Thanh Metro to Binh Tay Market, then simply walk around the market's exterior."}
+                    ],
+                    fashion: [
+                        {n:"Binh Tay Market (Apparel Area)",f:"The 2nd floor and surroundings have a massive amount of wholesale clothing, fabrics, and shoes. Very traditional styles, good for treasure hunting.",a:"Inside Chợ Bình Tây",t:"Take a Grab from Ben Thanh Metro to Binh Tay Market, then head straight up to the 2nd floor."},
+                        {n:"Hau Giang Fashion Street",f:"A bustling commercial street in D6, featuring many local clothing chain stores and affordable shoe shops.",a:"Đường Hậu Giang, Quận 6",t:"Take a 25-30 min Grab ride from Ben Thanh Metro to reach this lively main road."}
+                    ],
+                    beauty: [
+                        {n:"D6 Local Beauty Shops",f:"Sells traditional Vietnamese skincare (like Thorakao) and hair tools, usually at wholesale prices.",a:"Around Chợ Bình Tây",t:"Take a Grab from Ben Thanh Metro and treasure hunt in the traditional shops around Binh Tay Market during the day."},
+                        {n:"Medicine Wholesale Extension",f:"An extension of the D5 Medicine Street, D6 also has many herbal shops focusing on large-scale wholesale.",a:"Quận 6 near Q5 border",t:"Take a Grab from Ben Thanh Metro to D5 Medicine Street, then stroll along the main Cho Lon road into D6."}
+                    ],
+                    mart: [
+                        {n:"Mega Market (D6)",f:"Massive warehouse-style supermarket! The most cost-effective place to buy large packs of Vietnamese snacks, G7 coffee, and Pho.",a:"Bình Phú, Phường 11, Quận 6",t:"Take a 30-min Grab from Ben Thanh Metro. After buying in bulk, taking a Grab car back to your hotel is advised."},
+                        {n:"Co.opmart (D6)",f:"A large local chain supermarket loved by locals, fully stocked with fresh fruits and daily necessities.",a:"Vòng xoay Phú Lâm, Quận 6",t:"Located next to the Phu Lam Roundabout. Very prominent when taking a Grab from Ben Thanh Metro."}
+                    ],
+                    hobby: [
+                        {n:"Chinese Religious Goods Hub",f:"Surrounding Binh Tay Market are many old shops selling traditional incense, statues, and religious items on a larger scale than D5.",a:"Tháp Mười, Quận 6",t:"Visible on the roads surrounding Binh Tay Market after taking a Grab from Ben Thanh Metro."},
+                        {n:"Local Plastic/Bamboo Wares",f:"D6 is a wholesale hub. You can buy incredibly cheap woven baskets, plastic chairs, and daily sundries here.",a:"Outside Chợ Bình Tây",t:"Take a Grab from Ben Thanh Metro to the alleys around Binh Tay Market to experience local wholesale culture."}
+                    ]
+                }
+            },
+            d7: {
+                name: "District 7 (Phu My Hung)",
+                cat: {
+                    souvenir: [
+                        {n:"Lotte Mart (Souvenir Zone)",f:"A tourist favorite! The supermarket has a special 'Souvenir Zone' gathering all the top hits like G7 coffee and dried mangoes in one place.",a:"469 Nguyễn Hữu Thọ, Quận 7",t:"Take a 20-25 min Grab Car south from Ben Thanh Metro (Fare: 100k-150k VND). Very convenient to Grab back after shopping.", cLink:"#", cName:"Lotte Mart Tourist Discount (Example)", cIcon:"fa-solid fa-cart-shopping"},
+                        {n:"Premium Bird's Nest Shops",f:"Phu My Hung has many grand stores offering high-quality Vietnamese wild/house-farmed bird's nests.",a:"Khu Phú Mỹ Hưng, Quận 7",t:"Take a 25-30 min Grab ride from Ben Thanh Metro. Located in the upscale residential area; streets are wide and walkable."}
+                    ],
+                    fashion: [
+                        {n:"Crescent Mall",f:"One of HCMC's most beautiful luxury malls. Right next to Crescent Lake, diverse brands, and a very spacious, comfortable layout.",a:"101 Tôn Dật Tiên, Quận 7",t:"Take a 30-min Grab ride from Ben Thanh Metro. Connects to the Starlight Bridge for a nice walk outside."},
+                        {n:"SC VivoCity",f:"A massive mall built by a Singaporean conglomerate. Super complete range of affordable fashion, Uniqlo, and sports shoe brands.",a:"1058 Nguyễn Văn Linh, Quận 7",t:"Take a 25-min Grab ride from Ben Thanh Metro to reach this mall on the main D7 road, Nguyen Van Linh."}
+                    ],
+                    beauty: [
+                        {n:"Guardian (Crescent Mall)",f:"Located inside the mall with a pristine environment, great for picking up everyday medicines or affordable drugstore makeup.",a:"Crescent Mall B1, Quận 7",t:"Take a 30-min Grab ride from Ben Thanh Metro down to B1 of Crescent Mall."},
+                        {n:"Korean Imported Beauty Shops",f:"D7 is the famous 'Korean Village'. Streets are dotted with small shops selling the latest Korean skincare and makeup trends.",a:"Phú Mỹ Hưng, Quận 7",t:"Take a 30-min Grab from Ben Thanh Metro to the Phu My Hung Korean Village (e.g., Sky Garden) and wander around."}
+                    ],
+                    mart: [
+                        {n:"Lotte Mart (South Saigon)",f:"HCMC's 'Ultimate Souvenir Supermarket'! A massive 3-story space to buy coffee, cashews, and Pho packs all at once.",a:"469 Nguyễn Hữu Thọ, Quận 7",t:"Take a 20-25 min Grab ride from Ben Thanh Metro to arrive at this iconic 3-story megastore."},
+                        {n:"K-Market / K-Mart",f:"Craving Korean snacks or ramen? D7 has the highest density of Korean supermarkets in Vietnam, with items synced with Korea.",a:"Phú Mỹ Hưng, Quận 7",t:"Concentrated in Korean enclaves (like Sky Garden). Take a Grab from Ben Thanh Metro and walk between the shops."},
+                        {n:"Finelife Supermarket",f:"A high-end supermarket brand under Co.opmart. Rich in fresh produce and premium imported ingredients in a luxurious setting.",a:"Urban Hill, Quận 7",t:"Take a 30-min Grab ride from Ben Thanh Metro. Located under a luxury D7 apartment, catering mainly to Korean expats."}
+                    ],
+                    hobby: [
+                        {n:"Eslite-style Bookstores (In Malls)",f:"Both Crescent Mall and VivoCity house large bookstores selling refined stationery, foreign books, and toy models.",a:"Various Mall Locations",t:"Take a 30-min Grab from Ben Thanh Metro to either mall and head straight up the elevator."},
+                        {n:"Board Game Cafes",f:"A gathering spot for D7 youth, with many unique cafes where you can buy or play board games.",a:"Phú Mỹ Hưng, Quận 7",t:"Take a 30-min Grab ride from Ben Thanh Metro. A great place to experience the lifestyle of local Korean youth."}
+                    ]
+                }
+            }
+        };
+
+        const catsMap = {
+            souvenir: { icon: "🛍️", name: "Souvenirs", bg: "bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white border-rose-200" },
+            fashion:  { icon: "🏬", name: "Fashion", bg: "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-600 hover:text-white border-fuchsia-200" },
+            beauty:   { icon: "💊", name: "Beauty", bg: "bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border-sky-200" },
+            mart:     { icon: "🛒", name: "Supermarkets", bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200" },
+            hobby:    { icon: "🧸", name: "Lifestyle", bg: "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border-amber-200" }
+        };
+
+        let currentCity = "d1"; // Default view: District 1
+        let currentCat = "souvenir"; 
+
+        const cityContainer = document.getElementById('city-container');
+        const categoryContainer = document.getElementById('category-container');
+        const shopContainer = document.getElementById('shop-container');
+
+        // Scroll Function for Nav Arrows
+        function scrollNav(containerId, offset) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.scrollBy({ left: offset, behavior: 'smooth' });
+            }
+        }
+
+        function initUI() {
+            // Strict sorting for districts: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
+            const cityOrder = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7'];
+            
+            cityOrder.forEach(cityKey => {
+                if(db[cityKey]) {
+                    const btn = document.createElement('button');
+                    btn.className = `city-btn whitespace-nowrap px-6 py-2.5 rounded-full border border-rose-200 bg-white text-rose-700 font-bold hover:bg-rose-100 hover:text-rose-900 shadow-sm ${cityKey === currentCity ? 'active' : ''}`;
+                    btn.innerText = db[cityKey].name;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        currentCity = cityKey;
+                        renderContent();
+                    };
+                    cityContainer.appendChild(btn);
+                }
+            });
+
+            // Render Categories
+            Object.keys(catsMap).forEach(catKey => {
+                const c = catsMap[catKey];
+                const btn = document.createElement('button');
+                btn.className = `tab-btn whitespace-nowrap px-5 py-2.5 rounded-full border transition-all font-bold shadow-sm flex items-center ${c.bg} ${catKey === currentCat ? 'active' : ''}`;
+                btn.innerHTML = `<span class="mr-1.5 text-lg">${c.icon}</span> ${c.name}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCat = catKey;
+                    renderContent();
+                };
+                categoryContainer.appendChild(btn);
+            });
+
+            // Load Default View
+            renderContent();
+        }
+
+        function renderContent() {
+            shopContainer.innerHTML = '';
+            const items = db[currentCity].cat[currentCat];
+
+            if(!items || items.length === 0) {
+                shopContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-lg font-bold">No recommendations available for this category.</div>`;
+                return;
+            }
+
+            // Sort items with coupons (cLink) to the top
+            const sortedItems = [...items].sort((a, b) => {
+                if (a.cLink && !b.cLink) return -1;
+                if (!a.cLink && b.cLink) return 1;
+                return 0;
+            });
+
+            sortedItems.forEach((item, index) => {
+                // Generate Google Maps URL
+                const pureAddress = item.a.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.n} Ho Chi Minh City Vietnam ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                // Generate pink coupon button if applicable
+                const couponHtml = item.cLink ? `
+                    <a href="${item.cLink}" target="_blank" rel="noopener noreferrer" 
+                       class="w-full flex items-center justify-center gap-2 px-4 py-3 mb-3 border border-rose-300 rounded-xl shadow-sm text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-400 focus:outline-none transition-colors">
+                        <i class="${item.cIcon} text-lg"></i>
+                        Get Coupon: ${item.cName}
+                    </a>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border ${item.cLink ? 'border-rose-200' : 'border-rose-50'} p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                ${item.n}
+                                ${item.cLink ? '<span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">COUPON</span>' : ''}
+                            </h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-amber-400 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-rose-400 font-bold mb-1 uppercase tracking-wider">Highlights</p>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-medium">${item.f}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-rose-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-rose-400 font-bold mb-1 uppercase tracking-wider">Address</p>
+                                    <p class="text-sm text-slate-600 font-medium">${item.a}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-motorcycle text-rose-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-rose-400 font-bold mb-1 uppercase tracking-wider">Transport</p>
+                                    <span class="inline-block bg-rose-50 text-rose-700 text-xs px-2.5 py-1 rounded-md font-bold text-left leading-normal">${item.t}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-rose-50">
+                        ${couponHtml}
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white btn-maps focus:outline-none transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            Open in Google Maps
+                        </a>
+                    </div>
+                `;
+                shopContainer.appendChild(card);
+            });
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>
