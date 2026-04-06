@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>福岡住宿推薦指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .area-btn-active { background-color: #be123c; color: white; border-color: #be123c; }
+        .area-btn-inactive { background-color: white; color: #4b5563; border-color: #d1d5db; }
+        .cat-btn-active { background-color: #fb7185; color: white; border-color: #fb7185; }
+        .cat-btn-inactive { background-color: #f8fafc; color: #64748b; }
+        body { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <header class="text-center mb-8 flex justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800">🏨 福岡住宿精選</h1>
+            <a href="https://linkuei0425.github.io/FUKUOKA/index.html" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-bold rounded-lg hover:bg-slate-300 transition-colors">回到首頁</a>
+        </header>
+
+        <!-- 區域選擇按鈕 -->
+        <div id="district-buttons" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6"></div>
+        <!-- 類別選擇按鈕 -->
+        <div id="category-buttons" class="grid grid-cols-3 gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-slate-200 hidden"></div>
+        <!-- 內容顯示區域 -->
+        <div id="content-area" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[300px]"></div>
+    </div>
+
+    <script>
+        const hotelData = {
+            "hakata": {
+                name: "博多車站 (交通樞紐)",
+                categories: {
+                    "星級飯店": [
+                        { name: "Miyako Hotel Hakata (都酒店)", feature: "博多站筑紫口直達！頂樓有絕美溫泉泳池與SPA，絕對的奢華體驗。", address: "博多車站筑紫口旁", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-705197/miyako-hotel-hakata/?Allianceid=7913725&SID=298418583&trip_sub3=D13742493" },
+                        { name: "Hotel Nikko Fukuoka (福岡日航飯店)", feature: "老牌五星級奢華飯店，地下通道直達博多車站，服務極佳且房間寬敞。", address: "博多車站博多口步行3分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-993535/hotel-nikko-fukuoka/?Allianceid=7913725&SID=298418583&trip_sub3=D13742493" },
+                        { name: "Blossom Hakata Premier (博多花博飯店)", feature: "和風現代設計的高級飯店，設有質感極佳的日式大浴場，深受旅客好評。", address: "博多車站博多口步行7分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-38934428/the-blossom-hakata-premier/?Allianceid=7913725&SID=298418583&trip_sub3=D13742493" }
+                    ],
+                    "高CP商務": [
+                        { name: "Richmond Hotel Hakata Ekimae", feature: "CP值極高，早餐豐盛，房間空間較一般商務飯店寬敞舒適。", address: "博多車站筑紫口步行4分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-705311/richmond-hotel-hakata-ekimae/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "JR Kyushu Hotel Blossom Hakata Central", feature: "JR九州直營，交通無敵便利，乾淨舒適的商旅首選。", address: "博多車站博多口步行2分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-1935612/jr-kyushu-hotel-blossom-hakata-central/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ],
+                    "青旅&民宿": [
+                        { name: "WeBase Hakata", feature: "門口有巨型太空貓雕像，交誼廳超大且設備齊全，各國背包客最愛。", address: "地鐵中洲川端站與博多站之間", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-10520871/webase-hakata-hostel/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "Nine Hours Hakata Station", feature: "極簡風格的膠囊旅館，提供高品質睡眠體驗與知名品牌洗沐用品。", address: "博多車站步行3分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-67314412/9h-nine-hours-hakata-station/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ]
+                }
+            },
+            "tenjin": {
+                name: "天神商圈 (逛街首選)",
+                categories: {
+                    "星級飯店": [
+                        { name: "The Ritz-Carlton, Fukuoka (麗思卡爾頓)", feature: "福岡最新頂級奢華飯店，高空視野俯瞰市區與博多灣，無可挑剔的服務。", address: "福岡大名花園城市內 (近天神站)", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-106966995/the-ritz-carlton-fukuoka/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "Solaria Nishitetsu Hotel Fukuoka", feature: "與西鐵福岡站及百貨公司共構，下樓直接血拼，地點極度便利！", address: "天神站 / 西鐵福岡站直結", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-705248/solaria-nishitetsu-hotel-fukuoka/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "Nishitetsu Grand Hotel", feature: "福岡歷史悠久的經典星級飯店，優雅沉穩，並擁有多間知名餐廳。", address: "天神站步行3分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-705211/nishitetsu-grand-hotel/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ],
+                    "高CP商務": [
+                        { name: "Richmond Hotel Tenjin Nishi-Dori", feature: "位於最熱鬧的西通商圈，逛街吃美食超方便，服務與整潔度評價高。", address: "天神站步行5分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-25797449/richmond-hotel-tenjin-nishidori/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "KOKO HOTEL Fukuoka Tenjin", feature: "價格親民、設計簡約現代，附近超商與在地餐廳林立，小資最愛。", address: "天神南站步行3分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-704237/hotel-unizo-fukuoka-tenjin/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "Hotel MyStays Fukuoka Tenjin", feature: "房價便宜，部分房型提供簡易微波爐，非常適合多天數入住的旅人。", address: "天神站步行4分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-736852/hotel-mystays-fukuoka-tenjin/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ],
+                    "青旅&民宿": [
+                        { name: "Fukuoka Guest House", feature: "隱身於市區的溫馨木質調青旅，頂樓有露台，員工友善熱情。", address: "天神站/赤坂站步行可達", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-11133397/fukuoka-guest-house-jikka/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "The OneFive Fukuoka Tenjin", feature: "介於商旅與青旅間的平價住宿，無多餘服務但房價極度具競爭力。", address: "天神站步行8分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-68262644/the-onefive-fukuoka-tenjin/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ]
+                }
+            },
+            "nakasu": {
+                name: "中洲川端 (夜生活)",
+                categories: {
+                    "星級飯店": [
+                        { name: "Grand Hyatt Fukuoka (福岡君悅)", feature: "與博多運河城相連的國際五星飯店，逛街、看水舞秀超方便。", address: "博多運河城內", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-703900/grand-hyatt-fukuoka/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "Mitsui Garden Hotel Fukuoka Nakasu", feature: "三井花園系列高質感飯店，頂樓有美麗的景觀大浴場可放鬆。", address: "中洲川端站步行2分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-56699615/mitsui-garden-hotel-fukuoka-nakasu/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "Hotel Okura Fukuoka (福岡大倉)", feature: "傳統日式奢華感，房間寬敞，地下通道直通地鐵站與博多座。", address: "中洲川端站直達", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-705526/hotel-okura-fukuoka/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ],
+                    "高CP商務": [
+                        { name: "Vessel Inn Hakata Nakasu", feature: "早餐評價極高！提供海鮮與明太子吃到飽，地點緊鄰那珂川。", address: "中洲川端站步行1分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-705503/vessel-inn-hakata-nakasu/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "Hotel Resol Trinity Hakata", feature: "大廳可俯瞰中洲夜景，頂樓有絕美的大浴場，逛完屋台泡湯最棒。", address: "中洲川端站步行1分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-705213/hotel-resol-trinity-hakata/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "Hakata Excel Hotel Tokyu", feature: "就在中洲屋台街旁邊，晚上吃宵夜喝一杯完全不怕沒車搭回飯店。", address: "中洲川端站步行2分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-705193/hakata-excel-hotel-tokyu-fukuoka/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ],
+                    "青旅&民宿": [
+                        { name: "The Millennials Fukuoka", feature: "高科技膠囊旅館，大廳設有免費啤酒 Happy Hour，超潮設計。", address: "中洲川端站步行3分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-41592743/the-millennials-fukuoka/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "First Cabin Hakata", feature: "以飛機頭等艙為概念的高級膠囊，位於唐吉訶德樓上，購物24H！", address: "中洲川端站直結大樓", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-2507624/first-cabin-hakata/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "Nine Hours Nakasu-Kawabata", feature: "極簡黑白設計膠囊，價格實惠，洗沐空間非常乾淨舒適。", address: "中洲川端站步行2分", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-42767025/nine-hours-nakasukawabata-station/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ]
+                }
+            },
+            "itoshima": {
+                name: "系島 (絕美海濱)",
+                categories: {
+                    "星級飯店": [
+                        { name: "Seven x Seven Itoshima", feature: "2024年全新開幕的絕美海景奢華度假飯店，所有客房皆享無敵海景與露台。", address: "系島市二丈地區海濱", url: "https://tw.trip.com/hotels/fukuoka-hotel-detail-115431251/seven-xsevenitoshima/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "GLOCAL HOTEL Itoshima", feature: "現代設計感的高級度假酒店，周邊自然環境優美，設有天然溫泉。", address: "系島市前原周邊", url: "https://tw.trip.com/hotels/itoshima-hotel-detail-73250918/settle-glocal-hotel-itoshima/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ],
+                    "高CP商務": [
+                        { name: "Hotel AZ Fukuoka Itoshima", feature: "自駕友善的大型連鎖平價飯店，附設免費停車場、百元商店與家庭餐廳。", address: "JR波多江站步行10分", url: "https://tw.trip.com/hotels/itoshima-hotel-detail-21831617/hotel-az-fukuoka-itoshima/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ]
+                }
+            },
+            "yufuin": {
+                name: "由布院 (溫泉秘境)",
+                categories: {
+                    "星級飯店": [
+                        { name: "由布院 玉之湯 (Yufuin Tamanoyu)", feature: "由布院御三家之一，隱身於森林中的頂級日式溫泉旅館，料理與服務皆屬極品。", address: "由布院車站步行15分", url: "https://tw.trip.com/hotels/yufu-hotel-detail-1652227/yufuin-tamanoyu-oita/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "龜之井別莊 (Kamenoi Bessou)", feature: "由布院御三家之一，歷史悠久的星級百年建築，擁有廣闊的自然庭園。", address: "金鱗湖旁", url: "https://tw.trip.com/hotels/yufu-hotel-detail-1652229/kamenoi-bessou/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ],
+                    "高CP商務": [
+                        { name: "由布院 山水館 (Yufuin Sansuikan)", feature: "可眺望由布岳的絕景露天溫泉，並自設麥酒釀造所，餐飲與住宿CP值極高。", address: "由布院車站步行8分", url: "https://tw.trip.com/hotels/yufu-hotel-detail-1678725/yufuin-sansuikan/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "埃塔維亞湯布院 (ETAVIA Yufuinkirin-ko)", feature: "地理位置絕佳，緊鄰金鱗湖與湯之坪街道，房間現代舒適且價格合理。", address: "金鱗湖步行2分", url: "https://tw.trip.com/hotels/yufu-hotel-detail-10633009/etavia-yufuin/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" },
+                        { name: "湯布院燈之宿 (Yufuin Lamp no Yado)", feature: "由百年古民家改建，充滿大正浪漫風情，提供多個免費包場溫泉與腳踏車租借。", address: "由布院車站步行7分", url: "https://tw.trip.com/hotels/yufu-hotel-detail-21864145/yufuin-lamp-no-yado/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ],
+                    "青旅&民宿": [
+                        { name: "由布院 鄉宿 (Country Road Youth Hostel)", feature: "氣氛溫馨，老闆非常熱情，晚上會帶大家一起玩遊戲，館內有提供溫泉。", address: "由布院高地(建議搭乘計程車)", url: "https://tw.trip.com/hotels/yufu-hotel-detail-706152/yufuin-country-road-youth-hostel/?Allianceid=7913725&SID=298418583&trip_sub1=&trip_sub3=D13742493" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        let curDist = null, curCat = null;
+
+        function init() {
+            Object.keys(hotelData).forEach(k => {
+                let b = document.createElement('button');
+                b.className = 'px-2 py-2.5 rounded-lg font-bold text-[13px] md:text-sm border area-btn-inactive transition-colors duration-200';
+                b.innerText = hotelData[k].name;
+                b.onclick = () => selectDist(k, b);
+                districtContainer.appendChild(b);
+            });
+            selectDist('hakata', districtContainer.children[0]);
+        }
+
+        function selectDist(k, b) {
+            curDist = k;
+            Array.from(districtContainer.children).forEach(btn => btn.className = 'px-2 py-2.5 rounded-lg font-bold text-[13px] md:text-sm border area-btn-inactive transition-colors duration-200');
+            b.className = 'px-2 py-2.5 rounded-lg font-bold text-[13px] md:text-sm border area-btn-active transition-colors duration-200 shadow-md';
+            categoryContainer.classList.remove('hidden');
+            renderCats();
+        }
+
+        function renderCats() {
+            categoryContainer.innerHTML = '';
+            Object.keys(hotelData[curDist].categories).forEach(c => {
+                let b = document.createElement('button');
+                b.className = 'px-2 py-2 rounded-lg font-bold text-[13px] md:text-sm border cat-btn-inactive transition-colors duration-200';
+                b.innerText = c;
+                b.onclick = () => selectCat(c, b);
+                categoryContainer.appendChild(b);
+            });
+            selectCat(Object.keys(hotelData[curDist].categories)[0], categoryContainer.children[0]);
+        }
+
+        function selectCat(c, b) {
+            curCat = c;
+            Array.from(categoryContainer.children).forEach(btn => btn.className = 'px-2 py-2 rounded-lg font-bold text-[13px] md:text-sm border cat-btn-inactive transition-colors duration-200');
+            b.className = 'px-2 py-2 rounded-lg font-bold text-[13px] md:text-sm border cat-btn-active transition-colors duration-200 shadow-sm';
+            renderHotels();
+        }
+
+        function renderHotels() {
+            let h = hotelData[curDist].categories[curCat];
+            contentArea.innerHTML = h.map((x, index) => `
+                <div class="mb-5 p-5 border border-slate-100 rounded-xl bg-slate-50 hover:shadow-md transition-shadow">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                        <h3 class="font-bold text-lg text-rose-700 flex items-start sm:items-center gap-2">
+                            <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded-md text-sm shrink-0">${index + 1}</span>
+                            <span>${x.name}</span>
+                        </h3>
+                        <a href="${x.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center bg-rose-500 hover:bg-rose-600 text-white text-[13px] font-bold py-1.5 px-3 rounded-lg shadow-sm transition-colors shrink-0">
+                            點我看飯店說明
+                        </a>
+                    </div>
+                    <p class="text-sm text-gray-700 mt-3 leading-relaxed">
+                        <strong class="text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">住宿特色</strong> ${x.feature}
+                    </p>
+                    <p class="text-sm text-gray-600 mt-2">
+                        <strong class="text-slate-600 bg-slate-200 px-1.5 py-0.5 rounded">地理位置</strong> ${x.address}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

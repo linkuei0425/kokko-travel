@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>福岡購物精選指南 | Fukuoka Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 自訂捲軸樣式（針對分類按鈕區塊） */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 福岡博多紅色系 Active 狀態 */
+        .tab-btn.active {
+            background-color: #e11d48; /* rose-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.3);
+            border-color: #e11d48;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- 頂部導覽列 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-rose-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>FUKUOKA SHOPPING</span>
+                </div>
+                <div>
+                    <!-- 回到首頁連結 -->
+                    <a href="https://linkuei0425.github.io/FUKUOKA/index.html" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> 回到首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 橫幅區域 -->
+    <header class="bg-gradient-to-r from-red-600 via-rose-500 to-orange-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">福岡必買購物精選指南</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">精選九州最大購物商圈與在地好物，從日系藥妝、天神地下街服飾到超市大掃貨，買遍福岡無死角！</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 分類按鈕區 (可橫向滾動) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('fashion', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👗</span> 流行服飾
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> 日系藥妝
+            </button>
+            <button onclick="filterCategory('souvenir', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🎁</span> 特色伴手禮
+            </button>
+            <button onclick="filterCategory('mart', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛒</span> 零食超市
+            </button>
+            <button onclick="filterCategory('lifestyle', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👟</span> 球鞋與潮玩
+            </button>
+            <button onclick="filterCategory('outlet', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛍️</span> 附近城市OUTLET
+            </button>
+        </div>
+
+        <!-- 內容呈現區 -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 卡片將透過 JavaScript 動態生成 -->
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">© 2026 Fukuoka Shopping Guide. 為你的九州福岡之旅提供最佳購物建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 店家資料庫 - 福岡品牌與商品推薦版
+        const shopData = [
+            // --- 流行服飾 ---
+            { cat: 'fashion', name: '天神地下街 (Tenjin Chikagai)', feature: '九州最大地下街，充滿歐洲風情。匯集超過150間日系服飾、包包配件與人氣甜點店。', loc: '福岡市中央區天神', transit: '地鐵天神站 / 天神南站 直通' },
+            { cat: 'fashion', name: '福岡 PARCO', feature: '年輕人最愛的購物指標！匯集眾多日系潮牌、BEAMS、Snidel 以及各類日系可愛雜貨。', loc: '天神商圈', transit: '地鐵天神站 直通' },
+            { cat: 'fashion', name: 'Canal City 博多運河城', feature: '極具特色的綜合型購物中心！有ZARA、H&M、UNIQLO、松本清，還能欣賞定時的水舞秀。', loc: '博多區住吉', transit: '中洲川端站步行約 10 分鐘' },
+            { cat: 'fashion', name: 'AMU PLAZA 博多', feature: '位於博多車站樓上的超級購物城。各類質感日系專櫃、台劇常出現的服飾品牌這裡都有。', loc: 'JR 博多城 (博多車站內)', transit: '博多站 連通' },
+            { cat: 'fashion', name: 'LaLaport 福岡', feature: '除了超吸睛的 1:1 巨型鋼彈外，商場佔地極廣，進駐許多適合全家大小的服飾與生活品牌。', loc: '博多區那珂', transit: 'JR竹下站 步行約 9 分鐘' },
+
+            // --- 日系藥妝 ---
+            { cat: 'beauty', name: '大國藥妝 / 松本清', feature: '來日本必掃貨的藥妝店！合利他命、EVE止痛藥、休足時間與各式日系開架彩妝 (Canmake, Cezanne) 應有盡有。', loc: '天神地下街 / 博多商圈皆有', transit: '天神站 / 博多站' },
+            { cat: 'beauty', name: '唐吉訶德 (中洲店)', feature: '24小時營業的免稅天堂！半夜睡不著的好去處，從熱門美妝、家電到日本零食通通包辦。', loc: '中洲商圈', transit: '中洲川端站 步行約 3 分鐘' },
+            { cat: 'beauty', name: '@cosme store (博多店)', feature: '日本最具權威的美妝評鑑實體店。可以盡情試用排行榜上最熱門的專櫃與開架彩妝品。', loc: 'AMU PLAZA 博多內', transit: '博多站 連通' },
+            { cat: 'beauty', name: 'Cosme Kitchen', feature: '專售有機、天然成分保養品與化妝品，深受日本輕熟女喜愛，包裝充滿質感。', loc: '福岡 PARCO 內', transit: '地鐵天神站 直通' },
+            { cat: 'beauty', name: 'LUSH 福岡天神店', feature: '英國手工沐浴品牌，在日本購買價格通常比台灣划算許多，各式造型泡澡球是必買商品。', loc: '天神地下街周邊', transit: '天神站 步行約 5 分鐘' },
+
+            // --- 特色伴手禮 ---
+            { cat: 'souvenir', name: '明月堂 博多通饅頭 (博多通りもん)', feature: '福岡最具代表性的甜點！連續多年榮獲金賞，外皮柔軟，內含濃郁的奶油與白豆沙香氣。', loc: '博多車站 / 福岡機場 / 各大土產店', transit: '各大車站皆可購買' },
+            { cat: 'souvenir', name: '福砂屋 明太子仙貝 (めんべい)', feature: '微辣酥脆的明太子仙貝，完美融合了海鮮的鮮甜與明太子的微辛，是送給長輩或同事的鹹食首選。', loc: '博多車站特產區 / 福岡機場', transit: '博多站 / 福岡機場' },
+            { cat: 'souvenir', name: '努努雞 (Yume Yume Dori)', feature: '博多名物「冷著吃的炸雞」！外皮裹著甜辣醬汁並撒上白芝麻，冷凍狀態下吃極其酥脆，配啤酒絕讚。', loc: '博多車站內伴手禮區', transit: '博多站內' },
+            { cat: 'souvenir', name: '一蘭拉麵 伴手禮包', feature: '起源於福岡的一蘭拉麵，買幾盒福岡限定包裝的豚骨泡麵或生麵條回家，延續博多滋味。', loc: '一蘭各門市 / 機場免稅店', transit: '中洲總本店 / 天神' },
+            { cat: 'souvenir', name: '茅乃舍 高湯包 (Kayanoya)', feature: '主婦最愛的神級無添加高湯包！只要一包就能煮出高級日式料亭的湯頭，博多限定的飛魚高湯必買。', loc: '大丸福岡天神店 / 鹿兒島本線', transit: '天神南站 步行 3 分鐘' },
+
+            // --- 零食超市 ---
+            { cat: 'mart', name: 'MaxValu 24小時超市', feature: '永旺(AEON)旗下的大型超市，買當季水果(麝香葡萄、草莓)、日本綠茶、特價熟食與泡麵的好去處。', loc: '博多祇園店 / 其他分店', transit: '祇園站 步行約 5 分鐘' },
+            { cat: 'mart', name: '業務超市 (Gyomu Super)', feature: '價格極度便宜的批發型超市，非常適合大量掃貨抹茶零食、蒟蒻果凍與各式日本調味料。', loc: '天神 / 博多周邊皆有分店', transit: '視分店而定' },
+            { cat: 'mart', name: 'KALDI 咖樂迪咖啡農場', feature: '隱藏許多日本獨家進口零食、超人氣明太子抹醬、哈密瓜奶油抹醬與優質咖啡豆。', loc: '博多車站周邊 / 天神', transit: '博多站 / 天神站' },
+            { cat: 'mart', name: '永旺 AEON MALL 福岡', feature: '超大型郊區購物中心，超市區域非常巨大，是當地人週末採買首選，適合自駕或搭接駁車前往。', loc: '糟屋郡酒殿', transit: '酒殿站 或由機場搭接駁車' },
+            { cat: 'mart', name: '日本超商 (7-11/Lawson/FamilyMart)', feature: '超商挖寶！必買 7-11 的蘭姆葡萄夾心餅乾、Lawson 的神級生乳捲與 L Chiki 炸雞塊。', loc: '福岡街頭隨處可見', transit: '全城皆有' },
+
+            // --- 球鞋與潮玩 ---
+            { cat: 'lifestyle', name: 'ABC-MART GRAND STAGE', feature: '最高規格的 ABC-MART，想找日本限定配色的 Converse 1970s、NIKE 或 Vans 聯名款來這裡就對了。', loc: '福岡 PARCO / 博多車站', transit: '天神站 / 博多站' },
+            { cat: 'lifestyle', name: '鋼彈大本營 (Gundam Park 福岡)', feature: '位於 Lalaport 內的超大鋼彈專賣店，不僅有豐富的鋼彈模型，還有福岡限定的 RX-93ff ν鋼彈周邊。', loc: 'LaLaport 福岡', transit: 'JR竹下站 轉乘公車' },
+            { cat: 'lifestyle', name: 'Onitsuka Tiger (鬼塚虎)', feature: '經典的日系復古休閒鞋，在日本購買款式最齊全，且退稅後的價格非常具有吸引力。', loc: 'AMU PLAZA博多 / 天神店', transit: '博多站 / 天神站' },
+            { cat: 'lifestyle', name: '橡子共和國 (Donguri Republic)', feature: '吉卜力工作室官方周邊店，店內有巨大的龍貓打卡點，滿滿的神隱少女與魔女宅急便周邊小物。', loc: 'Canal City 博多運河城', transit: '中洲川端站 步行約 10 分鐘' },
+            { cat: 'lifestyle', name: 'Animate (安利美特 福岡天神店)', feature: '九州最大的動漫周邊專賣店！各式當紅動漫(如咒術迴戰、排球少年、吉伊卡哇)的周邊、漫畫非常齊全。', loc: '天神商圈 / 福岡 PARCO', transit: '天神站 步行約 5 分鐘' },
+
+            // --- 附近城市 OUTLET ---
+            { cat: 'outlet', name: '鳥栖 Premium Outlets', feature: '九州最大級的純美式Outlet！位於佐賀縣，進駐超過150個國際知名品牌。Coach、Nike、Adidas 折扣常常非常有誠意，是福岡旅客必訪的購物天堂。', loc: '佐賀縣鳥栖市', transit: '天神巴士總站搭乘直達高速巴士 / JR鳥栖站轉乘公車' },
+            { cat: 'outlet', name: 'THE OUTLETS KITAKYUSHU', feature: '2022年全新開幕！與 AEON MALL 八幡東相連的巨無霸雙子星購物城。店鋪超新、動線寬敞，品牌多達300家，逛一整天都逛不完。', loc: '福岡縣北九州市', transit: 'JR鹿兒島本線「太空世界站 (Space World)」步行 3 分鐘' },
+            { cat: 'outlet', name: '瑪麗諾亞城 Marinoa City (⚠️閉館提醒)', feature: '【旅遊溫馨提醒】福岡過去市區最知名的 Outlet 瑪麗諾亞城，已於 2024 年 8 月結束營業並進行拆除改建，請各位旅客留意舊攻略，不要白跑一趟喔！', loc: '福岡市西區 (已閉館)', transit: '請改往鳥栖或北九州 Outlet' }
+        ];
+
+        // 負責渲染卡片的函數
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; // 清空現有內容
+
+            const filteredData = shopData.filter(item => item.cat === category);
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; // 簡單的進場動畫延遲
+                
+                // 產生 Google Map 搜尋網址 (加入 Fukuoka/Kyushu 提高精準度)
+                const mapSearchQuery = encodeURIComponent(`${shop.name} 九州`);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
+                
+                // 如果是閉館提醒，變更邊框顏色與圖示提示
+                const isWarning = shop.name.includes('閉館');
+                const cardBorderColor = isWarning ? 'border-orange-300 bg-orange-50' : 'border-gray-100 bg-white';
+                const starIconColor = isWarning ? 'text-orange-500' : 'text-yellow-400';
+
+                const card = document.createElement('div');
+                card.className = `${cardBorderColor} rounded-2xl shadow-sm border p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fa-solid ${isWarning ? 'fa-triangle-exclamation' : 'fa-star'} ${starIconColor} mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">${isWarning ? '重要提醒' : '推薦商品'}</p>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${shop.feature}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-rose-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">購買地點</p>
+                                    <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-train-subway text-orange-500 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">交通方式</p>
+                                    <span class="inline-block bg-rose-50 text-rose-700 text-xs px-2 py-1 rounded-md font-medium">${shop.transit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Google Map 導航按鈕 -->
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${isWarning ? 'bg-orange-500 hover:bg-orange-600' : 'bg-rose-600 hover:bg-rose-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors">
+                            <i class="fa-solid fa-map-location-dot mr-2"></i> ${isWarning ? '查看地圖位置' : '開啟 Google Map 導航'}
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 點擊分類按鈕的處理邏輯
+        function filterCategory(category, btnElement) {
+            // 移除所有按鈕的 active 狀態
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            // 為當前點擊的按鈕加上 active 狀態
+            btnElement.classList.add('active');
+
+            // 渲染對應的資料
+            renderCards(category);
+        }
+
+        // 新增簡單的進場動畫 CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 初始載入時顯示第一類 (流行服飾)
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('fashion', firstBtn);
+        };
+    </script>
+</body>
+</html>

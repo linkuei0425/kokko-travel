@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>福岡美食導航 Fukuoka Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fff5f5; /* 淺紅色背景，搭配福岡的熱情與美食感 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 福岡專屬按鈕配色 (Hakata Red) */
+        .btn-nav {
+            background-color: #e11d48; /* rose-600 */
+        }
+        .btn-nav:hover {
+            background-color: #be123c; /* rose-700 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-rose-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Fukuoka Pass 福岡美食地圖
+            </h1>
+            <!-- 回到首頁連結 -->
+            <a href="https://linkuei0425.github.io/FUKUOKA/index.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-rose-700 hover:bg-rose-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-rose-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                回到首頁
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇區域 (Select Region)</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇類別 (Select Category)</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">請先從上方選擇您想探索的福岡區域與美食</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Fukuoka Data Structure
+        const db = {
+            "hakata": {
+                name: "博多車站周邊",
+                categories: {
+                    "ramen": [
+                        { name: "博多一雙 (Hakata Issou)", feature: "被譽為「豚骨卡布奇諾」，湯頭表面浮著一層細緻脂泡，豬骨香氣極度濃郁，是在地人排隊神店。", address: "福岡市博多區博多站東3-1-6 / 博多站筑紫口步行6分" },
+                        { name: "暖暮拉麵 (博多站前)", feature: "曾擊敗一蘭奪得九州拉麵票選第一！湯頭香醇不膩，細麵配上特製辣醬非常對味。", address: "福岡市博多區博多站前2-16-1 / 博多站博多口步行5分" },
+                        { name: "豚骨拉麵 Shin-Shin", feature: "東方神起等眾多明星愛店！比起傳統豚骨更為清爽偏甜，麵條極細，女生也會愛上的溫和口味。", address: "福岡市博多區博多站中央街1-1 / 博多車站Deitos 2F" }
+                    ],
+                    "motsunabe": [
+                        { name: "笑樂 牛腸鍋 (博多站店)", feature: "博多車站樓上就能吃到的名店！牛腸處理得非常乾淨，油脂甘甜，午餐時段有提供個人份的高CP值套餐。", address: "福岡市博多區博多站中央街1-1 / JR博多城 10F" },
+                        { name: "華味鳥 水炊雞肉鍋", feature: "不吃牛的首選！使用九州特選「華味鳥」，熬煮出富含膠原蛋白的濃郁白湯，雞肉鮮嫩多汁。", address: "福岡市博多區博多站前3-23-17 / 博多站博多口步行3分" },
+                        { name: "越後屋 牛腸鍋", feature: "與一般的醬油湯底不同，主打「白味噌」湯底，濃郁的味噌與牛小腸油脂完美融合，最後煮雜炊是靈魂。", address: "福岡市博多區博多站前3-11-17 / 博多站博多口步行7分" }
+                    ],
+                    "yatai": [
+                        { name: "博多車站周邊居酒屋", feature: "雖然屋台主要集中在中洲，但博多站周邊巷弄隱藏著許多上班族愛去的平價串燒與居酒屋。", address: "福岡市博多區博多站前、筑紫口周邊" },
+                        { name: "努努雞 (Yume Yume Dori)", feature: "雖然不是餐廳，但絕對是必吃神級小吃！特色是「冷著吃的炸雞」，甜辣酥脆，非常適合買回飯店配啤酒。", address: "福岡市博多區博多站中央街1-1 / 博多站內伴手禮區" },
+                        { name: "博多一番街", feature: "位於博多站地下，匯集了牛舌定食、明太子吃到飽等各式博多在地平價美食，是快速解決一餐的好地方。", address: "福岡市博多區博多站中央街1-1 / 博多車站地下1樓" }
+                    ],
+                    "seafood": [
+                        { name: "磯丸水產 (博多站前店)", feature: "24小時營業的海鮮居酒屋！提供桌邊現烤的活貝類（扇貝、帆立貝）與超高CP值的蟹膏甲羅燒。", address: "福岡市博多區博多站前2-3-14 / 博多站博多口步行5分" },
+                        { name: "博多漁家 磯貝", feature: "在地人聚餐熱門店，提供玄界灘直送的鮮魚。厚切的生魚片拼盤與烤魚下巴是必點招牌。", address: "福岡市博多區博多站中央街1-1 / JR博多城 10F" },
+                        { name: "博多名物 もつ鍋・刺身", feature: "能同時滿足想吃博多名產牛腸鍋與新鮮玄界灘海鮮生魚片的雙重願望，食材新鮮份量足。", address: "福岡市博多區筑紫口周邊" }
+                    ],
+                    "cafe": [
+                        { name: "REC COFFEE 博多丸井店", feature: "世界咖啡師大賽亞軍開設的精品咖啡店！擁有6樓絕佳視野，可以俯瞰博多站前廣場的繁忙街景。", address: "福岡市博多區博多站中央街9-1 / KITTE博多 6F" },
+                        { name: "むつか堂 (Mutsukado)", feature: "超人氣吐司專賣店開設的咖啡廳！必吃印有招牌Logo的厚片吐司與水果三明治，吐司鬆軟帶有奶香。", address: "福岡市博多區博多站中央街1-1 / AMU PLAZA博多 5F" },
+                        { name: "DAIMYO SOFTCREAM", feature: "胖嘟嘟造型的義式牛奶霜淇淋，口感極度綿密且奶香濃郁，是逛街累了的最佳甜點。", address: "福岡市博多區博多站中央街1-1 / AMU PLAZA博多 B1F" }
+                    ]
+                }
+            },
+            "tenjin": {
+                name: "天神 / 中洲",
+                categories: {
+                    "ramen": [
+                        { name: "一蘭 本社總本店", feature: "一蘭拉麵的信仰中心！整棟大樓掛滿紅燈籠，提供獨家限定的「重箱酸味豬肉」拉麵，24小時營業。", address: "福岡市博多區中洲5-3-2 / 地鐵中洲川端站步行3分" },
+                        { name: "元祖長濱屋", feature: "博多拉麵「替玉 (加麵)」文化的發源地！沒有華麗配料，只有最純粹的豬骨湯與滿滿青蔥，是老福岡人的最愛。", address: "福岡市中央區長濱2-5-25 / 地鐵赤坂站步行15分" },
+                        { name: "鳳凜 (Hourin) 春吉店", feature: "福岡元祖辣味豚骨拉麵的傳承者！秘製辣醬讓濃郁的豬骨湯頭層次昇華，香氣撲鼻且不膩口。", address: "福岡市中央區春吉3-21-15 / 天神南站步行5分" }
+                    ],
+                    "motsunabe": [
+                        { name: "楽天地 (Rakutanchi) 天神本店", feature: "超狂的「韭菜山」牛腸鍋！滿滿的韭菜與高麗菜疊得像座小山，湯頭充滿蔬菜甜味，價格親民。", address: "福岡市中央區天神1-10-14 / 天神站步行3分" },
+                        { name: "やま中 (Yamanaka) 赤坂店", feature: "裝潢宛如高級飯店的牛腸鍋名店！以滑順的味噌口味最具人氣，牛大腸極度肥美，是請客聚餐的首選。", address: "福岡市中央區赤坂1-9-1 / 地鐵赤坂站步行5分" },
+                        { name: "元祖水炊鍋 水月 (博多水たき)", feature: "福岡水炊鍋的創始老店！自1905年開業至今，清澈的雞湯底喝得出最純粹的鮮甜，最後的雞湯雜炊絕不能錯過。", address: "福岡市中央區平尾3-16-14 / 地鐵西鐵平尾站步行10分" }
+                    ],
+                    "yatai": [
+                        { name: "小金炒麵 (小金ちゃん)", feature: "天神屋台的超級排隊名店！是「炒拉麵」的發源地，將煮熟的拉麵用鐵板與特製醬汁大火快炒，焦香四溢。", address: "福岡市中央區天神2丁目 三井大樓前 / 天神站步行2分" },
+                        { name: "武醬 (武ちゃん)", feature: "中洲屋台區的一口餃子名店！皮薄酥脆的一口餃子配上冰涼啤酒，是體驗福岡屋台文化的完美組合。", address: "福岡市博多區中洲1丁目 那珂川沿岸 / 中洲川端站步行7分" },
+                        { name: "交龍 (Koryu)", feature: "不僅有美味的拉麵，還提供熱騰騰的關東煮。在微涼的夜晚坐在那珂川旁喝碗熱湯，非常有氣氛。", address: "福岡市博多區中洲 那珂川沿岸 / 中洲川端站步行7分" }
+                    ],
+                    "seafood": [
+                        { name: "稚加榮 (Chikae) 福岡本店", feature: "料亭級的高級活魚餐廳！午餐時段提供超高CP值的和食定食，不僅能看見大魚池，桌上還有明太子無限吃到飽。", address: "福岡市中央區大名2-2-17 / 赤坂站步行5分" },
+                        { name: "葫蘆壽司 (ひょうたん寿司)", feature: "天神區永遠在排隊的人氣壽司店！食材新鮮、切得厚實，價格卻非常親民，螃蟹奶油可樂餅也是必點。", address: "福岡市中央區天神2-10-20 / 天神站步行2分" },
+                        { name: "柳橋連合市場 (博多廚房)", feature: "被譽為博多的廚房。市場內有許多隱藏版海鮮食堂，提供鋪滿海膽、鮭魚卵與鮮魚的豪華海鮮丼飯。", address: "福岡市中央區春吉1丁目 / 地鐵渡邊通站步行5分" }
+                    ],
+                    "cafe": [
+                        { name: "FUK COFFEE", feature: "以機場與飛行為主題的特色咖啡廳！咖啡杯上有大大的FUK(福岡機場代碼)，焦糖布丁與拉花拿鐵是打卡標配。", address: "福岡市中央區春吉3-21-17 / 天神南站步行3分" },
+                        { name: "鈴懸本店 (Suzukake)", feature: "創業百年的高級和菓子店！附設的茶鋪可以吃到極具質感的抹茶聖代、季節限定水果大福，高雅靜謐。", address: "福岡市博多區上川端町12-20 / 中洲川端站步行1分" },
+                        { name: "NO COFFEE", feature: "極簡黑白潮牌風格的咖啡廳，推出許多與潮流品牌聯名的周邊商品，抹茶拿鐵與黑炭拿鐵非常有特色。", address: "福岡市中央區平尾3-17-12 / 藥院大通站步行10分" }
+                    ]
+                }
+            },
+            "dazaifu": {
+                name: "太宰府 / 柳川",
+                categories: {
+                    "ramen": [
+                        { name: "一蘭 太宰府參道店", feature: "全日本唯一的「合格拉麵」！使用象徵考試合格的五角形麵碗，連麵條長度都特別加長，祈求金榜題名。", address: "太宰府市宰府2-6-2 / 西鐵太宰府站出站即達" },
+                        { name: "暖暮拉麵 太宰府站前店", feature: "位於車站旁，交通極為方便。參拜完天滿宮後，來一碗熱騰騰的九州票選冠軍拉麵補充體力。", address: "太宰府市宰府1-14-24 / 西鐵太宰府站步行1分" },
+                        { name: "八ちゃんラーメン (藥院/周邊)", feature: "雖然本店在市區，但在前往太宰府的路上(藥院轉車)非常值得一試的超濃厚老字號豚骨拉麵。", address: "福岡市中央區白金 (藥院站周邊)" }
+                    ],
+                    "motsunabe": [
+                        { name: "太宰府周邊食堂", feature: "太宰府主要以小吃與梅枝餅為主，若想吃鍋物，建議回到天神或博多市區享用最正宗的牛腸鍋。", address: "太宰府天滿宮表參道" },
+                        { name: "柳川特色 和牛/鰻魚", feature: "前往柳川時，當地的名物是「蒸籠鰻魚飯」，取代了市區常見的鍋物，是另一種高級味蕾享受。", address: "柳川市區" },
+                        { name: "大幸 (太宰府燒肉)", feature: "如果在太宰府想吃大餐，這間提供黑毛和牛的在地燒肉店是非常好的選擇，肉質軟嫩。", address: "太宰府市周邊" }
+                    ],
+                    "yatai": [
+                        { name: "かさの家 (Kasanoya) 梅枝餅", feature: "太宰府表參道上最具人氣的老店！現烤的梅枝餅外皮酥脆微焦，內含綿密的紅豆餡，印有梅花圖案。", address: "太宰府市宰府2-7-24 / 太宰府表參道" },
+                        { name: "寺子屋本舗 (現烤仙貝)", feature: "提供各種口味的現烤仙貝（如醬油、海苔、柚子胡椒），熱騰騰的仙貝香氣四溢，非常適合邊走邊吃。", address: "太宰府市宰府3-1-21 / 太宰府表參道" },
+                        { name: "天山 (Tenzan)", feature: "超浮誇的「鬼瓦最中」與「草莓大福」！冬天限定的超大顆草莓鑲嵌在最中餅上，視覺效果滿分。", address: "太宰府市宰府2-7-12 / 太宰府表參道" }
+                    ],
+                    "seafood": [
+                        { name: "元祖本吉屋 (柳川)", feature: "擁有300年歷史的「蒸籠鰻魚飯(せいろむし)」創始店！炭烤過的鰻魚與秘製醬汁飯一起蒸透，香氣極度濃郁。", address: "柳川市旭町69 / 柳川遊船下船處附近" },
+                        { name: "若松屋 (柳川)", feature: "柳川另一間極具代表性的鰻魚飯名店。在充滿日式庭園風情的建築內，品嚐柔軟入味的鰻魚飯。", address: "柳川市沖端町26 / 柳川遊船下船處附近" },
+                        { name: "民藝茶屋 六騎", feature: "除了好吃的蒸籠鰻魚飯，還能吃到柳川特產的泥鰍鍋，價格相對親民，深受當地人喜愛。", address: "柳川市沖端町28 / 柳川周邊" }
+                    ],
+                    "cafe": [
+                        { name: "星巴克 太宰府天滿宮表參道店", feature: "日本最美星巴克之一！由建築大師隈研吾設計，使用由2000根木條交錯的獨特木造結構，充滿禪意。", address: "太宰府市宰府3-2-43 / 太宰府表參道" },
+                        { name: "KAGUWA Cafe", feature: "充滿大正浪漫風情的和風咖啡館。提供精緻的抹茶拿鐵與日式甜點，是參拜後靜心休息的好去處。", address: "太宰府市宰府3-2-14 / 太宰府天滿宮旁" },
+                        { name: "茶房 菊太郎", feature: "附設日式庭園的傳統茶屋。可以一邊欣賞四季變換的庭園造景，一邊享用梅枝餅與熱抹茶的套餐。", address: "太宰府市宰府2-7-24 (かさの家內)" }
+                    ]
+                }
+            },
+            "itoshima": {
+                name: "糸島海濱區",
+                categories: {
+                    "seafood": [
+                        { name: "糸島 牡蠣小屋 (みるくがき豊久丸)", feature: "冬季限定！每年10月到3月，可以在海邊的炭火小屋裡自己烤新鮮肥美的「牛奶蚵(牡蠣)」，鮮甜無比。", address: "糸島市志摩岐志778-5 / 岐志漁港內" },
+                        { name: "塚本鮮魚店", feature: "糸島超高人氣的海鮮食堂！招牌「特上海鮮丼」鋪滿多達十幾種當季新鮮生魚片，浮誇又新鮮。", address: "糸島市加布里61-1 / 加布里站周邊" },
+                        { name: "岐志漁港 牡蠣小屋街", feature: "整個港口有十幾家牡蠣小屋並排，特色是可以自帶飲料甚至飯糰進去配著烤牡蠣吃，極度接地氣。", address: "糸島市志摩岐志 / 岐志漁港" }
+                    ],
+                    "cafe": [
+                        { name: "SUNSET (櫻井二見浦)", feature: "糸島海景咖啡廳的先驅！就位於著名的夫婦岩與白色鳥居旁，擁有絕佳的海景夕陽視角，餐點精緻。", address: "福岡市西區西浦284 / 櫻井二見浦夫婦岩旁" },
+                        { name: "TIME Itoshima", feature: "海灘第一排的純白木造咖啡廳！早午餐與甜點非常受歡迎，可以直接從戶外露臺走到沙灘上拍照。", address: "糸島市志摩櫻井4423-7 / 糸島海岸線" },
+                        { name: "ALPACINO (義式冰淇淋)", feature: "網美必訪！建築充滿南歐渡假風情，提供各種色彩繽紛的義式冰淇淋，店外還有夢幻的海景鞦韆。", address: "福岡市西區西浦285-A / 糸島海岸商圈" }
+                    ],
+                    "ramen": [
+                        { name: "糸島周邊特色拉麵", feature: "來糸島通常以海景咖啡與海鮮為主，若想吃拉麵，建議回到市區的天神或博多享用道地豚骨拉麵。", address: "糸島市" }
+                    ],
+                    "motsunabe": [
+                        { name: "糸島農場BBQ", feature: "在糸島，比起鍋物，大家更喜歡海邊烤肉！許多露營地提供當地產的「糸島豬肉」與手工香腸BBQ體驗。", address: "糸島海岸各露營區" }
+                    ],
+                    "yatai": [
+                        { name: "糸島手工布丁 (伊都きんぐ)", feature: "這家主打福岡特產「甘王草莓(あまおう)」的甜點店，草莓銅鑼燒與絲滑布丁是來糸島必買的小吃。", address: "糸島市南風台8-4-11" }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Fukuoka
+        const categoriesMap = {
+            "ramen": { name: "🍜 博多拉麵", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-400" },
+            "motsunabe": { name: "🍲 特色鍋物 (牛腸/水炊)", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "yatai": { name: "🏮 屋台與街頭小吃", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "seafood": { name: "🐟 海產與鰻魚飯", color: "bg-sky-100 text-sky-800 hover:bg-sky-600 hover:text-white border-sky-400" },
+            "cafe": { name: "☕ 質感咖啡與甜點", color: "bg-stone-100 text-stone-800 hover:bg-stone-600 hover:text-white border-stone-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region (Hakata Red vibe)
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-rose-600', 'text-white', 'border-rose-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-rose-600');
+            clickedBtn.classList.add('bg-rose-600', 'text-white', 'border-rose-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('ramen', firstCatBtn); // 福岡預設選擇拉麵
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-rose-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-rose-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-400 fade-in">
+                        <p class="text-lg">此分類目前無推薦資料，請選擇其他類別探索！</p>
+                    </div>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (Focus query on Fukuoka)
+                const encodedQuery = encodeURIComponent(`${item.name} Fukuoka ${item.address.split('/')[0]}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded mr-1">特色</span>${item.feature}</p>
+                        
+                        <div class="bg-gray-50/80 p-3.5 rounded-xl flex items-start gap-3 border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium"><span class="font-bold text-rose-800">地址：</span>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto">
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>
