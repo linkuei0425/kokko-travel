@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kansai Trip Guide</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Hide scrollbar but keep functionality */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- Icons ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+
+        const REGIONS = ['Osaka', 'Kyoto', 'Miyama', 'Nara', 'Uji', 'Kobe', 'Himeji'];
+        const CATEGORIES = [
+            { id: 'Tickets', icon: Ticket },
+            { id: 'Day Tours', icon: Sun },
+            { id: 'Experiences', icon: Sparkles },
+            { id: 'Transport & WiFi', icon: TrainFront }
+        ];
+
+        const getMockLink = (query) => `https://www.klook.com/en-US/search/result/?query=${encodeURIComponent(query)}&aid=116515`;
+
+        // --- Database ---
+        const itineraryData = {
+            'Osaka': {
+                'Tickets': [
+                    { title: 'Universal Studios Japan Ticket', description: 'Enjoy Super Nintendo World and The Wizarding World of Harry Potter. The ultimate theme park in Osaka.', link: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241221&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F46604-universal-studios-japan-e-ticket-osaka-qr-code-direct-entry%2F' },
+                    { title: 'USJ Express Pass', description: 'Shorten your wait times significantly! Experience popular rides faster and make the most of your visit.', link: 'https://www.klook.com/en-US/activity/3407-universal-studios-japan-express-pass-osaka/?spm=SearchResult.SearchResult_LIST&clickId=295fc10598&aid=116515' },
+                    { title: 'Osaka Castle Ticket', description: 'Climb the main keep to overlook Osaka city and feel the majestic history of the Toyotomi Hideyoshi era.', link: 'https://www.klook.com/en-US/activity/30110-osaka-castle-ticket/?spm=SearchResult.SearchResult_LIST&clickId=f5c698d677&aid=116515' },
+                    { title: 'Umeda Sky Building Kuchu Teien Observatory', description: 'Walk on the dreamy starlight path and enjoy a 360-degree breathtaking night view of Osaka from 173 meters high.', link: 'https://www.klook.com/en-US/activity/35861-umeda-sky-building-kuchu-teien-observatory-ticket/?spm=SearchResult.SearchResult_LIST&clickId=e4bb2f0f3c&aid=116515' },
+                    { title: 'LEGOLAND Discovery Center Ticket', description: 'A creative indoor Lego theme park located in Tempozan Marketplace, perfect for families with children.', link: 'https://www.klook.com/en-US/activity/9612-legoland-discovery-center-ticket-osaka/?spm=SearchResult.SearchResult_LIST&clickId=78df38f052&aid=116515' },
+                    { title: 'teamLab Botanical Garden Osaka Ticket', description: 'An outdoor night light exhibition created by teamLab, perfectly combining plants and lasers into a dreamlike space.', link: 'https://www.klook.com/en-US/activity/73632-teamlab-botanical-garden-osaka/?spm=SearchResult.SearchResult_LIST&clickId=c010a6a144&aid=116515' },
+                    { title: 'Tennoji Zoo Ticket', description: 'One of Japan\'s oldest zoos, featuring ecological exhibits that recreate natural habitats. Educational and fun.', link: 'https://www.klook.com/en-US/activity/168730-tennoji-zoo/?spm=SearchResult.SearchResult_LIST&clickId=89d7ad5884&aid=116515' },
+                    { title: 'Tsutenkaku Tower Ticket', description: 'The landmark tower of Shinsekai! Enjoy retro downtown views and try the thrilling giant outdoor slide.', link: 'https://www.klook.com/en-US/activity/76766-osaka-tsutenkaku-admission-ticket/?spm=SearchResult.SearchResult_LIST&clickId=2e039b0ba0&aid=116515' },
+                    { title: 'Kansai Pass', description: 'One pass to visit popular attractions across Kansai, including observatories, museums, and cruises. Flexible planning.', link: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241229&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F91434-klook-pass-kansai%2F' },
+                    { title: 'Abeno Harukas 300 Observatory Ticket', description: 'Japan\'s tallest skyscraper observatory. Features panoramic glass walls for stunning sunset and night views.', link: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241231&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F2424-harukas-300-observatory-ticket-osaka%2F' }
+                ],
+                'Day Tours': [
+                    { title: 'Kyoto & Nara Day Tour (From Osaka)', description: 'Relaxing bus tour to ancient capitals! Covers Fushimi Inari, Kiyomizu-dera, and Nara Park in one day.', link: 'https://www.klook.com/en-US/activity/110001-kyoto-nara-deer-arashiyama-train-cherry-blossom-one-day-tour/?spm=SearchResult.SearchResult_LIST&clickId=006e609bcb&aid=116515' },
+                    { title: 'Kyoto & Osaka Highlights Day Tour', description: 'In-depth tour of Kyoto and Osaka highlights, including Katsuo-ji Temple, Arashiyama, and Kinkaku-ji.', link: 'https://www.klook.com/en-US/activity/158704-kyoto-osaka-top-attractions-day-tour-from-osaka/?spm=SearchResult.SearchResult_LIST&clickId=4836e537b8&aid=116515' },
+                    { title: 'Kansai Hidden Gems Day Tour', description: 'Avoid the crowds and explore sacred religious sites or pristine island scenery via private bus to cleanse your soul.', link: 'https://www.klook.com/en-US/activity/158473-a/?spm=SearchResult.SearchResult_LIST&clickId=1b20a09167&aid=116515' },
+                    { title: 'Hiroshima & Miyajima World Heritage Day Tour', description: 'Take the Shinkansen to Hiroshima, visit the floating torii gate of Itsukushima Shrine and the Atomic Bomb Dome.', link: 'https://www.klook.com/en-US/activity/76852-hiroshima-miyajima-bus-tour/?spm=SearchResult.SearchResult_LIST&clickId=50fe7d3975&aid=116515' },
+                    { title: 'Tottori Sand Dunes & Uradome Coast Day Tour', description: 'Visit Japan\'s largest sand dune for an exotic desert vibe and take a boat to see the stunning Uradome Coast.', link: 'https://www.klook.com/en-US/activity/176815-tottori-sand-dunes-uradome-coast-one-day-private-sightseeing-tour/?spm=SearchResult.SearchResult_LIST&clickId=c8083a931f&aid=116515' }
+                ],
+                'Experiences': [
+                    { title: 'Street Go Kart Experience in Osaka', description: 'Dress up as your favorite character and drive a go-kart through Namba, Dotonbori, and Osaka Castle! Very eye-catching.', link: 'https://www.klook.com/en-US/activity/8590-osaka-go-karting-experience-akiba-kart-nipponbashi/?spm=SearchResult.SearchResult_LIST&clickId=df99f3b04c&aid=116515' },
+                    { title: 'THE SUMO HALL HIRAKUZA OSAKA Ticket', description: 'Experience traditional Japanese national sports! Watch powerful Sumo performances and take photos with wrestlers.', link: 'https://www.klook.com/en-US/activity/111070-the-sumo-hall-hirakuza-osaka-admission-ticket-in-osaka/?spm=SearchResult.SearchResult_LIST&clickId=e15b69f225&aid=116515' },
+                    { title: 'Takoyaki DIY Cooking Class in Namba', description: 'Wear an apron and learn to make perfectly round Takoyaki with local experts. Fun and delicious family activity.', link: 'https://www.klook.com/en-US/activity/185217-hands-on-takoyaki-in-osaka-eat-cook-enjoy/?spm=SearchResult.SearchResult_LIST&clickId=ba645e494a&aid=116515' },
+                    { title: 'Samurai and Ninja Training Experience', description: 'Dress up as a ninja or samurai, learn shuriken throwing and sword techniques to feel the ancient martial spirit.', link: 'https://www.klook.com/en-US/activity/96954-ninja-experience-cafe-osaka/?spm=SearchResult.SearchResult_LIST&clickId=d53483d4f9&aid=116515' },
+                    { title: 'Solaniwa Onsen Ticket', description: 'Kansai\'s largest hot spring theme park. Wear beautiful yukata in the Japanese garden and enjoy various baths.', link: 'https://www.klook.com/en-US/activity/21381-solaniwa-onsen-admission-ticket-osaka/?spm=SearchResult.SearchResult_LIST&clickId=20e74c91a1&aid=116515' },
+                    { title: 'Food Replica Making Experience', description: 'Japan\'s exquisite food replica craft! Hand-make highly realistic matcha parfait or tempura models as souvenirs.', link: 'https://www.klook.com/en-US/search/result/?query=Osaka%20Food%20Replica&aid=116515' },
+                    { title: 'Umeda Joypolis Indoor Theme Park', description: 'Crazy indoor park combining the latest VR technology and arcade games. Scream and party even on rainy days.', link: 'https://www.klook.com/en-US/search/result/?query=Osaka%20Joypolis&aid=116515' },
+                    { title: 'Santa Maria Twilight Cruise', description: 'A sailing ship modeled after Columbus\'s flagship. Set sail at dusk to enjoy the romantic sunset over Osaka Bay.', link: 'https://www.klook.com/en-US/activity/598-santa-maria-cruise-osaka/?aid=116515' },
+                    { title: 'Osaka Helicopter Sightseeing Flight', description: 'A luxurious experience! Soar above Osaka city in a helicopter to overlook glittering skyscrapers and night views.', link: 'https://www.klook.com/en-US/search/result/?query=Osaka%20Helicopter&aid=116515' },
+                    { title: 'Dotonbori River Cruise', description: 'Take a yellow boat slowly down the Dotonbori River, look up at the famous Glico running man, and feel Osaka\'s passion.', link: 'https://www.klook.com/en-US/search/result/?query=Dotonbori%20Cruise&aid=116515' }
+                ],
+                'Transport & WiFi': [
+                    { title: 'Osaka Amazing Pass', description: 'God-tier transport pass! Unlimited rides on Osaka subways/buses and free entry to over 40 popular attractions.', link: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241223&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F82312-amazing-pass-osaka%2F' },
+                    { title: 'JR Haruka Airport Express Ticket', description: 'The fastest way from Kansai Airport to Tennoji, Shin-Osaka, and Kyoto. Ride the Hello Kitty themed train.', link: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241224&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F18400-jr-haruka-airport-express-train-tickets-osaka%2F' },
+                    { title: 'Nankai Line Airport Express Ticket', description: 'Only 34 minutes! The most comfortable way to downtown Namba. The futuristic Rapi:t train offers spacious seating.', link: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241225&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F599-kansai-airport-namba-train-ticket-osaka%2F' },
+                    { title: 'Japan eSIM | Unlimited Data', description: 'Scan the QR Code to activate. Stable and non-throttled speed. Keeps you connected while finding places and posting stories.', link: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241220&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F109393-japan-esim-high-speed-internet-qr-code-voucher%2F' },
+                    { title: 'Osaka Metro & Bus Pass', description: 'Unlimited rides on Osaka Metro and city buses for 1 or 2 days. Easily explore Umeda, Namba, and Shinsaibashi.', link: 'https://www.klook.com/en-US/activity/11515-osaka-metro-1-2-day-pass-osaka/?spm=SearchResult.SearchResult_LIST&clickId=9c477e48b2&aid=116515' },
+                    { title: 'Limousine Bus from Kansai Airport', description: 'Avoid the hassle of transferring with heavy luggage. Direct bus to major hotels and stations in the city.', link: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241226&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F18203-kansai-airport-one-way-transfer-osaka%2F' },
+                    { title: 'JR Kansai Area Pass', description: 'Exclusive pass for foreign tourists! Unlimited rides on designated JR trains to explore Osaka, Kyoto, Kobe, and Nara.', link: 'https://affiliate.klook.com/redirect?aid=116515&aff_adid=1241228&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F3276-4-day-jr-west-kansai-rail-pass-jr-pass%2F' },
+                    { title: 'Hankyu Tourist Pass', description: 'Unlimited rides on the Hankyu Line. The most cost-effective pass from Umeda to Kyoto Kawaramachi or Kobe Sannomiya.', link: 'https://www.klook.com/en-US/activity/1512-hankyu-1-day-tourist-pass-osaka/?spm=SearchResult.SearchResult_LIST&clickId=f90c930067&aid=116515' },
+                    { title: 'Bus Ticket between USJ and Dotonbori', description: 'After a tiring day at USJ, take a direct bus back to Dotonbori with guaranteed seating. Easy and effortless.', link: 'https://www.klook.com/en-US/activity/86890-dotonbori-usj-bus-ticket/?spm=SearchResult.SearchResult_LIST&clickId=8645012406&aid=116515' },
+                    { title: 'Japan 5G Unlimited SIM Card (Airport Pick-up)', description: 'Pick up and activate right after landing. Offers 5G high-speed network across Japan for smooth navigation.', link: 'https://www.klook.com/en-US/activity/87444-4g-japan-sim-japan-airport-pick-up-unlimited-data/?spm=SearchResult.SearchResult_LIST&clickId=b321e4b8ba&aid=116515' }
+                ]
+            },
+            'Kyoto': {
+                'Tickets': [
+                    { title: 'Kyoto Tower Observatory Ticket', description: 'The prominent landmark in front of Kyoto Station. Overlook the ancient capital from 100 meters high.', link: 'https://www.klook.com/en-US/activity/1464-kyoto-tower-admission-ticket-kyoto/?spm=SearchResult.SearchResult_LIST&clickId=3120feaa03&aid=116515' },
+                    { title: 'Kyoto Aquarium Ticket', description: 'Located in Umekoji Park. Features cute penguins, dolphins, and the Japanese giant salamander, a national treasure.', link: 'https://www.klook.com/en-US/activity/15334-aquarium-admission-ticket-kyoto/?spm=SearchResult.SearchResult_LIST&clickId=18f8fa8ad3&aid=116515' },
+                    { title: 'Toei Kyoto Studio Park Ticket', description: 'A film theme park recreating Edo-era streets. Samurai and ninjas roam around, and you can dress up for historical dramas.', link: 'https://www.klook.com/en-US/activity/48327-toei-kyoto-studio-park/?spm=SearchResult.SearchResult_LIST&clickId=fbbddbe706&aid=116515' }
+                ],
+                'Day Tours': [
+                    { title: 'Amanohashidate & Ine Funaya Day Tour', description: 'Head to "Kyoto by the Sea." Take a cable car overlooking Amanohashidate and a boat tour of beautiful Ine Funaya.', link: 'https://www.klook.com/en-US/activity/142543-kyoto-amanohashidate-ine-funaya-miyama-traditonal-village-tour/?aid=116515' },
+                    { title: 'Kiyomizu-dera, Fushimi Inari & Nara Park Tour', description: 'The ultimate classic route for first-timers! Visit Kyoto\'s top two shrines and interact with deer in Nara in one day.', link: 'https://www.klook.com/en-US/search/result/?query=Kiyomizudera%20Nara%20Tour&aid=116515' },
+                    { title: 'Kyoto Classic Highlights In-Depth Day Tour', description: 'Collect all the essence! Comfortable bus through Rakuto and Rakuhoku with expert guides for an in-depth Kyoto trip.', link: 'https://www.klook.com/en-US/search/result/?query=Kyoto%20Highlights%20Tour&aid=116515' },
+                    { title: 'Arashiyama, Nara & Fushimi Inari Day Tour', description: 'Cover Arashiyama\'s nature and Nara\'s history, including the hard-to-book Sagano Romantic Train.', link: 'https://www.klook.com/en-US/search/result/?query=Arashiyama%20Nara%20Tour&aid=116515' },
+                    { title: 'Sagano Romantic Train Half-Day Tour', description: 'Ride the retro wooden train along the Hozugawa River gorge. Enjoy cherry blossoms in spring or red leaves in autumn.', link: 'https://www.klook.com/en-US/activity/1298-sagano-romantic-train-kyoto/?aid=116515' },
+                    { title: 'Kifune Shrine & Sanzen-in Nature Day Tour', description: 'Head to Kyoto\'s northern suburbs. Visit Kifune Shrine known for water gods, and Sanzen-in\'s moss garden.', link: 'https://www.klook.com/en-US/search/result/?query=Kifune%20Sanzenin&aid=116515' },
+                    { title: 'Uji Tale of Genji & Matcha Day Tour', description: 'Explore Byodo-in Phoenix Hall, stroll along the Uji River, and taste authentic Uji matcha at century-old tea houses.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Matcha%20Tour&aid=116515' },
+                    { title: 'Mt. Hiei Enryaku-ji & Kurama-dera Spiritual Tour', description: 'Take Japan\'s longest cable car up Mt. Hiei to visit World Heritage Enryaku-ji and feel the deep mountain\'s spiritual energy.', link: 'https://www.klook.com/en-US/search/result/?query=Mt.%20Hiei%20Tour&aid=116515' },
+                    { title: 'Kyoto Cherry Blossom / Autumn Leaves Tour', description: 'Seasonal exclusive! Private bus precisely tracks cherry blossoms or red leaves, visiting prime spots like Philosopher\'s Path.', link: 'https://www.klook.com/en-US/search/result/?query=Kyoto%20Cherry%20Blossom%20Tour&aid=116515' },
+                    { title: 'Kyoto by the Sea: Ine & Amanohashidate Tour', description: 'Deep tour focusing on Kyoto\'s northern coast. Feed seagulls in serene Ine Bay and escape the city bustle.', link: 'https://www.klook.com/en-US/search/result/?query=Ine%20Amanohashidate&aid=116515' }
+                ],
+                'Experiences': [
+                    { title: 'Hozugawa River Boat Ride', description: 'Go downstream from Kameoka to Arashiyama. Picturesque scenery and boatmen\'s humorous guiding bring lots of laughter.', link: 'https://www.klook.com/en-US/search/result/?query=Hozugawa%20Boat%20Ride&aid=116515' },
+                    { title: 'Kyoto Kimono & Yukata Rental', description: 'Wear exquisite kimonos with professional makeup. Stroll along the ancient stone paths of Kiyomizu or Gion for perfect photos.', link: 'https://www.klook.com/en-US/search/result/?query=Kyoto%20Kimono%20Rental&aid=116515' },
+                    { title: 'Maiko Performance & Kaiseki Dinner', description: 'Enjoy delicate seasonal Kaiseki cuisine in a high-end Ryotei while watching elegant Maiko dances.', link: 'https://www.klook.com/en-US/search/result/?query=Kyoto%20Maiko%20Kaiseki&aid=116515' },
+                    { title: 'Arashiyama Yakatabune & Matcha Experience', description: 'Charter a traditional Yakatabune on the Oi River. Sip matcha quietly away from the crowds for a premium Arashiyama vibe.', link: 'https://www.klook.com/en-US/search/result/?query=Arashiyama%20Yakatabune&aid=116515' },
+                    { title: 'Fushimi Jikkokubune Boat & Sake Tasting', description: 'Ride a wooden boat through willow-lined canals, then visit famous breweries to taste premium sake.', link: 'https://www.klook.com/en-US/search/result/?query=Fushimi%20Sake%20Tasting&aid=116515' },
+                    { title: 'Nishiki Market Tour & Cooking Class', description: 'Buy fresh ingredients in Nishiki Market with a chef, then learn to make sushi and tamagoyaki.', link: 'https://www.klook.com/en-US/search/result/?query=Nishiki%20Market%20Cooking%20Class&aid=116515' },
+                    { title: 'Kyoto Tea Ceremony & Ikebana Experience', description: 'In a traditional machiya tea room, learn how to whisk a perfect bowl of matcha and the aesthetics of Japanese flower arrangement.', link: 'https://www.klook.com/en-US/search/result/?query=Kyoto%20Tea%20Ceremony&aid=116515' },
+                    { title: 'Samurai Sword & Iaido Class', description: 'Wear kendo gear, learn samurai etiquette and sword drawing. Try cutting tatami mats with a real katana.', link: 'https://www.klook.com/en-US/search/result/?query=Kyoto%20Samurai%20Experience&aid=116515' },
+                    { title: 'Kyoto Gold Leaf Craft & Folding Fan DIY', description: 'Get creative in a century-old workshop. Apply gold leaf to lacquerware or folding fans for a unique Kyoto souvenir.', link: 'https://www.klook.com/en-US/search/result/?query=Kyoto%20Craft%20DIY&aid=116515' },
+                    { title: 'Arashiyama Rickshaw Tour', description: 'Enthusiastic and strong rickshaw pullers take you through the bamboo grove secrets and take perfect angle photos for you.', link: 'https://www.klook.com/en-US/activity/1654-arashiyama-rickshaw-tour-kyoto/?aid=116515' }
+                ],
+                'Transport & WiFi': [
+                    { title: 'Keihan Railway Kyoto-Osaka Sightseeing Pass', description: 'Unlimited rides on the Keihan Railway! The best value pass between Osaka Yodoyabashi, Kyoto Gion, and Fushimi Inari.', link: 'https://www.klook.com/en-US/activity/3282-kyoto-osaka-sightseeing-pass-osaka/?aid=116515' },
+                    { title: 'Sagano Romantic Train One-Way Ticket', description: 'Hard to get! Book in advance to secure your seat on this beautiful sightseeing train through the Hozu Gorge.', link: 'https://www.klook.com/en-US/activity/1298-sagano-romantic-train-kyoto/?aid=116515' },
+                    { title: 'Kyoto Subway & Bus One-Day Pass', description: 'Unlimited rides on Kyoto subways and most city buses with just one ticket. The easiest choice for city sightseeing.', link: 'https://www.klook.com/en-US/search/result/?query=Kyoto%20Subway%20Pass&aid=116515' },
+                    { title: 'Kansai Thru Pass', description: 'Excludes JR, but offers unlimited rides on major private railways and subways in Kansai. Great for frequent cross-city travelers.', link: 'https://www.klook.com/en-US/activity/1329-kansai-thru-pass-osaka/?aid=116515' },
+                    { title: 'Kansai Airport to Kyoto Private Transfer', description: 'Best for red-eye flights or traveling with elders/kids. Direct transfer from the airport to your Kyoto hotel door.', link: 'https://www.klook.com/en-US/activity/10834-kansai-international-airport-transfers-osaka/?aid=116515' },
+                    { title: 'Kyoto E-Bike One-Day Rental', description: 'Avoid crowded buses! Ride an e-bike at your own pace through the alleys of Kyoto and along the Kamo River.', link: 'https://www.klook.com/en-US/search/result/?query=Kyoto%20Bicycle%20Rental&aid=116515' },
+                    { title: 'Hozugawa River Boat Ticket', description: 'Buy tickets in advance. Board directly at Kameoka for a thrilling 2-hour beautiful gorge rafting journey.', link: 'https://www.klook.com/en-US/search/result/?query=Hozugawa%20Boat%20Ticket&aid=116515' },
+                    { title: 'Eizan Railway One-Day Pass (Kurama/Kibune)', description: 'Essential for Northern Kyoto! Ride through the famous Maple Tunnel and explore Kibune and Kurama endlessly.', link: 'https://www.klook.com/en-US/search/result/?query=Eizan%20Railway&aid=116515' },
+                    { title: 'Kyoto Arashiyama Rickshaw Reservation', description: 'Book your time slot in advance. Hop on right at Togetsukyo Bridge for VIP guided services by professional pullers.', link: 'https://www.klook.com/en-US/activity/1654-arashiyama-rickshaw-tour-kyoto/?aid=116515' },
+                    { title: 'Kansai Custom Private Car Tour (From Kyoto)', description: 'Your private driver leads the way. You decide the itinerary, whether it\'s Amanohashidate or Miyama, making transport easy.', link: 'https://www.klook.com/en-US/search/result/?query=Kansai%20Private%20Car&aid=116515' }
+                ]
+            },
+            'Miyama': {
+                'Day Tours': [
+                    { title: 'Miyama, Katsuo-ji & Nonomiya Shrine Tour', description: 'Don\'t worry about transport! Private bus takes you to the fairy-tale Miyama thatched village and Katsuo-ji Temple.', link: 'https://www.klook.com/en-US/activity/189675-miyama-village-katsuo-ji-temple-one-day-tour/?spm=SearchResult.SearchResult_LIST&clickId=55c143f4d1&aid=116515' },
+                    { title: 'Miyama & Amanohashidate Scenic Day Tour', description: 'Collect Northern Kyoto\'s two greatest scenic spots in one day. See Amanohashidate first, then the peaceful thatched village.', link: 'https://www.klook.com/en-US/search/result/?query=Miyama%20Amanohashidate&aid=116515' },
+                    { title: 'Miyama & Arashiyama Bamboo Grove Day Tour', description: 'Combine the popular Arashiyama with peaceful Miyama to experience entirely different Kansai vibes.', link: 'https://www.klook.com/en-US/search/result/?query=Miyama%20Arashiyama&aid=116515' },
+                    { title: 'Winter Exclusive: Miyama Snow Lantern Festival Tour', description: 'Only a few days every winter! Thatched roofs covered in snow illuminated by countless snow lanterns. Dreamy night view.', link: 'https://www.klook.com/en-US/search/result/?query=Miyama%20Snow%20Lantern&aid=116515' },
+                    { title: 'Tamba & Miyama: Fruit Picking & Black Bean Tour', description: 'Head deep into the fields. Experience picking famous Tamba black beans or seasonal fruits, enjoying farm-to-table fun.', link: 'https://www.klook.com/en-US/search/result/?query=Tamba%20Fruit%20Picking&aid=116515' },
+                    { title: 'Miyama & Ine Funaya 2-Day Tour', description: 'The slowest paced in-depth tour. Spend the first night in a Miyama farmstay, and head to Ine Bay the next day.', link: 'https://www.klook.com/en-US/search/result/?query=Miyama%20Ine%20Tour&aid=116515' }
+                ]
+            },
+            'Nara': {
+                'Tickets': [
+                    { title: 'Todai-ji Temple & Great Buddha Hall Ticket', description: 'Walk into the world\'s largest wooden building, look up at the 15-meter bronze Buddha, and feel the ancient capital\'s grandeur.', link: 'https://www.klook.com/en-US/search/result/?query=Todai-ji&aid=116515' },
+                    { title: 'Kasuga Taisha Shrine Special Admission', description: 'Walk through 3,000 moss-covered stone lanterns. Enter the main hall to see the gorgeous vermilion architecture.', link: 'https://www.klook.com/en-US/search/result/?query=Kasuga%20Taisha&aid=116515' },
+                    { title: 'NARA Kingyo Museum Ticket', description: 'A dreamy aquarium combining colorful lights, art, and thousands of swimming goldfish. A highly talked-about indoor spot.', link: 'https://www.klook.com/en-US/activity/38968-nara-kingyo-museum-ticket/?spm=SearchResult.SearchResult_LIST&clickId=d5597fa7a7&aid=116515' }
+                ],
+                'Day Tours': [
+                    { title: 'Nara Park, Todai-ji, Uji & Hot Spring Tour', description: 'Feed deer, eat Uji matcha, and end with ultimate relaxation at Genji-no-Yu natural hot spring. Perfect itinerary.', link: 'https://www.klook.com/en-US/activity/186586-uji-nara-hot-spring-day-tour-osaka-hotel-pick-up-service-available/?spm=SearchResult.SearchResult_LIST&clickId=8f082f11ed&aid=116515' },
+                    { title: 'Nara Highlights Half-Day Walking Tour', description: 'Follow a history-expert local guide walking through Todai-ji, Kasuga Taisha, and Naramachi to hear untold stories.', link: 'https://www.klook.com/en-US/search/result/?query=Nara%20Walking%20Tour&aid=116515' },
+                    { title: 'Nara Deer Park & Uji Matcha Day Tour', description: 'Easily depart from Kyoto. A private bus takes you to two ancient capitals to enjoy feeding deer and tasting premium matcha.', link: 'https://www.klook.com/en-US/search/result/?query=Nara%20Uji%20Tour&aid=116515' },
+                    { title: 'Mt. Yoshino Cherry Blossom/Autumn Leaves Tour', description: 'Mt. Yoshino is Japan\'s most famous cherry blossom spot. Private transport saves you from crowded trains to enjoy the views.', link: 'https://www.klook.com/en-US/search/result/?query=Mt.%20Yoshino%20Tour&aid=116515' },
+                    { title: 'Asuka Village Cycling Day Tour', description: 'Ride a bike through peaceful fields, visit the Ishibutai Kofun and Asuka historical ruins, feeling the romance of Japan\'s origins.', link: 'https://www.klook.com/en-US/search/result/?query=Asuka%20Village%20Cycling&aid=116515' },
+                    { title: 'Naramachi Old Street & Sake Tasting Tour', description: 'Stroll through preserved Edo-period machiya buildings, visit craft shops, and taste premium Junmai Daiginjo at local breweries.', link: 'https://www.klook.com/en-US/search/result/?query=Naramachi%20Sake%20Tasting&aid=116515' },
+                    { title: 'Hasedera & Muroji Temple Flower Tour', description: 'Head to deep mountain ancient temples. Muroji\'s pagoda and Hasedera\'s peony sea offer an ethereal and serene beauty.', link: 'https://www.klook.com/en-US/search/result/?query=Hasedera%20Muroji&aid=116515' },
+                    { title: 'Nara & Arashiyama Highlights Day Tour', description: 'Combine Kansai\'s top natural and cultural spots. See Arashiyama\'s bamboo grove in the morning, and interact with Nara deer in the afternoon.', link: 'https://www.klook.com/en-US/search/result/?query=Nara%20Arashiyama%20Tour&aid=116515' },
+                    { title: 'Ikaruga & Toshodai-ji World Heritage Tour', description: 'Visit Toshodai-ji founded by Jianzhen, and Horyu-ji deeply connected to Prince Shotoku for a profound historical pilgrimage.', link: 'https://www.klook.com/en-US/search/result/?query=Horyuji%20Toshodaiji&aid=116515' }
+                ],
+                'Experiences': [
+                    { title: 'Naramachi Kimono & Yukata Rental', description: 'Wear an elegant kimono, walk on Naramachi\'s retro streets or take photos with deer at Todai-ji. Picture perfect.', link: 'https://www.klook.com/en-US/search/result/?query=Nara%20Kimono%20Rental&aid=116515' },
+                    { title: 'Nara Tea Ceremony & Wagashi Making', description: 'Inside a traditional machiya tea room, hand-make exquisite seasonal wagashi and learn to whisk authentic matcha.', link: 'https://www.klook.com/en-US/search/result/?query=Nara%20Tea%20Ceremony&aid=116515' },
+                    { title: 'Nara Sake Brewery Tour & Tasting', description: 'Nara is the birthplace of Japanese sake! Visit historic breweries like Harushika, learn the brewing process and taste limited sakes.', link: 'https://www.klook.com/en-US/search/result/?query=Nara%20Sake%20Tasting&aid=116515' },
+                    { title: 'Nara Park Deer Feeding & Photoshoot', description: 'Can\'t get a good angle? Hire a professional photographer to guide the deer and shoot natural, ethereal travel photos.', link: 'https://www.klook.com/en-US/search/result/?query=Nara%20Photoshoot&aid=116515' },
+                    { title: 'Mt. Wakakusa Romantic Night View & Stargazing', description: 'Climb Mt. Wakakusa at dusk to overlook the sparkling night view of the Nara basin. A popular private romantic itinerary for couples.', link: 'https://www.klook.com/en-US/search/result/?query=Mt.%20Wakakusa%20Night%20View&aid=116515' },
+                    { title: 'Nara Farm Strawberry Picking (All-You-Can-Eat)', description: 'Nara\'s "Kotoka" strawberries are sweet and juicy. Experience picking in the greenhouse and eat as many premium strawberries as you want.', link: 'https://www.klook.com/en-US/search/result/?query=Nara%20Strawberry%20Picking&aid=116515' }
+                ],
+                'Transport & WiFi': [
+                    { title: 'Kintetsu Rail Pass', description: 'The ultimate pass for traveling between Osaka, Kyoto, and Nara! Unlimited rides on Kintetsu lines, saving lots of travel time.', link: 'https://www.klook.com/en-US/activity/5540-kintetsu-rail-pass-osaka/?spm=SearchResult.SearchResult_LIST&clickId=903746b942&aid=116515' },
+                    { title: 'JR Kansai Area Pass', description: 'Perfect for travelers using JR as main transport. Unlimited rides on JR trains in the Kansai area, including the Yamatoji line to Nara.', link: 'https://www.klook.com/en-US/activity/3276-4-day-jr-west-kansai-rail-pass-jr-pass/?spm=SearchResult.SearchResult_LIST&clickId=5bff873a88&aid=116515' },
+                    { title: 'Kansai Thru Pass', description: 'Roam Kansai\'s private railways and subways with one card. Includes Kintetsu and Nara Kotsu buses. Extremely flexible.', link: 'https://www.klook.com/en-US/activity/1329-kansai-thru-pass-osaka/?aid=116515' },
+                    { title: 'Nara City E-Bike / E-Scooter Rental', description: 'Don\'t want to wait for buses? Rent an e-bike or e-scooter, zip through Nara Park and old streets with the breeze.', link: 'https://www.klook.com/en-US/search/result/?query=Nara%20Bicycle%20Rental&aid=116515' },
+                    { title: 'Private Car Transfer to Nara (From Osaka/Kyoto)', description: 'Best choice when traveling with heavy luggage or elders. A private driver transfers you directly from your hotel to Nara\'s attractions.', link: 'https://www.klook.com/en-US/search/result/?query=Nara%20Private%20Car&aid=116515' },
+                    { title: 'Limousine Bus (Kansai Airport to Nara)', description: 'Avoid the fatigue of transferring trains with luggage. Board the bus at the airport, rest your eyes, and wake up in downtown Nara.', link: 'https://www.klook.com/en-US/search/result/?query=Kansai%20Airport%20Nara%20Bus&aid=116515' }
+                ]
+            },
+            'Uji': {
+                'Day Tours': [
+                    { title: 'Yodogawa Sewaritei, Uji & Minoh Waterfall Tour', description: 'Spring cherry blossom exclusive! Stroll through endless pink sakura tunnels, combined with Uji matcha and Minoh Waterfall scenery.', link: 'https://www.klook.com/en-US/search/result/?query=Sewaritei%20Uji%20Tour&aid=116515' },
+                    { title: 'Uji Byodo-in, Fushimi Inari & Katsuo-ji Tour', description: 'Classic unbeatable route. Pass the thousand torii gates, taste world-class matcha in Uji, and pray for luck at Katsuo-ji.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Fushimi%20Inari%20Katsuoji&aid=116515' },
+                    { title: 'Uji Tea Aroma Walking & Byodo-in Half-Day Tour', description: 'Led by a local guide. Walk across Uji Bridge, visit Byodo-in, and dive deep into the history of century-old tea shops on Omotesando.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Half%20Day%20Tour&aid=116515' },
+                    { title: 'Uji & Nara Classic Day Tour (From Kyoto)', description: 'Perfectly combines two World Heritage cities. Drink matcha by the Uji River in the morning, see the Great Buddha and feed deer in Nara in the afternoon.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Nara%20Tour&aid=116515' },
+                    { title: 'Mimuroto-ji & Daigo-ji Flower Tour', description: 'A gorgeous tour focused on flowers. See hydrangeas at Mimuroto-ji in early summer, and magnificent cherry blossoms at Daigo-ji in spring.', link: 'https://www.klook.com/en-US/search/result/?query=Mimurotoji%20Daigoji&aid=116515' },
+                    { title: 'Uji In-Depth: Tea Plantation & Tea Making Tour', description: 'Away from the tourist-packed Omotesando, go deep into Uji\'s green tea fields to learn tea picking and roasting from farmers.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Tea%20Plantation&aid=116515' },
+                    { title: 'Uji Matcha & Fushimi Sake Tour (From Osaka)', description: 'A tipsy tour for adults. After tasting the fresh aroma of premium green tea in Uji, head to Fushimi breweries for crisp Junmai Daiginjo.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Fushimi%20Sake&aid=116515' },
+                    { title: 'Uji & Iwashimizu Hachimangu Day Tour', description: 'Take a cable car up Mt. Otokoyama to visit the National Treasure Iwashimizu Hachimangu, then enjoy a peaceful tea town afternoon in Uji.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Iwashimizu%20Hachimangu&aid=116515' }
+                ],
+                'Experiences': [
+                    { title: 'Uji Matcha Stone Milling & Tea Ceremony', description: 'Spin a traditional stone mill yourself to grind tencha into fine matcha powder, and learn how to whisk a perfect bowl of matcha from a tea master.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Matcha%20Experience&aid=116515' },
+                    { title: 'Traditional Uji Sencha & Gyokuro Tasting', description: 'Matcha isn\'t the only choice! Learn to brew incredibly sweet, premium Japanese Gyokuro tea using precise water temperature and time.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Tea%20Tasting&aid=116515' },
+                    { title: 'Uji Kimono Rental & Byodo-in Photoshoot', description: 'Wear an exquisite kimono. Take photos full of deep Kyoto vibes on the tea-scented Omotesando and in front of the vermilion Byodo-in.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Kimono%20Rental&aid=116515' },
+                    { title: 'Uji Tea Picking & Processing Half-Day Experience', description: 'Wear a bamboo hat and carry a tea basket. Walk into the terraced tea fields and experience the fun of hand-picking one bud and two leaves.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Tea%20Picking&aid=116515' }
+                ],
+                'Transport & WiFi': [
+                    { title: 'Keihan Railway Kyoto-Osaka Sightseeing Pass', description: 'The magic ticket for Uji transport! Easily reach Uji from Osaka or downtown Kyoto with unlimited rides on the Keihan Railway.', link: 'https://www.klook.com/en-US/activity/3282-kyoto-osaka-sightseeing-pass-osaka/?aid=116515' },
+                    { title: 'JR Kansai Area Pass', description: 'If departing from Kyoto Station or Nara, taking the JR Nara line directly to Uji is the best way to use this pass.', link: 'https://www.klook.com/en-US/activity/3271-1-day-kansai-area-jr-pass/?aid=116515' },
+                    { title: 'Kansai Thru Pass', description: 'Roam Kansai with one card! Whether taking the Keihan Railway to Uji or transferring to other private railways to nearby cities, it\'s smooth sailing.', link: 'https://www.klook.com/en-US/activity/1329-kansai-thru-pass-osaka/?aid=116515' },
+                    { title: 'Private Car Transfer to Uji (From Osaka/Kyoto)', description: 'Want a stress-free trip? A private driver picks you up from your hotel door directly to Uji\'s tea estates and attractions. Easy and luxurious.', link: 'https://www.klook.com/en-US/search/result/?query=Uji%20Private%20Car&aid=116515' },
+                    { title: 'Kansai Airport to Uji Direct Transfer', description: 'Avoid the fatigue of carrying luggage and transferring trains. A private car goes directly from the airport to your Uji hotel. Perfect for elders and kids.', link: 'https://www.klook.com/en-US/search/result/?query=Kansai%20Airport%20Transfer&aid=116515' },
+                    { title: 'Japan 4G/5G eSIM / Physical SIM', description: 'Scan the QR Code to activate. Stable and non-throttled speed. Keeps you connected while finding tea shops and posting stories in Uji.', link: 'https://www.klook.com/en-US/search/result/?query=Japan%20eSIM&aid=116515' }
+                ]
+            },
+            'Kobe': {
+                'Tickets': [
+                    { title: 'Kobe Nunobiki Herb Gardens Ropeway & Ticket', description: 'Take a panoramic glass ropeway to the mountaintop. Stroll in European gardens blooming with seasonal flowers and overlook the grand Kobe Port.', link: 'https://www.klook.com/en-US/activity/46782-kobe-nunobiki-herb-gardens-ropeway-ticket/?aid=116515' },
+                    { title: 'Kobe Animal Kingdom Ticket', description: 'A unique zoo without fences! Interact closely with capybaras and kangaroos, plus thrilling bird shows. A must for families.', link: 'https://www.klook.com/en-US/activity/16556-kobe-animal-kingdom-ticket/?aid=116515' },
+                    { title: 'Kobe Port Tower Observatory Ticket', description: 'The red landmark of Kobe Port. Go to the observatory to take in 360-degree views of the ocean and Rokko Mountains. Night views are mesmerizing.', link: 'https://www.klook.com/en-US/activity/118331-kobe-port-tower-ticket/?aid=116515' },
+                    { title: 'Kobe átoa Aquarium Ticket', description: 'Innovative facility combining theater art and an aquarium. Magical light/shadow and stage-designed tanks break traditional aquarium boundaries.', link: 'https://www.klook.com/en-US/activity/66185-atoa-ticket-kobe/?aid=116515' },
+                    { title: 'Mt. Rokko Snow Park / Observatory Ticket', description: 'Ski and sled in winter; a summer retreat. The observatory boasts an extreme night view said to be worth "ten million dollars."', link: 'https://www.klook.com/en-US/search/result/?query=Mt.%20Rokko%20Snow%20Park&aid=116515' },
+                    { title: 'Arima Onsen Taiko-no-Yu Bath Ticket', description: 'One of Japan\'s three ancient hot springs. Taiko-no-Yu has Golden/Silver springs and various baths. Packages often include Kobe Railway discounts.', link: 'https://www.klook.com/en-US/activity/15691-arima-onsen-taiko-no-yu-kobe/?aid=116515' }
+                ],
+                'Day Tours': [
+                    { title: 'Mt. Rokko Night View & Arima Onsen Tour', description: 'Soak in ancient springs and enjoy night views! Private transport avoids transfer hassles, letting you easily enjoy Kobe\'s essence.', link: 'https://www.klook.com/en-US/search/result/?query=Kobe%20Rokko%20Arima%20Onsen&aid=116515' },
+                    { title: 'Kobe City Highlights & Ijinkan Walking Tour', description: 'A local guide takes you strolling through Kitano Ijinkan, tasting famous Kobe sweets, and diving into the port city\'s history and culture.', link: 'https://www.klook.com/en-US/search/result/?query=Kobe%20Half%20Day%20Tour&aid=116515' },
+                    { title: 'Kobe & Himeji Castle Classic Day Tour', description: 'Feel the awe of the pure white World Heritage Himeji Castle in the morning, then shop at Kobe Sanda Outlets or visit Ijinkan in the afternoon.', link: 'https://www.klook.com/en-US/search/result/?query=Kobe%20Himeji%20Castle&aid=116515' },
+                    { title: 'Kitano Ijinkan & Kobe Port Romantic Tour', description: 'A day full of European vibes. Visit western-style houses, then head to Kobe Harborland at dusk to enjoy the endless ocean view and sunset.', link: 'https://www.klook.com/en-US/search/result/?query=Kobe%20Port%20Tour&aid=116515' },
+                    { title: 'Nada Gogo Sake Brewery Tour & Tasting', description: 'Visit Japan\'s top sake region "Nada Gogo." Tour historic breweries and taste Junmai Daiginjo brewed with premium water.', link: 'https://www.klook.com/en-US/search/result/?query=Nada%20Gogo%20Sake&aid=116515' },
+                    { title: 'Sanda Premium Outlets & Arima Onsen Tour', description: 'Perfect combo for shopaholics and onsen lovers. Shop crazy at Western Japan\'s largest outlet, then soak in Arima\'s Golden Spring to relieve fatigue.', link: 'https://www.klook.com/en-US/search/result/?query=Sanda%20Outlet%20Arima%20Onsen&aid=116515' },
+                    { title: 'Akashi Kaikyo Bridge & Awaji Yumebutai Tour', description: 'Drive across the world\'s longest suspension bridge to Awaji Island to see Tadao Ando\'s Yumebutai and stunning seas of flowers.', link: 'https://www.klook.com/en-US/search/result/?query=Akashi%20Kaikyo%20Bridge&aid=116515' },
+                    { title: 'Kobe Romantic Night View Private Tour', description: 'Don\'t worry about night transport! A private car takes you up Mt. Maya for the million-dollar view, then back to Kobe Port\'s romantic illuminated bay.', link: 'https://www.klook.com/en-US/search/result/?query=Kobe%20Night%20View%20Car&aid=116515' },
+                    { title: 'Kansai Port Vibes: Kobe & Osaka Bay Tour', description: 'Take a cruise or speedboat to link the beautiful views of Kobe Port Tower and Osaka Tempozan from the sea. Experience a different Kansai.', link: 'https://www.klook.com/en-US/search/result/?query=Kobe%20Osaka%20Bay%20Cruise&aid=116515' },
+                    { title: 'Mt. Rokko Pasture & Botanical Garden Family Tour', description: 'Get close to sheep at the alpine pasture and taste rich handmade ice cream and cheese. Great for families with kids.', link: 'https://www.klook.com/en-US/search/result/?query=Mt.%20Rokko%20Pasture&aid=116515' }
+                ],
+                'Experiences': [
+                    { title: 'Kobe Concerto Romantic Cruise Dinner', description: 'Enjoy premium Kobe beef steak or French cuisine on a luxury cruise, accompanied by live classical music and Kobe Port\'s sparkling night view.', link: 'https://www.klook.com/en-US/activity/13242-concerto-cruise-kobe/?aid=116515' },
+                    { title: 'Premium Kobe Beef Teppanyaki Experience', description: 'You can\'t miss Kobe beef in Kobe! The chef locks in the juices on a high-heat teppan right in front of you for a luxurious melt-in-the-mouth taste.', link: 'https://www.klook.com/en-US/search/result/?query=Kobe%20Beef%20Teppanyaki&aid=116515' },
+                    { title: 'Luminous Kobe 2 Cruise Experience', description: 'One of Japan\'s largest restaurant cruises. Sailing under the Akashi Kaikyo Bridge, the illuminated bridge and vast sea view are unforgettable.', link: 'https://www.klook.com/en-US/activity/109869-the-kobe-cruise-luminous/?aid=116515' },
+                    { title: 'Kobe Sake (Nada Gogo) Tasting & Brewery Tour', description: 'Step into centuries-old sake cellars, learn the fermentation and brewing techniques, and taste freshly pressed raw sake.', link: 'https://www.klook.com/en-US/search/result/?query=Nada%20Gogo%20Tasting&aid=116515' },
+                    { title: 'Kitano Kimono / Taisho Romantic Dress Rental', description: 'In western-styled Kobe, renting a retro "Taisho Romantic Dress" to walk on Ijinkan street is even more charming than a kimono.', link: 'https://www.klook.com/en-US/search/result/?query=Kobe%20Kimono%20Rental&aid=116515' }
+                ],
+                'Transport & WiFi': [
+                    { title: 'Hanshin Tourist Pass', description: 'The cheapest way from Osaka Namba to Kobe Sannomiya! Unlimited rides on the Hanshin line for just coin prices. High CP.', link: 'https://www.klook.com/en-US/activity/23240-hanshin-tourist-pass-osaka/?aid=116515' },
+                    { title: 'Hankyu Tourist Pass', description: 'If departing from Osaka Umeda, the Hankyu pass to Kobe is fast/comfortable and lets you visit spots like Takarazuka along the way.', link: 'https://www.klook.com/en-US/activity/2281-hankyu-tourist-pass-osaka/?aid=116515' },
+                    { title: 'Kansai Airport to Kobe Bay Shuttle', description: 'Avoid city traffic! Take the high-speed boat across Osaka Bay from Kansai Airport to Kobe Airport in just 30 mins. Discount for foreigners.', link: 'https://www.klook.com/en-US/activity/16766-kobe-airport-bay-shuttle-osaka/?aid=116515' },
+                    { title: 'JR Kansai Wide Area Pass', description: 'If you plan to visit Himeji Castle or Okayama besides Kobe, this Shinkansen-accessible JR Pass will save you big money.', link: 'https://www.klook.com/en-US/activity/3277-5-day-kansai-wide-area-jr-pass/?aid=116515' },
+                    { title: 'Private Car Transfer to Kobe', description: 'The most comfortable choice for large luggage or families. A private driver transfers you directly from the airport or Osaka hotel to Kobe.', link: 'https://www.klook.com/en-US/search/result/?query=Kobe%20Private%20Car&aid=116515' },
+                    { title: 'Kansai Thru Pass', description: 'Roam Kansai private railways with one card. Perfectly covers Hankyu, Hanshin, and Kobe subways. Ideal for hopping cities daily.', link: 'https://www.klook.com/en-US/activity/1329-kansai-thru-pass-osaka/?aid=116515' }
+                ]
+            },
+            'Himeji': {
+                'Tickets': [
+                    { title: 'Himeji Castle (White Heron Castle) Ticket', description: 'Japan\'s No.1 castle and World Heritage! Snow-white walls like a white heron. Its complex defenses and grand keep are amazing.', link: 'https://www.klook.com/en-US/activity/20058-himeji-castle-kokoen-ticket/?aid=116515' },
+                    { title: 'Koko-en Garden Ticket', description: 'Large Japanese garden next to Himeji Castle. Divided into 9 themed gardens using the castle as borrowed scenery. Autumn illumination is stunning.', link: 'https://www.klook.com/en-US/activity/20058-himeji-castle-kokoen-ticket/?aid=116515' },
+                    { title: 'Himeji Central Park Ticket', description: 'Combines a drive-through safari park with a thrilling roller coaster amusement park. Himeji\'s most popular family entertainment facility.', link: 'https://www.klook.com/en-US/activity/48275-himeji-central-park-ticket/?aid=116515' }
+                ],
+                'Day Tours': [
+                    { title: 'Himeji Castle, Arima Onsen & Mt. Rokko Tour', description: 'Covers Hyogo\'s top 3 essentials in one trip! See the famous castle, soak in ancient springs, and enjoy million-dollar night views without transfer fatigue.', link: 'https://www.klook.com/en-US/search/result/?query=Himeji%20Castle%20Arima%20Onsen&aid=116515' },
+                    { title: 'Ono Sakura Corridor & Himeji Castle Spring Tour', description: 'Spring cherry blossom exclusive route! Visit the endless sakura avenue and take dreamy photos in front of the blossom-dotted White Heron Castle.', link: 'https://www.klook.com/en-US/search/result/?query=Himeji%20Castle%20Cherry%20Blossom&aid=116515' },
+                    { title: 'Himeji Castle & Koko-en Historical Half-Day Tour', description: 'Led by an expert history guide. Explains the complex defensive maze and architectural secrets of the main keep. No longer just a quick look.', link: 'https://www.klook.com/en-US/search/result/?query=Himeji%20Castle%20Half%20Day&aid=116515' },
+                    { title: 'Himeji & Akashi Kaikyo Bridge Day Tour', description: 'After exploring World Heritage Himeji Castle, head to Maiko Park to gaze up at the world\'s longest suspension bridge, Akashi Kaikyo Bridge.', link: 'https://www.klook.com/en-US/search/result/?query=Himeji%20Akashi%20Kaikyo&aid=116515' },
+                    { title: 'Himeji & Kurashiki Castle and Canal Day Tour', description: 'A grand cross-city tour! See pure white Himeji Castle in the morning, then head to Kurashiki Bikan Historical Quarter in Okayama for a retro canal boat ride.', link: 'https://www.klook.com/en-US/search/result/?query=Himeji%20Kurashiki%20Tour&aid=116515' },
+                    { title: 'Himeji & Okayama Seto Inland Sea 2-Day Tour', description: '2-day itinerary combining Himeji Castle and Okayama Korakuen Garden. Slowly enjoy the warm climate and fresh seafood of the Seto Inland Sea.', link: 'https://www.klook.com/en-US/search/result/?query=Himeji%20Okayama%20Tour&aid=116515' },
+                    { title: 'Himeji Sakura/Autumn Leaves Private Charter Tour', description: 'Hate crowds? Charter a private car to Himeji\'s hidden cherry blossom/red leaf spots unknown to foreign tourists for an exclusive view.', link: 'https://www.klook.com/en-US/search/result/?query=Himeji%20Private%20Car&aid=116515' }
+                ],
+                'Experiences': [
+                    { title: 'Himeji Castle Town Kimono & Ninja Experience', description: 'Change into beautiful kimonos or cool ninja outfits. Use pure white Himeji Castle as a backdrop to take a series of time-traveling souvenir photos.', link: 'https://www.klook.com/en-US/search/result/?query=Himeji%20Kimono%20Ninja&aid=116515' }
+                ],
+                'Transport & WiFi': [
+                    { title: 'JR Kansai Wide Area Pass', description: 'The ultimate pass to take the Shinkansen to Himeji! Only takes about 30 mins directly from Shin-Osaka. The most cost-effective choice.', link: 'https://www.klook.com/en-US/activity/3277-5-day-kansai-wide-area-jr-pass/?aid=116515' },
+                    { title: 'Kansai Thru Pass', description: 'If you choose to ride the Sanyo Railway to slowly enjoy the scenery to Himeji, this private railway pass is a must-have.', link: 'https://www.klook.com/en-US/activity/1329-kansai-thru-pass-osaka/?aid=116515' },
+                    { title: 'Private Car Transfer to Himeji', description: 'Farther from Osaka. If traveling with elders or heavy luggage, chartering a car from the airport/hotel is the most comfortable luxury choice.', link: 'https://www.klook.com/en-US/search/result/?query=Himeji%20Private%20Transfer&aid=116515' },
+                    { title: 'Himeji Port to Shodoshima Ferry Ticket', description: 'Want to island-hop the Seto Inland Sea? Take a ferry from Himeji Port to olive-producing Shodoshima for a romantic island journey.', link: 'https://www.klook.com/en-US/search/result/?query=Shodoshima%20Ferry&aid=116515' }
+                ]
+            }
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState('Osaka');
+            const [selectedCategory, setSelectedCategory] = useState('Tickets');
+
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen bg-[#f0fdf4] font-sans text-slate-800 pb-12">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-emerald-100">
+                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center justify-between gap-2 mb-4">
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="text-emerald-600 w-6 h-6 md:w-8 md:h-8" />
+                                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">
+                                        Kansai Trip Guide
+                                    </h1>
+                                </div>
+                                <a
+                                    href="https://linkuei0425.github.io/Osaka-US/"
+                                    className="hidden md:flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    Back to Home
+                                </a>
+                            </div>
+                            
+                            {/* Region Selection */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                <a
+                                    href="https://linkuei0425.github.io/Osaka-US/"
+                                    className="md:hidden flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    Home
+                                </a>
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => setSelectedRegion(region)}
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${
+                                            selectedRegion === region
+                                            ? 'bg-teal-600 text-white shadow-md'
+                                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-teal-50 hover:text-teal-700'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 py-8">
+                        {/* Category Tabs */}
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                            {CATEGORIES.map(({ id, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSelectedCategory(id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border text-sm font-bold transition-all ${
+                                        selectedCategory === id
+                                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {id}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Content Title */}
+                        <div className="mb-6 flex items-center gap-2">
+                            <h2 className="text-2xl font-bold text-slate-800">
+                                {selectedRegion} - {selectedCategory} <span className="text-emerald-600">Recommendations</span>
+                            </h2>
+                        </div>
+
+                        {/* Card List */}
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
+                                {currentData.map((item, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-fade-in"
+                                        style={{ animationDelay: `${index * 0.05}s` }}
+                                    >
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight flex items-start gap-2">
+                                                <span className="text-emerald-500 mt-1"><Sparkles className="w-5 h-5"/></span>
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed font-medium">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="mt-auto pt-4 border-t border-slate-100 flex justify-end">
+                                            <a
+                                                href={item.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 bg-[#ff5b00] hover:bg-[#e05000] text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-sm hover:shadow-md w-full sm:w-auto"
+                                            >
+                                                <Info className="w-4 h-4" />
+                                                <span>Details</span>
+                                                <ExternalLink className="w-4 h-4 ml-1 opacity-80" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                                    No items available in this category for this region.
+                                </h3>
+                                <p className="text-slate-500">Please try selecting another category.</p>
+                            </div>
+                        )}
+
+                        {/* Global Explore Button */}
+                        <div className="mt-12 flex justify-center">
+                            <a 
+                                href={`https://www.klook.com/en-US/search/result/?query=${encodeURIComponent(selectedRegion)}&aid=116515`}
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                <span className="tracking-wide">Explore more activities in {selectedRegion}</span>
+                                <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
+                            </a>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

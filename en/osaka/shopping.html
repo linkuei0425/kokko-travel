@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kansai Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Custom Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Active State for Tabs */
+        .tab-btn.active {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+            border-color: #4f46e5;
+        }
+        .city-btn.active {
+            background-color: #312e81; /* indigo-900 */
+            color: white;
+            border-color: #312e81;
+        }
+        .tab-btn, .city-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button Hover */
+        .btn-maps {
+            background-color: #4f46e5; /* indigo-600 */
+        }
+        .btn-maps:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-indigo-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-indigo-700 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>KANSAI SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/Osaka-US/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-indigo-800 via-indigo-600 to-purple-600 py-10 lg:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm drop-shadow-md">Kansai Must-Buy Shopping Guide</h1>
+            <p class="text-base md:text-lg text-indigo-100 max-w-2xl mx-auto font-medium">Selected from 7 major cities in Kansai, featuring over 350 local souvenirs, international boutiques, drugstores, and anime hubs. Shop till you drop!</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- City Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot mr-1"></i> Select City</h2>
+            <div id="city-container" class="flex overflow-x-auto hide-scrollbar space-x-2 pb-2">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> Select Category</h2>
+            <div id="category-container" class="flex overflow-x-auto hide-scrollbar space-x-3 pb-2">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Shop Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected dynamically via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Kansai Shopping Guide. Providing the best shopping recommendations for your Kansai trip.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data Structure: n=Name, f=Feature, a=Address, t=Transport, cLink=CouponLink, cName=CouponName, cIcon=CouponIcon
+        const db = {
+            osaka: {
+                name: "Osaka",
+                cat: {
+                    souvenir: [
+                        {n:"Bâton d'or (Hankyu Umeda)",f:"Known as the Hermès of Pocky. High-quality butter aroma, a popular queueing store great for gifts.",a:"8-7 Kakudacho, Kita-ku, Osaka",t:"2 min walk from Umeda Sta."},
+                        {n:"551 HORAI",f:"The soul pork bun of Osaka. The ultimate souvenir to buy before taking the Shinkansen or returning home.",a:"3-6-3 Namba, Chuo-ku, Osaka",t:"1 min walk from Namba Sta."},
+                        {n:"Rikuro's Cheesecake",f:"Freshly baked jiggly cheesecake with raisins at the bottom. Very affordable and delicious.",a:"3-2-28 Namba, Chuo-ku, Osaka",t:"2 min walk from Namba Sta."},
+                        {n:"Kokyu Choco (Breathing Choco)",f:"Osaka-exclusive popular chocolate coated with mascarpone cheese and almonds. Very addictive.",a:"Major souvenir shops / Airports",t:"Available in various districts"},
+                        {n:"ÉCHIRÉ Butter Cookies",f:"Luxurious cookies made with premium French Échiré butter. Beautifully packaged in a tin.",a:"8-7 Kakudacho, Kita-ku, Osaka",t:"2 min walk from Umeda Sta."},
+                        {n:"GOKAN (Black Bean Madeleine)",f:"French madeleines made with Japanese domestic rice and Tamba black beans.",a:"2-1-1 Imabashi, Chuo-ku, Osaka",t:"2 min walk from Kitahama Sta."},
+                        {n:"Kuidaore Taro Pudding",f:"Packaging featuring Osaka's iconic mascot. The caramel pudding is rich and comes with a cute hat.",a:"Dotonbori souvenir shops",t:"Around Namba Sta."},
+                        {n:"Grand Calbee",f:"Premium thick-cut potato chips by Calbee with unique flavors. Department store exclusive.",a:"8-7 Kakudacho, Kita-ku, Osaka",t:"2 min walk from Umeda Sta."},
+                        {n:"Mon cher (Dojima Roll)",f:"Super popular fresh cream roll originating from Umeda. Hokkaido cream is rich but not too sweet.",a:"2-1-2 Dojimahama, Kita-ku, Osaka",t:"5 min walk from Nishi-Umeda Sta."},
+                        {n:"Chidoriya (Chidori Manju)",f:"Traditional Kansai sweets. The crust is baked golden crisp with a sweet white bean paste filling.",a:"3-4-12 Honmachi, Chuo-ku, Osaka",t:"3 min walk from Honmachi Sta."}
+                    ],
+                    fashion: [
+                        {n:"Daimaru Dept. Store (Shinsaibashi)",f:"The South and Main buildings offer a complete range of international boutiques and cosmetics inside a historic building.",a:"1-7-1 Shinsaibashisuji, Chuo-ku, Osaka",t:"Directly connected to Shinsaibashi Sta.", cLink:"https://www.klook.com/en-US/activity/87245-daimaru-matsuzakaya-shopping-coupon-japan/?spm=SearchResult.SearchResult_LIST&clickId=b7f8f6874e", cName:"Daimaru Matsuzakaya Coupon", cIcon:"fa-solid fa-building"},
+                        {n:"Kintetsu Dept. Store (Abeno Harukas)",f:"Located in Japan's tallest building. Offers a very spacious shopping environment and an observatory.",a:"1-1-43 Abenosuji, Abeno-ku, Osaka",t:"Directly connected to Tennoji Sta.", cLink:"https://www.klook.com/en-US/activity/96868-kintetsu-department-store-guest-coupon/?spm=SearchResult.SearchResult_LIST&clickId=f0411c38d4", cName:"Kintetsu Dept. Store Coupon", cIcon:"fa-solid fa-store"},
+                        {n:"LUCUA osaka",f:"Mega department store connected to Umeda station, highly popular among youth with trendy apparel.",a:"3-1-3 Umeda, Kita-ku, Osaka",t:"Directly connected to JR Osaka Sta."},
+                        {n:"Shinsaibashi PARCO",f:"Trendy mall combining subcultures and fashion. Features Ghibli and Godzilla specialty stores.",a:"1-8-3 Shinsaibashisuji, Chuo-ku, Osaka",t:"Directly connected to Shinsaibashi Sta."},
+                        {n:"Rinku Premium Outlets",f:"One of Western Japan's largest outlets near Kansai Airport. Over 200 domestic and international brands.",a:"3-28 Rinkuouraiminami, Izumisano",t:"6 min walk from Rinku Town Sta."},
+                        {n:"Hankyu Dept. Store (Umeda Main)",f:"Kansai's most iconic luxury department store. The 1st-floor cosmetics and boutique lineup is luxurious.",a:"8-7 Kakudacho, Kita-ku, Osaka",t:"Directly connected to Umeda Sta."},
+                        {n:"Grand Front Osaka",f:"Umeda's landmark mall with spacious areas, featuring MUJI, Kinokuniya, and various fashion brands.",a:"4-1 Ofukacho, Kita-ku, Osaka",t:"3 min walk from JR Osaka Sta."},
+                        {n:"Namba Parks",f:"Core mall of Namba with canyon-like greenery design. Features many streetwear and women's brands.",a:"2-10-70 Nanbanaka, Naniwa-ku, Osaka",t:"Directly connected to Nankai Namba Sta."},
+                        {n:"Q's Mall (Abeno)",f:"Mega mall in Tennoji area with friendly brands like Uniqlo, GU, and Ito-Yokado.",a:"1-6-1 Abenosuji, Abeno-ku, Osaka",t:"2 min walk from Tennoji Sta."},
+                        {n:"Americamura",f:"Osaka's Harajuku, full of vintage clothing, independent designer brands, and streetwear.",a:"Nishishinsaibashi area, Chuo-ku",t:"5 min walk from Shinsaibashi Sta."}
+                    ],
+                    beauty: [
+                        {n:"SUNDRUG (Shinsaibashi)",f:"Highly competitive drugstore chain with frequent discount events and tax-free shopping.",a:"1-3-20 Shinsaibashisuji, Chuo-ku, Osaka",t:"2 min walk from Shinsaibashi Sta.", cLink:"https://www.klook.com/en-US/activity/85217-sundrug-tax-free-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=034a659c67", cName:"SUNDRUG Tax-Free Coupon", cIcon:"fa-solid fa-prescription-bottle-medical"},
+                        {n:"Tsuruha Drug (Dotonbori)",f:"Bright and spacious store. Abundant stock of cosmetics and counter skincare brands alongside medicines.",a:"1-8-16 Dotonbori, Chuo-ku, Osaka",t:"3 min walk from Namba Sta.", cLink:"https://www.klook.com/en-US/activity/88116-tsuruba-drug-store-shopping-coupons/?spm=SearchResult.SearchResult_LIST&clickId=aff8f60e6f", cName:"Tsuruha Drug Coupon", cIcon:"fa-solid fa-pills"},
+                        {n:"Matsumoto Kiyoshi (Shinsaibashi South)",f:"Large store in Shinsaibashi. Many foreign language staff and extremely complete beauty/drug selection.",a:"2-5-5 Shinsaibashisuji, Chuo-ku, Osaka",t:"3 min walk from Shinsaibashi Sta."},
+                        {n:"Daikoku Drug (Namba)",f:"Known for extreme cheap prices and lots of snacks. Best for bulk buying patches and vitamins.",a:"3-5-11 Namba, Chuo-ku, Osaka",t:"2 min walk from Namba Sta."},
+                        {n:"@cosme store (LUCUA)",f:"Physical store of Japan's largest beauty review site. Test all the top-ranked makeup here.",a:"3-1-3 Umeda, Kita-ku, Osaka (LUCUA 3F)",t:"Directly connected to JR Osaka Sta."},
+                        {n:"OS Drug (Shinsaibashi)",f:"Local pharmacy with no tax-free but base prices are often cheaper than tax-free shops. Cash only.",a:"1-2-15 Shinsaibashisuji, Chuo-ku, Osaka",t:"3 min walk from Shinsaibashi Sta."},
+                        {n:"Don Quijote Beauty (Umeda)",f:"24-hour Donki. Great for late-night restocking of color contacts and affordable makeup.",a:"4-16 Komatsubaracho, Kita-ku, Osaka",t:"5 min walk from Umeda Sta."},
+                        {n:"Ainz & Tulpe (Umeda)",f:"High-quality open-shelf beauty select shop featuring many emerging Japanese skincare brands.",a:"1-8-16 Umeda, Kita-ku, Osaka",t:"3 min walk from Umeda Sta."},
+                        {n:"Kokumin Drug (Namba Underground)",f:"Long-established Kansai drugstore in the underground mall. Perfect for last-minute shopping before trains.",a:"Namba Niji Underground Mall",t:"Namba Sta. Underground"},
+                        {n:"PLAZA (Shinsaibashi)",f:"Sells the latest trendy Western and Japanese makeup, fragrances, and cute beauty tools.",a:"1-8-3 Shinsaibashisuji, Chuo-ku, Osaka",t:"Shinsaibashi Sta. (inside PARCO)"}
+                    ],
+                    mart: [
+                        {n:"Don Quijote (Dotonbori)",f:"Iconic landmark with a yellow Ferris wheel. 24 hours. Snacks, ramen, and miscellaneous goods.",a:"7-13 Soemoncho, Chuo-ku, Osaka",t:"5 min walk from Namba Sta.", cLink:"https://www.klook.com/en-US/activity/169498-dotombori-district-free-audio-guide-by-klook/?spm=SearchResult.SearchResult_LIST&clickId=516e53ab33", cName:"Dotonbori Free Audio Guide", cIcon:"fa-solid fa-headphones"},
+                        {n:"LIFE Supermarket (Namba)",f:"Huge two-story supermarket in Namba. Great for fresh food, deli bento, and Japanese snacks.",a:"1-2-3 Minatomachi, Naniwa-ku, Osaka",t:"2 min walk from JR Namba Sta."},
+                        {n:"Gyomu Super (Nipponbashi)",f:"Rock-bottom wholesale prices! Best for bulk buying matcha powder, snacks, and condiments.",a:"4-13-2 Nipponbashi, Naniwa-ku, Osaka",t:"5 min walk from Ebisucho Sta."},
+                        {n:"Super Tamade (Ebisu)",f:"Flashy discount supermarket open 24 hours. Known for its super cheap bento boxes.",a:"1-2-14 Ebisunishi, Naniwa-ku, Osaka",t:"1 min walk from Ebisucho Sta."},
+                        {n:"MaxValu (Namba Minatomachi)",f:"24-hour supermarket by AEON. Topvalu private brand snacks and green tea offer great value.",a:"1-4-1 Minatomachi, Naniwa-ku, Osaka",t:"3 min walk from JR Namba Sta."},
+                        {n:"Seijo Ishii (LUCUA)",f:"High-end supermarket selling imported foods, premium cheese, and exclusive high-quality desserts.",a:"3-1-3 Umeda, Kita-ku, Osaka (B1)",t:"Directly connected to JR Osaka Sta."},
+                        {n:"Kuromon Market Supermarket",f:"Located in Kuromon Market. Excellent for buying fresh fruits like strawberries and muscat grapes.",a:"1-21-5 Nipponbashi, Chuo-ku, Osaka",t:"3 min walk from Nipponbashi Sta."},
+                        {n:"KOHYO (Namba)",f:"AEON group urban supermarket. The deli and sushi sections have great quality in a clean environment.",a:"2-10-70 Nanbanaka, Naniwa-ku, Osaka",t:"3 min walk from Nankai Namba Sta."},
+                        {n:"Ito-Yokado (Abeno)",f:"Large supermarket inside Q's Mall. Has daily goods sections, perfect for one-stop souvenir shopping.",a:"1-6-1 Abenosuji, Abeno-ku, Osaka",t:"2 min walk from Tennoji Sta."},
+                        {n:"Takashimaya Depachika",f:"B1 food hall of Namba Takashimaya. The ultimate battleground for refined bento, wagashi, and fruits.",a:"5-1-5 Namba, Chuo-ku, Osaka",t:"Directly connected to Namba Sta."}
+                    ],
+                    hobby: [
+                        {n:"Bic Camera (Namba)",f:"Large electronics retailer. Besides hair dryers and beauty devices, the toy and liquor sections are huge.",a:"2-10-1 Sennichimae, Chuo-ku, Osaka",t:"3 min walk from Namba Sta.", cLink:"https://www.klook.com/en-US/activity/73345-bic-camera-tourist-privilege-discount-coupon-2022/?spm=SearchResult.SearchResult_LIST&clickId=c11874ea39", cName:"Bic Camera Tourist Coupon", cIcon:"fa-solid fa-camera"},
+                        {n:"EDION (Namba Main Store)",f:"Mega electronics store. Features tax-free appliances, a whole floor for ramen, and a ninja experience.",a:"3-2-18 Namba, Chuo-ku, Osaka",t:"1 min walk from Namba Sta.", cLink:"https://www.klook.com/en-US/activity/83114-edion-tourist-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=d6733052e4", cName:"EDION Tourist Coupon", cIcon:"fa-solid fa-tv"},
+                        {n:"Kitamura Camera (Namba)",f:"Top specialty store for new and used cameras/lenses. Tax-free prices are great, quality guaranteed.",a:"3-6-17 Namba, Chuo-ku, Osaka",t:"2 min walk from Namba Sta.", cLink:"https://www.klook.com/en-US/activity/159998-kitamura-camera-tax-free-exclusive-coupon/?spm=SearchResult.SearchResult_LIST&clickId=69ca23e53d", cName:"Kitamura Camera Tax-Free Coupon", cIcon:"fa-solid fa-camera-retro"},
+                        {n:"Nintendo OSAKA",f:"Official Nintendo store! Sells exclusive limited merchandise of Mario, Zelda, and Animal Crossing.",a:"3-1-1 Umeda, Kita-ku, Osaka (Daimaru)",t:"Directly connected to JR Osaka Sta."},
+                        {n:"Yodobashi Camera (Umeda)",f:"Landmark 3C mall. Multiple floors of cameras, gachapon, Gunpla, and camping gear. Cannot finish in a day.",a:"1-1 Ofukacho, Kita-ku, Osaka",t:"2 min walk from JR Osaka Sta."},
+                        {n:"Animate (Nipponbashi)",f:"Kansai's anime mecca! Packed with the latest merch, manga, and doujinshi. Otaku paradise.",a:"4-15-17 Nipponbashi, Naniwa-ku, Osaka",t:"5 min walk from Ebisucho Sta."},
+                        {n:"Surugaya (Nipponbashi)",f:"Treasure hunting ground for used anime figures and games. Find rare items at low prices if lucky.",a:"4-11-3 Nipponbashi, Naniwa-ku, Osaka",t:"8 min walk from Nipponbashi Sta."},
+                        {n:"Tokyu Hands (Umeda)",f:"A must-visit for stationery lovers! Get high-quality Japanese stationery and travel goods all at once.",a:"3-1-1 Umeda, Kita-ku, Osaka (Daimaru)",t:"Directly connected to JR Osaka Sta."},
+                        {n:"Loft (Umeda)",f:"Trend and creative gift indicator. Beauty, stationery, and character collab goods with great design.",a:"16-7 Chayamachi, Kita-ku, Osaka",t:"5 min walk from Hankyu Umeda Sta."},
+                        {n:"ABC-MART GRAND STAGE",f:"Mega flagship shoe store in Namba. Most complete collection of Nike and New Balance limited editions.",a:"2-8-3 Shinsaibashisuji, Chuo-ku, Osaka",t:"3 min walk from Shinsaibashi Sta."}
+                    ]
+                }
+            },
+            kyoto: {
+                name: "Kyoto",
+                cat: {
+                    souvenir: [
+                        {n:"Honke Nishio Yatsuhashi",f:"Kyoto's must-buy 'Nama Yatsuhashi'. Chewy skin with red bean or matcha filling. Free samples available.",a:"Kiyomizu 2-chome, Higashiyama-ku",t:"Walk from Kiyomizu-michi Bus Stop"},
+                        {n:"Malebranche (Cha-no-ka)",f:"Extremely rich Uji matcha cookies sandwiching white chocolate. Elegant packaging, top-tier Kyoto souvenir.",a:"2-256 Kiyomizu, Higashiyama-ku, Kyoto",t:"Along Kiyomizu Temple approach"},
+                        {n:"Ajari Mochi (Mangetsu)",f:"Mochi-like soft crust filled with plump Tamba Dainagon red beans. Often sells out quickly.",a:"Imadegawa-agaru, Sakyo-ku, Kyoto",t:"10 min walk from Demachiyanagi Sta."},
+                        {n:"Kyo-Baum",f:"Gradient baumkuchen made with Kyoto Uji matcha and soy milk. Moist texture and rich tea aroma.",a:"Various souvenir shops & stations",t:"Inside JR Kyoto Sta."},
+                        {n:"Ryokujuan Shimizu (Konpeito)",f:"Japan's only specialty store for Konpeito (sugar candy)! Handmade by artisans with natural flavors like Sakura.",a:"38-2 Yoshidaizumidonocho, Sakyo-ku",t:"15 min walk from Demachiyanagi Sta."},
+                        {n:"Ippodo Tea (Kyoto Main Store)",f:"300-year-old tea shop. Best choice for premium Gyokuro and Matcha. The store smells amazing.",a:"Teramachi Nijo-agaru, Nakagyo-ku",t:"5 min walk from Kyoto Shiyakusho-mae"},
+                        {n:"Hararyoukaku (Kuro Shichimi)",f:"Famous seasoning from Gion! Black Shichimi powder has deep aroma without being too spicy. Perfect for meat.",a:"267 Gionmachi Kitagawa, Higashiyama-ku",t:"3 min walk from Gion-shijo Sta."},
+                        {n:"Yojiya",f:"Famous Geisha logo. Besides the must-buy oil blotting paper, facial soaps and hand creams are very popular.",a:"270 Gionmachi Kitagawa, Higashiyama-ku",t:"3 min walk from Gion-shijo Sta."},
+                        {n:"Kogetsu (Senju Senbei)",f:"Wavy crispy cookies sandwiching rich cream. Unique texture, a Kyoto Western-style sweet loved by elders.",a:"Kyu-Nijo-dori, Nakagyo-ku",t:"Available in major dept. store B1"},
+                        {n:"Kyoto Kitayama (Macha Ice Pillar)", f:"Another hit by Malebranche. Rich matcha chocolate shaped like ice pillars. Melts in your mouth.", a:"JR Kyoto Sta. Isetan B1", t:"Inside JR Kyoto Sta."}
+                    ],
+                    fashion: [
+                        {n:"Daimaru Dept. Store (Kyoto)",f:"Located in Karasuma. Grand architecture. High-end fashion, boutiques, and basement deli are excellent.",a:"Shijo Takakura Nishi-iru, Shimogyo-ku",t:"Directly connected to Shijo Sta.", cLink:"https://www.klook.com/en-US/activity/87245-daimaru-matsuzakaya-shopping-coupon-japan/?spm=SearchResult.SearchResult_LIST&clickId=b7f8f6874e", cName:"Daimaru Matsuzakaya Coupon", cIcon:"fa-solid fa-building"},
+                        {n:"Takashimaya (Kyoto)",f:"Prime location in Shijo Kawaramachi. Long history, complete range of international boutiques and women's wear.",a:"Shijo Kawaramachi Nishi-iru, Shimogyo-ku",t:"Directly connected to Kyoto-kawaramachi"},
+                        {n:"Fujii Daimaru",f:"Trendy mall focused on youth and culture. Houses many streetwear brands and boutique cafes.",a:"Teramachi Shijo-sagaru, Shimogyo-ku",t:"2 min walk from Kyoto-kawaramachi"},
+                        {n:"Kyoto BAL",f:"Artistic and aesthetic mall featuring beautiful MUJI, Ron Herman, and Tsutaya Books.",a:"Kawaramachi Sanjo-sagaru, Nakagyo-ku",t:"5 min walk from Kyoto-kawaramachi"},
+                        {n:"Shinpuhkan",f:"Beautiful complex renovated from an old telephone office. Houses Maison Kitsuné and BEAMS.",a:"Karasuma Aneyakoji-sagaru, Nakagyo-ku",t:"Directly connected to Karasuma Oike"},
+                        {n:"Porta (Kyoto Station Underground)",f:"Underground mall right under Kyoto Station. Many affordable clothing and bag brands for young women.",a:"Karasuma Shiokoji-sagaru, Shimogyo-ku",t:"Directly connected to JR Kyoto Sta."},
+                        {n:"Aeon Mall (Kyoto South)",f:"Large mall behind Kyoto Station. Features Uniqlo, Zara, and MUJI. Great for family shopping.",a:"1 Nishikujo Toriiguchicho, Minami-ku",t:"5 min walk from Kyoto Sta. Hachijo Exit"},
+                        {n:"SOU・SOU (Kyoto Main Store)",f:"Known for modern Japanese prints! Canvas bags, split-toe shoes, and clothes blending tradition and modernity.",a:"Shinkyogoku Shijo-agaru, Nakagyo-ku",t:"3 min walk from Kyoto-kawaramachi"},
+                        {n:"Shijo Kawaramachi St.",f:"Kyoto's busiest shopping artery. Lined with trendy fashion, shoe stores, and drugstores.",a:"Shijo-dori, Shimogyo-ku",t:"Right outside Kyoto-kawaramachi Sta."},
+                        {n:"Teramachi Shopping Arcade",f:"Roofed arcade with a retro vibe. Hides many vintage clothing shops, indie designers, and tea houses.",a:"Teramachi-dori, Nakagyo-ku",t:"3 min walk from Kyoto Shiyakusho-mae"}
+                    ],
+                    beauty: [
+                        {n:"SUNDRUG (Shinkyogoku)",f:"Located in the arcade with competitive prices. Often has rock-bottom prices for foot patches and eye drops.",a:"Shinkyogoku Shijo-agaru, Nakagyo-ku",t:"3 min walk from Kyoto-kawaramachi", cLink:"https://www.klook.com/en-US/activity/85217-sundrug-tax-free-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=034a659c67", cName:"SUNDRUG Tax-Free Coupon", cIcon:"fa-solid fa-prescription-bottle-medical"},
+                        {n:"Tsuruha Drug (Shijo Karasuma)",f:"Spacious environment. Complete range of Shiseido, Kanebo counter skincare with tax-free benefits.",a:"Shijo Karasuma Higashi-iru, Shimogyo-ku",t:"1 min walk from Shijo Sta.", cLink:"https://www.klook.com/en-US/activity/88116-tsuruba-drug-store-shopping-coupons/?spm=SearchResult.SearchResult_LIST&clickId=aff8f60e6f", cName:"Tsuruha Drug Coupon", cIcon:"fa-solid fa-pills"},
+                        {n:"Matsumoto Kiyoshi (Shijo Kawaramachi)",f:"Huge store. High stock of cosmetics, many foreign tourists, and fast tax-free processing.",a:"Shijo Kawaramachi Higashi-iru, Shimogyo-ku",t:"1 min walk from Kyoto-kawaramachi"},
+                        {n:"Daikoku Drug (Kyoto Tower)",f:"Opposite Kyoto Station. Super convenient before heading to the hotel. Killer prices for snacks and meds.",a:"Karasuma Shichijo-sagaru, Shimogyo-ku",t:"2 min walk from JR Kyoto Sta."},
+                        {n:"OS Drug (Shijo Kawaramachi)",f:"Local pharmacy with no tax-free but base prices are often cheaper. Cash only.",a:"Shijo Teramachi Higashi-iru, Shimogyo-ku",t:"2 min walk from Kyoto-kawaramachi"},
+                        {n:"Kyoto Shabonya",f:"Handmade soap using pure Kyoto water and natural plants. Beautifully packaged, great for sensitive skin.",a:"Sanjo Karasuma Nishi-iru, Nakagyo-ku",t:"3 min walk from Karasuma Oike Sta."},
+                        {n:"Ueba Esou (Gofun Nail Polish)",f:"Natural nail polish by Japan's oldest pigment shop. Odorless and comes in poetic Japanese colors.",a:"Higashinotoin Takatsuji-sagaru, Shimogyo-ku",t:"5 min walk from Gojo Sta."},
+                        {n:"ROSEMARY (Kyoto CUBE)",f:"Inside Kyoto Station. Curated selection of trendy Japanese open-shelf makeup and aesthetic beauty tools.",a:"Karasuma Shiokoji-sagaru, Shimogyo-ku",t:"Inside JR Kyoto Sta. Underground"},
+                        {n:"Shop In (Kyoto The Cube)",f:"Gathers trending global makeup and beauty devices. Great place to find Japan's latest internet-famous cosmetics.",a:"Karasuma Shiokoji-sagaru, Shimogyo-ku",t:"Inside JR Kyoto Sta. Underground"},
+                        {n:"Kyoto Chidoriya (Beauty Dept)",f:"Besides sweets, their sake lees facial soap and moisturizing lotion are highly praised.",a:"Kyoto local specialty shops",t:"Around Gion District"}
+                    ],
+                    mart: [
+                        {n:"Daimaru Kyoto Depachika",f:"Top-tier supermarket experience. Mouth-watering historic wagashi, tempura, and wagyu bento.",a:"Shijo Takakura Nishi-iru, Shimogyo-ku",t:"Directly connected to Shijo Sta.", cLink:"https://www.klook.com/en-US/activity/87245-daimaru-matsuzakaya-shopping-coupon-japan/?spm=SearchResult.SearchResult_LIST&clickId=b7f8f6874e", cName:"Daimaru Matsuzakaya Coupon", cIcon:"fa-solid fa-building"},
+                        {n:"FRESCO (Shijo)",f:"Most common chain in Kyoto. 24 hours. Rich variety of bento and deli food at affordable prices.",a:"Shijo Nishinotoin Higashi-iru, Shimogyo-ku",t:"5 min walk from Shijo Sta."},
+                        {n:"Gyomu Super (Sanjo Kawaramachi)",f:"Huge portions and extremely cheap! Best for bulk buying dashi, matcha, and green tea.",a:"Kawaramachi Sanjo-sagaru, Nakagyo-ku",t:"5 min walk from Keihan Sanjo Sta."},
+                        {n:"Don Quijote (Kyoto Shijo Kawaramachi)",f:"Largest Donki in Kyoto. Clear floor categories for snacks, meds, souvenirs, and quirky goods.",a:"Kawaramachi-dori, Nakagyo-ku",t:"3 min walk from Kyoto-kawaramachi"},
+                        {n:"LIFE Supermarket (Nijo)",f:"Mega fresh supermarket! Sashimi, wagyu bento, and local Kyoto snacks are extremely complete.",a:"Nishinokyo Hoshiikecho, Nakagyo-ku",t:"2 min walk from JR Nijo Sta."},
+                        {n:"Meidi-Ya (Sanjo)",f:"High-end imported supermarket. Great for high-quality jams, imported cheese, and refined snacks.",a:"Sanjo Kawaramachi Higashi-iru, Nakagyo-ku",t:"3 min walk from Keihan Sanjo Sta."},
+                        {n:"Yaoya Ichi (Kyoto Main)",f:"The boutique of supermarkets. Fresh produce on the 1st floor, premium condiments on the 2nd.",a:"Higashinotoin Sanjo-sagaru, Nakagyo-ku",t:"3 min walk from Karasuma Oike Sta."},
+                        {n:"AEON Supermarket (Gojo)",f:"Inside Aeon Mall. Private brand foods offer great value. Easy to buy souvenirs and snacks.",a:"25-1 Saiinoiwakecho, Ukyo-ku, Kyoto",t:"10 min walk from Hankyu Saiin Sta."},
+                        {n:"Kyoto Takashimaya B1 Supermarket",f:"Gathers top souvenirs and refined bento from all over Japan. Best for high-end midnight snacks.",a:"Shijo Kawaramachi Nishi-iru, Shimogyo-ku",t:"Directly connected to Kyoto-kawaramachi"},
+                        {n:"Gourmet City (Kitaoji)",f:"Quality supermarket by Daiei. Fresh food and bakery are excellent. Good for Japanese condiments.",a:"Koyama Kitakamifusacho, Kita-ku",t:"Directly connected to Kitaoji Sta."}
+                    ],
+                    hobby: [
+                        {n:"Bic Camera (JR Kyoto)",f:"Connected to the station. Super convenient for hair dryers and appliances. Tax-free + coupon is a steal.",a:"927 Higashishiokojicho, Shimogyo-ku",t:"1 min walk from JR Kyoto Sta.", cLink:"https://www.klook.com/en-US/activity/73345-bic-camera-tourist-privilege-discount-coupon-2022/?spm=SearchResult.SearchResult_LIST&clickId=c11874ea39", cName:"Bic Camera Tourist Coupon", cIcon:"fa-solid fa-camera"},
+                        {n:"EDION (Shijo Kawaramachi)",f:"City center electronics chain. Mainly sells popular tax-free appliances and beauty devices.",a:"Shijo Kawaramachi Higashi-iru, Shimogyo-ku",t:"Directly connected to Kyoto-kawaramachi", cLink:"https://www.klook.com/en-US/activity/83114-edion-tourist-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=d6733052e4", cName:"EDION Tourist Coupon", cIcon:"fa-solid fa-tv"},
+                        {n:"Yodobashi Camera (Kyoto)",f:"Giant 3C mall opposite Kyoto Station. Appliances, cameras, watches, and a whole floor of toys/gachapon.",a:"Karasuma Shichijo-sagaru, Shimogyo-ku",t:"3 min walk from JR Kyoto Sta."},
+                        {n:"Animate (Kyoto)",f:"Anime fan hub! Latest merch, manga, artbooks, and doujinshi. Fast updates.",a:"Shinkyogoku Shijo-agaru, Nakagyo-ku",t:"4 min walk from Kyoto-kawaramachi"},
+                        {n:"Loft (Kyoto Kawaramachi)",f:"Stationery and lifestyle goods mecca! Planners, stickers, and character collab goods.",a:"Kawaramachi Sanjo-sagaru, Nakagyo-ku",t:"4 min walk from Kyoto-kawaramachi"},
+                        {n:"Tokyu Hands (Kyoto)",f:"DIY materials, high-quality kitchenware, and travel goods. A paradise for Japanese creative items.",a:"Shijo Karasuma Higashi-iru, Shimogyo-ku",t:"1 min walk from Shijo Sta."},
+                        {n:"Surugaya (Kyoto Teramachi)",f:"Treasure trove for used figures, Ichiban Kuji prizes, and retro games.",a:"Teramachi Rokkaku-sagaru, Nakagyo-ku",t:"5 min walk from Kyoto Shiyakusho-mae"},
+                        {n:"Pokemon Center (Kyoto)",f:"Official Pokemon store! Pikachu in a kimono is a Kyoto-exclusive must-buy.",a:"Shijo Muromachi Higashi-iru, Shimogyo-ku",t:"Directly connected to Shijo Sta."},
+                        {n:"Kyukyodo (Kyoto Main Store)",f:"Traditional Japanese stationery shop. Sells elegant letter paper, incense, and calligraphy brushes.",a:"Teramachi Aneyakoji-agaru, Nakagyo-ku",t:"2 min walk from Kyoto Shiyakusho-mae"},
+                        {n:"ABC-MART (Kyoto Teramachi)",f:"In Teramachi arcade. Lots of Nike, Vans, Converse. Often has limited colorways.",a:"Teramachi Rokkaku-sagaru, Nakagyo-ku",t:"5 min walk from Kyoto-kawaramachi"}
+                    ]
+                }
+            },
+            miyama: {
+                name: "Miyama/Nantan",
+                cat: {
+                    souvenir: [
+                        {n:"Roadside Station Miyama Fureai",f:"Miyama specialties hub! Must-buy Miyama milk cookies, free-range eggs, and special miso.",a:"Agake, Miyama-cho, Nantan",t:"Bus to Agake Stop"},
+                        {n:"Kayabuki no Sato Souvenir",f:"Inside the thatched village. Sells thatched-roof shaped snowball cookies and bamboo crafts.",a:"Kitamura, Miyama-cho, Nantan",t:"Bus to Kita Stop"},
+                        {n:"Miyama Milk Studio",f:"Besides ice cream, the Miyama cheese and pure milk sold here are premium treats.",a:"Agake, Miyama-cho, Nantan",t:"Bus to Agake Stop"},
+                        {n:"Tamba Black Bean Shop (Nantan)",f:"Famous around Nantan. Super large Tamba black beans are popular candied or as tea.",a:"Sonobe-cho area, Nantan",t:"Walk from JR Sonobe Sta."},
+                        {n:"Miyama Soba (Fresh Pack)",f:"Take home soba made with pure Miyama water. Comes with special dipping sauce.",a:"Attached to Miyama diners",t:"Walk around Kayabuki village"},
+                        {n:"Miyama Venison Sausage",f:"Western-style sausage made by local hunters. Rich smoky flavor, great as a beer snack.",a:"Agake, Miyama-cho, Nantan",t:"Bus to Agake Stop"},
+                        {n:"Miyama Tea (Sencha)",f:"Tea grown in Miyama's cool climate. Clear and sweet. Rustic packaging full of farm charm.",a:"Kitamura, Miyama-cho, Nantan",t:"Bus to Kita Stop"},
+                        {n:"Handmade Yuzu Jam",f:"Handmade with local pesticide-free yuzu. Natural fruity aroma, delicious with tea or bread.",a:"Inside Miyama cafes",t:"Walk around Kayabuki village"},
+                        {n:"Kyoto Tamba Chestnut Cake",f:"Autumn specialty! Wagashi made with abundant Tamba chestnuts. Sweet and dense.",a:"Major highway rest stops, Nantan",t:"Drive or bus"},
+                        {n:"Traditional Indigo Dye",f:"Indigo handkerchiefs and bags hand-dyed by Nantan artisans. Every pattern is unique.",a:"Nantan Traditional Craft Center",t:"Bus from JR Sonobe Sta."}
+                    ],
+                    fashion: [
+                        {n:"Shimamura (Sonobe)",f:"Affordable clothing in central Nantan. Winter clothes, thermal wear, and loungewear offer great value.",a:"Koyamahigashimachi, Sonobe-cho",t:"10 min walk from JR Sonobe Sta."},
+                        {n:"WORKMAN Plus (Nantan)",f:"Japan's strongest affordable functional wear! Wind/waterproof jackets and warm shoes.",a:"Uchibayashicho, Sonobe-cho",t:"15 min walk from JR Sonobe Sta."},
+                        {n:"Mac-House (Nantan Sonobe)",f:"Casual wear and jeans specialty. Good for emergency casual or sports clothes.",a:"Koyamanishimachi, Sonobe-cho",t:"12 min walk from JR Sonobe Sta."},
+                        {n:"AEON (Kameoka)",f:"Large mall near Nantan with Uniqlo and other brands. Good for shopping before heading to Miyama.",a:"Kosecho, Kameoka",t:"5 min walk from JR Kameoka Sta."},
+                        {n:"Avail (Kameoka)",f:"Shimamura's youth sub-brand. Offers trendier streetwear, shoes, and bags.",a:"Shinocho, Kameoka",t:"10 min walk from JR Umahori Sta."},
+                        {n:"Nishimatsuya (Nantan)",f:"If traveling with kids, buy extremely cheap children's winter clothes and baby goods here.",a:"Sonobe-cho area, Nantan",t:"Transfer at JR Sonobe Sta."},
+                        {n:"Miyama Local Weaving Studio",f:"Not a mall, but sells hand-knitted beanies and scarves by local women. Warm and unique.",a:"Kitamura, Miyama-cho, Nantan",t:"Inside Kayabuki village"},
+                        {n:"Akao Clothing Store",f:"Traditional local department store. Sells Japanese loungewear and cardigans suitable for elders.",a:"Honmachi, Sonobe-cho, Nantan",t:"Walk from JR Sonobe Sta."},
+                        {n:"Right-on (Kameoka)",f:"Casual clothing chain. Good selection of Levi's and EDWIN denim. Often has discounts.",a:"Inside Kameoka Malls",t:"10 min walk from JR Kameoka Sta."},
+                        {n:"Shimamura (Kameoka)",f:"If transferring from Kameoka, this branch is larger with lots of winter and character collab clothes.",a:"Oicho, Kameoka",t:"Walk from JR Namikawa Sta."}
+                    ],
+                    beauty: [
+                        {n:"Drug Yutaka (Nantan Sonobe)",f:"Large chain drugstore. Most convenient for motion sickness pills, cold medicine, and open-shelf makeup.",a:"Koyamahigashimachi, Sonobe-cho",t:"8 min walk from JR Sonobe Sta."},
+                        {n:"Kirindo (Nantan)",f:"Common Kansai pharmacy. Cheap daily goods and supplements. Restock sunscreen and lotion here.",a:"Uchibayashicho, Sonobe-cho",t:"12 min walk from JR Sonobe Sta."},
+                        {n:"Sugi Drug (Kameoka)",f:"Large tax-free drugstore. If driving to Miyama, bulk buy toners and masks here first.",a:"Oiwakecho, Kameoka",t:"5 min walk from JR Kameoka Sta."},
+                        {n:"Matsumoto Kiyoshi (Kameoka Aeon)",f:"Large store near the city. Complete counter skincare and good tax-free service.",a:"Kosecho, Kameoka (Inside AEON)",t:"5 min walk from JR Kameoka Sta."},
+                        {n:"Welcia (Nantan)",f:"Long operating hours. Sells high-value private brand skincare and large body washes.",a:"Yagi-cho, Nantan",t:"10 min walk from JR Yagi Sta."},
+                        {n:"Godai Drug (Nantan)",f:"Local community pharmacy. Small but has essential meds and Japanese makeup (Canmake/Kate).",a:"Sonobe-cho area, Nantan",t:"Walk from JR Sonobe Sta."},
+                        {n:"Cocokara Fine (Kameoka)",f:"Bright store. Mainly sells fragrances, hand creams, masks, and hair products popular with women.",a:"Shinocho, Kameoka",t:"8 min walk from JR Umahori Sta."},
+                        {n:"Miyama Handmade Soap",f:"Handmade with local herbs and pure water. Natural, additive-free, leaves skin soft.",a:"Roadside Station, Miyama-cho",t:"Bus to Agake Stop"},
+                        {n:"Miyama Yuzu Lotion",f:"Hand cream and lotion made from local pesticide-free yuzu. Extremely soothing aroma.",a:"Miyama-cho Souvenir Shops",t:"Inside Kayabuki village"},
+                        {n:"AEON Cosmetics (Kameoka)",f:"Cosmetics section inside the mall. Shiseido, SK-II counters available for stress-free testing.",a:"Kosecho, Kameoka",t:"5 min walk from JR Kameoka Sta."}
+                    ],
+                    mart: [
+                        {n:"Supermarket MATI (Sonobe)",f:"Large fresh supermarket! If staying in a Miyama guest house to cook, buy wagyu and veggies here.",a:"Uchibayashicho, Sonobe-cho",t:"10 min walk from JR Sonobe Sta."},
+                        {n:"Fresh Bazaar (Nantan)",f:"Locals' favorite. Good deli bento. Discounted fried food and sushi are very popular.",a:"Koyamanishimachi, Sonobe-cho",t:"12 min walk from JR Sonobe Sta."},
+                        {n:"Gyomu Super (Kameoka)",f:"Extremely cheap discount supermarket! Large pack frozen food, dashi, and snacks.",a:"Oicho, Kameoka",t:"5 min walk from JR Namikawa Sta."},
+                        {n:"Matsumotoya (Nantan Yagi)",f:"Local supermarket. You can buy regional agricultural products and condiments from Nantan/Kyoto.",a:"Yagi-cho, Nantan",t:"3 min walk from JR Yagi Sta."},
+                        {n:"AEON Supermarket (Kameoka)",f:"Mega supermarket. Topvalu brand snacks, drinks, and souvenirs are the most complete.",a:"Kosecho, Kameoka",t:"5 min walk from JR Kameoka Sta."},
+                        {n:"Miyama Fureai Fresh Market",f:"Not large, but sells morning-harvested pesticide-free vegetables and fresh free-range eggs.",a:"Agake, Miyama-cho, Nantan",t:"Bus to Agake Stop"},
+                        {n:"Sato Supermarket (Nantan)",f:"Medium regional supermarket. Seasonal strawberries or peaches are great quality and cheaper.",a:"Sonobe-cho, Nantan",t:"Around JR Sonobe Sta."},
+                        {n:"Daikoku Snack Area (Kameoka)",f:"Snack area inside Daikoku is wholesale priced. Best for Pocky and KitKat.",a:"Kameoka Station Area",t:"Walk from JR Kameoka Sta."},
+                        {n:"Yamazaki Daily Store",f:"Rare convenience store near Miyama. Handmade bread and hot fried chicken are great for the drive.",a:"Miyama-cho roads, Nantan",t:"Easier by car"},
+                        {n:"Amity Tango (JA Supermarket)",f:"Agricultural co-op supermarket near Miyama. Specializes in Northern Kyoto goods, rice, and soy sauce.",a:"Nantan surroundings",t:"By car"}
+                    ],
+                    hobby: [
+                        {n:"EDION (Kameoka)",f:"Largest electronics retailer in Nantan/Kameoka. Hair dryers, thermoses, and polaroid film available.",a:"Shinocho, Kameoka",t:"10 min walk from JR Umahori Sta.", cLink:"https://www.klook.com/en-US/activity/83114-edion-tourist-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=d6733052e4", cName:"EDION Tourist Coupon", cIcon:"fa-solid fa-tv"},
+                        {n:"Komeri Hard&Green (Nantan)",f:"Large DIY home center! Buy gardening tools, camping fire gear, and outdoor warm goods.",a:"Uchibayashicho, Sonobe-cho",t:"15 min walk from JR Sonobe Sta."},
+                        {n:"DAISO (Nantan Sonobe)",f:"100-yen shop king. Fix missing gloves, heat packs, or cables here for 100 yen.",a:"Koyamahigashimachi, Sonobe-cho",t:"10 min walk from JR Sonobe Sta."},
+                        {n:"TSUTAYA (Kameoka)",f:"Large book & media store. Besides latest manga/magazines, sells well-designed Japanese stationery.",a:"Oicho, Kameoka",t:"5 min walk from JR Namikawa Sta."},
+                        {n:"Seria (Kameoka AEON)",f:"100-yen shop known for 'high-quality Japanese aesthetic'. Tableware and Disney goods are exquisite.",a:"Kosecho, Kameoka (Inside AEON)",t:"5 min walk from JR Kameoka Sta."},
+                        {n:"Geo (Nantan)",f:"Mainly sells used games, Switch consoles, and anime media. Might find cheap used masterpieces.",a:"Sonobe-cho, Nantan",t:"Around JR Sonobe Sta."},
+                        {n:"Miyama Bamboo Craft",f:"Hand-woven bamboo baskets, chopsticks, and farm tools by artisans. Warm Japanese lifestyle goods.",a:"Kitamura, Miyama-cho, Nantan",t:"Inside Kayabuki village"},
+                        {n:"K's Denki (Kameoka)",f:"Another large electronics chain. Friendly service and rich small appliances (rice cookers/lint removers).",a:"Shinocho, Kameoka",t:"12 min walk from JR Umahori Sta."},
+                        {n:"Shoe Plaza (Nantan)",f:"Affordable shoe chain. If shoes get wet in the snow, buy cheap snow boots or waterproof shoes here.",a:"Koyamanishimachi, Sonobe-cho",t:"12 min walk from JR Sonobe Sta."},
+                        {n:"Nitori (Kameoka)",f:"Japan's national home brand. High value warm blankets, light thermoses, and Japanese plates.",a:"Kosecho, Kameoka",t:"8 min walk from JR Kameoka Sta."}
+                    ]
+                }
+            },
+            nara: {
+                name: "Nara",
+                cat: {
+                    souvenir: [
+                        {n:"Mahoroba Daibutsu Pudding",f:"Nara's must-buy! Jar features a Buddha drawing. Smooth like silk. Custard and Yamato tea are top.",a:"Kintetsu Nara Sta. B1",t:"Inside Kintetsu Nara Sta."},
+                        {n:"Nakagawa Masashichi (Main)",f:"300-year linen shop. Creative deer-embroidered mosquito net dishcloths and aesthetic lifestyle goods.",a:"22 Motobayashiincho, Nara",t:"7 min walk from Kintetsu Nara"},
+                        {n:"Kakinoha Sushi (Hiraso)",f:"Traditional Nara cuisine. Mackerel/salmon sushi wrapped in persimmon leaves. Great for picnics.",a:"59 Noboriojicho, Nara",t:"Next to Kintetsu Nara Sta."},
+                        {n:"Kasugano Mugiyo Mochi",f:"Traditional farm snack. Chewy wheat crust with red bean paste, dusted with kinako. Very nostalgic.",a:"Nara Souvenir Shops",t:"Around Kintetsu Nara Sta."},
+                        {n:"Shiratamaya Eiju (Mimuro)",f:"400-year history. Crispy crust filled with abundant Yamato red beans. Loved by elders.",a:"Higashimuki Shopping St., Nara",t:"2 min walk from Kintetsu Nara"},
+                        {n:"Kikuichi Monjushiro Kanenaga",f:"700-year cutlery shop! Artisan hand-forged kitchen knives are extremely sharp and practical.",a:"488 Zoshicho, Nara",t:"On Todaiji approach"},
+                        {n:"Yu Nakagawa (Naramachi)",f:"Sub-brand of Nakagawa Masashichi. More design-focused Japanese bags, deer fortunes, and stationery.",a:"31-1 Motobayashiincho, Nara",t:"8 min walk from Kintetsu Nara"},
+                        {n:"Tengyokudo (Yoshino Kuzu)",f:"Specializes in premium Yoshino Kuzu. Buy Kuzu powder for hot drinks or refined Kuzukiri gift boxes.",a:"1-6 Oshiagecho, Nara",t:"10 min walk from Kintetsu Nara"},
+                        {n:"Nara Deer Senbei (Human)",f:"For humans! Handmade crackers shaped like little deer. Fragrant soy sauce smell, very cute.",a:"Yume-Kaze Plaza, Nara",t:"10 min walk from Kintetsu Nara"},
+                        {n:"Imanishi Honten (Narazuke)",f:"Traditional Nara pickles. Melons pickled in sake lees. Rich flavor, great with rice.",a:"31 Kamisanjomachi, Nara",t:"3 min walk from Kintetsu Nara"}
+                    ],
+                    fashion: [
+                        {n:"Kintetsu Dept. Store (Nara)",f:"Connected to station. MUJI, Loft, cosmetics counters, and fashion are fully available.",a:"2-4-1 Saidaijihigashimachi, Nara",t:"Directly connected to Yamato-Saidaiji", cLink:"https://www.klook.com/en-US/activity/96868-kintetsu-department-store-guest-coupon/?spm=SearchResult.SearchResult_LIST&clickId=f0411c38d4", cName:"Kintetsu Dept. Store Coupon", cIcon:"fa-solid fa-store"},
+                        {n:"Nara Family",f:"Mega complex combining AEON and Kintetsu Dept. Uniqlo, ZARA, and affordable clothing are great.",a:"2-4-1 Saidaijihigashimachi, Nara",t:"Directly connected to Yamato-Saidaiji"},
+                        {n:"M!nerba (Nara Sta. Mall)",f:"Under the JR Nara overpass. Sells casual travel wear and tax-free goods.",a:"1-1 Sanjobonmachi, Nara",t:"Directly connected to JR Nara Sta."},
+                        {n:"Higashimuki St. Boutiques",f:"Hides many 'Mori Girl' style Japanese boutiques. Linen clothes and handmade leather shoes.",a:"Higashimukinakamachi, Nara",t:"2 min walk from Kintetsu Nara"},
+                        {n:"Mi NARA (Sanjo-dori)",f:"Former Ito-Yokado. Now has aesthetic clothing shops, ninja experiences, and a goldfish museum.",a:"1-3-1 Nijoojiminami, Nara",t:"12 min walk from Shin-Omiya Sta."},
+                        {n:"Mochiidono St. (Vintage)",f:"Connected to Higashimuki. Has unique used vintage shops and kimono/yukata rentals.",a:"Mochiidonocho, Nara",t:"5 min walk from Kintetsu Nara"},
+                        {n:"AEON MALL (Yamatokoriyama)",f:"Huge mall near Nara city. Complete brands, great for families driving or taking the shuttle.",a:"741 Shimomihashicho, Yamatokoriyama",t:"Shuttle from JR Koriyama Sta."},
+                        {n:"Shimamura (Nara)",f:"Japan's affordable fashion. Fast updates. Winter thermals and fluffy loungewear are must-buys.",a:"Nara Suburbs",t:"Around Shin-Omiya Sta."},
+                        {n:"WORKMAN Plus (Nara)",f:"God-tier outdoor functional wear! High-quality waterproof jackets for just a few thousand yen.",a:"Nara Branches",t:"Drive or Bus"},
+                        {n:"Naramachi Cotton/Linen",f:"Old house shops in Naramachi selling Japanese dresses made with natural dyes and pure cotton/linen.",a:"Inside Naramachi, Nara",t:"12 min walk from Kintetsu Nara"}
+                    ],
+                    beauty: [
+                        {n:"SUNDRUG (Higashimuki St.)",f:"Tax-free drugstore in the arcade. Competitive prices, abundant stock of toners and makeup.",a:"15 Higashimukinakamachi, Nara",t:"2 min walk from Kintetsu Nara", cLink:"https://www.klook.com/en-US/activity/85217-sundrug-tax-free-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=034a659c67", cName:"SUNDRUG Tax-Free Coupon", cIcon:"fa-solid fa-prescription-bottle-medical"},
+                        {n:"Tsuruha Drug (JR Nara)",f:"By JR Station. Spacious and bright. Popular with tourists for masks, eye drops, and enzymes.",a:"Sanjobonmachi, Nara",t:"2 min walk from JR Nara Sta.", cLink:"https://www.klook.com/en-US/activity/88116-tsuruba-drug-store-shopping-coupons/?spm=SearchResult.SearchResult_LIST&clickId=aff8f60e6f", cName:"Tsuruha Drug Coupon", cIcon:"fa-solid fa-pills"},
+                        {n:"Daikoku Drug (Kintetsu Nara)",f:"Right in front of the station. Often the cheapest in the area! Snacks and hot meds sell out fast.",a:"2 Higashimukinakamachi, Nara",t:"1 min walk from Kintetsu Nara"},
+                        {n:"Matsumoto Kiyoshi (Nara Family)",f:"Large store in the mall. Shiseido, KOSE counters available for comfortable testing.",a:"2-4-1 Saidaijihigashimachi, Nara",t:"Directly connected to Yamato-Saidaiji"},
+                        {n:"Cocokara Fine (Sanjo-dori)",f:"High beauty ratio. Find the latest Canmake, Cezanne makeup, and various hand creams.",a:"Sanjo-dori, Nara",t:"5 min walk from Kintetsu Nara"},
+                        {n:"Japanese Counters (Kintetsu)",f:"Best place to find premium Japanese skincare like SK-II, Cle de Peau (CPB), POLA.",a:"2-4-1 Saidaijihigashimachi, Nara",t:"Directly connected to Yamato-Saidaiji"},
+                        {n:"ROSEMARY (Nara)",f:"Curated open-shelf makeup and salon hair care. Many IG-viral beauty tools are here.",a:"Nara Family, Nara",t:"Yamato-Saidaiji Sta."},
+                        {n:"Don Quijote Beauty Area",f:"Suburban Donki. Color contacts, cheap masks, and quirky beauty items available 24/7.",a:"Kashiwagicho, Nara",t:"Bus from Shin-Omiya Sta."},
+                        {n:"Matsumoto Kiyoshi (Kintetsu Nara)",f:"Another MatsuKiyo providing easy tax-free service. Restock here if Daikoku is sold out.",a:"Higashimuki Shopping St., Nara",t:"3 min walk from Kintetsu Nara"},
+                        {n:"Nara Handmade Soap (Yamato Tea)",f:"Handmade soap using Yamato tea extract. Fresh tea aroma, very friendly for sensitive skin.",a:"Nara Specialty Shops",t:"Around Naramachi"}
+                    ],
+                    mart: [
+                        {n:"AEON Supermarket (Nara Family)",f:"Mega fresh supermarket! Topvalu snacks offer great value. Deli bento and fried foods are rich.",a:"2-4-1 Saidaijihigashimachi, Nara",t:"Directly connected to Yamato-Saidaiji"},
+                        {n:"MaxValu (JR Nara)",f:"AEON 24-hour chain. Super convenient for discount sashimi, strawberries, and milk before hotel.",a:"Sanjobonmachi, Nara",t:"2 min walk from JR Nara Sta."},
+                        {n:"Pakupaku Gyomu Super",f:"Large pack frozen food, dashi, and imported snacks. Rock-bottom prices, must-visit for hoarding.",a:"Nara City",t:"Around Shin-Omiya Sta."},
+                        {n:"Don Quijote (Nara)",f:"Supermarket & variety store. Full of KitKat, Pocky, and Ichiran Ramen. Tax-free makes it cheap.",a:"412-1 Kashiwagicho, Nara",t:"Bus from Shin-Omiya Sta."},
+                        {n:"KINSHO Supermarket",f:"High-end supermarket by Kintetsu. Buy high-quality wagyu, fresh seafood, and refined souvenirs.",a:"2-4-1 Saidaijihigashimachi, Nara",t:"Directly connected to Yamato-Saidaiji"},
+                        {n:"Seijo Ishii (Yamato-Saidaiji)",f:"High-quality focus. Imported cheese, wine, and exclusive puddings are delicious. Good for late snacks.",a:"Saidaijikunimicho, Nara",t:"Inside Yamato-Saidaiji Sta."},
+                        {n:"Super Center TRIAL",f:"Massive discount supermarket. Not only cheap snacks, but daily goods and drugs have killer prices.",a:"Nara Suburbs",t:"Drive recommended"},
+                        {n:"FRESCO (Nara City)",f:"Community supermarket open 24 hours. Bento and bakery are budget travelers' best friends.",a:"Nara Branches",t:"Around Kintetsu Nara Sta."},
+                        {n:"Daikoku 100 Yen Snacks",f:"Though a drugstore, the 100-yen snack area in front is amazing. Gummies and cookies for coins.",a:"2 Higashimukinakamachi, Nara",t:"1 min walk from Kintetsu Nara"},
+                        {n:"Kaldi Coffee Farm",f:"Besides roasted coffee beans, imported dips, cheese, and exotic snacks are highly popular.",a:"Nara Family, Nara",t:"Yamato-Saidaiji Sta."}
+                    ],
+                    hobby: [
+                        {n:"EDION (Mi NARA)",f:"Large tax-free electronics. Hair dryers, beauty devices, and cameras in stock. Many tourist perks.",a:"1-3-1 Nijoojiminami, Nara",t:"12 min walk from Shin-Omiya Sta.", cLink:"https://www.klook.com/en-US/activity/83114-edion-tourist-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=d6733052e4", cName:"EDION Tourist Coupon", cIcon:"fa-solid fa-tv"},
+                        {n:"Animate (Nara)",f:"Anime mecca! Latest merch, manga, doujinshi, and acrylic stands all available.",a:"Sanjobonmachi, Nara (M!nerba)",t:"Directly connected to JR Nara Sta."},
+                        {n:"Loft (Nara Family)",f:"Stationery and lifestyle goods hall! Planners, stickers, character collab goods with great design.",a:"2-4-1 Saidaijihigashimachi, Nara",t:"Directly connected to Yamato-Saidaiji"},
+                        {n:"Tokyu Hands (Nara)",f:"High-quality Japanese stationery, creative lifestyle items. A paradise for Japanese design lovers.",a:"Nara Family (Kintetsu Dept)",t:"Directly connected to Yamato-Saidaiji"},
+                        {n:"Joshin (Nara)",f:"Kansai electronics store. Prices often beat others. The Kids Land toy section is large.",a:"Nara City",t:"Around Shin-Omiya Sta."},
+                        {n:"DAISO (Higashimuki St.)",f:"100-yen king in the busiest arcade. Very convenient for travel accessories or cheap souvenirs.",a:"Higashimukinakamachi, Nara",t:"3 min walk from Kintetsu Nara"},
+                        {n:"Seria (Mi NARA)",f:"100-yen shop known for 'high-quality Japanese aesthetic'. Tableware and craft materials are exquisite.",a:"1-3-1 Nijoojiminami, Nara",t:"12 min walk from Shin-Omiya Sta."},
+                        {n:"ABC-MART (Nara)",f:"Shoe retail king. Most complete collection of Nike, Vans, New Balance classics and limited colors.",a:"Nara Malls",t:"Around Yamato-Saidaiji Sta."},
+                        {n:"Mandai Shoten / Surugaya",f:"Treasure trove for used figures, Ichiban Kuji, and retro games. A must for anime/game fans.",a:"Nara City",t:"Bus from JR Nara Sta."},
+                        {n:"Standard Products",f:"Premium DAISO! Minimalist MUJI-style lifestyle goods. Great plates and storage boxes for 300 yen.",a:"Nara Dept Stores",t:"Around Yamato-Saidaiji Sta."}
+                    ]
+                }
+            },
+            uji: {
+                name: "Uji",
+                cat: {
+                    souvenir: [
+                        {n:"Itohkyuemon (Uji Main)",f:"Uji matcha giant! Must-buy matcha raw chocolate, matcha daifuku, and beautifully packaged gifts.",a:"19-3 Todoaramaki, Uji",t:"5 min walk from Keihan Uji Sta."},
+                        {n:"Nakamura Tokichi (Uji Main)",f:"Matcha King! Besides raw tea jelly, their 'Koicha Baumkuchen' and premium tea are top gifts.",a:"10 Uji Ichiban, Uji",t:"2 min walk from JR Uji Sta."},
+                        {n:"Tsujiri (Uji Main)",f:"Historic shop. Sells premium Gyokuro, Sencha, and Matcha. Takeout strong matcha soft cream is superb.",a:"156 Ujimyaraku, Uji",t:"5 min walk from JR Uji Sta."},
+                        {n:"Mitsuboshien Kanbayashi Sannyu",f:"Shogun's official tea master! Buy premium tea and experience grinding matcha with a stone mill.",a:"27-2 Ujirenge, Uji",t:"8 min walk from JR Uji Sta."},
+                        {n:"Uji Surugaya",f:"Traditional wagashi. Signature 'Cha-no-ka Mochi' is a chewy daifuku coated in matcha powder.",a:"41 Ujirenge, Uji",t:"8 min walk from JR Uji Sta."},
+                        {n:"Tsuen Tea",f:"Said to be Japan's oldest tea shop! By Uji Bridge. The tea sold here has a heavy historical feel.",a:"1 Ujihigashiuchi, Uji",t:"1 min walk from Keihan Uji Sta."},
+                        {n:"Matcha Republic",f:"Viral photo spot! Rich matcha latte in a clear ink bottle. Keep the bottle as a souvenir.",a:"26-2 Ujimyaraku, Uji",t:"4 min walk from JR Uji Sta."},
+                        {n:"Uji Tea Senbei (Omotesando)",f:"Traditional soy sauce crackers mixed with Uji tea, baked fresh over an open fire. Tea and rice aroma.",a:"Byodoin Omotesando, Uji",t:"7 min walk from JR Uji Sta."},
+                        {n:"Otani Tea",f:"Loved by locals. Friendly prices. Large capacity Sencha tea bags are perfect for office sharing.",a:"Ujibashi-dori, Uji",t:"3 min walk from JR Uji Sta."},
+                        {n:"Kyoto Ceramics (Kyo-yaki)",f:"Many exquisite pottery shops on Byodoin Omotesando. Buy premium tea bowls and kyusu teapots.",a:"Byodoin Omotesando, Uji",t:"8 min walk from JR Uji Sta."}
+                    ],
+                    fashion: [
+                        {n:"Al Plaza Uji Higashi",f:"Large comprehensive mall in Uji. Uniqlo and affordable brands inside. Great for family shopping.",a:"28-1 Todohiracho, Uji",t:"5 min walk from Keihan Mimurodo"},
+                        {n:"Uniqlo (Uji)",f:"Standalone large street store. Complete styles. Winter thermal wear and down jackets are must-grabs.",a:"Okubocho, Uji",t:"10 min walk from Kintetsu Okubo"},
+                        {n:"GU (Uji Okubo)",f:"Youth favorite affordable fashion. Cheaper than Uniqlo. Collab tees and wide pants have high CP.",a:"Okubocho, Uji",t:"8 min walk from Kintetsu Okubo"},
+                        {n:"Shimamura (Uji)",f:"Japan's affordable fashion. Fast updates. Winter thermals and fluffy loungewear are must-buys.",a:"Uji City",t:"Around JR Shinden Sta."},
+                        {n:"Ujibashi-dori Boutiques",f:"Hides small shops selling Japanese linen clothes, Mori Girl dresses, and traditional wear.",a:"Ujibashi-dori, Uji",t:"Right outside JR Uji Sta."},
+                        {n:"WORKMAN Plus (Uji)",f:"God-tier outdoor functional wear! High-quality waterproof jackets for just a few thousand yen.",a:"Uji Suburbs",t:"Drive or Bus"},
+                        {n:"Avail (Uji)",f:"Shimamura's youth sub-brand. Offers trendier streetwear, sneakers, and bags.",a:"Uji City",t:"Walk from JR Shinden Sta."},
+                        {n:"Mac-House (Uji)",f:"Casual wear and jeans specialty. Good for emergency casual or sports clothes.",a:"Uji Malls",t:"Around Kintetsu Okubo Sta."},
+                        {n:"Nishimatsuya (Uji)",f:"If traveling with kids, buy extremely cheap children's clothes and baby goods here.",a:"Uji City",t:"Drive or Bus"},
+                        {n:"Right-on (Al Plaza)",f:"Casual clothing chain. Levi's, EDWIN denim. Often has buy-two discounts.",a:"28-1 Todohiracho, Uji",t:"5 min walk from Keihan Mimurodo"}
+                    ],
+                    beauty: [
+                        {n:"SUNDRUG (Uji Okubo)",f:"Highly competitive drugstore chain. Frequent discounts. Great for bulk buying Alinamin and cold meds.",a:"Okubocho, Uji",t:"3 min walk from Kintetsu Okubo", cLink:"https://www.klook.com/en-US/activity/85217-sundrug-tax-free-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=034a659c67", cName:"SUNDRUG Tax-Free Coupon", cIcon:"fa-solid fa-prescription-bottle-medical"},
+                        {n:"Tsuruha Drug (Uji)",f:"Bright and spacious. Besides medicine, Shiseido and Kanebo skincare stock is very sufficient.",a:"Uji City",t:"Bus from JR Uji Sta.", cLink:"https://www.klook.com/en-US/activity/88116-tsuruba-drug-store-shopping-coupons/?spm=SearchResult.SearchResult_LIST&clickId=aff8f60e6f", cName:"Tsuruha Drug Coupon", cIcon:"fa-solid fa-pills"},
+                        {n:"Matsumoto Kiyoshi (Uji Higashi)",f:"Inside Al Plaza. Counter skincare and open-shelf makeup available. Convenient tax-free.",a:"28-1 Todohiracho, Uji",t:"5 min walk from Keihan Mimurodo"},
+                        {n:"Daikoku Drug (Uji)",f:"Known for extreme cheap prices and snacks. Foot patches and eye drops are often the lowest price.",a:"Uji Commercial Area",t:"Around Kintetsu Okubo Sta."},
+                        {n:"Kirindo (Uji)",f:"Common Kansai pharmacy. Cheap daily goods and supplements. Restock sunscreen and lotion.",a:"Uji City",t:"Walk from Kintetsu Okubo Sta."},
+                        {n:"Welcia (Uji)",f:"Long operating hours. Sells high-value private brand skincare and large body washes.",a:"Uji Suburbs",t:"Drive or Bus"},
+                        {n:"Cocokara Fine (Uji)",f:"High beauty ratio. Find the latest Canmake, Cezanne makeup, and various hand creams.",a:"Uji Commercial Area",t:"10 min walk from JR Uji Sta."},
+                        {n:"Uji Traditional Tea Soap",f:"Handmade soap with Uji tea extract and powder. Tea polyphenols gently resist oxidation. Great for sensitive skin.",a:"Major Tea Shops, Uji",t:"Inside Byodoin Omotesando"},
+                        {n:"Cosmetics Shop (Ujibashi)",f:"Local Shiseido/KOSE specialty store. Friendly owner will help with skin tests and makeup trials.",a:"Ujibashi-dori, Uji",t:"3 min walk from JR Uji Sta."},
+                        {n:"AEON Cosmetics (Okubo)",f:"Cosmetics section inside the mall. Counters available for stress-free testing of various brands.",a:"Okubocho, Uji",t:"Around Kintetsu Okubo Sta."}
+                    ],
+                    mart: [
+                        {n:"Heiwado Al Plaza Supermarket",f:"Mega fresh supermarket in Uji! Fresh food, local matcha products, and souvenirs all in one place.",a:"28-1 Todohiracho, Uji",t:"5 min walk from Keihan Mimurodo"},
+                        {n:"LIFE Supermarket (Uji)",f:"One of Kansai's strongest chains. Fresh food, deli bento, and Japanese snacks are extremely rich.",a:"Uji City",t:"15 min walk from JR Uji Sta."},
+                        {n:"Gyomu Super (Uji Okubo)",f:"Rock-bottom wholesale prices! Large pack frozen food, dashi, and imported snacks. High CP.",a:"Okubocho, Uji",t:"5 min walk from Kintetsu Okubo"},
+                        {n:"FRESCO (Uji)",f:"Community supermarket open 24 hours. Bento and bakery are budget travelers' best friends.",a:"Uji City",t:"8 min walk from JR Uji Sta."},
+                        {n:"Mandai Supermarket",f:"Locals' favorite. Meat and seafood are very fresh. Discounted fried food and sushi are super popular.",a:"Uji City",t:"Around Kintetsu Okubo Sta."},
+                        {n:"Gourmet City (Uji)",f:"Quality supermarket by Daiei. Fresh food and bakery are excellent. Good for Japanese condiments.",a:"Uji City",t:"Around JR Uji Sta."},
+                        {n:"MaxValu (Uji)",f:"AEON 24-hour chain. Super convenient for discount sashimi, strawberries, and milk before hotel.",a:"Uji Suburbs",t:"Drive or Bus"},
+                        {n:"Uji Tea Market (JA)",f:"Directly managed by the local agricultural co-op. Buy the most authentic, reasonably priced Uji tea and fresh veggies.",a:"Uji City",t:"Bus from JR Uji Sta."},
+                        {n:"Gyomu Super (Branch)",f:"Best for bulk buying dashi, matcha powder, and green tea bags for friends. Unbeatable prices.",a:"Uji Branches",t:"Around Kintetsu Okubo Sta."},
+                        {n:"Don Quijote (Uji Suburbs)",f:"Supermarket & variety store. Full of KitKat, Pocky, and Ichiran Ramen. Tax-free makes it cheap.",a:"Uji Suburbs",t:"Drive recommended"}
+                    ],
+                    hobby: [
+                        {n:"EDION (Uji)",f:"Largest tax-free electronics in Uji. Hair dryers, beauty devices, cameras, and a toy model area.",a:"Uji City",t:"Around Kintetsu Okubo Sta.", cLink:"https://www.klook.com/en-US/activity/83114-edion-tourist-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=d6733052e4", cName:"EDION Tourist Coupon", cIcon:"fa-solid fa-tv"},
+                        {n:"Nintendo Museum",f:"Nintendo's mega official museum! Sells highly collectible exclusive Super Mario and classic console merch.",a:"56 Kaguraden, Oguracho, Uji",t:"5 min walk from Kintetsu Ogura Sta."},
+                        {n:"Joshin (Uji)",f:"Kansai electronics store. Prices often beat others. The Kids Land toy section is large.",a:"Okubocho, Uji",t:"5 min walk from Kintetsu Okubo"},
+                        {n:"DAISO (Al Plaza)",f:"100-yen king. Very convenient for travel accessories or cheap souvenirs. Complete goods.",a:"28-1 Todohiracho, Uji",t:"5 min walk from Keihan Mimurodo"},
+                        {n:"Seria (Uji)",f:"100-yen shop known for 'high-quality Japanese aesthetic'. Tableware and craft materials are exquisite.",a:"Uji Malls",t:"Around Kintetsu Okubo Sta."},
+                        {n:"Komeri (Uji Home Center)",f:"Large DIY home center! Buy gardening tools, camping outdoor gear, and warm goods.",a:"Uji Suburbs",t:"Drive recommended"},
+                        {n:"TSUTAYA (Uji)",f:"Large book & media store. Besides latest manga/magazines, sells well-designed Japanese stationery.",a:"Uji City",t:"Bus from JR Uji Sta."},
+                        {n:"GEO (Uji Okubo)",f:"Mainly sells used games, Switch consoles, and anime media. Might find cheap used masterpieces.",a:"Okubocho, Uji",t:"5 min walk from Kintetsu Okubo"},
+                        {n:"ABC-MART (Uji)",f:"Shoe retail king. Most complete collection of Nike, Vans, New Balance classics and limited colors.",a:"Uji Malls",t:"Around Kintetsu Okubo Sta."},
+                        {n:"Nitori (Uji)",f:"Japan's national home brand. High value warm blankets, light thermoses, and Japanese plates.",a:"Uji City",t:"Bus from JR Uji Sta."}
+                    ]
+                },
+            },
+            kobe: {
+                name: "Kobe",
+                cat: {
+                    souvenir: [
+                        {n:"Frantz Magic Pot Pudding",f:"Super popular! Pudding in a ceramic pot. Cream, custard, and rich caramel in rich layers.",a:"Kobe umie and other branches",t:"5 min walk from JR Kobe Sta."},
+                        {n:"Kobe Fugetsudo (Motomachi)",f:"Kobe's representative sweets. Face-sized Gaufres with vanilla/strawberry cream. Top gift.",a:"3-3-10 Motomachidori, Chuo-ku",t:"3 min walk from JR Motomachi"},
+                        {n:"Kannonya (Hot Cheesecake)",f:"Soft Danish cake topped with melted savory cheese. Salty, sweet, and stringy. Amazing.",a:"3-9-23 Motomachidori, Chuo-ku",t:"3 min walk from JR Motomachi"},
+                        {n:"Morozoff",f:"Famous confectioner born in Kobe. Rich glass-jar baked pudding and cheesecake are classics.",a:"1-8-1 Sannomiyacho, Chuo-ku",t:"2 min walk from JR Sannomiya"},
+                        {n:"Juchheim",f:"Pioneer of Japanese baumkuchen! Freshly baked at the main store, coated in thin sugar glaze.",a:"1-4-13 Motomachidori, Chuo-ku",t:"3 min walk from JR Motomachi"},
+                        {n:"Tooth Tooth Patisserie",f:"French salon-style dessert shop. Exquisite baked goods and handmade cookie boxes are beautiful.",a:"1-4-11 Sannomiyacho, Chuo-ku",t:"5 min walk from JR Sannomiya"},
+                        {n:"Konigs-Krone",f:"Famous German-style sweets. Cute bear logo. Crispy pie cookies and chocolate boxes are popular.",a:"2-3-10 Sannomiyacho, Chuo-ku",t:"5 min walk from JR Sannomiya"},
+                        {n:"Rokko Farm Cheesecake",f:"Extra rich cheesecake made with fresh milk from Mt. Rokko Pasture. Extremely smooth milk aroma.",a:"Kitano Ijinkan area, Kobe",t:"Walk from Sannomiya Sta."},
+                        {n:"L'AVENUE Chocolate",f:"World Chocolate Master champion's shop! Artistic chocolate boxes, must-grab for Valentine's.",a:"3-7-3 Yamamotodori, Chuo-ku",t:"15 min walk from Sannomiya Sta."},
+                        {n:"Ichibankan (Kobe Beef Tsukudani)",f:"Besides sweets, premium Kobe beef simmered in soy sauce and ginger is a top-tier rice companion.",a:"Motomachidori, Chuo-ku",t:"3 min walk from JR Motomachi"}
+                    ],
+                    fashion: [
+                        {n:"Daimaru Dept. Store (Kobe)",f:"The most elegant department store in Kobe! Gorgeous exterior, surrounded by boutique flagships.",a:"40 Akashimachi, Chuo-ku",t:"3 min walk from JR Motomachi", cLink:"https://www.klook.com/en-US/activity/87245-daimaru-matsuzakaya-shopping-coupon-japan/?spm=SearchResult.SearchResult_LIST&clickId=b7f8f6874e", cName:"Daimaru Matsuzakaya Coupon", cIcon:"fa-solid fa-building"},
+                        {n:"Kobe Harborland umie",f:"Mega mall by Kobe Port. Divided into North/South Malls and Mosaic. ZARA, GU, etc.",a:"1-7-2 Higashikawasakicho, Chuo-ku",t:"5 min walk from JR Kobe Sta."},
+                        {n:"Kobe Sanda Premium Outlets",f:"One of Western Japan's largest outlets. European design, extremely rich international boutiques and sports brands.",a:"7-3 Kozudai, Kita-ku",t:"Direct bus from Sannomiya"},
+                        {n:"Sannomiya Center Gai",f:"Kobe's shopping artery! High roof arcade lined with trendy women's fashion, shoes, and accessories.",a:"Sannomiyacho, Chuo-ku",t:"Right outside JR Sannomiya"},
+                        {n:"Mint Kobe",f:"Green building in front of Sannomiya. Focuses on mature and elegant fashion. Many select shops.",a:"7-1-1 Kumoidori, Chuo-ku",t:"Directly connected to JR Sannomiya"},
+                        {n:"Kobe Hankyu",f:"At Sannomiya hub. 1st-floor cosmetics are extremely rich. Upper floors for men's/women's wear are popular.",a:"8-1-8 Onogaradori, Chuo-ku",t:"Directly connected to JR Sannomiya"},
+                        {n:"Motomachi Shopping St.",f:"Historic long arcade. Besides old sweet shops, sells Japanese made genuine leather bags and shoes.",a:"Motomachidori, Chuo-ku",t:"2 min walk from JR Motomachi"},
+                        {n:"Piazza Kobe (Under tracks)",f:"Super narrow arcade under the tracks. Full of vintage, imported sneakers, and indie designer clothes.",a:"Kitanagasadori, Chuo-ku",t:"Under tracks from Sannomiya to Motomachi"},
+                        {n:"BEAMS (Kobe Flagship)",f:"Famous Japanese trend select shop. Offers tasteful Japanese streetwear and lifestyle accessories.",a:"Akashimachi, Chuo-ku (Near Daimaru)",t:"3 min walk from JR Motomachi"},
+                        {n:"Familiar (Women's Wear)",f:"Famous children's and ladies' brand originating in Kobe. Classic plaid designs loved by elegant women.",a:"Motomachidori, Chuo-ku",t:"5 min walk from JR Motomachi"}
+                    ],
+                    beauty: [
+                        {n:"SUNDRUG (Sannomiya)",f:"Highly competitive drugstore chain. Frequent discounts. Abundant stock of open-shelf makeup.",a:"1-8-1 Sannomiyacho, Chuo-ku",t:"4 min walk from JR Sannomiya", cLink:"https://www.klook.com/en-US/activity/85217-sundrug-tax-free-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=034a659c67", cName:"SUNDRUG Tax-Free Coupon", cIcon:"fa-solid fa-prescription-bottle-medical"},
+                        {n:"Tsuruha Drug (Kobe Motomachi)",f:"Located in Motomachi arcade. Bright and spacious. Complete Shiseido and Kanebo counter skincare.",a:"1-8-1 Motomachidori, Chuo-ku",t:"2 min walk from JR Motomachi", cLink:"https://www.klook.com/en-US/activity/88116-tsuruba-drug-store-shopping-coupons/?spm=SearchResult.SearchResult_LIST&clickId=aff8f60e6f", cName:"Tsuruha Drug Coupon", cIcon:"fa-solid fa-pills"},
+                        {n:"Matsumoto Kiyoshi (Center Gai)",f:"In the busiest arcade. Skincare and meds are extremely complete. Multiple fast tax-free counters.",a:"1-5-28 Sannomiyacho, Chuo-ku",t:"3 min walk from JR Sannomiya"},
+                        {n:"Daikoku Drug (Ikuta Shinmichi)",f:"Known for extreme cheap prices. Best for bulk buying patches and Alinamin. Snacks are cheap too.",a:"1-9-8 Kitanagasadori, Chuo-ku",t:"3 min walk from JR Sannomiya"},
+                        {n:"Ainz & Tulpe (Sannomiya)",f:"High-quality open-shelf beauty select shop featuring emerging Japanese skincare and beautiful makeup.",a:"1-4-3 Sannomiyacho, Chuo-ku (Clefy)",t:"3 min walk from JR Sannomiya"},
+                        {n:"OS Drug (Sannomiya)",f:"Base prices are very cheap (mostly no tax-free). Cash only. Great for GI meds and essentials.",a:"1-8-1 Sannomiyacho, Chuo-ku",t:"4 min walk from JR Sannomiya"},
+                        {n:"@cosme store (Mint Kobe)",f:"Physical store of Japan's largest beauty review site. Test all the top-ranked makeup here.",a:"7-1-1 Kumoidori, Chuo-ku (Inside Mint)",t:"Directly connected to JR Sannomiya"},
+                        {n:"PLAZA (Sannomiya)",f:"Sells the latest trendy Western and Japanese makeup, fragrances, and cute beauty tools.",a:"Sannomiyacho, Chuo-ku (Underground)",t:"Sannomiya Underground Mall"},
+                        {n:"Don Quijote Beauty (Sannomiya)",f:"24 hours. Great for late-night restocking of color contacts, cheap masks, and quirky beauty items.",a:"2-1-14 Shimoyamatedori, Chuo-ku",t:"5 min walk from JR Sannomiya"},
+                        {n:"MARKS&WEB (umie)",f:"Quality skincare brand focusing on natural herbal essential oils. Shampoos and hand creams are very soothing.",a:"1-7-2 Higashikawasakicho, Chuo-ku",t:"5 min walk from JR Kobe Sta."}
+                    ],
+                    mart: [
+                        {n:"Daimaru Kobe Depachika",f:"Deli area full of Western vibes. Many exquisite takeout bento from local Kobe Western restaurants.",a:"40 Akashimachi, Chuo-ku",t:"3 min walk from JR Motomachi", cLink:"https://www.klook.com/en-US/activity/87245-daimaru-matsuzakaya-shopping-coupon-japan/?spm=SearchResult.SearchResult_LIST&clickId=b7f8f6874e", cName:"Daimaru Matsuzakaya Coupon", cIcon:"fa-solid fa-building"},
+                        {n:"Don Quijote (Sannomiya)",f:"Largest Donki in Kobe city. 24 hours. Snacks, ramen, makeup, and quirky goods. Easy tax-free.",a:"2-1-14 Shimoyamatedori, Chuo-ku",t:"5 min walk from JR Sannomiya"},
+                        {n:"Ikari Supermarket (Sannomiya)",f:"Kansai madames' favorite premium supermarket! Imported cheese, premium fruits, and exclusive baked goods.",a:"7-1-1 Onogaradori, Chuo-ku",t:"2 min walk from JR Sannomiya"},
+                        {n:"AEON Super (umie)",f:"Mega supermarket inside umie. Topvalu private brand snacks offer high CP value. Great for souvenirs.",a:"1-7-2 Higashikawasakicho, Chuo-ku",t:"5 min walk from JR Kobe Sta."},
+                        {n:"LIFE Supermarket (Kobe Sta.)",f:"Large fresh supermarket! Sashimi, wagyu bento, and local Japanese snacks are extremely complete.",a:"3-2-15 Nakamachidori, Chuo-ku",t:"3 min walk from JR Kobe Sta."},
+                        {n:"KOHYO (Sannomiya)",f:"AEON system supermarket underground at Sannomiya. Deli fried foods and sushi are great quality and clean.",a:"8-1-2 Kumoidori, Chuo-ku",t:"Directly connected to JR Sannomiya Underground"},
+                        {n:"Gyomu Super (Kobe Motomachi)",f:"Rock-bottom wholesale prices! Best for bulk buying matcha powder, snacks, and dashi powder.",a:"Motomachi Kokadori, Chuo-ku",t:"5 min walk from JR Motomachi"},
+                        {n:"Seijo Ishii (Kobe)",f:"High-end supermarket. Great for high-quality jams, imported cheese, and refined snacks.",a:"Sannomiyacho, Chuo-ku (Underground)",t:"Sannomiya Underground Mall"},
+                        {n:"MaxValu (Kobe Sannomiya)",f:"24-hour chain supermarket. Super convenient for discount sashimi, strawberries, and milk.",a:"Sannomiya City Area, Chuo-ku",t:"Around JR Sannomiya"},
+                        {n:"Hankyu Depachika",f:"Top-tier supermarket experience. Historic wagashi, tempura, and wagyu bento make you drool.",a:"8-1-8 Onogaradori, Chuo-ku",t:"Directly connected to JR Sannomiya"}
+                    ],
+                    hobby: [
+                        {n:"Bic Camera (Kobe Sannomiya)",f:"Large appliance store connected to station. Hair dryers, beauty devices, cameras, and a liquor section.",a:"1-2 Kitanagasadori, Chuo-ku",t:"Directly connected to JR Sannomiya", cLink:"https://www.klook.com/en-US/activity/73345-bic-camera-tourist-privilege-discount-coupon-2022/?spm=SearchResult.SearchResult_LIST&clickId=c11874ea39", cName:"Bic Camera Tourist Coupon", cIcon:"fa-solid fa-camera"},
+                        {n:"Joshin (Sannomiya)",f:"Kansai electronics store. Prices often beat others. The Kids Land toy section is large.",a:"3-2-22 Yawatadori, Chuo-ku",t:"5 min walk from JR Sannomiya"},
+                        {n:"Animate (Sannomiya)",f:"Kobe's anime fan hub! Latest merch, manga, artbooks, and doujinshi. Fast updates.",a:"1-9-1 Sannomiyacho, Chuo-ku (Center Plaza)",t:"4 min walk from JR Sannomiya"},
+                        {n:"Surugaya (Kobe Sannomiya)",f:"Treasure trove for used figures, Ichiban Kuji prizes, and retro games. A must for anime/game fans.",a:"2-11-1 Sannomiyacho, Chuo-ku",t:"5 min walk from JR Sannomiya"},
+                        {n:"Tokyu Hands (Kobe Sannomiya)",f:"Above the subway. A must-visit for stationery lovers! High-quality Japanese creative items.",a:"2-10-1 Shimoyamatedori, Chuo-ku",t:"Directly connected to Subway Sannomiya"},
+                        {n:"Loft (Kobe)",f:"Trend and creative gift indicator. Beauty, stationery, and character collab goods with great design.",a:"8-1-8 Onogaradori, Chuo-ku (Inside Hankyu)",t:"Directly connected to JR Sannomiya"},
+                        {n:"Kiddy Land (umie)",f:"Sells cute character merch (Snoopy, Sumikko Gurashi, Kanahei). Triggers your inner child.",a:"1-7-2 Higashikawasakicho, Chuo-ku",t:"5 min walk from JR Kobe Sta."},
+                        {n:"ABC-MART GRAND STAGE",f:"Mega flagship shoe store in Kobe. Most complete collection of Nike and New Balance limited editions.",a:"Sannomiyacho, Chuo-ku (Center Gai)",t:"3 min walk from JR Sannomiya"},
+                        {n:"DAISO (Sannomiya Center Gai)",f:"100-yen king. Very convenient for travel accessories or cheap souvenirs. Massive scale.",a:"Sannomiyacho, Chuo-ku",t:"5 min walk from JR Sannomiya"},
+                        {n:"ASICS (Kobe HQ)",f:"ASICS originated in Kobe! Find the most professional and complete running shoes and streetwear.",a:"Sannomiya Commercial Area, Chuo-ku",t:"Walk from JR Sannomiya"}
+                    ]
+                }
+            },
+            himeji: {
+                name: "Himeji",
+                cat: {
+                    souvenir: [
+                        {n:"Shirasagi Jin'ya (Shirasagi Chidori)",f:"Wagashi inspired by Himeji Castle (White Heron Castle). White chocolate over matcha filling. Very elegant.",a:"188 Ekimaecho, Himeji (Inside PIOLE)",t:"Directly connected to JR Himeji Sta."},
+                        {n:"Kineya (Sasen-nen)",f:"Representative old shop. Signature 'Sasen-nen' has a super crispy crust and dense red bean. Strawberry daifuku too.",a:"95 Nikaimachi, Himeji",t:"10 min walk from JR Himeji Sta."},
+                        {n:"Amaneya",f:"High-end wagashi in Himeji. Beautiful packaging. Fruit daifuku and innovative dorayaki are top gifts.",a:"Kamata, Hirohata-ku, Himeji",t:"Drive or buy at station souvenir area"},
+                        {n:"Iseya Honten (Tamatsubaki)",f:"Sweets once presented to the Shogun! Thin soft crust wrapping delicate yellow Tamba red bean paste.",a:"68 Honmachi, Himeji",t:"15 min walk from JR Himeji Sta."},
+                        {n:"Yamasa Kamaboko (Fried Fish Cake)",f:"Representative kamaboko shop! Eat hot cheese kamaboko dogs on the go, or buy vacuum packs.",a:"60 Nikaimachi, Himeji",t:"8 min walk from JR Himeji Sta."},
+                        {n:"Himeji Castle Matcha Senbei",f:"Handmade senbei roasted on the approach to Himeji Castle. Coated with rich soy sauce and nori.",a:"Himeji Castle Approach",t:"15 min walk from JR Himeji Sta."},
+                        {n:"Almond Butter Spread",f:"Turn Himeji's unique 'Almond Butter Toast' soul into a spread. Recreate the cafe taste at home.",a:"Major Souvenir Shops, Himeji",t:"Inside JR Himeji Sta. Mall"},
+                        {n:"Okashitsukasa Jyujiro",f:"Traditional wagashi. 'Jokamachi Mochi' is soft and chewy. Offers refined matcha experience sets.",a:"68 Honmachi, Himeji",t:"15 min walk from JR Himeji Sta."},
+                        {n:"Himeji Leather Crafts",f:"Himeji's white leather is famous nationwide. Buy high-quality pure white handmade wallets and bags.",a:"Miyuki-dori Shopping St., Himeji",t:"5 min walk from JR Himeji Sta."},
+                        {n:"Nadagiku Sake Brewery",f:"Local sake brewery. Junmai Daiginjo brewed with Hyogo sake rice and pure water is an excellent gift.",a:"1-121 Tegara, Himeji",t:"5 min walk from Sanyo Tegara Sta."}
+                    ],
+                    fashion: [
+                        {n:"PIOLE Himeji (Station Mall)",f:"Mega fashion mall connected to JR Himeji. Multiple buildings. Uniqlo, GU, and young women's brands.",a:"222 Tofumachi, Himeji",t:"Directly connected to JR Himeji Sta."},
+                        {n:"Sanyo Dept. Store",f:"Highest-class traditional department store in Himeji. International boutiques, cosmetics, and premium apparel.",a:"1 Minamimachi, Himeji",t:"Directly connected to Sanyo Himeji Sta."},
+                        {n:"Miyuki-dori Shopping St.",f:"Arcade stretching straight from the station to the castle. Hides many boutiques and kimono shops.",a:"Ekimaecho Area, Himeji",t:"Right outside JR Himeji Sta."},
+                        {n:"FESTA (Himeji Underground)",f:"Underground mall below the station. Sells casual travel wear, affordable shoes/bags, and tax-free goods.",a:"188-1 Ekimaecho, Himeji",t:"Directly connected to JR Himeji Underground"},
+                        {n:"AEON MALL (Himeji Otsu)",f:"Huge mall near Himeji city. Complete brands, great for families driving or taking the bus.",a:"2-5 Otsuku Otsucho, Himeji",t:"10 min walk from JR Harima-Katsuhara"},
+                        {n:"Terasso Himeji",f:"Complex mall by the station. Houses a large Don Quijote, cinema, and affordable casual wear brands.",a:"27 Ekimaecho, Himeji",t:"2 min walk from JR Himeji Sta."},
+                        {n:"Shimamura (Himeji)",f:"Japan's affordable fashion. Fast updates. Winter thermals and fluffy loungewear are must-buys.",a:"Himeji Suburb Malls",t:"Drive or Bus"},
+                        {n:"WORKMAN Plus (Himeji)",f:"God-tier outdoor functional wear! High-quality waterproof jackets for just a few thousand yen.",a:"Himeji City",t:"Bus from JR Himeji Sta."},
+                        {n:"Nishimatsuya (Himeji)",f:"If traveling with kids, buy extremely cheap children's winter clothes and baby goods here.",a:"Himeji Suburbs",t:"Drive or Bus"},
+                        {n:"ABC-MART (PIOLE)",f:"Shoe retail king. Most complete collection of Nike, Vans, New Balance classics and limited colors.",a:"222 Tofumachi, Himeji (Inside PIOLE)",t:"Directly connected to JR Himeji Sta."}
+                    ],
+                    beauty: [
+                        {n:"SUNDRUG (Himeji Sta.)",f:"Highly competitive drugstore chain. Frequent discounts. Great for bulk buying Alinamin.",a:"239 Ekimaecho, Himeji",t:"3 min walk from JR Himeji Sta.", cLink:"https://www.klook.com/en-US/activity/85217-sundrug-tax-free-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=034a659c67", cName:"SUNDRUG Tax-Free Coupon", cIcon:"fa-solid fa-prescription-bottle-medical"},
+                        {n:"Tsuruha Drug (Himeji Sta.)",f:"Bright and spacious. Besides medicine, Shiseido and Kanebo counter skincare stock is sufficient.",a:"14 Minamimachi, Himeji",t:"2 min walk from JR Himeji Sta.", cLink:"https://www.klook.com/en-US/activity/88116-tsuruba-drug-store-shopping-coupons/?spm=SearchResult.SearchResult_LIST&clickId=aff8f60e6f", cName:"Tsuruha Drug Coupon", cIcon:"fa-solid fa-pills"},
+                        {n:"Matsumoto Kiyoshi (Miyuki-dori)",f:"In the busiest arcade. Skincare and meds are extremely complete. Fast tax-free counters.",a:"250 Ekimaecho, Himeji",t:"3 min walk from JR Himeji Sta."},
+                        {n:"Daikoku Drug (Himeji)",f:"Known for extreme cheap prices and snacks. Foot patches and eye drops are often the lowest price.",a:"Ekimaecho Area, Himeji",t:"4 min walk from JR Himeji Sta."},
+                        {n:"Cocokara Fine (Himeji)",f:"High beauty ratio. Find the latest Canmake, Cezanne makeup, and various hand creams.",a:"Underground FESTA, Himeji",t:"Directly connected to JR Himeji Underground"},
+                        {n:"Sanyo Dept. Cosmetics",f:"Best place to find premium Japanese skincare like SK-II, Cle de Peau (CPB), POLA.",a:"1 Minamimachi, Himeji",t:"Directly connected to Sanyo Himeji Sta."},
+                        {n:"Ainz & Tulpe (PIOLE Himeji)",f:"High-quality open-shelf beauty select shop featuring emerging Japanese skincare and beautiful makeup.",a:"222 Tofumachi, Himeji (Inside PIOLE)",t:"Directly connected to JR Himeji Sta."},
+                        {n:"Don Quijote Beauty (Himeji)",f:"24 hours. Great for late-night restocking of color contacts, cheap masks, and quirky beauty items.",a:"27 Ekimaecho, Himeji (Inside Terasso)",t:"2 min walk from JR Himeji Sta."},
+                        {n:"ROSEMARY (Himeji)",f:"Curated open-shelf makeup and salon hair care. Many IG-viral beauty tools are here.",a:"Himeji City Malls",t:"Around JR Himeji Sta."},
+                        {n:"PLAZA (PIOLE Himeji)",f:"Sells the latest trendy Western and Japanese makeup, fragrances, and cute beauty tools.",a:"222 Tofumachi, Himeji (Inside PIOLE)",t:"Directly connected to JR Himeji Sta."}
+                    ],
+                    mart: [
+                        {n:"Don Quijote (Himeji Sta.)",f:"Inside Terasso. Quite large. Snacks, ramen, makeup, and quirky goods. Easy tax-free.",a:"27 Ekimaecho, Himeji (Inside Terasso)",t:"2 min walk from JR Himeji Sta."},
+                        {n:"AEON Supermarket (Himeji Otsu)",f:"Mega supermarket. Topvalu private brand snacks offer high CP value. Great for souvenirs.",a:"2-5 Otsuku Otsucho, Himeji",t:"10 min walk from JR Harima-Katsuhara"},
+                        {n:"Bon Marche (Himeji Sta.)",f:"Mid-to-high-end local Himeji supermarket. Fresh food and bento are excellent. Great for late snacks.",a:"Minamimachi, Himeji (Sanyo Dept B1)",t:"Directly connected to Sanyo Himeji Sta."},
+                        {n:"MaxValu (Himeji City)",f:"AEON 24-hour chain. Super convenient for discount sashimi, strawberries, and milk before hotel.",a:"Himeji City Branches",t:"Walk or bus from JR Himeji Sta."},
+                        {n:"Gyomu Super (Himeji)",f:"Rock-bottom wholesale prices! Large pack frozen food, dashi, and imported snacks. Must-visit for hoarding.",a:"Himeji City",t:"Drive or Bus"},
+                        {n:"FRESCO (Himeji)",f:"Common Kansai community supermarket. 24 hours. Bento and bakery are budget travelers' best friends.",a:"Himeji City",t:"Walk from JR Himeji Sta."},
+                        {n:"Seijo Ishii (PIOLE Himeji)",f:"High-end supermarket. Great for high-quality jams, imported cheese, and refined snacks.",a:"222 Tofumachi, Himeji (Inside PIOLE)",t:"Directly connected to JR Himeji Sta."},
+                        {n:"Sanyo Depachika",f:"Top-tier supermarket experience. Historic wagashi, tempura, and wagyu bento make you drool.",a:"1 Minamimachi, Himeji",t:"Directly connected to Sanyo Himeji Sta."},
+                        {n:"Daikoku 100 Yen Snacks",f:"Though a drugstore, the 100-yen snack area in front is amazing. Gummies and cookies for coins.",a:"Ekimaecho Area, Himeji",t:"4 min walk from JR Himeji Sta."},
+                        {n:"Kaldi Coffee Farm (Himeji)",f:"Besides roasted coffee beans, imported dips, cheese, and exotic snacks are highly popular.",a:"Himeji Malls",t:"Around JR Himeji Sta."}
+                    ],
+                    hobby: [
+                        {n:"EDION (Himeji)",f:"Large tax-free electronics. Hair dryers, beauty devices, and cameras in stock. Also has a toy model area.",a:"Himeji City",t:"Bus from JR Himeji Sta.", cLink:"https://www.klook.com/en-US/activity/83114-edion-tourist-discount-coupon/?spm=SearchResult.SearchResult_LIST&clickId=d6733052e4", cName:"EDION Tourist Coupon", cIcon:"fa-solid fa-tv"},
+                        {n:"Animate (Himeji)",f:"Himeji anime fan hub! Latest merch, manga, artbooks, and doujinshi. Fast updates.",a:"Higashiekimaecho, Himeji",t:"5 min walk from JR Himeji Sta."},
+                        {n:"Tokyu Hands (PIOLE Himeji)",f:"A must-visit for stationery lovers! High-quality Japanese creative items and travel goods.",a:"222 Tofumachi, Himeji (Inside PIOLE)",t:"Directly connected to JR Himeji Sta."},
+                        {n:"Joshin (Himeji)",f:"Kansai electronics store. Prices often beat others. The Kids Land toy section is large.",a:"Himeji City",t:"Bus from JR Himeji Sta."},
+                        {n:"Loft (Himeji)",f:"Trend and creative gift indicator. Beauty, stationery, and character collab goods with great design.",a:"Himeji Dept Stores",t:"Around JR Himeji Sta."},
+                        {n:"DAISO (Himeji Sta.)",f:"100-yen king. Very convenient for travel accessories or cheap souvenirs. Massive scale.",a:"Ekimaecho Area, Himeji",t:"3 min walk from JR Himeji Sta."},
+                        {n:"Seria (Himeji Underground)",f:"100-yen shop known for 'high-quality Japanese aesthetic'. Tableware and craft materials are exquisite.",a:"Underground FESTA, Himeji",t:"Directly connected to JR Himeji Underground"},
+                        {n:"Surugaya (Himeji)",f:"Treasure trove for used figures, Ichiban Kuji prizes, and retro games. A must for anime/game fans.",a:"Ekimaecho, Himeji",t:"5 min walk from JR Himeji Sta."},
+                        {n:"Kiddy Land (Himeji)",f:"Sells cute character merch (Snoopy, Sumikko Gurashi, Ghibli). Triggers your inner child.",a:"Himeji Malls",t:"Around JR Himeji Sta."},
+                        {n:"Nitori (Himeji)",f:"Japan's national home brand. High value warm blankets, light thermoses, and Japanese plates.",a:"Himeji Malls",t:"Bus from JR Himeji Sta."}
+                    ]
+                }
+            }
+        };
+
+        const catsMap = {
+            souvenir: { icon: "🛍️", name: "Souvenirs", bg: "bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white border-rose-200" },
+            fashion:  { icon: "🏬", name: "Fashion & Dept", bg: "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-600 hover:text-white border-fuchsia-200" },
+            beauty:   { icon: "💊", name: "Beauty & Drug", bg: "bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border-sky-200" },
+            mart:     { icon: "🛒", name: "Supermarkets", bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200" },
+            hobby:    { icon: "🧸", name: "Hobby & Anime", bg: "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border-amber-200" }
+        };
+
+        let currentCity = "osaka";
+        let currentCat = "fashion"; // Default view testing
+
+        const cityContainer = document.getElementById('city-container');
+        const categoryContainer = document.getElementById('category-container');
+        const shopContainer = document.getElementById('shop-container');
+
+        function initUI() {
+            // Render Cities
+            Object.keys(db).forEach(cityKey => {
+                const btn = document.createElement('button');
+                btn.className = `city-btn whitespace-nowrap px-6 py-2.5 rounded-full border border-indigo-200 bg-white text-indigo-700 font-bold hover:bg-indigo-100 hover:text-indigo-900 shadow-sm ${cityKey === currentCity ? 'active' : ''}`;
+                btn.innerText = db[cityKey].name;
+                btn.onclick = () => {
+                    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCity = cityKey;
+                    renderContent();
+                };
+                cityContainer.appendChild(btn);
+            });
+
+            // Render Categories
+            Object.keys(catsMap).forEach(catKey => {
+                const c = catsMap[catKey];
+                const btn = document.createElement('button');
+                btn.className = `tab-btn whitespace-nowrap px-5 py-2.5 rounded-full border transition-all font-bold shadow-sm flex items-center ${c.bg} ${catKey === currentCat ? 'active' : ''}`;
+                btn.innerHTML = `<span class="mr-1.5 text-lg">${c.icon}</span> ${c.name}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCat = catKey;
+                    renderContent();
+                };
+                categoryContainer.appendChild(btn);
+            });
+
+            // Load Default View
+            currentCat = "souvenir";
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            renderContent();
+        }
+
+        function renderContent() {
+            shopContainer.innerHTML = '';
+            const items = db[currentCity].cat[currentCat];
+
+            if(!items || items.length === 0) {
+                shopContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-lg font-bold">No recommendations available for this category.</div>`;
+                return;
+            }
+
+            // 將「含有優惠券 (cLink)」的店家排序到最上方 (Index 0 起始)
+            const sortedItems = [...items].sort((a, b) => {
+                if (a.cLink && !b.cLink) return -1;
+                if (!a.cLink && b.cLink) return 1;
+                return 0; // 兩者都有或都沒有時，保持原始順序
+            });
+
+            sortedItems.forEach((item, index) => {
+                // Generate Google Maps URL
+                const pureAddress = item.a.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.n} Japan ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                // 如果該項目有專屬優惠券，生成粉色優惠券按鈕
+                const couponHtml = item.cLink ? `
+                    <a href="${item.cLink}" target="_blank" rel="noopener noreferrer" 
+                       class="w-full flex items-center justify-center gap-2 px-4 py-3 mb-3 border border-rose-300 rounded-xl shadow-sm text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-400 focus:outline-none transition-colors">
+                        <i class="${item.cIcon} text-lg"></i>
+                        Free Claim: ${item.cName}
+                    </a>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border ${item.cLink ? 'border-rose-200' : 'border-indigo-50'} p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                ${item.n}
+                                ${item.cLink ? '<span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">Coupon</span>' : ''}
+                            </h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-amber-400 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-indigo-400 font-bold mb-1 uppercase tracking-wider">Highlight</p>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-medium">${item.f}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-indigo-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-indigo-400 font-bold mb-1 uppercase tracking-wider">Address</p>
+                                    <p class="text-sm text-slate-600 font-medium">${item.a}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-train-subway text-indigo-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-indigo-400 font-bold mb-1 uppercase tracking-wider">Transport</p>
+                                    <span class="inline-block bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-md font-bold text-left leading-normal">${item.t}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-indigo-50">
+                        ${couponHtml}
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white btn-maps focus:outline-none transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            Open in Google Maps
+                        </a>
+                    </div>
+                `;
+                shopContainer.appendChild(card);
+            });
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kansai Hotel Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fca5a5; /* rose-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fb7185; /* rose-400 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Area Button Styles - Rose Theme */
+        .area-btn-active {
+            background-color: #be123c; /* rose-700 */
+            color: white;
+            border-color: #be123c;
+            box-shadow: 0 4px 6px -1px rgba(190, 18, 60, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #fff1f2; /* rose-50 */
+            color: #9f1239; /* rose-800 */
+            border-color: #fda4af; /* rose-300 */
+        }
+
+        /* Category Button Styles */
+        .cat-btn-active {
+            background-color: #e11d48; /* rose-600 */
+            color: white;
+            border-color: #e11d48;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #fff1f2; /* rose-50 */
+            color: #e11d48;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#fff1f2] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-rose-900 tracking-wide">
+                    <i class="fa-solid fa-hotel mr-2 text-rose-600"></i>Kansai Hotel Guide
+                </h1>
+                <a href="https://linkuei0425.github.io/Osaka-US/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-rose-100 text-rose-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-rose-200">
+                    <i class="fa-solid fa-house mr-2"></i>
+                    Back to Home
+                </a>
+            </div>
+            <p class="text-rose-600 font-medium text-sm md:text-base">Curated selection of premium hotels in Osaka, Kyoto, and the Kansai region for a comfortable and convenient trip to Japan.</p>
+        </header>
+
+        <!-- 1st Layer: District Buttons (Horizontal Scroll) -->
+        <div class="mb-6 overflow-hidden">
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-3 pb-2 md:flex-wrap md:justify-center">
+                <!-- Buttons will be injected here via JS -->
+            </div>
+        </div>
+
+        <!-- 2nd Layer: Category Buttons -->
+        <div id="category-buttons" class="flex flex-wrap justify-center gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-rose-100 hidden">
+            <!-- Buttons will be injected here via JS -->
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-rose-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-rose-300 pt-20 pb-20">
+                <p class="font-bold text-lg"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading recommended hotels...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Structure with Trip.com URLs containing Affiliate parameters
+        const hotelData = {
+            "osaka": {
+                name: "Osaka",
+                categories: {
+                    "5-Star Luxury": [
+                        { name: "Conrad Osaka", feature: "Located in Nakanoshima, known as the 'Address in the Sky', offering breathtaking panoramic floor-to-ceiling windows and ultra-luxurious art space design.", address: "3-2-4 Nakanoshima, Kita-ku, Osaka / Directly connected to Watanabebashi Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-8033133/conrad-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Swissotel Nankai Osaka", feature: "Right above Namba Station! Impeccable for transport and shopping. The most convenient top-tier 5-star choice for taking the Nankai Electric Railway to the airport.", address: "5-1-60 Namba, Chuo-ku, Osaka / Directly connected to Nankai Namba Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-976800/swissotel-nankai-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "InterContinental Osaka", feature: "Located inside Grand Front Osaka in Umeda. A tranquil oasis at the transport hub with spacious rooms and unobstructed views of Osaka.", address: "3-60 Ofukacho, Kita-ku, Osaka / 5 min walk from JR Osaka Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-1836788/intercontinental-hotel-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "The Ritz-Carlton Osaka", feature: "Rich classical European manor style. Offers supremely prestigious English butler service and Michelin-starred restaurants. Grand and majestic.", address: "2-5-25 Umeda, Kita-ku, Osaka / 7 min walk from JR Osaka Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-1280987/the-ritz-carlton-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "St. Regis Osaka", feature: "Located in the prime Midosuji area. All room types feature signature butler service, perfectly interpreting Japanese hospitality and French elegance.", address: "3-6-12 Honmachi, Chuo-ku, Osaka / Directly connected to Honmachi Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-992466/st-regis-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ],
+                    "High Value / Budget": [
+                        { name: "Hotel Hankyu RESPIRE OSAKA", feature: "Large modern hotel next to Umeda Station, directly connected to Yodobashi. Extremely convenient transport, clean rooms with separated bath/toilet.", address: "1-1 Ofukacho, Kita-ku, Osaka / 3 min walk from JR Osaka Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-37082416/hotel-hankyu-respire-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Sotetsu Grand Fresa Osaka-Namba", feature: "Just a step away from Dotonbori! Super convenient for shopping and late-night snacks. Explosive CP value, a favorite for independent travelers.", address: "1-1-13 Nipponbashi, Chuo-ku, Osaka / 2 min walk from Nipponbashi Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-4064224/hotel-sunroute-osaka-namba/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Hotel Keihan Namba Grande", feature: "Newly opened! Located next to Namba Parks with excellent design. Some rooms suit multiple guests. Extremely high cost-performance.", address: "2-11-13 Nanbanaka, Naniwa-ku, Osaka / 6 min walk from Namba Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-99513876/hotel-keihan-namba-grande/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "VIA INN PRIME Shinsaibashi", feature: "Located between Shinsaibashi and Yotsubashi, unbeatable for shopping. Features a comfortable rooftop large bath to completely relax after a day out.", address: "1-4-12 Shinmachi, Nishi-ku, Osaka / 1 min walk from Yotsubashi Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-37193125/via-inn-prime-shinsaibashi-yotsubashi-jr-west-group/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ],
+                    "Design / Apartment": [
+                        { name: "Kamon Hotel Namba", feature: "A boutique hotel combining rich Japanese style and modern design. Cozy atmosphere, offers diverse Japanese breakfasts and free bicycle rental.", address: "2-3-33 Sennichimae, Chuo-ku, Osaka / 3 min walk from Nipponbashi Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-9135244/kamon-hotel-namba/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "MIMARU Osaka Namba Station", feature: "Super popular chain apartment hotel for families. Rooms include a kitchenette and dining table. Spacious, suitable for groups or parents with kids.", address: "3-6-24 Nipponbashi, Naniwa-ku, Osaka / 5 min walk from Namba Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-94176886/mimaru-osaka-namba-station/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "OMO7 Osaka by Hoshino Resorts", feature: "Hoshino Resorts' brand focusing on urban tourism! Features a large lawn plaza and free local guided tours. An eye-catching landmark next to Shin-Imamiya Sta.", address: "3-16-30 Ebisunishi, Naniwa-ku, Osaka / 1 min walk from Shin-Imamiya Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-84903681/7-da-ban-by-xing-ye-ji-tuan/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Zentis Osaka", feature: "Located in Dojima, designed by a famous designer. Warm and elegant style. The British retro-style public spaces are highly textured.", address: "1-4-26 Dojimahama, Kita-ku, Osaka / 4 min walk from Watanabebashi Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-63006776/zentis-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Citadines Namba Osaka", feature: "A French apartment hotel renovated from a historic department store building. The high-ceiling lobby and exquisite kitchen room types are loved by long-stay guests.", address: "3-5-25 Nipponbashi, Naniwa-ku, Osaka / 6 min walk from Nipponbashi Sta.", url: "https://www.trip.com/hotels/osaka-hotel-detail-52647143/citadines-namba-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "kyoto": {
+                name: "Kyoto",
+                categories: {
+                    "Top Luxury Hotels": [
+                        { name: "THE THOUSAND KYOTO", feature: "An oasis next to Kyoto Station, blending minimalist aesthetics with Kyoto Zen. Feel the stunning light and shadow and tranquility upon entering the lobby.", address: "570 Higashishiokojicho, Shimogyo-ku, Kyoto / 2 min walk from JR Kyoto Sta.", url: "https://www.trip.com/hotels/kyoto-hotel-detail-25658991/the-thousand-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Park Hyatt Kyoto", feature: "Unbeatable location next to Ninenzaka. Perfectly blends traditional Japanese gardens with modern luxury, offering close-up views of the Yasaka Pagoda sunset.", address: "360 Masuyacho, Kodaiji, Higashiyama-ku, Kyoto / Around Kiyomizu-dera area", url: "https://www.trip.com/hotels/kyoto-hotel-detail-42370779/park-hyatt-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Aman Kyoto", feature: "A top-tier secluded retreat hidden in the Rakuhoku forest, integrating natural hot springs and beautiful moss gardens. A favorite among top-tier clients.", address: "1 Okitayama Wash峯cho, Kita-ku, Kyoto / Around Kinkaku-ji area", url: "https://www.trip.com/hotels/kyoto-hotel-detail-58048525/aman-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "The Ritz-Carlton Kyoto", feature: "Situated along the Kamo River, perfectly combining Kyoto's historical heritage with modern top-tier service. Overlook the Kamo River or Higashiyama from the room.", address: "543 Hokodencho, Nakagyo-ku, Kyoto / 3 min walk from Kyoto Shiyakusho-mae Sta.", url: "https://www.trip.com/hotels/kyoto-hotel-detail-1848311/the-ritz-carlton-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Four Seasons Hotel Kyoto", feature: "Features an 800-year-old 'Shakusui-en' garden, creating a peaceful high-end resort atmosphere in the city. Meticulous service.", address: "445-3 Myoho-in Maekawacho, Higashiyama-ku, Kyoto / Around Shichijo area", url: "https://www.trip.com/hotels/kyoto-hotel-detail-5708589/four-seasons-hotel-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ],
+                    "Traditional Ryokan": [
+                        { name: "Kyoto Nanzenji Ryokan Yachiyo", feature: "A century-old traditional inn next to Nanzen-ji Temple. Features a stunning pond garden and serves exquisite traditional Kyoto Kaiseki cuisine.", address: "34 Nanzenji Fukuchicho, Sakyo-ku, Kyoto / 5 min walk from Keage Sta.", url: "https://www.trip.com/hotels/kyoto-hotel-detail-706415/kyoto-nanzenji-ryokan-yachiyo-established-in-1915/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Hoshinoya Kyoto", feature: "A top-tier resort inn accessible only by boat! Located along the Hozugawa River in Arashiyama, away from the hustle, enjoying the ultimate Kyoto aristocratic experience.", address: "11-2 Arashiyama Genrokuzancho, Nishikyo-ku, Kyoto / Arrive by boat from Arashiyama Sta.", url: "https://www.trip.com/hotels/kyoto-hotel-detail-2137357/hoshinoya-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Seikoro Ryokan", feature: "A Japanese inn with over 180 years of history, registered as a national tangible cultural property. Taisho romantic decor and Koyamaki wooden baths are its features.", address: "Toiyamachi-dori Gojo-sagaru, Higashiyama-ku, Kyoto / 2 min walk from Kiyomizu-Gojo Sta.", url: "https://www.trip.com/hotels/kyoto-hotel-detail-706191/seikoro-ryokan/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Hiiragiya Ryokan", feature: "One of Kyoto's three major centuries-old top inns (Gosanke). Beloved by literati and royalty for generations, offering the highest level of 'Ichigo Ichie' Japanese hospitality.", address: "277 Nakahakusancho, Nakagyo-ku, Kyoto / 3 min walk from Kyoto Shiyakusho-mae Sta.", url: "https://www.trip.com/hotels/kyoto-hotel-detail-1636227/zhong-jia-ri-shi-lv-guan/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ],
+                    "High Quality & Value": [
+                        { name: "Sakura Terrace The Gallery", feature: "Highly loved by foreign tourists! Features an open fire-pit lobby full of resort vibes, free welcome drinks, and a large public bath. Great atmosphere.", address: "39 Higashikujo Kamitonodacho, Minami-ku, Kyoto / 3 min walk from JR Kyoto Sta. Hachijo Exit", url: "https://www.trip.com/hotels/kyoto-hotel-detail-2074622/sakura-terrace-the-gallery/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Cross Hotel Kyoto", feature: "Located at the intersection of Kawaramachi and Sanjo, an excellent spot for shopping and dining. Modern interior decor with Kyoto wood elements.", address: "71-1 Daikokucho, Nakagyo-ku, Kyoto / 4 min walk from Keihan Sanjo Sta.", url: "https://www.trip.com/hotels/kyoto-hotel-detail-21869296/cross-hotel-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Hotel Resol Trinity Kyoto", feature: "A chain hotel with excellent Japanese texture. The lobby is filled with antique charm, and there's a scenic large bath on the top floor. Very reasonable price.", address: "249 Kamihakusancho, Nakagyo-ku, Kyoto / 2 min walk from Kyoto Shiyakusho-mae Sta.", url: "https://www.trip.com/hotels/kyoto-hotel-detail-21831414/hotel-resol-trinity-kyoto-oikefuyacho/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Richmond Hotel Premier Kyoto Shijo", feature: "A chain brand with extremely high service ratings. Spacious rooms, rich breakfast, and offers free welcome snacks and an exclusive lounge.", address: "50 Kasabokocho, Shijo-dori Aburanokoji Higashi-iru, Shimogyo-ku, Kyoto / 5 min walk from Shijo Sta.", url: "https://www.trip.com/hotels/kyoto-hotel-detail-86134094/richmond-hotel-kyoto-shijo/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "sequence KYOTO GOJO", feature: "A trendy hotel targeting youth and hipsters. Paperless check-in, minimalist and comfortable room design, and a stylish sauna facility in the basement.", address: "409 Gojo Karasumacho, Shimogyo-ku, Kyoto / 3 min walk from Gojo Sta.", url: "https://www.trip.com/hotels/kyoto-hotel-detail-56695314/sequence-kyoto-gojo/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "miyama": {
+                name: "Miyama / Nantan",
+                categories: {
+                    "Thatched Roof Farmstays": [
+                        { name: "Miyama Nature Culture Village Kajikaso", feature: "Located by the Miyama River, combining nature and traditional accommodation. Offers a large bath. Dinner features authentic wild boar botan nabe or local chicken.", address: "56 Nakashitamukai, Miyama-cho, Nantan / Take Nantan City Bus", url: "https://www.trip.com/hotels/nantan-hotel-detail-6257197/miyama-nature-and-culture-village-kajikaso/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Miyama Kaya Villas", feature: "A thatched-roof villa available for whole-house rental. The interior is renovated to be very modern and comfortable. Perfect for families or groups.", address: "Shimaei, Miyama-cho, Nantan / Rental car recommended", url: "https://www.trip.com/hotels/nantan-hotel-detail-3464034/miyama-kaya-villa/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Ryokan Kigusuriya", feature: "A long-established cuisine inn founded in the Taisho era, originally a pharmacy. Now famous for extremely delicious seasonal mountain vegetables, river fish, and rural cuisine.", address: "Tsurugaoka, Miyama-cho, Nantan / Bus or rental car", url: "https://www.trip.com/hotels/nantan-hotel-detail-3160862/ryokan-kigusuriya/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Chinsenro", feature: "Although located on the edge of Miyama, its natural hot springs and stunning Yura River views make it an excellent resting place after exploring Miyama.", address: "Around Miyama-cho, Nantan / Rental car recommended", url: "https://www.trip.com/hotels/nantan-hotel-detail-7833610/ryokan-chinsen-rou-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "nara": {
+                name: "Nara",
+                categories: {
+                    "Classic Luxury Hotels": [
+                        { name: "Nara Hotel", feature: "The 'Kansai State Guest House' founded in 1909. Einstein and Audrey Hepburn both stayed here. Full of Meiji era classical western style and historical charm.", address: "1096 Takabatakecho, Nara / 15 min walk from Kintetsu Nara Sta.", url: "https://www.trip.com/hotels/nara-hotel-detail-705006/nara-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "JW Marriott Hotel Nara", feature: "Nara's first international luxury brand hotel. Cleverly integrates Nara's natural elements (like deer motifs) into modern design. Impeccable service.", address: "1-1-1 Sanjo-oji, Nara / 10 min walk from Shin-Omiya Sta.", url: "https://www.trip.com/hotels/nara-hotel-detail-53088204/jw-marriott-hotel-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Shisui, a Luxury Collection Hotel", feature: "Located inside Nara Park, blending traditional Japanese gardens with modern luxury. Some rooms have private open-air hot springs. Extremely prestigious.", address: "62 Noboriojicho, Nara / 12 min walk from Kintetsu Nara Sta.", url: "https://www.trip.com/hotels/nara-hotel-detail-107946295/shisui-a-luxury-collection-hotel-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Fufu Nara", feature: "High-end resort inn brand 'Fufu'. All room types are suites with private natural hot springs, serving top-tier Kaiseki cuisine made with local Nara ingredients.", address: "1184-1 Takabatakecho, Nara / Around Nara Park", url: "https://www.trip.com/hotels/nara-hotel-detail-60062327/fufu-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Noborioji Hotel Nara", feature: "A small boutique hotel highly rated by the Michelin Guide. Extremely private, known for its exquisite French cuisine and impeccable service.", address: "40-1 Noboriojicho, Nara / 3 min walk from Kintetsu Nara Sta.", url: "https://www.trip.com/hotels/nara-hotel-detail-2487886/noborioji-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ],
+                    "Onsen & High Value": [
+                        { name: "Onyado Nono Nara Natural Hot Spring", feature: "A high-end Japanese business hotel under Dormy Inn. Tatami mats throughout, featuring an excellent natural hot spring bath and free late-night ramen.", address: "1-1-6 Omiyacho, Nara / 1 min walk from JR Nara Sta.", url: "https://www.trip.com/hotels/nara-hotel-detail-9788198/onyado-nono-nara-natural-hot-spring/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Piazza Hotel Nara", feature: "Located right next to JR station, unbeatable transport. Spacious and comfortable rooms. High-floor rooms overlook Mt. Wakakusa and Nara city.", address: "11-20 Sanjobonmachi, Nara / 2 min walk from JR Nara Sta.", url: "https://www.trip.com/hotels/nara-hotel-detail-9028312/piazza-hotel-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Daiwa Roynet Hotel Nara", feature: "Adjacent to JR Nara Station, features a natural hot spring bath. Bright and spacious rooms. The top choice for high CP value for business and sightseeing.", address: "11-20 Sanjobonmachi, Nara / 3 min walk from JR Nara Sta.", url: "https://www.trip.com/hotels/nara-hotel-detail-39457895/daiwaroyalhotel-d-premium-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Centurion Hotel Classic Nara", feature: "Affordable price and modern classical decor. Very convenient to walk to Kintetsu station or shopping streets. Excellent CP value.", address: "1-1 Aburasakachicho, Nara / 5 min walk from JR Nara Sta.", url: "https://www.trip.com/hotels/nara-hotel-detail-11221547/centurion-hotel-classic-nara-station/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "uji": {
+                name: "Uji",
+                categories: {
+                    "Scenic & Convenient": [
+                        { name: "Hanayashiki Ukifune-en", feature: "A stunning scenic inn by the Uji River. All rooms face the river, offering top-tier Kyoto Kaiseki cuisine and a tranquil tea town stay experience.", address: "20 Uji Togawa, Uji / 15 min walk from JR Uji Sta.", url: "https://www.trip.com/hotels/uji-hotel-detail-704709/hanayashiki-ukifune-en-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Hotel Trend JR Uji Station", feature: "Located right in front of the station, the most convenient and high CP business hotel for exploring Uji. Very close walking distance to Byodo-in and tea shops.", address: "15-2 Uji Umonji, Uji / 2 min walk from JR Uji Sta.", url: "https://www.trip.com/hotels/uji-hotel-detail-62446121/hotel-trend-jr-uji-ekimae/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "kobe": {
+                name: "Kobe",
+                categories: {
+                    "Harbor Night View Hotels": [
+                        { name: "Kobe Meriken Park Oriental Hotel", feature: "Looks like a white wave standing on Kobe Port. Room balconies offer exclusive views of the multi-million-dollar sparkling harbor nightscape.", address: "5-6 Hatobacho, Chuo-ku, Kobe / 15 min walk from Motomachi Sta. (Shuttle available)", url: "https://www.trip.com/hotels/kobe-hotel-detail-3158913/kobe-meriken-park-oriental-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Hotel Okura Kobe", feature: "Synonymous with top-tier Japanese hotels. Adjacent to Kobe Port Tower. Meticulous service, and its breakfast French toast is very famous.", address: "2-1 Hatobacho, Chuo-ku, Kobe / 10 min walk from Motomachi Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-1644781/hotel-okura-kobe/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Kobe Portopia Hotel", feature: "Located on Port Island, featuring a large spa center and excellent ocean views. The hotel has vast grounds and a strong resort atmosphere.", address: "6-10-1 Minatojima Nakamachi, Chuo-ku, Kobe / Directly connected to Shimin Hiroba Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-1634599/kobe-portopia-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Hotel La Suite Kobe Harborland", feature: "All rooms are large suites with Jacuzzis and ocean-view terraces! Offers the ultimate South of France resort experience and Kobe beef cuisine.", address: "7-2 Hatobacho, Chuo-ku, Kobe / 4 min walk from Minatomotomachi Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-1579294/hotel-la-suite-kobe-harborland/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Oriental Hotel", feature: "A legendary hotel with a long history located in the Former Foreign Settlement. Low-key luxury interior, perfectly displaying Kobe's charm blending East and West.", address: "25 Kyomachi, Chuo-ku, Kobe / 7 min walk from Motomachi Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-1642232/oriental-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ],
+                    "Arima Onsen Ryokan": [
+                        { name: "Arima Onsen Taketoritei Maruyama", feature: "A high-end hot spring inn themed after the Tale of the Bamboo Cutter. Offers private open-air baths for Golden and Silver springs. Highly private and romantic.", address: "1364-1 Arimacho, Kita-ku, Kobe / Shuttle from Arima Onsen Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-1637772/arima-onsen-taketoritei-maruyama/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Gekkoen Yugetsusanso", feature: "Surrounded by mountains and water, featuring a highly poetic stream-side open-air hot spring. The building retains traditional Sukiya-style architecture. Antique charm.", address: "318 Arimacho, Kita-ku, Kobe / Shuttle from Arima Onsen Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-1640941/gekkoen-yugetsusanso/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Arima Grand Hotel", feature: "The largest and best-equipped luxury hotel in Arima Onsen. The rooftop open-air bath offers an unobstructed view of Arima's mountain mist.", address: "1304-1 Arimacho, Kita-ku, Kobe / Shuttle from Arima Onsen Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-1643194/arima-grand-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Arima Onsen Gekkoen Korokan", feature: "Sister inn of Yugetsusanso, taking a modern and elegant route. Features excellent views and offers top-tier Kobe beef and seasonal Kaiseki cuisine.", address: "318 Arimacho, Kita-ku, Kobe / Shuttle from Arima Onsen Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-2144572/arima-onsen-gekkoen-korokan/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Tocen Goshoboh", feature: "The oldest inn in Arima Onsen! A favorite of literary giants like Junichiro Tanizaki. Its semi-mixed Golden Spring large bath is very historically unique.", address: "858 Arimacho, Kita-ku, Kobe / 5 min walk from Arima Onsen Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-1642233/tocen-goshoboh/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ],
+                    "City Center High Value": [
+                        { name: "Remm Plus Kobe Sannomiya", feature: "A quality business hotel connected to Sannomiya Station! Designed for 'good sleep', all rooms feature high-spec mattresses and massage chairs to relieve travel fatigue.", address: "4-2-1 Kanocho, Chuo-ku, Kobe / Directly connected to Hankyu Sannomiya Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-67843473/remm-plus-kobe-sannomiya/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Daiwa Roynet Hotel Kobe Sannomiya", feature: "Highly acclaimed chain brand. Very close to the bustling Sannomiya shopping street. Bright and clean rooms, an ideal base for business and sightseeing.", address: "5-1-6 Gokodori, Chuo-ku, Kobe / 7 min walk from JR Sannomiya Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-1036070/daiwa-roynet-hotel-kobe-sannomiya/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Candeo Hotels Kobe Tor Road", feature: "Full of modern design. The biggest selling point is the top-floor 'Sky Spa', where you can bathe while enjoying Kobe's mesmerizing city night view.", address: "3-8-8 Sannomiyacho, Chuo-ku, Kobe / 3 min walk from JR Motomachi Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-11440078/candeo-hotels-kobe-tor-road/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Brenza Hotel", feature: "A highly stylish boutique hotel in Kobe. The brick exterior and industrial room design attract young people. Excellent transport and dining nearby.", address: "6-1-1 Kumoidori, Chuo-ku, Kobe / 3 min walk from JR Sannomiya Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-13589880/brenza-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Hotel Monte Hermana Kobe Amalie", feature: "Exterior and interior overflow with Kobe's unique European retro style. Affordable and cozy, not far from Ikuta Shrine and shopping streets.", address: "2-2-28 Nakayamatedori, Chuo-ku, Kobe / 7 min walk from JR Sannomiya Sta.", url: "https://www.trip.com/hotels/kobe-hotel-detail-1634538/hotel-monte-hermana-kobe-amalie/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "himeji": {
+                name: "Himeji",
+                categories: {
+                    "Castle View & High Value": [
+                        { name: "Hotel Monterey Himeji", feature: "Right next to Himeji Station, perfectly blending classical European design. Some rooms and the large bath offer direct views of the pure white Himeji Castle.", address: "60 Ekimaecho, Himeji / 1 min walk from JR Himeji Sta.", url: "https://www.trip.com/hotels/himeji-hotel-detail-12211910/hotel-monterey-himeji/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Daiwa Roynet Hotel Himeji", feature: "Famous Japanese business hotel chain. Bright, spacious rooms with separated bath/toilet. Extremely close to the station and arcade. High CP value.", address: "353 Ekimaecho, Himeji / 4 min walk from JR Himeji Sta.", url: "https://www.trip.com/hotels/himeji-hotel-detail-25983758/daiwa-roynet-hotel-himeji/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Dormy Inn Himeji", feature: "Top choice for hot spring lovers! Top floor features a natural hot spring bath and open-air bath. Free popsicles and famous late-night soy sauce ramen after bathing.", address: "160 Toyozawacho, Himeji / 3 min walk from JR Himeji Sta. South Exit", url: "https://www.trip.com/hotels/himeji-hotel-detail-1639908/dormy-inn-himeji-natural-hot-spring/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Richmond Hotel Himeji", feature: "A consistently winning Japanese business hotel brand! Meticulous service, fully equipped rooms, and comfortable beds. Perfect for quality-conscious travelers.", address: "2-7 Nounencho, Himeji / 6 min walk from JR Himeji Sta.", url: "https://www.trip.com/hotels/himeji-hotel-detail-17793318/richmond-hotel-himeji/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" },
+                        { name: "Hotel Nikko Himeji", feature: "A high-end hotel right in front of JR Himeji Station South Exit. Features comfortable, spacious rooms and high-floor restaurants. Himeji's most representative star hotel.", address: "100 Minamiekimaecho, Himeji / 1 min walk from JR Himeji Sta.", url: "https://www.trip.com/hotels/himeji-hotel-detail-1579298/hotel-nikko-himeji/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267&locale=en_xx&curr=USD" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. Initialize District Buttons
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70"></i>${hotelData[key].name}`;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. Select District
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. Render Category Buttons
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive shadow-sm`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // Default click on the first category
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. Select Category
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. Render Hotel Data
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-rose-100 animate-fade-in">
+                    <h2 class="text-2xl font-bold text-rose-900 mr-3">
+                        <i class="fa-solid fa-location-dot mr-2 text-rose-500"></i>${districtData.name}
+                    </h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-rose-100 text-rose-700 text-sm font-bold rounded-full border border-rose-200">
+                        <i class="fa-solid fa-tag mr-1"></i>${currentCategoryName}
+                    </span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in">No recommended hotels available in this category.</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5">`;
+                
+                hotels.forEach((hotel, index) => {
+                    const linkTagHTML = hotel.url 
+                        ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 mt-3 sm:mt-0 rounded-xl text-sm font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-auto">
+                               <i class="fa-solid fa-magnifying-glass mr-1.5"></i>Details & Booking
+                           </a>`
+                        : '';
+
+                    htmlContent += `
+                        <div class="bg-[#fff9f9] border border-rose-50 p-5 md:p-6 rounded-2xl hover:shadow-md transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 0.05}s;">
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2">
+                                <h4 class="text-xl font-bold text-rose-900 flex items-start leading-tight pt-1">
+                                    <span class="text-white bg-rose-400 rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2 flex-shrink-0">${index + 1}</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-0 sm:pl-8 space-y-3">
+                                <div class="flex items-start">
+                                    <span class="font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded mr-2 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-star mr-1"></i>Highlights</span> 
+                                    <span class="text-sm text-slate-700 leading-relaxed font-medium">${hotel.feature}</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded mr-2 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-map-pin mr-1"></i>Location</span> 
+                                    <span class="text-sm text-slate-700 leading-relaxed font-medium">${hotel.address}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict('osaka', firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

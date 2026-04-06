@@ -1,1 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>京．阪．神通 - 深度旅行助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .app-container { max-width: 414px; margin: 0 auto; background-color: #f9fafb; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow-x: hidden; }
+        .bg-bangkok-gradient { background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%); }
+        .bg-attraction-gradient { background: linear-gradient(135deg, #6b21a8 0%, #c026d3 100%); }
+        .bg-food-gradient { background: linear-gradient(135deg, #ea580c 0%, #e11d48 100%); }
+        .bg-itinerary-gradient { background: linear-gradient(135deg, #059669 0%, #0284c7 100%); }
+        .bg-hotel-gradient { background: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%); }
+        .bg-essentials-gradient { background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%); }
+        .bg-river-gradient { background: linear-gradient(135deg, #1e3a8a 0%, #0284c7 100%); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        select { -webkit-appearance: none; appearance: none; }
+        optgroup { font-weight: bold; background-color: #1f2937; color: #38bdf8; }
+        option { font-weight: normal; color: white; }
+        .dyn-tab-content { display: none; animation: fadeIn 0.3s ease-out; }
+        .dyn-tab-content.active { display: block; }
+        .carousel-track { display: flex; transition: transform 0.5s ease-out; }
+    </style>
+</head>
+<body>
 
+<div class="app-container pb-20">
+    
+    <!-- 頂部 Header -->
+    <div class="bg-bangkok-gradient text-white pt-6 pb-4 px-5 rounded-b-[2rem] shadow-md relative z-20">
+        <div class="flex justify-between items-center">
+            <div>
+                <p id="datetime-display" class="text-[10px] font-medium text-teal-50 tracking-wide opacity-90">時間載入中...</p>
+                <p id="weather-display" class="text-xs opacity-100 font-bold flex items-center gap-1"><i class="ph ph-sun-dim"></i> 讀取天氣...</p>
+                <h1 class="text-2xl font-extrabold tracking-tight mt-0.5">京．阪．神通</h1>
+            </div>
+            <div class="flex gap-2">
+                <a href="https://linkuei0425.github.io/Osaka-US/index.html" target="_blank" rel="noopener noreferrer" class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform text-sm font-bold">EN</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 照片輪播區 -->
+    <div class="px-5 mt-4 relative overflow-hidden">
+        <div id="carousel-track" class="carousel-track gap-3">
+            <div onclick="window.open('https://linkuei0425.github.io/Osaka/fe.html', '_blank')" class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20 cursor-pointer active:scale-[0.98] transition-transform">
+                <img src="https://linkuei0425.github.io/Osaka/1.jpeg" class="w-full h-full object-cover" alt="大阪">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">大阪</span></div>
+            </div>
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20">
+                <img src="https://linkuei0425.github.io/Osaka/2.jpeg" class="w-full h-full object-cover" alt="京都">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">京都</span></div>
+            </div>
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20">
+                <img src="https://linkuei0425.github.io/Osaka/3.jpeg" class="w-full h-full object-cover" alt="宇治抹茶">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">宇治抹茶</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快速導航工具 -->
+    <div class="px-5 mt-4">
+        <h2 class="text-sm font-bold text-gray-500 mb-4 px-1">快速導航工具</h2>
+        <div class="grid grid-cols-4 gap-y-6 gap-x-3">
+            <!-- 旅遊必備 (移至第一位並改為外連) -->
+            <button onclick="window.open('https://linkuei0425.github.io/togeter/buy.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(139,92,246,0.2)]"><i class="ph ph-suitcase text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">旅遊必備</span></button>
+
+            <!-- 機場攻略 -->
+            <button onclick="window.openModal('airportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(14,165,233,0.2)]"><i class="ph ph-airplane-tilt text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">機場攻略</span></button>
+            
+            <!-- 捷運規劃 -->
+            <button onclick="window.open('https://linkuei0425.github.io/Osaka/MRT.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-teal-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(20,184,166,0.2)]"><i class="ph ph-train-regional text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">捷運規劃</span></button>
+            
+            <!-- 機票查詢 -->
+            <button onclick="window.open('https://hk.trip.com/flights/welcome/?to=home&Allianceid=7913725&SID=297495871&trip_sub1=&trip_sub3=D13946067', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-700 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(29,78,216,0.2)]"><i class="ph ph-airplane-takeoff text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">機票查詢</span></button>
+            
+            <!-- 櫻花.楓葉季 -->
+            <button onclick="window.open('https://linkuei0425.github.io/Osaka/fe.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-400 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,114,182,0.2)]"><i class="ph ph-flower text-3xl"></i></div><span class="text-[10px] font-bold text-gray-700 text-center leading-[1.2]">櫻花.<br>楓葉季</span></button>
+
+            <!-- 行程魔法師 -->
+            <button onclick="window.open('https://linkuei0425.github.io/Osaka/S.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(236,72,153,0.2)]"><i class="ph ph-magic-wand text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">行程魔法師</span></button>
+
+            <!-- 美食推薦 -->
+            <button onclick="window.open('https://linkuei0425.github.io/Osaka/food.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(249,115,22,0.2)]"><i class="ph ph-fork-knife text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">美食推薦</span></button>
+            
+            <!-- 購物推薦 -->
+            <button onclick="window.open('https://linkuei0425.github.io/Osaka/shopping.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,63,94,0.2)]"><i class="ph ph-handbag text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">購物推薦</span></button>
+            
+            <!-- 行程推薦 -->
+            <button onclick="window.open('https://linkuei0425.github.io/Osaka/trip.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(16,185,129,0.2)]"><i class="ph ph-map-trifold text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">行程推薦</span></button>
+            
+            <!-- 飯店推薦 -->
+            <button onclick="window.open('https://linkuei0425.github.io/Osaka/hotel.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(99,102,241,0.2)]"><i class="ph ph-bed text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">飯店推薦</span></button>
+
+            <!-- 全球通 -->
+            <button onclick="window.open('https://linkuei0425.github.io/togeter/go.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(37,99,235,0.2)]"><i class="ph ph-globe-hemisphere-west text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">全球通</span></button>
+            
+            <button onclick="window.openModal('aboutModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(71,85,105,0.2)]"><i class="ph ph-info text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">關於我們</span></button>
+            
+            <!-- 加入粉絲 -->
+            <button onclick="window.openModal('fanModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-red-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(239,68,68,0.2)]"><i class="ph ph-heart text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">加入粉絲</span></button>
+        </div>
+    </div>
+
+    <!-- ==================== Modals ==================== -->
+
+    <!-- 機場攻略 Modal -->
+    <div id="airportModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-gradient-to-br from-cyan-600 to-blue-700 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
+            <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> 機場攻略</h2>
+            <button onclick="window.closeModal('airportModal')"><i class="ph ph-x text-2xl"></i></button>
+        </div>
+        <div class="bg-slate-900 px-4 pt-3 z-10">
+            <div class="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+                <button onclick="window.switchAirportTab('kix')" id="btn-airport-kix" class="flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap">關西機場 (KIX)</button>
+                <button onclick="window.switchAirportTab('itm')" id="btn-airport-itm" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap">伊丹機場 (ITM)</button>
+            </div>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
+            
+            <!-- KIX 內容 -->
+            <div id="airport-kix" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-train text-lg"></i> (1) JR 特急 HARUKA</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">優勢：</span> 直達天王寺(35分)、新大阪(50分)、京都(80分)。</li>
+                        <li><span class="text-white font-bold">適合：</span> 住宿在天王寺、梅田/新大阪、京都的旅客。</li>
+                        <li><span class="text-white font-bold">購票：</span> 建議先在線上購買電子票，掃 QR Code 即可換票。</li>
+                    </ul>
+                    <a href="https://www.klook.com/zh-TW/activity/18400-jr-haruka-airport-express-train-tickets-osaka/?spm=SearchResult.SearchResult_LIST&clickId=2e3a0f10bd" target="_blank" rel="noopener noreferrer" class="mt-3 flex items-center justify-center gap-1.5 w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-2.5 rounded-lg font-bold shadow-md active:scale-95 transition-transform text-xs">
+                        <i class="ph-fill ph-ticket text-sm"></i> JR關西機場特快 HARUKA 車票
+                    </a>
+                </div>
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-train-regional text-lg"></i> (2) 南海電鐵 特急 Rapi:t</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">優勢：</span> 最快 34 分鐘直達難波。</li>
+                        <li><span class="text-white font-bold">適合：</span> 住宿在心齋橋、道頓堀、難波一帶的旅客。</li>
+                        <li><span class="text-white font-bold">特色：</span> 全車指定席，藍色車頭造型非常帥氣。</li>
+                    </ul>
+                    <a href="https://www.klook.com/zh-TW/activity/599-kansai-airport-namba-train-ticket-osaka/?spm=SearchResult.SearchResult_LIST&clickId=b71e751e9d" target="_blank" rel="noopener noreferrer" class="mt-3 flex items-center justify-center gap-1.5 w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-2.5 rounded-lg font-bold shadow-md active:scale-95 transition-transform text-xs">
+                        <i class="ph-fill ph-ticket text-sm"></i> 關西機場 - 南海電鐵特急Rapi:t 車票
+                    </a>
+                </div>
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-bus text-lg"></i> (3) 機場利木津巴士</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">優勢：</span> 免提行李上下樓梯，直達各大主要車站或知名飯店。</li>
+                        <li><span class="text-white font-bold">路線：</span> 大阪梅田、神戶三宮、京都車站等皆有車次。</li>
+                    </ul>
+                    <a href="https://www.klook.com/zh-TW/activity/18203-kansai-airport-one-way-transfer-osaka/?spm=SearchResult.SearchResult_LIST&clickId=c99cc837dd" target="_blank" rel="noopener noreferrer" class="mt-3 flex items-center justify-center gap-1.5 w-full bg-gradient-to-r from-orange-400 to-red-500 text-white py-2.5 rounded-lg font-bold shadow-md active:scale-95 transition-transform text-xs">
+                        <i class="ph-fill ph-ticket text-sm"></i> 【利木津巴士】關西機場至大阪 & 關西地區
+                    </a>
+                </div>
+            </div>
+
+            <!-- ITM 內容 -->
+            <div id="airport-itm" class="hidden space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-train text-lg"></i> (1) 大阪單軌電車</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">位置：</span> 航廈直通大阪單軌電車「大阪機場站」。</li>
+                        <li><span class="text-white font-bold">轉乘：</span> 坐到「千里中央」可轉乘北大阪急行電鐵(御堂筋線)進入大阪市區。</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-bus text-lg"></i> (2) 機場巴士 (Limousine Bus)</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">路線：</span> 前往大阪車站(梅田)、新大阪、難波、神戶三宮等。</li>
+                        <li><span class="text-white font-bold">優勢：</span> 班次密集，直達市中心不需換車，是最方便的選擇。</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 關於我們 Modal -->
+    <div id="aboutModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-slate-800 text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">關於我們</h2><button onclick="window.closeModal('aboutModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-6 text-sm">
+            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-2 flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> 品牌初衷</h3><p class="leading-relaxed text-gray-300">我們陪伴旅人從尋找靈感的第一秒，到踏上歸途的最後一刻。我們希望能為用戶寫下專屬於他們的故事。</p></div>
+            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-3 flex items-center gap-2 text-amber-400"><i class="ph-fill ph-briefcase"></i> 合作模式</h3><ul class="space-y-3 text-gray-300"><li>📍 目的地營銷與品牌推廣</li><li>🎟️ 旅遊產品 API 串接與分潤</li><li>⛺ 在地商家與品牌贊助</li></ul></div>
+            <div class="bg-blue-900/30 p-5 rounded-2xl border border-blue-800/50"><h3 class="font-bold mb-2 flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> 聯絡信箱</h3><p class="text-blue-400 font-bold break-all">imimdesignstudio@yahoo.com</p></div>
+        </div>
+    </div>
+
+    <!-- 加入粉絲 Modal -->
+    <div id="fanModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">加入粉絲</h2><button onclick="window.closeModal('fanModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white flex flex-col items-center gap-6 no-scrollbar">
+            <img src="https://i.imgur.com/C8pWBp8.jpg" alt="粉絲專頁" class="w-full rounded-2xl shadow-lg border border-white/10 object-cover">
+            <div class="w-full space-y-3">
+                <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-instagram-logo text-xl"></i> 追蹤 Instagram</a>
+                <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-zinc-800 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform border border-zinc-700"><i class="ph-fill ph-threads-logo text-xl"></i> 關注 Threads</a>
+                <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-chat-circle text-xl"></i> 加入 LINE 官方帳號</a>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 text-center leading-relaxed">追蹤我們，獲取第一手京阪神旅遊私藏情報、<br>隱藏版美食與限時優惠！</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- 核心 JavaScript 邏輯 -->
+<script>
+// --- 全域變數與開關定義 ---
+window.openModal = function(id) {
+    const el = document.getElementById(id);
+    if (el) { 
+        el.classList.remove('hidden'); 
+        setTimeout(() => el.classList.remove('opacity-0'), 10); 
+    }
+};
+
+window.closeModal = function(id) {
+    const el = document.getElementById(id);
+    if (el) { 
+        el.classList.add('opacity-0'); 
+        setTimeout(() => el.classList.add('hidden'), 300); 
+    }
+};
+
+// --- 切換邏輯 ---
+window.switchAirportTab = function(tab) {
+    const kix = document.getElementById('airport-kix');
+    const itm = document.getElementById('airport-itm');
+    const bkix = document.getElementById('btn-airport-kix');
+    const bitm = document.getElementById('btn-airport-itm');
+    
+    if (tab === 'kix') {
+        bkix.className = "flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
+        bitm.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+        kix.classList.remove('hidden'); 
+        itm.classList.add('hidden');
+    } else {
+        bitm.className = "flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
+        bkix.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+        itm.classList.remove('hidden'); 
+        kix.classList.add('hidden');
+    }
+};
+
+// --- DOM 載入後初始化 ---
+document.addEventListener('DOMContentLoaded', () => {
+    const updateTime = () => {
+        const now = new Date();
+        const dStr = now.toLocaleDateString('zh-TW', { timeZone: 'Asia/Tokyo', month: '2-digit', day: '2-digit', weekday: 'short' });
+        const tStr = now.toLocaleTimeString('zh-TW', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hour12: false });
+        const el = document.getElementById('datetime-display'); if (el) el.textContent = `${dStr} ${tStr} (日本時間)`;
+    };
+    updateTime(); setInterval(updateTime, 1000);
+
+    const fetchWeather = async () => {
+        try { const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=34.6937&longitude=135.5022&current=temperature_2m&timezone=Asia%2FTokyo'); const data = await res.json(); const el = document.getElementById('weather-display'); if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> 京阪神晴朗, ${data.current.temperature_2m}°C`; }
+        catch (e) { const el = document.getElementById('weather-display'); if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> 京阪神晴朗, 22°C`; }
+    };
+    fetchWeather();
+
+    const track = document.getElementById('carousel-track'); let slide = 0;
+    if (track) setInterval(() => { slide = (slide + 1) % 3; track.style.transform = `translateX(-${slide * 93}%)`; }, 3000);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kansai Sightseeing Guide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Hide scrollbar but keep functionality */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body id="app-body" class="min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800">
+
+  <!-- Header -->
+  <header id="app-header" class="bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500">
+    
+    <!-- Back to Home Button -->
+    <div class="max-w-6xl mx-auto px-4 pt-4">
+      <a href="https://linkuei0425.github.io/FUKUOKA-US/index.html" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 bg-white/60 hover:bg-white hover:text-gray-900 rounded-full border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-x-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Back to Home
+      </a>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 pb-6 pt-2">
+      <div class="flex items-center justify-center space-x-3 mb-2">
+        <div id="title-icon-left" class="animate-pulse"></div>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 transition-colors duration-500">
+          Kansai Sightseeing Guide
+        </h1>
+        <div id="title-icon-right" class="animate-pulse"></div>
+      </div>
+      <p class="text-center text-gray-500 text-sm md:text-base">
+        Selected beautiful <span id="season-text" class="font-semibold">Sakura</span> viewing spots in Osaka, Kyoto, Nara, Kobe, Uji, and Himeji.
+      </p>
+    </div>
+
+    <!-- Season Toggle -->
+    <div class="flex justify-center mb-4">
+      <div class="bg-gray-100/80 backdrop-blur-sm p-1.5 rounded-full inline-flex border border-gray-200 shadow-inner">
+        <button id="btn-sakura" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M12 5a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 8 6.17 6A3 3 0 1 1 12 5z"/><path d="M12 22v-9"/><path d="M12 13a3 3 0 1 0-5.83-1c0-2 3-3 5.83-3s5.83 1 5.83 3A3 3 0 1 0 12 13z"/><path d="M12 13a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 16 6.17 14A3 3 0 1 1 12 13z"/></svg>
+          Spring Sakura
+        </button>
+        <button id="btn-momiji" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+          Autumn Momiji
+        </button>
+      </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="max-w-4xl mx-auto px-4 pb-4">
+      <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar space-x-2 md:justify-center py-2">
+        <!-- Tabs injected by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 mt-8">
+    <div class="mb-6 flex items-center space-x-2 transition-colors duration-500" id="section-title-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <h2 id="section-title" class="text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500">
+        Osaka Selected Spots
+      </h2>
+    </div>
+
+    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Cards injected by JS -->
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="max-w-6xl mx-auto px-4 mt-16 text-center text-gray-400 text-sm">
+    <p id="footer-text">* The blooming status is affected by the climate. It is recommended to check the latest information from the Japan Meteorological Agency or forecasting websites before departure.</p>
+  </footer>
+
+  <script>
+    const sakuraData = {
+      'Osaka': [
+        { name: 'Osaka Castle Park', feature: 'With the magnificent Osaka Castle Tenshukaku as a backdrop, about 3,000 cherry trees are planted in the park. The illuminated night sakura in the Nishinomaru Garden, combined with the lit-up castle, is a classic Kansai spring view.', transport: 'Take the JR Osaka Loop Line to Osakajokoen Station or Morinomiya Station; or take the Subway Tanimachi Line to Tanimachi 4-chome Station, and walk 5-10 minutes.' },
+        { name: 'Japan Mint Sakura Walk', feature: 'Open for only 7 days in mid-April. Famous for about 300 double-flowered cherry trees (Yae-zakura) of over 100 varieties. It is the most popular limited-time spring spot in Osaka.', transport: 'Take the Subway Tanimachi Line or Keihan Main Line to Temmabashi Station, 15 minutes walk from Exit 2; or take the JR Tozai Line to Osakatemmangu Station and walk 15 minutes.' },
+        { name: 'Expo \'70 Commemorative Park', feature: 'A massive scale of about 5,500 cherry trees. Centered around the Tower of the Sun, the large lawn is perfect for family picnics. Night illuminations and bustling markets are held during the festival.', transport: 'Take the Osaka Monorail to Bampaku-kinen-koen Station or Koen-higashiguchi Station.' }
+      ],
+      'Kyoto': [
+        { name: 'Kiyomizu-dera', feature: 'A World Heritage site with about 1,500 Yoshino and wild cherry trees blooming in spring. Looking down from the famous Kiyomizu Stage, you feel surrounded by a pink sea of clouds. The special night illumination is stunning.', transport: 'Take Kyoto City Bus 206 or 100 from JR Kyoto Station, get off at Gojozaka or Kiyomizu-michi, and walk 10-15 minutes up the slope.' },
+        { name: 'Philosopher\'s Path', feature: 'A 2-km walking path along the Lake Biwa Canal. Lined with about 500 Kansetsu cherry trees, the fallen petals create a romantic "sakura carpet" on the water. A perfect, poetic spot for a quiet stroll.', transport: 'Take a Kyoto City Bus to Ginkakuji-michi or Ginkakuji-mae and walk 3 minutes to the start of the path.' },
+        { name: 'Arashiyama', feature: 'Famous for the Togetsukyo Bridge over the Katsura River with a backdrop of pink and white cherry trees on the mountains. Enjoy a ride on the Sagano Romantic Train or a relaxing spring day by the river.', transport: 'Take the JR Sagano Line to Saga-Arashiyama Station, Hankyu Kyoto Line to Arashiyama Station, or Randen to Arashiyama Station. All are within walking distance.' }
+      ],
+      'Nara': [
+        { name: 'Nara Park', feature: 'A vast park where you can capture dreamy photos of sakura and wild deer together. The Ukimido pavilion looks even more classic adorned with sakura. Special "Nara Yae-zakura" can also be found here.', transport: 'Walk 5 minutes from Kintetsu Nara Station; or walk 20 minutes from JR Nara Station (or take a city bus).' },
+        { name: 'Mount Yoshino', feature: 'Japan\'s most famous sakura viewing spot, praised as "Hitome Senbon" (1,000 trees at a glance). About 30,000 white wild cherry trees cover the mountain from bottom to top, offering a spectacular pink landscape for nearly a month.', transport: 'Take the Kintetsu Yoshino Line to Yoshino Station, then transfer to the Yoshinoyama Ropeway or a seasonal shuttle bus.' },
+        { name: 'Himuro Shrine', feature: 'Located near Nara Park, known for its massive 400-year-old weeping cherry tree (Shidare-zakura). One of the earliest blooming spots in Nara, featuring a magnificent "sakura waterfall".', transport: 'Take the loop bus from Kintetsu or JR Nara Station and get off at Himuro Shrine / National Museum.' }
+      ],
+      'Kobe': [
+        { name: 'Shukugawa Park', feature: 'Listed as one of Japan\'s Top 100 Cherry Blossom Spots. Nearly 1,700 cherry and pine trees line the 2.8 km riverbanks. The contrast between pink sakura and evergreen pines is its greatest feature.', transport: 'Take the Hankyu Kobe Line to Shukugawa Station, or the JR Kobe Line to Sakura Shukugawa Station. The park is right outside.' },
+        { name: 'Sumaura Sanjo Amusement Park', feature: 'Take a ropeway up Mount Hachibuse to a park with about 3,200 cherry trees. Offers an unbeatable panoramic view of Osaka Bay, the Akashi Kaikyo Bridge, and mountains covered in sakura.', transport: 'Take the Sanyo Electric Railway to Sumaura-koen Station, then transfer directly to the Sumaura Ropeway.' },
+        { name: 'Ikutagawa Park', feature: 'A linear park south of Shin-Kobe Station, known locally as "Nunobiki Sakura". About 400 trees form a sakura tunnel along the river. Lit up with lanterns at night, it is a favorite local spot.', transport: 'Walk 5 minutes from Shin-Kobe Station (Shinkansen/Subway); or walk 15 minutes east from Sannomiya Station.' }
+      ],
+      'Uji': [
+        { name: 'Uji Riverbanks / Uji Bridge', feature: 'About 2,000 cherry trees line the Uji River. Paired with the vermilion Asagiri Bridge and the ancient Uji Bridge, it offers a Heian-era vibe. You can also take a houseboat to enjoy the view from the water.', transport: 'Walk 10 minutes from JR Uji Station; or take the Keihan Uji Line to Uji Station, right next to the riverbanks.' },
+        { name: 'Byodoin Temple', feature: 'The World Heritage "Phoenix Hall" depicted on the 10-yen coin is adorned with sakura along the Aji Pond in spring. Though there aren\'t many trees, the red pillars, white walls, and pink reflections create high artistic beauty.', transport: 'Walk 10 minutes from JR Uji Station or Keihan Uji Station.' },
+        { name: 'Uji City Botanical Park', feature: 'Features a famous large weeping cherry tree. Lit up at night, it looks like a glowing pink waterfall. Other varieties bloom throughout the park, offering a peaceful escape from the city crowds.', transport: 'Take the Kyoto Keihan Bus (towards Taiyogaoka) from JR or Keihan Uji Station and get off at the Botanical Park stop.' }
+      ],
+      'Himeji': [
+        { name: 'Himeji Castle', feature: 'Japan\'s premier castle and World Heritage site, known as the "White Egret Castle". The pristine white walls beautifully contrast with about 1,000 pink Yoshino and weeping cherry trees. A picture-perfect, iconic view.', transport: 'Take the JR or Sanyo Electric Railway to Himeji Station, walk straight down Otemae-dori for 15-20 minutes, or take a 5-minute bus ride.' },
+        { name: 'Koko-en', feature: 'A Japanese strolling garden next to Himeji Castle. In spring, the classical architecture, waterfalls, and blooming weeping cherry trees perfectly blend to create a serene Edo-period atmosphere.', transport: 'Access is the same as Himeji Castle; located just a short walk from the castle entrance.' },
+        { name: 'Tegarayama Central Park', feature: 'Located on a small hill in the city, with about 400 cherry trees. Besides viewing flowers, you can overlook Himeji Castle and the cityscape from the observatory. A popular weekend spot for local families.', transport: 'Take the Sanyo Electric Railway to Tegara Station and walk 10 minutes to the park entrance.' }
+      ]
+    };
+
+    const momijiData = {
+      'Osaka': [
+        { name: 'Minoo Park / Minoo Waterfall', feature: 'Osaka\'s most famous autumn spot, selected as one of Japan\'s Top 100 Waterfalls. A 3 km walking path along the valley leads to a spectacular waterfall framed by autumn leaves. Try the local specialty "fried maple leaves".', transport: 'Take the Hankyu Takarazuka Line to Ishibashi handai-mae, transfer to the Minoo Line to Minoo Station. Walk 40 minutes along the path.' },
+        { name: 'Katsuoji Temple', feature: 'Famous for "winning luck" and filled with Daruma dolls dedicated by worshippers. The vast grounds turn bright red in autumn. The combination of Daruma dolls and autumn leaves is unique, with night illuminations available.', transport: 'Take a Hankyu Bus from Senri-Chuo Station (Kita-Osaka Kyuko) or Kita-Senri Station (Hankyu).' },
+        { name: 'Expo \'70 Commemorative Park', feature: 'Besides spring sakura, autumn is also spectacular. The Natural and Cultural Gardens and Japanese Garden host about 10,000 maple and ginkgo trees. The Momiji Waterfall and Valley offer refreshing views.', transport: 'Take the Osaka Monorail to Bampaku-kinen-koen Station or Koen-higashiguchi Station.' }
+      ],
+      'Kyoto': [
+        { name: 'Tofuku-ji Temple', feature: 'Kyoto\'s top autumn foliage spot. Looking out from the wooden Tsutenkyo Bridge, the "Sengyokukan" valley is dyed a fiery red by about 2,000 maple trees, looking like a sea of red leaves. Visually stunning.', transport: 'Take the JR Nara Line or Keihan Main Line to Tofukuji Station, then walk 10 minutes.' },
+        { name: 'Arashiyama / Tenryu-ji', feature: 'Autumn Arashiyama centers around the Katsura River and Togetsukyo Bridge, backed by colorful mountains. Enjoy a riverside walk, the Sagano Romantic Train, or the Sogenchi Garden at World Heritage Tenryu-ji.', transport: 'Take the JR Sagano Line to Saga-Arashiyama Station, Hankyu Kyoto Line to Arashiyama Station, or Randen to Arashiyama Station.' },
+        { name: 'Kiyomizu-dera', feature: 'A stunning sight in both spring and autumn. In autumn, the area below the Kiyomizu Stage is surrounded by dense red foliage. The classic view from the Main Hall to Okunoin is breathtaking, especially during the special night illumination.', transport: 'Take Kyoto City Bus 206 or 100, get off at Gojozaka or Kiyomizu-michi, and walk 10-15 minutes.' }
+      ],
+      'Nara': [
+        { name: 'Nara Park', feature: 'The vast park features evergreen trees mixed with red maples and golden ginkgos. Watching wild Nara deer stroll on a carpet of fallen leaves, or taking photos with Todai-ji and Kasuga Taisha as a backdrop, is incredibly healing.', transport: 'Walk 5 minutes from Kintetsu Nara Station; or walk 20 minutes from JR Nara Station.' },
+        { name: 'Tanzan Shrine', feature: 'Known as the "Nikko of Kansai", it houses the world\'s only 13-story wooden pagoda. In autumn, about 3,000 maple trees surround the shrine. The ancient architecture contrasting with vivid red leaves creates a deep historical atmosphere.', transport: 'Take the Kintetsu Osaka Line or JR Sakurai Line to Sakurai Station, then take a Nara Kotsu Bus to the final stop.' },
+        { name: 'Hasedera Temple', feature: 'Famous for peonies, it is also a hidden gem for autumn leaves. The 399-step "Noboriro" corridor is flanked by autumn colors. From the stage of the National Treasure Main Hall, you can enjoy a panoramic view of red leaves and the five-story pagoda.', transport: 'Take the Kintetsu Osaka Line to Hasedera Station and walk 15-20 minutes.' }
+      ],
+      'Kobe': [
+        { name: 'Arima Onsen / Zuihoji Park', feature: 'Located in one of Japan\'s three major ancient hot springs. Toyotomi Hideyoshi called it the "Garden of Unending Twilight". With about 2,000 maples, taking a walk in a yukata after a bath is highly enjoyable.', transport: 'Walk 15 minutes from Shintetsu Arima Onsen Station; or take a bus to the Arima Onsen area and walk.' },
+        { name: 'Kobe Municipal Arboretum', feature: 'A vast area with diverse tree species. In autumn, the Metasequoia forest turns golden, while the maple area becomes fiery red. Features a "Forest Autumn Walk" and night illumination events.', transport: 'Take the free shuttle bus from Shintetsu Kita-Suzurandai Station (takes about 10 minutes).' },
+        { name: 'Nunobiki Herb Gardens', feature: 'Japan\'s largest herb garden. The best way to view the foliage is taking the Kobe Nunobiki Ropeway up the mountain, offering a grand aerial view of autumn colors, the city, and Osaka Bay. The European architecture also looks great.', transport: 'Walk 5 minutes from Shin-Kobe Station (Shinkansen/Subway) to the ropeway station.' }
+      ],
+      'Uji': [
+        { name: 'Kosho-ji Temple / Kotosaka', feature: 'The slope leading to the temple, "Kotosaka", is lined with dense maple trees. In autumn, it forms a stunning 200-meter "red leaf tunnel", representing Uji\'s best autumn scenery.', transport: 'Walk 15 minutes from Keihan Uji Station; or walk 20 minutes from JR Uji Station.' },
+        { name: 'Byodoin Temple', feature: 'The Phoenix Hall looks uniquely beautiful in autumn. Though less dense with maples, the touches of red around the Aji Pond, combined with the vermilion hall and its reflection, create a perfect image of the Pure Land.', transport: 'Walk 10 minutes from JR Uji Station or Keihan Uji Station.' },
+        { name: 'Mimuroto-ji Temple', feature: 'Known as the "Flower Temple", its autumn leaves are as charming as its summer hydrangeas. The newly arranged autumn garden offers rich layers of red, yellow, and orange during its special autumn opening.', transport: 'Walk 15 minutes from Keihan Mimurodo Station.' }
+      ],
+      'Himeji': [
+        { name: 'Koko-en', feature: 'A vast Japanese strolling garden next to Himeji Castle. The autumn leaves perfectly match the classical buildings, carp ponds, and streams. A romantic night illumination called "Momiji-e" is held in late November.', transport: 'Walk 15 minutes from JR or Sanyo Himeji Station, or take a bus and get off at Himeji Castle Otemon-mae.' },
+        { name: 'Mount Shosha Engyo-ji Temple', feature: 'A 1,000-year-old Tendai sect temple and a filming location for "The Last Samurai". Take a ropeway up to see towering autumn trees amid solemn wooden buildings. The atmosphere is exceptionally sacred and peaceful.', transport: 'Take a Shinki Bus from Himeji Station to the Shosha Ropeway terminal, then take the ropeway.' },
+        { name: 'Himeji Castle / Momijiyama', feature: 'Near "Momijiyama" west of the castle, you can capture the pristine white Tenshukaku framed by fiery maples. The giant ginkgo trees turning yellow in the San-no-Maru square are also a must-see.', transport: 'Walk 15-20 minutes straight down Otemae-dori from JR or Sanyo Himeji Station.' }
+      ]
+    };
+
+    // State
+    let activeSeason = 'sakura';
+    let activeTab = 'Osaka';
+
+    // SVG Icons
+    const svgFlower = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 8 6.17 6A3 3 0 1 1 12 5z"/><path d="M12 22v-9"/><path d="M12 13a3 3 0 1 0-5.83-1c0-2 3-3 5.83-3s5.83 1 5.83 3A3 3 0 1 0 12 13z"/><path d="M12 13a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 16 6.17 14A3 3 0 1 1 12 13z"/></svg>`;
+    const svgLeaf = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`;
+    const svgSparkles = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400 mr-2 flex-shrink-0 mt-0.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`;
+    const svgTrain = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 mr-2 flex-shrink-0 mt-0.5"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><path d="M8 15h0"/><path d="M16 15h0"/></svg>`;
+
+    const themeConfig = {
+      sakura: {
+        bg: 'bg-pink-50', selection: 'selection:bg-pink-300', textMain: 'text-pink-500',
+        borderMain: 'border-pink-100', tabActive: 'bg-pink-500 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-pink-100 hover:text-pink-600', iconH2: 'text-pink-600', borderH2: 'border-pink-200',
+        cardGradient: 'from-pink-300 via-pink-400 to-pink-300 group-hover:from-pink-400 group-hover:to-pink-500',
+        numberBg: 'bg-pink-100 text-pink-600', transportBg: 'bg-pink-50',
+        btnActive: 'bg-white text-pink-500 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-pink-400 hover:bg-white/50'
+      },
+      momiji: {
+        bg: 'bg-orange-50', selection: 'selection:bg-orange-300', textMain: 'text-orange-500',
+        borderMain: 'border-orange-100', tabActive: 'bg-orange-500 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-orange-100 hover:text-orange-600', iconH2: 'text-orange-600', borderH2: 'border-orange-200',
+        cardGradient: 'from-orange-300 via-orange-400 to-orange-300 group-hover:from-orange-400 group-hover:to-orange-500',
+        numberBg: 'bg-orange-100 text-orange-600', transportBg: 'bg-orange-50',
+        btnActive: 'bg-white text-orange-500 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-orange-400 hover:bg-white/50'
+      }
+    };
+
+    function updateTheme() {
+      const t = themeConfig[activeSeason];
+      
+      // Body & Header
+      document.getElementById('app-body').className = `min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800 ${t.bg} ${t.selection} selection:text-white`;
+      document.getElementById('app-header').className = `bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500 ${t.borderMain}`;
+      
+      // Icons & Text
+      const iconSvg = activeSeason === 'sakura' ? svgFlower : svgLeaf;
+      document.getElementById('title-icon-left').innerHTML = iconSvg;
+      document.getElementById('title-icon-right').innerHTML = iconSvg;
+      document.getElementById('title-icon-left').className = `animate-pulse ${t.textMain}`;
+      document.getElementById('title-icon-right').className = `animate-pulse ${t.textMain}`;
+      
+      document.getElementById('season-text').innerText = activeSeason === 'sakura' ? 'Sakura' : 'Momiji';
+      document.getElementById('footer-text').innerText = `* The ${activeSeason === 'sakura' ? 'blooming' : 'color-changing'} status is affected by the climate. It is recommended to check the latest information from the Japan Meteorological Agency or forecasting websites before departure.`;
+
+      // Section Title
+      document.getElementById('section-title-container').className = `mb-6 flex items-center space-x-2 transition-colors duration-500 ${t.iconH2}`;
+      document.getElementById('section-title').className = `text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500 ${t.borderH2}`;
+
+      // Toggle Buttons
+      document.getElementById('btn-sakura').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeSeason === 'sakura' ? t.btnActive : t.btnInactive}`;
+      document.getElementById('btn-momiji').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeSeason === 'momiji' ? t.btnActive : t.btnInactive}`;
+    }
+
+    function renderTabs() {
+      const t = themeConfig[activeSeason];
+      const data = activeSeason === 'sakura' ? sakuraData : momijiData;
+      const cities = Object.keys(data);
+      const container = document.getElementById('tabs-container');
+      
+      container.innerHTML = cities.map(city => `
+        <button
+          onclick="setTab('${city}')"
+          class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-in-out ${activeTab === city ? t.tabActive : t.tabHover}"
+        >
+          ${city}
+        </button>
+      `).join('');
+    }
+
+    function renderCards() {
+      const t = themeConfig[activeSeason];
+      const data = activeSeason === 'sakura' ? sakuraData : momijiData;
+      const spots = data[activeTab];
+      
+      document.getElementById('section-title').innerText = `${activeTab} Selected Spots`;
+
+      const container = document.getElementById('cards-container');
+      container.innerHTML = spots.map((spot, index) => `
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-50 flex flex-col h-full group">
+          <div class="h-2 w-full bg-gradient-to-r transition-colors duration-500 ${t.cardGradient}"></div>
+          <div class="p-6 flex-grow flex flex-col">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-start">
+              <span class="rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5 transition-colors duration-500 ${t.numberBg}">
+                ${index + 1}
+              </span>
+              ${spot.name}
+            </h3>
+            
+            <div class="mb-6 flex-grow">
+              <div class="flex items-start text-gray-600 mb-1">
+                ${svgSparkles}
+                <span class="font-semibold text-gray-700">Features</span>
+              </div>
+              <p class="text-gray-600 leading-relaxed pl-7 text-sm">
+                ${spot.feature}
+              </p>
+            </div>
+
+            <div class="rounded-xl p-4 mt-auto transition-colors duration-500 ${t.transportBg}">
+              <div class="flex items-start text-gray-700 mb-1">
+                ${svgTrain}
+                <span class="font-semibold">Access</span>
+              </div>
+              <p class="text-gray-600 text-sm pl-7 leading-relaxed">
+                ${spot.transport}
+              </p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Event & Update Logic
+    function setSeason(season) {
+      if (activeSeason === season) return;
+      activeSeason = season;
+      updateTheme();
+      renderTabs();
+      renderCards();
+    }
+
+    function setTab(tab) {
+      if (activeTab === tab) return;
+      activeTab = tab;
+      renderTabs();
+      renderCards();
+    }
+
+    document.getElementById('btn-sakura').addEventListener('click', () => setSeason('sakura'));
+    document.getElementById('btn-momiji').addEventListener('click', () => setSeason('momiji'));
+
+    // Initialize
+    updateTheme();
+    renderTabs();
+    renderCards();
+  </script>
+</body>
+</html>

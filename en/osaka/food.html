@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kansai Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #fff1f2; /* Light cherry blossom pink rose-50 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color for Japan (Crimson Red vibe) */
+        .btn-nav {
+            background-color: #e11d48; /* rose-600 */
+        }
+        .btn-nav:hover {
+            background-color: #be123c; /* rose-700 */
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-rose-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Kansai Food Map
+            </h1>
+            <!-- Back to Home Link -->
+            <a href="https://linkuei0425.github.io/Osakaus/" class="flex items-center gap-1 text-sm md:text-base font-medium bg-rose-700 hover:bg-rose-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-rose-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider">Select City</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider">Select Category</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-slate-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">Please select a city and food category from above to start exploring.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Kansai Food Database
+        const db = {
+            "osaka": {
+                name: "Osaka",
+                categories: {
+                    "street_food": [
+                        { name: "Honke Ootako (Dotonbori)", feature: "A famous queueing spot in Dotonbori! Known for extra-large fresh octopus chunks. Crispy outside, hot and soft inside, topped with plenty of bonito flakes and special mayo. Super satisfying.", address: "1-5-10 Dotonbori, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Subway Namba Station, Exit 14 to the Dotonbori area." },
+                        { name: "Mizuno Okonomiyaki", feature: "Awarded Michelin Bib Gourmand for consecutive years! Their signature 'Yamaimo-yaki' uses zero flour—only grated yam. Extremely fluffy texture, packed with scallops and pork.", address: "1-4-15 Dotonbori, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Subway Namba Station, Exit 14, located inside Dotonbori Sennichimae shopping street." },
+                        { name: "Yaekatsu Kushikatsu (Shinsekai)", feature: "The most iconic Kushikatsu shop in Shinsekai! The batter is thin and crispy. Fried beef skewers and shrimp are a must. Please note the traditional 'No double-dipping' rule!", address: "3-4-13 Ebisuhigashi, Naniwa-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from Subway Midosuji Line Dobutsuen-mae Station, Exit 1, inside Janjan Yokocho alley." },
+                        { name: "551 HORAI Pork Buns", feature: "Osaka's soul food! Sweet and chewy bun with juicy pork and onion filling. The aroma is irresistible. The perfect souvenir to bring on the Shinkansen.", address: "3-6-3 Namba, Chuo-ku, Osaka (Namba Main Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 1-min walk from Subway Namba Station, Exit 11." },
+                        { name: "Kogaryu Takoyaki", feature: "A popular spot among young people in Americamura! Famous for its mayonnaise web and plenty of green onions. The takoyaki is soft, blending perfectly with bonito and sauce.", address: "2-11-5 Nishishinsaibashi, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Subway Shinsaibashi Station, Exit 7, right next to Triangle Park." }
+                    ],
+                    "meat": [
+                        { name: "Yakinikuya Daibokujo (Wagyu BBQ Buffet)", feature: "Super popular all-you-can-eat Wagyu BBQ in Dotonbori! Offers premium Wagyu that melts in your mouth. Extremely convenient location.", address: "1-5-10 Nipponbashi, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-5 min walk from Subway Nipponbashi or Namba Station.", bookingLink: "https://www.klook.com/en-US/activity/18061-yakinikuya-daibokujo-osaka/?spm=SearchResult.SearchResult_LIST&clickId=ade648cd3f&aid=116515", recommend: true },
+                        { name: "Kobe Aburi Bokujo", feature: "Highly rated Yakiniku in Umeda! Carefully selected premium Kobe Beef and Kuroge Wagyu. Offers rare cuts. Enjoy the ultimate meat texture and aroma.", address: "2-8-11 Shibata, Kita-ku, Osaka (Umeda Main Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from JR Osaka Station.", bookingLink: "https://www.klook.com/en-US/activity/22103-aburi-bokujo-osaka/?spm=SearchResult.SearchResult_LIST&clickId=5ce2769767&aid=116515", recommend: true },
+                        { name: "Aburiya (Domestic Beef BBQ)", feature: "Osaka's high cost-performance BBQ buffet! High-quality domestic beef, thick-cut skirt steak, and various side dishes. Great service. Advance booking highly recommended.", address: "Multiple branches in Osaka (e.g., Dotonbori Midosuji Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-5 min walk from Subway Namba Station." },
+                        { name: "Yakiniku Rikimaru", feature: "Charcoal BBQ buffet loved by young people and tourists! Fresh meat with even marbling. Charcoal grilling brings out the best beef aroma.", address: "Multiple branches in Osaka (e.g., Shinsaibashi Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Subway Shinsaibashi Station." },
+                        { name: "Matsusaka Beef Yakiniku M", feature: "Premium Matsusaka Beef specialty store! Located in the nostalgic Hozenji Yokocho alley. Enjoy melt-in-your-mouth A5 grade Matsusaka beef.", address: "1-1-19 Namba, Chuo-ku, Osaka (Hozenji Yokocho Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Subway Namba Station." },
+                        { name: "Yakiniku Itto (Tengachaya Main Store)", feature: "A local hidden gem for premium Kuroge Wagyu! Features a beef aging display cabinet. Excellent quality at a more affordable price than downtown.", address: "1-23-18 Tengachayahigashi, Nishinari-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> 2-min walk from Hankai Tramway Imafune Station, or 10-min walk from Subway Tengachaya Station." },
+                        { name: "Jojoen (Yugentei Osaka)", feature: "The synonym for top-tier Japanese BBQ! Yugentei is the highest tier of Jojoen. Flawless service and Wagyu. The lunch set is a great value for luxury.", address: "3-3-20 Umeda, Kita-ku, Osaka (Osaka Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from JR Osaka Station." }
+                    ],
+                    "ramen": [
+                        { name: "Jinrui Mina Menrui (Human Beings Everybody Noodles)", feature: "Osaka's #1 super popular ramen! Broth made from ultimate bonito and soy sauce. The highlight is the steak-thick, melt-in-your-mouth chashu.", address: "1-12-15 Nishinakajima, Yodogawa-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> 1-min walk from Subway Midosuji Line Nishinakajima-Minamigata Station or Hankyu Minamikata Station." },
+                        { name: "Kamukura Ramen", feature: "Unlike traditional heavy tonkotsu, Kamukura's broth is boiled with lots of Chinese cabbage. Sweet, refreshing, and non-greasy. A soulful Kansai-style ramen.", address: "1-7-25 Dotonbori, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Subway Namba Station, on the main Dotonbori street." },
+                        { name: "Moeyo Mensuke", feature: "A highly popular queuing spot in Fukushima ward! The elegant broth is based on duck and shellfish, paired with low-temperature cooked tender chashu.", address: "5-12-21 Fukushima, Fukushima-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 1-min walk from JR Fukushima Station." },
+                        { name: "Kinryu Ramen", feature: "Features the iconic 3D dragon sign in Dotonbori! Open 24 hours. Rich pork bone soy sauce broth. Free unlimited rice and kimchi. Perfect for late-night meals.", address: "1-7-26 Dotonbori, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 4-min walk from Subway Namba Station, Exit 14." },
+                        { name: "Bokkochi (Tori Paitan Ramen)", feature: "Hidden in the alleys of Namba. The chicken broth is pure white, extremely rich but not too salty. The noodles absorb the essence of the chicken soup perfectly.", address: "2-6-10 Nishishinsaibashi, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Subway Namba Station, Exit 25." }
+                    ],
+                    "seafood": [
+                        { name: "Kuromon Sanpei", feature: "The most famous large seafood shop in 'Osaka's Kitchen' Kuromon Market! Pick giant oysters, sea urchin, and bluefin tuna sashimi directly, and enjoy them in the seating area.", address: "1-22-25 Nipponbashi, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from Subway Sennichimae/Sakaisuji Line Nipponbashi Station, Exit 10." },
+                        { name: "Daiki Suisan Conveyor Belt Sushi", feature: "The best choice for affordable, fresh sushi in Osaka! Ingredients are delivered directly from Tottori. The fatty bluefin tuna is rich but very reasonably priced.", address: "Branches in Dotonbori and other areas<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Subway Namba Station to Dotonbori." },
+                        { name: "Isomaru Suisan (Dotonbori)", feature: "A 24-hour seafood izakaya! Grill your own seafood on tabletop stoves. The signature 'Crab Miso Shell Grill' is rich and sweet. Perfect late-night spot with draft beer.", address: "1-4-18 Dotonbori, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Subway Namba Station, Exit 14." },
+                        { name: "Uoichi Shokudo (Kizu Market)", feature: "A local market known to insiders! The seafood bowls are covered with daily fresh-delivered bluefin tuna and sea urchin. Explosively sweet and very affordable.", address: "2-2-8 Shikitsuhigashi, Naniwa-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Subway Midosuji Line Daikokucho Station, Exit 1." },
+                        { name: "Sushi Uoshin (Minami Main Store)", feature: "Famous for 'Giant Nigiri Sushi'! The sashimi slices are cut extremely thick and huge, completely covering the rice. Highly satisfying, loved by big eaters.", address: "1-7-9 Sennichimae, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Subway Nipponbashi or Namba Station." }
+                    ],
+                    "dessert": [
+                        { name: "Rikuro's Uncle Rikuro Cheesecake", feature: "A must-buy dessert in Osaka! The freshly baked cheesecake jiggles like pudding. The texture is between light cheese and sponge cake, with raisins at the bottom as the soul.", address: "3-2-28 Namba, Chuo-ku, Osaka (Namba Main Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from Subway Namba Station, inside Nankai-dori shopping street." },
+                        { name: "Meoto Zenzai (Red Bean Soup)", feature: "A century-old shop hidden in Hozenji Yokocho. One portion of red bean soup is served in two bowls, symbolizing marital harmony. The mochi is chewy, perfectly balanced with salted kelp on the side.", address: "1-2-10 Namba, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Subway Namba Station, next to Hozenji Temple." },
+                        { name: "Dojima Roll (Mon cher)", feature: "Super popular fresh cream roll originating from Umeda! Extremely fluffy cake wrapping a generous amount of Hokkaido fresh cream that is rich but not overly sweet. Melts in your mouth.", address: "2-1-2 Dojimahama, Kita-ku, Osaka (Dojima Main Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Subway Nishi-Umeda Station or JR Kitashinchi Station." },
+                        { name: "Ujien (Shinsaibashi Main Store)", feature: "A century-old tea shop in Shinsaibashi! Besides selling premium tea leaves, their matcha parfaits and freshly baked matcha waffles are very popular. Great place to rest while shopping.", address: "1-4-20 Shinsaibashisuji, Chuo-ku, Osaka<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 1-min walk from Subway Shinsaibashi Station, Exit 6." },
+                        { name: "Nogami Premium Raw Bread", feature: "The pioneer of Japan's 'Premium Raw Bread'! Made entirely without eggs, using only premium wheat and fresh cream. Even the crust is incredibly soft. Delicious even on its own.", address: "2-2 Uenomiyacho, Tennoji-ku, Osaka (Sohonten)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Kintetsu Osaka Uehommachi Station." }
+                    ]
+                }
+            },
+            "kyoto": {
+                name: "Kyoto",
+                categories: {
+                    "street_food": [
+                        { name: "Miki Keiran (Nishiki Market)", feature: "A long-established dashimaki tamago (rolled omelet) shop in Nishiki Market! Made with fresh eggs and Rishiri kelp dashi. Smooth, tender, and full of flavor. A must-eat walking snack.", address: "182 Higashiuoyacho, Nishikikoji-dori Tominokoji Nishi-iru, Nakagyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-5 min walk from Hankyu Kyoto-kawaramachi Station or Subway Shijo Station." },
+                        { name: "Soy Milk Donuts (Konnamonja)", feature: "Super popular snack in Nishiki Market! Freshly fried donuts made with rich soy milk. Crispy outside, soft inside, full of soy aroma. You won't be able to stop eating them.", address: "Nishikikoji Sakaimachi-dori Tsuji, Nakagyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walk into Nishiki Market from Hankyu Kyoto-kawaramachi Station or Subway Shijo Station." },
+                        { name: "Houjuan (Roasted Dango)", feature: "A traditional sweets shop in Nishiki Market. The freshly roasted soy sauce dango and kinako (soybean powder) dango smell amazing. Soft and chewy, an unmissable traditional wagashi.", address: "Nishikikoji-dori Higashinotoin Higashi-iru, Nakagyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walk into Nishiki Market from Hankyu Kyoto-kawaramachi Station." },
+                        { name: "Gion Tsujiri (Matcha Soft Cream)", feature: "A must-eat dessert in the Gion shopping street! Rich matcha soft cream paired with shiratama (mochi balls) and red bean. The tea flavor is sweet and not bitter. Often has a long queue.", address: "573-3 Gionmachi Minamigawa, Higashiyama-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Keihan Gion-shijo Station." },
+                        { name: "Arashiyama Yoshiya (Tofu Snacks)", feature: "A famous tofu cuisine restaurant in Arashiyama. Besides formal meals, their takeout 'Fried Yuba Skewers' and 'Tofu Croquettes' are perfect for eating while walking.", address: "31-1 Sagatenryuji Tsukurimichicho, Ukyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 1-min walk from Randen Arashiyama Station, near Togetsukyo Bridge." }
+                    ],
+                    "meat": [
+                        { name: "Yakiniku Hiro", feature: "Kyoto's most popular premium Wagyu BBQ! They buy whole cows to ensure quality, offering various rare cuts. The meat is sweet and melts in your mouth. A must-eat in Kyoto.", address: "Multiple branches in Kyoto (e.g., Sanjo Kiyamachi Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Subway Kyoto Shiyakusho-mae Station." },
+                        { name: "Mishima-tei (Main Store)", feature: "A premium Sukiyaki restaurant with over 140 years of history. Staff in kimonos cook for you at the table. Premium Wagyu pan-fried with sugar and soy sauce—an unforgettable taste.", address: "405 Sakuranocho, Teramachi-dori Sanjo-sagaru, Nakagyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Subway Kyoto Shiyakusho-mae Station, inside Teramachi shopping street." },
+                        { name: "Yakiniku Yazawa (Kyoto Store)", feature: "Premium Kuroge Wagyu BBQ from Tokyo. Carefully selected A5 Kuroge Wagyu, offering rare cuts. Staff assists with grilling. The meat literally melts in your mouth.", address: "243 Shinmeicho, Shimogyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Subway Shijo Station or Hankyu Karasuma Station." },
+                        { name: "Jojoen (Yugentei Kyoto)", feature: "Premium BBQ located in Kyoto's prime area, offering views of the Kamo River. Exquisite dishes and top-tier service. Perfect for celebrating anniversaries.", address: "60 Tachiurinishimachi, Shijo-dori Higashinotoin Higashi-iru, Shimogyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from Subway Shijo Station or Hankyu Karasuma Station." },
+                        { name: "Sukiyaki Hyakushokuya", feature: "Super popular domestic beef rice bowl limited to 100 servings a day! The bowl is covered with pink, medium-rare beef. Visually stunning, tender, and juicy. Must queue early for a ticket.", address: "21-2 Saiinyakakecho, Ukyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Hankyu Saiin Station." }
+                    ],
+                    "ramen": [
+                        { name: "Honke Daiichi-Asahi", feature: "A queuing spot next to Kyoto Station, open from early morning to late night! Classic Kujo green onion soy sauce ramen. Clear broth but deep flavor. Authentic Kyoto ramen.", address: "845 Higashishiokoji Mukaihatacho, Shimogyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from JR Kyoto Station Central Exit. You will see the queue." },
+                        { name: "Menya Inoichi", feature: "Awarded Michelin Bib Gourmand consecutively! Offers exceptionally clear black/white soy sauce broth paired with A0 Wagyu or seafood. Elegant and delicate noodle art.", address: "542 Ebisunocho, Shimogyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About an 8-min walk from Hankyu Kyoto-kawaramachi Station." },
+                        { name: "Shinpuku Saikan (Main Store)", feature: "A historic Kyoto ramen shop right next to Daiichi-Asahi! Famous for its 'black soy sauce broth'. It looks salty but is actually sweet and refreshing. Their black soy sauce fried rice is a must-order.", address: "569 Higashishiokoji Mukaihatacho, Shimogyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from JR Kyoto Station Central Exit." },
+                        { name: "Ginjo Ramen Kubota", feature: "A highly representative Tsukemen (dipping ramen) shop in Kyoto. Rich miso dipping sauce boiled with spices and dashi. The thick noodles coat the soup perfectly. Smells amazing.", address: "563 Nishimatsuyacho, Shimogyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from Subway Gojo Station." },
+                        { name: "Inoichi Hanare", feature: "Sister shop of Michelin-recommended Menya Inoichi. Features white soy sauce and bonito broth, flavored with yuzu kosho. The broth is even more refreshing and elegant.", address: "463 Sensojicho, Shimogyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from Subway Shijo Station or Hankyu Karasuma Station." }
+                    ],
+                    "seafood": [
+                        { name: "Sushi no Musashi (Conveyor Belt Sushi)", feature: "Affordable conveyor belt sushi loved by Kyoto locals, offering many seasonal seafood items. Conveniently located inside Kyoto Station or Kawaramachi area.", address: "Inside Kyoto Station Hachijo Exit or Sanjo Main Store<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Inside ASTY Kyoto shopping mall at JR Kyoto Station Hachijo Exit." },
+                        { name: "Kakitei Daiyasu (Nishiki Market)", feature: "A standing seafood izakaya in Nishiki Market! Offers super fresh grilled giant oysters, sea urchin, and various sashimi. Perfect paired with Japanese sake.", address: "181 Higashiuoyacho, Nakagyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walk into Nishiki Market from Hankyu Kyoto-kawaramachi Station." },
+                        { name: "Uogashi Miyatake", feature: "Kyoto's high cost-performance seafood spot! Direct from the fishing port daily. The lunch-limited 'Kaisendon' (seafood bowl) is packed with sashimi. Amazing freshness and portion size.", address: "1F An Suzaku, Tambaguchi-dori Omiya Nishi-iru, Shimogyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from JR Tambaguchi Station." },
+                        { name: "Sushi Otoha", feature: "A century-old sushi shop in Shinkyogoku shopping street. Famous for Kansai's unique 'Hako Sushi' (Box Sushi) and 'Saba Sushi' (Mackerel Sushi). Firm rice and well-marinated fish.", address: "565 Nakanocho, Shinkyogoku-dori Shijo-agaru, Nakagyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Hankyu Kyoto-kawaramachi Station." },
+                        { name: "Kikunoi Gion", feature: "Kyoto's 3-star Michelin Kaiseki restaurant! Offers the finest seasonal seafood and Kyoto vegetable dishes. Perfectly showcases the refinement and elegance of Japanese cuisine (Advance booking required).", address: "459 Shimokawaracho, Yasaka Torii-mae Sagaru, Shimokawara-dori, Higashiyama-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from Keihan Gion-shijo Station." }
+                    ],
+                    "dessert": [
+                        { name: "Saryo Tsujiri (Gion Main Store)", feature: "One of the kings of Kyoto matcha! The signature 'Tokusen Tsujiri Parfait' layers rich matcha ice cream, matcha jelly, shiratama, and chestnuts. A visual and tasting feast.", address: "573-3 Gionmachi Minamigawa, Shijo-dori, Higashiyama-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Keihan Gion-shijo Station, on Gion shopping street." },
+                        { name: "% ARABICA (Kyoto Arashiyama)", feature: "A beautiful pure-white cafe located by the Togetsukyo Bridge in Arashiyama. Order a beautifully poured latte, sit by the Hozu River, and enjoy the mountain view. A romantic must-do.", address: "3-47 Sagatenryuji Susukinobabacho, Ukyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Randen Arashiyama Station, on the north bank of Togetsukyo Bridge." },
+                        { name: "Kagizen Yoshifusa (Kuzukiri)", feature: "A 300-year-old traditional wagashi shop in Gion. The signature 'Kuzukiri' (arrowroot noodles) is served in a lacquerware bowl of ice water. Dip it in special black sugar syrup. Smooth, cooling, and elegant.", address: "264 Gionmachi Kitagawa, Higashiyama-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Keihan Gion-shijo Station." },
+                        { name: "Demachi Futaba (Mame Mochi)", feature: "A century-old wagashi shop that even locals line up for! The signature 'Mame Mochi' has a chewy outer layer, slightly salty red peas, and smooth red bean paste. The sweet and salty blend is extremely delicious.", address: "236 Seiryucho, Imadegawa-agaru, Demachi-dori, Kamigyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Keihan Demachiyanagi Station." },
+                        { name: "Maccha House", feature: "Famous for the 'Uji Matcha Tiramisu' that once caused a queuing frenzy! Served in a traditional wooden masu box, covered with rich matcha powder. Dig in to reveal smooth mascarpone cheese.", address: "382-2 Komeyacho, Kawaramachi-dori Shijo-agaru, Nakagyo-ku, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 1-min walk from Hankyu Kyoto-kawaramachi Station." }
+                    ]
+                }
+            },
+            "nara": {
+                name: "Nara",
+                categories: {
+                    "street_food": [
+                        { name: "Nakatanidou Yomogi Mochi", feature: "Featured on Japanese TV multiple times! Known for their high-speed, perfectly synced 'mochi pounding' performance. Fresh mugwort mochi wrapping non-sweet red bean paste. Soft, chewy, and warm.", address: "29 Hashimotocho, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Kintetsu Nara Station, at the shopping street intersection." },
+                        { name: "Hiraso Kakinoha-zushi", feature: "Nara's most representative local cuisine! Mackerel or salmon sushi wrapped in persimmon leaves, giving it a subtle leaf aroma. Perfect for takeout to picnic in Nara Park.", address: "59 Noboriojicho, Nara (Next to Kintetsu Nara Station)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Located right outside Kintetsu Nara Station." },
+                        { name: "Shizuka Kamameshi", feature: "A must-eat in Nara! Slow-cooked in special dashi, the rice absorbs the essence of seafood and mountain vegetables. The crispy rice crust at the bottom is the soul. Always a long queue during meal times.", address: "59-11 Noboriojicho, Nara (Park Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from Kintetsu Nara Station, near Todaiji Temple." },
+                        { name: "Men Tōan (Tofu Pouch Udon)", feature: "Udon noodles wrapped inside a giant fried tofu pouch, tied with a green onion. Cutting open the pouch releases a wonderful aroma. Very eye-catching and delicious.", address: "30-1 Hashimotocho, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Kintetsu Nara Station, next to Nakatanidou." },
+                        { name: "Tofu-an Kondo (Naramachi)", feature: "A specialty tofu shop hidden inside a traditional Naramachi townhouse. Freshly made tofu ice cream and soy milk are very rich. Great for quenching thirst while walking.", address: "43 Nishishinyacho, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from Kintetsu Nara Station, inside Naramachi." }
+                    ],
+                    "meat": [
+                        { name: "Yakiniku Kobo Moku", feature: "Highly rated Yakiniku restaurant by Nara locals! Offers rare cuts with sweet, tender meat and rich marbling. Cozy and comfortable dining environment.", address: "6-7-7 Omiyacho, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Kintetsu Shin-Omiya Station." },
+                        { name: "Nikusho Geihinkan", feature: "Kuroge Wagyu BBQ highly recommended by locals! They own a private ranch, offering premium Yamato Beef at very affordable prices.", address: "Branches in Nara city<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take a bus or taxi from Kintetsu Nara Station." },
+                        { name: "Yamatogyu Yakiniku Asuka", feature: "Yakiniku shop specializing in Nara's local 'Yamato Beef'. The meat is delicate with refreshing, non-greasy marbling. Pairs perfectly with their special sauce and rice.", address: "Branches in Nara city<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Around Kintetsu Shin-Omiya Station." },
+                        { name: "Itamae Yakiniku Issho", feature: "Famous premium Yakiniku in Kansai. Kuroge Wagyu presented in 'Itamae' (counter-style). Chefs cut the meat right in front of you. A dual visual and taste experience.", address: "Branches in Nara city<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walking distance from Kintetsu Yamato-Saidaiji Station." },
+                        { name: "Sukiyaki Kikusuiro", feature: "A century-old Ryotei (traditional restaurant) inside Nara Park. Taste premium Yamato Beef sukiyaki cooked by staff in kimonos within a historic tatami room.", address: "1130 Takahatocho, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from Kintetsu Nara Station, at the entrance of Kasuga Taisha approach." }
+                    ],
+                    "ramen": [
+                        { name: "Menya NOROMA", feature: "Consistently ranks #1 on Nara's ramen charts! The signature 'Special Tori Paitan Ramen' features a golden, creamy broth. Rich chicken aroma without being heavy, plus perfectly sous-vide chashu.", address: "3-1531 Minamikyobatecho, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from JR Kyobate Station. (Bus or taxi recommended)" },
+                        { name: "SaiKa Ramen", feature: "The soul ramen for Nara locals! Clear soy sauce broth stir-fried with plenty of Chinese cabbage, pork, garlic, and chili sauce. Highly appetizing aroma.", address: "Multiple branches in Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Accessible from Kintetsu Shin-Omiya Station or downtown branches." },
+                        { name: "Tenri Stamina Ramen", feature: "Famous local ramen in Nara! Broth boiled fiercely with lots of cabbage, pork, chives, and special chili sauce. Spicy and extremely satisfying.", address: "Multiple branches in Nara prefecture<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Branches available around Kintetsu Nara Station or Tenri Station." },
+                        { name: "Muteppou (Tonkotsu Ramen)", feature: "The representative of extremely rich Tonkotsu ramen in Kansai! The broth is so thick it's almost like a puree, full of pork bone collagen and aroma. A must for heavy flavor lovers.", address: "Branches in Nara city<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take a bus from JR Nara Station." },
+                        { name: "Menya Yui Yui", feature: "Super popular Tori Paitan (chicken broth) ramen in Nara. The milky-white broth is boiled from lots of chicken bones. Smooth noodles and sous-vide chicken chashu make it mild and easy to eat.", address: "Nara city area<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from Kintetsu Nara Station." }
+                    ],
+                    "seafood": [
+                        { name: "Kakinoha-zushi Honpo Izasa", feature: "Famous Kakinoha-zushi (persimmon leaf sushi) shop next to Nara Park! The 2nd-floor seating overlooks Mt. Wakakusa. Enjoy set meals with assorted sushi and Miwa Somen.", address: "16 Noboriojicho, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from Kintetsu Nara Station, near Todaiji Temple." },
+                        { name: "Sohonke Hiraso", feature: "A century-old Kakinoha-zushi shop. Besides takeout, you can enjoy authentic Kakinoha-zushi Kaiseki cuisine at their restaurant in downtown Nara.", address: "Branches in Nara city<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walking distance around Kintetsu Nara Station." },
+                        { name: "Chojiro (Conveyor Belt Sushi)", feature: "A well-known mid-to-high-end conveyor belt sushi chain in Kansai. Fresh ingredients, often featuring seasonal live fish. Comfortable environment suitable for families.", address: "Branches in Nara city<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Drive from Kintetsu Shin-Omiya Station or suburbs." },
+                        { name: "Uotei (Nara Seafood)", feature: "Located near Kintetsu Nara Station, offering fresh sashimi set meals and seafood bowls. Generous portions. Great for regaining energy after visiting Todaiji.", address: "Higashimukinakamachi, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walk from Kintetsu Nara Station into Higashimuki shopping street." },
+                        { name: "Isomaru Suisan (Kintetsu Nara Station)", feature: "Japan's national seafood izakaya has a branch in Nara! Must-order tabletop grilled crab miso shell and various shellfish. Lively atmosphere.", address: "38-3 Takamacho, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 1-min walk from Kintetsu Nara Station." }
+                    ],
+                    "dessert": [
+                        { name: "Mahoroba Daibutsu Purin (Great Buddha Pudding)", feature: "A must-buy dessert in Nara! The lid features a cute Great Buddha drawing. The pudding is incredibly smooth and creamy. Available in plain, Yamato tea, and even giant sizes.", address: "Inside Kintetsu Nara Station / Yume-Kaze Plaza near Todaiji<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> You can find the counter outside the B1 ticket gate of Kintetsu Nara Station." },
+                        { name: "Yoshino Honkuzu Tengyokudo", feature: "A 150-year-old shop specializing in Nara's 'Yoshino Kuzu' (arrowroot). The freshly made translucent 'Kuzukiri' or hot 'Kuzuyu' is the perfect rest stop after visiting Todaiji.", address: "1-6 Oshiagecho, Nara (Nara Main Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from Kintetsu Nara Station, located west of Todaiji Temple." },
+                        { name: "Kasugano Mugiyo Mochi", feature: "Traditional Nara specialty! Wheat flour skin wraps sweet red bean paste, dusted with soybean powder. A rustic snack originally for farmers. Full of nostalgic flavor.", address: "Nara city area<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Available at major souvenir shops or specialty stores near Kintetsu Nara Station." },
+                        { name: "Horiuchi Fruit Farm", feature: "Directly managed by a Nara fruit farm. Offers overflowing fruit shaved ice, fruit sandwiches, and smoothies made with seasonal fresh fruits. A visual and tasting delight.", address: "23 Tsunofuricho, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Kintetsu Nara Station, on Sanjo-dori street." },
+                        { name: "Nakanishi Yosaburo (Wagashi)", feature: "Traditional wagashi shop in Nara. The signature 'Naramachi Daifuku' and seasonal fresh sweets are exquisite like art. Perfect paired with matcha.", address: "23 Wakidocho, Nara<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from Kintetsu Nara Station, inside Naramachi." }
+                    ]
+                }
+            },
+            "uji": {
+                name: "Uji",
+                categories: {
+                    "street_food": [
+                        { name: "Matcha Croquette (Byodoin Omotesando)", feature: "Uji specialty snack! Matcha is kneaded into mashed potatoes and fried golden crisp. Savory outside with a subtle matcha flavor inside. Perfect for walking and eating.", address: "Ujirenge, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from JR Uji Station, into Byodoin Omotesando (Niku no Nagasakiya)." },
+                        { name: "Surugaya Matcha Dango", feature: "A historic tea sweets shop in Uji. Freshly made matcha dango is soft but not sticky, dusted with plenty of matcha powder. Not too sweet, with an extremely rich tea flavor.", address: "41 Ujirenge, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About an 8-min walk from JR Uji Station, inside Byodoin Omotesando." },
+                        { name: "Tako-Q (Matcha Takoyaki)", feature: "An Uji exclusive snack! Matcha powder is mixed into the takoyaki batter, giving it a light tea aroma. Served with a special mayonnaise. Very unique.", address: "9 Ujirenge, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 7-min walk from JR Uji Station, inside Byodoin Omotesando." },
+                        { name: "Masuda Chaho (Matcha Soft Cream)", feature: "A traditional tea shop right in front of Byodoin Temple's main gate. Premium matcha powder is sprinkled on top of the soft cream. The tea flavor is extremely intense. A must for matcha lovers.", address: "21-3 Ujirenge, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from JR Uji Station, directly opposite Byodoin's main gate." },
+                        { name: "Matcha Bread (Ujibashi-dori)", feature: "A bakery recommended by locals. Matcha melon pan and matcha red bean toast are very aromatic and fluffy. Great for buying as breakfast for the next day.", address: "Uji city, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Just outside JR Uji Station, around Ujibashi-dori shopping street." }
+                    ],
+                    "meat": [
+                        { name: "Nikuya Kurokawa", feature: "A queuing spot in Uji! Famous for the visually stunning 'Kuroge Wagyu Steak Bowl'. Pink, medium-rare Wagyu covers the bowl, topped with a raw egg yolk. Sinful and delicious.", address: "50-25 Ujisatojiri, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from JR Uji Station." },
+                        { name: "Yakiniku Keijo (Uji Store)", feature: "A long-established Yakiniku shop in Uji, offering high-quality Kuroge Wagyu and a variety of offal cuts. The special sauce goes perfectly with rice.", address: "12-3 Ujihanjiri, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from JR Uji Station." },
+                        { name: "Daikoku Shogun Yakiniku", feature: "Popular Yakiniku buffet chain in Kansai. Offers a variety of meats and side dishes at affordable prices. Great for families and students who want a hearty meat meal.", address: "Branches in Uji city<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Around Keihan Uji Station." },
+                        { name: "Charcoal Yakiniku Geihinkan", feature: "Charcoal BBQ restaurant selecting high-quality domestic beef. Thick-cut beef tongue and well-marbled short ribs are a must. Charcoal grilling enhances the meat juice aroma.", address: "Branches in Uji city<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take a bus from Kintetsu or JR stations." },
+                        { name: "Sukiyaki Ujigawa", feature: "A scenic restaurant by the Uji River. Enjoy premium Wagyu sukiyaki while taking in the beautiful river view. Elegant and tranquil atmosphere.", address: "2-2 Ujitogawa, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from JR Uji Station, near the Uji riverbank." }
+                    ],
+                    "ramen": [
+                        { name: "Matcha Soba (Itohkyuemon)", feature: "Besides desserts, Itohkyuemon's 'Matcha Soba' is also very popular. The noodles are kneaded with high-quality matcha, emitting a light tea aroma. Refreshing whether served cold or hot.", address: "19-3 Todoaramaki, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Keihan Uji Station." },
+                        { name: "Nakamura Tokichi (Matcha Udon)", feature: "Taste unique matcha udon inside a century-old house! The noodles carry an elegant tea scent, paired with sweet clear broth and freshly fried tempura. Excellent flavor.", address: "10 Uji Ichiban, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from JR Uji Station." },
+                        { name: "Menya Hare (Uji Ramen)", feature: "Highly rated ramen shop in downtown Uji. Features refreshing clear broth ramen and tsukemen. Chewy homemade noodles and tender, flavorful chashu.", address: "Uji city, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walking distance from JR Uji Station." },
+                        { name: "Seikou Uudoku", feature: "Super famous shop in the Uji suburbs! Known for extremely rich white miso tonkotsu ramen and special tantanmen. There's always a continuous line of customers.", address: "Uji city, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Requires taking a bus or driving." },
+                        { name: "Soba Ichii (Ujigawa)", feature: "A scenic soba shop next to Byodoin. Besides matcha soba, their 'Tempura Soba' features crispy fried items and a sweet, refreshing broth.", address: "31-4 Ujirenge, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from JR Uji Station, next to Byodoin and the Uji River." }
+                    ],
+                    "seafood": [
+                        { name: "Ujigawa Ukai Ayu Cuisine", feature: "Specialty cuisine by the Uji River. In summer, you can taste fresh salt-grilled Ayu (sweetfish) paired with matcha sushi. Full of Kyoto summer vibes.", address: "Ujitogawa, Uji, Kyoto (Riverside restaurants like Ayumune)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from JR Uji Station to the riverbank." },
+                        { name: "Sushiro (Conveyor Belt Sushi)", feature: "Japan's national conveyor belt sushi chain. Offers affordable, diverse nigiri sushi and seasonal seafood. Tablet ordering is very convenient.", address: "Branches in Uji city<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Around JR Uji Station commercial area." },
+                        { name: "Uosada (Uji Seafood)", feature: "A Japanese restaurant loved by Uji locals. The signature 'Unadon' (eel rice) is grilled to order with rich sauce. The sashimi set meals are also very fresh and abundant.", address: "Uji city, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walking distance from JR Uji Station." },
+                        { name: "Hakodate Ichiba (Conveyor Belt Sushi)", feature: "Premium conveyor belt sushi featuring seafood directly from Hokkaido. Salmon roe, sea urchin, and large scallops are extremely fresh. The sushi rice is also specially prepared.", address: "Branches in Uji city<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Around Keihan Uji Station." },
+                        { name: "Kappo Uokichi", feature: "A traditional Kappo cuisine restaurant in Uji. Offers exquisite seasonal seafood Kaiseki and tempura sets. Quiet environment, perfect for slowly savoring Japanese cuisine.", address: "Uji city, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from JR Uji Station." }
+                    ],
+                    "dessert": [
+                        { name: "Nakamura Tokichi (Uji Main Store)", feature: "The synonym for Uji Matcha! The main store's exclusive 'Raw Tea Jelly' is served in a chilled bamboo cylinder. Deep, rich matcha flavor with super chewy shiratama. Always attracts countless matcha fans.", address: "10 Uji Ichiban, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from JR Uji Station, on Ujibashi-dori street right in front." },
+                        { name: "Itohkyuemon (Uji Main Store)", feature: "Another matcha giant! Famous for its gorgeous and rich 'Matcha Parfait', with different matcha dessert surprises in every layer. They also have a very complete selection of matcha souvenirs.", address: "19-3 Todoaramaki, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Keihan Uji Station." },
+                        { name: "Tsujiri (Uji Main Store)", feature: "A historic Uji tea shop. Besides buying premium Sencha and Matcha here, their takeout 'Extra Rich Matcha Soft Cream' is a must-eat cooling treat while strolling Omotesando.", address: "156 Ujimyaraku, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from JR Uji Station, at the start of Byodoin Omotesando." },
+                        { name: "Masuda Chaho", feature: "Besides soft cream, their matcha daifuku and matcha latte are also very authentic. Enjoy them sitting on the red benches in front of the store for a full Japanese vibe.", address: "21-3 Ujirenge, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from JR Uji Station, opposite Byodoin's main gate." },
+                        { name: "Uji Surugaya", feature: "A famous traditional wagashi shop in Uji. The signature 'Chanoka Mochi' is a chewy daifuku coated in matcha powder with moderately sweet red bean paste inside. A must-buy souvenir.", address: "41 Ujirenge, Uji, Kyoto<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About an 8-min walk from JR Uji Station, inside Byodoin Omotesando." }
+                    ]
+                }
+            },
+            "kobe": {
+                name: "Kobe",
+                categories: {
+                    "street_food": [
+                        { name: "Nankinmachi Roushouki", feature: "The legendary queuing shop in Kobe Nankinmachi! A pork bun shop with a century of history. The bun has a unique sourdough aroma, and the pork filling is extremely juicy and sweet.", address: "2-1-14 Motomachidori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from JR/Hanshin Motomachi Station, at Nankinmachi Square." },
+                        { name: "Sannomiya Ikkanrou", feature: "The local favorite pork bun shop in Kobe. The buns are huge, with lots of onions mixed in the filling. The sweetness blends perfectly with the pork juice. A must-buy when passing by.", address: "3-9-9 Sannomiyacho, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from JR Motomachi Station." },
+                        { name: "Moriya Shoten Croquette", feature: "A queuing spot in Kobe Motomachi! Freshly fried croquettes made with minced Kobe beef. Crispy on the outside, mashed potatoes inside are soft and juicy. Just coin-priced.", address: "1-7-2 Motomachidori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Just outside JR Motomachi Station." },
+                        { name: "Motomachi Menchi Katsu", feature: "The freshly fried 'Onion Pork Menchi Katsu' is also very popular. The sweetness of the onion and pork juice burst when you bite into it. Best walking snack.", address: "Motomachidori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Inside the shopping street near JR Motomachi Station." },
+                        { name: "Kobe Beef Skewers (Nankinmachi)", feature: "Super popular stall in Nankinmachi! Premium Kobe beef cut into cubes and grilled on skewers, sprinkled simply with pink salt. Enjoy luxurious melt-in-your-mouth beef while walking.", address: "Inside Nankinmachi, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walk into Nankinmachi from JR/Hanshin Motomachi Station." }
+                    ],
+                    "meat": [
+                        { name: "Kobe Beef Steak Mouriya", feature: "Premium A5 Kobe Beef Teppanyaki! Even celebrities like Lin Chi-ling have visited. The chef sears the meat on a high-heat iron plate to lock in the juices. The marbling melts in your mouth, bringing ultimate joy to your taste buds.", address: "2-1-17 Shimoyamatedori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from Hankyu/Subway Sannomiya Station." },
+                        { name: "Steak Land Kobe", feature: "Famous for its 'high cost-performance' Kobe beef teppanyaki! The lunch set is very affordable, allowing tourists to experience authentic, tender Kobe beef at a lower price.", address: "1-9-17 Kitanagasadori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from Hankyu Sannomiya Station West Exit." },
+                        { name: "Charcoal Yakiniku Ishida", feature: "If you don't prefer teppanyaki, eating Kobe beef yakiniku here is a fantastic choice! Carefully selected premium Kobe beef. Recommend the assorted platter to enjoy the sizzling aroma of different cuts on charcoal.", address: "Multiple branches around Kobe Sannomiya<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-5 min walk from JR/Hankyu Sannomiya Station." },
+                        { name: "Kobe Beef Ishida (Teppanyaki)", feature: "The Teppanyaki branch of Ishida. Elegant and noble environment. The chef's superb skills maximize the fat and aroma of the Kobe beef.", address: "1-2-4 Nakayamatedori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from Subway Sannomiya Station." },
+                        { name: "Kobe Beef Steak Wakkoqu", feature: "A highly rated, long-established Kobe steakhouse. Their unique 'Wakkoqu roasting method' perfectly locks in the meat juice. Matches perfectly with special garlic chips and mustard soy sauce.", address: "1-1 Kitanocho, Chuo-ku, Kobe, Hyogo (Shin-Kobe Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Right outside Shinkansen/Subway Shin-Kobe Station." }
+                    ],
+                    "ramen": [
+                        { name: "Ramen Taro", feature: "A popular local ramen chain in Kobe. Offers rich pork bone soy sauce broth. They give out free pan-fried gyoza during specific hours, making it a great deal.", address: "1-10-10 Nakayamatedori, Chuo-ku, Kobe, Hyogo (Sannomiya Main Store)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from JR/Hankyu Sannomiya Station." },
+                        { name: "Menya Jouroku (Kobe Store)", feature: "Kobe branch of the highly rated Osaka ramen! The signature 'Takaida-style Chuka Soba' uses a rich black soy sauce base paired with thick noodles. The soy sauce aroma is everywhere.", address: "Kobe city, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walking distance from Sannomiya or Motomachi stations." },
+                        { name: "Daiichi-Asahi (Kobe Main Store)", feature: "Originating in Kyoto but extremely popular in Kobe too! Classic soy sauce pork bone broth topped with thinly sliced chashu and lots of green onions. The traditional flavor locals love most.", address: "1-112 Motomachikokadori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from JR Motomachi Station." },
+                        { name: "Ramen Yokozuna", feature: "A famous ramen chain in Kansai. Known for rich tonkotsu soy sauce broth. The biggest feature is 'Free unlimited domestic green onions', a must for green onion lovers.", address: "Multiple branches in Kobe<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Near major subway stations or malls." },
+                        { name: "Gashouken", feature: "Highly representative Tonkotsu ramen in Kobe! Offers four unique broths: White (Original), Red (Spicy), Black (Squid Ink), and Midori (Basil). The pork bone broth is extremely rich.", address: "4-1-8 Mikagehonmachi, Higashinada-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 1-min walk from Hanshin Mikage Station." }
+                    ],
+                    "seafood": [
+                        { name: "Uonotana Market", feature: "Located in neighboring Akashi City, known as 'Kobe's Kitchen'. A must-eat is freshly made 'Akashiyaki' (egg batter balls eaten in dashi broth) and various fresh octopus dishes.", address: "1-1-16 Honmachi, Akashi, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from JR Akashi Station." },
+                        { name: "Sushi no Musashi", feature: "Affordable conveyor belt sushi in Kobe. Frequently features seasonal live fish delivered directly from Kobe Port or the Seto Inland Sea. Very high freshness and value.", address: "Branches around Sannomiya, Kobe<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Around JR/Hankyu Sannomiya Station." },
+                        { name: "Kaisendon Ekimae", feature: "A queuing spot near Sannomiya Station! Known for its super generous 'Premium Seafood Bowl'. The sashimi spills out of the bowl, and the price is very affordable.", address: "1-2-2 Kitanagasadori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Right outside JR/Hankyu Sannomiya Station." },
+                        { name: "Isomaru Suisan (Sannomiya Store)", feature: "A 24-hour national seafood izakaya. After shopping in Sannomiya, drop in anytime for grilled scallops, crab miso, and draft beer. Lively atmosphere.", address: "1-3-1 Kitanagasadori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from Hankyu Sannomiya Station." },
+                        { name: "Seafood Izakaya Ta no Tai", feature: "A highly rated seafood izakaya in Kobe! Specializes in 'aged fish' sashimi. Aging multiplies the umami, making the texture softer and sweeter.", address: "1-5-10 Nakayamatedori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from Subway Sannomiya Station." }
+                    ],
+                    "dessert": [
+                        { name: "Kannonya (Motomachi Main Store)", feature: "A very unique dessert in Kobe! The signature 'Danish Hot Cheesecake' features melted savory cheese over fluffy Danish sponge cake. Sweet, savory, and stringy. Very amazing.", address: "3-9-23 Motomachidori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from JR Motomachi Station, inside Motomachi shopping street." },
+                        { name: "Kobe Fugetsudo (Motomachi Main Store)", feature: "Kobe's most representative Western confectionery shop. Famous for 'Gaufres' (French wafers) bigger than your face. Crispy wafers with vanilla or strawberry cream. Top choice for gifts.", address: "3-3-10 Motomachidori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from JR Motomachi Station, inside Motomachi shopping street." },
+                        { name: "Frantz (Magic Pot Pudding)", feature: "Super popular souvenir around Kitano Ijinkan and Kobe Port. Pudding served in a small ceramic pot, featuring fresh cream, custard, and rich caramel. Extremely rich flavor layers.", address: "Kobe Harborland umie / Kitano Ijinkan area<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> 5-min walk from JR Kobe Station to the umie Mosaic branch." },
+                        { name: "Kobe Rokko Bokujo Soft Cream", feature: "Made with fresh milk from Kobe Rokko Mountain Pasture. The soft cream is incredibly rich and smooth. Their 'Extra Rich Cheesecake' is also a popular item.", address: "Around Kobe Kitano Ijinkan<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walk from Sannomiya stations to the Kitano Ijinkan area." },
+                        { name: "Patisserie L'AVENUE", feature: "A super popular French patisserie near Kobe's Kitano Ijinkan. The chef is a former World Chocolate Masters champion. The signature chocolate cake has mesmerizing, rich layers.", address: "3-7-3 Yamamotodori, Chuo-ku, Kobe, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from Sannomiya stations." }
+                    ]
+                }
+            },
+            "himeji": {
+                name: "Himeji",
+                categories: {
+                    "street_food": [
+                        { name: "Himeji Oden", feature: "The soul food of Himeji! Unlike regular oden, Himeji oden must be eaten dipped in 'ginger soy sauce'. The spicy ginger perfectly elevates the sweetness of the dashi broth.", address: "Around Himeji Station / Miyuki-dori Shopping Street (Multiple shops)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walk out from JR Himeji Station to the shopping street." },
+                        { name: "Taiyaki Honpo Yujido", feature: "A great snack on the way to Himeji Castle! Traditional Taiyaki with a thin crust and plenty of filling. The red bean paste is full and not too sweet. Delicious when served piping hot.", address: "55 Higashiekimaecho, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from JR Himeji Station, near Miyuki-dori." },
+                        { name: "Yamasa Kamaboko", feature: "A highly representative Kamaboko (fish cake) shop in Himeji! The freshly fried 'Cheese Kamaboko Dog' has a golden crust, and hot cheese bursts out when you bite it. Super delicious.", address: "60 Nikaimachi, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About an 8-min walk from JR Himeji Station, on the way to Himeji Castle." },
+                        { name: "Himeji Castle Dango", feature: "A rest stop directly opposite Himeji Castle. Offers freshly roasted soy sauce dango and Obanyaki. Very relaxing to sit outside and eat snacks while viewing the castle.", address: "68 Honmachi, Himeji, Hyogo (Takada no Baba)<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from JR Himeji Station, right in front of the castle entrance." },
+                        { name: "Takopia (Himeji Takoyaki)", feature: "Himeji's famous 'Akashiyaki-style Takoyaki'! Located in the station's underground mall, the takoyaki has a crispy crust but is dipped in special hot dashi broth before eating. Very unique.", address: "188-1 Ekimaecho, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Inside the GRAND FESTA underground mall at JR Himeji Station." }
+                    ],
+                    "meat": [
+                        { name: "Yakiniku Gyuta (Himeji Store)", feature: "A popular local Yakiniku chain in Himeji. Carefully selected Kuroge Wagyu and Himeji Wagyu. Offers great value all-you-can-eat sets with meat quality far above average.", address: "Ekimaecho, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walking distance around JR Himeji Station." },
+                        { name: "Charcoal Yakiniku Tsurugyu", feature: "A premium charcoal Yakiniku shop in downtown Himeji. Offers top-tier Tajima Beef and Kobe Beef. The meat is sweet and fresh, and the dining environment is private and upscale.", address: "Downtown Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take a bus or taxi from JR Himeji Station." },
+                        { name: "Yakiniku Acha", feature: "A highly rated Yakiniku shop near Himeji Station. The signature thick-cut beef tongue and pot-marinated short ribs are very flavorful. Their special cold noodles make a perfect finish.", address: "Higashiekimaecho, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 3-min walk from JR Himeji Station East Exit." },
+                        { name: "Teppanyaki Senju", feature: "A Teppanyaki restaurant in downtown Himeji. The chef's superb skills sear the Kuroge Wagyu steak crispy on the outside and tender inside. Great for anniversary celebrations.", address: "Himeji city, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walk from JR Himeji Station." },
+                        { name: "Yakiniku Rikimaru (Himeji Store)", feature: "Kansai's famous charcoal BBQ buffet has a branch in Himeji too! Wide variety of meats, great charcoal aroma, and a fast, convenient ordering system.", address: "Hojoguchi, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 5-min walk from JR Himeji Station South Exit." }
+                    ],
+                    "ramen": [
+                        { name: "Himeji Mentetsu", feature: "A highly rated clear soy sauce ramen shop in downtown Himeji! The broth is clear and elegant. The homemade thin noodles are smooth and chewy, topped with low-temp sous-vide chashu. A guilt-free meal.", address: "18 Gofukumachi, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 7-min walk from JR Himeji Station, on the way to the castle." },
+                        { name: "Ramen Taro", feature: "A branch of the popular Kobe-born ramen. Offers rich tonkotsu soy sauce broth. Free gyoza provided during certain hours, making it a great deal.", address: "Himeji city, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Commercial area around JR Himeji Station." },
+                        { name: "Ramen Yokozuna (Himeji)", feature: "A long-established Kansai ramen. The combination of tons of domestic green onions and rich tonkotsu soy sauce broth is a perfect match. Open late, a top choice for late-night snacks.", address: "Suburbs of Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Bus or driving recommended." },
+                        { name: "Zundouya (Himeji Main Store)", feature: "The famous queuing ramen shop recognized across Japan originated right here in Himeji! Extremely rich back-fat tonkotsu broth, paired with homemade thin noodles and spicy pickled mustard greens. Very addictive.", address: "298-2 Funaokacho, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from JR Himeji Station." },
+                        { name: "Daiichi-Asahi (Himeji)", feature: "The famous Kyoto shop's branch in Himeji. Also offers the classic clear soy sauce ramen, covered with a large portion of sliced chashu. A taste you never get tired of.", address: "Himeji city, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walking distance around JR Himeji Station." }
+                    ],
+                    "seafood": [
+                        { name: "Appare Suisan (Himeji Station)", feature: "A seafood izakaya directly managed by a local Himeji seafood company! Fresh catches from the Seto Inland Sea daily. The lunch seafood bowls are cheap and huge.", address: "353 Ekimaecho, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 2-min walk from JR Himeji Station." },
+                        { name: "Standing Sushi Totoro", feature: "A super popular standing sushi bar next to Himeji Station! Offers premium sushi like fatty tuna and sea urchin at unbelievably cheap prices. Always a line.", address: "11 Minamimachi, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Right outside JR Himeji Station South Exit." },
+                        { name: "Katsu Suisan (Himeji Store)", feature: "A seafood izakaya full of traditional fishing port vibes. Known for grill-it-yourself live shellfish and fresh seafood sashimi. Lively atmosphere great for dining together.", address: "Himeji city, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walk from JR Himeji Station to the shopping area." },
+                        { name: "Kura Sushi", feature: "A well-known Japanese conveyor belt sushi chain. Besides affordable and diverse sushi, you can throw plates into a slot for a chance to win a gashapon capsule. Great for families.", address: "Branches in Himeji<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Inside malls around JR Himeji Station." },
+                        { name: "Seafood Cuisine Yumeno Soba", feature: "A restaurant combining local seafood and soba noodles. Their 'Conger Eel Soba' and 'Seto Inland Sea Seafood Tempura' are highly distinctive.", address: "68 Honmachi, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from JR Himeji Station, right next to Himeji Castle." }
+                    ],
+                    "dessert": [
+                        { name: "Himeji Castle Matcha Soft Cream", feature: "A must-eat cooling snack after visiting Himeji Castle! Located in the shopping street right in front of the castle. Rich matcha soft cream paired with shiratama mochi.", address: "Shopping street in front of Himeji Castle<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Walk from JR Himeji Station toward the castle main gate." },
+                        { name: "Kineya (Wagashi)", feature: "A representative wagashi shop in Himeji. The signature 'Sasen-nen' has a crispy crust with red bean filling. Their seasonal strawberry daifuku is also very popular.", address: "95 Nikaimachi, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 10-min walk from JR Himeji Station, around Miyuki-dori." },
+                        { name: "Okashitsukasa Jugojiro", feature: "A traditional wagashi shop near Himeji Castle. The specialty 'Jokamachi Mochi' is soft and chewy. The shop also offers an exquisite matcha tasting set.", address: "68 Honmachi, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 15-min walk from JR Himeji Station, near Himeji Castle." },
+                        { name: "Bakery Lamp", feature: "A super popular American-style bakery hidden in the alleys of Himeji. Besides thick, juicy handmade burgers, their bagels and cinnamon rolls often sell out fast.", address: "68 Honmachi, Himeji, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> About a 12-min walk from JR Himeji Station." },
+                        { name: "Amaneya", feature: "A premium wagashi shop in Himeji. Beautifully packaged. The signature 'Fruit Daifuku' and 'Dorayaki' feature innovative and elegant flavors, making them the best souvenirs from Himeji.", address: "Himeji city, Hyogo<br><span class='text-rose-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Available at downtown Himeji branches or the station souvenir area." }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Kansai / Japan
+        const categoriesMap = {
+            "street_food": { name: "🐙 Street Food & Markets", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-400" },
+            "meat": { name: "🥩 Yakiniku & Premium Wagyu", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "ramen": { name: "🍜 Ramen & Udon", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "seafood": { name: "🍣 Seafood & Sushi", color: "bg-blue-100 text-blue-800 hover:bg-blue-600 hover:text-white border-blue-400" },
+            "dessert": { name: "🍵 Desserts & Matcha", color: "bg-emerald-100 text-emerald-800 hover:bg-emerald-600 hover:text-white border-emerald-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-5 py-2.5 rounded-full border border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-bold ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-rose-600', 'text-white', 'border-rose-600');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-slate-700', 'hover:bg-rose-600');
+            clickedBtn.classList.add('bg-rose-600', 'text-white', 'border-rose-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Filter categories based on region data
+            Array.from(categoryContainer.children).forEach(btn => {
+                const catKey = Object.keys(categoriesMap).find(k => categoriesMap[k].name === btn.innerText);
+                if (db[regionKey].categories[catKey]) {
+                    btn.style.display = "block";
+                } else {
+                    btn.style.display = "none";
+                }
+            });
+
+            // Auto select first available category if none selected or current is hidden
+            if(!currentCategory || !db[regionKey].categories[currentCategory]) {
+                const availableCat = Object.keys(categoriesMap).find(k => db[regionKey].categories[k]);
+                if (availableCat) {
+                    const targetBtn = Array.from(categoryContainer.children).find(btn => btn.innerText === categoriesMap[availableCat].name);
+                    selectCategory(availableCat, targetBtn);
+                } else {
+                    contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-slate-500">No food data available for this city.</p>`;
+                }
+            } else {
+                const targetBtn = Array.from(categoryContainer.children).find(btn => btn.innerText === categoriesMap[currentCategory].name);
+                selectCategory(currentCategory, targetBtn);
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-rose-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.5";
+            });
+            if (clickedBtn) {
+                clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-rose-500', 'shadow-md', 'scale-105');
+                clickedBtn.style.opacity = "1";
+            }
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-12 text-slate-500 text-lg font-bold">No recommendations available in this category. Let's explore other foods!</p>`;
+                return;
+            }
+
+            const currentCityName = db[currentRegion].name.split(' ')[0];
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (add Japan and city name to improve accuracy)
+                const pureAddress = item.address.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.name} Japan ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const badgeHtml = item.recommend ? `<span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded ml-2 align-middle shadow-sm">🔥 Highly Recommended</span>` : '';
+
+                const bookingBtnHtml = item.bookingLink ? `
+                    <a href="${item.bookingLink}" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#ff5b00] hover:bg-[#e05000] text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md text-base">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                        </svg>
+                        Book Online for Exclusive Deals
+                    </a>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-rose-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-slate-800 leading-tight flex items-center flex-wrap gap-y-2">${item.name} ${badgeHtml}</h3>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded mr-1 shadow-sm">Highlight</span>${item.feature}</p>
+                        
+                        <div class="bg-rose-50/50 p-4 rounded-xl flex items-start gap-3 border border-rose-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-slate-600 leading-tight font-medium"><span class="font-bold text-rose-800">Address: </span>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto flex flex-col gap-3">
+                        ${bookingBtnHtml}
+                        <!-- Google Maps 導航按鈕 -->
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md text-base">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            Open in Google Maps
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>
