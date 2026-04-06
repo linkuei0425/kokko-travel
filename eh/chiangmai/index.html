@@ -1,1 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chiang Mai Pass - Travel Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .app-container { max-width: 414px; margin: 0 auto; background-color: #f9fafb; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow-x: hidden; }
+        
+        .bg-chiangmai-gradient { background: linear-gradient(135deg, #f59e0b 0%, #facc15 100%); }
+        .bg-attraction-gradient { background: linear-gradient(135deg, #6b21a8 0%, #c026d3 100%); }
+        .bg-food-gradient { background: linear-gradient(135deg, #ea580c 0%, #e11d48 100%); }
+        .bg-itinerary-gradient { background: linear-gradient(135deg, #059669 0%, #0284c7 100%); }
+        .bg-hotel-gradient { background: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%); }
+        .bg-essentials-gradient { background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%); }
+        .bg-van-gradient { background: linear-gradient(135deg, #9a3412 0%, #ea580c 100%); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        select { -webkit-appearance: none; appearance: none; }
+        optgroup { font-weight: bold; background-color: #1f2937; color: #facc15; }
+        option { font-weight: normal; color: white; }
+        .dyn-tab-content { display: none; animation: fadeIn 0.3s ease-out; }
+        .dyn-tab-content.active { display: block; }
+        .carousel-track { display: flex; transition: transform 0.5s ease-out; }
+    </style>
+</head>
+<body>
 
+<div class="app-container pb-20">
+    
+    <!-- Top Header -->
+    <div class="bg-chiangmai-gradient text-white pt-6 pb-4 px-5 rounded-b-[2rem] shadow-md relative z-20">
+        <div class="flex justify-between items-center">
+            <div>
+                <p id="datetime-display" class="text-[10px] font-medium text-amber-50 tracking-wide opacity-90">Loading time...</p>
+                <p id="weather-display" class="text-xs opacity-100 font-bold flex items-center gap-1"><i class="ph ph-sun-dim"></i> Loading weather...</p>
+                <h1 class="text-2xl font-extrabold tracking-tight mt-0.5 drop-shadow-sm">Chiang Mai Pass</h1>
+            </div>
+            <div class="flex gap-2">
+                <a href="https://linkuei0425.github.io/ChiangMai/index.html" target="_blank" rel="noopener noreferrer" class="w-9 h-9 bg-black/10 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform text-sm font-bold">繁</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Carousel -->
+    <div class="px-5 mt-4 relative overflow-hidden">
+        <div id="carousel-track" class="carousel-track gap-3">
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
+                <img src="https://linkuei0425.github.io/ChiangMai/A.jpeg" alt="Chiang Mai Old City" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Beautiful Old City Tour</span></div>
+            </div>
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
+                <img src="https://linkuei0425.github.io/ChiangMai/B.jpeg" alt="Chiang Rai Blue Temple" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Chiang Rai Blue Temple</span></div>
+            </div>
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
+                <img src="https://linkuei0425.github.io/ChiangMai/C.jpeg" alt="Elephant Sanctuary" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Explore Elephant Sanctuary</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="px-5 mt-4">
+        <h2 class="text-sm font-bold text-gray-500 mb-4 px-1">Quick Tools</h2>
+        <div class="grid grid-cols-4 gap-y-6 gap-x-3">
+            <button onclick="window.openModal('airportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(14,165,233,0.2)]"><i class="ph ph-airplane-tilt text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Airport</span></button>
+            <button onclick="window.openModal('mapModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-teal-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(20,184,166,0.2)]"><i class="ph ph-bus text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Bus Routes</span></button>
+            <button onclick="window.openModal('boatModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(234,88,12,0.2)]"><i class="ph ph-van text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Minivans</span></button>
+            <button onclick="window.openModal('attractionModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-purple-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(147,51,234,0.2)]"><i class="ph ph-camera text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Attractions</span></button>
+            
+            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai-US/food.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(249,115,22,0.2)]"><i class="ph ph-fork-knife text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Food Guide</span></button>
+            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai-US/shopping.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,63,94,0.2)]"><i class="ph ph-handbag text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Shopping</span></button>
+            
+            <!-- Itinerary (External Link) -->
+            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai-US/S.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(236,72,153,0.2)]"><i class="ph ph-calendar-check text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Itinerary</span></button>
+            
+            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai-US/trip.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(16,185,129,0.2)]"><i class="ph ph-ticket text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Tour Guide</span></button>
+            
+            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai-US/hotel.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(99,102,241,0.2)]"><i class="ph ph-bed text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Hotels</span></button>
+            
+            <button onclick="window.open('https://linkuei0425.github.io/ChiangMai-US/go.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-cyan-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(6,182,212,0.2)]"><i class="ph ph-globe text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Global Pass</span></button>
+            
+            <button onclick="window.openModal('essentialsModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(139,92,246,0.2)]"><i class="ph ph-suitcase text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Essentials</span></button>
+            <button onclick="window.openModal('aboutModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(71,85,105,0.2)]"><i class="ph ph-info text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">About Us</span></button>
+            
+            <button onclick="window.openModal('fanModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-red-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(239,68,68,0.2)]"><i class="ph ph-heart text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Follow Us</span></button>
+        </div>
+    </div>
+
+    <!-- ==================== Modals ==================== -->
+
+    <!-- Airport Modal -->
+    <div id="airportModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-gradient-to-br from-cyan-600 to-blue-700 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
+            <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> Airport Guide</h2>
+            <button onclick="window.closeModal('airportModal')"><i class="ph ph-x text-2xl"></i></button>
+        </div>
+        <div class="bg-slate-900 px-4 pt-3 z-10">
+            <div class="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+                <button onclick="window.switchAirportTab('cnx')" id="btn-airport-cnx" class="flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap">Chiang Mai (CNX)</button>
+                <button onclick="window.switchAirportTab('cei')" id="btn-airport-cei" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap">Chiang Rai (CEI)</button>
+            </div>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
+            
+            <!-- CNX Content -->
+            <div id="airport-cnx" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                <div class="flex gap-3 w-full mb-2">
+                    <!-- English Affiliate Links applied here -->
+                    <a href="https://affiliate.klook.com/redirect?aid=115196&aff_adid=1232867&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white py-3 px-2 rounded-xl font-bold shadow-lg active:scale-95 transition-transform">
+                        <i class="ph-fill ph-sim-card text-2xl"></i>
+                        <span class="text-[11px] text-center leading-tight">Super e-SIM</span>
+                    </a>
+                    <a href="https://www.klook.com/en-US/airport-transfers/" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-2 rounded-xl font-bold shadow-lg active:scale-95 transition-transform">
+                        <i class="ph-fill ph-car-profile text-2xl"></i>
+                        <span class="text-[11px] text-center leading-tight">Airport Transfer</span>
+                    </a>
+                </div>
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-taxi text-lg"></i> (1) Airport Taxi</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Location:</span> Outside Arrival Hall Exit 1.</li>
+                        <li><span class="text-white font-bold">Cost:</span> Fixed rate to Old City / Nimman is usually 150 THB. Large cars are ~200 THB.</li>
+                        <li><span class="text-white font-bold">Features:</span> No meter needed, transparent pricing. Great if you have large luggage.</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-device-mobile text-lg"></i> (2) Ride-hailing (Grab/Bolt/Maxim)</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Location:</span> Designated pick-up points outside the Arrival Hall.</li>
+                        <li><span class="text-white font-bold">Cost:</span> Varies by distance & time, usually 100 - 180 THB to the city. Bolt/Maxim are generally cheaper than Grab.</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-bus text-lg"></i> (3) RTC City Bus</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Routes:</span> Take the Green Line to Chiang Mai Gate, Tha Phae Gate, or Warorot Market.</li>
+                        <li><span class="text-white font-bold">Cost:</span> Flat rate 30 THB per ride.</li>
+                        <li><span class="text-white font-bold">Features:</span> Air-conditioned, cheapest option, but less frequent.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- CEI Content -->
+            <div id="airport-cei" class="hidden space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-taxi text-lg"></i> (1) Chiang Rai Airport Taxi</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Location:</span> Outside the Arrival Hall.</li>
+                        <li><span class="text-white font-bold">Cost:</span> Fixed rate to city center (near Clock Tower) is ~200 THB.</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-bus text-lg"></i> (2) To Chiang Mai City</h3>
+                    <p class="text-[10px] text-yellow-300 mb-2 pl-1">— Requires intercity bus transfer</p>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Method:</span> Take a taxi to Chiang Rai Bus Terminal (1 or 2), then take the Green Bus to Chiang Mai.</li>
+                        <li><span class="text-white font-bold">Duration:</span> Chiang Rai to Chiang Mai takes about 3 - 3.5 hours by bus.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Bus Route Modal -->
+    <div id="mapModal" class="fixed inset-0 bg-gray-900 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto">
+        <div class="pt-10 pb-6 px-5 flex justify-between items-center border-b border-gray-800 shadow-md">
+            <div class="flex items-center gap-2"><i class="ph-fill ph-bus text-2xl text-teal-400"></i><div><h2 class="text-white font-bold text-lg leading-tight">Bus Routes</h2><p class="text-[10px] text-gray-400">RTC City Bus Navigation</p></div></div>
+            <button onclick="window.closeModal('mapModal')" class="text-white bg-white/10 p-1.5 rounded-full"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="p-5 flex-1 overflow-y-auto bg-gray-900 no-scrollbar text-white">
+            <div class="relative bg-gray-800/50 p-4 rounded-2xl border border-gray-700">
+                <div class="absolute left-[29px] top-9 bottom-12 w-0.5 bg-gray-600 border-dashed border-l-2"></div>
+                <div class="flex items-center gap-3 mb-4 relative z-10">
+                    <div class="w-3 h-3 rounded-full bg-teal-400 shrink-0 shadow-[0_0_8px_rgba(45,212,191,0.8)]"></div>
+                    <div class="relative w-full"><select id="mrt-origin" class="w-full bg-gray-900 text-white border border-gray-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-teal-400 text-sm"><option value="" disabled selected>Select origin...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
+                </div>
+                <div class="flex items-center gap-3 relative z-10 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-rose-500 shrink-0 shadow-[0_0_8px_rgba(244,63,94,0.8)]"></div>
+                    <div class="relative w-full"><select id="mrt-dest" class="w-full bg-gray-900 text-white border border-gray-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-rose-400 text-sm"><option value="" disabled selected>Select destination...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
+                </div>
+                <button onclick="window.calcMrt()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-transform shadow-lg relative z-10">Plan Route</button>
+            </div>
+            
+            <div id="mrt-result" class="hidden mt-6 animate-[fadeIn_0.3s]">
+                <div class="bg-gray-800 rounded-2xl p-5 border border-teal-900/50 shadow-lg">
+                    <div class="flex justify-between items-end border-b border-gray-700 pb-3 mb-4">
+                        <div><p class="text-[10px] text-gray-400 mb-0.5">Total</p><div id="mrt-stops-count" class="text-xl font-bold text-teal-400"></div></div>
+                        <div class="text-right"><p class="text-[10px] text-gray-400 mb-0.5">Est. Time</p><span id="mrt-time" class="text-lg font-bold text-white mr-2"></span></div>
+                    </div>
+                    <div id="mrt-path-detail" class="text-sm text-gray-200"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Minivan Modal -->
+    <div id="boatModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto">
+        <div class="bg-van-gradient pt-10 pb-6 px-5 flex justify-between items-center text-white shadow-md">
+            <div class="flex items-center gap-2"><i class="ph-fill ph-van text-2xl text-orange-200"></i><div><h2 class="font-bold text-lg leading-tight">Intercity Minivans</h2><p class="text-[10px] text-orange-200">Pai, Chiang Rai, Lampang</p></div></div>
+            <button onclick="window.closeModal('boatModal')" class="bg-white/20 p-1.5 rounded-full"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
+            <div class="relative bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+                <div class="absolute left-[29px] top-9 bottom-12 w-0.5 bg-slate-600 border-dashed border-l-2"></div>
+                <div class="flex items-center gap-3 mb-4 relative z-10">
+                    <div class="w-3 h-3 rounded-full bg-orange-400 shrink-0 shadow-[0_0_8px_rgba(251,146,60,0.8)]"></div>
+                    <div class="relative w-full"><select id="boat-origin" class="w-full bg-slate-900 text-white border border-slate-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-orange-400 text-sm"><option value="" disabled selected>Select origin...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div>
+                </div>
+                <div class="flex items-center gap-3 relative z-10 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-yellow-500 shrink-0 shadow-[0_0_8px_rgba(234,179,8,0.8)]"></div>
+                    <div class="relative w-full"><select id="boat-dest" class="w-full bg-slate-900 text-white border border-slate-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-yellow-400 text-sm"><option value="" disabled selected>Select destination...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div>
+                </div>
+                <button onclick="window.calcBoat()" class="w-full bg-orange-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-transform shadow-lg relative z-10">Plan Route</button>
+            </div>
+            <div id="boat-result" class="hidden mt-6 bg-slate-800 rounded-2xl p-5 border border-orange-900/50 space-y-4 shadow-lg animate-[fadeIn_0.3s]">
+                <div class="flex justify-between items-end border-b border-slate-700 pb-3">
+                    <div><p class="text-[10px] text-slate-400 mb-0.5">Total Stops</p><span id="boat-stops-count" class="text-xl font-bold text-orange-400"></span></div>
+                    <div class="text-right"><p class="text-[10px] text-slate-400 mb-0.5">Est. Time (Mt. roads vary)</p><span id="boat-time" class="text-lg font-bold text-white mr-2"></span></div>
+                </div>
+                <div id="boat-path-detail" class="pt-2 text-sm text-gray-200 space-y-3 relative pl-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attraction Modal -->
+    <div id="attractionModal" class="fixed inset-0 bg-purple-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-attraction-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">Explore Attractions</h2><button onclick="window.closeModal('attractionModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-4 flex-1 overflow-y-auto bg-purple-950 no-scrollbar text-white relative">
+            <div id="attr-cat-grid" class="grid grid-cols-4 gap-2"></div>
+            <div id="attr-detail-view" class="hidden animate-[fadeIn_0.3s]">
+                <button onclick="window.resetAttrView()" class="mb-3 text-fuchsia-300 flex items-center gap-1 bg-purple-900/50 px-3 py-1.5 rounded-lg text-sm"><i class="ph ph-arrow-left"></i> Back to categories</button>
+                <div id="attr-subcat-tabs" class="flex gap-2 mb-3 overflow-x-auto no-scrollbar"></div>
+                <div class="relative">
+                    <select id="attraction-select" class="w-full bg-purple-900 border border-purple-700 rounded-xl p-3 pr-8 mb-4 focus:outline-none focus:border-fuchsia-400 text-sm"></select>
+                    <i class="ph ph-caret-down absolute right-3 top-4 text-purple-400 pointer-events-none"></i>
+                </div>
+                <div id="attr-result" class="hidden space-y-4 pb-8">
+                    <div class="bg-purple-900/50 p-5 rounded-2xl border border-purple-800 space-y-3">
+                        <h3 id="attr-name" class="font-bold text-xl"></h3>
+                        <p id="attr-desc" class="text-sm text-purple-100 leading-relaxed"></p>
+                        <div class="pt-3 border-t border-purple-800/50 space-y-2.5">
+                            <p class="text-[11px] text-amber-300 flex items-start gap-1.5"><i class="ph-fill ph-clock mt-0.5 shrink-0 text-sm"></i> <span id="attr-hours" class="leading-relaxed font-mono"></span></p>
+                            <p class="text-[11px] text-teal-300 flex items-start gap-1.5"><i class="ph-fill ph-navigation-arrow mt-0.5 shrink-0 text-sm"></i> <span id="attr-transport" class="leading-relaxed"></span></p>
+                            <p class="text-[11px] text-gray-300 flex items-start gap-1.5"><i class="ph-fill ph-map-pin mt-0.5 shrink-0 text-sm"></i> <span id="attr-address" class="leading-relaxed font-mono"></span></p>
+                        </div>
+                    </div>
+                    <div id="attr-tabs-header" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+                    <div id="attr-tabs-container" class="space-y-2"></div>
+                    <a id="attr-map-link" href="#" target="_blank" class="block w-full bg-blue-600 text-center py-3.5 rounded-xl font-bold shadow-lg mt-2">Open in Google Maps</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Essentials Modal -->
+    <div id="essentialsModal" class="fixed inset-0 bg-slate-900 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-essentials-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">Travel Essentials</h2><button onclick="window.closeModal('essentialsModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="bg-slate-900 px-4 pt-3 z-10"><div class="flex gap-2 border-b border-slate-800 pb-2">
+            <button onclick="window.switchEssTab('checklist')" id="btn-ess-checklist" class="flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold shadow-md transition-all">Checklist</button>
+            <button onclick="window.switchEssTab('goodies')" id="btn-ess-goodies" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold transition-all">Goodies</button>
+        </div></div>
+        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
+            <div id="ess-checklist" class="space-y-3 pb-8"></div>
+            <div id="ess-goodies" class="hidden space-y-6 pb-8"></div>
+        </div>
+    </div>
+
+    <!-- About Us Modal -->
+    <div id="aboutModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-slate-800 text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">About Us</h2><button onclick="window.closeModal('aboutModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-6 text-sm">
+            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-2 flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> Our Mission</h3><p class="leading-relaxed text-gray-300">We guide travelers from their first spark of inspiration to the very end of their journey. Dive deep into Northern Thailand and create your own Chiang Mai story.</p></div>
+            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-3 flex items-center gap-2 text-amber-400"><i class="ph-fill ph-briefcase"></i> Partnership</h3><ul class="space-y-3 text-gray-300"><li>📍 Destination Marketing & Branding</li><li>🎟️ Travel Product API & Affiliates</li><li>⛺ Local Business Sponsorships</li></ul></div>
+            <div class="bg-blue-900/30 p-5 rounded-2xl border border-blue-800/50"><h3 class="font-bold mb-2 flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> Contact Email</h3><p class="text-blue-400 font-bold break-all">imimdesignstudio@yahoo.com</p></div>
+        </div>
+    </div>
+
+    <!-- Follow Us Modal -->
+    <div id="fanModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">Follow Us</h2><button onclick="window.closeModal('fanModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white flex flex-col items-center gap-6 no-scrollbar">
+            <div class="w-full space-y-3 mt-4">
+                <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-instagram-logo text-xl"></i> Follow on Instagram</a>
+                <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-zinc-800 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform border border-zinc-700"><i class="ph-fill ph-threads-logo text-xl"></i> Follow on Threads</a>
+                <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-chat-circle text-xl"></i> Join LINE Official</a>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 text-center leading-relaxed">Follow us to get first-hand secrets of Chiang Mai,<br>hidden food gems, and limited offers!</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Core JavaScript -->
+<script>
+// --- Global Variables ---
+window.currentAttrCatIdx = -1;
+
+window.openModal = function(id) {
+    const el = document.getElementById(id);
+    if (el) { 
+        el.classList.remove('hidden'); 
+        setTimeout(() => el.classList.remove('opacity-0'), 10); 
+    }
+};
+
+window.closeModal = function(id) {
+    const el = document.getElementById(id);
+    if (el) { 
+        el.classList.add('opacity-0'); 
+        setTimeout(() => el.classList.add('hidden'), 300); 
+    }
+};
+
+// --- Tab Switching ---
+window.switchAirportTab = function(tab) {
+    const cnx = document.getElementById('airport-cnx');
+    const cei = document.getElementById('airport-cei');
+    const bcnx = document.getElementById('btn-airport-cnx');
+    const bcei = document.getElementById('btn-airport-cei');
+    
+    if (tab === 'cnx') {
+        bcnx.className = "flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
+        bcei.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+        cnx.classList.remove('hidden'); 
+        cei.classList.add('hidden');
+    } else {
+        bcei.className = "flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
+        bcnx.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+        cei.classList.remove('hidden'); 
+        cnx.classList.add('hidden');
+    }
+};
+
+// --- Chiang Mai RTC City Bus Data ---
+const busLinesDataLocal = [
+    { line: "RTC Green Line", items: [
+        "G1 CNX Airport",
+        "G2 Central Airport",
+        "G3 Chiang Mai Gate - Saturday Market",
+        "G4 Tha Phae Gate - Transfer Red/Yellow",
+        "G5 Warorot Market"
+    ] },
+    { line: "RTC Red Line", items: [
+        "R1 Warorot Market - Transfer Green/Yellow",
+        "R2 Tha Phae Gate - Transfer Green",
+        "R3 Three Kings Monument",
+        "R4 Wat Phra Singh",
+        "R5 Suan Dok Gate",
+        "R6 Nimman Road - One Nimman",
+        "R7 MAYA Lifestyle",
+        "R8 Chiang Mai University",
+        "R9 Chiang Mai Zoo"
+    ] },
+    { line: "RTC Yellow Line", items: [
+        "Y1 Warorot Market - Transfer Red/Green",
+        "Y2 Night Bazaar",
+        "Y3 Chang Khlan",
+        "Y4 Central Festival - Largest Mall",
+        "Y5 Arcade Bus Terminal - Transfer to Minivan"
+    ] }
+];
+
+const codeToNameLocal = {};
+busLinesDataLocal.forEach(lineGroup => {
+    lineGroup.items.forEach(item => {
+        const code = item.split(' ')[0];
+        codeToNameLocal[code] = item;
+    });
+});
+
+const buildBusGraphLocal = () => {
+    const edges = [];
+    const addLine = (lineName, nodes) => {
+        for (let i = 0; i < nodes.length - 1; i++) {
+            edges.push({ u: nodes[i], v: nodes[i + 1], line: lineName, type: 'travel' });
+            edges.push({ u: nodes[i + 1], v: nodes[i], line: lineName, type: 'travel' });
+        }
+    };
+    
+    const Green = ["G1","G2","G3","G4","G5"];
+    const Red = ["R1","R2","R3","R4","R5","R6","R7","R8","R9"];
+    const Yellow = ["Y1","Y2","Y3","Y4","Y5"];
+    
+    addLine('RTC Green Line', Green);
+    addLine('RTC Red Line', Red);
+    addLine('RTC Yellow Line', Yellow);
+    
+    const addTransfer = (u, v) => {
+        edges.push({ u, v, line: 'Station Transfer', type: 'transfer' });
+        edges.push({ v, u, line: 'Station Transfer', type: 'transfer' });
+    };
+    
+    addTransfer('G4', 'R2'); 
+    addTransfer('G5', 'R1'); 
+    addTransfer('R1', 'Y1'); 
+    addTransfer('G5', 'Y1'); 
+    
+    const graph = {};
+    edges.forEach(e => {
+        if (!graph[e.u]) graph[e.u] = [];
+        graph[e.u].push({ node: e.v, line: e.line, type: e.type });
+    });
+    return graph;
+};
+
+const mrtGraphLocal = buildBusGraphLocal();
+
+// --- Intercity Minivan Data ---
+const boatLinesDataLocal = [
+    { line: "North (Chiang Rai/Golden Triangle)", items: ["Arcade Bus Terminal","MaeKhachan Hot Spring","WhiteTemple","ChiangRai City","BlackHouse","MaeSai Border","GoldenTriangle"] },
+    { line: "Northwest (Pai/Mae Hong Son)", items: ["Arcade Bus Terminal","MaeRim","MaeMalai Transfer","Pai","PangOung","MaeHongSon"] },
+    { line: "South (Lampang/Lamphun)", items: ["Arcade Bus Terminal","Lamphun","Lampang","Phrae"] }
+];
+
+const boatGraphLocal = {};
+const addBoatEdgeLocal = (u, v) => { 
+    if(!boatGraphLocal[u]) boatGraphLocal[u]=[]; 
+    if(!boatGraphLocal[v]) boatGraphLocal[v]=[]; 
+    boatGraphLocal[u].push(v); 
+    boatGraphLocal[v].push(u); 
+};
+boatLinesDataLocal.forEach(line => { 
+    for(let i=0; i<line.items.length-1; i++) {
+        addBoatEdgeLocal(line.items[i].split(' ')[0], line.items[i+1].split(' ')[0]); 
+    }
+});
+
+// --- Attractions Data ---
+const attractionsData = [
+    {
+        category: "💵 Exchange",
+        items: [
+            {
+                id: "ex1", name: "Super Rich Chiang Mai", desc: "Best exchange rate in Chiang Mai, located on Loi Kroh Rd. Original passport required.",
+                hours: "09:00 - 18:00 (Closed Sundays)", transport: "1. 10 mins walk from Tha Phae Gate<br>2. Take a songthaew to Loi Kroh Rd",
+                address: "34/4 Loi Kroh Rd, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Super+Rich+Chiang+Mai", img: "https://images.unsplash.com/photo-1580519542036-ed47f3e42d26?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "ex2", name: "VK Currency Exchange", desc: "Famous exchange near Tha Phae Gate. Rates match Super Rich, highly convenient.",
+                hours: "09:00 - 20:00", transport: "1. Next to the moat outside Tha Phae Gate<br>2. Walking distance",
+                address: "48/4 Kotchasarn Rd, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=VK+Currency+Exchange", img: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800"
+            }
+        ]
+    },
+    {
+        category: "🛒 Supermarkets",
+        items: [
+            {
+                id: "sm1", name: "Rimping Supermarket", desc: "Premium local supermarket. Best for agricultural products, dried fruits, and souvenirs.",
+                hours: "08:00 - 22:00", transport: "1. Inside Maya Mall B1<br>2. Standalone near Nawarat Bridge",
+                address: "MAYA Lifestyle Shopping Center, B1", mapUrl: "https://www.google.com/maps/search/?api=1&query=Rimping+Supermarket+Maya", img: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "sm2", name: "Big C Extra (Chiang Mai)", desc: "Must-visit for bulk buying snacks, seaweed, and Thai tea powder.",
+                hours: "09:00 - 23:00", transport: "Take songthaew/Grab to Chiang Mai Business Park",
+                address: "433/4-5 Moo 5, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Big+C+Extra+Chiang+Mai", img: "https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&q=80&w=800"
+            }
+        ]
+    },
+    {
+        category: "🛍️ Malls",
+        items: [
+            {
+                id: "m1", name: "Maya Lifestyle Shopping Center", desc: "Landmark mall in Nimman area, featuring a rooftop observation deck.", hours: "10:00 - 22:00", transport: "1. Located at Nimman intersection<br>2. Take RTC Red Line to R7",
+                address: "55 Huay Kaew Rd, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Maya+Lifestyle+Shopping+Center", img: "https://images.unsplash.com/photo-1626804475297-4160eb80bf42?auto=format&fit=crop&q=80&w=800",
+                tabs: [
+                    { id: 'm1_1', name: 'Highlights', items: [{ name: "CAMP Cafe", desc: "24-hour library style cafe" }, { name: "Rimping Supermarket", desc: "Premium souvenirs and fresh fruits" }] }
+                ]
+            },
+            {
+                id: "m2", name: "One Nimman", desc: "European red-brick architecture, blending Thai arts, markets, and boutiques.", hours: "10:00 - 22:00", transport: "1. Directly opposite Maya Mall<br>2. Walking distance",
+                address: "1 Nimmanahaeminda Road, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=One+Nimman", img: "https://images.unsplash.com/photo-1590400032900-2f34790a6e34?auto=format&fit=crop&q=80&w=800",
+                tabs: [
+                    { id: 'm2_1', name: 'Highlights', items: [{ name: "White Market", desc: "Weekend artisanal and food market" }, { name: "Graph Cafe", desc: "Must-try popular charcoal latte" }] }
+                ]
+            },
+            {
+                id: "m3", name: "Central Festival Chiang Mai", desc: "The largest and newest shopping mall in Chiang Mai, featuring an ice rink and cinema.", hours: "11:00 - 21:00", transport: "1. Located by the Super Highway<br>2. Take RTC Yellow Line to Y4",
+                address: "99, 99/1, 99/2 Moo 4, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Central+Festival+Chiang+Mai", img: "https://images.unsplash.com/photo-1519999482648-25049ddd37b1?auto=format&fit=crop&q=80&w=800",
+                tabs: [
+                    { id: 'm3_1', name: 'Highlights', items: [{ name: "Global Brands", desc: "ZARA, H&M, Uniqlo available" }, { name: "Food Court", desc: "Vast choices with strong air-conditioning" }] }
+                ]
+            }
+        ]
+    },
+    {
+        category: "⛩️ Temples",
+        items: [
+            {
+                id: "t1", name: "Wat Phra That Doi Suthep", desc: "The most iconic landmark of Chiang Mai, featuring golden pagodas and city views.",
+                hours: "06:00 - 20:00", transport: "Take a red songthaew up the mountain from CMU gates",
+                address: "9 Moo 9 Mueang Chiang Mai District", mapUrl: "https://www.google.com/maps/search/?api=1&query=Wat+Phra+That+Doi+Suthep", img: "https://images.unsplash.com/photo-1588691884457-3773193496ab?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "t2", name: "Wat Chedi Luang", desc: "Located in the heart of Old City, a massive ancient brick stupa filled with history.",
+                hours: "08:00 - 17:00", transport: "Center of Old City, accessible by walking/bike",
+                address: "103 Prapokkloa Rd, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Wat+Chedi+Luang", img: "https://images.unsplash.com/photo-1513622470522-26c308a371f5?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "t3", name: "Wat Phra Singh", desc: "The largest temple in the Old City, a masterpiece of Lanna architecture.",
+                hours: "09:00 - 18:00", transport: "West side of Old City, RTC Red Line R4",
+                address: "2 Samlarn Rd, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Wat+Phra+Singh", img: "https://images.unsplash.com/photo-1562967914-01efa7e87832?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "t4", name: "Wat Umong", desc: "A hidden temple in the forest with unique tunnel shrines and a peaceful lake.",
+                hours: "06:00 - 17:00", transport: "Grab is recommended, located in the hills behind CMU",
+                address: "135 Moo 10 Suthep, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Wat+Umong", img: "https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&q=80&w=800"
+            }
+        ]
+    },
+    {
+        category: "🌙 Markets",
+        items: [
+            {
+                id: "mk1", subcat: "Night Markets", name: "Sunday Night Market", desc: "One of the largest weekend markets in Asia.<br><br><span class='text-fuchsia-300 font-bold'>🔥Highlight:</span> Spans the entire Old City, great crafts and street food.",
+                hours: "Sun 17:00 - 22:30", transport: "Along Ratchadamnoen Rd (Tha Phae Gate to Wat Phra Singh)",
+                address: "Ratchadamnoen Rd, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Chiang+Mai+Sunday+Night+Market", img: "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "mk2", subcat: "Night Markets", name: "Saturday Night Market (Wua Lai)", desc: "A lively strip market known for its silverware.<br><br><span class='text-fuchsia-300 font-bold'>🔥Highlight:</span> Lively atmosphere, must visit the Silver Temple (Wat Sri Suphan).",
+                hours: "Sat 17:00 - 22:30", transport: "Wua Lai Rd, outside Chiang Mai Gate",
+                address: "Wua Lai Rd, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Wualai+Walking+Street", img: "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "mk3", subcat: "Local Markets", name: "Warorot Market", desc: "The oldest and largest traditional market in Chiang Mai.<br><br><span class='text-fuchsia-300 font-bold'>🔥Highlight:</span> Best place for dried fruits, Northern Thai sausage, and souvenirs.",
+                hours: "04:00 - 18:00 (Night market outside)", transport: "Take RTC Bus to Warorot Market stop",
+                address: "Wichayanon Rd, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Warorot+Market", img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "mk4", subcat: "Artisan Markets", name: "Jing Jai Market", desc: "A high-quality, eco-friendly farmers market.<br><br><span class='text-fuchsia-300 font-bold'>🔥Highlight:</span> Organic veggies, pour-over coffee, premium crafts.",
+                hours: "Weekends 06:30 - 15:00", transport: "Grab is highly recommended",
+                address: "45 Atsadathon Rd, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Jing+Jai+Market", img: "https://images.unsplash.com/photo-1626804475297-4160eb80bf42?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "mk5", subcat: "Artisan Markets", name: "Baan Kang Wat", desc: "A handcrafted arts village hidden in the forest.<br><br><span class='text-fuchsia-300 font-bold'>🔥Highlight:</span> Wooden houses, pottery workshops, forest cafes.",
+                hours: "10:00 - 18:00 (Closed Mondays)", transport: "Near Wat Umong, Grab recommended",
+                address: "191-197 Soi Wat U Mong", mapUrl: "https://www.google.com/maps/search/?api=1&query=Baan+Kang+Wat", img: "https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&q=80&w=800"
+            }
+        ]
+    },
+    {
+        category: "💆‍♀️ Massage",
+        items: [
+            {
+                id: "ma1", name: "Fah Lanna Spa", desc: "Filming location of 'Lost in Thailand', elegant greenery environments.",
+                hours: "10:00 - 22:00", transport: "Branches in Old City and Nimman",
+                address: "57, 57/1 Wiang Kaew Rd", mapUrl: "https://www.google.com/maps/search/?api=1&query=Fah+Lanna+Spa", img: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "ma2", name: "Let's Relax Spa", desc: "Mid-to-high end chain, stable quality, comes with delicious mango sticky rice.",
+                hours: "10:00 - 24:00", transport: "One Nimman or Tha Phae Gate branches",
+                address: "1 Nimmanahaeminda Road (One Nimman)", mapUrl: "https://www.google.com/maps/search/?api=1&query=Lets+Relax+Chiang+Mai", img: "https://images.unsplash.com/photo-1519824145371-296894a0daa9?auto=format&fit=crop&q=80&w=800"
+            },
+            {
+                id: "ma3", name: "Lila Thai Massage", desc: "Founded by a former prison director to help ex-inmates reintegrate. Affordable & excellent.",
+                hours: "10:00 - 22:00", transport: "Multiple branches in the Old City",
+                address: "Ratchadamnoen Rd, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Lila+Thai+Massage", img: "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&q=80&w=800"
+            }
+        ]
+    },
+    {
+        category: "🏞️ Suburbs",
+        items: [
+            {
+                id: "near1", name: "Chiang Rai", desc: "Ultimate display of arts and religion, a must-do day trip from Chiang Mai.", hours: "Open all day", transport: "Take Green Bus or join a day tour",
+                address: "Chiang Rai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Chiang+Rai", img: "https://images.unsplash.com/photo-1582299839958-86851225db73?auto=format&fit=crop&q=80&w=800",
+                tabs: [
+                    { id: "n1_s", name: "Spots", items: [{ name: "Wat Rong Khun (White Temple)", desc: "Pure white heaven and hell" }, { name: "Blue & Black Temples", desc: "Extreme colors and wooden arts" }] }
+                ]
+            },
+            {
+                id: "near2", name: "Pai", desc: "Hippie town surrounded by mountains, full of cafes and natural wonders.", hours: "Open all day", transport: "Minivan from Arcade Bus Station, requires conquering 762 curves",
+                address: "Pai, Mae Hong Son", mapUrl: "https://www.google.com/maps/search/?api=1&query=Pai+Thailand", img: "https://images.unsplash.com/photo-1549487922-25e24c7f55f2?auto=format&fit=crop&q=80&w=800",
+                tabs: [
+                    { id: "n2_s", name: "Spots", items: [{ name: "Pai Canyon", desc: "Thrilling sunset viewpoint" }, { name: "Strawberry Farm & Yellow House", desc: "Romantic photo spots" }] }
+                ]
+            },
+            {
+                id: "near3", name: "Mae Rim", desc: "The backyard of Chiang Mai locals, filled with mountain cafes and high-altitude farms.", hours: "Open all day", transport: "Charter a songthaew or ride a scooter",
+                address: "Mae Rim, Chiang Mai", mapUrl: "https://www.google.com/maps/search/?api=1&query=Mae+Rim", img: "https://images.unsplash.com/photo-1584949514122-6b3aeb1a5bb4?auto=format&fit=crop&q=80&w=800",
+                tabs: [
+                    { id: "n3_s", name: "Spots", items: [{ name: "Mon Jam", desc: "Mountain-top glamping and flower fields" }, { name: "Mae Rim Waterfall", desc: "Cool summer retreat" }] }
+                ]
+            },
+            {
+                id: "near4", name: "Elephant Nature Park", desc: "No riding, no shows. A truly ethical elephant sanctuary.", hours: "Advance booking required", transport: "Park provides city transfers",
+                address: "Kuet Chang, Mae Taeng", mapUrl: "https://www.google.com/maps/search/?api=1&query=Elephant+Nature+Park", img: "https://images.unsplash.com/photo-1552309715-2882194c252d?auto=format&fit=crop&q=80&w=800",
+                tabs: [
+                    { id: "n4_s", name: "Experiences", items: [{ name: "Feeding & Bathing", desc: "Interact closely with elephants" }, { name: "Volunteer Programs", desc: "Learn deeply about elephant conservation" }] }
+                ]
+            }
+        ]
+    }
+];
+
+const essData = {
+    check: [
+        { n: "Passport & Visas", d: "Ensure validity of more than 6 months." },
+        { n: "Internet SIM Card", d: "Essential for maps and ride-hailing." },
+        { n: "Thai Baht (Cash)", d: "Songthaews and night markets heavily rely on cash." },
+        { n: "Bug Repellent & Light Jacket", d: "Mountains get cold and have insects." },
+        { n: "Motion Sickness Pills", d: "A must-have for Pai or mountain roads." }
+    ],
+    good: [
+        { n: "Eco-friendly Tote Bag", d: "To hold your market shopping haul." },
+        { n: "Slip-on Shoes / Sandals", d: "Frequent taking off/putting on shoes at temples." },
+        { n: "Pocket Tissues / Wipes", d: "Very useful when eating street food." },
+        { n: "Portable Mini Fan", d: "Essential for surviving the hot season." },
+        { n: "Stomach Medicine", d: "For unexpected food/water issues." }
+    ]
+};
+
+// --- Rendering Logic ---
+window.switchEssTab = t => {
+    let isC = (t === 'checklist');
+    document.getElementById('ess-checklist').classList.toggle('hidden', !isC);
+    document.getElementById('ess-goodies').classList.toggle('hidden', isC);
+    document.getElementById('btn-ess-checklist').className = isC ? "flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold shadow-md transition-all" : "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold transition-all";
+    document.getElementById('btn-ess-goodies').className = !isC ? "flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold shadow-md transition-all" : "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold transition-all";
+};
+
+window.resetAttrView = () => { document.getElementById('attr-cat-grid').classList.remove('hidden'); document.getElementById('attr-detail-view').classList.add('hidden'); document.getElementById('attr-result').classList.add('hidden'); };
+
+
+// --- BFS Routing Engine ---
+const bfsEdgeTrack = (g, s, e) => {
+    if (s === e) return { path: [s], edges: [] };
+    let q = [{ node: s, path: [s], edges: [] }];
+    let v = new Set([s]);
+    while (q.length > 0) {
+        let curr = q.shift();
+        if (curr.node === e) return curr;
+        if (g[curr.node]) {
+            for (let edge of g[curr.node]) {
+                if (!v.has(edge.node)) {
+                    v.add(edge.node);
+                    q.push({
+                        node: edge.node,
+                        path: [...curr.path, edge.node],
+                        edges: [...curr.edges, edge]
+                    });
+                }
+            }
+        }
+    }
+    return null;
+};
+
+window.calcMrt = () => {
+    const o = document.getElementById('mrt-origin').value;
+    const d = document.getElementById('mrt-dest').value;
+    if (!o || !d) return alert('Please select origin and destination');
+    
+    const res = document.getElementById('mrt-result');
+    res.classList.remove('hidden');
+    
+    if (o === d) {
+        document.getElementById('mrt-stops-count').innerHTML = `<span class="text-2xl">0</span><span class="text-sm ml-1 text-gray-400">stops</span>`;
+        document.getElementById('mrt-time').textContent = `~ 0 min`;
+        document.getElementById('mrt-path-detail').innerHTML = `<div class="text-center text-gray-400 py-4 text-xs bg-gray-800/50 rounded-xl">Same origin and destination.</div>`;
+        return;
+    }
+
+    const result = bfsEdgeTrack(mrtGraphLocal, o, d);
+    if (!result) { 
+        document.getElementById('mrt-stops-count').textContent = 'No route'; 
+        document.getElementById('mrt-path-detail').innerHTML = 'Cannot calculate route'; 
+        return; 
+    }
+
+    let segments = [];
+    let currentSegment = null;
+
+    for (let i = 0; i < result.edges.length; i++) {
+        let edge = result.edges[i];
+        
+        if (edge.type === 'transfer') {
+            if (currentSegment) {
+                segments.push(currentSegment);
+                currentSegment = null;
+            }
+            segments.push({
+                line: 'Station Transfer',
+                startNode: result.path[i],
+                endNode: edge.node,
+                stops: 0,
+                isTransfer: true
+            });
+        } else {
+            if (!currentSegment || currentSegment.line !== edge.line) {
+                if (currentSegment) segments.push(currentSegment);
+                currentSegment = {
+                    line: edge.line,
+                    startNode: result.path[i],
+                    endNode: edge.node,
+                    stops: 1,
+                    isTransfer: false
+                };
+            } else {
+                currentSegment.endNode = edge.node;
+                currentSegment.stops++;
+            }
+        }
+    }
+    if (currentSegment) segments.push(currentSegment);
+
+    let totalStops = segments.reduce((sum, seg) => sum + seg.stops, 0);
+    let totalTransfers = segments.filter(s => s.isTransfer).length + segments.filter((s, idx) => idx > 0 && !s.isTransfer && !segments[idx-1].isTransfer).length;
+    let estimatedTime = totalStops * 5 + totalTransfers * 5 + 5; 
+
+    document.getElementById('mrt-stops-count').innerHTML = `<span class="text-2xl">${totalStops}</span><span class="text-sm ml-1 text-gray-400">stops</span>`;
+    document.getElementById('mrt-time').textContent = `~ ${estimatedTime} min`;
+
+    let originName = codeToNameLocal[o] || o;
+    let destName = codeToNameLocal[d] || d;
+
+    let detailHtml = `
+        <div class="bg-teal-900/30 p-3.5 rounded-xl border border-teal-800 mb-6 shadow-sm">
+            <div class="flex items-center gap-2.5 mb-2">
+                <span class="text-[10px] text-teal-400 font-bold bg-teal-950 px-1.5 py-0.5 rounded shadow-sm">Origin</span> 
+                <span class="text-xs font-bold text-white">${originName}</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+                <span class="text-[10px] text-rose-400 font-bold bg-rose-950 px-1.5 py-0.5 rounded shadow-sm">Dest.</span> 
+                <span class="text-xs font-bold text-white">${destName}</span>
+            </div>
+        </div>
+        <div class="relative ml-2">
+            <div class="absolute left-[13px] top-2 bottom-2 w-0.5 bg-gray-600 border-l-2 border-dotted"></div>
+    `;
+
+    segments.forEach((seg, idx) => {
+        let startName = codeToNameLocal[seg.startNode] || seg.startNode;
+        let endName = codeToNameLocal[seg.endNode] || seg.endNode;
+
+        if (seg.isTransfer) {
+            let prevLine = segments[idx - 1] ? segments[idx - 1].line : '';
+            let nextLine = segments[idx + 1] ? segments[idx + 1].line : '';
+            detailHtml += `
+                <div class="relative flex items-center gap-3 my-5">
+                    <div class="w-7 h-7 rounded-full bg-rose-500 z-10 shadow-[0_0_8px_rgba(244,63,94,0.8)] flex items-center justify-center">
+                        <i class="ph-fill ph-person-simple-walk text-white text-sm"></i>
+                    </div>
+                    <div class="bg-rose-950/70 px-3 py-1.5 rounded-lg border border-rose-800/50">
+                        <span class="text-[11px] font-bold text-rose-300">From ${prevLine} transfer to ${nextLine} <br>(${endName.split(' ')[0]} Station)</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            if (idx > 0 && !segments[idx - 1].isTransfer) {
+                let prevLine = segments[idx - 1].line;
+                detailHtml += `
+                    <div class="relative flex items-center gap-3 my-5">
+                        <div class="w-7 h-7 rounded-full bg-amber-500 z-10 shadow-[0_0_8px_rgba(245,158,11,0.8)] flex items-center justify-center">
+                            <i class="ph-fill ph-arrows-left-right text-white text-sm"></i>
+                        </div>
+                        <div class="bg-amber-950/70 px-3 py-1.5 rounded-lg border border-amber-800/50">
+                            <span class="text-[11px] font-bold text-amber-400">At ${startName.split(' ')[0]} transfer to ${seg.line}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            let dotColor = "bg-teal-400";
+            if (seg.line.includes('Red')) dotColor = "bg-red-500";
+            if (seg.line.includes('Yellow')) dotColor = "bg-yellow-400";
+            if (seg.line.includes('Green')) dotColor = "bg-green-500";
+
+            detailHtml += `
+                <div class="relative my-4 ml-8 bg-gray-800/80 p-3.5 rounded-xl border border-gray-700 shadow-md">
+                    <div class="absolute -left-[26px] top-4 w-3.5 h-3.5 rounded-full ${dotColor} z-10 shadow-[0_0_8px_rgba(45,212,191,0.5)] border-2 border-gray-900"></div>
+                    <div class="flex justify-between items-center mb-2.5 pb-2 border-b border-gray-700/50">
+                        <span class="text-xs font-bold text-white">${seg.line}</span>
+                        <span class="text-[10px] text-gray-400 bg-gray-900 px-2 py-0.5 rounded-md font-mono">${seg.stops} stops</span>
+                    </div>
+                    <div class="space-y-2 pt-0.5">
+                        <div class="flex items-start gap-2">
+                            <span class="text-[10px] text-gray-500 w-8 mt-0.5 shrink-0">Start</span>
+                            <span class="text-xs text-gray-200 leading-tight">${startName}</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-[10px] text-gray-500 w-8 mt-0.5 shrink-0">End</span>
+                            <span class="text-xs text-gray-200 leading-tight">${endName}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    detailHtml += `</div>`;
+    document.getElementById('mrt-path-detail').innerHTML = detailHtml;
+};
+
+window.calcBoat = () => {
+    const bfsSimple = (g, s, e) => {
+        if (s === e) return [s];
+        let q = [[s]], v = new Set([s]);
+        while (q.length > 0) {
+            let p = q.shift(), n = p[p.length - 1];
+            if (n === e) return p;
+            if (g[n]) {
+                for (let nb of g[n]) {
+                    if (!v.has(nb)) { v.add(nb); q.push([...p, nb]); }
+                }
+            }
+        }
+        return null;
+    };
+    
+    const o = document.getElementById('boat-origin').value;
+    const d = document.getElementById('boat-dest').value;
+    if (!o || !d) return alert('Please select origin and destination');
+    const p = bfsSimple(boatGraphLocal, o, d);
+    const r = document.getElementById('boat-result');
+    r.classList.remove('hidden');
+    if (!p) { document.getElementById('boat-stops-count').textContent = 'Transfer required'; document.getElementById('boat-path-detail').innerHTML = 'No direct route available'; return; }
+    document.getElementById('boat-stops-count').textContent = `${p.length - 1} stops`;
+    document.getElementById('boat-time').textContent = `~ ${(p.length - 1) * 45 + 30} mins`;
+    document.getElementById('boat-path-detail').innerHTML = `<div class="absolute left-[5px] top-2 bottom-2 w-0.5 bg-slate-600 border-l-2 border-dotted"></div>` + p.map((n, i) => `<div class="relative flex items-center gap-3"><div class="absolute -left-[14px] w-2 h-2 rounded-full ${i === 0 ? 'bg-orange-400' : (i === p.length - 1 ? 'bg-yellow-500' : 'bg-slate-500')}"></div><span class="${(i === 0 || i === p.length - 1) ? 'text-white font-bold' : 'text-slate-400 text-xs'}">${n}</span></div>`).join('');
+};
+
+window.selectAttrTab = (id, el) => {
+    document.querySelectorAll('.attr-tbtn').forEach(b => { b.classList.remove('bg-fuchsia-600', 'text-white', 'font-bold'); b.classList.add('bg-purple-900', 'text-purple-200', 'border-purple-700'); });
+    el.classList.add('bg-fuchsia-600', 'text-white', 'font-bold'); el.classList.remove('bg-purple-900', 'text-purple-200', 'border-purple-700');
+    document.querySelectorAll('.attr-tcont').forEach(c => c.classList.add('hidden')); document.getElementById(id).classList.remove('hidden');
+};
+
+// --- Initialization ---
+document.addEventListener('DOMContentLoaded', () => {
+    const updateTime = () => {
+        const now = new Date();
+        const dStr = now.toLocaleDateString('en-US', { timeZone: 'Asia/Bangkok', month: 'short', day: '2-digit', weekday: 'short' });
+        const tStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: true });
+        const el = document.getElementById('datetime-display'); if (el) el.textContent = `${dStr} ${tStr} (TH Time)`;
+    };
+    updateTime(); setInterval(updateTime, 1000);
+
+    const fetchWeather = async () => {
+        try { 
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=18.7883&longitude=98.9853&current=temperature_2m&timezone=Asia%2FBangkok'); 
+            const data = await res.json(); 
+            const el = document.getElementById('weather-display'); 
+            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> Clear, Chiang Mai ${data.current.temperature_2m}°C`; 
+        }
+        catch (e) { const el = document.getElementById('weather-display'); if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> Clear, Chiang Mai 28°C`; }
+    };
+    fetchWeather();
+
+    const track = document.getElementById('carousel-track'); let slide = 0;
+    if (track) setInterval(() => { slide = (slide + 1) % 3; track.style.transform = `translateX(-${slide * 93}%)`; }, 3000);
+
+    const mo = document.getElementById('mrt-origin'), md = document.getElementById('mrt-dest');
+    busLinesDataLocal.forEach(g => { let opt = `<optgroup label="${g.line}">${g.items.map(i=>`<option value="${i.split(' ')[0]}">${i}</option>`).join('')}</optgroup>`; if(mo) mo.innerHTML += opt; if(md) md.innerHTML += opt; });
+    
+    const bo = document.getElementById('boat-origin'), bd = document.getElementById('boat-dest');
+    boatLinesDataLocal.forEach(g => { let opt = `<optgroup label="${g.line}">${g.items.map(i=>`<option value="${i.split(' ')[0]}">${i}</option>`).join('')}</optgroup>`; if(bo) bo.innerHTML += opt; if(bd) bd.innerHTML += opt; });
+
+    const eC = document.getElementById('ess-checklist');
+    if(eC) eC.innerHTML = essData.check.map(i=>`<label class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 active:scale-95 transition-transform"><input type="checkbox" class="w-5 h-5 rounded mt-0.5 shrink-0 bg-slate-900"><div><p class="font-bold text-sm text-white">${i.n}</p><p class="text-[11px] text-slate-400">${i.d}</p></div></label>`).join('');
+    
+    const eG = document.getElementById('ess-goodies');
+    if(eG) eG.innerHTML = essData.good.map(i=>`<div class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-violet-500/20 text-violet-400 flex flex-col justify-center items-center shrink-0"><i class="ph-fill ph-star"></i></div><div><p class="font-bold text-sm text-white">${i.n}</p><p class="text-[11px] text-slate-400">${i.d}</p></div></div>`).join('');
+
+    const aG = document.getElementById('attr-cat-grid');
+    if(aG){
+        attractionsData.forEach((c,idx)=>{
+            let b = document.createElement('button');
+            b.className = "bg-purple-900 border border-purple-800 rounded-xl p-3 flex flex-col items-center justify-center gap-2 active:scale-95 shadow-md";
+            b.innerHTML = `<span class="text-2xl">${c.category.split(' ')[0]}</span><span class="text-[11px] font-bold text-purple-200 text-center leading-tight">${c.category.substring(c.category.indexOf(' ') + 1)}</span>`;
+            b.onclick = () => {
+                window.currentAttrCatIdx = idx;
+                document.getElementById('attr-cat-grid').classList.add('hidden');
+                document.getElementById('attr-detail-view').classList.remove('hidden');
+                const sel = document.getElementById('attraction-select');
+                sel.innerHTML = '<option value="" disabled selected>Select attraction...</option>';
+                const subT = document.getElementById('attr-subcat-tabs');
+                subT.innerHTML = '';
+                if(c.items.length > 0 && c.items[0].subcat){
+                    const subs = [...new Set(c.items.map(i=>i.subcat))];
+                    subs.forEach((s,sidx)=>{
+                        let tb = document.createElement('button');
+                        tb.className = sidx === 0 ? "bg-fuchsia-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap" : "bg-purple-900 text-purple-200 px-3 py-1.5 rounded-lg text-xs border border-purple-700 whitespace-nowrap";
+                        tb.textContent = s;
+                        tb.onclick = () => {
+                            Array.from(subT.children).forEach(x=>x.className="bg-purple-900 text-purple-200 px-3 py-1.5 rounded-lg text-xs border border-purple-700 whitespace-nowrap");
+                            tb.className="bg-fuchsia-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap";
+                            sel.innerHTML='<option value="" disabled selected>Select attraction...</option>' + c.items.filter(i=>i.subcat===s).map(item=>`<option value="${item.id}">${item.name}</option>`).join('');
+                            document.getElementById('attr-result').classList.add('hidden');
+                        };
+                        subT.appendChild(tb);
+                    });
+                    sel.innerHTML += c.items.filter(i=>i.subcat===subs[0]).map(item=>`<option value="${item.id}">${item.name}</option>`).join('');
+                } else {
+                    sel.innerHTML += c.items.map(item=>`<option value="${item.id}">${item.name}</option>`).join('');
+                }
+            };
+            aG.appendChild(b);
+        });
+    }
+
+    const aS = document.getElementById('attraction-select');
+    if(aS){
+        aS.addEventListener('change', e => {
+            let item = attractionsData[window.currentAttrCatIdx].items.find(i=>i.id===e.target.value);
+            if(item){
+                document.getElementById('attr-result').classList.remove('hidden');
+                document.getElementById('attr-name').innerHTML=item.name;
+                document.getElementById('attr-desc').innerHTML=item.desc;
+                document.getElementById('attr-hours').innerHTML=item.hours;
+                document.getElementById('attr-transport').innerHTML=item.transport;
+                document.getElementById('attr-address').innerHTML=item.address;
+                document.getElementById('attr-map-link').href=item.mapUrl;
+                const th = document.getElementById('attr-tabs-header'), tc = document.getElementById('attr-tabs-container');
+                if(item.tabs){
+                    th.style.display='flex'; tc.style.display='block';
+                    th.innerHTML = item.tabs.map((t,i)=>`<button onclick="window.selectAttrTab('${t.id}',this)" class="attr-tbtn px-3 py-1.5 rounded-lg text-xs whitespace-nowrap border ${i===0?'bg-fuchsia-600 text-white font-bold':'bg-purple-900 text-purple-200 border-purple-700'}">${t.name}</button>`).join('');
+                    tc.innerHTML = item.tabs.map((t,i)=>`<div id="${t.id}" class="attr-tcont space-y-2 ${i===0?'':'hidden'}">${t.items.map(x=>`<div class="bg-purple-900/40 p-3 rounded-xl border border-purple-800"><p class="font-bold text-sm text-fuchsia-300">${x.name}</p><p class="text-[11px] text-purple-200 mt-1">${x.desc}</p></div>`).join('')}</div>`).join('');
+                } else { th.style.display='none'; tc.style.display='none'; }
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>

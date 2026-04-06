@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiang Mai Pass - Food Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color for Chiang Mai (Forest Green vibe) */
+        .btn-nav {
+            background-color: #059669; 
+        }
+        .btn-nav:hover {
+            background-color: #047857;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-teal-700 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Chiang Mai Pass - Food Map
+            </h1>
+            <a href="https://linkuei0425.github.io/ChiangMai-US/" class="flex items-center gap-1 text-sm md:text-base font-medium bg-teal-800 hover:bg-teal-900 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-teal-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Region</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Category</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">Please select a region and category above to explore Chiang Mai.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Chiang Mai Data Structure (English)
+        const db = {
+            "oldcity": {
+                name: "Old City",
+                categories: {
+                    "michelin": [
+                        { name: "SP Chicken", feature: "Michelin Bib Gourmand. Local chicken stuffed with lemongrass and garlic, charcoal grilled to perfection with crispy skin.", address: "9/1 Samlan Rd Soi 1 / 3 mins walk from Wat Phra Singh" },
+                        { name: "Khao Soi Khun Yai", feature: "Hidden near the North Gate under a tin roof. Known by many as the best Khao Soi in town with rich coconut curry broth.", address: "Sri Poom 8 Alley / 2 mins walk from Chang Phuak Gate" },
+                        { name: "Huen Phen", feature: "Historic Northern Thai restaurant. A casual eatery by day and an antique-filled dining room by night. Must try Sai Ua (Northern sausage).", address: "112 Ratchamanka Rd / 5 mins walk from Wat Chedi Luang" }
+                    ],
+                    "greenbowl": [
+                        { name: "Lert Ros", feature: "Famous queueing spot near Tha Phae Gate for Esan (Northeast) food. The lemongrass-stuffed grilled red tilapia is a must.", address: "Ratchadamnoen Rd Soi 1 / 2 mins walk from Tha Phae Gate" },
+                        { name: "Kiat Ocha", feature: "Legendary Hainanese chicken rice near Three Kings Monument. Smooth chicken with special ginger soy sauce.", address: "41-43 Intrawarorot Rd / 1 min from Three Kings Monument" },
+                        { name: "Saanook Boat Noodle", feature: "Authentic Thai boat noodles. The dark broth is packed with rich herbal and pork bone flavors. Perfect small bowls.", address: "Intrawarorot Rd / Walk or ride within Old City" }
+                    ],
+                    "dessert": [
+                        { name: "Itim Kad Luang", feature: "Popular ice cream cart in the Old City offering natural coconut and durian ice cream with traditional toppings.", address: "Ratchadamnoen Rd (Sunday Market area) / Walking distance" },
+                        { name: "Coconut Shell Ice Cream", feature: "Coconut ice cream served in a half coconut shell with fresh coconut meat. Perfect for cooling down after temple visits.", address: "Phra Pok Klao Rd / Opposite Wat Chedi Luang" },
+                        { name: "Thapanee Mango Sticky Rice", feature: "Highly popular mango sticky rice stall around the Old City. Rich coconut milk and exceptionally sweet mangos.", address: "Mun Mueang Rd / Near Tha Phae Gate" }
+                    ],
+                    "cafe": [
+                        { name: "Akha Ama Phrasingh", feature: "Chiang Mai's most iconic local coffee brand supporting hill tribe farmers. Rustic wooden design.", address: "175/1 Rachadamnoen Rd / 2 mins walk from Wat Phra Singh" },
+                        { name: "My Secret Cafe In Town", feature: "Pink hipster cafe hidden in an alley. Surrounded by greenery, serving great latte art and homemade cakes.", address: "74/1 Rachadamnoen Rd / Walk into the alley" },
+                        { name: "See You Soon Chiang Mai", feature: "A boutique concept store and cafe. The semi-outdoor courtyard is filled with tropical plants and a lazy vibe.", address: "97 Prapokkloa Rd / 3 mins walk from Wat Chedi Luang" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Woods Bar, Rooftop", feature: "Rare rooftop bar in the Old City (12th floor) with a pool, offering panoramic views of the city and Doi Suthep sunset.", address: "12th Floor, Prestige Hotel / Grab from North Gate" },
+                        { name: "THAPAAE GRILL", feature: "Rooftop BBQ right next to Tha Phae Gate. Enjoy giant river prawns and Thai BBQ overlooking the moat and plaza.", address: "Ratchadamnoen Rd / 1 min from Tha Phae Gate" },
+                        { name: "Pha Khao Bar", feature: "Relaxing 2nd-floor terrace bar. Great atmosphere to grab a drink and watch the bustling Old City streets below.", address: "Ratchamanka Rd / Walk within Old City" }
+                    ]
+                }
+            },
+            "nimman": {
+                name: "Nimman",
+                categories: {
+                    "michelin": [
+                        { name: "Khao Soi Mae Sai", feature: "A must-eat around Nimman! Besides the signature Khao Soi, their Khanom Jeen Nam Ngiao (Northern pork blood noodles) is extremely authentic.", address: "29/1 Ratchaphuek Alley / 5 mins by songthaew from Nimman" },
+                        { name: "Cherng Doi Roast Chicken", feature: "Michelin-recognized for its crispy skin roast chicken. The skin is cracker-thin while the meat remains juicy, served with tamarind sauce.", address: "2/8 Suk Kasame Rd / 5 mins walk in Nimman alleys" },
+                        { name: "Kiew Kai Ka", feature: "Located inside One Nimman. The interior looks like a lush greenhouse jungle, offering high-quality Central and Northern Thai cuisine.", address: "One Nimman, Nimmanhaemin Rd / Inside One Nimman" }
+                    ],
+                    "greenbowl": [
+                        { name: "Tong Tem Toh", feature: "Always a queue! The large grill at the front cooks up amazing Northern sausages and pork neck. Try the Northern platter.", address: "11 Nimmanahaeminda Road Soi 13 / Nimman Soi 13" },
+                        { name: "Khun Churn (Vegetarian)", feature: "Famous Thai vegetarian restaurant. They cook vegetables and mushrooms brilliantly. Highly recommend the vegetarian Khao Soi.", address: "Nimmanhaemin Soi 17 / Walk within Nimman" },
+                        { name: "Anchan Noodle", feature: "Noodles and rice are dyed dreamy blue-purple using butterfly pea flowers. Served with crispy pork and spicy sour soup.", address: "Sirimangkalajarn Rd Soi 9 / 8 mins walk from Nimman" }
+                    ],
+                    "dessert": [
+                        { name: "Cheevit Cheeva", feature: "Chiang Mai's most famous Bingsu (shaved ice) shop! Signature Salted Egg Yolk Bua Loy and Thai Tea pearl bingsu.", address: "Sirimangkalajarn Rd Soi 7 / Nimman alleys" },
+                        { name: "Guu Fusion Roti & Tea", feature: "Elevates the Thai street food 'Roti' with dozens of sweet and savory flavors, perfectly paired with Teh Tarik (pulled tea).", address: "Nimmanhaemin Rd Soi 3 / Nimman Soi 3" },
+                        { name: "Mango Tango", feature: "Famous mango dessert shop originating from Bangkok. Excellent mango sticky rice and mango ice cream.", address: "Nimmanhaemin Soi 13 / Nimman Soi 13" }
+                    ],
+                    "cafe": [
+                        { name: "Ristr8to Original", feature: "Opened by a World Latte Art Champion! Must order the 'Satan Latte' served in a skull glass with flawless latte art.", address: "15/3 Nimmanhaemin Rd / Nimman Main Road" },
+                        { name: "Graph One Nimman", feature: "Dark industrial design focusing on cold brew and creative signature drinks (like charcoal or orange infused coffee).", address: "One Nimman / Inside One Nimman" },
+                        { name: "Baristro at Train Station", feature: "Despite the name, this branch is in Nimman. Minimalist white design with large windows, extremely photogenic.", address: "Nimman Soi 9 / Nimman area" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Myst Rooftop Bar", feature: "Famous rooftop bar on top of MAYA Mall. Offers molecular cocktails and dramatic dry-ice presentations.", address: "Rooftop, MAYA Mall / Nimman Intersection" },
+                        { name: "Yayee Rooftop Bar", feature: "Located on a boutique hotel roof, dodging the noise and offering a direct view of Doi Suthep mountains. Best at dusk.", address: "17/5 Sai Nam Phueng Rd (Hotel Yayee) / Nimman alleys" },
+                        { name: "Andaman Seafood (Buffet)", feature: "High-value seafood buffet outside Nimman. Fresh giant river prawns, crabs, and fish on traditional charcoal grills.", address: "100/1 Chotana Rd / Grab recommended" }
+                    ]
+                }
+            },
+            "riverside": {
+                name: "Riverside",
+                categories: {
+                    "michelin": [
+                        { name: "The House by Ginger", feature: "Gorgeous colonial-style heritage house offering exquisite and artfully plated traditional Thai cuisine and cocktails.", address: "199 Moonmuang Rd / Near Ping River & Old City" },
+                        { name: "Busaba (Grilled Pork)", feature: "Elevates street-style grilled pork skewers to perfection. Comfortable environment with a secret spicy-sour dipping sauce.", address: "Charoen Rat Rd / East Bank of Ping River" },
+                        { name: "Khao Soi Lamduan", feature: "80-year-old Khao Soi legendary shop. Broth is rich and slightly spicy, and the chicken is incredibly tender.", address: "352/22 Charoen Rat Rd / East Bank, Grab recommended" }
+                    ],
+                    "greenbowl": [
+                        { name: "The Good View", feature: "One of the oldest riverside restaurants with great waterside seating, live bands at night, and excellent seafood.", address: "13 Charoen Rat Rd / East Bank of Ping River" },
+                        { name: "Riverside Bar & Restaurant", feature: "A favorite among expats. Lively wooden house atmosphere, and you can even book a dinner cruise on the river.", address: "9-11 Charoen Rat Rd / East Bank of Ping River" },
+                        { name: "Khao Tom Yong", feature: "The ultimate late-night spot for hot congee, stir-fried morning glory, and crispy pork belly.", address: "Charoen Prathet Rd / West Bank of Ping River" }
+                    ],
+                    "dessert": [
+                        { name: "Vieng Joom On Teahouse", feature: "A dreamy all-pink teahouse by the river offering over 50 global teas and gorgeous high tea sets.", address: "53 Charoen Rat Rd / East Bank of Ping River" },
+                        { name: "Woo Cafe - Art Gallery", feature: "An art gallery and cafe combined. Filled with lavish flowers and ferns. Their Red Velvet and Carrot cakes are massive.", address: "80 Charoen Rat Rd / East Bank of Ping River" },
+                        { name: "Khao Soi Khun Yai (Dessert)", feature: "Also serves refreshing traditional Thai coconut milk slushies and Lod Chong (pandan noodles).", address: "Local market near Ping River" }
+                    ],
+                    "cafe": [
+                        { name: "Gateway Coffee Roasters", feature: "Hidden on the 2nd floor of an old building. Rustic walls, huge roaster, and beautiful sunlight streaming through wooden windows.", address: "Chang Moi Rd / Tha Phae towards the River" },
+                        { name: "KITI PANIT", feature: "A 130-year-old Sino-Portuguese mansion turned cafe. High ceilings full of history, perfect for a slow afternoon.", address: "19 Tha Phae Road / Tha Phae Rd" },
+                        { name: "Fongnom", feature: "Located by the trendy Khlong Mae Kha canal. Japanese wooden cabin style offering great Northern Thai tea and matcha.", address: "Khlong Mae Kha / Walk along the canal" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "The Roof at Sala Lanna", feature: "The most romantic riverside rooftop bar! Located on a boutique hotel overlooking the wide Ping River and Old City skyline.", address: "49 Charoen Rat Rd (Sala Lanna Hotel) / East Bank" },
+                        { name: "Deck 1", feature: "Premium riverside dining with an illuminated wooden deck right on the water. Incredibly luxurious and romantic at night.", address: "1, 14 Chareonraj Rd / East Bank" },
+                        { name: "Nakara Jardin", feature: "Tucked behind Ping Nakara Hotel, offering French garden afternoon tea and dining right by the water like a European estate.", address: "11 Charoen Prathet Rd / West Bank" }
+                    ]
+                }
+            },
+            "suthep": {
+                name: "Suthep & CMU",
+                categories: {
+                    "michelin": [
+                        { name: "Galae Restaurant", feature: "Lake-side garden restaurant at the foot of Doi Suthep, blooming with flowers year-round. Serves traditional Khantoke meals.", address: "65 Suthep Rd / Grab to CMU back mountain" },
+                        { name: "Khao Soi Samer Jai", feature: "Famous sweet and rich Khao Soi. Many charter cars to the Suthep area just to taste this legendary bowl.", address: "Charoen Rat Rd (CMU Branch) / Grab recommended" },
+                        { name: "Pha Khao Bar", feature: "Modern Northern Thai flavors. Grilled pork neck and spicy papaya salad are huge hits among university students.", address: "Suthep Rd / CMU Back Gate area" }
+                    ],
+                    "greenbowl": [
+                        { name: "Suki Koka", feature: "Legendary queue at CMU Back Gate night market! Stir-fried Thai dry sukiyaki full of wok hei (breath of the wok) and secret sauce.", address: "Suthep Rd (CMU Back Gate) / Walk to market" },
+                        { name: "Boat Bakery", feature: "Long-standing bakery and diner near CMU. The green curry chicken rice is authentic and budget-friendly.", address: "Suthep Rd / Opposite CMU Front Gate" },
+                        { name: "Steak Bar", feature: "Budget steakhouse in the night market. Sizzling plates and rich black pepper sauce, great for experiencing student culture.", address: "Suthep Rd / Malin Plaza (CMU Front Gate)" }
+                    ],
+                    "dessert": [
+                        { name: "Milk Zone", feature: "A student favorite at the back gate. Fresh fruit smoothies, milk drinks, and thick toasts. Always packed at night.", address: "Suthep Rd / CMU Back Gate" },
+                        { name: "The Volcano Toast", feature: "Cheese lovers must visit! Famous for their meter-long stretchy cheese toast and bursting sweet fillings.", address: "Suthep Rd / CMU Back Gate" },
+                        { name: "Flips&Flips Homemade Donuts", feature: "Japanese-style hipster donut shop in the alleys. Limited daily handmade batches, super fluffy and sells out fast.", address: "14 Hussadhisawee Soi 5 / Grab or ride" }
+                    ],
+                    "cafe": [
+                        { name: "No.39 Cafe", feature: "Forest aesthetic cafe with a central emerald pond, wooden slide, and glasshouse. Feels like a fairy tale woods.", address: "39/2 Moo 10, Suthep / Grab recommended" },
+                        { name: "Basecamp Coffee House", feature: "Hiker's cafe at the start of the Doi Suthep trail. Surrounded by tall trees, perfect for soaking in nature.", address: "Suthep / Near CMU back mountain" },
+                        { name: "Dong Madame", feature: "Opened by a Masterchef Thailand contestant. Extravagant floral decor and incredibly elaborate French parfaits.", address: "Suthep Rd Alley / Hidden behind CMU" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Nimmarn Hill (MAYA Rooftops)", feature: "Cluster of rooftop bars on the 6th floor of MAYA Mall, offering direct night views of the Doi Suthep mountain.", address: "6th Floor, MAYA Mall / Walk to MAYA" },
+                        { name: "Fin Sushi / Seafood", feature: "Popular premium seafood and Japanese dining among students. High-quality sashimi with a lively atmosphere.", address: "Nimman Rd / Near CMU border" },
+                        { name: "Chamcha River Seafood", feature: "Offers epic 'Thai Seafood Platters'. Giant live fish and shrimp grilled over charcoal with amazing aromas.", address: "Suthep Outskirts / Grab recommended" }
+                    ]
+                }
+            },
+            "nightbazaar": {
+                name: "Night Bazaar",
+                categories: {
+                    "michelin": [
+                        { name: "Go Sae", feature: "Michelin clear soup noodles. Broth is light yet packed with pork bone sweetness, served with tender pork and fish balls.", address: "Chang Moi Rd / Walk near Warorot" },
+                        { name: "Guay Jub Chang Moi", feature: "50-year-old shop serving rolled rice noodles in a rich peppery broth loaded with pork offal and crispy pork belly.", address: "Chang Moi Rd / Near Warorot Market" },
+                        { name: "Khao Soi Islam", feature: "Halal Khao Soi hidden near the mosque. No pork, lighter coconut milk but incredibly deep, unique spices.", address: "Charoen Prathet 1 Alley / 5 mins from Night Bazaar" }
+                    ],
+                    "greenbowl": [
+                        { name: "Damrong", feature: "The most famous stall inside Warorot Market! Freshly fried Sai Ua (sausage) and crispy pork belly. Best eaten with sticky rice.", address: "Warorot Market (Kad Luang) / 1st Floor" },
+                        { name: "Puttaraksa", feature: "Low-key historic restaurant near the Night Bazaar serving uncompromised, spicy Northern and Central Thai food.", address: "Chang Klan Rd / Near Night Bazaar" },
+                        { name: "Sompong Seafood", feature: "Classic seafood spot in the night market. Garlic steamed lobster and curry crab are phenomenal.", address: "Inside Anusarn Market / Night Bazaar area" }
+                    ],
+                    "dessert": [
+                        { name: "Thapanee Mango Sticky Rice", feature: "A hidden gem stall in the traditional market using premium Salak and mangoes. Sticky rice is perfectly sweet and soft.", address: "Warorot Market (Kad Luang) / Inside market" },
+                        { name: "Rotee Pa Day", feature: "Legendary Michelin cart. The roti skin is incredibly crispy and non-greasy, generously topped with condensed milk.", address: "Tha Phae Rd / Walk from Tha Phae to Warorot" },
+                        { name: "Bua Loy Khai Wan", feature: "Popular warm dessert in the night bazaar. Colorful handmade sticky rice balls in coconut milk with a poached egg.", address: "Night Bazaar Area / Food cart" }
+                    ],
+                    "cafe": [
+                        { name: "Thamel Coffee", feature: "Hidden on the 2nd floor of a clothing shop. Nepalese and Middle Eastern decor makes it feel like an Arabian Nights tale.", address: "Warorot alleys / 3 mins from market" },
+                        { name: "Brewginning Coffee", feature: "Open-air cafe converted from a traditional wicker shop. Great street vibe watching songthaews pass by.", address: "260 Chang Moi Rd / Famous wicker street" },
+                        { name: "Looper & Co.", feature: "High-quality cold brew cafe by day, stylish cocktail bar by night with a minimalist cold-tone interior.", address: "153 Ratchawong Rd / Near Warorot" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Mungkorn Seafood Buffet", feature: "Massive catch-your-own river prawn buffet! Grill live shrimp right at your table. Unbeatable value.", address: "Chang Klan Rd extension / Grab recommended" },
+                        { name: "Boy Blues Bar", feature: "2nd-floor terrace in Kalare Night Bazaar. Drink and listen to the best live blues guitar in Chiang Mai.", address: "Kalare Night Bazaar / Night Bazaar area" },
+                        { name: "Ploen Ruedee Night Market", feature: "An open-air food park surrounded by international food and seafood carts, featuring a central stage with a festival vibe.", address: "Chang Klan Rd / Main Night Bazaar street" }
+                    ]
+                }
+            },
+            "santitham": {
+                name: "Santitham",
+                categories: {
+                    "michelin": [
+                        { name: "Khao Kha Moo Chang Phueak", feature: "The legendary 'Cowboy Hat Lady'. Incredibly tender braised pork leg rice served with a soft-boiled egg and pickled mustard greens.", address: "Chang Phueak North Gate / 2 mins from gate" },
+                        { name: "Suki Jeh Ru Din", feature: "Stir-fried dry sukiyaki at the North Gate night market. Crunchy cabbage and a rich fermented tofu/sesame sauce.", address: "Chang Phueak North Gate / 2 mins from gate" },
+                        { name: "Khanom Jeen San Pa Khoi", feature: "Offers over 5 curry broths for Thai rice noodles. Green curry chicken and red beef curry are incredibly rich.", address: "Santitham Market / Take a songthaew" }
+                    ],
+                    "greenbowl": [
+                        { name: "Somtum Der (Chiang Mai)", feature: "Branch of the Michelin Esan restaurant from Bangkok. Extremely authentic spicy papaya salad and crispy chicken wings.", address: "Santitham border / Grab recommended" },
+                        { name: "Khao Rad Kaeng (Local Buffet)", feature: "Santitham is a local hub, and the cheap Thai buffets (basil pork, curries) here offer the most authentic everyday flavors.", address: "Santitham Roundabout / Walk around" },
+                        { name: "Bamee Kiew Zabb", feature: "Highly recommended by locals for black pepper wonton noodles and crispy pork rice. Thin wonton skin and generous filling.", address: "Hussadhisawee Rd / Inside Santitham" }
+                    ],
+                    "dessert": [
+                        { name: "Santitham Roti", feature: "Popular street cart near the roundabout. Crispy edges with a molten banana filling, made with swift skills.", address: "Santitham Roundabout / Walk" },
+                        { name: "Ice Cream Phai Thong", feature: "Traditional ice cream carts roaming the alleys. Listen for the bell to buy coconut ice cream served in a bun with condensed milk.", address: "Santitham residential alleys" },
+                        { name: "Bingsu (Student Shaved Ice)", feature: "Many cheap Korean Bingsu shops favored by students, offering mountains of fruit at half the price of tourist areas.", address: "Santitham Roundabout area" }
+                    ],
+                    "cafe": [
+                        { name: "Akha Ama Coffee (Original)", feature: "The very first Akha Ama branch. Quiet vibe favored by digital nomads, offering the purest Northern Thai specialty beans.", address: "9/1 Mata Apartment / Grab or ride" },
+                        { name: "Omnia Cafe & Roastery", feature: "Cozy micro-roastery. The owner is meticulous about bean processing, offering a huge selection of pour-overs.", address: "181/272 Chotana Rd / Near Santitham border" },
+                        { name: "The Barisotel by The Baristro", feature: "Minimalist all-white cafe and boutique hotel. Every corner's lighting is designed for perfect photography.", address: "7/2 Nimmanhaemin Soi 9 / Border area" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Andaman Seafood BBQ", feature: "Famous open-air seafood buffet. Dozens of seafood and meat options grilled over charcoal at your table. Very lively.", address: "100/1 Chotana Rd / Grab recommended" },
+                        { name: "Teng Nueng (Mu Kratha)", feature: "Local favorite Thai BBQ (Mu Kratha) buffet. Endless meat and veggies dipped in spicy green seafood sauce.", address: "Santitham area / Grab recommended" },
+                        { name: "Rooftop Hostels", feature: "Santitham is low-rise, but many hostel rooftops offer small open-air bars with eye-level views of the neon city life.", address: "Santitham alleys" }
+                    ]
+                }
+            },
+            "maerim": {
+                name: "Mae Rim",
+                categories: {
+                    "michelin": [
+                        { name: "Pongyang Angdoi", feature: "Michelin restaurant hidden in the forest. Wooden stilt houses surrounded by greenery. Try the fried mushrooms and spicy wild boar.", address: "Mae Rim - Samoeng Rd / Drive or charter" },
+                        { name: "Khao Soi Mae Rim", feature: "Must-eat before heading up the mountain. Broth has a unique charcoal aroma, and the chicken falls right off the bone.", address: "Route 107, Mae Rim / Main road" },
+                        { name: "Mon Jam Local Food", feature: "Small eateries by hill tribes at the summit camping area, offering rice cooked in bamboo and charcoal-grilled black pork.", address: "Mon Jam Summit / Drive or charter up" }
+                    ],
+                    "greenbowl": [
+                        { name: "Saiyud's Kitchen", feature: "Award-winning fine royal Thai cuisine with fruit carvings that look like art. Flawless traditional flavors.", address: "Chotana Rd Soi 12 / Grab recommended" },
+                        { name: "Baan Mon Muan", feature: "Scenic restaurant on Mon Jam using organic veggies from the Royal Project. The spicy chayote salad is super crisp.", address: "Mon Jam area / Charter required" },
+                        { name: "Huay Tung Tao Lake", feature: "Dine in bamboo huts right on the water. Eat fried fish and grilled chicken while dipping your feet in the lake.", address: "Huay Tung Tao / Grab or charter" }
+                    ],
+                    "dessert": [
+                        { name: "Zombie Café", feature: "Most popular cafe in Mae Rim! Tables are set right in a shallow, clear stream so you can eat honey toast while dipping your feet.", address: "Mae Rim - Samoeng Rd / Drive or charter" },
+                        { name: "Sala Cafe", feature: "Surrounded by a massive tropical garden offering fine western desserts and fresh brownies. Peaceful paradise.", address: "Mae Rim alleys / Grab recommended" },
+                        { name: "Strawberry Farms", feature: "Roads to Mon Jam are lined with farms offering fresh strawberry shakes and slightly tart fresh strawberries with sugar dip.", address: "Mon Jam Road" }
+                    ],
+                    "cafe": [
+                        { name: "The Ironwood", feature: "A glasshouse garden cafe deep in the woods. Vintage European decor and ferns everywhere. Truly magical atmosphere.", address: "Mae Rim - Samoeng Rd / Hidden path, charter required" },
+                        { name: "WTG (Woo Cafe Mae Rim)", feature: "The flagship branch of Woo Cafe in the mountains. Massive grounds, art lifestyle goods, and equally massive cakes.", address: "Mae Rim Main Rd / Grab recommended" },
+                        { name: "WTG Mae Rim", feature: "Floor-to-ceiling windows facing paddy fields and mountains. Wooden tones and premium estate pour-over coffee.", address: "Mae Rim area / Charter recommended" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Mon Jam Viewpoint", feature: "The ultimate 'Mountain Rooftop'! Grab a beer on the cliff edge at 1000m altitude and space out watching the sea of clouds and terraces.", address: "Mon Jam Summit / Drive or charter up" },
+                        { name: "Pongyang Jungle Coaster & Zipline", feature: "After riding the coaster, dine at their scenic restaurant suspended over the valley gorge with epic forest views.", address: "Mae Rim - Samoeng Rd / Charter required" },
+                        { name: "Mae Rim River Seafood", feature: "Despite being in the mountains, garden restaurants on the main road breed live river prawns for fresh charcoal grilling.", address: "Route 107 / Charter recommended" }
+                    ]
+                }
+            },
+            "hangdong": {
+                name: "Hang Dong",
+                categories: {
+                    "michelin": [
+                        { name: "Khaomao-Khaofang", feature: "Michelin recommended for years. Feels like a real rainforest with waterfalls. High-level Northern Thai and seafood.", address: "Ratchaphruek Rd / Grab (takes 20-30 mins)" },
+                        { name: "Han Tueng Chiang Mai", feature: "Traditional Northern food near the arts village using local wild herbs. Great fried veggie platter and rich curries.", address: "Near Baan Kang Wat / Grab recommended" },
+                        { name: "Nics Restaurant & Playground", feature: "Very popular family-friendly restaurant offering Thai-Western fusion. Features a giant bamboo playground.", address: "Hang Dong Rd / Grab recommended" }
+                    ],
+                    "greenbowl": [
+                        { name: "Tuptim Grob", feature: "Historic dessert shop. Giant, chewy 'Red Ruby' (water chestnuts in tapioca) in crushed ice and coconut milk. Perfect ending.", address: "Chiang Mai-Hang Dong Rd / Grab recommended" },
+                        { name: "Khao Soi Mae Malai", feature: "Local favorite on the way south. Broth has a strong red curry aroma, served with generous pickled greens.", address: "Hang Dong Main Road / Ride recommended" },
+                        { name: "Moo Kratha (BBQ Buffets)", feature: "Hang Dong has massive open-air Thai BBQ buffets where you can eat unlimited meat and veggies for under 200 THB.", address: "Hang Dong Area" }
+                    ],
+                    "dessert": [
+                        { name: "Baan Kang Wat Desserts", feature: "Stilt wooden houses in the arts village sell handmade pound cakes, puddings, and drip coffee with an artisan vibe.", address: "191-197 Soi Wat Umong / Grab to Baan Kang Wat" },
+                        { name: "Obchoei Original Homemade", feature: "Famous bakery in the arts village. The smell of fresh cinnamon rolls and croissants fills the wooden houses.", address: "Inside Baan Kang Wat / Walk" },
+                        { name: "Carp Cafe", feature: "Built directly over a massive koi pond! Enjoy Thai desserts while feeding swarms of huge, vibrant koi fish.", address: "118/2 Moo 1, Hang Dong / Grab recommended" }
+                    ],
+                    "cafe": [
+                        { name: "Daddy's Antique Cafe", feature: "Looks like a European castle filled with antique clocks from Europe. Offers premium pour-overs and brunch.", address: "45/8 Moo 1, Mae Hia / Grab recommended" },
+                        { name: "The Baristro at Ping River", feature: "Concrete minimalist design by the quiet downstream river. Pure and tranquil space perfect for photography.", address: "Wang Sing Kham Rd / Grab recommended" },
+                        { name: "No.39 Cafe (Wat Umong Area)", feature: "While the main branch is in Suthep, the alleys around the arts village feature similar slow-paced, pond-side wooden cabins.", address: "Wat Umong alleys" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Good View Village", feature: "Huge Hang Dong branch of the famous city restaurant. Massive garden and lake, lively night atmosphere, and epic seafood.", address: "Mae Hia / Grab recommended" },
+                        { name: "Chom Cafe and Restaurant", feature: "Famous for its Alice in Wonderland mist forest! Giant trees and water misters create breathtaking fairy-tale photos.", address: "Somphot Chiang Mai 700 Pi Rd / Grab recommended" },
+                        { name: "Pha Cho (Grand Canyon)", feature: "Further south in Hang Dong. Climb the viewpoint to see the bizarre red clay pillars and national park forest.", address: "Mae Wang National Park / Half-day charter required" }
+                    ]
+                }
+            }
+        };
+
+        const categoriesMap = {
+            "michelin": { name: "🌟 Michelin Guide", color: "bg-rose-100 text-rose-700 hover:bg-rose-600 hover:text-white border-rose-500" },
+            "greenbowl": { name: "🟢 Green Bowl", color: "bg-emerald-100 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-500" },
+            "dessert": { name: "🍧 Desserts & Drinks", color: "bg-amber-100 text-amber-700 hover:bg-amber-500 hover:text-white border-amber-500" },
+            "cafe": { name: "☕ Cafes", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-600" },
+            "rooftop_seafood": { name: "🍸 Rooftop & Popular", color: "bg-indigo-100 text-indigo-700 hover:bg-indigo-600 hover:text-white border-indigo-500" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-teal-600 hover:text-white hover:border-teal-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-teal-600', 'text-white', 'border-teal-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-teal-600');
+            clickedBtn.classList.add('bg-teal-600', 'text-white', 'border-teal-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('michelin', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-teal-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-teal-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-gray-500">No data available for this category.</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (Focus query on Chiang Mai)
+                const encodedQuery = encodeURIComponent(`${item.name} Chiang Mai`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded mr-1">Highlight</span>${item.feature}</p>
+                        
+                        <div class="bg-gray-50/80 p-3.5 rounded-xl flex items-start gap-3 border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium">${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto">
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            Open in Google Maps
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>
