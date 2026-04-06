@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>峴港美食指南 | 峴港與會安</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #fffaf0; /* orange-50 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color */
+        .btn-nav {
+            background-color: #ea580c; /* orange-600 */
+        }
+        .btn-nav:hover {
+            background-color: #c2410c; /* orange-700 */
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-orange-500 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                峴港美食指南
+            </h1>
+            <!-- Back to Home Link -->
+            <a href="https://linkuei0425.github.io/DaNang/" class="flex items-center gap-1 text-sm md:text-base font-medium bg-orange-600 hover:bg-orange-700 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-orange-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                回到首頁
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">選擇區域</h2>
+                <!-- Scroll Arrows -->
+                <div class="flex gap-2">
+                    <button onclick="scrollRegions('left')" class="p-1.5 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors shadow-sm" aria-label="Scroll Left">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollRegions('right')" class="p-1.5 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors shadow-sm" aria-label="Scroll Right">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide scroll-smooth">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider">選擇類別</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-slate-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">請選擇上方的區域與類別來探索美食。</p>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto px-4 mt-8 pb-8 text-center text-slate-500 text-sm">
+        <p>※ 峴港與會安大眾運輸除了 Grab，也可善用公車。市區內推薦下載 <strong>Danabus App</strong> 查詢市區公車 (如 01, 05, 12 號線)；往返峴港與會安可搭乘 <strong>LK02 路線公車</strong>。海鮮大排檔多半為時價秤重，點餐前建議先確認每公斤價格。前往熱門餐廳（如 Pizza 4P's）強烈建議提前線上訂位。</p>
+    </footer>
+
+    <script>
+        // Da Nang & Hoi An Food Database (Chinese)
+        const db = {
+            "danang": {
+                name: "峴港市區 (韓江兩岸)",
+                categories: {
+                    "local": [
+                        { name: "Bánh Xèo Bà Dưỡng (婆粉越南煎餅)", feature: "峴港必吃的傳統煎餅名店！將酥脆的越式煎餅包入米紙，加上烤肉串與新鮮生菜，沾上特製花生醬汁，口味令人驚豔。", address: "K280/23 Hoàng Diệu, Bình Hiên, Hải Châu, Đà Nẵng", recommend: true, transport: "🚌 【市區公車】 周邊大馬路有 Danabus 04, 07 號路線經過。<br>🚗 【Grab】 隱身在窄巷深處，建議搭車到巷口後跟著人群走進去。" },
+                        { name: "Mì Quảng 1A (廣南麵)", feature: "中越代表性美食「廣南麵」的知名老店。Ｑ彈米條配上蝦子、豬肉、鵪鶉蛋與香脆花生，拌著少許濃郁湯汁吃，非常開胃。", address: "1A Hải Phòng, Hải Châu, Đà Nẵng", transport: "🚌 【市區公車】 搭乘 Danabus 01, 06 號線於市區下車。<br>🚶 【步行/Grab】 距離韓市場不遠，散步可達。" },
+                        { name: "Phở 29 (河粉29)", feature: "當地人也愛吃的牛肉河粉！湯頭用牛骨熬製數小時，鮮甜回甘，牛肉軟嫩，是體驗道地越式早餐或宵夜的好去處。", address: "35 Trần Quốc Toản, Phước Ninh, Hải Châu, Đà Nẵng", transport: "🚌 【市區公車】 靠近韓市場，多條路線 (01, 04, 06, TMF1) 皆可達附近。<br>🚶 【步行】 就在韓市場與粉紅教堂附近的巷子裡。" }
+                    ],
+                    "seafood": [
+                        { name: "Hải Sản Năm Đảnh (南定海鮮)", feature: "在地人激推的「隱藏版」平價海鮮名店！海鮮超級新鮮且價格便宜透明，幾乎每道菜都只要銅板價。", address: "139/59/38 Trần Quang Khải, Thọ Quang, Sơn Trà", recommend: true, transport: "🚗 【Grab】 位於錯綜複雜的迷宮巷弄內，自己找絕對會迷路，無直達公車，一定要叫 Grab 載到門口！" },
+                        { name: "Chợ Cồn Food Court (康市場美食區)", feature: "想一次吃遍所有峴港小吃來這就對了！市場內有超多平價海鮮攤、越式蝸牛（Ốc）、春捲等，是感受在地活力的尋寶地。", address: "290 Hùng Vương, Vĩnh Trung, Hải Châu", transport: "🚌 【市區公車】 搭乘 Danabus 01 或 06 號線可直達康市場。<br>🚗 【Grab】 位於市中心大馬路上，交通非常方便。" }
+                    ],
+                    "coffee": [
+                        { name: "Cộng Cà Phê (越共咖啡)", feature: "越南最知名的連鎖咖啡廳，裝潢充滿濃濃的復古軍裝風。必點招牌「椰子冰沙咖啡 (Coconut Coffee)」，消暑又好喝！", address: "98-96 Bạch Đằng, Hải Châu, Đà Nẵng (韓江畔分店)", recommend: true, transport: "🚌 【市區公車】 搭乘 TMF1 觀光路線可沿著韓江畔抵達。<br>🚶 【步行】 沿著韓江步道散步即可抵達，是逛完韓市場的休息首選。" },
+                        { name: "Wonderlust Bakery & Coffee", feature: "充滿現代感的純白網美咖啡廳，結合了服飾選物店。採光極佳，甜點與咖啡都在水準之上。", address: "96 Trần Phú, Hải Châu, Đà Nẵng", transport: "🚌 【市區公車】 位於粉紅教堂正對面，搭乘 Danabus 01, 06 號線可達。<br>🚶 【步行】 在市中心精華地段，徒步方便。" }
+                    ],
+                    "western": [
+                        { name: "Pizza 4P's", feature: "被譽為「越南最好吃的披薩」！由日本人創立的義式餐廳，自家農場製作的「Burrata 鮮奶酪披薩」與「蟹肉義大利麵」絕對必點。", address: "8 Hoàng Văn Thụ, Phước Ninh, Hải Châu (皇文樹分店)", recommend: true, bookingLink: "https://booking.pizza4ps.com/", transport: "🚌 【市區公車】 靠近龍橋頭，可搭乘 01, 04 號線至周邊。<br>🚗 【Grab】 生意極好，強烈建議提早 1-2 週在官網預訂。" },
+                        { name: "Olivia's Prime Steakhouse", feature: "峴港評價最高的頂級牛排館，提供高品質的進口熟成牛排與紅酒，服務非常周到，適合慶祝紀念日。", address: "505 Trần Hưng Đạo, Sơn Trà, Đà Nẵng", transport: "🚌 【市區公車】 靠近龍橋東側，可搭乘 08, 12 號線。<br>🚶 【步行】 位於龍橋旁邊，吃飽可直接看龍橋夜景。" }
+                    ],
+                    "nightlife": [
+                        { name: "Sky36 Bar", feature: "峴港最高的露天高空酒吧，位於 Novotel 飯店頂樓。可以 360 度無死角俯瞰整個峴港市區、韓江與海灣夜景，氣氛嗨炸。", address: "36 Bạch Đằng, Hải Châu, Đà Nẵng", recommend: true, transport: "🚌 【市區公車】 位於 Novotel 飯店，周邊公車較少，建議搭乘 Grab。<br>🚶 【步行】 可沿韓江步道漫步前往。需注意有服裝規定（勿穿背心拖鞋）。" },
+                        { name: "T.E Bar", feature: "隱身在三樓的質感 Speakeasy 密室酒吧，沒有招牌。酒單充滿創意，調酒師會融合越南在地香料與食材入酒，非常特別。", address: "Tầng 3, 39-41 Nguyễn Thái Học, Hải Châu", transport: "🚌 【市區公車】 靠近大教堂，Danabus 01, 06 號線可達。<br>🚶 【步行】 位於市區中心，入口較隱密，需走樓梯上去。" }
+                    ]
+                }
+            },
+            "beach": {
+                name: "美溪沙灘 (海景/度假區)",
+                categories: {
+                    "seafood": [
+                        { name: "Hải Sản Bé Mặn (貝曼海鮮大排檔)", feature: "美溪沙灘旁人氣最旺的海鮮大排檔！現撈活海鮮秤重計價，必吃蒜蓉烤生蠔、清蒸瀨尿蝦與烤大蝦，充滿熱鬧的熱炒店氣氛。", address: "Lô 8 Võ Nguyên Giáp, Mân Thái, Sơn Trà", recommend: true, transport: "🚌 【市區公車】 搭乘 Danabus 05 或 12 號路線於美溪沙灘周邊下車後步行。<br>🚗 【Grab】 沿著海岸線大馬路即可到達。" },
+                        { name: "Mộc Seafood (木海鮮)", feature: "相較於傳統大排檔，這裡環境更乾淨舒適，有浪漫的燈串裝飾，價格合理且海鮮新鮮，深受觀光客與家庭旅客喜愛。", address: "26 Tô Hiến Thành, Phước Mỹ, Sơn Trà", transport: "🚌 【市區公車】 搭乘 05, 12 號線至沙灘區後，步行進巷弄。<br>🚶 【步行/Grab】 距離沙灘大約步行 5-10 分鐘。" }
+                    ],
+                    "local": [
+                        { name: "Bún Chả Cá 109 (109 魚餅米線)", feature: "傳承數十年的老店，主打中越特色的「魚餅米線」。湯頭以魚骨熬製，清甜不膩，加上竹筍與大塊手工魚餅，便宜又美味。", address: "109 Nguyễn Chí Thanh, Hải Châu (市區邊緣靠近橋)", transport: "🚌 【市區公車】 位於市區邊緣，多條市區公車路線可達。<br>🚗 【Grab】 騎車或搭 Grab 約 10 分鐘。" },
+                        { name: "Thìa Gỗ Restaurant (木勺餐廳)", feature: "裝潢充滿越南傳統風情，提供精緻化但口味正宗的越南家常菜，如春捲、空心菜、椰子燉肉等，非常適合不敢吃路邊攤的人。", address: "53 Phan Thúc Duyện, Mỹ An, Ngũ Hành Sơn", transport: "🚌 【市區公車】 靠近 Danabus 12 號線的美溪沙灘周邊站點。<br>🚶 【步行】 位於沙灘周邊的美食一條街上。" }
+                    ],
+                    "coffee": [
+                        { name: "XLIII Coffee (原 43 Factory)", feature: "峴港最具設計感的精品咖啡館！工業風清水模建築，中央有環繞水池的下沉式座位。專注於頂級單品咖啡豆的烘焙與沖煮。", address: "Lô 422, Ngô Thì Sĩ, Mỹ An, Ngũ Hành Sơn", recommend: true, transport: "🚌 【市區公車】 搭乘 12 號線至沙灘區後步行 5-10 分鐘。<br>🚶 【步行】 隱身在沙灘後方的安靜街區。" },
+                        { name: "The Top Bar (A La Carte 頂樓)", feature: "位於 A La Carte 飯店頂樓的海景咖啡廳/酒吧，擁有絕美的無邊際泳池，是俯瞰整個美溪沙灘壯麗海岸線的最佳視角。", address: "200 Võ Nguyên Giáp, Phước Mỹ, Sơn Trà", transport: "🚌 【市區公車】 05, 12 號線可達沙灘大道。<br>🚗 【Grab/步行】 位於沙灘第一排的飯店頂樓。" }
+                    ],
+                    "western": [
+                        { name: "Esco Beach Bar Lounge", feature: "直接蓋在沙灘上的半露天餐酒館！提供好吃的漢堡、披薩與烤肉拼盤。週末晚上常有火舞表演與 DJ，度假 Vibe 滿分。", address: "Lô 12 Võ Nguyên Giáp, Mân Thái, Sơn Trà", recommend: true, transport: "🚌 【市區公車】 搭乘 05 號線沿海岸線行駛即可看到。<br>🚶 【步行】 沿著美溪沙灘散步即可直達。" },
+                        { name: "My Casa", feature: "由義大利與西班牙主廚共同經營的溫馨小餐館，提供道地的 Tapas、自製義大利麵與調酒，隱藏在寧靜的巷弄庭院中。", address: "53 Morrison, Phước Mỹ, Sơn Trà", transport: "🚌 【市區公車】 搭乘 05, 12 號線至沙灘北側周邊。<br>🚗 【Grab】 從沙灘搭車約 5 分鐘。" }
+                    ],
+                    "nightlife": [
+                        { name: "Apocalypse Beach Club", feature: "美溪沙灘上最具指標性的海灘俱樂部！從白天到黑夜都有不同的氛圍，夜晚音樂節奏變強，大家會在沙灘上跳舞狂歡。", address: "51 Võ Nguyên Giáp, Bắc Mỹ An, Ngũ Hành Sơn", recommend: true, transport: "🚌 【市區公車】 05, 12 號線可達美溪沙灘南側。<br>🚶 【步行】 位於沙灘第一排。" },
+                        { name: "The Craftsman Cocktail Bar", feature: "如果不想去吵雜的夜店，這家質感極佳的調酒酒吧是好選擇。裝潢有格調，調酒師非常專業且親切，酒單設計極具巧思。", address: "48 Phan Tứ, Mỹ An, Ngũ Hành Sơn", transport: "🚌 【市區公車】 靠近 Danabus 12 號線路線。<br>🚗 【Grab】 位於美溪沙灘後方的商圈內。" }
+                    ]
+                }
+            },
+            "hoian": {
+                name: "會安古鎮 (古城/夜市)",
+                categories: {
+                    "local": [
+                        { name: "Bánh Mì Phượng (法國麵包)", feature: "曾被已故名廚波登譽為「世界最好吃的法國麵包」！外皮極度酥脆，內餡塞滿豐富的烤肉、特製肉醬與新鮮香草，每天大排長龍。", address: "2b Phan Chu Trinh, Cẩm Châu, Hội An", recommend: true, transport: "🚌 【跨省巴士】 從峴港搭乘 LK02 公車至會安車站後，步行約 10 分鐘。<br>🚶 【步行】 位於古鎮外圍，散步即可抵達。" },
+                        { name: "White Rose Restaurant (白玫瑰餃子)", feature: "會安三大名菜之一「白玫瑰」。這家是會安白玫瑰的發源地與總批發商，以透薄米皮包覆鮮蝦肉捏成玫瑰形狀，淋上油蔥與魚露，口味清爽。", address: "533 Hai Bà Trưng, Phường Cẩm Phổ, Hội An", transport: "🚌 【跨省巴士】 搭乘 LK02 公車至會安車站後，步行或轉乘 Grab。<br>🚶 【步行】 距離古鎮中心約步行 10-15 分鐘。" },
+                        { name: "Madam Khanh - The Banh Mi Queen", feature: "與 Banh Mi Phuong 齊名的「麵包女王」！口味偏甜辣，醬汁非常濃郁，在地人甚至認為這家比名廚推薦的更好吃，值得兩家都吃比較看看。", address: "115 Trần Cao Vân, Phường Minh An, Hội An", transport: "🚌 【跨省巴士】 距離會安公車站不遠，抵達後步行可達。<br>🚶 【步行】 位於古鎮北部邊緣。" }
+                    ],
+                    "seafood": [
+                        { name: "Hoi An Night Market Seafood (會安夜市)", feature: "會安夜市除了燈籠好拍，路邊也有許多小吃與海鮮炭烤攤。雖然不如峴港專業，但在古城河畔吃烤肉串與海鮮別有一番風味。", address: "Nguyễn Hoàng, Phường Minh An, Hội An", transport: "🚌 【跨省巴士】 搭乘 LK02 抵達會安後，步行進入古鎮區。<br>🚶 【步行】 過了古鎮的安會橋即達夜市區。" },
+                        { name: "A Roi Seafood", feature: "位於會安秋盆河畔較外圍的海鮮餐廳，價格公道，海鮮鮮度佳，是許多遊客在會安想吃海鮮大餐的首選。", address: "Cửa Đại, Hội An", transport: "🚗 【Grab/自行車】 位於古鎮外圍，建議從會安市中心搭 Grab 或騎腳踏車前往。" }
+                    ],
+                    "coffee": [
+                        { name: "Faifo Coffee", feature: "會安最具代表性的網美咖啡廳！最大賣點是它的頂樓露台，可以毫無遮蔽地俯瞰會安古鎮黃色老屋的屋頂與街道，日落時分超級浪漫。", address: "130 Trần Phú, Phường Minh An, Hội An", recommend: true, transport: "🚌 【跨省巴士】 從峴港搭乘 LK02 抵達會安，步行進入古鎮。<br>🚶 【步行】 位於古鎮最熱鬧的陳富街上。" },
+                        { name: "Mót Hội An (蓮花茶)", feature: "嚴格來說是涼茶攤，但絕對必喝！以多種中藥材、香草熬煮，杯上還會點綴一片花瓣，清涼解渴，排隊人潮沒停過。", address: "150 Trần Phú, Cẩm Châu, Hội An", recommend: true, transport: "🚌 【跨省巴士】 搭乘 LK02 至會安後步行前往。<br>🚶 【步行】 就在 Faifo Coffee 斜對面附近。" },
+                        { name: "Reaching Out Tea House", feature: "非常特別的「無聲茶館」，由聽障員工服務。內部充滿古典雅致的中國風，在這裡必須保持安靜，用積木點餐，是喧鬧古鎮中的寧靜綠洲。", address: "131 Trần Phú, Phường Minh An, Hội An", transport: "🚌 【跨省巴士】 搭乘 LK02 至會安後步行前往。<br>🚶 【步行】 位於陳富街上。" }
+                    ],
+                    "western": [
+                        { name: "Mango Mango", feature: "位於秋盆河畔，夜晚點起燈籠氣氛極佳。主廚運用越南當地新鮮食材融入西式與南美料理手法，餐點充滿創意與驚喜。", address: "45 Nguyễn Phúc Chu, Phường Minh An, Hội An", transport: "🚶 【步行】 過了日本橋後沿著河畔走即可抵達（傍晚古鎮禁行車輛）。" },
+                        { name: "Good Morning Vietnam", feature: "由義大利人開設的正宗義大利餐廳。如果你吃膩了越南菜，這裡有會安最道地的義大利麵與窯烤披薩。", address: "11 Lê Lợi, Phường Minh An, Hội An", transport: "🚶 【步行】 位於古鎮巷弄內，徒步可達。" }
+                    ],
+                    "nightlife": [
+                        { name: "Q Bar Hoi An", feature: "會安古鎮內最時尚的高級 Lounge Bar。昏暗的燈光加上東方風情的裝潢，調酒水準極高，是老外最愛聚集喝一杯的地方。", address: "94 Nguyễn Thái Học, Phường Minh An, Hội An", recommend: true, transport: "🚶 【步行】 位於古鎮中心地帶，徒步可達。" },
+                        { name: "Dive Bar", feature: "氛圍輕鬆隨性的潛水主題酒吧，常有 Live Band 演出。提供多種啤酒與水煙，後院的座位區非常 Chill。", address: "88 Nguyễn Thái Học, Phường Minh An, Hội An", transport: "🚶 【步行】 就在 Q Bar 隔壁幾間。" }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories
+        const categoriesMap = {
+            "seafood": { name: "🦞 必吃海鮮/大排檔", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "local": { name: "🍜 道地越式小吃", color: "bg-emerald-100 text-emerald-800 hover:bg-emerald-600 hover:text-white border-emerald-400" },
+            "coffee": { name: "☕ 質感咖啡/甜點", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "western": { name: "🍕 異國料理/披薩", color: "bg-blue-100 text-blue-800 hover:bg-blue-600 hover:text-white border-blue-400" },
+            "nightlife": { name: "🍹 質感酒吧/夜生活", color: "bg-purple-100 text-purple-800 hover:bg-purple-600 hover:text-white border-purple-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-5 py-2.5 rounded-full border border-slate-300 bg-white text-slate-700 font-bold hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-bold ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-orange-600', 'text-white', 'border-orange-600');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-slate-700', 'hover:bg-orange-600');
+            clickedBtn.classList.add('bg-orange-600', 'text-white', 'border-orange-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Filter categories based on region data
+            Array.from(categoryContainer.children).forEach(btn => {
+                const catKey = Object.keys(categoriesMap).find(k => categoriesMap[k].name === btn.innerText);
+                if (db[regionKey].categories[catKey]) {
+                    btn.style.display = "block";
+                } else {
+                    btn.style.display = "none";
+                }
+            });
+
+            // Auto select first available category if none selected or current is hidden
+            if(!currentCategory || !db[regionKey].categories[currentCategory]) {
+                const availableCat = Object.keys(categoriesMap).find(k => db[regionKey].categories[k]);
+                if (availableCat) {
+                    const targetBtn = Array.from(categoryContainer.children).find(btn => btn.innerText === categoriesMap[availableCat].name);
+                    selectCategory(availableCat, targetBtn);
+                } else {
+                    contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-slate-500">此區域目前尚無美食資料。</p>`;
+                }
+            } else {
+                const targetBtn = Array.from(categoryContainer.children).find(btn => btn.innerText === categoriesMap[currentCategory].name);
+                selectCategory(currentCategory, targetBtn);
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-orange-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.5";
+            });
+            if (clickedBtn) {
+                clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-orange-500', 'shadow-md', 'scale-105');
+                clickedBtn.style.opacity = "1";
+            }
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-12 text-slate-500 text-lg font-bold">此類別尚無推薦，去探索其他美食吧！</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL
+                const pureAddress = item.address.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.name} Vietnam ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const badgeHtml = item.recommend ? `<span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded ml-2 align-middle shadow-sm">🔥 強烈推薦</span>` : '';
+
+                const bookingBtnHtml = item.bookingLink ? `
+                    <a href="${item.bookingLink}" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#ff5b00] hover:bg-[#e05000] text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md text-base">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                        </svg>
+                        線上預訂享專屬優惠
+                    </a>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-slate-800 leading-tight flex items-center flex-wrap gap-y-2">${item.name} ${badgeHtml}</h3>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded mr-1 shadow-sm">特色</span>${item.feature}</p>
+                        
+                        <div class="space-y-3">
+                            <div class="bg-orange-50/50 p-3 rounded-xl flex items-start gap-3 border border-orange-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <div class="text-sm text-slate-600 leading-tight font-medium w-full">
+                                    <span class="font-bold text-orange-800 block mb-1">地址:</span>
+                                    ${item.address}
+                                </div>
+                            </div>
+                            
+                            <div class="bg-orange-50/50 p-3 rounded-xl flex items-start gap-3 border border-orange-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>
+                                </svg>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium w-full">
+                                    <span class="font-bold text-orange-800 block mb-1">交通指南:</span>
+                                    <div class="space-y-1">${item.transport}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto flex flex-col gap-3">
+                        ${bookingBtnHtml}
+                        <!-- Google Maps 導航按鈕 -->
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md text-base">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // 區域左右滑動控制
+        function scrollRegions(direction) {
+            const container = document.getElementById('region-buttons');
+            const scrollAmount = 200; // 每次滑動的距離
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>

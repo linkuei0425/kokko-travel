@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>峴港交通 (公車/會安巴士/巴拿山接駁) 路線與景點查詢</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f0f9ff; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- 1. 資料庫建置 (峴港、會安及巴拿山交通系統) ---
+        const transportData = {
+            D12: [ // Danabus 12 號線 (沿海觀光線)
+                { c: "D12-01", n: "壽光碼頭", e: "Thọ Quang", a: "山茶半島入口" },
+                { c: "D12-02", n: "東海公園", e: "Bien Dong Park", a: "美溪沙灘北段、白鴿廣場" },
+                { c: "D12-03", n: "美溪沙灘", e: "My Khe Beach", a: "絕美沙灘、海鮮餐廳街" },
+                { c: "D12-04", n: "樂天瑪特", e: "Lotte Mart", a: "採買伴手禮、韓式超市" },
+                { c: "D12-05", n: "Helio 夜市", e: "Helio Center", a: "文青夜市、亞洲公園" }
+            ],
+            LK02: [ // 跨省公車 (峴港 - 會安)
+                { c: "LK02-01", n: "峴港中央車站", e: "Da Nang Bus Station", a: "長途巴士轉乘" },
+                { c: "LK02-02", n: "峴港大學", e: "University of Da Nang", a: "市中心西側" },
+                { c: "LK02-03", n: "龍橋 (西側)", e: "Dragon Bridge West", a: "粉紅教堂 (步行5分)、韓市場" },
+                { c: "LK02-04", n: "五行山", e: "Marble Mountains", a: "石灰岩洞穴、大理石山" },
+                { c: "LK02-05", n: "會安公車站", e: "Hoi An Bus Station", a: "會安古鎮轉乘中心" }
+            ],
+            AIR: [ // 機場接駁 / 市區路線
+                { c: "A1-01", n: "峴港國際機場", e: "Da Nang Airport (DAD)", a: "國際/國內航廈" },
+                { c: "A1-02", n: "阮文靈路", e: "Nguyen Van Linh St", a: "市中心金融區" },
+                { c: "A1-03", n: "龍橋 (西側)", e: "Dragon Bridge West", a: "龍橋、愛情鎖橋、占婆博物館" },
+                { c: "A1-04", n: "美溪沙灘", e: "My Khe Beach", a: "轉乘 D12 號線" }
+            ],
+            HOI: [ // 會安當地接駁/電車
+                { c: "H-01", n: "會安公車站", e: "Hoi An Bus Station", a: "會安對外巴士總站" },
+                { c: "H-02", n: "古鎮入口 (北側)", e: "Ancient Town North", a: "會安古鎮、日本橋" },
+                { c: "H-03", n: "安邦海灘", e: "An Bang Beach", a: "熱門海景餐廳區" },
+                { c: "H-04", n: "迦南島碼頭", e: "Cam Thanh Wharf", a: "竹籃船體驗" }
+            ],
+            BAN: [ // 巴拿山接駁巴士 (通常為旅遊巴士或私人包車路徑)
+                { c: "B-01", n: "龍橋 (西側)", e: "Dragon Bridge West", a: "市區旅遊巴士起點" },
+                { c: "B-02", n: "巴拿山纜車站", e: "Ba Na Hills Station", a: "佛手金橋、法國村、太陽世界遊樂園" }
+            ]
+        };
+
+        const lineColors = {
+            D12: { bg: 'bg-sky-500', border: 'border-sky-500', text: 'text-sky-700', name: '🚌 Danabus 12 號線' },
+            LK02: { bg: 'bg-yellow-500', border: 'border-yellow-500', text: 'text-yellow-700', name: '🚍 會安跨省公車 LK02' },
+            AIR: { bg: 'bg-blue-600', border: 'border-blue-600', text: 'text-blue-800', name: '✈️ 機場接駁路線' },
+            HOI: { bg: 'bg-emerald-500', border: 'border-emerald-500', text: 'text-emerald-700', name: '🚲 會安觀光接駁/電車' },
+            BAN: { bg: 'bg-indigo-600', border: 'border-indigo-600', text: 'text-indigo-800', name: '🚠 巴拿山接駁巴士/包車' }
+        };
+
+        // 轉乘節點映射：寫清楚具體位置
+        const aliasMap = {
+            "龍橋 (西側)": "市中心樞紐 (龍橋西側/近韓市場)",
+            "美溪沙灘": "沿海樞紐 (美溪沙灘中心區)",
+            "會安公車站": "會安轉運中心 (古鎮外圍)"
+        };
+
+        let allStationsMap = {};
+        let uniquePhysicalStations = {}; 
+
+        Object.keys(transportData).forEach(lineKey => {
+            transportData[lineKey].forEach(st => {
+                allStationsMap[st.c] = { ...st, line: lineKey };
+                let baseName = aliasMap[st.n] || st.n;
+
+                if (!uniquePhysicalStations[baseName]) {
+                    uniquePhysicalStations[baseName] = { name: baseName, en: st.e, codes: [], attractions: st.a };
+                }
+                uniquePhysicalStations[baseName].codes.push(st.c);
+                if (st.a && !uniquePhysicalStations[baseName].attractions.includes(st.a)) {
+                    uniquePhysicalStations[baseName].attractions += (uniquePhysicalStations[baseName].attractions ? "、" : "") + st.a;
+                }
+            });
+        });
+
+        const graph = {};
+        const BUS_TIME = 6; 
+        const BANA_RIDE_TIME = 45; 
+        const TRANSFER_TIME = 10; 
+
+        function addEdge(u, v, weight, type, line) {
+            if (!graph[u]) graph[u] = [];
+            graph[u].push({ node: v, weight, type, line });
+        }
+
+        Object.keys(transportData).forEach(lineKey => {
+            const lineArr = transportData[lineKey];
+            const weight = lineKey === 'BAN' ? BANA_RIDE_TIME : BUS_TIME;
+            for (let i = 0; i < lineArr.length - 1; i++) {
+                addEdge(lineArr[i].c, lineArr[i+1].c, weight, 'ride', lineKey);
+                addEdge(lineArr[i+1].c, lineArr[i].c, weight, 'ride', lineKey);
+            }
+        });
+
+        Object.values(uniquePhysicalStations).forEach(station => {
+            if (station.codes.length > 1) {
+                for (let i = 0; i < station.codes.length; i++) {
+                    for (let j = i + 1; j < station.codes.length; j++) {
+                        addEdge(station.codes[i], station.codes[j], TRANSFER_TIME, 'transfer', null);
+                        addEdge(station.codes[j], station.codes[i], TRANSFER_TIME, 'transfer', null);
+                    }
+                }
+            }
+        });
+
+        function findShortestPath(startBaseName, endBaseName) {
+            if (startBaseName === endBaseName) return null;
+            const startCodes = uniquePhysicalStations[startBaseName].codes;
+            const endCodes = uniquePhysicalStations[endBaseName].codes;
+            const dist = {};
+            const prev = {};
+            const pq = [];
+            Object.keys(allStationsMap).forEach(node => { dist[node] = Infinity; prev[node] = null; });
+            startCodes.forEach(code => { dist[code] = 0; pq.push({ node: code, dist: 0 }); });
+
+            while (pq.length > 0) {
+                pq.sort((a, b) => a.dist - b.dist);
+                const { node, dist: currentDist } = pq.shift();
+                if (dist[node] < currentDist) continue;
+                if (endCodes.includes(node)) return reconstructPath(prev, node);
+
+                if (graph[node]) {
+                    graph[node].forEach(edge => {
+                        const alt = currentDist + edge.weight;
+                        if (alt < dist[edge.node]) {
+                            dist[edge.node] = alt;
+                            prev[edge.node] = { node: node, edgeFromPrev: edge };
+                            pq.push({ node: edge.node, dist: alt });
+                        }
+                    });
+                }
+            }
+            return null;
+        }
+
+        function reconstructPath(prev, endNode) {
+            const path = [];
+            let curr = endNode;
+            while (curr) {
+                const step = prev[curr];
+                if (step) { path.unshift({ node: curr, edge: step.edgeFromPrev }); curr = step.node; }
+                else { path.unshift({ node: curr, edge: null }); curr = null; }
+            }
+            const legs = [];
+            if (path.length < 2) return [];
+            let currentLeg = { 
+                type: path[1].edge.type, 
+                line: path[1].edge.line, 
+                nodes: [path[0].node, path[1].node],
+                time: path[1].edge.weight,
+                stops: path[1].edge.type === 'ride' ? 1 : 0
+            };
+            for (let i = 2; i < path.length; i++) {
+                const edge = path[i].edge;
+                if (edge.type === currentLeg.type && edge.line === currentLeg.line) {
+                    currentLeg.nodes.push(path[i].node);
+                    currentLeg.time += edge.weight;
+                    if(edge.type === 'ride') currentLeg.stops += 1;
+                } else {
+                    legs.push(currentLeg);
+                    currentLeg = { type: edge.type, line: edge.line, nodes: [path[i-1].node, path[i].node], time: edge.weight, stops: edge.type === 'ride' ? 1 : 0 };
+                }
+            }
+            legs.push(currentLeg);
+            return legs;
+        }
+
+        const { useState, useEffect } = React;
+
+        const App = () => {
+            const [startStation, setStartStation] = useState("峴港國際機場");
+            const [endStation, setEndStation] = useState("巴拿山纜車站");
+            const [route, setRoute] = useState(null);
+
+            useEffect(() => { lucide.createIcons(); });
+
+            useEffect(() => {
+                if(startStation && endStation && startStation !== endStation) {
+                    const legs = findShortestPath(startStation, endStation);
+                    setRoute(legs);
+                } else { setRoute(null); }
+            }, [startStation, endStation]);
+
+            const handleSwap = () => {
+                const temp = startStation;
+                setStartStation(endStation);
+                setEndStation(temp);
+            };
+
+            return (
+                <div className="min-h-screen pb-12">
+                    <header className="bg-blue-800 text-white shadow-md pt-12 pb-8 px-6 text-center">
+                        <div className="flex items-center justify-center gap-4 mb-3">
+                            <a href="https://linkuei0425.github.io/DaNang/" title="回到首頁" className="inline-flex items-center justify-center text-blue-100 hover:text-white bg-blue-700 hover:bg-blue-600 p-2.5 rounded-full transition-colors shadow-sm">
+                                <i data-lucide="home" className="w-5 h-5"></i>
+                            </a>
+                            <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
+                                <i data-lucide="map" className="w-7 h-7 text-yellow-300"></i>
+                                峴港 & 會安 & 巴拿山交通指南
+                            </h1>
+                        </div>
+                        <p className="text-blue-100 text-sm">峴港公車、會安巴士與巴拿山旅遊接駁路線</p>
+                    </header>
+
+                    <main className="max-w-2xl mx-auto px-4 -mt-6">
+                        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 relative">
+                            <div className="flex flex-col gap-4">
+                                <div className="relative">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">出發點 (From)</label>
+                                    <select className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 pr-8 font-medium appearance-none" value={startStation} onChange={(e) => setStartStation(e.target.value)}>
+                                        {Object.keys(transportData).map(lineKey => (
+                                            <optgroup key={`start-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                {transportData[lineKey].map(st => {
+                                                    const baseName = aliasMap[st.n] || st.n;
+                                                    return <option key={`start-${st.c}`} value={baseName}>[{st.c}] {st.n} ({st.e})</option>;
+                                                })}
+                                            </optgroup>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                    </div>
+                                </div>
+
+                                <div className="relative flex justify-center -my-3 z-10">
+                                    <button onClick={handleSwap} className="bg-yellow-500 hover:bg-yellow-600 text-white p-2.5 rounded-full shadow-md transition-transform hover:scale-105">
+                                        <i data-lucide="arrow-down-up" className="w-5 h-5"></i>
+                                    </button>
+                                </div>
+
+                                <div className="relative">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">目的地 (To)</label>
+                                    <select className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 pr-8 font-medium appearance-none" value={endStation} onChange={(e) => setEndStation(e.target.value)}>
+                                        {Object.keys(transportData).map(lineKey => (
+                                            <optgroup key={`end-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                {transportData[lineKey].map(st => {
+                                                    const baseName = aliasMap[st.n] || st.n;
+                                                    return <option key={`end-${st.c}`} value={baseName}>[{st.c}] {st.n} ({st.e})</option>;
+                                                })}
+                                            </optgroup>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {startStation === endStation ? (
+                            <div className="bg-blue-50 text-blue-800 p-4 rounded-xl text-center shadow-sm">
+                                📍 您已在目的地附近囉！
+                            </div>
+                        ) : route ? (
+                            <RouteTimeline legs={route} destName={endStation} />
+                        ) : (
+                            <div className="text-center text-slate-500 py-8 italic">
+                                抱歉，目前這兩站之間尚無直接公車連網...
+                            </div>
+                        )}
+                        
+                        <div className="mt-8 bg-blue-100/50 rounded-xl p-4 text-xs text-blue-800 space-y-2 border border-blue-200">
+                            <p className="font-bold flex items-center gap-1"><i data-lucide="info" className="w-3.5 h-3.5"></i> 自由行攻略建議：</p>
+                            <ul className="list-disc pl-4 space-y-1">
+                                <li><strong>市中心樞紐 (龍橋西側)：</strong> 此點位於占婆博物館與漢江畔，是前往巴拿山或會安巴士的關鍵轉乘地，步行 5-10 分鐘可達粉紅教堂與韓市場。</li>
+                                <li><strong>巴拿山交通：</strong> 建議提前預訂共享接駁車；多人同行則可選擇 <strong>Grab 包車</strong> (含司機等候)。</li>
+                                <li><strong>會安觀光電車：</strong> 從峴港搭 LK02 巴士抵達會安車站後，可轉乘當地綠色電車進入古鎮。</li>
+                            </ul>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const RouteTimeline = ({ legs, destName }) => {
+            const totalTime = legs.reduce((acc, leg) => acc + leg.time, 0);
+            const totalTransfers = legs.filter(l => l.type === 'transfer').length;
+            const destInfo = uniquePhysicalStations[destName];
+
+            return (
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div className="bg-slate-50 border-b border-slate-100 p-5 flex justify-between items-center">
+                        <div><p className="text-sm font-semibold text-slate-500 mb-1">預估總耗時</p><p className="text-3xl font-bold text-slate-800">{totalTime} <span className="text-base font-normal text-slate-500">分鐘</span></p></div>
+                        <div className="text-right"><p className="text-sm font-semibold text-slate-500 mb-1">轉乘次數</p><p className="text-lg font-bold text-slate-700">{totalTransfers} <span className="text-sm font-normal text-slate-500">次</span></p></div>
+                    </div>
+
+                    <div className="p-6">
+                        <div className="ml-4">
+                            {legs.map((leg, idx) => (
+                                <LegItem key={idx} leg={leg} isLast={idx === legs.length - 1} destName={destName} />
+                            ))}
+                        </div>
+                        <div className="relative pl-8 border-l-4 border-transparent">
+                            <div className="absolute left-[-10px] top-1 w-4 h-4 bg-slate-800 rounded-full border-4 border-white shadow-sm z-10"></div>
+                            <h3 className="text-lg font-bold text-slate-800">{destInfo.name} <span className="text-sm font-normal text-slate-500 ml-1">{destInfo.en}</span></h3>
+                            <p className="text-sm text-slate-500 mb-2">抵達目的地 (Arrive)</p>
+                            {destInfo.attractions && (
+                                <div className="mt-2 bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm flex gap-2">
+                                    <i data-lucide="map-pin" className="w-5 h-5 text-blue-600 shrink-0"></i>
+                                    <div><span className="font-semibold text-blue-900 block mb-0.5">周邊地標：</span><span className="text-blue-800">{destInfo.attractions}</span></div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const LegItem = ({ leg, isLast, destName }) => {
+            const startNodeCode = leg.nodes[0];
+            const endNodeCode = leg.nodes[leg.nodes.length - 1];
+            const startStation = allStationsMap[startNodeCode];
+            const endStation = allStationsMap[endNodeCode];
+
+            if (leg.type === 'transfer') {
+                return (
+                    <div className="relative pl-8 pb-8 border-l-4 border-dashed border-slate-300">
+                        <div className="absolute left-[-14px] top-1 w-6 h-6 bg-white rounded-full border-2 border-slate-300 z-10 flex items-center justify-center">
+                            <i data-lucide="footprints" className="w-3.5 h-3.5 text-slate-500"></i>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 inline-block">
+                            <p className="text-sm font-semibold text-slate-700">於 <span className="text-slate-900">{aliasMap[startStation.n] || startStation.n}</span> 轉乘車輛</p>
+                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><i data-lucide="clock" className="w-3 h-3"></i> 步行或等待約 {leg.time} 分鐘</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            const lineTheme = lineColors[leg.line] || { bg: 'bg-slate-500', border: 'border-slate-500', text: 'text-slate-600', name: leg.line };
+            return (
+                <div className={`relative pl-8 pb-8 border-l-4 ${lineTheme.border}`}>
+                    <div className={`absolute left-[-10px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm z-10 ${lineTheme.bg}`}></div>
+                    <div className="mb-2">
+                        <h3 className="text-base font-bold text-slate-800">{startStation.n} <span className="text-sm font-normal text-slate-500 ml-1">{startStation.en}</span></h3>
+                        {startStation.a && (
+                            <p className="text-xs text-blue-600 mt-1 flex items-start gap-1"><i data-lucide="star" className="w-3.5 h-3.5 mt-0.5 shrink-0"></i><span>{startStation.a}</span></p>
+                        )}
+                    </div>
+                    <div className={`mt-3 border-l-4 rounded-r-lg p-4 bg-white shadow-sm border-y border-r border-slate-100 ${lineTheme.border}`}>
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className={`${lineTheme.bg} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider`}>{startNodeCode}</span>
+                            <span className={`text-sm font-semibold ${lineTheme.text}`}>搭乘 {lineTheme.name}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 flex items-center gap-2 mt-2">
+                            <span>前往 <strong>{endStation.n}</strong></span><span className="text-slate-300">|</span><span>{leg.stops} 站</span><span className="text-slate-300">|</span><span>約 {leg.time} 分鐘</span>
+                        </p>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+        lucide.createIcons();
+    </script>
+</body>
+</html>

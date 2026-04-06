@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>峴港住宿指南 | 峴港與會安飯店推薦</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 客製化滾動條 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #93c5fd; /* blue-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #60a5fa; /* blue-400 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* 區域按鈕樣式 */
+        .area-btn-active {
+            background-color: #1e40af; /* blue-800 */
+            color: white;
+            border-color: #1e40af;
+            box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #eff6ff; /* blue-50 */
+            color: #1e3a8a; /* blue-900 */
+            border-color: #93c5fd; /* blue-300 */
+        }
+
+        /* 類別按鈕樣式 */
+        .cat-btn-active {
+            background-color: #2563eb; /* blue-600 */
+            color: white;
+            border-color: #2563eb;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #eff6ff; /* blue-50 */
+            color: #2563eb;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#eff6ff] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-blue-900 tracking-wide">
+                    <i class="fa-solid fa-hotel mr-2 text-blue-600"></i>峴港與會安住宿指南
+                </h1>
+                <a href="https://linkuei0425.github.io/DaNang/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-blue-100 text-blue-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-blue-200">
+                    <i class="fa-solid fa-house mr-2"></i>
+                    回到首頁
+                </a>
+            </div>
+            <p class="text-blue-600 font-medium text-sm md:text-base">精選峴港市區、美溪沙灘與會安古鎮的優質住宿，各類別均有三間以上推薦。</p>
+        </header>
+
+        <!-- 第一層：區域切換 (水平滾動) -->
+        <div class="mb-6 overflow-hidden relative">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-bold text-blue-700 uppercase tracking-wider">選擇區域</span>
+                <!-- 滾動箭頭 -->
+                <div class="flex gap-2">
+                    <button onclick="scrollDistricts('left')" class="p-1.5 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors shadow-sm" aria-label="向左滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollDistricts('right')" class="p-1.5 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors shadow-sm" aria-label="向右滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-3 pb-2 scroll-smooth">
+                <!-- 按鈕由 JS 生成 -->
+            </div>
+        </div>
+
+        <!-- 第二層：類別切換 -->
+        <div id="category-buttons" class="flex flex-wrap justify-center gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-blue-100 hidden">
+            <!-- 按鈕由 JS 生成 -->
+        </div>
+
+        <!-- 內容區 -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-blue-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-blue-300 pt-20 pb-20">
+                <p class="font-bold text-lg"><i class="fa-solid fa-spinner fa-spin mr-2"></i>載入推薦飯店中...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto px-4 mt-8 pb-4 text-center text-blue-700/70 text-sm">
+        <p>※ 峴港與會安飯店價格波動較大，建議提前 1-2 個月預訂。自由行推薦搭配 Grab 使用，市區飯店叫車極快且便宜。</p>
+    </footer>
+
+    <script>
+        // 峴港與會安飯店資料庫
+        const hotelData = {
+            "danang_city": {
+                name: "峴港市區 (韓江畔/市中心)",
+                categories: {
+                    "奢華五星": [
+                        { name: "Novotel Danang Premier Han River (諾富特)", feature: ["位於韓江畔指標性建築，客房景觀可俯瞰韓江與整座龍橋", "飯店頂樓 Sky36 是峴港知名的戶外高空酒吧", "設施包含戶外泳池、頂級 SPA 與多樣化國際餐廳"], address: "36 Bạch Đằng, Hải Châu, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-1963544/novotel-danang-premier-han-river/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "峴港希爾頓酒店 (Hilton Da Nang)", feature: ["地理位置極佳，步行即可抵達韓市場與粉紅教堂", "客房內裝現代感十足，採光極佳，浴室設計極具奢華感", "頂樓酒吧與河濱餐廳是享受夕陽晚餐的首選"], address: "50 Bạch Đằng, Hải Châu, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-23151826/hilton-da-nang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "峴港美爵酒店 (Grand Mercure Danang)", feature: ["位於綠島區的幽靜環境中，鬧中取靜的五星選擇", "飯店提供免費接駁車前往市中心與美溪沙灘", "每週五、六提供受歡迎的海鮮自助晚餐"], address: "Lot A1, Green Island, Hải Châu, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-1571289/grand-mercure-danang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" }
+                    ],
+                    "高 CP 值精選": [
+                        { name: "峴港中心溫克酒店 (Wink Hotel Danang Centre)", feature: ["結合潮流設計與 24 小時完整住宿時數（Stay 24）模式", "位於龍橋與韓江畔，下樓即是熱鬧市中心商圈", "提供高品質共享空間與數位遊牧者友善設施"], address: "178 Trần Phú, Phước Ninh, Hải Châu, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-105594116/wink-danang-riverside-unscripted-by-hyatt-24-hours-stay/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "峴港薩努瓦飯店 (Sanouva Danang Hotel)", feature: ["歐式復古風格建築，部分房價包含免費腳部或全身按摩", "飯店早餐評價極高，選擇豐富且品質穩定", "緊鄰韓市場與著名的特色咖啡店商圈"], address: "68 Phan Châu Trinh, Hải Châu, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-1902230/sanouva-danang-hotel-daily-afternoon-tea-inclusive/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "萬達酒店 (Vanda Hotel)", feature: ["座落於龍橋頭，是拍攝龍橋週末噴火秀的最佳視角", "頂樓的星空酒吧視線完全無遮蔽，夜景極其迷人", "服務細膩，並設有室內泳池避免陽光暴曬"], address: "3 Nguyễn Văn Linh, Hải Châu, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-2603560/vanda-hotel/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" }
+                    ],
+                    "平價/青旅": [
+                        { name: "Seahorse Hostel & Bar by HAVI", feature: ["裝潢採現代簡約風，一樓是採光極佳的網美咖啡廳", "提供高品質膠囊床位與獨立套房，位於韓市場附近", "頂樓附設 Bar，夜晚氣氛放鬆，適合交流結友"], address: "7 Nguyễn Thái Học, Hải Châu, Đà Nẵng", url: "https://hk.trip.com/hotels/list?flexType=1&fixedDate=0&cityId=1356&provinceId=0&districtId=0&countryId=111&cityName=Da%20Nang&destName=Seahorse%20Han%20Market%20Da%20Nang%20Apartment%20by%20Haviland%2C%20Da%20Nang%2C%20Vietnam&searchWord=Seahorse%20Han%20Market%20Da%20Nang%20Apartment%20by%20Haviland&searchType=H&optionId=41589562&searchValue=31%7C41589562*31*41589562&checkin=2026-05-17&checkout=2026-05-21&crn=1&adult=2&listFilters=29~1*29*1~2*2&curr=TWD&locale=zh-HK&old=1" },
+                        { name: "The Memory - Danang", feature: ["極具美學設計感的精品青旅，空間通透且充滿綠意", "融合當地建材與現代工業風格，曾獲得多項設計大獎", "適合追求住宿美感與質感的背包客"], address: "202 Trần Phú, Hải Châu, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-40361479/the-memory-danang-boutique/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "峴港城市青旅 (City Hostel Da Nang)", feature: ["位於粉紅教堂旁的小巷中，鬧中取靜且價格極其平實", "提供簡單乾淨的床位環境，地理位置生活機能極優", "適合長期旅行、注重預算的背包客首選"], address: "114 Đ. Trần Phú, Hải Châu, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-14182505/city-hostel-da-nang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" }
+                    ]
+                }
+            },
+            "my_khe": {
+                name: "美溪沙灘 (海景度假區)",
+                categories: {
+                    "奢華五星度假村": [
+                        { name: "峴港富麗華大酒店 (Furama Resort Danang)", feature: ["中越最經典的傳統度假村，充滿熱帶叢林氛圍與木質裝潢", "擁有兩座絕美無邊際泳池，其中一座直通私人沙灘", "餐飲水準極高，提供豐富的水上運動與潛水體驗"], address: "105 Võ Nguyên Giáp, Ngũ Hành Sơn, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-999113/furama-resort-danang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "峴港鉑爾曼海灘度假酒店 (Pullman Danang)", feature: ["現代優雅風的五星度假村，草坪與沙灘空間非常開闊", "對家庭旅客友善，設有專屬兒童遊戲室與精彩沙灘派對", "擁有知名的沙灘酒吧，是享受海邊調酒的好去處"], address: "101 Võ Nguyên Giáp, Ngũ Hành Sơn, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-1877388/pullman-danang-beach-resort-da-nang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "峴港喜來登度假酒店 (Sheraton Grand Resort)", feature: ["擁有中越最長的無邊際泳池（250公尺），視覺震撼", "裝潢氣派華麗，客房寬敞且全部配有海景陽台", "遠離市區塵囂，適合想要完整放鬆、享受高階飯店設施的旅客"], address: "35 Võ Nguyên Giáp, Ngũ Hành Sơn, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-11818274/sheraton-grand-danang-resort/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" }
+                    ],
+                    "絕美海景飯店": [
+                        { name: "峴港阿拉卡特海灘度假酒店 (A La Carte)", feature: ["房型以公寓式套房為主，空間大且附設小廚房", "頂樓無邊際泳池是全峴港最夯的拍照點之一", "下樓即是沙灘核心區，地理位置非常優越"], address: "200 Võ Nguyên Giáp, Sơn Trà, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-1247137/a-la-carte-da-nang-beach/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "峴港薩拉海灘飯店 (Sala Danang Beach Hotel)", feature: ["裝潢清新明亮，客房擁有落地窗可直視大海日出", "頂樓無邊際泳池視野廣闊，漂浮早餐深受網美喜愛", "服務周到且房價合理，是沙灘區高人氣選擇"], address: "36 Lâm Hoành, Phước Mỹ, Sơn Trà, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-34994003/sala-danang-beach-hotel/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "峴港 TMS 飯店 (TMS Hotel Da Nang Beach)", feature: ["現代簡約設計，高樓層泳池採透明玻璃邊緣，拍照效果驚艷", "房間配備完善且格局溫馨，適合各類型的度假旅客", "周邊交通便利，餐廳與小型商圈步行可達"], address: "292 Võ Nguyên Giáp, Ngũ Hành Sơn, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-24529624/tms-hotel-da-nang-beach/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" }
+                    ],
+                    "精品/高 CP 值": [
+                        { name: "海安海灘水療飯店 (HAIAN Beach Hotel)", feature: ["主打細緻服務與高CP值，入住每日享用免費下午茶", "頂樓泳池在夜晚會變身為熱鬧的音樂池畔酒吧", "客房內設備齊全，房價相對親民，家庭客首選"], address: "278 Võ Nguyên Giáp, Sơn Trà, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-20027768/haian-beach-hotel-spa/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "鑽石海飯店 (Diamond Sea Hotel)", feature: ["位於美溪沙灘中段，頂樓設有景觀泳池與舒適酒吧", "房間風格明亮簡約，能側面觀賞海景，價格實惠", "環境安靜且對外國旅客服務流程非常熟練"], address: "232 Võ Nguyên Giáp, Sơn Trà, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-2098166/diamond-sea-hotel/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "峴港西希利亞酒店及水療中心 (Cicilia)", feature: ["飯店裝潢帶有輕法式風格，內設專業的泥漿浴與桑拿中心", "距離沙灘僅需步行 3 分鐘，避開第一排喧鬧且安靜", "適合預算中等、想要享受精緻水療與寧靜氛圍的旅客"], address: "06-08-10 Đỗ Bá, Ngũ Hành Sơn, Đà Nẵng", url: "https://hk.trip.com/hotels/da-nang-hotel-detail-2803485/cicilia-danang-hotels-spa/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" }
+                    ]
+                }
+            },
+            "hoi_an": {
+                name: "會安古鎮 (古色/度假村)",
+                categories: {
+                    "頂級奢華度假": [
+                        { name: "會安南海四季酒店 (Four Seasons Nam Hai)", feature: ["越南最頂級度假村之一，全別墅房型，完美展現極致東方禪意", "擁有三座綿延至海濱的無邊際階梯泳池，景色壯麗", "提供私人管家服務與全方位的文化體驗活動"], address: "Khối Bản My, Điện Bàn, Quảng Nam", url: "https://hk.trip.com/hotels/dien-ban-hotel-detail-993571/four-seasons-resort-the-nam-hai-hoi-an/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "會安皇家酒店 - 美憬閣 (MGallery)", feature: ["位於秋盆河畔，融合法國殖民風情與日本浪漫色彩", "擁有會安古鎮區唯一的頂樓高空吧，俯瞰河景首選", "客房充滿藝術氣息，展現會安作為歷史商港的多元魅力"], address: "39 Đào Duy Từ, Phường Cẩm Phổ, Hội An", url: "https://hk.trip.com/hotels/hoi-an-hotel-detail-1613763/hotel-royal-hoi-an-danang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "會安安納塔拉度假酒店 (Anantara)", feature: ["座落於河畔的殖民風格建築，花園與步道充滿詩意", "所有套房皆設有私人陽台，環境極致寧靜優雅", "距離古鎮中心僅 5 分鐘步程，是奢華與便利的完美平衡"], address: "1 Phạm Hồng Thái, Cẩm Châu, Hội An", url: "https://hk.trip.com/hotels/hoi-an-hotel-detail-993573/anantara-hoi-an-resort/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" }
+                    ],
+                    "精品/高 CP 值": [
+                        { name: "Allegro Hoi An Luxury Hotel & Spa", feature: ["黃金色的燈籠佈置與木造裝潢，充滿濃厚會安風情", "飯店附設接駁車前往私人沙灘，員工熱情有禮", "早餐提供現做的在地特色小吃，口感正宗"], address: "86 Trần Hưng Đạo, Phường Minh An, Hội An", url: "https://hk.trip.com/hotels/hoi-an-hotel-detail-14261677/allegro-hoi-an-a-little-boutique-lux-hotel-and-spa/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "Laluna Hoi An Riverside Hotel & Spa", feature: ["沿秋盆河畔而建，擁有美麗的熱帶中庭與湛藍泳池", "客房空間開闊，步行至會安夜市僅需 3 分鐘", "河景房能一覽河邊漁船與夕陽，氛圍感極佳"], address: "12 Nguyễn Du, Minh An, Hội An", url: "https://hk.trip.com/hotels/hoi-an-hotel-detail-21859285/laluna-hoi-an-riverside-hotel-and-spa/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "Little Hoi An Boutique Hotel & Spa", feature: ["裝潢溫馨且復古，細節處處可見老會安的歷史影子", "飯店位置鄰近古城邊緣，避開嘈雜人潮且生活機能優", "提供物超所值的 Spa 按摩服務與河畔下午茶"], address: "2 Thoại Ngọc Hầu, Phường Minh An, Hội An", url: "https://hk.trip.com/hotels/hoi-an-hotel-detail-2135851/little-hoi-an-boutique-hotel-and-spa/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" }
+                    ],
+                    "特色青旅/平價": [
+                        { name: "Mad Monkey Hostel Hoi An", feature: ["全球知名派對青旅，氣氛瘋狂熱烈，設有超大社交泳池", "每晚舉辦主題活動，是認識異國旅伴的最佳平台", "床位乾淨寬敞，是背包客圈的高人氣首選"], address: "250 Cửa Đại, Cẩm Châu, Hội An", url: "https://hk.trip.com/hotels/hoi-an-hotel-detail-101211699/mad-monkey-hoi-an/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "SnapStay Hoi An (Anio Boutique)", feature: ["由 Anio 集團管理的精品風格住宿，融合在地美學與現代生活", "環境清幽並附設質感良好的共享辦公空間", "適合數位遊牧民族與追求寧靜假期的背包客"], address: "163 Cửa Đại, Cẩm Châu, Hội An", url: "https://hk.trip.com/hotels/hoi-an-hotel-detail-41618776/anio-boutique-hotel-hoi-an/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" },
+                        { name: "Tribee Cotu Hostel", feature: ["以社交與交流為核心的溫馨青旅，經常舉辦料理與文化活動", "裝潢色彩斑斕且極具創意，給人賓至如歸的活潑感受", "價格經濟實惠，地理位置靠近古鎮外圍，非常便利"], address: "41 Phan Đình Phùng, Cẩm Châu, Hội An", url: "https://hk.trip.com/hotels/hoi-an-hotel-detail-128765397/tribee-cotu-hostel/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. 初始化區域按鈕
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70"></i>${hotelData[key].name}`;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. 選擇區域
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. 生成類別按鈕
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive shadow-sm`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // 預設點擊第一個類別
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. 選擇類別
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. 渲染飯店資料
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-blue-100 animate-fade-in">
+                    <h2 class="text-2xl font-bold text-blue-900 mr-3">
+                        <i class="fa-solid fa-location-dot mr-2 text-blue-500"></i>${districtData.name}
+                    </h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-blue-100 text-blue-800 text-sm font-bold rounded-full border border-blue-200">
+                        <i class="fa-solid fa-tag mr-1"></i>${currentCategoryName}
+                    </span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in">此類別尚無推薦飯店。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5">`;
+                
+                hotels.forEach((hotel, index) => {
+                    let searchUrl = hotel.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotel.name + ' Vietnam')}`;
+                    
+                    const linkTagHTML = `
+                        <a href="${searchUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 mt-3 sm:mt-0 rounded-xl text-sm font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-auto">
+                            <i class="fa-solid fa-magnifying-glass mr-1.5"></i>限時最低價
+                        </a>
+                    `;
+
+                    htmlContent += `
+                        <div class="bg-white border border-blue-100 p-5 md:p-6 rounded-2xl hover:shadow-lg transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 0.05}s;">
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2">
+                                <h4 class="text-xl font-bold text-blue-900 flex items-start leading-tight pt-1">
+                                    <span class="text-white bg-blue-500 rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2 flex-shrink-0">${index + 1}</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-0 sm:pl-8 space-y-3">
+                                <div class="flex items-start">
+                                    <span class="font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-star mr-1"></i>住宿特色</span> 
+                                    <ul class="list-disc pl-4 m-0 text-sm text-slate-700 leading-relaxed font-medium space-y-1.5 w-full">
+                                        ${hotel.feature.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-map-pin mr-1"></i>飯店位置</span> 
+                                    <span class="text-sm text-slate-700 leading-relaxed font-medium pt-0.5">${hotel.address}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // 區域按鈕水平滾動控制
+        function scrollDistricts(direction) {
+            const container = document.getElementById('district-buttons');
+            const scrollAmount = 200;
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictKey = Object.keys(hotelData)[0];
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict(firstDistrictKey, firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

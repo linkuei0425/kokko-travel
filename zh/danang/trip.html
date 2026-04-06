@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>峴港行程推薦指南 | Da Nang Trip Guide</title>
+    
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* 隱藏水平捲軸但保留滾動功能 */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- 導覽圖示 ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+
+        const REGIONS = ['峴港市區', '巴拿山', '會安', '順化/美山聖地'];
+        const CATEGORIES = [
+            { id: '景點門票', icon: Ticket },
+            { id: '一日遊', icon: Sun },
+            { id: '體驗與娛樂', icon: Sparkles },
+            { id: '交通及網路', icon: TrainFront }
+        ];
+
+        // --- 峴港行程資料 ---
+        const itineraryData = {
+            '峴港市區': {
+                '景點門票': [
+                    { title: '峴港紐倫泰溫泉樂園門票', description: '結合水上樂園與天然礦泥浴、溫泉，是全家大小消暑放鬆的度假勝地。', link: 'https://www.klook.com/zh-TW/activity/16861-nui-than-tai-hot-springs-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=3c87c847c3&aid=117264' }
+                ],
+                '一日遊': [
+                    { title: '🎟️ 五行山+會安山一日遊', description: '探訪神秘的五行山石灰岩洞穴，接著前往會安古鎮感受歷史建築與燈籠之美。', link: 'https://www.klook.com/zh-TW/activity/13570-marble-mountain-hoi-an-day-tour-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=c6958adb44&aid=117264' },
+                    { title: '靈應寺、五行山和會安古鎮一日遊', description: '豐富充實的經典路線，朝聖巨大觀音像、探索溶洞，並在會安享受古城漫步。', link: 'https://www.klook.com/zh-TW/activity/147576-linh-ung-pagoda-son-tra-peninsula-marble-mountains-hoian-tour/?spm=SearchResult.SearchResult_LIST&clickId=82da1455c6&aid=117264' }
+                ],
+                '體驗與娛樂': [
+                    { title: '峴港國際機場 （DAD）Orchid Lounge貴賓室', description: '候機時的絕佳去處！享受舒適座位、美味餐飲與淋浴設施，洗去旅途疲憊。', link: 'https://www.klook.com/zh-TW/activity/113258-orchid-lounge-da-nang-international-airport-dad/?spm=SearchResult.SearchResult_LIST&clickId=7d0eab97e4&aid=117264' },
+                    { title: '峴港瀚江夜間遊船', description: '夜幕低垂時搭乘遊船航行於韓江之上，欣賞龍橋璀璨燈光與美麗夜景。', link: 'https://www.klook.com/zh-TW/activity/28414-han-river-evening-cruise-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=e72f66e358&aid=117264' },
+                    { title: '峴港源Spa按摩', description: '在舒適的環境中享受專業按摩，徹底釋放旅行累積的疲勞。', link: 'https://www.klook.com/zh-TW/activity/119654-nguon-spa-massage-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=e98c6c8d9a&aid=117264' },
+                    { title: '峴港Trees Spa', description: '沉浸在自然的氛圍中，體驗頂級水療服務，讓身心靈獲得完全放鬆。', link: 'https://www.klook.com/zh-TW/activity/55550-trees-spa-experience-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=3ec7d3a1fb&aid=117264' },
+                    { title: '峴港Sum Spa & Massage', description: '備受好評的在地 SPA，提供多種按摩方案，舒緩您的每一寸肌膚。', link: 'https://www.klook.com/zh-TW/activity/124120-sum-spa-massage-experience-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=c175a8ddbb&aid=117264' },
+                    { title: '峴港草本水療中心（Herbal Spa）', description: '峴港超人氣熱石與草藥按摩，以傳統越式手法為您帶來極致的放鬆體驗。', link: 'https://www.klook.com/zh-TW/activity/13122-herbal-spa-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=bb04418f0b&aid=117264' }
+                ],
+                '交通及網路': [
+                    { title: '🎟️ 峴港機場接送', description: '免去機場外喊價的困擾，專車司機接機，讓您安全、舒適且快速地直達市區飯店。', link: 'https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=DAD&spm=SearchResult.SearchResult_LIST&clickId=4bc47d4ea1&aid=117264' },
+                    { title: '峴港國際機場快速通道服務', description: '避開大排長龍的海關隊伍，由專人引導使用尊榮通道，省下寶貴時間。', link: 'https://www.klook.com/zh-TW/activity/86297-da-nang-airport-fast-track/?spm=SearchResult.SearchResult_LIST&clickId=2eeae9beb8&aid=117264' },
+                    { title: '🎟️ 越南 5G 上網 SIM 卡', description: '抵達機場即可領取。網路穩定不斷線，出遊導航最安心。', link: 'https://www.klook.com/zh-TW/activity/16622-4g-sim-card-vietnam/?spm=SearchResult.SearchResult_LIST&clickId=8a2050b326&aid=117264' },
+                    { title: '5G eSIM 越南', description: '掃描 QR Code 即可開通上網，免換實體卡超方便，導航與打卡必備。', link: 'https://www.klook.com/zh-TW/activity/123902-vietnam-esim-high-speed-internet-qr-code-voucher/?spm=SearchResult.SearchResult_LIST&clickId=d82cc57b90&aid=117264' },
+                    { title: '峴港包車', description: '行程完全由您作主！專屬司機帶您輕鬆暢遊中越各大景點，不受時間與路線限制。', link: 'https://www.klook.com/zh-TW/activity/6266-private-car-charter-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=57f12b20e5&aid=117264' },
+                    { title: '峴港機場／峴港 - 會安共乘巴士接送', description: '經濟實惠的交通選擇，輕鬆往返峴港與會安兩大熱門城市。', link: 'https://www.klook.com/zh-TW/activity/12191-shared-shuttle-bus-transfers-between-da-nang-airport-da-nang-hoi-an-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=fe88e47f4c&aid=117264' },
+                    { title: '河內 - 峴港/會安臥鋪大巴', description: '體驗越南特有的長途臥鋪巴士，平躺著移動，省下住宿費同時前往下一個目的地。', link: 'https://www.klook.com/zh-TW/activity/145072-hanoi-da-nang-hoi-an-cabin-sleeper-bus-by-hk-buslines/?spm=SearchResult.SearchResult_LIST&clickId=1f9e0f6f02&aid=117264' }
+                ]
+            },
+            '巴拿山': {
+                '景點門票': [
+                    { title: '🎟️ 巴拿山門票', description: '搭乘世界最長單纜纜車直達雲端上的法國村，漫步於絕美的佛手金橋。', link: 'https://affiliate.klook.com/redirect?aid=117264&aff_adid=1246760&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F13283-ba-na-hills-ticket-da-nang%2F' }
+                ],
+                '一日遊': [
+                    { title: '巴拿山＆佛手黃金橋客製行程一日遊（峴港出發）', description: '專屬行程安排，由專業導遊帶您輕鬆玩遍巴拿山與經典佛手金橋。', link: 'https://www.klook.com/zh-TW/activity/14319-private-ba-na-hills-golden-bridge-day-trip-optional-english-speaking-guide-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=f9da1a1bc9&aid=117264' },
+                    { title: '巴拿山 & 金橋 & 會安私人一日遊（峴港出發）', description: '一次收集兩大熱門景點！白天漫步雲端法國村，傍晚沉浸在會安古鎮的燈籠海中。', link: 'https://www.klook.com/zh-TW/activity/14311-private-hoi-an-day-tour-from-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=09fcefce79&aid=117264' },
+                    { title: '佛手橋與會安古城一日', description: '經典行程組合，帶您穿梭於歐式童話世界與越式古典風情之間。', link: 'https://www.klook.com/zh-TW/activity/194913-golden-bridge-ba-na-hills-hoi-an-ancient-town-full-day-private-trip-multilingual-speaking-driver/?spm=SearchResult.SearchResult_LIST&clickId=2b7359d5d1&aid=117264' }
+                ],
+                '體驗與娛樂': [
+                    { title: '太陽世界高山雲霄飛車', description: '體驗刺激的高山過山車，在山林間穿梭，享受速度與美景的雙重快感。', link: 'https://www.klook.com/zh-TW/activity/125425-sun-world-ba-na-alpine-coaster-experience/?spm=SearchResult.SearchResult_LIST&clickId=df045d4c09&aid=117264' }
+                ],
+                '交通及網路': [
+                    { title: '🎟️ 市區往返接駁巴士 / 巴拿山-峴港巴士', description: '舒適便捷的市區往返接駁巴士，輕鬆搞定巴拿山交通。', link: 'https://affiliate.klook.com/redirect?aid=117264&aff_adid=1246763&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F32080-shared-shuttle-bus-transfer-da-nang-city-ba-na-hills%2F' },
+                    { title: '峴港私人接送：巴拿山', description: '專車直達巴拿山纜車站，免去轉車煩惱，讓您的旅程更加順暢。', link: 'https://www.klook.com/zh-TW/activity/18019-private-transfer-ba-na-hills-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=4103b4fe87&aid=117264' }
+                ]
+            },
+            '會安': {
+                '景點門票': [
+                    { title: '🎟️ 竹籃船優惠票', description: '乘坐傳統圓形竹籃船穿梭於水椰林間，觀賞船夫精彩的「水上咖啡杯」旋轉表演。', link: 'https://www.klook.com/zh-TW/activity/24274-basket-boat-ticket-hoi-an-coconut-forest/?spm=SearchResult.SearchResult_LIST&clickId=8d404df066&aid=117264' },
+                    { title: '🎟️ 會安印象秀門票', description: '動員數百名演員的大型實景演出，在壯麗舞台上重現會安古鎮四百年的繁華歷史。', link: 'https://www.klook.com/zh-TW/activity/17514-hoi-an-memories-show-ticket/?spm=SearchResult.SearchResult_LIST&clickId=1561c69a7c&aid=117264' }
+                ],
+                '一日遊': [
+                    { title: '會安出發：五行山與猴山日落之旅', description: '從會安出發，前往五行山探秘，並在山茶半島欣賞迷人的海岸線日落。', link: 'https://www.klook.com/zh-TW/activity/33884-marble-mountains-monkey-sunset-tour-hoi-an/?spm=SearchResult.SearchResult_LIST&clickId=9fbf60e39c&aid=117264' },
+                    { title: '占婆島一日遊', description: '前往擁有清澈海水與豐富珊瑚礁的占婆島，享受浮潛樂趣與新鮮海鮮大餐。', link: 'https://www.klook.com/zh-TW/activity/4791-cham-islands-day-trip-hoi-an/?spm=SearchResult.SearchResult_LIST&clickId=56194d9d16&aid=117264' }
+                ],
+                '體驗與娛樂': [
+                    { title: '會安越南傳統奧黛租賃及寫真之旅', description: '換上飄逸的奧黛，在黃色復古牆面前拍下絕美寫真，留下難忘回憶。', link: 'https://www.klook.com/zh-TW/activity/115060-traditional-ao-dai-rental-photoshoot-hoi-an/?spm=SearchResult.SearchResult_LIST&clickId=cd4b0124ac&aid=117264' },
+                    { title: '會安燈籠製作', description: '親手挑選布料與竹架，跟著師傅製作獨一無二的會安燈籠帶回家作紀念。', link: 'https://www.klook.com/zh-TW/activity/9280-lantern-making-class-hoi-an/?spm=SearchResult.SearchResult_LIST&clickId=d9d4add767&aid=117264' }
+                ],
+                '交通及網路': [
+                    { title: '🎟️ 會安機場接送', description: '免去機場外喊價的困擾，專車司機接機，讓您安全、舒適且快速地直達市區飯店。', link: 'https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=DAD&spm=SearchResult.SearchResult_LIST&clickId=4bc47d4ea1&aid=117264' },
+                    { title: '會安國際機場快速通道服務', description: '避開大排長龍的海關隊伍，由專人引導使用尊榮通道，省下寶貴時間。', link: 'https://www.klook.com/zh-TW/activity/86297-da-nang-airport-fast-track/?spm=SearchResult.SearchResult_LIST&clickId=2eeae9beb8&aid=117264' },
+                    { title: '🎟️ 越南 5G 上網 SIM 卡', description: '抵達機場即可領取。網路穩定不斷線，出遊導航最安心。', link: 'https://www.klook.com/zh-TW/activity/16622-4g-sim-card-vietnam/?spm=SearchResult.SearchResult_LIST&clickId=8a2050b326&aid=117264' },
+                    { title: '5G eSIM 越南', description: '掃描 QR Code 即可開通上網，免換實體卡超方便，導航與打卡必備。', link: 'https://www.klook.com/zh-TW/activity/123902-vietnam-esim-high-speed-internet-qr-code-voucher/?spm=SearchResult.SearchResult_LIST&clickId=d82cc57b90&aid=117264' },
+                    { title: '會安包車', description: '行程完全由您作主！專屬司機帶您輕鬆暢遊中越各大景點，不受時間與路線限制。', link: 'https://www.klook.com/zh-TW/activity/6266-private-car-charter-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=57f12b20e5&aid=117264' },
+                    { title: '會安機場／會安 - 會安共乘巴士接送', description: '經濟實惠的交通選擇，輕鬆往返會安與會安兩大熱門城市。', link: 'https://www.klook.com/zh-TW/activity/12191-shared-shuttle-bus-transfers-between-da-nang-airport-da-nang-hoi-an-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=fe88e47f4c&aid=117264' },
+                    { title: '河內 - 會安/會安臥鋪大巴', description: '體驗越南特有的長途臥鋪巴士，平躺著移動，省下住宿費同時前往下一個目的地。', link: 'https://www.klook.com/zh-TW/activity/145072-hanoi-da-nang-hoi-an-cabin-sleeper-bus-by-hk-buslines/?spm=SearchResult.SearchResult_LIST&clickId=1f9e0f6f02&aid=117264' }
+                ]
+            },
+            '順化/美山聖地': {
+                '景點門票': [
+                    { title: '順化皇城門票', description: '探索越南最後一個封建王朝的政治中心，親臨宏偉的宮殿建築群，感受阮朝的歷史榮光。', link: 'https://www.klook.com/zh-TW/activity/74899-hue-monuments-complex-admission-ticket/?aid=117264' }
+                ],
+                '一日遊': [
+                    { title: '美山聖地半日遊（峴港出發）', description: '探索被列為世界文化遺產的「越南版吳哥窟」，感受千年占婆王國的神秘氣息。', link: 'https://www.klook.com/zh-TW/activity/9371-my-son-sanctuary-tour-da-nang/?spm=SearchResult.SearchResult_LIST&clickId=20d6c395c6&aid=117264' },
+                    { title: '順化文化探索一日遊', description: '深度遊覽順化古都，參觀天姥寺、皇城及歷代帝王陵墓，沉浸在豐富的歷史文化中。', link: 'https://www.klook.com/zh-TW/activity/1560-hue-discovery-half-full-day-tour-hue/?aid=117264' },
+                    { title: '白馬國家公園徒步一日遊', description: '遠離塵囂，深入白馬國家公園健行，欣賞壯麗的瀑布與豐富的自然生態系統。', link: 'https://www.klook.com/zh-TW/activity/11139-trekking-bach-ma-national-park-day-tour-hue/?aid=117264' }
+                ],
+                '交通及網路': [
+                    { title: '峴港 - 順化火車票', description: '體驗越南特色鐵道之旅，沿途欣賞被譽為「天下第一雄關」的海雲嶺無敵海景。', link: 'https://affiliate.klook.com/redirect?aid=117264&aff_adid=1246766&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F99690-train-ticket-between-hue-danang%2F' },
+                    { title: '順化租摩托車', description: '騎乘機車穿梭於順化的大街小巷，自由探索古都風情與在地隱藏版美食。', link: 'https://www.klook.com/zh-TW/activity/151839-hue-city-sightseeing-food-tour-by-motorbike/?aid=117264' }
+                ]
+            }
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState('峴港市區');
+            const [selectedCategory, setSelectedCategory] = useState('景點門票');
+
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen bg-rose-50 font-sans text-slate-800 pb-12">
+                    {/* 頂部導覽列 */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-rose-100">
+                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center justify-between gap-2 mb-4">
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="text-rose-600 w-6 h-6 md:w-8 md:h-8" />
+                                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-orange-500">
+                                        峴港行程推薦指南
+                                    </h1>
+                                </div>
+                                <a
+                                    href="https://linkuei0425.github.io/DaNang/"
+                                    className="hidden md:flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 bg-rose-600 text-white hover:bg-rose-700 shadow-sm"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    回到首頁
+                                </a>
+                            </div>
+                            
+                            {/* 地區選擇 */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                <a
+                                    href="https://linkuei0425.github.io/DaNang/"
+                                    className="md:hidden flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-rose-600 text-white hover:bg-rose-700 shadow-sm"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    首頁
+                                </a>
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            // 切換地區時，如果該地區沒有當前分類，自動切換到該地區有的第一個分類
+                                            if (!itineraryData[region]?.[selectedCategory]) {
+                                                const availableCategories = Object.keys(itineraryData[region] || {});
+                                                if (availableCategories.length > 0) {
+                                                    setSelectedCategory(availableCategories[0]);
+                                                }
+                                            }
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${
+                                            selectedRegion === region
+                                            ? 'bg-orange-500 text-white shadow-md'
+                                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-orange-50 hover:text-orange-600'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 py-8">
+                        {/* 分類標籤 */}
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                            {CATEGORIES.map(({ id, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSelectedCategory(id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border text-sm font-bold transition-all ${
+                                        selectedCategory === id
+                                        ? 'border-rose-500 bg-rose-50 text-rose-700 shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {id}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* 內容區標題 */}
+                        <div className="mb-6 flex items-center gap-2">
+                            <h2 className="text-2xl font-bold text-slate-800">
+                                {selectedRegion} - {selectedCategory} <span className="text-rose-600">精選推薦</span>
+                            </h2>
+                        </div>
+
+                        {/* 卡片列表 */}
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
+                                {currentData.map((item, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-fade-in"
+                                        style={{ animationDelay: `${index * 0.05}s` }}
+                                    >
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight flex items-start gap-2">
+                                                <span className="text-orange-500 mt-1"><Sparkles className="w-5 h-5"/></span>
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed font-medium">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="mt-auto pt-4 border-t border-slate-100 flex justify-end">
+                                            <a
+                                                href={item.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-sm hover:shadow-md w-full sm:w-auto"
+                                            >
+                                                <Info className="w-4 h-4" />
+                                                <span>詳細說明</span>
+                                                <ExternalLink className="w-4 h-4 ml-1 opacity-80" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                                    此區域目前無對應項目的資料
+                                </h3>
+                                <p className="text-slate-500">請嘗試選擇其他分類或分頁。</p>
+                            </div>
+                        )}
+
+                        {/* 全局探索按鈕 */}
+                        <div className="mt-12 flex justify-center">
+                            <a 
+                                href={`https://www.klook.com/zh-TW/search/result/?query=${encodeURIComponent(selectedRegion)}&aid=117264`}
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-700 hover:to-orange-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                <span className="tracking-wide">前往探索更多 {selectedRegion} 行程</span>
+                                <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
+                            </a>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

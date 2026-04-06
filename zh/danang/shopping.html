@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>峴港購物精選指南 | Da Nang & Hoi An Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f9ff; /* light blue-50 */
+        }
+        /* 隱藏滾動條 */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 分頁按鈕啟用狀態 */
+        .tab-btn.active {
+            background-color: #0369a1; /* sky-700 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(3, 105, 161, 0.3);
+            border-color: #0369a1;
+        }
+        .city-btn.active {
+            background-color: #0c4a6e; /* sky-900 */
+            color: white;
+            border-color: #0c4a6e;
+        }
+        .tab-btn, .city-btn {
+            transition: all 0.3s ease;
+        }
+        /* 地圖導航按鈕 */
+        .btn-maps {
+            background-color: #0284c7; /* sky-600 */
+        }
+        .btn-maps:hover {
+            background-color: #0369a1; /* sky-700 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- 頂部導覽列 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-sky-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-sky-700 tracking-wider"><i class="fa-solid fa-cart-shopping mr-2"></i>DA NANG SHOP</span>
+                </div>
+                <div>
+                    <!-- 返回首頁連結 -->
+                    <a href="https://linkuei0425.github.io/DaNang/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> 回到首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 標題區域 -->
+    <header class="bg-gradient-to-r from-sky-800 via-sky-600 to-cyan-500 py-10 lg:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm drop-shadow-md">峴港與會安購物精選指南</h1>
+            <p class="text-base md:text-lg text-sky-100 max-w-2xl mx-auto font-medium">嚴選在地必買伴手禮，與各大超市、傳統市場、文創小店的詳細攻略。</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 區域選擇器 -->
+        <section class="mb-6 relative">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot mr-1"></i> 選擇區域 (Select Region)</h2>
+            <div id="city-container" class="flex overflow-x-auto hide-scrollbar space-x-2 pb-2 scroll-smooth px-1">
+                <!-- 由 JS 注入 -->
+            </div>
+        </section>
+
+        <!-- 類別選擇器 -->
+        <section class="mb-8 relative" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> 選擇類別 (Select Category)</h2>
+            <div id="category-container" class="flex overflow-x-auto hide-scrollbar space-x-3 pb-2 scroll-smooth px-1">
+                <!-- 由 JS 注入 -->
+            </div>
+        </section>
+
+        <!-- 商店顯示區域 -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 由 JS 動態生成 -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Da Nang & Hoi An Shopping Guide. 為您的中越自由行提供最佳指南。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 峴港與會安 完整資料庫
+        const db = {
+            haichau: {
+                name: "海洲郡 (市中心)",
+                cat: {
+                    souvenir: [
+                        {n:"帶皮腰果 (Salted Cashews)",f:"峴港必買推薦！帶皮烘烤保留了天然油脂與香氣，鹹香酥脆，比去殼腰果更具層次感。",a:"購買地點：韓市場 (Han Market) 一樓內側攤位",t:"位於市中心，步行至粉紅教堂僅需 5 分鐘。"},
+                        {n:"中原滴漏咖啡粉 (Trung Nguyên)",f:"越南國民咖啡。建議買 Legend 系列配上鋁製滴漏壺組，回國也能還原濃郁的越式風味。",a:"購買地點：中原咖啡門市 或 韓市場周邊店鋪",t:"市區多處門市，韓市場 (119 Trần Phú) 周邊最為集中。"},
+                        {n:"綠豆糕 (Mung Bean Cakes)",f:"純綠豆研磨製成，口感綿密、入口即化。是越南傳統配熱茶的最佳點心，有多種包裝。",a:"購買地點：韓市場 (Han Market) 伴手禮專區",t:"市場內多家攤位皆有售，建議買多可殺價。"},
+                        {n:"越南蝦餅與椰子餅 (Crackers)",f:"清脆涮嘴的椰子餅與鮮味十足的蝦餅，單價便宜且重量輕，非常適合大量採買回國分享。",a:"購買地點：韓市場 (Han Market) 或 GO! 超市",t:"市場一樓有很多餅乾專賣攤位，價格實惠。"},
+                        {n:"手工刺繡藝品 (Embroidery)",f:"精美的手工刺繡手帕、化妝包與束口袋。花色充滿越南在地風情，是送給女性親友的首選禮物。",a:"購買地點：May Souvenir (近韓市場)",t:"110 Lê Lợi, 海洲郡，步行即可抵達。"}
+                    ],
+                    mart: [
+                        {n:"韓市場 (Chợ Hàn)",f:"最知名的觀光市場！除了伴手禮，這裡也有大量的在地調味料、乾貨與即食食品。建議在中午前造訪，感受最熱鬧的氛圍。",a:"119 Trần Phú, Hải Châu 1, Đà Nẵng",t:"位於市中心核心地段，步行即可到達主要景點。"},
+                        {n:"康市場 (Chợ Cồn)",f:"在地人採買的廚房！擁有極其豐富的熟食小吃區，也是購買便宜乾貨、新鮮水果與日常用品的首選。物價通常比韓市場稍低。",a:"290 Hùng Vương, Vĩnh Trung, Hải Châu",t:"位於大馬路口，建議搭乘 Grab 直達入口。"},
+                        {n:"GO! Da Nang (原 Big C)",f:"規模最大、價格透明的量販超市。買河粉泡麵、果乾、榴槤餅與各式零食最划算的地方。",a:"255-257 Hùng Vương, Vĩnh Trung, Hải Châu",t:"位於康市場正對面，從市中心搭 Grab 約 5 分鐘。"},
+                        {n:"Lotte Mart Da Nang",f:"大型韓系超市，空間舒適。設有專門的「伴手禮特區」，適合想要一次買齊所有熱門商品的懶人行程。",a:"06 Nại Nam, Hoà Cường Bắc, Hải Châu",t:"位於市區偏南，建議搭乘 Grab 前往。"},
+                        {n:"WinMart (Vincom Plaza)",f:"連鎖現代化超市。環境優雅乾淨，適合在逛完百貨後，補給飲料或高品質的包裝食品。",a:"Vincom Plaza 內 (910A Ngô Quyền)",t:"過龍橋東側即可抵達，交通極度便利。"}
+                    ],
+                    fashion: [
+                        {n:"Vincom Plaza Da Nang",f:"峴港最現代化的百貨商場。匯集 Nike、Adidas 等運動品牌，以及多家國際時尚連鎖店。",a:"910A Ngô Quyền, An Hải Bắc, Sơn Trà",t:"位於龍橋與瀚江大橋之間，地理位置優越。"},
+                        {n:"Indochina Riverside Mall",f:"河岸精品百貨。有專櫃服飾、化妝品與 Giordano 等休閒品牌，二樓的美食街視野極佳，可看江景。",a:"74 Bạch Đằng, Hải Châu 1, Hải Châu",t:"位於韓市場斜對面，瀚江第一排。"},
+                        {n:"Vanda Tailor (奧黛訂製)",f:"高品質的傳統服飾訂製店。提供多種蠶絲布料，師傅測量細緻，裁剪合身，能打造專屬的越式風情。",a:"分店眾多，推薦韓市場周邊門市",t:"位於市中心精華區，步行可達。"}
+                    ],
+                    hobby: [
+                        {n:"Artbook Da Nang",f:"極具設計感的藝文小店。販售復古電影海報、質感筆記本、越南主題明信片與設計書籍，文青必訪。",a:"102 Bạch Đằng, Hải Châu 1, Hải Châu",t:"位於韓市場附近的河岸道路上，徒步方便。"},
+                        {n:"Da Nang Souvenirs & Cafe",f:"結合咖啡廳與選物店。販售有峴港地標圖案的馬克杯、帆布袋與在地設計小物，氛圍非常 Chill。",a:"34 Bạch Đằng, Thạch Thang, Hải Châu",t:"靠近瀚江大橋橋頭，河畔散步即可抵達。"}
+                    ]
+                }
+            },
+            sontra: {
+                name: "山茶郡 (沙灘區)",
+                cat: {
+                    souvenir: [
+                        {n:"海鮮乾貨 (Dried Seafood)",f:"山茶郡靠海，這裡有各式真空包裝的魷魚絲、烤魚乾與蝦仁乾，品質新鮮且鮮味濃厚。",a:"購買地點：山茶夜市 (Son Tra Night Market) 乾貨攤",t:"位於龍橋東側橋頭，週末看秀時順便採買。"}
+                    ],
+                    mart: [
+                        {n:"山茶夜市 (Son Tra Night Market)",f:"每晚營業的觀光夜市！除了海鮮美食，這裡有大量攤販售特色伴手禮、平價服飾與精美手工雜貨，是夜間購物好去處。",a:"Đường Lý Nam Đế, An Hải Tây, Sơn Trà",t:"龍橋東側橋頭，看完噴火秀可直接開逛。"},
+                        {n:"曼泰漁村市場 (Chợ Mân Thái)",f:"想要感受最純粹的在地生活？清晨來這裡看漁民卸貨拍賣。雖然主要是生鮮，但也有一些在地乾貨可以挖掘。",a:"105 Võ Nguyên Giáp, Mân Thái, Sơn Trà",t:"位於美溪沙灘北段，建議清晨 6-7 點前往最震撼。"},
+                        {n:"Joly Mart",f:"精緻型質感超市。引進許多歐美日韓進口食品，以及高品質的生鮮水果，是美溪沙灘區外國人的物資補給站。",a:"31 Yên Bái, 海洲郡 (沙灘區過橋即達)",t:"位於龍橋西側橋頭附近，過橋僅需 3 分鐘。"}
+                    ],
+                    hobby: [
+                        {n:"夜市雜貨區",f:"山茶夜市後半段有許多販售特色吊飾、越南傳統竹編工藝、藤編包與手機殼的攤位。",a:"山茶夜市內",t:"龍橋東側橋頭，每晚 18:00 後開始營業。"}
+                    ]
+                }
+            },
+            hoian: {
+                name: "會安古鎮",
+                cat: {
+                    souvenir: [
+                        {n:"會安手工燈籠 (Lanterns)",f:"古鎮代表！可摺疊的紙燈籠或綢緞燈籠，帶回家妝點空間非常有氛圍，建議選 LED 版本。",a:"購買地點：會安夜市 (Hoi An Night Market)",t:"過安會橋後進入夜市街，沿途滿是燈籠攤位。"},
+                        {n:"手工肉桂木製品 (Cinnamon)",f:"會安特產肉桂。有肉桂粉或肉桂木雕刻而成的牙籤筒、杯墊，散發天然且迷人的香氣。",a:"購買地點：會安古鎮老街內的選物店",t:"老街核心區步行即可找到多家專門店。"},
+                        {n:"客製化皮革製品 (Leather Goods)",f:"會安是知名的皮革中心。從皮包、皮夾到外套，24小時內即可依需求完全客製化生產。",a:"購買地點：Friendly Shoe Shop 或 皮革一條街",t:"老街中心區域 (Trần Phú 街) 店家最為密集。"},
+                        {n:"文創精品選物 (Lifestyle)",f:"包含 Sunday in Hoi An 的質感家居，以及 Reaching Out 聽障藝術家手作陶瓷，極具藝術價值。",a:"購買地點：Sunday in Hoi An / Reaching Out",t:"均位於老街中心區域，適合逛街時順道造訪。"}
+                    ],
+                    mart: [
+                        {n:"會安中央市場 (Hoi An Central Market)",f:"位於秋盆河畔，歷史悠久。這裡有豐富的特色香料、茶葉、即食海鮮與傳統手工藝品，是古鎮內最具魅力的市場。",a:"Trần Quý Cáp, Cẩm Châu, Hội An",t:"沿著古鎮河畔走到底即可抵達，步行最方便。"},
+                        {n:"會安夜市 (Hoi An Night Market)",f:"五顏六色的燈籠街！除了拍照，這裡的小吃攤與文創飾品攤位非常多，是會安夜晚購物的主戰場。",a:"Nguyễn Hoàng, Minh An, Hội An",t:"過安會橋即可抵達夜市區。"}
+                    ],
+                    fashion: [
+                        {n:"Friendly Shoe Shop",f:"會安最誠實的鞋店。以不二價與高品質聞名，提供最快當天取件的客製化真皮手工鞋服務。",a:"18 Trần Phú, 會安古鎮",t:"位於老街東側入口處，步行即可抵達。"},
+                        {n:"Metiseko (有機棉服飾)",f:"結合法式設計與越南頂級有機棉。印花優雅，材質吸濕排汗，非常適合海島氣候穿著。",a:"142 Trần Phú, 會安古鎮",t:"位於會安古鎮老街核心區。"}
+                    ],
+                    hobby: [
+                        {n:"Sunday in Hoi An",f:"IG 最熱門的網美雜貨店。粉嫩色調與精緻編織產品，商品包裝極美，是買禮物的好去處。",a:"76 Trần Phú, 會安古鎮",t:"位於古鎮老街中心。"},
+                        {n:"Reaching Out Charity Shop",f:"具社會意義的商店。販售由身障藝術家手製的精美陶瓷與銀飾，作工細膩且質感非凡。",a:"103 Trần Phú, 會安古鎮",t:"古鎮老街中心，緊鄰著名的「無聲茶館」。"}
+                    ]
+                }
+            }
+        };
+
+        const catsMap = {
+            souvenir: { icon: "🛍️", name: "伴手禮", bg: "bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border-sky-200" },
+            mart:     { icon: "🛒", name: "超市/市場", bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200" },
+            fashion:  { icon: "👗", name: "服飾百貨", bg: "bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white border-indigo-200" },
+            hobby:    { icon: "🧸", name: "文創雜貨", bg: "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border-amber-200" }
+        };
+
+        let currentCity = "haichau"; 
+        let currentCat = "souvenir"; 
+
+        const cityContainer = document.getElementById('city-container');
+        const categoryContainer = document.getElementById('category-container');
+        const shopContainer = document.getElementById('shop-container');
+
+        function initUI() {
+            // 區域選單
+            const cities = Object.keys(db);
+            cities.forEach(cityKey => {
+                const btn = document.createElement('button');
+                btn.className = `city-btn whitespace-nowrap px-6 py-2.5 rounded-full border border-sky-200 bg-white text-sky-700 font-bold hover:bg-sky-100 hover:text-sky-900 shadow-sm ${cityKey === currentCity ? 'active' : ''}`;
+                btn.innerText = db[cityKey].name;
+                btn.onclick = () => {
+                    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCity = cityKey;
+                    renderContent();
+                };
+                cityContainer.appendChild(btn);
+            });
+
+            // 類別選單
+            Object.keys(catsMap).forEach(catKey => {
+                const c = catsMap[catKey];
+                const btn = document.createElement('button');
+                btn.className = `tab-btn whitespace-nowrap px-5 py-2.5 rounded-full border transition-all font-bold shadow-sm flex items-center ${c.bg} ${catKey === currentCat ? 'active' : ''}`;
+                btn.innerHTML = `<span class="mr-1.5 text-lg">${c.icon}</span> ${c.name}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCat = catKey;
+                    renderContent();
+                };
+                categoryContainer.appendChild(btn);
+            });
+
+            renderContent();
+        }
+
+        function renderContent() {
+            shopContainer.innerHTML = '';
+            const items = db[currentCity].cat[currentCat];
+
+            if(!items || items.length === 0) {
+                shopContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-lg font-bold">此區域目前尚無該類別推薦，請切換其他區域或類別試試。</div>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                const encodedQuery = encodeURIComponent(`${item.n} ${item.a} Vietnam`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-sky-50 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                ${item.n}
+                            </h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-amber-400 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-400 font-bold mb-1 uppercase tracking-wider">亮點特色</p>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-medium">${item.f}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-400 font-bold mb-1 uppercase tracking-wider">位置描述 / 地址</p>
+                                    <p class="text-sm text-slate-600 font-medium">${item.a}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-motorcycle text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-400 font-bold mb-1 uppercase tracking-wider">交通建議</p>
+                                    <span class="inline-block bg-sky-50 text-sky-700 text-xs px-2.5 py-1 rounded-md font-bold text-left leading-normal">${item.t}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-sky-50">
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white btn-maps focus:outline-none transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                shopContainer.appendChild(card);
+            });
+        }
+
+        function scrollNav(containerId, offset) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.scrollBy({ left: offset, behavior: 'smooth' });
+            }
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>
