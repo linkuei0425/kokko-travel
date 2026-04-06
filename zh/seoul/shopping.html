@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首爾購物精選指南 | Seoul Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 自訂捲軸樣式（針對分類按鈕區塊） */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 首爾玫瑰粉色系 Active 狀態 */
+        .tab-btn.active {
+            background-color: #e11d48; /* Rose-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.3);
+            border-color: #e11d48;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        /* Naver Map Brand Color */
+        .btn-naver {
+            background-color: #03C75A; /* Naver 綠色 */
+        }
+        .btn-naver:hover {
+            background-color: #02b351;
+        }
+    </style>
+</head>
+<body class="bg-[#fff1f2] text-gray-800 font-sans antialiased">
+
+    <!-- 頂部導覽列 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-rose-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>SEOUL SHOPPING</span>
+                </div>
+                <div>
+                    <!-- 回到首頁連結 -->
+                    <a href="https://linkuei0425.github.io/Seoul/index.html" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> 回到首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 橫幅區域 -->
+    <header class="bg-gradient-to-r from-rose-600 via-pink-500 to-red-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">首爾必買購物精選指南</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">精選韓國當紅品牌與首爾在地好物，從聖水洞設計師品牌到明洞美妝大掃貨，買遍首爾無死角！</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 分類按鈕區 (可橫向滾動) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('fashion', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👗</span> 流行服飾
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> 韓國美妝
+            </button>
+            <button onclick="filterCategory('souvenir', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🎁</span> 特色伴手禮
+            </button>
+            <!-- 新增的「韓國必買」按鈕 -->
+            <button onclick="filterCategory('mustbuy', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🌟</span> 韓國必買
+            </button>
+            <button onclick="filterCategory('mart', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛒</span> 零食超市
+            </button>
+            <button onclick="filterCategory('shoes', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👟</span> 球鞋運動
+            </button>
+        </div>
+
+        <!-- 內容呈現區 -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 卡片將透過 JavaScript 動態生成 -->
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">© 2026 Seoul Shopping Guide. 為你的首爾之旅提供最佳購物建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 店家資料庫 - 支援單一分類字串或陣列分類
+        const shopData = [
+            // --- 韓國必買 新增品項 (同時歸類於 mustbuy 及各自對應的分類) ---
+            
+            // 甜點/伴手禮
+            { cat: ['mustbuy', 'souvenir'], name: 'BRICKSAND 費南雪 (首爾站店)', feature: '外觀做成積木和磚塊造型，精緻可愛，絕對是鏡頭下的焦點。口味多達 15 種，非常適合在旅程最後一天順手帶幾盒。', loc: '서울 용산구 한강대로 405 (首爾站 1樓大廳)', transit: '地鐵1/4號線/機場快線「首爾站」1樓大廳內' },
+            { cat: ['mustbuy', 'souvenir'], name: 'GOLDEN PIECE 精品藥果', feature: '將韓國傳統點心「藥果」結合黑芝麻、伯爵茶等創新口味，外觀裝飾得像藝術品一樣，搭配華麗質感的鐵盒包裝，送禮絕佳選擇。', loc: '서울 용산구 한남대로27길 25 (漢南洞旗艦店)', transit: '地鐵6號線「漢江鎮站」3號出口，步行約5分鐘' },
+            { cat: ['mustbuy', 'souvenir'], name: 'Milky Shop 焦糖奶油餅乾', feature: '主打美式復古風格。酥脆餅乾夾著濃郁焦糖奶油，雖然保存期限較短（常溫 3 天），但美味程度絕對值得為它留一點行李空間。', loc: '서울 성동구 (聖水洞為其熱門分店之一)', transit: '地鐵2號線「聖水站」周邊' },
+            { cat: ['mustbuy', 'souvenir'], name: 'BUTTER 雜貨店 (弘大店)', feature: '喜歡設計感強的生活小物或文具，這家店絕對讓你逛到不想出來，經常推出超級可愛的聯名款。', loc: '서울 마포구 양화로 153 (弘大AK&百貨 B1)', transit: '地鐵2號線「弘大入口站」4號出口連通道直達' },
+            
+            // 零食/超市
+            { cat: ['mustbuy', 'mart'], name: '扁可頌 크룽지 (超商包裝版)', feature: '近期在韓國大爆紅的甜點！將可頌壓扁煎烤到極致酥脆。推薦購買超商販售的包裝版 (如 GINI F&S 品牌)，方便帶回台灣。', loc: '全韓國各大 GS25、CU 便利商店', transit: '隨處可見，各大街邊或飯店樓下便利商店即可購買' },
+            { cat: ['mustbuy', 'mart'], name: 'Delight Project 貝果餅乾', feature: 'Olive Young 長年熱銷冠軍！將貝果切片低溫烘烤，口感酥脆且熱量低。大推「大蒜牛油」和近期黑馬「玉米濃湯」口味。', loc: '全韓國各大 Olive Young 門市', transit: '明洞、弘大等各大商圈的 Olive Young 皆有販售' },
+            { cat: ['mustbuy', 'mart'], name: 'HBAF 杏仁果 (明洞旗艦店)', feature: '明洞有超大型的旗艦店。口味多達數十種（推薦蜂蜜奶油、大蒜麵包、芥末），有推出小包裝的綜合組，發給親友最方便。', loc: '서울 중구 명동길 74 (明洞旗艦店)', transit: '地鐵4號線「明洞站」步行約5分鐘' },
+            { cat: ['mustbuy', 'mart'], name: 'LOTTE ZERO 系列零食', feature: '主打無糖、低卡（使用麥芽糖醇代替精製糖），這系列的「Zero 巧克力派」和「水果軟糖」非常好吃，對飲食控制的人來說比較沒有負擔。', loc: '各大樂天超市 (Lotte Mart)、E-mart', transit: '首爾站樂天超市 (首爾站1號出口旁) 款式最為齊全' },
+            
+            // 美妝保養
+            { cat: ['mustbuy', 'beauty'], name: 'fwee 唇頰兩用布丁膏', feature: '近期的「現象級」彩妝，軟糯的布丁質地抹開會變成高級的柔霧感，圓潤的玻璃包裝非常有質感，很多人都是直接包色。', loc: 'fwee Agit 聖水旗艦店 / 各大 Olive Young', transit: '旗艦店：地鐵2號線「聖水站」4號出口，步行約5分鐘' },
+            { cat: ['mustbuy', 'beauty'], name: 'VT Reedle Shot 微針精華', feature: '韓國女生保養水煮蛋肌的秘密武器，透過微針技術幫助保養品吸收，經常被掃到缺貨。', loc: '全韓國 Olive Young 或 Daiso 大創', transit: '大創有售平價小包裝版，Olive Young 有全系列濃度' },
+            { cat: ['mustbuy', 'beauty'], name: 'Torriden 玻尿酸保濕面膜', feature: '長年霸榜的補水神器，價格親民，敷完隔天臉部透亮感很明顯，推薦多囤幾盒。', loc: '全韓國各大 Olive Young 門市', transit: '各大商圈 Olive Young 皆可購買，常有特價活動' },
+
+            // 流行服飾
+            { cat: ['mustbuy', 'fashion'], name: '韓國本土潮牌 (COVERNAT / emis)', feature: '韓國潮流必備！在明洞、聖水洞或漢南洞都很好逛，品牌 Logo 的帽子和帆布包是極好入手的單品。', loc: 'COVERNAT 弘大旗艦店 / emis 漢南洞旗艦店', transit: 'COVERNAT：弘大入口站9號出口 / emis：漢江鎮站3號出口' },
+
+            // --- 原有資料庫 ---
+            // --- 流行服飾 ---
+            { cat: 'fashion', name: 'MUSINSA STANDARD (弘大店)', feature: '韓國最大的線上潮牌實體旗艦店，被譽為「韓國版UNIQLO」，以極簡百搭的高質感單品與西裝外套聞名。', loc: '서울 마포구 양화로 144 (首爾麻浦區楊花路144)', transit: '地鐵2號線「弘大入口站 (홍대입구역)」9號出口，步行約2分鐘' },
+            { cat: 'fashion', name: 'Mardi Mercredi (漢南旗艦店)', feature: '韓國爆紅設計師品牌，經典小雛菊印花T恤與大學T是時下韓妞必備，漢南洞旗艦店款式最齊全。', loc: '서울 용산구 이태원로54길 58 (首爾龍山區梨泰院路54街58)', transit: '地鐵6號線「漢江鎮站 (한강진역)」3號出口，步行約8分鐘' },
+            { cat: 'fashion', name: 'Matin Kim (聖水旗艦店)', feature: '聖水洞必逛廢土工業風品牌！以極具辨識度的金屬鐵牌 Logo 錢包與率性街頭服飾席捲韓國代購圈。', loc: '서울 성동구 아차산로9길 41 (首爾城東區峨嵯山路9街41)', transit: '地鐵2號線「聖水站 (성수역)」2號出口，步行約5分鐘' },
+            { cat: 'fashion', name: 'ALAND (明洞本店)', feature: '韓國超大型連鎖複合式選物店，匯集眾多韓國小眾設計師品牌服飾、文青包包與男女配件。', loc: '서울 중구 명동8길 40 (首爾中區明洞8街40)', transit: '地鐵4號線「明洞站 (명동역)」6號出口，步行約3分鐘' },
+            { cat: 'fashion', name: 'Gentle Monster (Haus Dosan)', feature: '不僅是買墨鏡，更是藝術展場！整棟建築結合旗下甜點 Nudake 與香氛 Tamburins，是狎鷗亭必打卡地標。', loc: '서울 강남구 압구정로46길 50 (首爾江南區狎鷗亭路46街50)', transit: '水仁·盆唐線「狎鷗亭羅德奧站 (압구정로데오역)」5號出口，步行約10分鐘' },
+
+            // --- 韓國美妝 ---
+            { cat: 'beauty', name: 'Olive Young (明洞旗艦店)', feature: '全韓國最大間的 Olive Young！兩層樓的空間包含彩妝、保養、零食，甚至有外國人專屬退稅結帳櫃檯。', loc: '서울 중구 명동길 53 (首爾中區明洞街53)', transit: '地鐵4號線「明洞站 (명동역)」8號出口，步行約5分鐘' },
+            { cat: 'beauty', name: 'Tamburins (聖水旗艦店)', feature: 'BLACKPINK Jennie 代言的爆紅香氛品牌，聖水店建築極具幾何現代感，必買高顏值金鍊護手霜與香水。', loc: '서울 성동구 연무장5길 8 (首爾城東區練武場5街8)', transit: '地鐵2號線「聖水站 (성수역)」4號出口，步行約3分鐘' },
+            { cat: 'beauty', name: 'Amore Seongsu (愛茉莉聖水)', feature: '愛茉莉太平洋集團打造的美妝體驗館，不僅能試用旗下所有品牌，還能預約客製化粉底液與唇膏服務。', loc: '서울 성동구 아차산로11길 7 (首爾城東區峨嵯山路11街7)', transit: '地鐵2號線「聖水站 (성수역)」2號出口，步行約4分鐘' },
+            { cat: 'beauty', name: 'CHICOR (江南旗艦店)', feature: '被稱為「韓國版Sephora」，由新世界百貨直營，匯集各大國際專櫃品牌與韓國本土高階彩妝。', loc: '서울 서초구 강남대로 441 (首爾瑞草區江南大路441)', transit: '地鐵2號線/新盆唐線「江南站 (강남역)」10號出口，步行約5分鐘' },
+            { cat: 'beauty', name: 'Jung Saem Mool (新沙洞林蔭道)', feature: '韓國傳奇彩妝師鄭瑄茉的同名品牌，其「專業光感氣墊粉餅」是韓國女生追求水光肌的神器。', loc: '서울 강남구 압구정로12길 40 (首爾江南區狎鷗亭路12街40)', transit: '地鐵3號線「新沙站 (신사역)」8號出口，步行約8分鐘' },
+
+            // --- 特色伴手禮 ---
+            { cat: 'souvenir', name: 'Kakao Friends (弘大旗艦店)', feature: '樓高三層的超大型旗艦店，滿滿的 Ryan 與春植周邊商品，還有拍照打卡區，絕對讓粉絲買到失心瘋。', loc: '서울 마포구 양화로 162 (首爾麻浦區楊花路162)', transit: '地鐵2號線「弘大入口站 (홍대입구역)」8號出口旁' },
+            { cat: 'souvenir', name: 'NYUNYU (東大門店)', feature: '東大門爆紅的批發價飾品天堂！整整三層樓掛滿耳環、項鍊、帽子與包包，營業到凌晨，越夜越熱鬧。', loc: '서울 중구 마장로 34 (首爾中區馬場路34)', transit: '地鐵2/6號線「新堂站 (신당역)」10號出口，步行約5分鐘' },
+            { cat: 'souvenir', name: 'Osulloc 綠茶坊 (北村店)', feature: '來自濟州島的高級抹茶品牌，北村店融合了韓屋與現代設計。必買抹茶牛奶醬與各式精緻茶葉禮盒。', loc: '서울 종로구 북촌로 45 (首爾鐘路區北村路45)', transit: '地鐵3號線「安國站 (안국역)」2號出口，步行約8分鐘' },
+            { cat: 'souvenir', name: 'Ssamziegil 仁寺洞森吉街', feature: '充滿文藝氣息的螺旋狀複合式商場，裡面聚集了數十家販售傳統韓國工藝品、手作設計小物的精緻店鋪。', loc: '서울 종로구 인사동길 44 (首爾鐘路區仁寺洞街44)', transit: '地鐵3號線「安國站 (안국역)」6號出口，步行約5分鐘' },
+            { cat: 'souvenir', name: 'Line Friends Square (明洞店)', feature: '明洞商圈的地標之一，門口有巨大的熊大可以合照，裡面除了 Line 角色，還有 BT21 與 NewJeans 聯名商品。', loc: '서울 중구 명동길 43 (首爾中區明洞街43)', transit: '地鐵4號線「明洞站 (명동역)」6號出口，步行約5分鐘' },
+
+            // --- 零食超市 ---
+            { cat: 'mart', name: '樂天超市 Lotte Mart (首爾站店)', feature: '觀光客最愛的大型超市 (ZETTAPLEX)，交通最便利，必買零食、泡麵、海苔一應俱全，且提供現場退稅與EMS郵寄。', loc: '서울 중구 한강대로 405 (首爾中區漢江大路405)', transit: '地鐵1/4號線/機場快線「首爾站 (서울역)」1號出口旁' },
+            { cat: 'mart', name: '大創 Daiso (明洞旗艦店)', feature: '整整12層樓的超狂大創！從零食、文具到美妝保養(如VT微針精華包)，便宜又好買，根本是挖寶天堂。', loc: '서울 중구 퇴계로 134-1 (首爾中區退溪路134-1)', transit: '地鐵4號線「明洞站 (명동역)」1號或2號出口，步行約1分鐘' },
+            { cat: 'mart', name: 'E-mart (清溪川店)', feature: '規模極大的 E-mart，當地人也愛逛。除了常見零食，這裡的 No Brand 自有品牌專區與熟食區非常值得一看。', loc: '서울 중구 청계천로 400 (首爾中區清溪川路400)', transit: '地鐵1/6號線「東廟前站 (동묘앞역)」3號出口，步行約5分鐘' },
+            { cat: 'mart', name: 'Homeplus (合井店)', feature: '位於弘大旁邊一站，隱身在購物中心地下室，人潮比首爾站少，逛起來特別舒服，泡麵與酒類款式極多。', loc: '서울 마포구 양화로 45 (首爾麻浦區楊花路45) Mecenatpolis B2', transit: '地鐵2/6號線「合井站 (합정역)」9號或10號出口地下連通道直達' },
+            { cat: 'mart', name: 'No Brand (東大門 Doota店)', feature: 'E-mart 旗下的超高CP值自有品牌，推薦必買「紫薯洋芋片」與「起司球」，價格實惠包裝簡約。', loc: '서울 중구 장충단로 275 (首爾中區獎忠壇路275) Doota Mall 4樓', transit: '地鐵2/4/5號線「東大門歷史文化公園站」14號出口，步行約5分鐘' },
+
+            // --- 球鞋運動 ---
+            { cat: 'shoes', name: 'ABC-MART Grand Stage (明洞)', feature: '明洞商圈內最高等級的 ABC-MART，款式最潮最齊全，想找韓國限定色或熱門斷貨款的 Converse、Vans 來這就對了。', loc: '서울 중구 명동8길 12 (首爾中區明洞8街12)', transit: '地鐵4號線「明洞站 (명동역)」6號出口，步行約3分鐘' },
+            { cat: 'shoes', name: 'Nike Seoul (明洞)', feature: '首爾最具代表性的 Nike 旗艦店，最大亮點是可以預約「Nike By You」客製化服務，製作專屬的首爾限定T恤與提袋。', loc: '서울 중구 명동길 14 (首爾中區明洞街14)', transit: '地鐵4號線「明洞站 (명동역)」6號出口，步行約6分鐘' },
+            { cat: 'shoes', name: 'SHOOPEN (弘大店)', feature: '韓國國民平價鞋履品牌，主打百搭的帆布鞋、瑪莉珍鞋與厚底拖鞋，顏色豐富且價格超級親民。', loc: '서울 마포구 양화로 153 (首爾麻浦區楊花路153)', transit: '地鐵2號線「弘大入口站 (홍대입구역)」1號出口旁' },
+            { cat: 'shoes', name: 'New Balance (弘大旗艦店)', feature: '韓國年輕人近年最愛的球鞋品牌，弘大旗艦店常有首發限定款，如 530、2002R 等熱門型號補貨最快。', loc: '서울 마포구 홍익로 20 (首爾麻浦區弘益路20)', transit: '地鐵2號線「弘大入口站 (홍대입구역)」9號出口，步行約5分鐘' },
+            { cat: 'shoes', name: 'FOLDER (弘大店)', feature: '韓國衣戀集團旗下的連鎖鞋店，主要販售 Autry 小白鞋、OOFOS 雲朵拖鞋等時下流行品牌，選品品味佳。', loc: '서울 마포구 양화로 152 (首爾麻浦區楊花路152)', transit: '地鐵2號線「弘大入口站 (홍대입구역)」9號出口，步行約2分鐘' }
+        ];
+
+        // 負責渲染卡片的函數
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; // 清空現有內容
+
+            // 修改篩選邏輯以支援陣列格式 (商品可以同時屬於多個分類)
+            const filteredData = shopData.filter(item => {
+                const itemCats = Array.isArray(item.cat) ? item.cat : [item.cat];
+                return itemCats.includes(category);
+            });
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; // 簡單的進場動畫延遲
+                
+                // 1. 產生 Google Map 搜尋網址
+                const mapSearchQuery = encodeURIComponent(`${shop.name} Seoul`);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
+
+                // 2. 產生 Naver Map 導航網址
+                const pureName = shop.name.split('(')[0].trim();
+                const naverSearchQuery = encodeURIComponent(pureName);
+                const naverMapsUrl = `https://map.naver.com/v5/search/${naverSearchQuery}`;
+                
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-yellow-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">推薦商品</p>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${shop.feature}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-rose-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">詳細地址/購買地</p>
+                                    <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-train-subway text-rose-500 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">交通方式</p>
+                                    <span class="inline-block bg-rose-50 text-rose-700 text-xs px-2 py-1 rounded-md font-medium text-left leading-normal">${shop.transit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 導航按鈕區塊 -->
+                    <div class="mt-5 pt-4 border-t border-gray-100 flex flex-col gap-2.5">
+                        <!-- Naver Map 按鈕 -->
+                        <a href="${naverMapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-2 border border-transparent rounded-lg shadow-sm text-white btn-naver focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#03C75A] transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            <div class="flex flex-col items-start justify-center text-left">
+                                <span class="font-bold text-[14px] leading-tight">Naver MAP 導航</span>
+                                <span class="text-[11px] font-normal opacity-90 leading-tight mt-0.5">需下載APP，韓國建議使用</span>
+                            </div>
+                        </a>
+                        
+                        <!-- Google Map 導航按鈕 -->
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-[14px] font-bold text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors">
+                            <i class="fa-solid fa-map-location-dot mr-2 text-lg"></i> 開啟 Google Map 導航
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 點擊分類按鈕的處理邏輯
+        function filterCategory(category, btnElement) {
+            // 移除所有按鈕的 active 狀態
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            // 為當前點擊的按鈕加上 active 狀態
+            btnElement.classList.add('active');
+
+            // 渲染對應的資料
+            renderCards(category);
+        }
+
+        // 新增簡單的進場動畫 CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 初始載入時顯示第一類 (流行服飾)
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('fashion', firstBtn);
+        };
+    </script>
+</body>
+</html>

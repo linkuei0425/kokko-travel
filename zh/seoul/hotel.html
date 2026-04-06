@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首爾住宿推薦指南 | Seoul Hotel Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自訂滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fca5a5; /* rose-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fb7185; /* rose-400 */
+        }
+        
+        /* 區域按鈕樣式 - 首爾紅玫瑰色系 */
+        .area-btn-active {
+            background-color: #be123c; /* rose-700 */
+            color: white;
+            border-color: #be123c;
+            box-shadow: 0 4px 6px -1px rgba(190, 18, 60, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #fff1f2; /* rose-50 */
+            color: #9f1239; /* rose-800 */
+            border-color: #fda4af; /* rose-300 */
+        }
+
+        /* 分類按鈕樣式 */
+        .cat-btn-active {
+            background-color: #e11d48; /* rose-600 */
+            color: white;
+            border-color: #e11d48;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #fff1f2; /* rose-50 */
+            color: #e11d48;
+        }
+    </style>
+</head>
+<body class="bg-[#fff1f2] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-rose-900 tracking-wide">🇰🇷 首爾住宿推薦指南</h1>
+                <!-- 連結已更新為您指定的首頁位址 -->
+                <a href="https://linkuei0425.github.io/Seoul/index.html" class="inline-flex items-center px-4 py-2 bg-white hover:bg-rose-100 text-rose-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-rose-200">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    回到首頁
+                </a>
+            </div>
+            <p class="text-rose-600 font-medium text-sm md:text-base">精選首爾各大商圈飯店，讓您的韓國之旅住得舒心又便利</p>
+        </header>
+
+        <!-- 第一層：區域按鈕 -->
+        <div id="district-buttons" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <!-- 區域按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 第二層：分類按鈕 -->
+        <div id="category-buttons" class="grid grid-cols-3 gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-rose-100 hidden">
+            <!-- 分類按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 內容顯示區 -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-rose-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-rose-300 pt-20 pb-20">
+                <p>請點擊上方區域與分類以載入首爾推薦住宿...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 依照首爾熱門區域建置的資料結構 (包含您指定的分潤 ID 299526438)
+        const hotelData = {
+            "myeongdong": {
+                name: "明洞商圈 (Myeongdong)",
+                categories: {
+                    "五星精品飯店": [
+                        { name: "Lotte Hotel Seoul (首爾樂天酒店)", feature: "明洞最經典的五星地標，分為本館與新館，直通樂天百貨與地鐵站，是奢華購物的首選。", address: "30 Eulji-ro, Jung-gu / 地鐵 2 號線乙支路入口站直通", url: "https://tw.trip.com/hotels/seoul-hotel-detail-988396/lotte-hotel-seoul/?Allianceid=299526438" },
+                        { name: "The Plaza Seoul (首爾廣場飯店)", feature: "正對市廳廣場，設計感十足，部分房型可俯瞰德壽宮景緻，步行即可到達明洞主街。", address: "119 Taepyeongno 2-ga, Jung-gu / 地鐵 1/2 號線市廳站 6 號出口", url: "https://tw.trip.com/hotels/seoul-hotel-detail-988373/the-plaza-seoul-autograph-collection-by-marriott/?Allianceid=299526438" }
+                    ],
+                    "平價高CP值": [
+                        { name: "Nine Tree Hotel Myeongdong (九樹飯店明洞)", feature: "位於明洞商圈中心，下樓即是購物街，房間簡約乾淨，提供外國遊客非常友善的服務。", address: "51 Myeongdong 10-gil, Jung-gu / 地鐵 4 號線明洞站 8 號出口", url: "https://tw.trip.com/hotels/seoul-hotel-detail-988649/nine-tree-by-parnas-seoul-myeongdong-1/?Allianceid=299526438" },
+                        { name: "Hotel PJ Myeongdong (PJ 飯店)", feature: "提供免費接駁車往返明洞與東大門，房間空間大且備有陽台，是家庭旅遊的熱門選擇。", address: "71 Mareunnae-ro, Jung-gu / 近地鐵 3/4 號線忠武路站", url: "https://tw.trip.com/hotels/seoul-hotel-detail-988659/hotel-pj-myeongdong/?Allianceid=299526438" }
+                    ],
+                    "特色青年旅館": [
+                        { name: "Step Inn Myeongdong 1", feature: "現代工業風設計，公共區域可俯瞰明洞街景，地理位置極佳，適合追求高便利性的背包客。", address: "Myeongdong 2-ga / 位於明洞主街旁大樓高層", url: "https://tw.trip.com/hotels/seoul-hotel-detail-1696609/step-inn-myeongdong-1/?Allianceid=299526438" }
+                    ]
+                }
+            },
+            "hongdae": {
+                name: "弘大/新村 (Hongdae)",
+                categories: {
+                    "風格精品": [
+                        { name: "RYSE, Autograph Collection (RYSE 酒店)", feature: "弘大最潮的設計飯店，結合藝術選物店與藝廊，房內備有膠囊咖啡與面膜，極受年輕人歡迎。", address: "130 Yanghwa-ro, Mapo-gu / 弘大入口站 9 號出口步行 3 分鐘", url: "https://tw.trip.com/hotels/seoul-hotel-detail-687886/ryse-autograph-collection/?Allianceid=299526438" }
+                    ],
+                    "平價住宿": [
+                        { name: "L7 Hongdae by Lotte", feature: "樂天旗下的時尚品牌，頂樓擁有露天泳池與酒吧，飯店設計年輕充滿活力，就在弘大入口站旁。", address: "141 Yanghwa-ro, Mapo-gu / 弘大入口站 1 號出口直達", url: "https://tw.trip.com/hotels/seoul-hotel-detail-14186936/l7-hongdae-by-lotte-hotels/?Allianceid=299526438" },
+                        { name: "Amanti Hotel Seoul", feature: "擁有漂亮的戶外泳池，環境相較於商圈中心更為安靜，適合想逛弘大但怕吵的旅客。", address: "31 World Cup buk-ro, Mapo-gu / 近弘大入口站 1 號出口", url: "https://tw.trip.com/hotels/seoul-hotel-detail-5276189/amanti-hotel-seoul/?Allianceid=299526438" }
+                    ],
+                    "高評價青旅": [
+                        { name: "Zzzip Guest House", feature: "在旅遊網站評價極高，店主熱情且環境溫馨，常舉辦社交活動，非常適合獨旅者。", address: "Donggyo-ro, Mapo-gu / 近合井站與弘大商圈邊緣", url: "https://tw.trip.com/hotels/seoul-hotel-detail-1735817/zzzip-guesthouse-in-hongdae/?Allianceid=299526438" }
+                    ]
+                }
+            },
+            "gangnam": {
+                name: "江南區 (Gangnam)",
+                categories: {
+                    "高級飯店": [
+                        { name: "Park Hyatt Seoul (首爾柏悅酒店)", feature: "極致簡約奢華，全落地窗設計可俯瞰江南繁華夜景，浴室更是網美拍照的聖地。", address: "606 Teheran-ro, Gangnam-gu / 三成站 1 號出口旁", url: "https://tw.trip.com/hotels/seoul-hotel-detail-991995/park-hyatt-seoul/?Allianceid=299526438" },
+                        { name: "Andaz Seoul Gangnam (首爾安達仕酒店)", feature: "位於狎鷗亭與新沙洞旁，內部充滿韓式色彩設計，地下層連結地鐵與眾多美食名店。", address: "854 Nonhyeon-ro, Gangnam-gu / 狎鷗亭站 3 號出口直結", url: "https://tw.trip.com/hotels/seoul-hotel-detail-44995054/andaz-seoul-gangnam/?Allianceid=299526438" }
+                    ],
+                    "商務高CP": [
+                        { name: "Glad Gangnam COEX Center", feature: "位於 COEX 商場對面，房間設計精鍊且功能性強，床墊舒適，深受商務與自由行客群喜愛。", address: "610 Teheran-ro, Gangnam-gu / 三成站 1 號出口直達", url: "https://tw.trip.com/hotels/seoul-hotel-detail-13961857/glad-gangnam-coex-center/?Allianceid=299526438" },
+                        { name: "Shilla Stay Yeoksam (新羅舒泰驛三)", feature: "延續新羅酒店的高水準服務，房間採現代極簡風，地理位置便利，價格相較五星飯店平實許多。", address: "517 Eonju-ro, Gangnam-gu / 近地鐵 2 號線驛三站", url: "https://tw.trip.com/hotels/detail/?cityEnName=Seoul&cityId=274&hotelId=1355454&checkIn=2026-03-14&checkOut=2026-03-15&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-PawMTFJMEktZKJo_vXz3esQowGFr8FHQttua4vLljs4Hn2zJkzPklLHQJ4ZjDuuxu0kfHwV42Yfql8hx2MTCcYe5gXME1rf2xxioWVY4qMBMslll2M0dVK2amVSlYmOkolmSU5qUpWSk8XzXvasOf5ilYlHaWU1OJkoBCQlZibX5pXAmQbm-kZmAAFShIrPFPAGpMTc5JLcxJLUkMqC4AGmOkoZRY7lxRlFgSl5maWlKQCVaUl5hSngsSDUouBMslgQSU_oDFFUIHM_DyIdgMUsbDEnNJUiAuAFrqlQu0wrI19xMIUHfuJheEXC0MTK0MXK8MkVjaOO1uZJFh2sXIFOnkEGbnpeugaSskbGhgYmBoam5rqGiRaGieaARkmlkZmxha6RhZmRhYaC19efXrO2MhYgVFLID7EMyQ8v6gkO7moKDuptMKA8RSjlKG5maGlmYWpsaGFhYleoolpUmV5hKW3Y5ifB2MQm5OJmZmxUZQNF7N3ULig_eozU67dL7KXYg4NdlFUlP-SEzZX2kELJGcIkwtkAIMP9pEw-STWqgzdkPCMoyIFjA2MTF2M3AKMHowRjBVAHuMqRnYuZgMjIwGmDYyMOxj_wwDjK0aQJQArnc2BFAIAAA&masterhotelid_tracelogid=100051355-0a93a655-492638-28628&detailFilters=17%7C1%7E17%7E1*31%7C1355454%7E31%7E1355454*80%7C2%7C1%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=378&isCT=true&isFlexible=F&locale=zh-TW&Allianceid=299526438" }
+                    ]
+                }
+            },
+            "dongdaemun": {
+                name: "東大門/東大門歷史 (Dongdaemun)",
+                categories: {
+                    "五星地標飯店": [
+                        { name: "JW Marriott Dongdaemun Square", feature: "東大門唯一的五星級飯店，正對興仁之門(大門)，房間視野極佳，並擁有首爾最美的室內泳池。", address: "279 Jong-ro, Jongno-gu / 東大門站 8 號出口直達", url: "https://tw.trip.com/hotels/seoul-hotel-detail-929372/jw-marriott-dongdaemun-square-seoul/?Allianceid=299526438" }
+                    ],
+                    "高性價比": [
+                        { name: "Novotel Ambassador Dongdaemun", feature: "半飯店半公寓式設計，提供小廚房空間，頂樓有無邊際泳池可遙望 N 首爾塔，交通非常便利。", address: "238 Eulji-ro, Jung-gu / 近地鐵 2/4/5 號線東大門歷史文化公園站", url: "https://tw.trip.com/hotels/seoul-hotel-detail-18055967/novotel-ambassador-seoul-dongdaemun-hotels-and-residences/?Allianceid=299526438" },
+                        { name: "Hotel Skypark Kingstown Dongdaemun", feature: "位於購物商場上方，出飯店即是東大門商圈。房間大且備有公共廚房空間，性價比極高。", address: "20 Jangchungdan-ro 13-gil / 現代奧特萊斯購物中心 14 樓", url: "https://tw.trip.com/hotels/seoul-hotel-detail-5242733/hotel-skypark-kingstown-dongdaemun/?Allianceid=299526438" }
+                    ]
+                }
+            },
+            "jongno": {
+                name: "鐘路/仁寺洞 (Jongno)",
+                categories: {
+                    "韓屋風與傳統": [
+                        { name: "Orakai Insadong Suites", feature: "公寓式酒店，適合長住或家庭客，步行即可到達仁寺洞老街，感受濃厚的傳統文化氣息。", address: "18 Insadong 4-gil, Jongno-gu / 近地鐵 1/3/5 號線鐘路三街站", url: "https://tw.trip.com/hotels/seoul-hotel-detail-988601/orakai-insadong-suites/?Allianceid=299526438" },
+                        { name: "Moxy Seoul Insadong", feature: "萬豪旗下的年輕品牌，設計大膽玩味，頂樓酒吧視野極佳，下樓即是充滿美食的鐘路三街巷弄。", address: "37 Donhwamun-ro 11-gil / 鐘路三街站 4 號出口直達", url: "https://tw.trip.com/hotels/seoul-hotel-detail-688499/moxy-seoul-insadong/?Allianceid=299526438" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. 初始化區域按鈕
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 border area-btn-inactive`;
+                btn.innerText = hotelData[key].name;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. 選擇區域
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. 渲染分類按鈕
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. 選擇分類
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. 渲染飯店資料
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-rose-100">
+                    <h2 class="text-2xl font-bold text-rose-900 mr-3">📍 ${districtData.name}</h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-rose-100 text-rose-700 text-sm font-bold rounded-full">${currentCategoryName}</span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center">此分類目前無推薦資料。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-4">`;
+                
+                hotels.forEach((hotel, index) => {
+                    const linkTagHTML = hotel.url 
+                        ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-1.5 mt-1 sm:mt-0 rounded-full text-xs font-bold bg-rose-600 text-white hover:bg-rose-700 transition-colors shadow-sm cursor-pointer ml-0 sm:ml-3">
+                               <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                               點我看飯店說明與優惠
+                           </a>`
+                        : `<span class="inline-flex items-center px-3 py-1 mt-1 sm:mt-0 rounded-md text-xs font-bold bg-slate-200 text-slate-500 ml-0 sm:ml-3">
+                               點我看飯店說明
+                           </span>`;
+
+                    htmlContent += `
+                        <div class="bg-[#fff9f9] border border-rose-50 p-5 rounded-2xl hover:shadow-lg transition-all duration-300 group">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-start mb-4">
+                                <h4 class="text-xl font-bold text-rose-900 flex items-center">
+                                    <span class="text-rose-400 font-mono text-lg mr-2">${index + 1}.</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-6 space-y-3">
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-md mr-2">特色亮點</span> ${hotel.feature}
+                                </p>
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-md mr-2">地址交通</span> ${hotel.address}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict('myeongdong', firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

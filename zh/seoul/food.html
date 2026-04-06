@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首爾美食導航 Seoul Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fff1f2; /* 淺玫瑰粉色背景 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color for Seoul (Rose Pink vibe) */
+        .btn-nav {
+            background-color: #e11d48; /* 玫瑰紅色系 rose-600 */
+        }
+        .btn-nav:hover {
+            background-color: #be123c; /* rose-700 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-rose-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Seoul Pass 首爾美食地圖
+            </h1>
+            <!-- 回到首頁連結 -->
+            <a href="https://linkuei0425.github.io/Seoul/index.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-rose-700 hover:bg-rose-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-rose-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                回到首頁
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇區域 (Select Region)</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇類別 (Select Category)</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">請先從上方選擇您想探索的首爾區域與類別</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Seoul Data Structure (3 items per category strictly)
+        const db = {
+            "hongdae": {
+                name: "弘大 / 新村",
+                categories: {
+                    "bbq": [
+                        { name: "新村站著吃烤肉 (延南延南)", feature: "首爾傳奇烤肉！主打帶骨牛小排，客人圍著鐵桶站著烤肉，肉質鮮嫩多汁，獨門沾醬讓人回味無窮。", address: "서울 마포구 백범로2길 21 (首爾麻浦區白凡路2街21) / 新村站附近" },
+                        { name: "胖胖豬烤肉 (통통돼지뙈지)", feature: "弘大超高人氣平價烤肉，招牌是烤帶皮五花肉與豬頸肉，肉片厚實且烤得外酥內軟，CP值極高。", address: "서울 마포구 어울마당로 126-1 (首爾麻浦區和諧廣場路126-1) / 弘大入口站步行3分鐘" },
+                        { name: "給豚的男人 (돈주는남자)", feature: "以濟州島黑豬肉聞名，肉品皆經過低溫熟成，店員全程專業代烤，搭配濟州島特有的鯷魚醬吃最道地。", address: "서울 마포구 잔다리로6길 34.5 (首爾麻浦區細橋路6街34.5) / 弘大商圈內" }
+                    ],
+                    "chicken": [
+                        { name: "孔陵一隻雞 (新村店)", feature: "首爾必吃名店！雞肉鮮嫩且湯頭清甜，最後一定要將濃郁的高湯加入白飯與雞蛋煮成海苔雞蛋海鮮粥，絕品！", address: "서울 서대문구 연세로2길 54 (首爾西大門區延世路2街54) / 新村站步行5分鐘" },
+                        { name: "百年土種蔘雞湯", feature: "位於弘大主街，嚴選韓國產土雞與優質高麗蔘熬製，湯頭濃郁呈現漂亮的金黃色，補氣養生的最佳選擇。", address: "서울 마포구 양화로 118 (首爾麻浦區楊花路118) / 弘大入口站步行2分鐘" },
+                        { name: "弘大一隻雞", feature: "弘大在地人常去的老字號，湯頭帶有淡淡的蒜香與大蔥甜味，配上特製的辣醬與韭菜，非常過癮。", address: "서울 마포구 어울마당로 143-3 (首爾麻浦區和諧廣場路143-3) / 弘大商圈內" }
+                    ],
+                    "traditional": [
+                        { name: "神仙雪濃湯 (弘大店)", feature: "韓劇常客！24小時營業，用牛大骨長時間熬煮出的雪白高湯，配上大把蔥花與鮮嫩牛肉片，溫潤暖胃。", address: "서울 마포구 양화로 140 (首爾麻浦區楊花路140) / 弘大入口站9號出口" },
+                        { name: "豚壽百 豬肉湯飯 (弘大本館)", feature: "雖然是釜山名菜，但在首爾這家店評價極高！湯頭醇厚無腥味，白切肉定食極度軟嫩，24小時營業。", address: "서울 마포구 홍익로6길 56 (首爾麻浦區弘益路6街56) / 弘大入口站步行3分鐘" },
+                        { name: "春川辣炒雞排 (新村店)", feature: "經典的鐵板辣炒雞排，大塊雞肉搭配高麗菜、地瓜與年糕在面前現炒，最後加入起司與炒飯是完美收尾。", address: "서울 서대문구 연세로5가길 1 (首爾西大門區延世路5街1) / 新村站步行4分鐘" }
+                    ],
+                    "cafe": [
+                        { name: "申李道家 (Sinleedoga)", feature: "隱身在弘大鬧區的絕美韓屋咖啡廳，結合傳統韓屋與現代庭園水池造景，烤棉花糖與黑芝麻拿鐵是招牌。", address: "서울 마포구 잔다리로 20-12 (首爾麻浦區細橋路20-12) / 弘大商圈巷弄" },
+                        { name: "Cafe Layered (延南洞店)", feature: "首爾最火紅的英式司康名店！店內充滿歐式鄉村風的古董佈置，滿滿一整桌的浮誇司康與蛋糕令人選擇困難。", address: "서울 마포구 성미산로 161-4 (首爾麻浦區成美山路161-4) / 延南洞商圈" },
+                        { name: "Pie in the shop", feature: "近期延南洞人氣爆棚的派專賣店，建築被滿滿綠意包圍，擁有絕美戶外露臺，各種鹹甜口味的手工派非常精緻。", address: "서울 마포구 성미산로27길 26 (首爾麻浦區成美山路27街26) / 延南洞商圈" }
+                    ],
+                    "street_food": [
+                        { name: "弘大主街 烤雞肉串攤", feature: "弘大最經典的散步美食，超長一串的碳烤雞腿肉與大蔥，刷上特製的甜辣醬汁，熱騰騰的非常滿足。", address: "서울 마포구 어울마당로 (弘大步行街周邊)" },
+                        { name: "延南洞 糖葫蘆與吉拿棒", feature: "年輕人最愛的飯後甜點！延南洞公園周圍有許多精緻的街頭餐車，販售裹著薄脆糖衣的新鮮水果與現炸吉拿棒。", address: "서울 마포구 연남동 (京義線林蔭道公園兩側)" },
+                        { name: "新村 布帳馬車村", feature: "深夜的新村街頭會出現整排橘紅色帳篷，點一盤辣炒豬肉、海鮮煎餅配上燒酒，體驗最道地的韓國夜生活。", address: "서울 서대문구 연세로 (新村站周邊街道)" }
+                    ]
+                }
+            },
+            "myeongdong": {
+                name: "明洞 / 南大門",
+                categories: {
+                    "bbq": [
+                        { name: "王妃家 (明洞本店)", feature: "明洞極具代表性的高質感烤肉店，專人桌邊代烤，強推「烤牛排骨定食」與頂級韓牛，配菜非常豐富精緻。", address: "서울 중구 명동8가길 26 2층 (首爾中區明洞8街26 2樓) / 明洞站步行3分鐘" },
+                        { name: "荒謬的生肉 (明洞店)", feature: "高CP值烤五花肉吃到飽！厚切的帶皮五花肉與大醬湯無限供應，非常適合逛街後飢腸轆轆的旅客。", address: "서울 중구 명동4길 23 (首爾中區明洞4街23) / 明洞商圈內" },
+                        { name: "姜虎東白丁 (明洞店)", feature: "韓國知名主持人開的連鎖名店，特製烤盤周圍可以同時烤起司玉米與蒸蛋，豬頸肉與護心肉是必點。", address: "서울 중구 명동10길 19-3 (首爾中區明洞10街19-3) / 明洞商圈內" }
+                    ],
+                    "chicken": [
+                        { name: "高峰蔘雞湯 (明洞店)", feature: "米其林推薦！湯頭呈現獨特的金黃色，因為加入了桑黃與藥水，雞肉燉得骨肉分離，湯頭極度濃郁。", address: "서울 중구 명동7길 21 (首爾中區明洞7街21) / 乙支路入口站步行4分鐘" },
+                        { name: "明洞百濟蔘雞湯", feature: "擁有50年歷史的老字號，使用高級烏骨雞與高麗人蔘燉煮，並會附上一小杯人蔘酒，是傳統養生極品。", address: "서울 중구 명동8길 8-10 (首爾中區明洞8街8-10) / 明洞商圈巷弄" },
+                        { name: "明洞營養中心", feature: "不僅有美味的蔘雞湯，這裡的「電烤全雞」更是皮脆肉嫩，是韓國長輩們記憶中最經典的美食。", address: "서울 중구 명동2길 52 (首爾中區明洞2街52) / 明洞站5號出口步行" }
+                    ],
+                    "traditional": [
+                        { name: "明洞餃子 (本店)", feature: "米其林必比登連續多年推薦！招牌是手工刀削麵與皮薄餡多的蒸餃，濃郁的肉湯與帶有強烈蒜味的泡菜是絕配。", address: "서울 중구 명동10길 29 (首爾中區明洞10街29) / 明洞站步行3分鐘" },
+                        { name: "河東館 (明洞本店)", feature: "首爾老字號雪濃湯，湯頭清澈卻富含牛骨精華，碗底鋪滿白飯與牛肉片，是歷代韓國總統都愛的名店。", address: "서울 중구 명동9길 12 (首爾中區明洞9街12) / 乙支路入口站步行" },
+                        { name: "南大門 順天屋 (순천집)", feature: "隱身在南大門市場內的傳統韓式豬腳與白切肉老店，豬腳滷得非常入味且富有膠質，在地人極推。", address: "서울 중구 남대문시장4길 (首爾中區南大門市場4街) / 南大門市場內" }
+                    ],
+                    "cafe": [
+                        { name: "The Spot Fabulous (聚咖啡)", feature: "由具有60年歷史的復古洋房改建，大片窗戶正對著明洞的中國大使館，四季景緻變換極美，無花果塔必點。", address: "서울 중구 명동2길 22 (首爾中區明洞2街22) / 明洞商圈近大使館" },
+                        { name: "藍瓶咖啡 (明洞店)", feature: "明洞商圈內的簡約質感空間，不提供內用座位，主打外帶精品手沖咖啡與獨家周邊商品，設計感十足。", address: "서울 중구 명동길 14 (首爾中區明洞街14) / 明洞主街" },
+                        { name: "Cafe Coin (明洞本店)", feature: "營業超過30年的復古歐風咖啡廳，木質裝潢充滿大正浪漫氛圍，招牌是鮮奶油草莓鬆餅與濃郁的抹茶拿鐵。", address: "서울 중구 명동6길 10 (首爾中區明洞6街10) / 明洞商圈二樓" }
+                    ],
+                    "street_food": [
+                        { name: "南大門市場 蔬菜糖餅", feature: "大排長龍的平民美食！外皮炸得金黃酥脆，內餡包滿冬粉、韭菜與蔬菜，鹹香美味只要少少銅板價。", address: "서울 중구 남대문시장4길 (南大門市場入口處/Gate 2)" },
+                        { name: "明洞商圈 街頭小吃攤", feature: "傍晚才出現的超級夜市，推薦烤起司龍蝦、現烤雞蛋糕、玫瑰花冰淇淋與奶油烤干貝，一條街吃遍各種創意小吃。", address: "서울 중구 명동8길 (明洞主幹道)" },
+                        { name: "南大門 帶魚胡同", feature: "一整條巷子都在賣「辣燉帶魚」，用特製辣醬與大塊蘿蔔燉煮入味，魚肉鮮甜，是極度下飯的傳統美味。", address: "서울 중구 남대문시장길 22-6 (南大門市場帶魚胡同內)" }
+                    ]
+                }
+            },
+            "gangnam": {
+                name: "江南 / 狎鷗亭",
+                categories: {
+                    "bbq": [
+                        { name: "河南豬肉家 (江南店)", feature: "江南上班族聚餐首選！主打超過500度高溫炭火初烤鎖住肉汁，店員會剪成整齊的肉塊並代烤，茗荑葉包肉是靈魂。", address: "서울 서초구 서초대로73길 42 (首爾瑞草區瑞草大路73街42) / 江南站步行5分鐘" },
+                        { name: "永東橋肉店 (清潭直營店)", feature: "眾多韓星與偶像打卡的名店！以濟州島黑豬肉薄切冷凍五花肉聞名，搭配各種豐盛的小菜與生菜包著吃。", address: "서울 강남구 선릉로152길 34 (首爾江南區宣陵路152街34) / 狎鷗亭羅德奧站步行" },
+                        { name: "永川永華 (清潭洞)", feature: "首爾頂級韓牛名店，24小時營業。除了入口即化的炭烤韓牛，他們的「生拌牛肉生菜拌飯」更是許多明星的最愛。", address: "서울 강남구 도산대로90길 3 (首爾江南區島山大路90街3) / 清潭洞商圈" }
+                    ],
+                    "chicken": [
+                        { name: "論峴蔘雞湯", feature: "江南區24小時營業的超強老店，湯頭特別清爽無油膩感，雞肚內塞滿糯米與紅棗，鮑魚蔘雞湯是升級版招牌。", address: "서울 강남구 언주로 720 (首爾江南區彥州路720) / 鶴洞站附近" },
+                        { name: "江南一隻雞", feature: "隱藏在江南巷弄的美味，湯底使用大量蔬菜與大骨熬製，雞肉沾上特調芥末辣醬，最後加點刀削麵超滿足。", address: "서울 강남구 테헤란로1길 28-9 (首爾江南區德黑蘭路1街28-9) / 江南站附近" },
+                        { name: "狎鷗亭 百年蔘雞湯", feature: "狎鷗亭在地的高質感蔘雞湯，環境優雅舒適，提供黑蒜、紫蘇等多種養生口味，雞肉燉得極其軟嫩。", address: "서울 강남구 논현로163길 10 (首爾江南區論峴路163街10) / 狎鷗亭站步行" }
+                    ],
+                    "traditional": [
+                        { name: "滿足五香豬腳 (江南直營店)", feature: "首爾三大豬腳之一！豬腳以八角、桂皮等五香秘方滷製，外皮充滿膠質Q彈，肉質軟嫩，並會附贈年糕餃子湯。", address: "서울 강남구 강남대로96길 11.5 (首爾江南區江南大路96街11.5) / 江南站11號出口" },
+                        { name: "瑞草洞刀削麵 (江南餃子)", feature: "江南區超人氣麵食館，主打濃郁大骨湯頭的傳統刀削麵與皮薄多汁的蒸餃，是周邊上班族的午餐神店。", address: "서울 서초구 서초대로73길 40 (首爾瑞草區瑞草大路73街40) / 江南站步行" },
+                        { name: "江南麵屋 (本店)", feature: "以「燉牛排骨」聞名的老店，巨大的牛肋骨燉得極其軟爛且入味，醬汁帶有甜味，搭配一碗韓式水冷麵是完美組合。", address: "서울 강남구 논현로152길 34 (首爾江南區論峴路152街34) / 狎鷗亭站附近" }
+                    ],
+                    "cafe": [
+                        { name: "倫敦貝果博物館 (島山店)", feature: "首爾最難排隊的麵包店！英式鄉村復古裝潢，各式浮誇且口感Q彈的貝果（如青蔥奶油、黑松露起司）絕對必吃。", address: "서울 강남구 언주로168길 33 (首爾江南區彥州路168街33) / 狎鷗亭羅德奧站步行" },
+                        { name: "Cafe Knotted (清潭店)", feature: "韓國超人氣爆漿甜甜圈品牌，鮮黃色笑臉包裝極具辨識度。鮮奶油、香草與伯爵茶甜甜圈內餡飽滿且不甜膩。", address: "서울 강남구 도산대로53길 15 (首爾江南區島山大路53街15) / 狎鷗亭羅德奧周邊" },
+                        { name: "Nudake (Haus Dosan)", feature: "Gentle Monster 旗下的藝術甜點店。以破格、前衛的黑色火山抹茶熔岩麵包(Peak)聞名，視覺與味覺的雙重震撼。", address: "서울 강남구 압구정로46길 50 (首爾江南區狎鷗亭路46街50) / 狎鷗亭羅德奧商圈" }
+                    ],
+                    "street_food": [
+                        { name: "江南站 地下街小吃", feature: "逛江南地下街必吃的快速美食！站著吃熱騰騰的魚板串、辣炒年糕與紫菜包飯，便宜又道地。", address: "서울 강남구 강남대로 396 (江南站地下商場內)" },
+                        { name: "新論峴 布帳馬車", feature: "江南區夜晚的靈魂角落，下班後的韓國人會聚集在這裡吃著辣雞爪、雞胗配燒酒，感受最真實的江南夜生活。", address: "서울 서초구 사평대로 (新論峴站周邊街道)" },
+                        { name: "狎鷗亭 羅德奧街頭小吃", feature: "隱身在精品街區的小吃攤，冬季時能找到非常好吃的現烤鯛魚燒與熱騰騰的雞蛋糕，是逛街時的小確幸。", address: "서울 강남구 압구정로 (狎鷗亭羅德奧主街周邊)" }
+                    ]
+                }
+            },
+            "seongsu": {
+                name: "聖水 / 首爾林",
+                categories: {
+                    "bbq": [
+                        { name: "大聲排骨 (대성갈비)", feature: "聖水洞烤肉街的王者！專賣炭火醬烤豬排骨，肉質軟嫩且醬汁入味，附贈的大醬湯與豐富小菜更是誠意滿滿。", address: "서울 성동구 서울숲4길 27 (首爾城東區首爾林4街27) / 首爾林烤肉街" },
+                        { name: "夢炭 (몽탄) 附近風格店", feature: "雖然夢炭本店在三角地，但聖水洞近期也進駐了許多主打「稻草初烤」或「帶骨牛小排」的高質感工業風烤肉店。", address: "서울 성동구 성수동 일대 (聖水洞烤肉商圈)" },
+                        { name: "聖水 豬肉商會", feature: "工業風裝潢的高CP值烤肉店，提供高品質的厚切五花肉，店內氣氛極佳，非常受聖水洞年輕潮人歡迎。", address: "서울 성동구 연무장길 36 (首爾城東區練武場街36) / 聖水咖啡街周邊" }
+                    ],
+                    "chicken": [
+                        { name: "聖水洞 嚴媽蔘雞湯", feature: "聖水在地人推薦的養身餐廳，選用優質嫩雞燉煮，湯頭帶有濃濃的藥膳香氣，適合逛完首爾林後補充體力。", address: "서울 성동구 성수이로 113 (首爾城東區聖水二路113) / 聖水站步行" },
+                        { name: "首爾林 一隻雞", feature: "位於首爾林周邊，主打清淡健康的雞湯火鍋，雞肉彈牙，最後加入手工麵條吸收精華高湯是必備吃法。", address: "서울 성동구 왕십리로 100 (首爾城東區往十里路100) / 首爾林站附近" },
+                        { name: "纛島 漢方蔘雞湯", feature: "靠近纛島站的傳統老店，除了經典原味，還提供加入多種漢方藥材的特製版本，湯頭醇厚回甘。", address: "서울 성동구 뚝섬로 380 (首爾城東區纛島路380) / 纛島站周邊" }
+                    ],
+                    "traditional": [
+                        { name: "傳聞中的聖水馬鈴薯排骨湯", feature: "聖水洞絕對必吃的排隊神店！24小時營業，堆得像小山一樣的豬脊骨燉得極為軟爛，輕輕一剝就骨肉分離，湯頭濃郁香辣。", address: "서울 성동구 연무장길 45 (首爾城東區練武場街45) / 聖水站4號出口步行3分鐘" },
+                        { name: "聖水麵屋 (성수면옥)", feature: "主打韓式傳統平壤冷麵與熱騰騰的韓式餃子，冷麵湯頭清淡高雅，是夏天來聖水洞的消暑首選。", address: "서울 성동구 성수일로 89 (首爾城東區聖水一路89) / 聖水站周邊" },
+                        { name: "首爾林 紫菜包飯", feature: "超高人氣的外帶小吃，提供滿滿餡料（如炸豬排、烤牛肉口味）的巨大紫菜包飯，非常適合買去首爾林野餐。", address: "서울 성동구 서울숲2길 11 (首爾城東區首爾林2街11) / 首爾林站附近" }
+                    ],
+                    "cafe": [
+                        { name: "Onion (聖水店)", feature: "廢墟廢土風咖啡廳的始祖！由廢棄金屬工廠改建，保留了斑駁的紅磚與水泥牆，招牌是像雪山一樣的「雪人麵包」。", address: "서울 성동구 아차산로9길 8 (首爾城東區峨嵯山路9街8) / 聖水站2號出口" },
+                        { name: "大林倉庫 (Daelim Changgo)", feature: "將巨大碾米廠改建的複合式藝廊咖啡館，挑高的木造屋頂與大面積天窗，結合藝術展覽與美味的手沖咖啡。", address: "서울 성동구 성수이로 78 (首爾城東區聖水二路78) / 聖水洞主街" },
+                        { name: "藍瓶咖啡 (聖水1號店)", feature: "Blue Bottle 韓國首店！標誌性的紅磚建築與地下室極簡的清水模空間，提供專業手沖與美味的磅蛋糕。", address: "서울 성동구 아차산로 7 (首爾城東區峨嵯山路7) / 纛島站1號出口" }
+                    ],
+                    "street_food": [
+                        { name: "首爾林 野餐餐盒與小吃", feature: "首爾林周圍有許多專賣精緻野餐餐盒、炸雞塊與三明治的文青小店，買完直接走到公園草地上野餐超Chill。", address: "서울 성동구 서울숲길 (首爾林入口周邊街道)" },
+                        { name: "聖水手工 可樂餅", feature: "隱身在聖水洞傳統市場旁的排隊小吃，現炸的馬鈴薯與起司可樂餅外酥內軟，香氣四溢。", address: "서울 성동구 뚝섬로 (纛島市場周邊)" },
+                        { name: "聖水洞街頭 創意吉拿棒", feature: "近期在聖水洞非常流行的新式街頭甜點，現炸的吉拿棒沾上巧克力醬或配著牛奶冰淇淋吃，非常罪惡。", address: "서울 성동구 연무장길 (聖水咖啡街沿線)" }
+                    ]
+                }
+            },
+            "jongno": {
+                name: "鐘路 / 益善洞",
+                categories: {
+                    "bbq": [
+                        { name: "鐘路三街 烤肉胡同", feature: "首爾最有氛圍的烤肉街！傍晚時分整條街擺滿露天鐵桌，大家在戶外烤著五花肉與海鷗肉，配上燒酒，氣氛無敵。", address: "서울 종로구 돈화문로11가길 (首爾鐘路區敦化門路11街) / 鐘路3街站6號出口" },
+                        { name: "益善洞牧場 (익선동목장)", feature: "位於益善洞韓屋村旁，主打伊比利豬與高品質五花肉，裝潢帶有現代韓屋風情，店員烤肉技術專業。", address: "서울 종로구 돈화문로11다길 14 (首爾鐘路區敦化門路11多街14) / 益善洞商圈邊緣" },
+                        { name: "八色烤肉 (仁寺洞本店)", feature: "經典必吃！一次品嚐到大蒜、紅酒、人蔘、松葉等八種不同獨門醃料的厚切五花肉，視覺與味覺都很豐富。", address: "서울 종로구 인사동8길 15 (首爾鐘路區仁寺洞8街15) / 仁寺洞商圈內" }
+                    ],
+                    "chicken": [
+                        { name: "陳玉華老奶奶元祖一隻雞", feature: "首爾最傳奇的一隻雞！位於鐘路與東大門交界，大蒜高湯清甜，雞肉極度軟嫩，最後加麵條與特製辣椒醬是靈魂吃法。", address: "서울 종로구 종로40가길 18 (首爾鐘路區鐘路40街18) / 東大門站步行5分鐘" },
+                        { name: "土俗村蔘雞湯", feature: "景福宮旁最具代表性的名店，韓屋建築古色古香。湯頭加入堅果與高麗蔘熬煮得極度濃郁白滑，充滿奶香與蔘香。", address: "서울 종로구 자하문로5길 5 (首爾鐘路區紫霞門路5街5) / 景福宮站2號出口" },
+                        { name: "鐘路 半雞湯 (종로반계탕)", feature: "適合一人食用的名店，提供份量剛好的半隻雞蔘雞湯，湯頭清澈甘甜，深受周邊上班族與單人旅客喜愛。", address: "서울 종로구 삼일대로 388 (首爾鐘路區三一大路388) / 鐘閣站附近" }
+                    ],
+                    "traditional": [
+                        { name: "廣藏市場 富村生拌牛肉", feature: "米其林必比登推薦！新鮮的生牛肉加上生章魚、生蛋黃與水梨絲，攪拌後入口即化且充滿麻油香，毫無腥味。", address: "서울 종로구 종로 200-12 (首爾鐘路區鐘路200-12) / 廣藏市場生拌牛肉一條街" },
+                        { name: "順熙家 綠豆煎餅", feature: "廣藏市場最火紅的攤位，將現磨的綠豆泥用大量半煎炸的方式製作，外皮極度酥脆，配上涼拌洋蔥與馬格利酒超讚。", address: "서울 종로구 종로32길 5 (首爾鐘路區鐘路32街5) / 廣藏市場內" },
+                        { name: "仁寺洞 傳統麵疙瘩", feature: "隱身在仁寺洞巷弄的韓屋餐廳，招牌是裝在小甕裡的海鮮麵疙瘩，湯頭鮮甜，麵疙瘩手揉極具嚼勁。", address: "서울 종로구 인사동10길 11-1 (首爾鐘路區仁寺洞10街11-1) / 仁寺洞巷弄" }
+                    ],
+                    "cafe": [
+                        { name: "清水堂 (Cheongsudang)", feature: "益善洞最知名的絕美咖啡廳！入口處有水池與竹林燈籠造景，充滿日式禪意與韓屋風情，招牌是現烤舒芙蕾與抹茶甜點。", address: "서울 종로구 돈화문로11나길 31-9 (首爾鐘路區敦化門路11那街31-9) / 益善洞韓屋村內" },
+                        { name: "Seoul Coffee (首爾咖啡益善洞)", feature: "保留了傳統韓屋結構的復古咖啡廳，最著名的是夾著厚厚一塊奶油與紅豆泥的「維也納奶油麵包」與方塊冰淇淋。", address: "서울 종로구 수표로28길 33-3 (首爾鐘路區水標路28街33-3) / 益善洞韓屋村內" },
+                        { name: "溫水間 (온수공간)", feature: "以熱水澡堂為概念的韓屋甜點店，裝潢典雅復古，他們將傳統韓式糕點結合現代法式甜點手法，精緻又好拍。", address: "서울 종로구 돈화문로11나길 31-8 (首爾鐘路區敦化門路11那街31-8) / 益善洞韓屋村內" }
+                    ],
+                    "street_food": [
+                        { name: "廣藏市場 裸飯捲與麻藥飯捲", feature: "廣藏市場必吃！刷滿芝麻油的一口小飯捲，沾上特製的芥末醬油（麻藥醬汁），讓人一口接一口停不下來。", address: "서울 종로구 창경궁로 88 (廣藏市場主幹道)" },
+                        { name: "鐘路三街 布帳馬車街", feature: "首爾規模最大的路邊攤聚集地之一！夜晚整條街亮起橘色燈光，賣著各式熱炒小菜、烏冬麵與海鮮，極具韓劇氛圍。", address: "서울 종로구 돈화문로11길 (鐘路3街站3,4,6號出口外)" },
+                        { name: "仁寺洞 龍鬚糖與大便糕", feature: "仁寺洞主街上的傳統特色小吃，有師傅現場表演拉糖的龍鬚糖，以及造型逗趣、包著紅豆或巧克力的大便形狀烤餅。", address: "서울 종로구 인사동길 (仁寺洞步行街)" }
+                    ]
+                }
+            },
+            "dongdaemun": {
+                name: "東大門 / 惠化",
+                categories: {
+                    "bbq": [
+                        { name: "肉典食堂 (東大門本館)", feature: "首爾極厚烤肉的代名詞！五花肉厚度驚人，店員用測溫槍精準控溫代烤，肉汁在口中爆發，必點茗荑葉包肉解膩。", address: "서울 동대문구 난계로30길 16 (首爾東大門區蘭溪路30街16) / 新設洞站步行3分鐘" },
+                        { name: "總統烤肉 (대통령)", feature: "東大門知名烤肉店，最大特色是將五花肉放入「竹筒」中以高溫窯烤，讓豬肉吸附淡淡的竹子清香，去油解膩。", address: "서울 중구 장충단로 249-24 (首爾中區獎忠壇路249-24) / 東大門歷史文化公園站" },
+                        { name: "大學路 惠化烤肉商圈", feature: "靠近成均館大學，這裡有許多主打平價、大份量的學生愛用烤肉店，醃製豬排骨與烤牛胸肉是主流。", address: "서울 종로구 대학로 (首爾鐘路區大學路周邊) / 惠化站商圈" }
+                    ],
+                    "chicken": [
+                        { name: "明洞一隻雞 (東大門巨成店)", feature: "就位在陳玉華一隻雞旁邊的強大競爭者！湯頭同樣鮮甜，優勢在於雞胗等小菜給得大方，且免去過度誇張的排隊人潮。", address: "서울 종로구 종로40가길 14 (首爾鐘路區鐘路40街14) / 東大門一隻雞胡同內" },
+                        { name: "孔陵一隻雞 (東大門店)", feature: "另一家一隻雞名店在東大門的分店，他們家的靈魂在於蒜香與特製的沾醬，最後的雞蛋海苔粥絕對不能錯過。", address: "서울 종로구 종로40가길 20 (首爾鐘路區鐘路40街20) / 東大門一隻雞胡同內" },
+                        { name: "惠化 大學路蔘雞湯", feature: "深受當地學生與教授喜愛的溫馨老店，蔘雞湯的糯米燉得極為綿密，環境相較觀光區更為安靜舒適。", address: "서울 종로구 창경궁로 258-4 (首爾鐘路區昌慶宮路258-4) / 惠化站附近" }
+                    ],
+                    "traditional": [
+                        { name: "惠化 石頭大叔披薩", feature: "大學路傳奇美食！雖然叫披薩店，但最狂的是點窯烤起司披薩就會送一大鍋「韓式起司辣炒年糕」與辛拉麵，中西合璧。", address: "서울 종로구 대학로129-8 (首爾鐘路區大學路129-8) / 惠化站步行2分鐘" },
+                        { name: "東華飯店 (炸醬麵)", feature: "東大門營業至深夜的老字號中華料理，逛完批發市場必吃！他們家的黑色炸醬麵醬汁濃郁，糖醋肉外酥內軟。", address: "서울 중구 장충단로 282-1 (首爾中區獎忠壇路282-1) / 東大門歷史文化公園站" },
+                        { name: "橋村炸雞 (東大門1號店)", feature: "雖然是連鎖店，但東大門這間24小時營業且佔地極廣！半半炸雞（蜂蜜/橋村辣味）配上冰涼啤酒，是宵夜霸主。", address: "서울 종로구 종로 294 2층 (首爾鐘路區鐘路294 2樓) / 東大門站6號出口" }
+                    ],
+                    "cafe": [
+                        { name: "學林茶房 (Hakrim Dabang)", feature: "首爾現存最古老的咖啡館（創於1956年），《來自星星的你》拍攝地。復古黑膠唱片與老舊皮沙發，招牌是維也納咖啡。", address: "서울 종로구 대학로 119 2층 (首爾鐘路區大學路119 2樓) / 惠化站步行1分鐘" },
+                        { name: "DDP 內設計咖啡廳", feature: "位於東大門設計廣場 (DDP) 內部，充滿未來感與流線型設計的空間，適合逛完展覽後在此品嚐簡約現代的甜點。", address: "서울 중구 을지로 281 (首爾中區乙支路281) / DDP建築內" },
+                        { name: "駱山公園 景觀咖啡區", feature: "沿著惠化站後方的駱山公園城墎走上去，有許多能俯瞰首爾夜景與首爾塔的靜謐咖啡廳，氣氛極度浪漫。", address: "서울 종로구 낙산길 일대 (駱山公園城墎旁)" }
+                    ],
+                    "street_food": [
+                        { name: "東大門歷史文化公園 小吃攤", feature: "深夜批發客的能量來源！DDP周邊的帳篷賣著熱騰騰的紫菜包飯、辣炒年糕、魚板湯與現炸熱狗，越夜越熱鬧。", address: "서울 중구 을지로 281 주변 (DDP 周圍及批發市場外)" },
+                        { name: "大學路 炸雞肉串與糖餅", feature: "惠化站出口常見的學生小吃，超大串的特調醬汁雞肉串以及包著黑糖堅果的油炸糖餅，價格親民。", address: "서울 종로구 대학로 (惠化站出口至主街)" },
+                        { name: "廣熙洞 俄羅斯/中亞小吃", feature: "東大門後方的異國街區，這裡有許多隱藏版的烤肉串、烤饢餅與中亞風味甜點，是首爾獨特的街頭體驗。", address: "서울 중구 광희동 (東大門歷史文化公園站旁廣熙洞)" }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Seoul
+        const categoriesMap = {
+            "bbq": { name: "🥩 韓式烤肉", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "chicken": { name: "🍗 蔘雞湯與一隻雞", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "traditional": { name: "🍲 傳統美食與鍋物", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-400" },
+            "cafe": { name: "☕ 網美與特色咖啡", color: "bg-rose-100 text-rose-800 hover:bg-rose-600 hover:text-white border-rose-400" },
+            "street_food": { name: "🍢 市場與街頭小吃", color: "bg-purple-100 text-purple-800 hover:bg-purple-600 hover:text-white border-purple-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-rose-600', 'text-white', 'border-rose-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-rose-600');
+            clickedBtn.classList.add('bg-rose-600', 'text-white', 'border-rose-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('bbq', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-rose-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-rose-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-gray-500">此分類目前無資料</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL
+                const encodedQuery = encodeURIComponent(`${item.name} Seoul ${item.address.split('/')[0]}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                // Generate Naver Maps URL (擷取韓文地址部分以提高搜尋準確度)
+                const koreanAddress = item.address.split('(')[0].trim();
+                const naverQuery = encodeURIComponent(koreanAddress);
+                const naverMapsUrl = `https://map.naver.com/v5/search/${naverQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded mr-1">特色</span>${item.feature}</p>
+                        
+                        <div class="bg-gray-50/80 p-3.5 rounded-xl flex items-start gap-3 border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium"><span class="font-bold text-rose-800">地址：</span>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto flex flex-col gap-3">
+                        <!-- Naver MAP 導航按鈕 -->
+                        <a href="${naverMapsUrl}" target="_blank" class="w-full flex flex-col items-center justify-center bg-[#03C75A] hover:bg-[#02b351] text-white py-2.5 rounded-xl transition-colors shadow-sm hover:shadow-md">
+                            <div class="flex items-center gap-2 font-bold text-base">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M16.037 2.126h5.83v19.748h-5.83V10.154l-7.904 11.72H2.303V2.126h5.83v11.72l7.904-11.72z" />
+                                </svg>
+                                開啟 Naver MAP 導航
+                            </div>
+                            <span class="text-xs font-normal opacity-90 mt-0.5">(需下載APP，韓國建議使用)</span>
+                        </a>
+
+                        <!-- Google Maps 導航按鈕 -->
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-2.5 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>
