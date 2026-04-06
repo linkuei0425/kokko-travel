@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seoul Shopping Guide | Seoul Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar styling for category buttons */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Seoul Rose Pink vibe Active State */
+        .tab-btn.active {
+            background-color: #e11d48; /* Rose-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.3);
+            border-color: #e11d48;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        /* Naver Map Brand Color */
+        .btn-naver {
+            background-color: #03C75A; /* Naver Green */
+        }
+        .btn-naver:hover {
+            background-color: #02b351;
+        }
+    </style>
+</head>
+<body class="bg-[#fff1f2] text-gray-800 font-sans antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-rose-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>SEOUL SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/Seoul-US/index.html" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Banner Section -->
+    <header class="bg-gradient-to-r from-rose-600 via-pink-500 to-red-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">Seoul Ultimate Shopping Guide</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">A curated selection of popular Korean brands and local goods, from Seongsu-dong designer brands to Myeongdong beauty hauls. Shop all over Seoul without missing a beat!</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Category Buttons (Horizontally Scrollable) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('fashion', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👗</span> Trendy Fashion
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> K-Beauty
+            </button>
+            <button onclick="filterCategory('souvenir', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🎁</span> Souvenirs
+            </button>
+            <button onclick="filterCategory('mart', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛒</span> Snacks & Marts
+            </button>
+            <button onclick="filterCategory('shoes', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👟</span> Sneakers & Sports
+            </button>
+        </div>
+
+        <!-- Content Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be dynamically injected by JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">© 2026 Seoul Shopping Guide. Providing the best shopping recommendations for your trip to Seoul.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Shop Database - Seoul Brands & Recommendations (English Version)
+        const shopData = [
+            // --- Trendy Fashion ---
+            { cat: 'fashion', name: 'MUSINSA STANDARD (Hongdae)', feature: 'Korea\'s largest online streetwear brand\'s physical flagship store, known as "Korea\'s UNIQLO", famous for minimalist and high-quality basics and blazers.', loc: '144 Yanghwa-ro, Mapo-gu, Seoul (서울 마포구 양화로 144)', transit: 'Line 2 "Hongik Univ. Station (홍대입구역)" Exit 9, approx. 2 mins walk' },
+            { cat: 'fashion', name: 'Mardi Mercredi (Hannam Flagship)', feature: 'A viral Korean designer brand. The classic daisy print T-shirts and sweatshirts are must-haves. The Hannam-dong flagship store offers the most complete collection.', loc: '58 Itaewon-ro 54-gil, Yongsan-gu, Seoul (서울 용산구 이태원로54길 58)', transit: 'Line 6 "Hangangjin Station (한강진역)" Exit 3, approx. 8 mins walk' },
+            { cat: 'fashion', name: 'Matin Kim (Seongsu Flagship)', feature: 'A must-visit wasteland-industrial style brand in Seongsu-dong! Sweeping the Korean proxy shopping circle with its highly recognizable metal plate logo wallets and chic streetwear.', loc: '41 Achasan-ro 9-gil, Seongdong-gu, Seoul (서울 성동구 아차산로9길 41)', transit: 'Line 2 "Seongsu Station (성수역)" Exit 2, approx. 5 mins walk' },
+            { cat: 'fashion', name: 'ALAND (Myeongdong Main Store)', feature: 'A super large Korean chain multi-brand store, gathering numerous Korean niche designer clothing brands, artsy bags, and accessories for both men and women.', loc: '40 Myeongdong 8-gil, Jung-gu, Seoul (서울 중구 명동8길 40)', transit: 'Line 4 "Myeongdong Station (명동역)" Exit 6, approx. 3 mins walk' },
+            { cat: 'fashion', name: 'Gentle Monster (Haus Dosan)', feature: 'Not just buying sunglasses, it\'s an art exhibition! The entire building combines its dessert brand Nudake and fragrance brand Tamburins, a must-visit landmark in Apgujeong.', loc: '50 Apgujeong-ro 46-gil, Gangnam-gu, Seoul (서울 강남구 압구정로46길 50)', transit: 'Suin-Bundang Line "Apgujeong Rodeo Station (압구정로데오역)" Exit 5, approx. 10 mins walk' },
+
+            // --- K-Beauty ---
+            { cat: 'beauty', name: 'Olive Young (Myeongdong Flagship)', feature: 'The largest Olive Young in Korea! The two-story space includes makeup, skincare, snacks, and even an exclusive tax-free checkout counter for foreigners.', loc: '53 Myeongdong-gil, Jung-gu, Seoul (서울 중구 명동길 53)', transit: 'Line 4 "Myeongdong Station (명동역)" Exit 8, approx. 5 mins walk' },
+            { cat: 'beauty', name: 'Tamburins (Seongsu Flagship)', feature: 'A viral fragrance brand endorsed by BLACKPINK\'s Jennie. The Seongsu store has a geometric modern design. Must-buy aesthetic gold chain hand creams and perfumes.', loc: '8 Yeonmujang 5-gil, Seongdong-gu, Seoul (서울 성동구 연무장5길 8)', transit: 'Line 2 "Seongsu Station (성수역)" Exit 4, approx. 3 mins walk' },
+            { cat: 'beauty', name: 'Amore Seongsu', feature: 'A beauty experience pavilion created by Amorepacific Group. You can try all their brands and even book customized foundation and lipstick services.', loc: '7 Achasan-ro 11-gil, Seongdong-gu, Seoul (서울 성동구 아차산로11길 7)', transit: 'Line 2 "Seongsu Station (성수역)" Exit 2, approx. 4 mins walk' },
+            { cat: 'beauty', name: 'CHICOR (Gangnam Flagship)', feature: 'Known as the "Korean Sephora", directly operated by Shinsegae Department Store, bringing together major international premium brands and high-end local Korean makeup.', loc: '441 Gangnam-daero, Seocho-gu, Seoul (서울 서초구 강남대로 441)', transit: 'Line 2 / Sinbundang Line "Gangnam Station (강남역)" Exit 10, approx. 5 mins walk' },
+            { cat: 'beauty', name: 'Jung Saem Mool (Garosu-gil)', feature: 'The eponymous brand of legendary Korean makeup artist Jung Saem Mool. The "Essential Skin Nuder Cushion" is a holy grail for achieving glowing skin.', loc: '40 Apgujeong-ro 12-gil, Gangnam-gu, Seoul (서울 강남구 압구정로12길 40)', transit: 'Line 3 "Sinsa Station (신사역)" Exit 8, approx. 8 mins walk' },
+
+            // --- Souvenirs ---
+            { cat: 'souvenir', name: 'Kakao Friends (Hongdae Flagship)', feature: 'A three-story massive flagship store full of Ryan and Choonsik merchandise, plus photo zones that will definitely make fans go crazy shopping.', loc: '162 Yanghwa-ro, Mapo-gu, Seoul (서울 마포구 양화로 162)', transit: 'Line 2 "Hongik Univ. Station (홍대입구역)" right outside Exit 8' },
+            { cat: 'souvenir', name: 'NYUNYU (Dongdaemun)', feature: 'The viral wholesale accessory paradise in Dongdaemun! Three floors filled with earrings, necklaces, hats, and bags, open until early morning.', loc: '34 Majang-ro, Jung-gu, Seoul (서울 중구 마장로 34)', transit: 'Line 2/6 "Sindang Station (신당역)" Exit 10, approx. 5 mins walk' },
+            { cat: 'souvenir', name: 'Osulloc Tea House (Bukchon)', feature: 'A premium matcha brand from Jeju Island. The Bukchon store beautifully blends Hanok with modern design. Must-buy matcha milk spread and exquisite tea sets.', loc: '45 Bukchon-ro, Jongno-gu, Seoul (서울 종로구 북촌로 45)', transit: 'Line 3 "Anguk Station (안국역)" Exit 2, approx. 8 mins walk' },
+            { cat: 'souvenir', name: 'Ssamziegil (Insadong)', feature: 'A spiraling complex full of artistic atmosphere, gathering dozens of exquisite shops selling traditional Korean crafts and handmade design items.', loc: '44 Insadong-gil, Jongno-gu, Seoul (서울 종로구 인사동길 44)', transit: 'Line 3 "Anguk Station (안국역)" Exit 6, approx. 5 mins walk' },
+            { cat: 'souvenir', name: 'Line Friends Square (Myeongdong)', feature: 'A landmark in Myeongdong with a giant Brown bear at the entrance. Besides Line characters, there are also BT21 and NewJeans collaboration products.', loc: '43 Myeongdong-gil, Jung-gu, Seoul (서울 중구 명동길 43)', transit: 'Line 4 "Myeongdong Station (명동역)" Exit 6, approx. 5 mins walk' },
+
+            // --- Snacks & Marts ---
+            { cat: 'mart', name: 'Lotte Mart (Seoul Station ZETTAPLEX)', feature: 'The most favorite large supermarket for tourists. Most convenient transportation, with everything from snacks, ramen, to seaweed. Offers on-site tax refund and EMS shipping.', loc: '405 Hangang-daero, Jung-gu, Seoul (서울 중구 한강대로 405)', transit: 'Line 1/4/AREX "Seoul Station (서울역)" right outside Exit 1' },
+            { cat: 'mart', name: 'Daiso (Myeongdong Flagship)', feature: 'A crazy 12-story Daiso! From snacks, stationery to beauty products (like VT Reedle Shot), cheap and great to buy, basically a treasure hunting paradise.', loc: '134-1 Toegye-ro, Jung-gu, Seoul (서울 중구 퇴계로 134-1)', transit: 'Line 4 "Myeongdong Station (명동역)" Exit 1 or 2, approx. 1 min walk' },
+            { cat: 'mart', name: 'E-mart (Cheonggyecheon)', feature: 'A huge E-mart loved by locals too. Besides common snacks, their No Brand exclusive zone and deli section are highly worth visiting.', loc: '400 Cheonggyecheon-ro, Jung-gu, Seoul (서울 중구 청계천로 400)', transit: 'Line 1/6 "Dongmyo Station (동묘앞역)" Exit 3, approx. 5 mins walk' },
+            { cat: 'mart', name: 'Homeplus (Hapjeong)', feature: 'Located one stop from Hongdae, hidden in a mall basement. Less crowded than Seoul Station, making it very comfortable to shop. Huge variety of ramen and alcohol.', loc: '45 Yanghwa-ro, Mapo-gu, Seoul (서울 마포구 양화로 45) Mecenatpolis B2', transit: 'Line 2/6 "Hapjeong Station (합정역)" Exit 9 or 10 underground connection' },
+            { cat: 'mart', name: 'No Brand (Dongdaemun Doota)', feature: 'E-mart\'s high value private brand. Highly recommend the "Purple Sweet Potato Chips" and "Cheese Balls". Affordable prices with minimalist packaging.', loc: '275 Jangchungdan-ro, Jung-gu, Seoul (서울 중구 장충단로 275) Doota Mall 4F', transit: 'Line 2/4/5 "Dongdaemun History & Culture Park Station" Exit 14, approx. 5 mins walk' },
+
+            // --- Sneakers & Sports ---
+            { cat: 'shoes', name: 'ABC-MART Grand Stage (Myeongdong)', feature: 'The highest-level ABC-MART in Myeongdong. The trendiest and most complete styles. Go here for Korea-exclusive colors or sold-out Converse/Vans.', loc: '12 Myeongdong 8-gil, Jung-gu, Seoul (서울 중구 명동8길 12)', transit: 'Line 4 "Myeongdong Station (명동역)" Exit 6, approx. 3 mins walk' },
+            { cat: 'shoes', name: 'Nike Seoul (Myeongdong)', feature: 'Seoul\'s most representative Nike flagship store. The biggest highlight is the "Nike By You" custom service to create exclusive Seoul limited T-shirts and tote bags.', loc: '14 Myeongdong-gil, Jung-gu, Seoul (서울 중구 명동길 14)', transit: 'Line 4 "Myeongdong Station (명동역)" Exit 6, approx. 6 mins walk' },
+            { cat: 'shoes', name: 'SHOOPEN (Hongdae)', feature: 'A Korean national affordable footwear brand, featuring versatile canvas shoes, Mary Janes, and platform sandals. Rich in color and super affordable.', loc: '153 Yanghwa-ro, Mapo-gu, Seoul (서울 마포구 양화로 153)', transit: 'Line 2 "Hongik Univ. Station (홍대입구역)" right outside Exit 1' },
+            { cat: 'shoes', name: 'New Balance (Hongdae Flagship)', feature: 'The most loved sneaker brand by Korean youth recently. The Hongdae flagship often has first-release limited editions, and popular models like 530 and 2002R restock fastest here.', loc: '20 Hongik-ro, Mapo-gu, Seoul (서울 마포구 홍익로 20)', transit: 'Line 2 "Hongik Univ. Station (홍대입구역)" Exit 9, approx. 5 mins walk' },
+            { cat: 'shoes', name: 'FOLDER (Hongdae)', feature: 'A shoe store chain under Korea\'s E-Land Group, mainly selling trendy brands like Autry white sneakers and OOFOS cloud sandals, with excellent taste in product selection.', loc: '152 Yanghwa-ro, Mapo-gu, Seoul (서울 마포구 양화로 152)', transit: 'Line 2 "Hongik Univ. Station (홍대입구역)" Exit 9, approx. 2 mins walk' }
+        ];
+
+        // Function responsible for rendering cards
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; // Clear existing content
+
+            const filteredData = shopData.filter(item => item.cat === category);
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; // Simple fade-in animation delay
+                
+                // 1. Generate Google Map search URL (Use 'Seoul' to improve accuracy)
+                const mapSearchQuery = encodeURIComponent(`${shop.name} Seoul`);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
+
+                // 2. Generate Naver Map navigation URL
+                // To improve Naver Map search accuracy, automatically filter out the english description inside brackets (e.g. "MUSINSA STANDARD (Hongdae)" becomes "MUSINSA STANDARD")
+                const pureName = shop.name.split('(')[0].trim();
+                const naverSearchQuery = encodeURIComponent(pureName);
+                const naverMapsUrl = `https://map.naver.com/v5/search/${naverSearchQuery}`;
+                
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-yellow-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Featured</p>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${shop.feature}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-rose-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Address</p>
+                                    <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-train-subway text-rose-500 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Transport</p>
+                                    <span class="inline-block bg-rose-50 text-rose-700 text-xs px-2 py-1 rounded-md font-medium text-left leading-normal">${shop.transit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation Buttons Section -->
+                    <div class="mt-5 pt-4 border-t border-gray-100 flex flex-col gap-2.5">
+                        <!-- Naver Map Button -->
+                        <a href="${naverMapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-2 border border-transparent rounded-lg shadow-sm text-white btn-naver focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#03C75A] transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            <div class="flex flex-col items-start justify-center text-left">
+                                <span class="font-bold text-[14px] leading-tight">Naver MAP Navigation</span>
+                                <span class="text-[11px] font-normal opacity-90 leading-tight mt-0.5">App download required. Recommended in Korea.</span>
+                            </div>
+                        </a>
+                        
+                        <!-- Google Map Button -->
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-[14px] font-bold text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors">
+                            <i class="fa-solid fa-map-location-dot mr-2 text-lg"></i> Open Google Map
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Handle click on category buttons
+        function filterCategory(category, btnElement) {
+            // Remove active state from all buttons
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            // Add active state to the clicked button
+            btnElement.classList.add('active');
+
+            // Render corresponding data
+            renderCards(category);
+        }
+
+        // Add simple fade-in animation CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Render first category (Trendy Fashion) on initial load
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('fashion', firstBtn);
+        };
+    </script>
+</body>
+</html>
