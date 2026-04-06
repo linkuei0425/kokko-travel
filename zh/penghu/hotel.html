@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>澎湖住宿推薦指南 | Penghu Hotel Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #67e8f9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #22d3ee; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .area-btn-active { background-color: #0e7490; color: white; border-color: #0e7490; box-shadow: 0 4px 6px -1px rgba(14, 116, 144, 0.3); }
+        .area-btn-inactive { background-color: white; color: #4b5563; border-color: #d1d5db; }
+        .area-btn-inactive:hover { background-color: #ecfeff; color: #155e75; border-color: #67e8f9; }
+        
+        .cat-btn-active { background-color: #0891b2; color: white; border-color: #0891b2; }
+        .cat-btn-inactive { background-color: #f8fafc; color: #64748b; border-color: #cbd5e1; }
+        .cat-btn-inactive:hover { background-color: #ecfeff; color: #0891b2; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+
+        /* 導覽箭頭漸層遮罩 */
+        .nav-gradient-left {
+            background: linear-gradient(to right, #ecfeff 20%, transparent);
+        }
+        .nav-gradient-right {
+            background: linear-gradient(to left, #ecfeff 20%, transparent);
+        }
+    </style>
+</head>
+<body class="bg-[#ecfeff] min-h-screen font-sans text-gray-800 pb-12">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-cyan-900 tracking-wide">
+                    <i class="fa-solid fa-umbrella-beach mr-2 text-cyan-600"></i>澎湖住宿推薦指南
+                </h1>
+                <a href="https://linkuei0425.github.io/Penghu/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-cyan-100 text-cyan-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-cyan-200">
+                    <i class="fa-solid fa-house mr-2"></i>回到首頁
+                </a>
+            </div>
+            <p class="text-cyan-600 font-medium text-sm md:text-base">精選馬公、山水、湖西、西嶼及跳島特色民宿，讓您的澎湖之旅完美無瑕</p>
+        </header>
+
+        <!-- 區域按鈕導覽列（含箭頭） -->
+        <div class="mb-6 relative group">
+            <!-- 左箭頭 -->
+            <div class="absolute left-0 top-0 bottom-0 w-12 z-10 flex items-center justify-start nav-gradient-left opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button onclick="scrollDistricts('left')" class="bg-white/80 hover:bg-white text-cyan-700 p-2 rounded-full shadow-md border border-cyan-100 -ml-2">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <!-- 按鈕容器 -->
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-3 pb-2 px-2 scroll-smooth">
+                <!-- 區域按鈕由 JS 動態生成 -->
+            </div>
+
+            <!-- 右箭頭 -->
+            <div class="absolute right-0 top-0 bottom-0 w-12 z-10 flex items-center justify-end nav-gradient-right opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button onclick="scrollDistricts('right')" class="bg-white/80 hover:bg-white text-cyan-700 p-2 rounded-full shadow-md border border-cyan-100 -mr-2">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="category-buttons" class="flex flex-wrap justify-center gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-cyan-100 hidden"></div>
+
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-cyan-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-cyan-300 pt-20 pb-20">
+                <p class="font-bold text-lg"><i class="fa-solid fa-spinner fa-spin mr-2"></i>載入推薦住宿中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hotelData = {
+            "magong": {
+                name: "馬公市區 (Magong)",
+                categories: {
+                    "頂級星級飯店": [
+                        { name: "澎湖福朋喜來登酒店 (Four Points by Sheraton)", feature: "澎湖唯一國際連鎖五星級酒店，擁有絕美無邊際泳池，俯瞰馬公第三漁港。", address: "馬公市新店路197號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-4537718/four-points-by-sheraton-penghu/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" },
+                        { name: "澎澄飯店 (Discovery Hotel)", feature: "結合昇恆昌免稅商場，設有高空露天泳池與室內極限運動場，逛街極其便利。", address: "馬公市同和路168號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-17184652/discovery-hotel/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" }
+                    ],
+                    "高CP值與便利": [
+                        { name: "雅霖大飯店 (Ya Lin Hotel)", feature: "設施完善、服務親切，距離南海遊客中心與市區極近，花火節期間極受歡迎。", address: "馬公市同和路158號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-1232662/yaling-hotel/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" },
+                        { name: "元泰大飯店 (Yuan Tai Hotel)", feature: "全館採用峇里島風原木家具，充滿南洋度假風情，早餐豐盛。", address: "馬公市新店路477號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-1046214/yentai-hotel/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" },
+                        { name: "彩色珊瑚礁民宿 (Color Coral Reef)", feature: "工業清水模設計，頂樓設有露天SPA水池，備有電梯，是網美最愛的市區民宿。", address: "馬公市案山里19-3號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-15227150/color-coral-boutique-hotel/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" },
+                        { name: "和田大飯店 (MF Hotel)", feature: "位於市中心中正路旁，樓下就有便利商店，走到觀音亭看煙火只要10分鐘。", address: "馬公市民權路2號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-804585/mf-hotel-penghu/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" }
+                    ]
+                }
+            },
+            "south_ring": {
+                name: "南環/山水/嵵裡 (South Ring)",
+                categories: {
+                    "絕美海景民宿": [
+                        { name: "沙灘城堡/觀海別墅", feature: "緊鄰山水沙灘，躺在床上就能聽海浪聲看海，設有親子主題房。", address: "馬公市山水里珠江110-6號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-1324838/beach-castle/?Allianceid=7913725&SID=303108709" },
+                        { name: "頌華私墅 (Songhua Villa)", feature: "提供獨立私人泳池的奢華包棟Villa，風格現代時尚，適合多人與家庭度假。", address: "馬公市鎖港里120號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-45825844/sh-villa/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" },
+                        { name: "拾光海景民宿", feature: "純白建築搭配大片落地窗，每個房間都擁有絕佳的無敵海景與陽台。", address: "馬公市山水里珠江110-15號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-19832571/shi-guang-sea-view/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" }
+                    ],
+                    "寧靜度假Villa": [
+                        { name: "緣民宿 (Enishi Resort Villa)", feature: "榮獲多項建築大獎的清水模藝術民宿，空間光影迷人，宛如住在美術館。", address: "馬公市隘門里45-3號", url: "https://hk.trip.com/hotels/toyama-hotel-detail-7818826/guest-house-enishi/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" },
+                        { name: "澎湖灣行館 (Penghu Bay Resort)", feature: "位於莒光村，由傳統眷村改建而成，擁有廣大草皮與寧靜的海灣景觀。", address: "馬公市介壽路7號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-45834693/penghu-bay-resort/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" }
+                    ]
+                }
+            },
+            "huxi": {
+                name: "湖西/林投 (Huxi)",
+                categories: {
+                    "特色設計與海景": [
+                        { name: "那。故事水岸莊園 (That Story)", feature: "獨特的飛碟造型外觀，每間房皆有海景，傍晚在園區水池旁賞夕陽極美。", address: "湖西鄉井垵里100號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-19830407/laguna-villas-and-resorts/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" },
+                        { name: "候鳥潮間帶民宿", feature: "澎湖極少數擁有私人潮間帶的秘境民宿，生態豐富，可直接在後院體驗踏浪。", address: "湖西鄉白坑村34-3號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-4814647/migrator-intertidal-homestay/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" }
+                    ],
+                    "高CP值與便利": [
+                        { name: "綠洲旅店 (Oasis Hotel)", feature: "充滿摩洛哥風情，頂樓露天泳池可眺望海景，異國感十足。", address: "馬公市西衛里575號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-19829677/oasis-hotel/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" }
+                    ]
+                }
+            },
+            "baisha_xiyu": {
+                name: "北環/白沙/西嶼 (North Ring)",
+                categories: {
+                    "極致私密與秘境": [
+                        { name: "23.5蔚藍民宿", feature: "充滿浪漫氛圍的玻璃屋設計，周圍是純樸的白沙鄉漁村與潔白沙灘。", address: "白沙鄉後寮村73-1號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-5092478/235-blue-bandb/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" },
+                        { name: "遇見秘境民宿", feature: "隱身西嶼的特色住宿，遠離市區塵囂，晚上無光害觀星與欣賞絕美落日的好地方。", address: "西嶼鄉竹灣村191-1號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-5265096/meet-with-secret/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" }
+                    ]
+                }
+            },
+            "islands": {
+                name: "跳島/七美/望安 (Islands)",
+                categories: {
+                    "海島慢活": [
+                        { name: "七美德奇海景民宿", feature: "位於七美南滬碼頭旁，下船即達，交通非常便利，房間陽台可直接看海。", address: "七美鄉南港村11鄰35-1號", url: "https://hk.trip.com/hotels/penghu-hotel-detail-23157678/cimei-deemei/?Allianceid=7913725&SID=303113623&trip_sub1=&trip_sub3=D14610983" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70"></i>${hotelData[key].name}`;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 捲動功能
+        function scrollDistricts(direction) {
+            const scrollAmount = 200;
+            if (direction === 'left') {
+                districtContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                districtContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => { btn.classList.remove('area-btn-active'); btn.classList.add('area-btn-inactive'); });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive shadow-sm`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) selectCategory(currentCategories[0], firstCatBtn);
+        }
+
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => { btn.classList.remove('cat-btn-active'); btn.classList.add('cat-btn-inactive'); });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+            renderHotels();
+        }
+
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+            let htmlContent = `<div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-cyan-100 animate-fade-in"><h2 class="text-2xl font-bold text-cyan-900 mr-3"><i class="fa-solid fa-location-dot mr-2 text-cyan-500"></i>${districtData.name}</h2><span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-cyan-100 text-cyan-700 text-sm font-bold rounded-full border border-cyan-200"><i class="fa-solid fa-tag mr-1"></i>${currentCategoryName}</span></div>`;
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in">此分類目前無推薦資料。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5">`;
+                hotels.forEach((hotel, index) => {
+                    /* 使用固定寬度 sm:w-32 確保按鈕大小一致 */
+                    // 如果 URL 為 "#" 或是空的，就隱藏詳細說明的按鈕
+                    const linkTagHTML = (hotel.url && hotel.url !== "#") ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 mt-3 sm:mt-0 rounded-xl text-sm font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-32"><i class="fa-solid fa-magnifying-glass mr-1.5"></i>詳細說明</a>` : '';
+                    htmlContent += `<div class="bg-[#f8ffff] border border-cyan-50 p-5 md:p-6 rounded-2xl hover:shadow-md transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 0.05}s;"><div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2"><h4 class="text-xl font-bold text-cyan-900 flex items-start leading-tight pt-1"><span class="text-white bg-cyan-400 rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2 flex-shrink-0">${index + 1}</span>${hotel.name}</h4>${linkTagHTML}</div><div class="pl-0 sm:pl-8 space-y-3"><div class="flex items-start"><span class="font-bold text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded mr-2 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-star mr-1"></i>亮點</span><span class="text-sm text-slate-700 leading-relaxed font-medium">${hotel.feature}</span></div><div class="flex items-start"><span class="font-bold text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded mr-2 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-map-pin mr-1"></i>位置</span><span class="text-sm text-slate-700 leading-relaxed font-medium">${hotel.address}</span></div></div></div>`;
+                });
+                htmlContent += `</div>`;
+            }
+            contentArea.innerHTML = htmlContent;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            // 改為預設載入澎湖的第一個區域 (magong)
+            if(firstDistrictBtn) selectDistrict('magong', firstDistrictBtn);
+        });
+    </script>
+</body>
+</html>

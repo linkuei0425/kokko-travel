@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>澎湖美食導航 Penghu Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0fdfa; /* 淺孔雀綠背景 teal-50 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color for Island vibe (Teal) */
+        .btn-nav {
+            background-color: #0d9488; /* teal-600 */
+        }
+        .btn-nav:hover {
+            background-color: #0f766e; /* teal-700 */
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-teal-600 text-white sticky top-0 z-50 shadow-md transition-colors duration-300">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Penghu 澎湖美食地圖
+            </h1>
+            <!-- 回到首頁連結 -->
+            <a href="https://linkuei0425.github.io/Penghu/" class="flex items-center gap-1 text-sm md:text-base font-medium bg-teal-700 hover:bg-teal-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-teal-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                回到首頁
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider">選擇區域 (Select Region)</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider">選擇類別 (Select Category)</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-slate-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">請先從上方選擇您想探索的澎湖區域與美食類別</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Penghu Food Database
+        const db = {
+            "magong": {
+                name: "馬公市區 (Magong)",
+                categories: {
+                    "local_snacks": [
+                        { name: "郵局口蔥油餅", feature: "馬公市區必吃排隊美食！炸得金黃酥脆的蔥油餅，搭配清爽的小黃瓜絲與特製醬油膏，絕配且解膩。", address: "馬公市惠民一路36號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>位於馬公市區，公車總站旁，步行或騎機車可達。", recommend: true },
+                        { name: "原味漁村小吃", feature: "人氣爆棚的特色小吃店，招牌小管麵線湯頭鮮甜，小管新鮮Q彈，還有鮮蚵滷肉飯也非常受歡迎。", address: "馬公市中正路35-1號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>位於馬公最熱鬧的中正路上。" },
+                        { name: "讚哥麵攤 (炭烤燒肉飯)", feature: "在地老字號，招牌炭烤燒肉飯香氣四溢，配上特製醬汁與酸菜，是來到馬公市區必嚐的平價美味。", address: "馬公市光明路20號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>位於城隍廟正對面。" }
+                    ],
+                    "seafood": [
+                        { name: "福牡蠣屋", feature: "喜愛牡蠣者的天堂！自家養殖的新鮮牡蠣，推薦蒸鮮蚵、牡蠣飯與花枝丸，價格平實又鮮美。", address: "馬公市中興路73號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>市區內騎機車前往，鄰近天后宮。", recommend: true },
+                        { name: "來福海鮮餐廳", feature: "馬公老字號高評價海鮮餐廳。海鮮種類繁多，明蝦、螃蟹、各式鮮魚料理手法純熟，適合家庭或多人聚餐。", address: "馬公市新村路43號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>距離市區中心騎車約3分鐘。" }
+                    ],
+                    "cafe_dessert": [
+                        { name: "玉冠嫩仙草", feature: "澎湖無人不知的超人氣冰品店。招牌「翡翠嫩仙草刨冰」由仙草汁製成的刨冰底，搭配Ｑ彈的芋圓與嫩仙草，消暑第一名！", address: "馬公市民福路32號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>市區騎車前往，目前僅提供外帶。", recommend: true },
+                        { name: "掌上明珠 仙人掌冰淇淋", feature: "非常有質感的義式冰淇淋店。使用澎湖特產仙人掌、海菜、風茹茶等在地元素製成綿密的冰淇淋，拍照也超好看。", address: "馬公市民族路41號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>近觀音亭與篤行十村，步行或騎車可達。" }
+                    ],
+                    "specialty": [
+                        { name: "雛菊餐桌 (Chudju)", feature: "隱身在澎湖的超美森林系網美餐廳！提供高水準的義大利麵、披薩與浮誇精緻的甜點，是島上慶生與約會的首選。", address: "馬公市三多路353號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>市區騎機車前往，建議務必提前訂位。", recommend: true }
+                    ],
+                    "nightlife": [
+                        { name: "Beacon 說酒人", feature: "由傳統咾咕石老屋改造而成的特色精釀啤酒吧。氣氛極佳，提供多款國內外精釀啤酒，是夜晚微醺的好去處。", address: "馬公市臨海路15-3號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>近馬公港與順承門，步行可達。" },
+                        { name: "SUNLA", feature: "結合海島與露營風的半戶外酒吧。環境慵懶，調酒選擇多且有特色，適合吹著微風與朋友聊天放鬆。", address: "馬公市陽明路83巷<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>市區騎機車前往即可。" }
+                    ]
+                }
+            },
+            "huxi": {
+                name: "湖西鄉 (Huxi)",
+                categories: {
+                    "local_snacks": [
+                        { name: "白灣坑休閒小吃", feature: "在地私房小吃，海鮮麵與鮮蚵料理非常真材實料。簡單的店面卻隱藏著新鮮道地的澎湖海味。", address: "湖西鄉白坑村<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>騎車沿縣道前往湖西鄉。" }
+                    ],
+                    "seafood": [
+                        { name: "龍門海鮮", feature: "澎湖在地人激推的超強海鮮餐廳。無菜單料理模式，依當日新鮮漁獲報價，生魚片、水晶卷與海菜魚丸湯必點。", address: "湖西鄉龍門村58-2號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>距離馬公市區約20分鐘車程，強烈建議預約。", recommend: true }
+                    ],
+                    "cafe_dessert": [
+                        { name: "及林春咖啡館", feature: "座落於林投公園的秘境咖啡館。被濃密的森林包圍，走出店外就是金色的林投沙灘，點杯咖啡聽海浪聲，超級愜意。", address: "湖西鄉林投村1-3號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>沿204縣道至林投公園，停好車後步行穿過樹林。", recommend: true }
+                    ],
+                    "specialty": [
+                        { name: "白灣景觀餐廳", feature: "林投金沙灘旁的無敵海景餐廳。擁有大片落地窗與戶外吊椅座位，提供燉飯、義大利麵與炸物拼盤，非常適合度假放空。", address: "湖西鄉林投村13-1號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>緊鄰林投沙灘，可從沙灘漫步過去。" }
+                    ]
+                }
+            },
+            "baisha_xiyu": {
+                name: "白沙/西嶼 (North Ring)",
+                categories: {
+                    "local_snacks": [
+                        { name: "小萍的店", feature: "西嶼鄉鯨魚洞旁的超人氣小館。以「小管麵線」聞名，湯頭清甜，小管超脆，還會附送自製小菜如小魚乾與燒酒螺。", address: "西嶼鄉小門村11-3號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>北環必經，將車停在小門地質館停車場後步行進入。", recommend: true },
+                        { name: "滿海皇明蝦", feature: "北環路上的炸物小吃！可以吃到新鮮酥炸的明蝦、花枝丸，熱騰騰的非常解饞。", address: "白沙鄉跨海大橋附近<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>位於跨海大橋白沙端附近。" }
+                    ],
+                    "seafood": [
+                        { name: "清心飲食店", feature: "連前總統蔣經國先生都造訪過的西嶼傳奇海鮮餐廳。招牌炸大蝦、紅蟳粥、生吃海膽(季節限定)都是極品。", address: "西嶼鄉池東村77-2號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>北環騎至西嶼鄉中段，用餐時間人潮眾多。", recommend: true }
+                    ],
+                    "cafe_dessert": [
+                        { name: "易家仙人掌冰", feature: "來到澎湖跨海大橋必吃的經典冰品！深紫紅色的仙人掌冰酸甜解渴，是打卡跨海大橋的最佳道具。", address: "白沙鄉通梁村191-2號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>跨海大橋白沙鄉這端，紅色建築非常顯眼。" },
+                        { name: "二崁杏仁茶", feature: "藏身在二崁傳統聚落古厝中的古早味。濃厚純粹的杏仁茶，喝法可選冷熱，坐在咕咾石牆邊品嚐，別具風味。", address: "西嶼鄉二崁村36號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>北環至二崁聚落內步行尋找。" }
+                    ],
+                    "specialty": [
+                        { name: "牧羊人咖啡館", feature: "二崁聚落內的特色咖啡館。保留了傳統老屋的外觀，內部提供手沖咖啡與甜點，還有好吃的司康。", address: "西嶼鄉二崁村12號<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>二崁聚落內。" }
+                    ]
+                }
+            },
+            "islands": {
+                name: "跳島 (七美/吉貝/望安)",
+                categories: {
+                    "local_snacks": [
+                        { name: "七美越南大骨湯麵", feature: "七美島上不可思議的熱門美食！超大碗的越南河粉大骨湯，湯頭濃郁肉塊大，跳島肚子餓時吃一碗超滿足。", address: "七美鄉南港村<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>七美南滬碼頭騎車約3分鐘。", recommend: true }
+                    ],
+                    "seafood": [
+                        { name: "紅毛港小吃部 (吉貝)", feature: "吉貝島上的高CP值海鮮熱炒。海鮮炒麵、涼拌鐘螺、各式新鮮魚獲，適合水上活動後大快朵頤。", address: "白沙鄉吉貝村<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>吉貝島上最熱鬧的街區。" }
+                    ],
+                    "cafe_dessert": [
+                        { name: "香香冰店 (吉貝)", feature: "吉貝島必吃的特色冰品！用超大貝殼裝著滿滿的水果、紅豆與剉冰，份量巨大，視覺效果滿分。", address: "白沙鄉吉貝村<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>吉貝熱鬧大街上。" },
+                        { name: "紅欉爆米花球 (望安)", feature: "望安特有的傳統點心，將爆米花揉成球狀並裹上糖衣。酥脆香甜，是望安最棒的平價伴手禮。", address: "望安鄉中社村<br><span class='text-teal-600 font-bold mt-1.5 inline-block'>🛵 交通方式：</span>望安花宅聚落周邊。" }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Penghu
+        const categoriesMap = {
+            "local_snacks": { name: "🦑 在地小吃與麵線", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-400" },
+            "seafood": { name: "🦞 海鮮大餐與燒烤", color: "bg-blue-100 text-blue-800 hover:bg-blue-600 hover:text-white border-blue-400" },
+            "cafe_dessert": { name: "🍧 冰品甜點與咖啡", color: "bg-emerald-100 text-emerald-800 hover:bg-emerald-600 hover:text-white border-emerald-400" },
+            "specialty": { name: "🥩 特色料理與餐廳", color: "bg-purple-100 text-purple-800 hover:bg-purple-600 hover:text-white border-purple-400" },
+            "nightlife": { name: "🍻 宵夜與酒吧", color: "bg-pink-100 text-pink-800 hover:bg-pink-600 hover:text-white border-pink-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-5 py-2.5 rounded-full border border-slate-300 bg-white text-slate-700 font-bold hover:bg-teal-600 hover:text-white hover:border-teal-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-bold ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-teal-600', 'text-white', 'border-teal-600');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-slate-700', 'hover:bg-teal-600');
+            clickedBtn.classList.add('bg-teal-600', 'text-white', 'border-teal-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Filter categories based on region data
+            Array.from(categoryContainer.children).forEach(btn => {
+                const catKey = Object.keys(categoriesMap).find(k => categoriesMap[k].name === btn.innerText);
+                if (db[regionKey].categories[catKey]) {
+                    btn.style.display = "block";
+                } else {
+                    btn.style.display = "none";
+                }
+            });
+
+            // Auto select first available category if none selected or current is hidden
+            if(!currentCategory || !db[regionKey].categories[currentCategory]) {
+                const availableCat = Object.keys(categoriesMap).find(k => db[regionKey].categories[k]);
+                if (availableCat) {
+                    const targetBtn = Array.from(categoryContainer.children).find(btn => btn.innerText === categoriesMap[availableCat].name);
+                    selectCategory(availableCat, targetBtn);
+                } else {
+                    contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-slate-500">此區域目前無美食資料</p>`;
+                }
+            } else {
+                const targetBtn = Array.from(categoryContainer.children).find(btn => btn.innerText === categoriesMap[currentCategory].name);
+                selectCategory(currentCategory, targetBtn);
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-teal-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.5";
+            });
+            if (clickedBtn) {
+                clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-teal-500', 'shadow-md', 'scale-105');
+                clickedBtn.style.opacity = "1";
+            }
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-12 text-slate-500 text-lg font-bold">此分類目前無推薦名單，去探索其他美食吧！</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (加入 澎湖與台灣名稱 提升準確度)
+                const pureAddress = item.address.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.name} 澎湖 Penghu ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const badgeHtml = item.recommend ? `<span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded ml-2 align-middle shadow-sm">🔥 強烈推薦</span>` : '';
+
+                const bookingBtnHtml = item.bookingLink ? `
+                    <a href="${item.bookingLink}" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#ff5b00] hover:bg-[#e05000] text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md text-base">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                        </svg>
+                        線上預訂專屬優惠
+                    </a>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-teal-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-slate-800 leading-tight flex items-center flex-wrap gap-y-2">${item.name} ${badgeHtml}</h3>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded mr-1 shadow-sm">特色</span>${item.feature}</p>
+                        
+                        <div class="bg-teal-50/50 p-4 rounded-xl flex items-start gap-3 border border-teal-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-slate-600 leading-tight font-medium"><span class="font-bold text-teal-800">地址：</span>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto flex flex-col gap-3">
+                        ${bookingBtnHtml}
+                        <!-- Google Maps 導航按鈕 -->
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md text-base">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>

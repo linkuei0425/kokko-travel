@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>澎湖購物精選指南 | Penghu Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Custom Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Active State for Tabs */
+        .tab-btn.active {
+            background-color: #0ea5e9; /* sky-500 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
+            border-color: #0ea5e9;
+        }
+        .city-btn.active {
+            background-color: #075985; /* sky-800 */
+            color: white;
+            border-color: #075985;
+        }
+        .tab-btn, .city-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button Hover */
+        .btn-maps {
+            background-color: #0ea5e9; /* sky-500 */
+        }
+        .btn-maps:hover {
+            background-color: #0284c7; /* sky-600 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-sky-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-sky-700 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>PENGHU SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/Penghu/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> 回到首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-sky-800 via-sky-600 to-teal-500 py-10 lg:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm drop-shadow-md">澎湖必買購物精選指南</h1>
+            <p class="text-base md:text-lg text-sky-100 max-w-2xl mx-auto font-medium">嚴選澎湖 4 大區域，從免稅購物中心、名產老街到跳島特色文創，讓您滿載而歸！</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- City Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot mr-1"></i> 選擇區域 (Select Region)</h2>
+            <div id="city-container" class="flex overflow-x-auto hide-scrollbar space-x-2 pb-2">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> 選擇類別 (Select Category)</h2>
+            <div id="category-container" class="flex overflow-x-auto hide-scrollbar space-x-3 pb-2">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Shop Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected dynamically via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Penghu Shopping Guide. 為您的海島之旅提供最佳購物建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data Structure: n=Name, f=Feature, a=Address, t=Transport, cLink=CouponLink, cName=CouponName, cIcon=CouponIcon
+        const db = {
+            magong: {
+                name: "馬公市區 (Magong)",
+                cat: {
+                    souvenir: [
+                        {n:"春仁黑糖糕 / 御品家",f:"澎湖必買特產！現烤出爐的黑糖糕口感Q彈、香氣濃郁，是送禮人氣 No.1。",a:"馬公市中正路與周邊商圈",t:"步行或騎機車"},
+                        {n:"正一 / 萬泰 花生酥",f:"傳統手工製作的花生酥，香酥脆口且不黏牙，是極具在地古早味的經典零食。",a:"馬公市區名產街",t:"步行前往"},
+                        {n:"胡媽媽的灶腳 (干貝醬/XO醬)",f:"使用澎湖新鮮海產熬煮的頂級海鮮醬，拌麵或炒菜都超級對味。",a:"馬公市仁愛路46號",t:"步行前往"},
+                        {n:"澎湖手工麵線",f:"利用澎湖天然海風與陽光日曬而成，口感滑順不易爛，買回家煮小管麵線最棒。",a:"馬公市各大名產店皆有販售",t:"步行前往"},
+                        {n:"仙人掌果凍 / 仙人掌麻糬",f:"酸酸甜甜的粉紅色仙人掌特產，包裝輕巧，非常適合帶回辦公室分送同事。",a:"馬公市中正路",t:"步行前往"}
+                    ],
+                    fashion: [
+                        {n:"Pier3 三號港免稅購物中心",f:"澎湖最大免稅百貨！擁有國際精品、香水、菸酒及各大運動品牌，免稅價超划算。",a:"馬公市同和路158號",t:"騎車或飯店接駁可達"},
+                        {n:"中正路商圈服飾店",f:"馬公最熱鬧的大街，忘記帶花襯衫、大象褲或海島洋裝，來這裡隨便挑都有。",a:"馬公市中正路",t:"步行逛街"},
+                        {n:"澎湖在地體育用品店",f:"臨時需要高品質的防滑拖鞋、防水袋或衝浪服飾，中正路周邊的體育店能快速補齊。",a:"馬公市區周邊",t:"步行前往"},
+                        {n:"草帽與編織包小販",f:"超大簷的渡假風草帽與色彩鮮豔的編織包，是市區夜市與小店最熱銷的單品。",a:"馬公市中正路、文康街",t:"步行前往"},
+                        {n:"澎湖限定紀念 T-Shirt",f:"印有「I Love Penghu」或玄武岩圖騰的紀念T恤，全家大小買一套當作海島制服。",a:"馬公市各大伴手禮與服飾店",t:"步行前往"}
+                    ],
+                    beauty: [
+                        {n:"Pier3 三號港 (香水化妝品區)",f:"國際知名彩妝與香水品牌的免稅專櫃，價格比台灣本島專櫃便宜，出境前必逛。",a:"Pier3 三號港 1F/2F",t:"騎機車前往"},
+                        {n:"屈臣氏 / 康是美 (馬公店)",f:"位於最熱鬧的中正路上，方便隨時補齊防曬乳、蘆薈膠與曬後修護面膜。",a:"馬公市中正路",t:"步行前往"},
+                        {n:"澎湖在地藥局",f:"跳島出海前必備！買暈船藥、萬金油或綠油精最安心可靠的地方。",a:"馬公市區各大街角",t:"步行前往"},
+                        {n:"寶雅 POYA (馬公店)",f:"商品齊全的生活百貨，忘了帶旅行沐浴組、卸妝棉或開架彩妝來這裡買就對了。",a:"馬公市中華路",t:"騎機車前往"},
+                        {n:"澎湖仙人掌 / 蘆薈護手霜",f:"在地特產店附屬研發的天然保養品，滋潤度極高且帶有植物清香，包裝輕巧好攜帶。",a:"馬公市各大名產店",t:"步行前往"}
+                    ],
+                    mart: [
+                        {n:"全聯福利中心 (馬公/光榮店)",f:"回民宿前買飲料、水果與宵夜的超棒選擇，也有許多在地人會在此採買日常用品。",a:"馬公市區及周邊",t:"騎機車前往"},
+                        {n:"澎湖縣農會超市",f:"除了生鮮，這裡還能買到澎湖在地農漁會出產的大包裝零食與冷凍海鮮。",a:"馬公市大智街",t:"騎機車前往"},
+                        {n:"北辰市場 (傳統早市)",f:"體驗在地人生活的最佳去處！能買到最新鮮的當季漁獲、在地小吃與便宜水果。",a:"馬公市北辰街",t:"早起騎車前往"},
+                        {n:"澎坊免稅超市 (Pier3 B1)",f:"販售包裝精美的進口零食、巧克力與澎湖在地高檔伴手禮，送禮極佳。",a:"Pier3 三號港 B1",t:"騎機車前往"},
+                        {n:"7-11 / 全家便利商店",f:"馬公市區超商密集，買限定款冰品、大杯冰塊或微波熱食非常方便。",a:"馬公市區隨處可見",t:"步行前往"}
+                    ],
+                    hobby: [
+                        {n:"篤行十村文創店",f:"充滿眷村復古風的文青小店，販售帆布袋、特色明信片與復古童玩。",a:"馬公市新復路 (篤行十村內)",t:"騎機車前往"},
+                        {n:"中央老街手工刻印店",f:"挑選澎湖特有的「文石」或「玄武岩」，由老師傅純手工刻製個人印章，極具紀念價值。",a:"馬公市中央老街",t:"步行前往"},
+                        {n:"星沙瓶與貝殼飾品",f:"以天然貝殼、海星與白沙製作的手工項鍊與星沙瓶，充滿海洋氣息。",a:"中央老街藝品店",t:"步行前往"},
+                        {n:"咾咕石造型小盆栽",f:"將澎湖傳統的咾咕石縮小，搭配多肉植物製成的桌上型盆栽，非常療癒。",a:"馬公市文創市集",t:"步行前往"},
+                        {n:"海龜與雙心石滬造型磁鐵",f:"極具立體感的木製或樹脂冰箱貼，做工精細，是收集各國旅遊磁鐵愛好者的必買物。",a:"馬公市各大紀念品店",t:"步行前往"}
+                    ]
+                }
+            },
+            huxi: {
+                name: "湖西鄉 (Huxi)",
+                cat: {
+                    souvenir: [
+                        {n:"湖西小農特產 (花生/瓜果)",f:"湖西鄉是澎湖的農業重鎮，產出的花生特別香脆，當地農會與小販販售的農產加工品非常棒。",a:"湖西鄉農會與周邊",t:"騎機車或開車"},
+                        {n:"南寮古厝 花生炒沙體驗",f:"在南寮社區不僅能體驗傳統的「海沙炒花生」，還能將炒好的香脆花生買回家當伴手禮。",a:"湖西鄉南寮村",t:"騎機車前往"},
+                        {n:"在地海鮮乾貨",f:"湖西的漁村常有村民自製曬乾的小魚乾、丁香魚，價格實惠，熬湯炒菜必備。",a:"湖西鄉漁村或傳統柑仔店",t:"騎行尋寶"},
+                        {n:"手工麵線坊",f:"湖西鄉有幾家傳統的手工麵線廠，可以看到曬麵線的壯觀場景，並直接向工廠購買最新鮮的麵線。",a:"湖西鄉西溪村周邊",t:"騎機車前往"},
+                        {n:"海波浪文創 (在地品牌)",f:"結合澎湖海洋元素的在地文創品牌，不定期在市集或合作店鋪販售特色海產加工包裝。",a:"湖西鄉文創據點",t:"騎機車前往"}
+                    ],
+                    fashion: [
+                        {n:"澎湖農會 遮陽帽與袖套",f:"體驗最道地的防曬裝備！在農漁會可以買到阿嬤款超大遮陽帽與花布防曬袖套，便宜又實用。",a:"湖西鄉農漁會",t:"騎機車前往"},
+                        {n:"踏浪防滑鞋",f:"前往摩西分海或潮間帶踏浪前，若沒有合適的鞋子，周邊小攤販有售簡易防滑鞋避免刮傷。",a:"奎壁山周邊小販",t:"騎機車前往"},
+                        {n:"林投海灘周邊泳具",f:"前往林投沙灘玩水若缺裝備，周圍有小販販售泳圈、海灘褲與玩沙工具。",a:"林投公園入口處",t:"騎機車前往"},
+                        {n:"南寮社區 浮球環保袋",f:"社區發展協會利用廢棄漁網與花布結合製成的手工環保提袋，極具漁村再生意義。",a:"南寮社區活動中心",t:"騎機車前往"},
+                        {n:"輕便夾腳拖",f:"湖西鄉的柑仔店與便利商店都能隨手買到便宜好穿的夾腳拖，方便隨時下海玩水。",a:"湖西鄉主要道路商店",t:"機車臨停購買"}
+                    ],
+                    beauty: [
+                        {n:"澎湖特產 蘆薈露",f:"湖西地區有種植無毒蘆薈，在地出產的純天然蘆薈露是曬後舒緩泛紅肌膚的最佳急救品。",a:"湖西鄉農會或特產店",t:"騎機車前往"},
+                        {n:"湖西在地藥局",f:"若在東半部環島時臨時需要防蚊液、綠油精或簡易包紮用品，湖西市區的藥局非常方便。",a:"湖西村市中心",t:"騎機車前往"},
+                        {n:"超商防曬乳補充",f:"湖西鄉的 7-11 或全家是環島途中補給高係數防曬乳的重要據點。",a:"縣道 202/204 旁超商",t:"騎車途經"},
+                        {n:"傳統青草膏",f:"老字號柑仔店偶爾能找到傳統的薄荷青草膏，對於蚊蟲叮咬或提神醒腦很有效。",a:"傳統村落柑仔店",t:"騎車尋寶"},
+                        {n:"林投沙灘 曬後舒緩包",f:"沙灘周邊部分店家有販售分裝的曬後舒緩凝膠，玩水後可立即塗抹。",a:"林投沙灘周邊店家",t:"步行前往"}
+                    ],
+                    mart: [
+                        {n:"湖西鄉農會生鮮超市",f:"湖西最大的在地超市！生鮮、飲水與各類日常用品齊全，是在地居民的採購中心。",a:"湖西村 43-1 號",t:"騎機車前往"},
+                        {n:"傳統柑仔店 (雜貨店)",f:"保留濃濃古早味的村落雜貨店，買冰棒、彈珠汽水或便宜零食，充滿懷舊感。",a:"湖西鄉各村落內",t:"騎機車深入探索"},
+                        {n:"林投公園 雜貨小舖",f:"位於公園入口處，販售冷飲、烤香腸與各式解饞小吃，是在地人野餐買飲料的據點。",a:"林投公園內",t:"步行前往"},
+                        {n:"南寮小農市集 (假日/旺季)",f:"有時會有在地小農擺攤，販售自家種植的新鮮瓜果與現煮消暑茶飲。",a:"南寮古厝周邊",t:"騎機車前往"},
+                        {n:"在地生鮮小店",f:"沒有大型量販店，但主要縣道旁的生鮮超市價格親民，買大瓶飲用水非常方便。",a:"湖西主要縣道旁",t:"騎機車前往"}
+                    ],
+                    hobby: [
+                        {n:"浮球彩繪文創",f:"南寮社區以彩色浮球秘境聞名，周邊偶有販售小型的彩繪浮球吊飾，非常有紀念意義。",a:"南寮村周邊",t:"騎機車前往"},
+                        {n:"摩西分海 紀念品店",f:"奎壁山地質公園旁有販賣明信片、風景磁鐵與在地特色工藝品的小店。",a:"奎壁山摩西分海入口",t:"騎機車前往"},
+                        {n:"漁村手作編織",f:"在地阿嬤用傳統技法編織的草鞋、提籃或竹編扇，既實用又具民俗工藝美感。",a:"湖西鄉傳統村落",t:"騎機車尋寶"},
+                        {n:"漂流木與海廢藝品",f:"在地藝術家利用海邊撿拾的漂流木與海廢玻璃，重新打磨製作成獨一無二的裝飾品。",a:"湖西文創工作室",t:"騎機車前往"},
+                        {n:"在地藝術家明信片",f:"描繪湖西田園風光與牛車的特色明信片，呈現與馬公市區不同的寧靜鄉村感。",a:"特色咖啡廳或文創點",t:"騎機車前往"}
+                    ]
+                }
+            },
+            north_ring: {
+                name: "北環 (白沙/西嶼)",
+                cat: {
+                    souvenir: [
+                        {n:"易家仙人掌冰 (仙人掌原汁)",f:"北環必吃！除了現吃的冰淇淋，這裡也有賣瓶裝的仙人掌原汁，酸甜濃郁。",a:"白沙鄉通梁村 (跨海大橋旁)",t:"北環必經路段"},
+                        {n:"二崁杏仁茶 / 杏仁粉",f:"藏身在古厝中的純粹古早味。現場喝之外，也可以買包裝好的杏仁粉回家自己沖泡。",a:"西嶼鄉二崁聚落",t:"騎車進入聚落"},
+                        {n:"跨海大橋旁 小魚乾/燒酒螺",f:"橋頭的攤販販售現炒的燒酒螺與各式海鮮乾貨，是極佳的下酒菜伴手禮。",a:"跨海大橋白沙端橋頭",t:"北環必經路段"},
+                        {n:"二崁傳香",f:"澎湖獨有的傳統線香！使用天人菊、艾草與山芙蓉製成，形狀像小船，能驅蚊兼避邪。",a:"西嶼鄉二崁聚落",t:"步行逛聚落"},
+                        {n:"小門鯨魚洞 小管絲/紫菜",f:"小門嶼以海鮮麵線聞名，沿路的小店販售品質極佳的現做小管絲與野生紫菜。",a:"西嶼鄉小門村",t:"騎機車前往"}
+                    ],
+                    fashion: [
+                        {n:"二崁聚落 文創帆布袋",f:"印有澎湖傳統「褒歌」字句與圖騰的帆布袋，充滿濃厚的在地文化氣息。",a:"西嶼鄉二崁聚落文創店",t:"步行逛聚落"},
+                        {n:"跨海大橋 紀念T恤",f:"在橋頭的紀念品店可以買到印有跨海大橋地標的衣服，證明你成功征服北環！",a:"跨海大橋兩端紀念品店",t:"北環必經路段"},
+                        {n:"防風遮陽帽 / 太陽眼鏡",f:"北環路途遙遠且無遮蔽物，若忘記帶防曬裝備，通樑古榕旁的攤商能快速買到便宜帽子。",a:"通樑古榕周邊攤販",t:"騎機車停靠"},
+                        {n:"赤崁碼頭 海灘褲/泳衣",f:"準備前往北海吉貝玩水前，若發現少帶裝備，赤崁碼頭旁的商店能買到各式泳裝。",a:"白沙鄉赤崁碼頭",t:"前往北海必經"},
+                        {n:"海女採蚵裝備 (袖套/手套)",f:"在西嶼的五金雜貨店能買到海女專業的防護裝備，實用度滿分且極具在地特色。",a:"西嶼鄉雜貨店",t:"騎行尋寶"}
+                    ],
+                    beauty: [
+                        {n:"二崁傳統草藥膏",f:"古厝裡的老奶奶遵循古法熬製的青草膏，對於緩解曬傷與蚊蟲叮咬有神奇功效。",a:"西嶼鄉二崁聚落",t:"步行逛聚落"},
+                        {n:"白沙鄉衛生所旁 藥局",f:"前往吉貝搭船前，一定要在這裡買暈船藥！也有販售防曬與急救護理用品。",a:"白沙鄉赤崁村市區",t:"騎機車前往"},
+                        {n:"蘆薈果肉敷劑",f:"北環路上部分小農會販售新鮮處理好的蘆薈果肉，是最天然純粹的曬後保養品。",a:"北環沿路特產攤",t:"騎車途經"},
+                        {n:"西嶼在地藥房",f:"西嶼鄉的聚落中心有在地藥房，方便補充綠油精、白花油等提神醒腦藥品。",a:"西嶼鄉池東/外垵村",t:"騎機車前往"},
+                        {n:"超商防曬補給站",f:"白沙與西嶼交界處的 7-11 是北環路上極為重要的補給站，防曬乳用完必在此補充。",a:"縣道 203 旁超商",t:"騎車途經"}
+                    ],
+                    mart: [
+                        {n:"赤崁碼頭 周邊超市",f:"前往吉貝跳島前的最後大型補給站！買大瓶水、零食與飲料帶上船非常方便。",a:"白沙鄉赤崁碼頭旁",t:"騎機車前往"},
+                        {n:"白沙鄉農會 / 西嶼鄉農會",f:"在地居民的生鮮超市，價格公道，能買到在地農產加工品與大包裝飲料。",a:"白沙鄉與西嶼鄉中心",t:"騎機車前往"},
+                        {n:"大菓葉柱狀玄武岩 小販",f:"景區旁有攤販販售冰涼的風茹茶、冷飲與現切水果，是看石頭後解渴的救星。",a:"西嶼鄉大菓葉",t:"騎機車前往"},
+                        {n:"通樑古榕 雜貨小吃群",f:"古榕樹下不僅可以乘涼，周圍一圈的小吃攤與雜貨店販售花枝丸與飲料，非常熱鬧。",a:"白沙鄉通梁村",t:"北環必經路段"},
+                        {n:"北環 7-11 / 全家",f:"北環路線長，便利商店是吹冷氣休息、上廁所與買冰塊礦泉水的最佳中繼站。",a:"白沙鄉/西嶼鄉縣道旁",t:"騎車途經"}
+                    ],
+                    hobby: [
+                        {n:"二崁聚落 褒歌明信片",f:"將澎湖特有的褒歌文化印製在明信片上，並可在古厝郵筒直接寄出，文青必買。",a:"西嶼鄉二崁聚落",t:"步行逛聚落"},
+                        {n:"玄武岩手工印章",f:"北環也有部分藝品店提供玄武岩刻印服務，石頭紋理比市區更具粗獷原始感。",a:"西嶼/白沙藝品店",t:"騎行尋寶"},
+                        {n:"小門地質館 紀念品",f:"地質館內販售以澎湖獨特地質景觀（如鯨魚洞、玄武岩）為主題的教育與文創商品。",a:"西嶼鄉小門村地質館",t:"步行參觀"},
+                        {n:"手工編織漁網小袋",f:"在地漁民利用補網技術編織的彩色小網袋，可用來裝水壺或雜物，充滿討海人風情。",a:"西嶼漁村雜貨店",t:"騎行尋寶"},
+                        {n:"綠蠵龜 / 鯨魚洞 造型冰箱貼",f:"造型可愛的生態主題磁鐵，是北環各個知名景點旁最熱銷的平價紀念品。",a:"北環各大景點周邊",t:"騎機車前往"}
+                    ]
+                }
+            },
+            islands: {
+                name: "跳島 (七美/望安/吉貝)",
+                cat: {
+                    souvenir: [
+                        {n:"望安 紅欉爆米花球",f:"望安特有的傳統點心！將爆米花揉成球狀並裹上糖衣，酥脆香甜，是最棒的平價伴手禮。",a:"望安鄉中社村(花宅)周邊",t:"租機車前往"},
+                        {n:"望安酸瓜",f:"利用在地特產越瓜醃製而成，微酸開胃，買回家煮酸瓜鮮魚湯是澎湖最道地的吃法。",a:"望安碼頭周邊名產店",t:"步行前往"},
+                        {n:"七美 雙心石滬紀念品",f:"以雙心石滬為造型的各式星沙瓶、項鍊與木雕鑰匙圈，是浪漫跳島遊的最佳見證。",a:"七美雙心石滬景區攤販",t:"租機車或遊覽車"},
+                        {n:"吉貝 海鮮乾貨 (小管絲)",f:"吉貝是漁業重鎮，街上的海鮮乾貨店販售品質極佳的魷魚絲、小魚乾與蝦米。",a:"吉貝島熱鬧大街",t:"租機車前往"},
+                        {n:"七美火龍果 (季節限定)",f:"七美島上種植的火龍果特別甜美，夏季前往時別忘了在路邊小販買幾顆現吃。",a:"七美鄉沿路果農",t:"機車臨停購買"}
+                    ],
+                    fashion: [
+                        {n:"吉貝 沙灘服飾/比基尼",f:"吉貝島充滿濃濃的南洋度假風，大街上掛滿各式泳裝、罩衫與海灘褲，臨時補貨超方便。",a:"吉貝島熱鬧大街",t:"步行或租機車"},
+                        {n:"七美/吉貝 紀念 T-Shirt",f:"印有「I Love Qimei」或吉貝沙尾圖案的紀念棉T，是島上最搶手的服飾伴手禮。",a:"各島嶼碼頭周邊商店",t:"步行前往"},
+                        {n:"望安 漁夫遮陽帽",f:"跳島太陽極毒辣，望安碼頭邊的雜貨店賣的寬簷遮陽帽便宜又實用，能有效防曬。",a:"望安碼頭周邊",t:"步行前往"},
+                        {n:"跳島用 防水袋 (Dry Bag)",f:"參加吉貝水上活動或搭長尾船必備！大街上的裝備店有多種容量與顏色的防水袋可選。",a:"吉貝/七美大街",t:"步行前往"},
+                        {n:"吉貝 防滑夾腳拖",f:"在白沙尾漫步必備的好走夾腳拖，款式多樣且價格低廉，壞了也不心疼。",a:"吉貝島雜貨店",t:"步行前往"}
+                    ],
+                    beauty: [
+                        {n:"碼頭超商 防曬補給",f:"跳島最怕曬傷！七美與吉貝的全家便利商店是補給高係數防曬乳的最後防線。",a:"各島嶼碼頭全家超商",t:"下船步行可達"},
+                        {n:"衛生所旁藥局 (暈船藥)",f:"跳島風浪大時易暈船，島上衛生所附近的藥局能買到暈船藥與白花油等急救品。",a:"七美/望安鄉中心",t:"租機車前往"},
+                        {n:"曬後修護 蘆薈膠",f:"島上陽光無情，雜貨店或超商販售的純蘆薈膠是晚上回民宿敷臉降溫的神器。",a:"各島嶼便利超商",t:"步行前往"},
+                        {n:"吉貝 沐浴旅行組",f:"玩完水上活動需要盥洗，大街上的雜貨店都有賣單次使用的洗髮精與沐浴乳旅行包。",a:"吉貝島熱鬧大街",t:"步行前往"},
+                        {n:"天然海鹽 / 粗鹽",f:"部分小農或特產店販售在地日曬的海鹽，除了料理，也可用來泡澡或去角質。",a:"島上傳統特產店",t:"租機車尋寶"}
+                    ],
+                    mart: [
+                        {n:"七美 全家便利商店",f:"七美島上最大的現代化補給站！冷氣極強，買微波便當、冰飲與提款都靠它。",a:"七美南滬碼頭旁",t:"下船步行即達"},
+                        {n:"吉貝 全家便利商店",f:"吉貝島嶼的物資中心，晚上回民宿前買泡麵、零食與啤酒的必逛地點。",a:"吉貝島市中心",t:"租機車或步行"},
+                        {n:"望安 鄉農會超市",f:"望安島上的在地生鮮超市，價格實在，能買到大瓶礦泉水與在地人吃的零食。",a:"望安鄉東安村",t:"租機車前往"},
+                        {n:"南滬碼頭 雜貨小集",f:"七美碼頭邊聚集了許多小攤販與雜貨店，販售現剖椰子、風茹茶與各類解渴冷飲。",a:"七美南滬碼頭",t:"步行前往"},
+                        {n:"吉貝 大街生鮮小店",f:"吉貝街上有許多傳統的雜貨小店，門口常擺放新鮮香蕉、芒果等熱帶水果。",a:"吉貝島熱鬧大街",t:"步行前往"}
+                    ],
+                    hobby: [
+                        {n:"望安 綠蠵龜保育紀念品",f:"綠蠵龜觀光保育中心內販售許多以海龜為主題的生態教育周邊商品、明信片與布偶。",a:"望安綠蠵龜觀光保育中心",t:"租機車前往"},
+                        {n:"雙心石滬 立體磁鐵/石雕",f:"將玄武岩雕刻成雙心石滬形狀的小擺飾，是最具七美代表性的永恆紀念品。",a:"七美雙心石滬景點旁",t:"租機車前往"},
+                        {n:"吉貝 貝殼星沙瓶",f:"裝滿吉貝潔白貝殼沙與微小星沙的玻璃瓶，將澎湖最美的沙灘記憶打包帶走。",a:"吉貝島藝品店",t:"步行前往"},
+                        {n:"漂流木 / 海廢手工畫",f:"島上居民利用海邊撿拾的浮木與海廢，繪製成充滿童趣的貓咪或魚類掛畫。",a:"跳島文青小店",t:"租車尋寶"},
+                        {n:"跳島限定 明信片與郵票",f:"在各島嶼的郵局或特色小店買獨家明信片，蓋上跳島專屬的風景郵戳寄給自己。",a:"七美/望安郵局或名產店",t:"租機車前往"}
+                    ]
+                }
+            }
+        };
+
+        const catsMap = {
+            souvenir: { icon: "🛍️", name: "必買特產", bg: "bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white border-rose-200" },
+            fashion:  { icon: "👗", name: "服飾配件", bg: "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-600 hover:text-white border-fuchsia-200" },
+            beauty:   { icon: "🥥", name: "美妝防曬", bg: "bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border-sky-200" },
+            mart:     { icon: "🛒", name: "量販超市", bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200" },
+            hobby:    { icon: "🐘", name: "工藝文創", bg: "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border-amber-200" }
+        };
+
+        let currentCity = "magong";
+        let currentCat = "souvenir"; 
+
+        const cityContainer = document.getElementById('city-container');
+        const categoryContainer = document.getElementById('category-container');
+        const shopContainer = document.getElementById('shop-container');
+
+        function initUI() {
+            // Render Cities
+            Object.keys(db).forEach(cityKey => {
+                const btn = document.createElement('button');
+                btn.className = `city-btn whitespace-nowrap px-6 py-2.5 rounded-full border border-sky-200 bg-white text-sky-700 font-bold hover:bg-sky-100 hover:text-sky-900 shadow-sm ${cityKey === currentCity ? 'active' : ''}`;
+                btn.innerText = db[cityKey].name;
+                btn.onclick = () => {
+                    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCity = cityKey;
+                    renderContent();
+                };
+                cityContainer.appendChild(btn);
+            });
+
+            // Render Categories
+            Object.keys(catsMap).forEach(catKey => {
+                const c = catsMap[catKey];
+                const btn = document.createElement('button');
+                btn.className = `tab-btn whitespace-nowrap px-5 py-2.5 rounded-full border transition-all font-bold shadow-sm flex items-center ${c.bg} ${catKey === currentCat ? 'active' : ''}`;
+                btn.innerHTML = `<span class="mr-1.5 text-lg">${c.icon}</span> ${c.name}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCat = catKey;
+                    renderContent();
+                };
+                categoryContainer.appendChild(btn);
+            });
+
+            // Load Default View
+            renderContent();
+        }
+
+        function renderContent() {
+            shopContainer.innerHTML = '';
+            const items = db[currentCity].cat[currentCat];
+
+            if(!items || items.length === 0) {
+                shopContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-lg font-bold">此分類目前無推薦資料。</div>`;
+                return;
+            }
+
+            // 將「含有優惠券 (cLink)」的店家排序到最上方 (Index 0 起始)
+            const sortedItems = [...items].sort((a, b) => {
+                if (a.cLink && !b.cLink) return -1;
+                if (!a.cLink && b.cLink) return 1;
+                return 0; // 兩者都有或都沒有時，保持原始順序
+            });
+
+            sortedItems.forEach((item, index) => {
+                // Generate Google Maps URL (改成澎湖/台灣定位)
+                const pureAddress = item.a.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.n} 澎湖 Penghu ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                // 如果該項目有專屬優惠券，生成粉色優惠券按鈕
+                const couponHtml = item.cLink ? `
+                    <a href="${item.cLink}" target="_blank" rel="noopener noreferrer" 
+                       class="w-full flex items-center justify-center gap-2 px-4 py-3 mb-3 border border-rose-300 rounded-xl shadow-sm text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-400 focus:outline-none transition-colors">
+                        <i class="${item.cIcon} text-lg"></i>
+                        免費領取：${item.cName}
+                    </a>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border ${item.cLink ? 'border-rose-200' : 'border-sky-50'} p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                ${item.n}
+                                ${item.cLink ? '<span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">優惠券</span>' : ''}
+                            </h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-amber-400 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">亮點特色</p>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-medium">${item.f}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">地址</p>
+                                    <p class="text-sm text-slate-600 font-medium">${item.a}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-car text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">交通方式</p>
+                                    <span class="inline-block bg-sky-50 text-sky-700 text-xs px-2.5 py-1 rounded-md font-bold text-left leading-normal">${item.t}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-sky-50">
+                        ${couponHtml}
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white btn-maps focus:outline-none transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                shopContainer.appendChild(card);
+            });
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>

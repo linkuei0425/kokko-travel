@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>澎湖度假勝地導覽</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 隱藏卷軸但保留滑動功能 */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body id="app-body" class="min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800">
+
+  <!-- Header -->
+  <header id="app-header" class="bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500">
+    
+    <!-- 回到首頁按鈕 -->
+    <div class="max-w-6xl mx-auto px-4 pt-4">
+      <a href="https://linkuei0425.github.io/Penghu/" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 bg-white/60 hover:bg-white hover:text-gray-900 rounded-full border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-x-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        回到首頁
+      </a>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 pb-6 pt-2">
+      <div class="flex items-center justify-center space-x-3 mb-2">
+        <div id="title-icon-left" class="animate-pulse"></div>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 transition-colors duration-500">
+          澎湖度假勝地導覽
+        </h1>
+        <div id="title-icon-right" class="animate-pulse"></div>
+      </div>
+      <p class="text-center text-gray-500 text-sm md:text-base">
+        精選馬公、湖西、西嶼及絕美跳島等<span id="category-text">海灘</span>勝地
+      </p>
+    </div>
+
+    <!-- Category Toggle -->
+    <div class="flex justify-center mb-4">
+      <div class="bg-gray-100/80 backdrop-blur-sm p-1.5 rounded-full inline-flex border border-gray-200 shadow-inner">
+        <button id="btn-beach" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          陽光海灘
+        </button>
+        <button id="btn-attraction" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          特色景點
+        </button>
+      </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="max-w-4xl mx-auto px-4 pb-4">
+      <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar space-x-2 md:justify-center py-2">
+        <!-- Tabs injected by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 mt-8">
+    <div class="mb-6 flex items-center space-x-2 transition-colors duration-500" id="section-title-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <h2 id="section-title" class="text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500">
+        馬公 / 湖西 精選景點
+      </h2>
+    </div>
+
+    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Cards injected by JS -->
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="max-w-6xl mx-auto px-4 mt-16 text-center text-gray-400 text-sm">
+    <p id="footer-text">※ 澎湖夏季陽光強烈，冬季有東北季風，建議依季節安排合適的行程與防風防曬準備。</p>
+  </footer>
+
+  <script>
+    const beachesData = {
+      '馬公 / 湖西': [
+        { name: '山水沙灘', feature: '澎湖南部最熱門的沙灘，擁有綿延的金黃色細沙與清澈海水。海浪較大，是衝浪愛好者與戲水遊客的天堂，周邊有許多異國風情的絕美民宿。', transport: '從馬公市區騎機車沿201縣道往南，約 15-20 分鐘可達。' },
+        { name: '隘門沙灘', feature: '擁有澎湖超長的美麗海岸線，沙灘腹地廣大。這裡水上活動最為豐富，如香蕉船、水上摩托車、透明獨木舟等，並設有充滿熱帶風情的網美打卡裝置。', transport: '距離澎湖機場極近，騎車或開車僅需 5-10 分鐘即可抵達。' },
+        { name: '嵵裡沙灘', feature: '曾是澎湖最著名的海水浴場，弧形海岸線優美，沙質細膩。相比其他熱門沙灘，這裡多了一分寧靜，非常適合悠閒地散步與欣賞海景。', transport: '位於馬公市南部，經過山水沙灘後繼續往南騎乘約 10 分鐘可達。' }
+      ],
+      '白沙 / 西嶼': [
+        { name: '內垵遊憩區 (內垵沙灘)', feature: '隱藏在西嶼鄉的絕美秘境沙灘，依山傍海。沿著木棧道漫步而下，便能擁抱潔白沙灘與漸層藍的海水，被譽為澎湖版的馬爾地夫。', transport: '沿 203 縣道往西嶼方向，過跨海大橋後繼續行駛約 20 分鐘，沿途有指標指示。' },
+        { name: '吉貝沙尾', feature: '位於北海吉貝嶼上，擁有長達數千公尺的夢幻貝殼白沙灘（沙尾）。這裡是水上活動的聖地，海水清澈見底，是澎湖最具代表性的絕美海灘。', transport: '需至白沙鄉「赤崁碼頭」搭乘北海交通船前往吉貝嶼，航程約 15 分鐘。' }
+      ]
+    };
+
+    const attractionsData = {
+      '馬公市區': [
+        { name: '觀音亭 & 虹橋', feature: '澎湖國際海上花火節的施放主場地！平時也是當地人傍晚欣賞絕美日落與晚霞的首選地點，彩虹橋在夜間會點亮繽紛燈光，非常浪漫。', transport: '位於馬公市區，從市中心步行或騎車 5-10 分鐘皆可輕鬆抵達。' },
+        { name: '中央老街', feature: '澎湖最早發展的街道，保留了四眼井、施公祠等四百年歷史的古蹟。老街內有許多古色古香的在地特色小吃、黑糖糕與伴手禮店，充滿人文氣息。', transport: '位於馬公市中心，周圍停車較不易，建議將機車停放外圍後步行遊覽。' },
+        { name: '篤行十村', feature: '全台最古老的眷村，現已轉型為文創園區。園區內充滿復古文青風格，隨處都是好拍的裝置藝術，傳奇歌手張雨生與潘安邦的故居也設立於此。', transport: '鄰近觀音亭，騎機車前往非常方便，是市區半日遊的必排景點。' }
+      ],
+      '北環 (白沙/西嶼)': [
+        { name: '澎湖跨海大橋', feature: '連接白沙鄉與西嶼鄉的重要橋樑，全長近2.5公里。在橋頭的拱門下拍照是每位旅客來到澎湖的必做儀式，旁邊還有知名的易家仙人掌冰。', transport: '沿 203 縣道一路往北騎乘，為北環路線必經的標誌性地標。' },
+        { name: '大菓葉柱狀玄武岩', feature: '千萬年前火山熔岩冷卻形成的壯觀柱狀節理，是世界級的地質奇觀。若剛好遇到大雨過後，前方窪地積水會映照出玄武岩的絕美倒影。', transport: '位於西嶼鄉，沿 203 縣道行駛，依路牌指標轉入小徑即可抵達。' },
+        { name: '二崁聚落', feature: '保存極佳的閩南傳統古厝群，咕咾石牆面充滿特色，巷弄間古色古香。在這裡可以品嚐到濃郁的二崁杏仁茶、海石花與傳統的二崁傳香。', transport: '位於西嶼鄉，距離大菓葉柱狀玄武岩不遠，通常會安排在一起順遊。' }
+      ],
+      '湖西 & 跳島': [
+        { name: '奎壁山摩西分海', feature: '退潮時，海水會從中間退去，露出一條S型的礫石步道連接對面的赤嶼。體驗如摩西分海般的自然奇景，是澎湖極具人氣的打卡點！', transport: '位於湖西鄉，從馬公市區騎車約需 25-30 分鐘，出發前務必上網查詢每日潮汐時間。' },
+        { name: '南寮古厝', feature: '保留了傳統澎湖農村風貌的幽靜村落，最知名的是用繽紛浮球裝飾的「浮球秘境」，好拍又充滿漁村再生創意。', transport: '位於湖西鄉，鄰近摩西分海，騎車約 5 分鐘距離，可搭配遊覽。' },
+        { name: '七美雙心石滬', feature: '澎湖最浪漫的代名詞！先民利用潮汐捕魚的石滬，因造型宛如兩心相印而聞名全球，是跳島行程中最令人期待的終極景點。', transport: '需至馬公市「南海遊客中心」搭乘交通船或參加跳島行程前往七美鄉。' }
+      ]
+    };
+
+    // 狀態
+    let activeCategory = 'beaches';
+    let activeTab = '馬公 / 湖西';
+
+    // SVG 圖示
+    const svgSun = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+    const svgMap = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
+    const svgSparkles = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400 mr-2 flex-shrink-0 mt-0.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`;
+    const svgTransport = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 mr-2 flex-shrink-0 mt-0.5"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>`;
+
+    const themeConfig = {
+      beaches: {
+        bg: 'bg-sky-50', selection: 'selection:bg-sky-300', textMain: 'text-sky-500',
+        borderMain: 'border-sky-100', tabActive: 'bg-sky-500 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-sky-100 hover:text-sky-600', iconH2: 'text-sky-600', borderH2: 'border-sky-200',
+        cardGradient: 'from-sky-300 via-sky-400 to-sky-300 group-hover:from-sky-400 group-hover:to-sky-500',
+        numberBg: 'bg-sky-100 text-sky-600', transportBg: 'bg-sky-50',
+        btnActive: 'bg-white text-sky-500 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-sky-400 hover:bg-white/50',
+        transportIconColor: 'text-sky-500'
+      },
+      attractions: {
+        bg: 'bg-emerald-50', selection: 'selection:bg-emerald-300', textMain: 'text-emerald-500',
+        borderMain: 'border-emerald-100', tabActive: 'bg-emerald-500 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-emerald-100 hover:text-emerald-600', iconH2: 'text-emerald-600', borderH2: 'border-emerald-200',
+        cardGradient: 'from-emerald-300 via-emerald-400 to-emerald-300 group-hover:from-emerald-400 group-hover:to-emerald-500',
+        numberBg: 'bg-emerald-100 text-emerald-600', transportBg: 'bg-emerald-50',
+        btnActive: 'bg-white text-emerald-500 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-emerald-400 hover:bg-white/50',
+        transportIconColor: 'text-emerald-500'
+      }
+    };
+
+    function updateTheme() {
+      const t = themeConfig[activeCategory];
+      
+      // Body & Header
+      document.getElementById('app-body').className = `min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800 ${t.bg} ${t.selection} selection:text-white`;
+      document.getElementById('app-header').className = `bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500 ${t.borderMain}`;
+      
+      // Icons & Text
+      const iconSvg = activeCategory === 'beaches' ? svgSun : svgMap;
+      document.getElementById('title-icon-left').innerHTML = iconSvg;
+      document.getElementById('title-icon-right').innerHTML = iconSvg;
+      document.getElementById('title-icon-left').className = `animate-pulse ${t.textMain}`;
+      document.getElementById('title-icon-right').className = `animate-pulse ${t.textMain}`;
+      
+      document.getElementById('category-text').innerText = activeCategory === 'beaches' ? '陽光海灘' : '特色景點';
+
+      // Section Title
+      document.getElementById('section-title-container').className = `mb-6 flex items-center space-x-2 transition-colors duration-500 ${t.iconH2}`;
+      document.getElementById('section-title').className = `text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500 ${t.borderH2}`;
+
+      // Toggle Buttons
+      document.getElementById('btn-beach').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeCategory === 'beaches' ? t.btnActive : t.btnInactive}`;
+      document.getElementById('btn-attraction').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeCategory === 'attractions' ? t.btnActive : t.btnInactive}`;
+    }
+
+    function renderTabs() {
+      const t = themeConfig[activeCategory];
+      const data = activeCategory === 'beaches' ? beachesData : attractionsData;
+      const cities = Object.keys(data);
+      const container = document.getElementById('tabs-container');
+      
+      // Ensure the active tab exists in the new category
+      if (!cities.includes(activeTab)) {
+        activeTab = cities[0];
+      }
+
+      container.innerHTML = cities.map(city => `
+        <button
+          onclick="setTab('${city}')"
+          class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-in-out ${activeTab === city ? t.tabActive : t.tabHover}"
+        >
+          ${city}
+        </button>
+      `).join('');
+    }
+
+    function renderCards() {
+      const t = themeConfig[activeCategory];
+      const data = activeCategory === 'beaches' ? beachesData : attractionsData;
+      const spots = data[activeTab];
+      
+      document.getElementById('section-title').innerText = `${activeTab} 精選景點`;
+
+      const transportIconStyled = svgTransport.replace('text-blue-500', t.transportIconColor);
+
+      const container = document.getElementById('cards-container');
+      container.innerHTML = spots.map((spot, index) => `
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-50 flex flex-col h-full group">
+          <div class="h-2 w-full bg-gradient-to-r transition-colors duration-500 ${t.cardGradient}"></div>
+          <div class="p-6 flex-grow flex flex-col">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-start">
+              <span class="rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5 transition-colors duration-500 ${t.numberBg}">
+                ${index + 1}
+              </span>
+              ${spot.name}
+            </h3>
+            
+            <div class="mb-6 flex-grow">
+              <div class="flex items-start text-gray-600 mb-1">
+                ${svgSparkles}
+                <span class="font-semibold text-gray-700">景點特色</span>
+              </div>
+              <p class="text-gray-600 leading-relaxed pl-7 text-sm">
+                ${spot.feature}
+              </p>
+            </div>
+
+            <div class="rounded-xl p-4 mt-auto transition-colors duration-500 ${t.transportBg}">
+              <div class="flex items-start text-gray-700 mb-1">
+                ${transportIconStyled}
+                <span class="font-semibold">交通方式</span>
+              </div>
+              <p class="text-gray-600 text-sm pl-7 leading-relaxed">
+                ${spot.transport}
+              </p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 事件與更新邏輯
+    function setCategory(category) {
+      if (activeCategory === category) return;
+      activeCategory = category;
+      updateTheme();
+      renderTabs();
+      renderCards();
+    }
+
+    function setTab(tab) {
+      if (activeTab === tab) return;
+      activeTab = tab;
+      renderTabs();
+      renderCards();
+    }
+
+    document.getElementById('btn-beach').addEventListener('click', () => setCategory('beaches'));
+    document.getElementById('btn-attraction').addEventListener('click', () => setCategory('attractions'));
+
+    // 初始化
+    updateTheme();
+    renderTabs();
+    renderCards();
+  </script>
+</body>
+</html>
