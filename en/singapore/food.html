@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singapore Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #fff7ed; /* orange-50 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color for Singapore (Orange vibe) */
+        .btn-nav {
+            background-color: #ea580c; /* orange-600 */
+        }
+        .btn-nav:hover {
+            background-color: #c2410c; /* orange-700 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-orange-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Singapore Food Map
+            </h1>
+            <!-- Back to Home Link (Updated to US version) -->
+            <a href="https://linkuei0425.github.io/Singapore-US/index.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-orange-700 hover:bg-orange-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-orange-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Region</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Category</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">Please select a region and category above to explore.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Singapore Data Structure (Translated to English)
+        const db = {
+            "chinatown": {
+                name: "Chinatown / Maxwell",
+                categories: {
+                    "hainanese": [
+                        { name: "Tian Tian Hainanese Chicken Rice", feature: "Michelin Bib Gourmand! Singapore's most famous chicken rice. Tender and juicy chicken paired with fragrant rice cooked in chicken broth and a signature chili sauce.", address: "Maxwell Food Centre #01-10<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟤Brown Line to Maxwell (TE18) Exit 2, or 🔵Blue/🟣Purple Line to Chinatown (DT19/NE4) and walk 6 mins." },
+                        { name: "Song Fa Bak Kut Teh (Chinatown Point)", feature: "One of Singapore's top 3 Bak Kut Teh! Teochew style with a rich, peppery, and garlicky broth. You can ask for free unlimited soup refills.", address: "133 New Bridge Rd, #01-04 Chinatown Point<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔵Blue/🟣Purple Line to Chinatown (DT19/NE4) Exit E. Located on the 1st floor of Chinatown Point." },
+                        { name: "Zhen Zhen Porridge", feature: "A highly popular breakfast spot hidden in Maxwell! Their signature sliced fish porridge is cooked until the rice breaks down, smooth and warming with youtiao and a raw egg.", address: "Maxwell Food Centre #01-54<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟤Brown Line to Maxwell (TE18) Exit 2, right at the food centre." }
+                    ],
+                    "seafood": [
+                        { name: "JUMBO Seafood (The Riverwalk)", feature: "The synonym for Chili Crab in Singapore! Located by the river at Clarke Quay. The sauce is rich, sweet, sour, and mildly spicy—perfect with fried mantou.", address: "20 Upper Circular Rd, #B1-48 The Riverwalk<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟣Purple Line to Clarke Quay (NE5) Exit E, cross the road and walk 3 mins to the riverfront." },
+                        { name: "Ba Dao Kuan Seafood", feature: "A popular zi char (stir-fry) spot in the Chinatown Food Street. Offers black pepper crab, cereal prawns, and other classic dishes at an affordable price with a lively vibe.", address: "2 Trengganu St, Chinatown<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔵Blue/🟣Purple Line to Chinatown (DT19/NE4) Exit A, walk 2 mins along Pagoda Street." },
+                        { name: "Eminent Frog Porridge", feature: "Famous Geylang frog porridge branch in Chinatown! Signature Kung Pao frog with rich, spicy dark sauce over smooth, plain porridge. Great for late-night supper.", address: "323 Geylang Rd (Main Branch)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green Line to Aljunied (EW9) Exit A, walk 8-10 mins to Geylang Lorong 19." }
+                    ],
+                    "nanyang": [
+                        { name: "Xing Long Taiwan Mee Sua", feature: "Despite having 'Taiwan' in its name, this mee sua has been adapted to local Nanyang tastes with a unique vinegar kick. A childhood favorite for many locals.", address: "Maxwell Food Centre #01-67<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟤Brown Line to Maxwell (TE18) Exit 2." },
+                        { name: "Baba Mews", feature: "Exquisite Peranakan restaurant near Chinatown. Experience authentic Straits Chinese culture with their Ayam Buah Keluak (black nut stew) and Kueh Pie Tee.", address: "Alleys around Chinatown<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔵Blue/🟣Purple Line to Chinatown (DT19/NE4) or 🟢Green/🔴Red Line to Outram Park (EW16) and walk 5 mins." },
+                        { name: "Maxwell Fuzhou Oyster Cake", feature: "A vanishing traditional snack! Golden crispy crust filled with fresh oysters, minced meat, and peanuts. A fragrant and satisfying walking snack.", address: "Maxwell Food Centre #01-05<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟤Brown Line to Maxwell (TE18) Exit 2." }
+                    ],
+                    "kopitiam": [
+                        { name: "Ya Kun Kaya Toast (Main Branch)", feature: "Over 70 years of history! Incredibly crispy charcoal-grilled thin toast with cold butter and sweet kaya jam. Best enjoyed with soft-boiled eggs and Kopi O.", address: "18 China St, #01-01 Far East Square<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔵Blue Line to Telok Ayer (DT18) Exit B, walk 3 mins into Far East Square." },
+                        { name: "Nanyang Old Coffee", feature: "Striking red retro building that looks like a mini coffee museum. Offers traditional pulled tea, Nanyang coffee, and a variety of local pastries.", address: "268 South Bridge Rd, Chinatown<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟤Brown Line to Maxwell (TE18) Exit 1 and walk 3 mins, or Chinatown Exit A and walk 5 mins." },
+                        { name: "Tong Ah Eating House", feature: "Classic Chinatown kopitiam. Their kaya toast is thicker and fluffier. Besides breakfast, their local zi char (stir-fry) is also very popular.", address: "35 Keong Saik Rd<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟤Brown Line to Maxwell (TE18) Exit 3 and walk 4 mins, or Outram Park (EW16/NE3) and walk 6 mins." }
+                    ],
+                    "dessert": [
+                        { name: "Mei Heong Yuen Dessert", feature: "A haven to cool down in Chinatown! Signature smooth snow ice in mango, sesame, and matcha flavors. Also serves traditional sesame and almond pastes.", address: "63-67 Temple St, Chinatown<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔵Blue/🟣Purple Line to Chinatown (DT19/NE4) Exit A, turn right onto Temple Street, walk 2 mins." },
+                        { name: "Lao Ban Soya Beancurd", feature: "A household brand in Singapore! Unlike traditional tau huay, it has a smooth, pudding-like texture that is sweet and refreshing. Original and almond are highly recommended.", address: "Maxwell Food Centre #01-91<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟤Brown Line to Maxwell (TE18) Exit 2." },
+                        { name: "Uncle Chieng Ice Cream Carts", feature: "Famous street food! Thick blocks of durian, sweet corn, or mint chocolate ice cream sandwiched between colored bread or crispy wafers.", address: "Carts around Chinatown Square<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔵Blue/🟣Purple Line to Chinatown (DT19/NE4) Exit A, easily spotted in the plaza outside." }
+                    ]
+                }
+            },
+            "marinabay": {
+                name: "Marina Bay / Lau Pa Sat",
+                categories: {
+                    "hainanese": [
+                        { name: "Wee Nam Kee Chicken Rice", feature: "Loved by locals and the Prime Minister! Choose between steamed or roasted chicken. The roasted chicken has a unique aroma, and their garlic chili sauce is exceptional.", address: "6 Raffles Blvd, #04-102B Marina Square<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow Line to Esplanade (CC3) Exit C, walk via underpass to Marina Square 4th floor." },
+                        { name: "Ng Ah Sio Bak Kut Teh (MBS)", feature: "Intensely peppery and robust Bak Kut Teh! Perfect if you love heavy flavors. The pork ribs are tender and fall off the bone.", address: "2 Bayfront Ave, #B2-50 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow/🔵Blue Line to Bayfront (CE1/DT16) Exit C/D, head to B2 food court." },
+                        { name: "Rasapura Masters Roast Meats", feature: "Located in the MBS food court, gathering top local street food elites. The roasted meats (char siew, roast pork) and chicken rice here are of high quality.", address: "2 Bayfront Ave, #B2-50 Marina Bay Sands B2<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow/🔵Blue Line to Bayfront (CE1/DT16) Exit C/D." }
+                    ],
+                    "seafood": [
+                        { name: "Palm Beach Seafood", feature: "Enjoy Chili Crab with an unbeatable view of the Merlion and Marina Bay! Black pepper crab and crispy roasted chicken are also signature dishes.", address: "1 Fullerton Rd, #01-09 One Fullerton<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔴Red Line to Raffles Place (EW14/NS26) Exit H, walk towards Merlion Park for 8 mins." },
+                        { name: "No Signboard Seafood", feature: "Famous as the creator of 'White Pepper Crab'! The crab is plump and sweet, and the pepper aroma enhances the fresh seafood without overpowering it.", address: "8 Raffles Ave, #01-14/16 Esplanade<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow Line to Esplanade (CC3) Exit D, walk 5 mins to the Esplanade (Durian) building." },
+                        { name: "JUMBO Seafood (MBS)", feature: "A great alternative if you want to avoid the crowds at Clarke Quay. Signature Cereal Prawns are crispy, buttery, and sweet—you can even eat the shells.", address: "2 Bayfront Ave, #01-85 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow/🔵Blue Line to Bayfront (CE1/DT16) Exit C/D, located on the 1st floor." }
+                    ],
+                    "nanyang": [
+                        { name: "Lau Pa Sat Satay Street", feature: "The street beside Lau Pa Sat closes to traffic every evening and fills with satay stalls. Try mixed satay (chicken/mutton/beef) paired with cold draft beer.", address: "18 Raffles Quay, Lau Pa Sat (Street closes after 7 PM)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔴Red Line to Raffles Place (EW14/NS26) Exit I and walk 5 mins, or 🔵Blue Line to Downtown (DT17) walk 3 mins." },
+                        { name: "Makansutra Gluttons Bay", feature: "Open-air food center next to the Esplanade, featuring elite street food vendors. Great place for BBQ stingray, satay, and Hokkien mee with a view.", address: "8 Raffles Ave, #01-15 Esplanade<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow Line to Esplanade (CC3) Exit D, walk 6 mins to the Floating Platform." },
+                        { name: "Laksa at Rasapura Masters", feature: "Find rich and authentic Laksa inside the MBS food court. Thick coconut milk broth with thick bee hoon and fresh prawns—very satisfying.", address: "2 Bayfront Ave, #B2-50 Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow/🔵Blue Line to Bayfront (CE1/DT16) Exit C/D, head to B2." }
+                    ],
+                    "kopitiam": [
+                        { name: "TWG Tea (MBS)", feature: "Luxury tea brand founded in Singapore, located in a glass pavilion over the MBS indoor canal. Top-tier afternoon tea sets and macarons.", address: "2 Bayfront Ave, #B2-65 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow/🔵Blue Line to Bayfront (CE1/DT16) Exit C/D." },
+                        { name: "Bacha Coffee (MBS)", feature: "Luxury boutique coffee from Morocco! Gorgeous decor, premium single-origin pour-overs, and freshly baked croissants with constant queues.", address: "2 Bayfront Ave, #B2-86 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow/🔵Blue Line to Bayfront (CE1/DT16) Exit C/D, located on B2." },
+                        { name: "Toast Box (MBS)", feature: "An affordable local chain in MBS. Besides great kaya toast and Nanyang kopi, their curry chicken and laksa are also very decent.", address: "2 Bayfront Ave, #B2-62 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow/🔵Blue Line to Bayfront (CE1/DT16) Exit C/D, near the food court." }
+                    ],
+                    "dessert": [
+                        { name: "Lady M (MBS)", feature: "Famous mille crêpes from New York, occasionally offering Singapore-exclusive flavors. Enjoy a slice of incredibly light layer cake after shopping.", address: "2 Bayfront Ave, #01-27 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟡Yellow/🔵Blue Line to Bayfront (CE1/DT16) Exit C/D, located on the 1st floor boutique area." },
+                        { name: "Llaollao Frozen Yogurt", feature: "Hugely popular Spanish frozen yogurt in Singapore! Refreshing and tangy, customized with fresh fruits, Biscoff crumbs, and various sauces.", address: "Branches in MBS and major malls<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> MBS branch is at B2. Take MRT to Bayfront (CE1/DT16)." },
+                        { name: "Marina Bay Ice Cream Carts", feature: "While strolling from Merlion Park to Gardens by the Bay, you'll find pushcarts selling $1.50 ice cream blocks—a perfect rescue from the heat.", address: "Along the Merlion Park waterfront<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT to Raffles Place (EW14/NS26) Exit H, stroll along the promenade." }
+                    ]
+                }
+            },
+            "bugis": {
+                name: "Bugis / Kampong Glam",
+                categories: {
+                    "hainanese": [
+                        { name: "Yet Con Hainanese Chicken Rice", feature: "Nostalgic and authentic chicken rice spot preserving traditional methods. Their Hainanese stewed pork is also highly praised by gourmands.", address: "25 Purvis St (Near Bugis/City Hall)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit C, walk about 8 mins." },
+                        { name: "Chin Chin Eating House", feature: "Another historic spot on Purvis Street. Generous portions of chicken rice. Their sweet and sour Hainanese fried pork chop is a must-try.", address: "19 Purvis St (Near Bugis)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit C, walk about 8 mins." },
+                        { name: "Founder Bak Kut Teh (Bugis)", feature: "Frequented by many celebrities! Features a clear, peppery broth. The pork ribs easily separate from the bone and pair perfectly with dark soy sauce.", address: "530 North Bridge Rd, #01-01 (Near Bugis Junction)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit D, walk past Bugis Junction for 5 mins." }
+                    ],
+                    "seafood": [
+                        { name: "Mellben Seafood", feature: "Though the main branch is in Ang Mo Kio, the Bugis outlet is just as popular! Their unique 'Claypot Crab Bee Hoon Soup' with a rich, milky broth is a must-eat.", address: "7 Fraser St, #01-28/29 Duo Galleria<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit E/F, direct underground link to Duo Galleria 1st floor." },
+                        { name: "White Restaurant", feature: "Famous for 'Original White Beehoon'. The noodles soak up a rich seafood broth and are topped with generous amounts of fresh prawns and squid.", address: "Branches around Suntec City / Bugis<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> For Suntec branch, take MRT 🟡Yellow/🔵Blue Line to Promenade (CC4/DT15) Exit C, enter Suntec City B1." },
+                        { name: "Ah Khoo Prawn Noodle", feature: "Traditional prawn noodles near Kampong Glam. The dark brown broth is boiled for hours using prawn heads and pork bones, full of umami.", address: "Alleys in Bugis / Kampong Glam<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit B, walk 5-8 mins to the Sultan Mosque area." }
+                    ],
+                    "nanyang": [
+                        { name: "Zam Zam Restaurant", feature: "Century-old Indian Muslim establishment! Famous for their Murtabak—a pan-fried bread stuffed with spiced minced meat and onions, served with curry.", address: "697-699 North Bridge Rd (Opposite Sultan Mosque)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit B, walk 6 mins (directly opposite Sultan Mosque)." },
+                        { name: "Sungei Road Laksa", feature: "The last laksa stall in Singapore still using a charcoal fire! The broth is rich in coconut and dried shrimp flavors, served with fresh cockles and only a spoon.", address: "27 Jln Berseh, #01-100 (Near Jalan Besar/Bugis)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔵Blue Line to Jalan Besar (DT22) Exit B, walk about 3 mins." },
+                        { name: "Blanco Court Prawn Mee", feature: "Famous spot next to Haji Lane! Jumbo prawns and pork ribs top the noodles. The dry version comes with an incredibly rich bowl of prawn soup on the side.", address: "243 Beach Rd, #01-01<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit B, walk to the end of Haji Lane and turn right (6 mins)." }
+                    ],
+                    "kopitiam": [
+                        { name: "% Arabica (Arab Street)", feature: "Located on the exotic Arab Street, its minimalist white design contrasts with the colorful surroundings. Great latte to enjoy after exploring Haji Lane.", address: "56 Arab St<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit B, walk 7 mins to Arab Street." },
+                        { name: "Earlybird", feature: "A popular bird-themed hipster brunch cafe near Haji Lane. Signature fried chicken and waffles, along with high-quality coffee and Western brunch plates.", address: "17 Jln Pinang (Near Kampong Glam)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit B, walk 6 mins (near Sultan Mosque)." },
+                        { name: "Ya Kun (Bugis Junction)", feature: "If you can't make it to the main branch, there's one inside Bugis Junction. Perfect for a quick traditional kaya toast set meal before shopping.", address: "200 Victoria St, #B1-11 Bugis Junction<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit C, direct access to mall B1." }
+                    ],
+                    "dessert": [
+                        { name: "Ah Chew Desserts", feature: "Must-try traditional Chinese dessert shop in Bugis with classic decor. Signatures include Mango Sago Pomelo and Fresh Milk Steamed Egg. Often has queues.", address: "1 Liang Seah St, #01-10/11<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit D, cross the road to Liang Seah Street, walk 3 mins." },
+                        { name: "Mei Heong Yuen Dessert", feature: "Another highly popular dessert shop in Bugis. Huge portions of snow ice perfect for sharing. Durian snow ice is a favorite for those who dare.", address: "Branch near Liang Seah St, Bugis<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit D, cross the road and walk 3 mins." },
+                        { name: "Haji Lane Rainbow Cake", feature: "Haji Lane features many specialty cafes (like 'I Am') famous for their giant, colorful Rainbow Cakes. Highly Instagrammable.", address: "Inside Haji Lane<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🟢Green/🔵Blue Line to Bugis (EW12/DT14) Exit B, walk 6 mins into Haji Lane." }
+                    ]
+                }
+            },
+            "orchard": {
+                name: "Orchard / Somerset",
+                categories: {
+                    "hainanese": [
+                        { name: "Chatterbox (Hilton Singapore)", feature: "The legendary 'premium Hainanese Chicken Rice'! Higher price but luxurious setting. Uses specially selected chickens for incredibly tender meat, served with premium sides.", address: "333 Orchard Rd, #05-03 Hilton Singapore Orchard<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Somerset (NS23) Exit B and walk 5 mins, or Orchard (NS22/TE14) and walk 6 mins." },
+                        { name: "Bazaar Bak Kut Teh", feature: "Named because they used to wrap takeaways in newspaper. A moderately peppery white broth with large, flavorful pork ribs. Loved by local office workers.", address: "Branches in Orchard food courts<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Orchard (NS22/TE14) or Somerset (NS23) and visit mall food courts." },
+                        { name: "Lucky Plaza Chicken Rice", feature: "Hidden affordable chicken rice inside Lucky Plaza (Filipino/Indonesian mall). Secretly praised by locals as the highest CP value on Orchard Road.", address: "304 Orchard Rd, Lucky Plaza<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Orchard (NS22/TE14) Exit A, walk 3 mins along Orchard Road." }
+                    ],
+                    "seafood": [
+                        { name: "TungLok Seafood", feature: "Premium seafood restaurant on Orchard Road. Besides Chili Crab, their 'Wasabi Mayo Prawns' is a must-order. Great environment for families.", address: "181 Orchard Rd, #11-05 Orchard Central<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Somerset (NS23) Exit C, direct connection to Orchard Central." },
+                        { name: "JUMBO Seafood (ION Orchard)", feature: "If you're shopping on Orchard, head straight to ION's Jumbo Seafood. Modern setting with consistently excellent Chili Crab and Seafood Fried Rice.", address: "2 Orchard Turn, #04-09/10 ION Orchard<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Orchard (NS22/TE14) Exit E, direct connection to ION Orchard 4th floor." },
+                        { name: "Singapore Seafood Republic", feature: "A collaboration of four famous Singapore seafood restaurants. You can taste signature dishes from all of them at once in their city pop-ups or branches.", address: "Branches around Orchard Road<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> (For Sentosa main branch, take MRT 🟣Purple/🟡Yellow to HarbourFront and transfer to Sentosa Express)." }
+                    ],
+                    "nanyang": [
+                        { name: "Food Republic (313@Somerset)", feature: "Best affordable choice while shopping! This retro-themed food court features very authentic Laksa and Hokkien Mee stalls worth trying.", address: "313 Orchard Rd, Level 5, 313@Somerset<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Somerset (NS23) Exit B, head to 5th floor Food Republic." },
+                        { name: "Violet Oon", feature: "Top-tier Peranakan restaurant with luxurious, elegant decor. Kueh Pie Tee, Ayam Buah Keluak, and Beef Rendang are must-tries for exquisite Straits Chinese dining.", address: "Branch inside ION Orchard<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Orchard (NS22/TE14) Exit E, enter ION Orchard 3rd floor." },
+                        { name: "Thye Hong (Char Kway Teow)", feature: "A common chain in food courts. Their Char Kway Teow has great wok hei, stir-fried over high heat with dark soy sauce, cockles, and Chinese sausage—wickedly delicious.", address: "ION Orchard Food Opera B4<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Orchard (NS22/TE14) Exit E, head to ION basement 4 food court." }
+                    ],
+                    "kopitiam": [
+                        { name: "Bacha Coffee (ION Orchard)", feature: "Flagship store on ION's 1st floor. The wall of coffee tins is eye-catching. Rest your feet with premium pour-over coffee and raspberry croissants.", address: "2 Orchard Turn, #01-15/16 ION Orchard<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Orchard (NS22/TE14) Exit E, take the escalator to ION 1st floor boutique area." },
+                        { name: "PS.Cafe (Paragon)", feature: "One of Singapore's most famous aesthetic cafes! Hidden in the mall but features lush greenery. Their Truffle Fries come in huge portions and are incredibly fragrant.", address: "290 Orchard Rd, #03-41/42 Paragon<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Orchard (NS22/TE14) Exit A, walk 5 mins along Orchard Road to Paragon 3rd floor." },
+                        { name: "Ya Kun (313@Somerset)", feature: "Located above Somerset MRT. Perfect for breakfast or afternoon tea. Drop your shopping bags and rest with a kaya toast set.", address: "313 Orchard Rd, #01-32/33 313@Somerset<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Somerset (NS23) Exit B, located on the 1st floor pedestrian walkway." }
+                    ],
+                    "dessert": [
+                        { name: "Uncle Chieng Ice Cream", feature: "The famous red pushcart outside Ngee Ann City! Featured on travel shows. Cheap and delicious blocks of ice cream sandwiched in colored bread.", address: "391 Orchard Rd, Sidewalk outside Ngee Ann City<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Orchard (NS22) or Somerset (NS23) Exit B, walk 5 mins to Takashimaya." },
+                        { name: "Mr. Coconut", feature: "A recent massive hit in Singapore! Signature Coconut Shake made with fresh coconut meat. Refreshing, not too sweet, and perfect for cooling down.", address: "Branches in basements of major Orchard malls<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT 🔴Red Line to Somerset (NS23) and head to the basement of 313@Somerset." },
+                        { name: "Street Cut Fruit Carts", feature: "Pushcarts selling fresh, icy cuts of watermelon, melon, or rambutan are common along Orchard Road. A cheap and natural way to beat the heat.", address: "Sidewalks along Orchard Road<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 Transport:</span> Take MRT to Orchard (NS22) or Somerset (NS23) and stroll along the main Orchard Road sidewalk." }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Singapore (Translated to English)
+        const categoriesMap = {
+            "hainanese": { name: "🍗 Hainanese Chicken & Bak Kut Teh", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-400" },
+            "seafood": { name: "🦀 Chili Crab & Seafood", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "nanyang": { name: "🍜 Laksa & Peranakan", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "kopitiam": { name: "☕ Kaya Toast & Kopitiam", color: "bg-emerald-100 text-emerald-800 hover:bg-emerald-600 hover:text-white border-emerald-400" },
+            "dessert": { name: "🍧 Street Desserts & Snacks", color: "bg-sky-100 text-sky-800 hover:bg-sky-600 hover:text-white border-sky-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-orange-600', 'text-white', 'border-orange-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-orange-600');
+            clickedBtn.classList.add('bg-orange-600', 'text-white', 'border-orange-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('hainanese', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-orange-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-orange-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-gray-500">No data available in this category.</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (Filter out HTML tags for the query)
+                const pureAddress = item.address.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.name} Singapore ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded mr-1">Highlights</span>${item.feature}</p>
+                        
+                        <div class="bg-orange-50/50 p-3.5 rounded-xl flex items-start gap-3 border border-orange-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium"><span class="font-bold text-orange-800">Address: </span>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto flex flex-col gap-3">
+                        <!-- Google Maps Navigation Button -->
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md text-base">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            Open in Google Maps
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>

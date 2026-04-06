@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singapore Hotel Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #34d399; /* emerald-400 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #10b981; /* emerald-500 */
+        }
+        
+        /* Area Buttons - Emerald Theme */
+        .area-btn-active {
+            background-color: #047857; /* emerald-700 */
+            color: white;
+            border-color: #047857;
+            box-shadow: 0 4px 6px -1px rgba(4, 120, 87, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #ecfdf5; /* emerald-50 */
+            color: #065f46; /* emerald-800 */
+            border-color: #6ee7b7; /* emerald-300 */
+        }
+
+        /* Category Buttons */
+        .cat-btn-active {
+            background-color: #059669; /* emerald-600 */
+            color: white;
+            border-color: #059669;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #ecfdf5; /* emerald-50 */
+            color: #059669;
+        }
+    </style>
+</head>
+<body class="bg-[#f0fdf4] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-emerald-900 tracking-wide">🇸🇬 Singapore Hotel Guide</h1>
+                <!-- Link updated to the US version homepage -->
+                <a href="https://linkuei0425.github.io/Singapore-US/index.html" class="inline-flex items-center px-4 py-2 bg-white hover:bg-emerald-100 text-emerald-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-emerald-200">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    Back to Home
+                </a>
+            </div>
+            <p class="text-emerald-600 font-medium text-sm md:text-base">Handpicked hotels in Singapore's top districts for a comfortable and convenient stay.</p>
+        </header>
+
+        <!-- Layer 1: District Buttons -->
+        <div id="district-buttons" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <!-- Dynamically generated via JS -->
+        </div>
+
+        <!-- Layer 2: Category Buttons -->
+        <div id="category-buttons" class="grid grid-cols-3 gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-emerald-100 hidden">
+            <!-- Dynamically generated via JS -->
+        </div>
+
+        <!-- Content Display Area -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-emerald-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-emerald-400 pt-20 pb-20">
+                <p>Please select a district and category above to view hotel recommendations...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structure with translated content and updated affiliate links
+        const hotelData = {
+            "marinabay": {
+                name: "Marina Bay",
+                categories: {
+                    "Luxury Landmarks": [
+                        { name: "Marina Bay Sands", feature: "Singapore's ultimate landmark! Features the world-famous rooftop infinity pool (guests only), with direct access to a mega shopping mall and casino.", address: "10 Bayfront Ave / Direct access from Bayfront MRT", url: "https://www.trip.com/hotels/singapore-hotel-detail-687592/marina-bay-sands-singapore/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" },
+                        { name: "The Ritz-Carlton, Millenia Singapore", feature: "Famous for its octagonal bathroom windows offering panoramic views of Marina Bay from the bathtub. Provides ultimate luxury service.", address: "7 Raffles Ave / Near Promenade MRT", url: "https://www.trip.com/hotels/list?flexType=1&cityId=73&provinceId=0&countryId=3&cityName=%E6%96%B0%E5%8A%A0%E5%9D%A1&destName=%E6%96%B0%E5%8A%A0%E5%9D%A1%E9%BA%97%E6%80%9D%E5%8D%A1%E7%88%BE%E9%A0%93%E7%BE%8E%E5%B9%B4%E9%A3%AF%E5%BA%97&searchWord=%E6%96%B0%E5%8A%A0%E5%9D%A1%E9%BA%97%E6%80%9D%E5%8D%A1%E7%88%BE%E9%A0%93%E7%BE%8E%E5%B9%B4%E9%A3%AF%E5%BA%97&searchType=H&optionId=962739&searchValue=31%7C962739*31*962739&checkin=2026-03-15&checkout=2026-03-16&crn=1&adult=2&listFilters=29~1*29*1~2*2&curr=USD&locale=zh-TW&allianceid=7913725&sid=299534159&old=1&locale=en_xx&curr=USD" }
+                    ],
+                    "High-Rise Views": [
+                        { name: "Swissotel The Stamford", feature: "One of Southeast Asia's tallest hotels. High-floor rooms offer stunning bay and city views. Located directly above Raffles City Shopping Centre.", address: "2 Stamford Rd / Directly above City Hall MRT", url: "https://www.trip.com/hotels/singapore-hotel-detail-998612/swissotel-the-stamford-singapore/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "orchard": {
+                name: "Orchard Road",
+                categories: {
+                    "Premium Shopping": [
+                        { name: "Hilton Singapore Orchard", feature: "The largest hotel on Orchard Road, newly renovated with a modern touch. Located in the heart of the shopping paradise for seamless retail therapy.", address: "333 Orchard Rd / Near Somerset MRT", url: "https://www.trip.com/hotels/singapore-hotel-detail-84720555/xin-jia-po-wu-jie-xi-er-dun-jiu-dian/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" }
+                    ],
+                    "High Value / Affordable": [
+                        { name: "YOTEL Singapore Orchard Road", feature: "A high-tech capsule concept hotel. Rooms are compact but fully equipped. Features smart robot service and an excellent location.", address: "366 Orchard Rd / 5-min walk from Orchard MRT", url: "https://www.trip.com/hotels/singapore-hotel-detail-8497129/yotel-singapore-orchard-road/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" },
+                        { name: "JEN Singapore Orchardgateway by Shangri-La", feature: "A youthful brand under Shangri-La. Features a beautiful rooftop infinity pool and direct access to a shopping mall and MRT station.", address: "277 Orchard Rd / Direct access from Somerset MRT", url: "https://www.trip.com/hotels/singapore-hotel-detail-1466284/hotel-jen-singapore-orchardgateway-by-shangri-la/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D139695871&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "chinatown": {
+                name: "Chinatown / Clarke Quay",
+                categories: {
+                    "Design & Boutique": [
+                        { name: "PARKROYAL COLLECTION Pickering", feature: "The famous 'hotel in a garden', covered in lush greenery with a futuristic and eco-friendly design.", address: "3 Upper Pickering St / 5-min walk from Chinatown or Clarke Quay MRT", url: "https://www.trip.com/hotels/singapore-hotel-detail-712600/parkroyal-on-pickering/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" }
+                    ],
+                    "Top Budget Picks": [
+                        { name: "Hotel Mono", feature: "Located in the Chinatown heritage area, featuring a striking minimalist black-and-white design inside and out. Great for photos.", address: "18 Mosque St / 3-min walk from Chinatown MRT", url: "https://www.trip.com/hotels/singapore-hotel-detail-1708965/hotel-mono/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" },
+                        { name: "Furama City Centre", feature: "Conveniently located within walking distance to Chinatown food streets and Clarke Quay nightlife. Spacious rooms suitable for families and budget travelers.", address: "60 Eu Tong Sen St / 5-min walk from Chinatown MRT", url: "https://www.trip.com/hotels/singapore-hotel-detail-995050/furama-city-centre/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "sentosa": {
+                name: "Sentosa Island",
+                categories: {
+                    "Luxury Resorts": [
+                        { name: "Capella Singapore", feature: "Nestled in the Sentosa rainforest, perfectly blending historic colonial architecture with modern design for an ultimately private and luxurious resort experience.", address: "1 The Knolls, Sentosa Island / Exclusive shuttle service provided", url: "https://www.trip.com/hotels/singapore-hotel-detail-995014/capella-singapore/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" },
+                        { name: "Shangri-La Rasa Sentosa", feature: "Singapore's only beachfront resort with a private beach, offering rich water facilities and a kids' club.", address: "101 Siloso Rd, Sentosa Island / Next to Siloso Beach", url: "https://www.trip.com/hotels/singapore-hotel-detail-996300/shangri-la-s-rasa-sentosa-resort-and-spa/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" }
+                    ],
+                    "Family Friendly": [
+                        { name: "Village Hotel Sentosa", feature: "Designed for families and young travelers, featuring four uniquely themed pools. Close to Sentosa Express station and Universal Studios.", address: "10 Artillery Ave, Sentosa Island / 3-min walk from Imbiah Station", url: "https://www.trip.com/hotels/singapore-hotel-detail-25469473/village-hotel-at-sentosa-by-far-east-hospitality/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "bugis": {
+                name: "Bugis / Little India",
+                categories: {
+                    "Cultural Vibe": [
+                        { name: "Andaz Singapore", feature: "A Hyatt concept brand with design inspired by the local Kampong Glam colors. Features a rooftop bar with a stunning 360-degree view.", address: "5 Fraser St / Direct access from Bugis MRT", url: "https://www.trip.com/hotels/singapore-hotel-detail-11491662/andaz-singapore-by-hyatt/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587&locale=en_xx&curr=USD" }
+                    ],
+                    "Hostels & Capsules": [
+                        { name: "The Pod Boutique Capsule Hotel", feature: "A premium boutique capsule hotel with a modern minimalist style. Offers free buffet breakfast and is located near Haji Lane.", address: "289 Beach Rd / Near Bugis and Nicoll Highway MRT", url: "https://www.trip.com/hotels/singapore-hotel-detail-687791/the-pod-beach-road-boutique-capsule-hotel/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D1396958711&locale=en_xx&curr=USD" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. Initialize District Buttons
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 border area-btn-inactive`;
+                btn.innerText = hotelData[key].name;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. Select District
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. Render Category Buttons
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. Select Category
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. Render Hotel Data
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-emerald-100">
+                    <h2 class="text-2xl font-bold text-emerald-900 mr-3">📍 ${districtData.name}</h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-emerald-100 text-emerald-800 text-sm font-bold rounded-full">${currentCategoryName}</span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center">No recommendations currently available for this category.</p>`;
+            } else {
+                htmlContent += `<div class="space-y-4">`;
+                
+                hotels.forEach((hotel, index) => {
+                    const linkTagHTML = hotel.url 
+                        ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-1.5 mt-1 sm:mt-0 rounded-full text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm cursor-pointer ml-0 sm:ml-3">
+                               <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                               View Details & Offers
+                           </a>`
+                        : `<span class="inline-flex items-center px-3 py-1 mt-1 sm:mt-0 rounded-md text-xs font-bold bg-slate-200 text-slate-500 ml-0 sm:ml-3">
+                               View Details
+                           </span>`;
+
+                    htmlContent += `
+                        <div class="bg-[#f8fffa] border border-emerald-50 p-5 rounded-2xl hover:shadow-lg transition-all duration-300 group">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-start mb-4">
+                                <h4 class="text-xl font-bold text-emerald-900 flex items-center">
+                                    <span class="text-emerald-500 font-mono text-lg mr-2">${index + 1}.</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-6 space-y-3">
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md mr-2">Highlights</span> ${hotel.feature}
+                                </p>
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md mr-2">Address & Transport</span> ${hotel.address}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict('marinabay', firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singapore Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar for categories */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Singapore Emerald Theme Active State */
+        .tab-btn.active {
+            background-color: #059669; /* Emerald-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);
+            border-color: #059669;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button Hover */
+        .btn-maps {
+            background-color: #059669; /* Emerald-600 */
+        }
+        .btn-maps:hover {
+            background-color: #047857; /* Emerald-700 */
+        }
+    </style>
+</head>
+<body class="bg-[#f0fdf4] text-gray-800 font-sans antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-emerald-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>SG SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link (US Version) -->
+                    <a href="https://linkuei0425.github.io/Singapore-US/index.html" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> BACK TO HOME
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-emerald-600 via-teal-500 to-green-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">Singapore Shopping Guide</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">Discover the best local brands, luxury boutiques, and unique souvenirs. Shop your way through the Lion City!</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Category Buttons (Horizontal Scroll) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('mustbuy', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🌟</span> SG Must Buys
+            </button>
+            <button onclick="filterCategory('fashion', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👗</span> Fashion
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> Beauty & Skincare
+            </button>
+            <button onclick="filterCategory('souvenir', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🎁</span> Souvenirs
+            </button>
+            <button onclick="filterCategory('mart', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛒</span> Supermarkets
+            </button>
+            <button onclick="filterCategory('shoes', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👟</span> Sneakers
+            </button>
+        </div>
+
+        <!-- Shop Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected dynamically via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">© 2026 Singapore Shopping Guide. Your ultimate companion in the Lion City.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Singapore Shop Database
+        const shopData = [
+            // --- MUST BUYS (Appears in 'mustbuy' and their respective categories) ---
+            { cat: ['mustbuy', 'souvenir'], name: 'IRVINS Salted Egg', feature: 'The dangerously addictive salted egg yolk potato chips and fish skins. A phenomenal Singaporean brand and the ultimate foodie souvenir.', loc: 'Jewel Changi, Marina Bay Sands, Orchard', transit: 'Available at Changi Airport or Bayfront MRT (MBS)' },
+            { cat: ['mustbuy', 'souvenir'], name: 'TWG Tea (MBS)', feature: 'Singapore’s luxury tea brand. Features hundreds of premium tea blends in exquisite packaging, making it a perfect premium gift.', loc: '2 Bayfront Ave, B2-65 (Marina Bay Sands)', transit: 'Bayfront MRT (CE1/DT16) Exit C/D' },
+            { cat: ['mustbuy', 'souvenir'], name: 'Bacha Coffee', feature: 'Luxurious Moroccan coffee brand that took Singapore by storm. Famous for its 100% Arabica drip coffee bags and beautifully designed gift boxes.', loc: 'ION Orchard, Marina Bay Sands, Jewel Changi', transit: 'Orchard MRT (ION) or Bayfront MRT (MBS)' },
+            { cat: ['mustbuy', 'souvenir'], name: 'Bengawan Solo', feature: 'Famous for its traditional Pandan Chiffon Cake and Kueh Lapis (layer cake). A must-buy local pastry souvenir before you fly home.', loc: 'Changi Airport all terminals, ION Orchard', transit: 'Pick up easily at Changi Airport before departure' },
+            { cat: ['mustbuy', 'fashion'], name: 'Charles & Keith', feature: 'Singapore’s proudest homegrown brand. Offers high-quality, trendy women’s shoes, bags, and accessories at highly affordable prices.', loc: 'ION Orchard, Wisma Atria, VivoCity', transit: 'Orchard MRT (NS22/TE14) for flagship stores' },
+            
+            // --- FASHION ---
+            { cat: 'fashion', name: 'Love, Bonito (Funan)', feature: 'The largest homegrown women’s fashion brand in Singapore. Modern, chic, and specifically tailored to fit Asian proportions perfectly.', loc: '107 North Bridge Rd, #02-09 Funan Mall', transit: 'City Hall MRT (EW13/NS25) Exit D, walk 3 mins' },
+            { cat: 'fashion', name: 'Design Orchard', feature: 'A massive creative hub featuring over 100 local Singaporean designers. Great for finding unique clothes, accessories, and lifestyle goods.', loc: '250 Orchard Rd, Singapore', transit: 'Somerset MRT (NS23) Exit B, walk 3 mins' },
+            { cat: 'fashion', name: 'Bugis Street Market', feature: 'Singapore’s largest street shopping location with over 600 stalls selling incredibly affordable trendy clothes, K-pop style outfits, and accessories.', loc: '3 New Bugis Street, Singapore', transit: 'Bugis MRT (EW12/DT14) Exit C, walk 2 mins' },
+            { cat: 'fashion', name: 'The Shoppes at Marina Bay Sands', feature: 'The ultimate luxury shopping destination. Features spectacular architecture, an indoor canal, and the world’s top luxury fashion houses.', loc: '10 Bayfront Ave, Singapore', transit: 'Bayfront MRT (CE1/DT16) direct connection' },
+
+            // --- BEAUTY & SKINCARE ---
+            { cat: 'beauty', name: 'Sephora (ION Orchard)', feature: 'The ultimate beauty destination. Find global makeup brands, skincare, and Sephora’s own highly affordable collection all in one massive store.', loc: '2 Orchard Turn, #B2-09 ION Orchard', transit: 'Orchard MRT (NS22/TE14) Exit E' },
+            { cat: 'beauty', name: 'Watsons (Ngee Ann City)', feature: 'Great for picking up affordable local and Asian drugstore beauty products, including the famous Tiger Balm ointments and medicated patches.', loc: '391 Orchard Rd, Ngee Ann City', transit: 'Orchard or Somerset MRT, walk 5 mins' },
+            { cat: 'beauty', name: 'Bath & Body Works', feature: 'Highly popular for its beautifully scented shower gels, body lotions, and candles. Often runs massive sales making it great for bulk gifts.', loc: 'Marina Bay Sands, VivoCity, ION Orchard', transit: 'Bayfront MRT or HarbourFront MRT' },
+
+            // --- SOUVENIR ---
+            { cat: 'souvenir', name: 'Mustafa Centre', feature: 'A massive 24-hour shopping mall in Little India. You can buy literally anything here from chocolates, perfumes, to Merlion souvenirs at low prices.', loc: '145 Syed Alwi Rd, Singapore', transit: 'Farrer Park MRT (NE8) Exit F, walk 5 mins' },
+            { cat: 'souvenir', name: 'Chinatown Street Market', feature: 'The best place to buy cheap, bulk souvenirs like Merlion keychains, fridge magnets, traditional crafts, and printed tote bags.', loc: 'Pagoda Street, Trengganu Street', transit: 'Chinatown MRT (DT19/NE4) Exit A' },
+            { cat: 'souvenir', name: 'Haji Lane Boutiques', feature: 'A colorful, vibrant street in Kampong Glam filled with indie boutiques, vintage clothing stores, and unique handmade accessories.', loc: 'Haji Lane, Singapore', transit: 'Bugis MRT (EW12/DT14) Exit B, walk 5 mins' },
+
+            // --- SUPERMARKETS (MART) ---
+            { cat: 'mart', name: 'FairPrice Xtra (VivoCity)', feature: 'One of the largest local supermarkets. Great for picking up local instant noodles (like Prima Taste Laksa), Kaya jam, and Hainanese chicken rice paste.', loc: '1 HarbourFront Walk, #B2-23 VivoCity', transit: 'HarbourFront MRT (NE1/CC29) direct connection' },
+            { cat: 'mart', name: 'Cold Storage (Bugis Junction)', feature: 'A premium supermarket offering a wide variety of imported goods, local snacks, and fresh tropical fruits. Very conveniently located.', loc: '200 Victoria St, #B1-17 Bugis Junction', transit: 'Bugis MRT (EW12/DT14) Exit C' },
+            { cat: 'mart', name: 'Don Don Donki (Orchard Central)', feature: 'Massive Japanese discount store that is hugely popular in Singapore. Great for buying snacks, cosmetics, and late-night shopping.', loc: '181 Orchard Rd, B1 & B2 Orchard Central', transit: 'Somerset MRT (NS23) Exit C' },
+
+            // --- SNEAKERS & SPORTS ---
+            { cat: 'shoes', name: 'JD Sports (ION Orchard)', feature: 'Known as the "Undisputed King of Trainers". Massive selection of exclusive Nike, Adidas, New Balance, and Asics sneakers.', loc: '2 Orchard Turn, #B4-17 ION Orchard', transit: 'Orchard MRT (NS22/TE14) Exit E' },
+            { cat: 'shoes', name: 'Nike Orchard Road', feature: 'A massive Nike flagship store featuring an exclusive local customization zone (Nike By You) where you can add Singapore-themed patches to your gear.', loc: '268 Orchard Rd, Singapore', transit: 'Somerset MRT (NS23) Exit B, walk 3 mins' },
+            { cat: 'shoes', name: 'Foot Locker (Orchard Gateway)', feature: 'Multi-level flagship store featuring the latest sneaker drops, a great basketball apparel section, and exclusive streetwear collections.', loc: '277 Orchard Rd, Orchard Gateway', transit: 'Somerset MRT (NS23) direct connection' }
+        ];
+
+        // Function to render cards based on selected category
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; // Clear existing content
+
+            // Filter logic supporting array format (items can belong to multiple categories)
+            const filteredData = shopData.filter(item => {
+                const itemCats = Array.isArray(item.cat) ? item.cat : [item.cat];
+                return itemCats.includes(category);
+            });
+
+            if (filteredData.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center text-gray-500 py-10">No recommendations available for this category yet.</div>`;
+                return;
+            }
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; // Simple cascading animation delay
+                
+                // Generate Google Maps URL (Appending 'Singapore' for accuracy)
+                const pureName = shop.name.split('(')[0].trim();
+                const mapSearchQuery = encodeURIComponent(`${pureName} Singapore`);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
+                
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-yellow-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Highlights</p>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${shop.feature}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-emerald-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Location</p>
+                                    <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-train-subway text-emerald-500 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Transport</p>
+                                    <span class="inline-block bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded-md font-medium text-left leading-normal">${shop.transit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation Button Area -->
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white btn-maps focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            Open in Google Maps
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Category Tab Click Handler
+        function filterCategory(category, btnElement) {
+            // Remove active state from all buttons
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            // Add active state to clicked button
+            btnElement.classList.add('active');
+
+            // Render relevant data
+            renderCards(category);
+        }
+
+        // Add simple fade-in animation CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.4s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initial load shows first category (Must Buys)
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('mustbuy', firstBtn);
+        };
+    </script>
+</body>
+</html>
