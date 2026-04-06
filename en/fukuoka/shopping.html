@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fukuoka Shopping Guide | Fukuoka Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom scrollbar styling (for category buttons) */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Hakata Red Active State */
+        .tab-btn.active {
+            background-color: #e11d48; /* rose-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.3);
+            border-color: #e11d48;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- Top Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-rose-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>FUKUOKA SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/FUKUOKA-US/index.html" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-gradient-to-r from-red-600 via-rose-500 to-orange-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">Fukuoka Shopping Guide</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">Curated list of Kyushu's biggest shopping districts and local goods. From Japanese pharmacies and Tenjin fashion to supermarket hauls, shop all over Fukuoka with ease!</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Category Buttons (Horizontally Scrollable) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('fashion', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👗</span> Fashion
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> Cosmetics
+            </button>
+            <button onclick="filterCategory('souvenir', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🎁</span> Souvenirs
+            </button>
+            <button onclick="filterCategory('mart', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛒</span> Snacks & Marts
+            </button>
+            <button onclick="filterCategory('lifestyle', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👟</span> Sneakers & Hobbies
+            </button>
+            <button onclick="filterCategory('outlet', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-rose-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛍️</span> Outlets Nearby
+            </button>
+        </div>
+
+        <!-- Content Container -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be dynamically generated by JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">&copy; 2026 Fukuoka Shopping Guide. Your best shopping companion for Fukuoka, Kyushu.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Shop Database - Fukuoka Brands and Recommendations (English Version)
+        const shopData = [
+            // --- Fashion ---
+            { cat: 'fashion', name: 'Tenjin Chikagai (Underground Mall)', feature: 'Kyushu\'s largest underground mall with European vibes. Over 150 shops for apparel, bags, accessories, and popular dessert cafes.', loc: 'Tenjin, Chuo-ku, Fukuoka', transit: 'Direct from Tenjin / Tenjin-minami Sta.' },
+            { cat: 'fashion', name: 'Fukuoka PARCO', feature: 'A shopping landmark for the youth! Features trendy Japanese brands, BEAMS, Snidel, and various cute Japanese lifestyle goods.', loc: 'Tenjin Shopping District', transit: 'Direct from Tenjin Sta.' },
+            { cat: 'fashion', name: 'Canal City Hakata', feature: 'A unique comprehensive shopping complex! Home to ZARA, H&M, UNIQLO, Matsumoto Kiyoshi, and regular water fountain shows.', loc: 'Sumiyoshi, Hakata-ku', transit: '10 mins walk from Nakasukawabata Sta.' },
+            { cat: 'fashion', name: 'AMU PLAZA Hakata', feature: 'A mega shopping mall right above Hakata Station. Features high-quality Japanese department store brands and popular apparel.', loc: 'JR Hakata City (Inside Hakata Sta.)', transit: 'Direct from Hakata Sta.' },
+            { cat: 'fashion', name: 'LaLaport Fukuoka', feature: 'Famous for the life-size 1:1 Gundam! The huge mall houses family-friendly clothing, outdoor gear, and lifestyle brands.', loc: 'Naka, Hakata-ku', transit: '9 mins walk from JR Takeshita Sta.' },
+
+            // --- Cosmetics ---
+            { cat: 'beauty', name: 'Daikoku Drug / Matsumoto Kiyoshi', feature: 'Must-visit drugstores in Japan! Stock up on Alinamin, EVE painkillers, Kyusoku Jikan, and Japanese drugstore makeup (Canmake, Cezanne).', loc: 'Tenjin Underground & Hakata Area', transit: 'Tenjin Sta. / Hakata Sta.' },
+            { cat: 'beauty', name: 'Don Quijote (Nakasu Store)', feature: 'A 24-hour tax-free paradise! The perfect place for late-night shopping, covering cosmetics, electronics, and Japanese snacks.', loc: 'Nakasu District', transit: '3 mins walk from Nakasukawabata Sta.' },
+            { cat: 'beauty', name: '@cosme store (Hakata)', feature: 'Japan\'s most authoritative cosmetics review physical store. Test the most popular high-end and drugstore makeup products on the ranking list.', loc: 'Inside AMU PLAZA Hakata', transit: 'Direct from Hakata Sta.' },
+            { cat: 'beauty', name: 'Cosme Kitchen', feature: 'Specializes in organic and natural skincare and cosmetics, deeply loved by Japanese women for its high-quality packaging and ingredients.', loc: 'Inside Fukuoka PARCO', transit: 'Direct from Tenjin Sta.' },
+            { cat: 'beauty', name: 'LUSH Fukuoka Tenjin', feature: 'UK handmade bath brand. Prices in Japan are often much better than elsewhere; their various bath bombs are must-buys.', loc: 'Around Tenjin Chikagai', transit: '5 mins walk from Tenjin Sta.' },
+
+            // --- Souvenirs ---
+            { cat: 'souvenir', name: 'Meigetsudo Hakata Torimon', feature: 'Fukuoka\'s most iconic sweet! Winning the Monde Selection Gold Award for consecutive years, it features a soft crust and rich butter & white bean paste aroma.', loc: 'Hakata Sta. / Fukuoka Airport / Souvenir Shops', transit: 'Available at major stations' },
+            { cat: 'souvenir', name: 'Fukusaya Menbei', feature: 'Slightly spicy and crispy mentaiko (spicy cod roe) crackers. A perfect blend of seafood sweetness and mild spiciness, ideal for elders or colleagues.', loc: 'Hakata Sta. Souvenir Area / Fukuoka Airport', transit: 'Hakata Sta. / Fukuoka Airport' },
+            { cat: 'souvenir', name: 'Yume Yume Dori (Nu-Nu Chicken)', feature: 'Hakata\'s famous "cold fried chicken"! Coated with sweet and spicy sauce and sesame seeds, it remains crispy even when frozen. Perfect with beer.', loc: 'Hakata Sta. Souvenir Area', transit: 'Inside Hakata Sta.' },
+            { cat: 'souvenir', name: 'Ichiran Ramen Souvenirs', feature: 'Originating from Fukuoka, grab some Fukuoka-exclusive tonkotsu instant noodles or raw noodles to bring the Hakata flavor home.', loc: 'Ichiran stores / Airport Duty-Free', transit: 'Nakasu Main Store / Tenjin' },
+            { cat: 'souvenir', name: 'Kayanoya Dashi', feature: 'The ultimate additive-free dashi packs loved by housewives! One pack creates a premium Japanese restaurant-level broth. The Hakata-exclusive flying fish (Ago) dashi is a must.', loc: 'Daimaru Fukuoka Tenjin / Kagoshima Main Line', transit: '3 mins walk from Tenjin-minami Sta.' },
+
+            // --- Snacks & Marts ---
+            { cat: 'mart', name: 'MaxValu 24H Supermarket', feature: 'A large supermarket under AEON. Great for seasonal fruits (Shine Muscat, strawberries), Japanese green tea, discounted deli foods, and instant noodles.', loc: 'Hakata Gion / Other branches', transit: '5 mins walk from Gion Sta.' },
+            { cat: 'mart', name: 'Gyomu Super', feature: 'Extremely cheap wholesale supermarket. Perfect for bulk buying matcha snacks, konjac jelly, and various Japanese seasonings.', loc: 'Tenjin / Hakata Area branches', transit: 'Varies by branch' },
+            { cat: 'mart', name: 'KALDI Coffee Farm', feature: 'Hides many Japan-exclusive imported snacks, the highly popular mentaiko spread, melon butter spread, and premium coffee beans.', loc: 'Around Hakata Sta. / Tenjin', transit: 'Hakata Sta. / Tenjin Sta.' },
+            { cat: 'mart', name: 'AEON MALL Fukuoka', feature: 'An ultra-large suburban shopping mall with a massive supermarket area. A weekend favorite for locals, best reached by car or shuttle bus.', loc: 'Sakado, Kasuya-gun', transit: 'Sakado Sta. or Shuttle from Airport' },
+            { cat: 'mart', name: 'Japanese Convenience Stores (7-11/Lawson/FamilyMart)', feature: 'Treasure hunts! Don\'t miss 7-11\'s rum raisin sandwich cookies, Lawson\'s premium roll cakes, and L-Chiki fried chicken.', loc: 'Everywhere in Fukuoka', transit: 'All over the city' },
+
+            // --- Sneakers & Hobbies ---
+            { cat: 'lifestyle', name: 'ABC-MART GRAND STAGE', feature: 'The highest tier of ABC-MART. The best place to find Japan-exclusive colorways of Converse 1970s, NIKE, or Vans collaborations.', loc: 'Fukuoka PARCO / Hakata Sta.', transit: 'Tenjin Sta. / Hakata Sta.' },
+            { cat: 'lifestyle', name: 'Gundam Park Fukuoka', feature: 'A massive Gundam specialty store inside LaLaport. Features rich Gunpla models and Fukuoka-exclusive RX-93ff ν Gundam merchandise.', loc: 'LaLaport Fukuoka', transit: 'Bus from JR Takeshita Sta.' },
+            { cat: 'lifestyle', name: 'Onitsuka Tiger', feature: 'Classic Japanese retro casual shoes. The widest selection is in Japan, and tax-free prices are very attractive.', loc: 'AMU PLAZA Hakata / Tenjin Store', transit: 'Hakata Sta. / Tenjin Sta.' },
+            { cat: 'lifestyle', name: 'Donguri Republic (Ghibli)', feature: 'Studio Ghibli\'s official merchandise store. Features a giant Totoro photo spot and plenty of Spirited Away and Kiki\'s Delivery Service items.', loc: 'Canal City Hakata', transit: '10 mins walk from Nakasukawabata Sta.' },
+            { cat: 'lifestyle', name: 'Animate (Fukuoka Tenjin)', feature: 'Kyushu\'s largest anime merchandise store! Offers complete collections and manga for popular series like Jujutsu Kaisen, Haikyuu, and Chiikawa.', loc: 'Tenjin District / Fukuoka PARCO', transit: '5 mins walk from Tenjin Sta.' },
+
+            // --- Outlets Nearby ---
+            { cat: 'outlet', name: 'Tosu Premium Outlets', feature: 'Kyushu\'s largest American-style outlet! Located in Saga, featuring over 150 international brands. Great discounts on Coach, Nike, Adidas. A must-visit for Fukuoka travelers.', loc: 'Tosu City, Saga', transit: 'Direct Highway Bus from Tenjin / Bus from JR Tosu Sta.' },
+            { cat: 'outlet', name: 'THE OUTLETS KITAKYUSHU', feature: 'Opened in 2022! A giant twin-star shopping complex connected to AEON MALL Yahata Higashi. Super new, spacious, with over 300 brands to explore all day.', loc: 'Kitakyushu City, Fukuoka', transit: '3 mins walk from Space World Sta. (JR Kagoshima Line)' },
+            { cat: 'outlet', name: 'Marinoa City (⚠️ Closed)', feature: '[Travel Notice] Fukuoka\'s previously most famous city outlet, Marinoa City, permanently closed in August 2024 for redevelopment. Please be aware and avoid making a wasted trip!', loc: 'Nishi-ku, Fukuoka (Closed)', transit: 'Please visit Tosu or Kitakyushu instead' }
+        ];
+
+        // Function to render cards
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; // Clear existing content
+
+            const filteredData = shopData.filter(item => item.cat === category);
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; // Simple entrance animation delay
+                
+                // Generate Google Map Search URL (Add Kyushu for better accuracy)
+                const mapSearchQuery = encodeURIComponent(`${shop.name} Kyushu`);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
+                
+                // Change border color and icon if it's a closure warning
+                const isWarning = shop.name.includes('Closed');
+                const cardBorderColor = isWarning ? 'border-orange-300 bg-orange-50' : 'border-gray-100 bg-white';
+                const starIconColor = isWarning ? 'text-orange-500' : 'text-yellow-400';
+
+                const card = document.createElement('div');
+                card.className = `${cardBorderColor} rounded-2xl shadow-sm border p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fa-solid ${isWarning ? 'fa-triangle-exclamation' : 'fa-star'} ${starIconColor} mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">${isWarning ? 'Important Notice' : 'Recommended'}</p>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${shop.feature}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-rose-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Location</p>
+                                    <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-train-subway text-orange-500 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Access</p>
+                                    <span class="inline-block bg-rose-50 text-rose-700 text-xs px-2 py-1 rounded-md font-medium">${shop.transit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Google Map Navigation Button -->
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${isWarning ? 'bg-orange-500 hover:bg-orange-600' : 'bg-rose-600 hover:bg-rose-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors">
+                            <i class="fa-solid fa-map-location-dot mr-2"></i> ${isWarning ? 'View on Map' : 'Open in Google Maps'}
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Category filter logic
+        function filterCategory(category, btnElement) {
+            // Remove active state from all buttons
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            // Add active state to clicked button
+            btnElement.classList.add('active');
+
+            // Render corresponding data
+            renderCards(category);
+        }
+
+        // Add simple entrance animation CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Display the first category on load (Fashion)
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('fashion', firstBtn);
+        };
+    </script>
+</body>
+</html>

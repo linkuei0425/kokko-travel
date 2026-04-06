@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fukuoka Food Guide | Fukuoka Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #fff5f5; /* Light red background for food & passion vibe */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Hakata Red button styling */
+        .btn-nav {
+            background-color: #e11d48; /* rose-600 */
+        }
+        .btn-nav:hover {
+            background-color: #be123c; /* rose-700 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-rose-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Fukuoka Food Map
+            </h1>
+            <!-- Return Home Link -->
+            <a href="https://linkuei0425.github.io/FUKUOKA-US/index.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-rose-700 hover:bg-rose-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-rose-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Region</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Category</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">Please select a region and category above to explore Fukuoka's food.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Fukuoka Data Structure (English Version)
+        const db = {
+            "hakata": {
+                name: "Hakata Station Area",
+                categories: {
+                    "ramen": [
+                        { name: "Hakata Issou", feature: "Known as the 'Tonkotsu Cappuccino'. The broth has a fine foamy surface with an extremely rich pork bone aroma. A local favorite with long lines.", address: "3-1-6 Hakataeki-higashi, Hakata-ku / 6 mins walk from Hakata Sta. Chikushi Exit" },
+                        { name: "Danbo Ramen (Hakata Sta.)", feature: "Once beat Ichiran for the #1 Kyushu ramen! The smooth broth and thin noodles pair perfectly with their special spicy sauce.", address: "2-16-1 Hakataekimae, Hakata-ku / 5 mins walk from Hakata Sta. Hakata Exit" },
+                        { name: "Shin-Shin Ramen", feature: "Loved by celebrities! A lighter and slightly sweeter tonkotsu broth with ultra-thin noodles. Very approachable flavor.", address: "1-1 Hakataekichuogai, Hakata-ku / Hakata Deitos 2F" }
+                    ],
+                    "motsunabe": [
+                        { name: "Shoraku (Hakata Sta.)", feature: "Famous spot right inside the station! Clean and sweet beef offal with great lunch set deals.", address: "1-1 Hakataekichuogai, Hakata-ku / JR Hakata City 10F" },
+                        { name: "Hanamidori Mizutaki", feature: "Best non-beef option! A rich chicken broth full of collagen using premium Kyushu 'Hanamidori' chicken. Very tender.", address: "3-23-17 Hakataekimae, Hakata-ku / 3 mins walk from Hakata Sta. Hakata Exit" },
+                        { name: "Echigoya", feature: "Features a unique 'White Miso' broth that blends perfectly with beef intestine fat. Finish the meal with a delicious rice porridge!", address: "3-11-17 Hakataekimae, Hakata-ku / 7 mins walk from Hakata Sta. Hakata Exit" }
+                    ],
+                    "yatai": [
+                        { name: "Hakata Station Izakayas", feature: "While Yatai (food stalls) are mainly in Nakasu, the alleys around Hakata station hide many affordable izakayas popular among office workers.", address: "Around Hakataekimae & Chikushi Exit" },
+                        { name: "Yume Yume Dori (Nu-Nu Chicken)", feature: "Not a restaurant, but a must-try street food! Legendary 'cold fried chicken' that is sweet, spicy, and crispy. Perfect with hotel beers.", address: "1-1 Hakataekichuogai, Hakata-ku / Hakata Sta. Souvenir Area" },
+                        { name: "Hakata Ichibangai", feature: "Underground food street offering affordable local eats like beef tongue and all-you-can-eat mentaiko (spicy cod roe).", address: "1-1 Hakataekichuogai, Hakata-ku / Hakata Sta. B1F" }
+                    ],
+                    "seafood": [
+                        { name: "Isomaru Suisan (Hakata Sta.)", feature: "24-hour seafood izakaya! Offers live shellfish grilled right at your table and high-value crab paste shell grill.", address: "2-3-14 Hakataekimae, Hakata-ku / 5 mins walk from Hakata Sta. Hakata Exit" },
+                        { name: "Hakata Gyoka Isogai", feature: "A popular local gathering spot offering fresh fish straight from the Genkai Sea. Thick sashimi cuts and grilled fish are a must.", address: "1-1 Hakataekichuogai, Hakata-ku / JR Hakata City 10F" },
+                        { name: "Hakata Meibutsu Motsunabe & Sashimi", feature: "Satisfies cravings for both Hakata motsunabe and fresh Genkai Sea sashimi at once. Fresh ingredients and large portions.", address: "Hakata Sta. Chikushi Exit Area" }
+                    ],
+                    "cafe": [
+                        { name: "REC COFFEE (Hakata Marui)", feature: "Specialty coffee by the World Barista Championship runner-up! Enjoy a great view of the station square from the 6th floor.", address: "9-1 Hakataekichuogai, Hakata-ku / KITTE Hakata 6F" },
+                        { name: "Mutsukado Cafe", feature: "Cafe run by a super popular bakery! Try their thick branded toast and fresh fruit sandwiches. Very soft and milky.", address: "1-1 Hakataekichuogai, Hakata-ku / AMU PLAZA Hakata 5F" },
+                        { name: "DAIMYO SOFTCREAM", feature: "Chubby Italian-style soft serve ice cream. Extremely smooth and milky, the perfect dessert after shopping.", address: "1-1 Hakataekichuogai, Hakata-ku / AMU PLAZA Hakata B1F" }
+                    ]
+                }
+            },
+            "tenjin": {
+                name: "Tenjin / Nakasu",
+                categories: {
+                    "ramen": [
+                        { name: "Ichiran Main Store", feature: "The mecca of Ichiran! An entire building decorated with red lanterns, offering exclusive ramen in rectangular bowls. Open 24/7.", address: "5-3-2 Nakasu, Hakata-ku / 3 mins walk from Nakasukawabata Sta." },
+                        { name: "Ganso Nagahamaya", feature: "The birthplace of 'Kae-dama' (noodle refill)! No fancy toppings, just pure pork bone soup with lots of green onions. Loved by locals.", address: "2-5-25 Nagahama, Chuo-ku / 15 mins walk from Akasaka Sta." },
+                        { name: "Hourin (Haruyoshi)", feature: "The inheritor of Fukuoka's original spicy tonkotsu ramen! The secret spicy sauce elevates the rich broth without being too heavy.", address: "3-21-15 Haruyoshi, Chuo-ku / 5 mins walk from Tenjin-minami Sta." }
+                    ],
+                    "motsunabe": [
+                        { name: "Rakutanchi (Tenjin Main)", feature: "Crazy 'Leek Mountain' motsunabe! Packed with leeks and cabbage, resulting in a sweet vegetable broth at an affordable price.", address: "1-10-14 Tenjin, Chuo-ku / 3 mins walk from Tenjin Sta." },
+                        { name: "Yamanaka (Akasaka)", feature: "High-end hotel-like decor! The smooth miso flavor is the most popular, and the beef intestine is extremely fat. Perfect for dinner dates.", address: "1-9-1 Akasaka, Chuo-ku / 5 mins walk from Akasaka Sta." },
+                        { name: "Ganso Mizutaki Suigetsu", feature: "The original Fukuoka Mizutaki (chicken hot pot) since 1905! Clear, pure, and sweet chicken broth. Don't miss the final rice porridge.", address: "3-16-14 Hirao, Chuo-ku / 10 mins walk from Nishitetsu Hirao Sta." }
+                    ],
+                    "yatai": [
+                        { name: "Kokinchan", feature: "A super popular Tenjin Yatai! The origin of 'Yaki Ramen' (fried ramen). Boiled ramen stir-fried on a griddle with special sauce.", address: "Front of Mitsui Bldg, Tenjin 2-chome / 2 mins walk from Tenjin Sta." },
+                        { name: "Takechan", feature: "Famous for bite-sized gyoza in the Nakasu Yatai area! Thin, crispy skin pairs perfectly with cold beer.", address: "Nakagawa Riverside, Nakasu 1-chome / 7 mins walk from Nakasukawabata Sta." },
+                        { name: "Koryu", feature: "Offers not only delicious ramen but also hot oden. Sitting by the Nakagawa river with hot soup on a cool night is very atmospheric.", address: "Nakagawa Riverside, Nakasu / 7 mins walk from Nakasukawabata Sta." }
+                    ],
+                    "seafood": [
+                        { name: "Chikae (Fukuoka Main Store)", feature: "High-end live fish restaurant offering great value Japanese set meals for lunch, complete with all-you-can-eat mentaiko.", address: "2-2-17 Daimyo, Chuo-ku / 5 mins walk from Akasaka Sta." },
+                        { name: "Hyotan Sushi", feature: "Always a long line in Tenjin! Fresh, thick cuts at very affordable prices. The crab cream croquette is also a must-try.", address: "2-10-20 Tenjin, Chuo-ku / 2 mins walk from Tenjin Sta." },
+                        { name: "Yanagibashi Rengo Market", feature: "Known as 'Hakata's Kitchen'. Hidden seafood diners offer luxurious bowls topped with sea urchin, salmon roe, and fresh fish.", address: "Haruyoshi 1-chome, Chuo-ku / 5 mins walk from Watanabe-dori Sta." }
+                    ],
+                    "cafe": [
+                        { name: "FUK COFFEE", feature: "An airport/flight-themed cafe! 'FUK' (Fukuoka airport code) on the cups. Their caramel pudding and latte art are Instagram staples.", address: "3-21-17 Haruyoshi, Chuo-ku / 3 mins walk from Tenjin-minami Sta." },
+                        { name: "Suzukake (Main Store)", feature: "A century-old high-end wagashi shop! The attached tea room serves elegant matcha parfaits and seasonal fruit daifuku.", address: "12-20 Kamikawabatamachi, Hakata-ku / 1 min walk from Nakasukawabata Sta." },
+                        { name: "NO COFFEE", feature: "A minimalist black & white street-style cafe. Their matcha latte and black charcoal latte are very unique.", address: "3-17-12 Hirao, Chuo-ku / 10 mins walk from Yakuin-odori Sta." }
+                    ]
+                }
+            },
+            "dazaifu": {
+                name: "Dazaifu / Yanagawa",
+                categories: {
+                    "ramen": [
+                        { name: "Ichiran (Dazaifu Sando)", feature: "Japan's only 'Passing Exam Ramen'! Uses a pentagonal bowl (Gokaku = Pass) and extra-long noodles to pray for good luck.", address: "2-6-2 Saifu, Dazaifu / Right outside Nishitetsu Dazaifu Sta." },
+                        { name: "Danbo Ramen (Dazaifu)", feature: "Conveniently located next to the station. Grab a bowl of Kyushu's award-winning ramen after visiting the shrine.", address: "1-14-24 Saifu, Dazaifu / 1 min walk from Dazaifu Sta." },
+                        { name: "Hacchan Ramen (Yakuin)", feature: "Located on the way to Dazaifu (Yakuin transfer area). An ultra-rich, old-school tonkotsu ramen highly recommended for enthusiasts.", address: "Shirogane, Chuo-ku (Around Yakuin Sta.)" }
+                    ],
+                    "motsunabe": [
+                        { name: "Dazaifu Omotesando Eateries", feature: "Dazaifu mainly features street snacks and Umegaemochi. For hot pots, we recommend returning to Tenjin or Hakata for authentic Motsunabe.", address: "Dazaifu Tenmangu Omotesando" },
+                        { name: "Yanagawa Wagyu & Eel", feature: "When visiting Yanagawa, the local specialty is 'Steamed Eel in a Bamboo Box' (Seiro-mushi), a premium culinary experience.", address: "Yanagawa City Area" },
+                        { name: "Daiko (Yakiniku)", feature: "If you want a big meal in Dazaifu, this local yakiniku restaurant offering Kuroge Wagyu beef is a great choice.", address: "Dazaifu Area" }
+                    ],
+                    "yatai": [
+                        { name: "Kasanoya (Umegaemochi)", feature: "The most popular old shop on the approach! Freshly baked, crispy outside with sweet, warm red bean paste inside.", address: "2-7-24 Saifu, Dazaifu / Omotesando" },
+                        { name: "Terakoya Honpo (Rice Crackers)", feature: "Offers freshly roasted senbei in various flavors like soy sauce, seaweed, and yuzu pepper. Perfect for strolling.", address: "3-1-21 Saifu, Dazaifu / Omotesando" },
+                        { name: "Tenzan", feature: "Huge 'Onigawara Monaka' and 'Strawberry Daifuku'! Huge, juicy strawberries are embedded in the wafer during winter.", address: "2-7-12 Saifu, Dazaifu / Omotesando" }
+                    ],
+                    "seafood": [
+                        { name: "Ganso Motoyoshiya (Yanagawa)", feature: "The 300-year-old creator of 'Seiro-mushi' (steamed eel)! Charcoal-grilled eel steamed with secret sauce rice.", address: "69 Asahimachi, Yanagawa / Near River Punting exit" },
+                        { name: "Wakamatsuya (Yanagawa)", feature: "Another representative eel restaurant in Yanagawa. Enjoy tender, flavorful eel in a traditional Japanese garden setting.", address: "26 Okinohata-machi, Yanagawa / Near River Punting exit" },
+                        { name: "Rokki", feature: "Besides eel, they also offer Yanagawa's specialty loach hot pot at an affordable price. Loved by locals.", address: "28 Okinohata-machi, Yanagawa" }
+                    ],
+                    "cafe": [
+                        { name: "Starbucks (Kengo Kuma Design)", feature: "One of Japan's most beautiful Starbucks! Designed using 2,000 wooden sticks in a unique structure without nails.", address: "3-2-43 Saifu, Dazaifu / Omotesando" },
+                        { name: "KAGUWA Cafe", feature: "A Taisho-era romantic Japanese cafe. Offers exquisite matcha lattes and Japanese sweets. Perfect for a peaceful rest.", address: "3-2-14 Saifu, Dazaifu / Near Tenmangu" },
+                        { name: "Sabo Kikutaro", feature: "A traditional tea house with a Japanese garden. Enjoy Umegaemochi and hot matcha while viewing the seasonal landscape.", address: "2-7-24 Saifu, Dazaifu (Inside Kasanoya)" }
+                    ]
+                }
+            },
+            "itoshima": {
+                name: "Itoshima Coastal Area",
+                categories: {
+                    "seafood": [
+                        { name: "Toyohisamaru Oyster Hut", feature: "Winter only (Oct-Mar)! Grill your own fresh, plump 'Milk Oysters' over charcoal in a seaside hut. Incredibly sweet.", address: "778-5 Shimakishi, Itoshima / Kishi Fishing Port" },
+                        { name: "Tsukamoto Sengyoten", feature: "A super popular seafood diner in Itoshima! Their signature 'Premium Seafood Bowl' is topped with over a dozen kinds of fresh sashimi.", address: "61-1 Kafuri, Itoshima / Kafuri Sta. Area" },
+                        { name: "Kishi Fishing Port Oyster Huts", feature: "Over a dozen huts lined up. You can bring your own drinks and rice balls to enjoy with the grilled oysters! Very authentic.", address: "Shimakishi, Itoshima / Kishi Fishing Port" }
+                    ],
+                    "cafe": [
+                        { name: "SUNSET", feature: "The pioneer of Itoshima ocean view cafes! Located near the famous Couple Stones and White Torii. Great sunset views.", address: "284 Nishiura, Nishi-ku, Fukuoka / Near Sakurai Futamigaura" },
+                        { name: "TIME Itoshima", feature: "A pure white wooden cafe right on the beach! Brunch and desserts are popular. Step out onto the sand directly from the terrace.", address: "4423-7 Shimasakurai, Itoshima / Itoshima Coastline" },
+                        { name: "ALPACINO (Gelato)", feature: "Instagrammable spot! Southern European resort vibes, offering colorful gelato and a dreamy ocean view swing outside.", address: "285-A Nishiura, Nishi-ku, Fukuoka / Itoshima Coast" }
+                    ],
+                    "ramen": [
+                        { name: "Itoshima Local Ramen", feature: "Itoshima is more famous for its cafes and seafood. For ramen, we recommend returning to Tenjin or Hakata for an authentic tonkotsu experience.", address: "Itoshima City" }
+                    ],
+                    "motsunabe": [
+                        { name: "Itoshima Farm BBQ", feature: "In Itoshima, beach BBQs are preferred over hot pots! Many campsites offer local 'Itoshima Pork' and handmade sausages for an outdoor BBQ.", address: "Itoshima Coast Campsites" }
+                    ],
+                    "yatai": [
+                        { name: "Ito King (Pudding & Dorayaki)", feature: "Famous for Fukuoka's 'Amaou' strawberries. Their strawberry dorayaki and silky pudding are must-buy snacks when visiting Itoshima.", address: "8-4-11 Minamikaze-dai, Itoshima" }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Fukuoka
+        const categoriesMap = {
+            "ramen": { name: "🍜 Hakata Ramen", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-400" },
+            "motsunabe": { name: "🍲 Special Hot Pots", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "yatai": { name: "🏮 Yatai & Street Food", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "seafood": { name: "🐟 Seafood & Eel Rice", color: "bg-sky-100 text-sky-800 hover:bg-sky-600 hover:text-white border-sky-400" },
+            "cafe": { name: "☕ Cafes & Desserts", color: "bg-stone-100 text-stone-800 hover:bg-stone-600 hover:text-white border-stone-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region (Hakata Red vibe)
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-rose-600', 'text-white', 'border-rose-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-rose-600');
+            clickedBtn.classList.add('bg-rose-600', 'text-white', 'border-rose-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('ramen', firstCatBtn); // Default to ramen for Fukuoka
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-rose-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-rose-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-400 fade-in">
+                        <p class="text-lg">No recommendations found for this category. Please try another one!</p>
+                    </div>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (Focus query on Fukuoka)
+                const encodedQuery = encodeURIComponent(`${item.name} Fukuoka ${item.address.split('/')[0]}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded mr-1">Feature</span>${item.feature}</p>
+                        
+                        <div class="bg-gray-50/80 p-3.5 rounded-xl flex items-start gap-3 border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium"><span class="font-bold text-rose-800">Address: </span>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto">
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            Open in Google Maps
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>
