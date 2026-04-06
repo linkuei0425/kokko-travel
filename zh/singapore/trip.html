@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新加坡行程推薦指南 | Singapore Trip Guide</title>
+    
+    <!-- 引入 Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 React & ReactDOM (CDN) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- 引入 Babel 用於在瀏覽器中編譯 JSX (CDN) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* 隱藏水平捲軸但保留滾動功能 */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- 定義 SVG 圖示元件 ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+
+        // 定義分類項目
+        const CATEGORIES = [
+            { id: '門票', icon: Ticket },
+            { id: '一日遊', icon: Sun },
+            { id: '體驗與娛樂', icon: Sparkles },
+            { id: '交通及網路', icon: TrainFront }
+        ];
+
+        // 地點分區
+        const REGIONS = ['新加坡市區', '聖淘沙', '周邊跨國遊'];
+
+        // 判斷分區可用的分類項目
+        const getAvailableCategoryIds = (region) => {
+            if (region === '周邊跨國遊') return ['一日遊', '交通及網路'];
+            return ['門票', '一日遊', '體驗與娛樂', '交通及網路'];
+        };
+
+        // 行程資料庫 (aid 為 115830)
+        const itineraryData = {
+            '新加坡市區': {
+                '門票': [
+                    {
+                        title: '濱海灣花園門票 (Gardens by the Bay)',
+                        description: '新加坡必訪的標誌性景點！走進世界最大的玻璃溫室「花穹」，以及擁有高達35公尺室內瀑布的「雲霧林」，在冷氣房中感受震撼的阿凡達世界。',
+                        link: 'https://www.klook.com/zh-TW/activity/127-gardens-by-the-bay-singapore/?aid=115830'
+                    },
+                    {
+                        title: '星耀樟宜景點門票 (Jewel Changi)',
+                        description: '位於樟宜機場核心，除了免費欣賞巨大的室內瀑布「雨漩渦」，更推薦購買門票進入星空花園、天空之網與樹籬迷宮，體驗豐富的叢林遊樂設施。',
+                        link: 'https://www.klook.com/zh-TW/activity/25872-jewel-changi-airport-attractions-ticket-singapore/?aid=115830'
+                    },
+                    {
+                        title: '新加坡摩天觀景輪門票 (Singapore Flyer)',
+                        description: '亞洲最大的觀景摩天輪，轉一圈約需30分鐘。在車廂內可 360 度俯瞰濱海灣金沙、金融區天際線，天氣好時甚至能遠眺馬來西亞與印尼。',
+                        link: 'https://www.klook.com/zh-TW/activity/4534-singapore-flyer/?spm=SearchResult.SearchResult_LIST&clickId=0d87639ff5&aid=115830'
+                    },
+                    {
+                        title: '濱海灣金沙空中花園觀景台 (Sands SkyPark)',
+                        description: '登上 57 樓的金沙酒店頂樓觀景台，將整個濱海灣的繁華夜景、超級樹燈光秀與無敵海景盡收眼底，是新加坡最具代表性的打卡聖地。',
+                        link: 'https://www.klook.com/zh-TW/activity/10552-marina-bay-sands-skypark-observation-deck-admission-ticket-singapore/?spm=SearchResult.SearchResult_LIST&clickId=b7ee3859de&aid=115830'
+                    },
+                    {
+                        title: '新加坡夜間野生動物園門票 (Night Safari)',
+                        description: '全球首座夜間專屬的野生動物園！搭乘導覽遊園車穿梭於漆黑的叢林中，近距離觀察獅子、老虎與大象的夜間生態，體驗極度特別。',
+                        link: 'https://www.klook.com/zh-TW/activity/141-singapore-zoo-singapore/?aid=115830'
+                    },
+                    {
+                        title: '新加坡科學館＆Omni 影院＆KidsSTOP 兒童科學館門票',
+                        description: '極具教育意義的親子景點！讓孩子們在超過千種互動展品中探索科學，或是在 Omni 影院觀賞令人震撼的球幕電影。',
+                        link: 'https://www.klook.com/zh-TW/activity/1347-science-centre-singapore-omni-theatre-movie-singapore/?aid=115830'
+                    },
+                    {
+                        title: 'Klook 新加坡景點通票 (Klook Pass Singapore)',
+                        description: '一票暢玩新加坡多個熱門景點！可依個人行程需求任選 2 至 6 項活動（包含環球影城、濱海灣花園等），門票最高可享 52 折優惠。',
+                        link: 'https://www.klook.com/zh-TW/activity/73887-singapore-pass/?aid=115830'
+                    }
+                ],
+                '一日遊': [
+                    {
+                        title: '新加坡 DUCKtours 水陸兩棲鴨子船',
+                        description: '搭乘越戰時期的水陸兩棲車，先在市區街道遊覽各大地標，隨後直接「噗通」衝入水中，從新加坡河上欣賞魚尾獅與金沙酒店，非常適合親子同樂。',
+                        link: 'https://www.klook.com/zh-TW/activity/62250-singapore-half-day-ducktour-seafood-lunch-dinner/?spm=SearchResult.SearchResult_LIST&clickId=5a90328183&aid=115830'
+                    },
+                    {
+                        title: '新加坡 Big Bus 敞篷雙層觀光巴士',
+                        description: '隨上隨下的市區觀光巴士，提供多條路線（如文化區、城市區），讓你輕鬆穿梭小印度、牛車水與烏節路，省去轉乘地鐵的疲憊。',
+                        link: 'https://www.klook.com/zh-TW/activity/87135-big-bus-sightseeing-tour-singapore/?spm=SearchResult.SearchResult_LIST&clickId=e4c2c75207&aid=115830'
+                    },
+                    {
+                        title: '新加坡跳島渡輪船票：聖約翰島 - 拉扎魯斯島 - 龜嶼',
+                        description: '逃離城市喧囂，探索新加坡南部的秘境島嶼。在拉扎魯斯島的白色沙灘上放空，或前往龜嶼參拜歷史悠久的寺廟，感受不同的獅城風貌。',
+                        link: 'https://www.klook.com/zh-TW/activity/20696-ferry-transfers-st-johns-kusu-island-singapore/?aid=115830'
+                    }
+                ],
+                '體驗與娛樂': [
+                    {
+                        title: '迪士尼探險號3晚 (Disney Adventure Cruise)',
+                        description: '全部航次火熱預訂中！從新加坡出發的迪士尼魔法郵輪，體驗世界級的娛樂表演、主題餐飲與專屬角色見面會，享受難忘的海上假期。',
+                        link: 'https://www.klook.com/zh-TW/activity/142451-3-night-disney-adventure-cruise-from-singapore/?aid=115830'
+                    },
+                    {
+                        title: '新加坡河觀光遊船 (Singapore River Cruise)',
+                        description: '搭乘傳統木船，沿著新加坡河緩緩航行。穿梭於克拉碼頭的熱鬧酒吧街與金融區摩天大樓之間，迎著微風欣賞亞洲四小龍的繁華夜景。',
+                        link: 'https://www.klook.com/zh-TW/activity/3846-river-cruise-singapore/?spm=SearchResult.SearchResult_LIST&clickId=9ef1e0dd1b&aid=115830'
+                    }
+                ],
+                '交通及網路': [
+                    {
+                        title: '新加坡 NETS FlashPay 交通卡',
+                        description: '新加坡必備的悠遊卡！不僅可以搭乘捷運 (MRT) 與公車，還能在便利商店與多數美食廣場使用，預先購買到機場即可直接領取使用。',
+                        link: 'https://www.klook.com/zh-TW/activity/14299-travel-card-nets-flashpay-singapore/?aid=115830'
+                    },
+                    {
+                        title: '新加坡 Singtel 5G SIM卡（新加坡機場及市區領取）',
+                        description: '新加坡最大電信商的 5G 上網卡，網速穩定且流量超大，下飛機後可直接在機場或市區多個地點領取，即插即用非常方便。',
+                        link: 'https://www.klook.com/zh-TW/activity/77287-4g-travel-sim-card-singtel-singapore/?spm=SearchResult.SearchResult_LIST&clickId=362056dcb6&aid=115830'
+                    },
+                    {
+                        title: '新加坡 4G / 5G 上網 eSIM（免換實體卡）',
+                        description: '掃描 QR code 即可開通上網，免去插拔實體 SIM 卡麻煩。提供多種流量方案，網速極快且覆蓋全島。',
+                        link: 'https://www.klook.com/zh-TW/activity/107849-singapore-esim-high-speed-internet/?spm=SearchResult.SearchResult_LIST&clickId=d690970e08&aid=115830'
+                    },
+                    {
+                        title: '樟宜機場 (SIN) 至新加坡市區私人接送服務',
+                        description: '專屬司機舉牌接機，點對點直達飯店，免去拖著行李轉乘捷運的辛勞。特別適合攜帶大型行李、紅眼航班或長輩同行的家庭旅客。',
+                        link: 'https://www.klook.com/zh-TW/airport-transfers/?aid=115830'
+                    }
+                ]
+            },
+            '聖淘沙': {
+                '門票': [
+                    {
+                        title: '新加坡環球影城門票 (Universal Studios)',
+                        description: '東南亞唯一的環球影城！雖然園區精巧，但擁有獨家「變形金剛 3D 對決」與世界最高的雙軌過山車，適合各年齡層，是聖淘沙必玩的重點行程。',
+                        link: 'https://www.klook.com/zh-TW/activity/117-universal-studios-singapore/?aid=115830'
+                    },
+                    {
+                        title: '新加坡杜莎夫人蠟像館門票 (Madame Tussauds)',
+                        description: '與世界級名人、好萊塢巨星和漫威英雄近距離合影！館內還可體驗「新加坡精神」遊船，以獨特方式了解新加坡的發展歷史。',
+                        link: 'https://www.klook.com/zh-TW/activity/1182-madame-tussauds-singapore/?aid=115830'
+                    },
+                    {
+                        title: '天際線斜坡滑車門票 (Skyline Luge)',
+                        description: '聖淘沙超人氣戶外活動！先搭乘空中吊椅欣賞海島風光，再駕駛無動力滑車，沿著曲折的叢林滑道一路飆刺下山，刺激又安全。',
+                        link: 'https://www.klook.com/zh-TW/activity/132-skyline-luge-singapore/?aid=115830'
+                    },
+                    {
+                        title: 'S.E.A. 海洋館門票',
+                        description: '全球最大的水族館之一，擁有巨大的深海觀景窗，能觀賞到蝠鱝、鯊魚與數萬隻海洋生物，非常適合做為躲避午後高溫的親子行程。',
+                        link: 'https://www.klook.com/zh-TW/activity/119-sea-aquarium-singapore/?aid=115830'
+                    }
+                ],
+                '一日遊': [
+                    {
+                        title: '聖淘沙歡樂套票 (Sentosa Fun Pass)',
+                        description: '自由搭配的代幣制通票！可依點數自由兌換斜坡滑車、4D 探險樂園、時光之翼水舞秀等島上熱門設施，比單獨購票更划算。',
+                        link: 'https://www.klook.com/zh-TW/activity/2121-sentosa-fun-pass-singapore/?spm=SearchResult.SearchResult_LIST&clickId=80858dde9e&aid=115830'
+                    }
+                ],
+                '體驗與娛樂': [
+                    {
+                        title: '哈利波特：魔法幻境 (Harry Potter: Visions of Magic)',
+                        description: '在聖淘沙名勝世界重現魔法世界！結合互動藝術與科技，探索神秘的魔法部、萬應室與紐特皮箱，哈迷絕對不能錯過。',
+                        link: 'https://www.klook.com/zh-TW/activity/133319-harry-potter-visions-of-magic-in-resorts-world-sentosa-singapore/?aid=115830'
+                    },
+                    {
+                        title: '飛龍探險樂園高空滑索（MegaZip）',
+                        description: '從 75 公尺高的叢林山頂出發，以時速 60 公里的速度飛越樹冠與西樂索海灘，感受吹海風的速度感，是聖淘沙最刺激的極限體驗。',
+                        link: 'https://www.klook.com/zh-TW/activity/713-megazip-singapore/?aid=115830'
+                    },
+                    {
+                        title: '時光之翼星光水火大匯演 (Wings of Time)',
+                        description: '架設在海面上的大型夜間聲光秀！結合水舞、雷射、火焰特效與精彩的故事，是結束聖淘沙一日遊最完美的句點。',
+                        link: 'https://www.klook.com/zh-TW/activity/135-wings-of-time-singapore/?spm=SearchResult.SearchResult_LIST&clickId=0ce2a5b36f&aid=115830'
+                    },
+                    {
+                        title: '新加坡私人遊艇包船體驗（White Sails 提供）',
+                        description: '從聖淘沙出發的頂級度假享受！包下私人遊艇航向周邊島嶼，在海上享受日光浴、浮潛或浪漫的夕陽美景，適合與親友同樂。',
+                        link: 'https://www.klook.com/zh-TW/activity/7845-private-yacht-charter-singapore/?aid=115830'
+                    }
+                ],
+                '交通及網路': [
+                    {
+                        title: '聖淘沙捷運車票 (Sentosa Express)',
+                        description: '連接怡豐城 (VivoCity) 與聖淘沙島的最快交通方式，一票在手即可輕鬆前往環球影城與各大海灘。',
+                        link: 'https://www.klook.com/zh-TW/activity/8268-sentosa-express-singapore/?aid=115830'
+                    },
+                    {
+                        title: '新加坡空中纜車車票 (Singapore Cable Car)',
+                        description: '往返花柏山與聖淘沙的最美交通方式。在透明車廂內俯瞰湛藍海景、茂密森林與環球影城全貌，日落時分搭乘更具浪漫氛圍。',
+                        link: 'https://www.klook.com/zh-TW/activity/130-faber-peak-cable-car-singapore/?spm=SearchResult.SearchResult_LIST&clickId=833951b59a&aid=115830'
+                    }
+                ]
+            },
+            '周邊跨國遊': {
+                '一日遊': [
+                    {
+                        title: '馬來西亞樂高樂園門票 (LEGOLAND Malaysia)',
+                        description: '位於馬來西亞新山，從新加坡出發僅需過個橋。亞洲第一座樂高主題樂園，設有7大主題園區，是大人小孩都能盡情放電的絕佳去處。',
+                        link: 'https://www.klook.com/zh-TW/activity/7713-legoland-admission-ticket-johor-bahru/?aid=115830'
+                    },
+                    {
+                        title: '<新加坡出發> 巴淡島 1 日優質遊 (含渡輪票和午餐)',
+                        description: '輕鬆免動腦的印尼跨國一日遊！包含來回船票、市區觀光導覽以及道地的海鮮午餐，帶你體驗巴淡島的異國風情與超平價消費。',
+                        link: 'https://www.klook.com/zh-TW/activity/109385-premium-city-tour-batam/?aid=115830'
+                    },
+                    {
+                        title: '民丹島紅樹林導覽 (Bintan Mangrove Tour)',
+                        description: '搭乘快艇深入印尼民丹島茂密的紅樹林生態系，白天尋找野生猴子與蛇類；若選擇夜間行程，還能看見滿天飛舞的螢火蟲。',
+                        link: 'https://www.klook.com/zh-TW/activity/3698-mangrove-river-tour-bintan/?aid=115830'
+                    },
+                    {
+                        title: '(新加坡出發) 巴淡島和民丹島多日遊',
+                        description: '一趟行程玩遍兩大熱門度假島嶼！提供豐富的多日遊選擇，包含船票、住宿、海鮮大餐與按摩體驗，輕鬆享受熱帶島嶼風情。',
+                        link: 'https://www.klook.com/zh-TW/activity/158885-multidaytour-batam-and-bintan-from-singapore/?spm=SearchResult.SearchResult_LIST&clickId=99df58e4a8&aid=115830'
+                    }
+                ],
+                '交通及網路': [
+                    {
+                        title: '新加坡 - 馬來西亞樂高樂園巴士接送',
+                        description: '從新加坡市區直達馬來西亞樂高樂園，免去自行轉車的交通煩惱，是前往新山樂高樂園最便利的選擇。',
+                        link: 'https://www.klook.com/zh-TW/activity/2247-singapore-legoland-malaysia-bus/?aid=115830'
+                    },
+                    {
+                        title: '新加坡 - 馬來西亞新山巴士 (Johor Bahru)',
+                        description: '往返新加坡與馬來西亞新山的最實惠跨境交通方式。班次密集，過關後即可抵達新山市中心，展開美食與血拼之旅。',
+                        link: 'https://www.klook.com/zh-TW/activity/110362-singapore-johor-bahru-malaysia-bus/?aid=115830'
+                    },
+                    {
+                        title: '新加坡 - 馬來西亞雲頂高原巴士接送',
+                        description: '舒適的長途跨境巴士，直接從新加坡前往馬來西亞著名的避暑勝地「雲頂高原」，享受涼爽氣候與世界級的室內外主題樂園。',
+                        link: 'https://www.klook.com/zh-TW/activity/114792-707-inc-bus-ticket-singapore-genting-highlands/?aid=115830'
+                    },
+                    {
+                        title: '馬來西亞新山 (JB) 私人包車接送（新加坡出發）',
+                        description: '家庭出遊或多人團體首選！專車從新加坡飯店接送，輕鬆跨越新柔長堤，可自訂新山購物或美食行程，舒適又省時。',
+                        link: 'https://www.klook.com/zh-TW/activity/43491-private-transfer-between-singapore-johor-bahru-malaysia/?aid=115830'
+                    }
+                ]
+            }
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState('新加坡市區');
+            const [selectedCategory, setSelectedCategory] = useState('門票');
+
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen bg-[#f0fdf4] font-sans text-slate-800 pb-12">
+                    {/* 頂部導覽列 */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10">
+                        <div className="max-w-5xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <MapPin className="text-emerald-600 w-6 h-6 md:w-8 md:h-8" />
+                                <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">
+                                新加坡行程探索指南
+                                </h1>
+                            </div>
+                            
+                            {/* 地區選擇 */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                <a
+                                    href="https://linkuei0425.github.io/Singapore/index.html"
+                                    className="flex items-center gap-1.5 whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    回到首頁
+                                </a>
+
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            const allowed = getAvailableCategoryIds(region);
+                                            if (!allowed.includes(selectedCategory)) {
+                                                setSelectedCategory(allowed[0]);
+                                            }
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                                            selectedRegion === region
+                                            ? 'bg-emerald-600 text-white shadow-md'
+                                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-5xl mx-auto px-4 py-6">
+                        {/* 分類標籤 */}
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                            {CATEGORIES.filter(cat => getAvailableCategoryIds(selectedRegion).includes(cat.id)).map(({ id, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSelectedCategory(id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                        selectedCategory === id
+                                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {id}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* 內容區標題 */}
+                        <div className="mb-6">
+                            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                {selectedRegion} - {selectedCategory} 精選推薦
+                            </h2>
+                        </div>
+
+                        {/* 卡片列表 */}
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                {currentData.map((item, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 md:p-6 flex flex-col justify-between hover:shadow-md transition-shadow"
+                                    >
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight">
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="mt-auto pt-4 border-t border-slate-50 flex justify-end">
+                                            <a
+                                                href={item.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-5 rounded-lg transition-colors w-full sm:w-auto"
+                                            >
+                                                <Info className="w-4 h-4" />
+                                                <span>詳細說明與預訂</span>
+                                                <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                                    此區域目前無對應項目的資料
+                                </h3>
+                                <p className="text-slate-500">請嘗試選擇其他分類或分頁。</p>
+                            </div>
+                        )}
+
+                        {/* Klook 全局探索按鈕 */}
+                        <div className="mt-10 flex justify-center">
+                            <a 
+                                href="https://www.klook.com/zh-TW/search/result/?query=%E6%96%B0%E5%8A%A0%E5%9D%A1&aid=115830" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3.5 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                <span className="tracking-wide">前往 Klook 探索更多新加坡行程</span>
+                                <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
+                            </a>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

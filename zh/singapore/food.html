@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新加坡美食導航 Singapore Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fff7ed; /* 淺南洋橘色背景 orange-50 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color for Singapore (Orange vibe) */
+        .btn-nav {
+            background-color: #ea580c; /* orange-600 */
+        }
+        .btn-nav:hover {
+            background-color: #c2410c; /* orange-700 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-orange-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Singapore Pass 新加坡美食地圖
+            </h1>
+            <!-- 回到首頁連結 -->
+            <a href="https://linkuei0425.github.io/Singapore/index.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-orange-700 hover:bg-orange-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-orange-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                回到首頁
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇區域 (Select Region)</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇類別 (Select Category)</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">請先從上方選擇您想探索的新加坡區域與類別</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Singapore Data Structure (3 items per category strictly)
+        const db = {
+            "chinatown": {
+                name: "牛車水 / 麥士威",
+                categories: {
+                    "hainanese": [
+                        { name: "天天海南雞飯 (Tian Tian)", feature: "米其林必比登推薦！新加坡最知名的海南雞飯，雞肉滑嫩多汁，淋上特製黑醬油與自製辣椒醬，米飯充滿濃郁雞油香。", address: "麥士威熟食中心 (Maxwell Food Centre) #01-10<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟤棕線至「麥士威站 (TE18)」2號出口出站即達，或 🔵藍/🟣紫線「牛車水站 (DT19/NE4)」步行約6分鐘。" },
+                        { name: "松發肉骨茶 (唐城坊店)", feature: "新加坡三大肉骨茶之一！屬於白胡椒味濃郁的潮州派，湯頭辛香嗆辣非常過癮，且可以免費無限續湯。", address: "133 New Bridge Rd, #01-04 Chinatown Point<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔵藍/🟣紫線至「牛車水站 (DT19/NE4)」E出口，進入唐城坊商場1樓即可看到。" },
+                        { name: "真真粥品 (Zhen Zhen)", feature: "隱藏在麥士威熟食中心的超人氣排隊早餐！招牌魚片粥熬煮到米粒化開，配上油條與生蛋，順口暖胃。", address: "麥士威熟食中心 (Maxwell Food Centre) #01-54<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟤棕線至「麥士威站 (TE18)」2號出口出站即達。" }
+                    ],
+                    "seafood": [
+                        { name: "珍寶海鮮 (河濱坊店)", feature: "來新加坡必吃辣椒螃蟹的代名詞！位於克拉碼頭旁的絕佳位置，醬汁濃郁酸甜帶微辣，記得點炸饅頭沾醬汁吃。", address: "20 Upper Circular Rd, #B1-48 The Riverwalk<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟣紫線至「克拉碼頭站 (NE5)」E出口，過馬路步行約3分鐘抵達河畔。" },
+                        { name: "八道館魚蝦蟹", feature: "牛車水美食街的人氣熱炒海鮮店，提供黑胡椒螃蟹、麥片蝦等多種經典大排檔料理，氣氛熱鬧價格相對親民。", address: "2 Trengganu St, Chinatown<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔵藍/🟣紫線至「牛車水站 (DT19/NE4)」A出口，沿寶塔街步行約2分鐘抵達美食街。" },
+                        { name: "明輝田雞粥", feature: "芽籠超有名的田雞粥在牛車水分店！招牌「宮保田雞」醬汁濃郁帶辣，淋在綿密的白粥上，是絕佳的宵夜選擇。", address: "323 Geylang Rd (芽籠區本店)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠線至「阿裕尼站 (EW9)」A出口，步行約8-10分鐘至芽籠路19巷。" }
+                    ],
+                    "nanyang": [
+                        { name: "興隆台灣麵線", feature: "雖然名字有台灣，但這家在麥士威的麵線加入了獨特的南洋風味與醋，是許多當地人從小吃到大的排隊美食。", address: "麥士威熟食中心 (Maxwell Food Centre) #01-67<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟤棕線至「麥士威站 (TE18)」2號出口出站即達。" },
+                        { name: "娘惹巴巴 (Baba Mews)", feature: "牛車水周邊的精緻娘惹菜餐廳，提供正宗的黑果燜雞 (Ayam Buah Keluak) 與娘惹小金杯，體驗道地土生華人文化。", address: "牛車水周邊巷弄<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔵藍/🟣紫線至「牛車水站 (DT19/NE4)」或 🟢綠/🔴紅線至「歐南園站 (EW16)」步行約5分鐘。" },
+                        { name: "福州蠔餅 (Maxwell Fuzhou)", feature: "即將失傳的傳統小吃！外皮炸得金黃酥脆，內餡包著鮮蚵、肉末與花生，咬下去香氣四溢，非常適合當散步點心。", address: "麥士威熟食中心 (Maxwell Food Centre) #01-05<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟤棕線至「麥士威站 (TE18)」2號出口出站即達。" }
+                    ],
+                    "kopitiam": [
+                        { name: "亞坤咖椰吐司 (牛車水總店)", feature: "超過70年歷史的本店！碳烤得極度酥脆的薄片吐司，夾著冰冷牛油與香甜咖椰醬，配上半熟蛋與Kopi O，最經典的新加坡早餐。", address: "18 China St, #01-01 Far East Square<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔵藍線至「直落亞逸站 (DT18)」B出口，步行約3分鐘至遠東廣場內部。" },
+                        { name: "南洋老咖啡 (Nanyang Old Coffee)", feature: "外觀是一棟鮮紅色的復古建築，內部像是小型咖啡博物館。提供最傳統的絲襪拉茶、南洋咖啡與多種傳統糕點。", address: "268 South Bridge Rd, Chinatown<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟤棕線至「麥士威站 (TE18)」1號出口步行約3分鐘，或「牛車水站」A出口步行約5分鐘。" },
+                        { name: "東亞餐室 (Tong Ah Eating House)", feature: "牛車水老字號茶室，這裡的咖椰吐司麵包較為厚實鬆軟，非常有特色。除了早餐，他們的煮炒(熱炒)也非常受歡迎。", address: "35 Keong Saik Rd<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟤棕線至「麥士威站 (TE18)」3號出口步行約4分鐘，或「歐南園站 (EW16/NE3)」步行約6分鐘。" }
+                    ],
+                    "dessert": [
+                        { name: "味香園甜品", feature: "牛車水逛累了的消暑聖地！招牌是入口即化的綿密雪花冰，推薦芒果、芝麻與抹茶口味，也有傳統的芝麻糊與杏仁糊。", address: "63-67 Temple St, Chinatown<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔵藍/🟣紫線至「牛車水站 (DT19/NE4)」A出口，沿寶塔街右轉登婆街，步行約2分鐘。" },
+                        { name: "老伴豆花", feature: "新加坡無人不知的豆花品牌！與傳統豆花不同，它口感像布丁一樣滑嫩Ｑ彈，冰涼微甜，原味與杏仁口味都大推。", address: "麥士威熟食中心 (Maxwell Food Centre) #01-91<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟤棕線至「麥士威站 (TE18)」2號出口出站即達。" },
+                        { name: "牛車水 詹爺爺冰淇淋推車", feature: "街頭最著名的銅板美食！將厚厚的榴槤或薄荷巧克力冰淇淋，夾在彩色吐司或威化餅乾中，消暑又好拍。", address: "牛車水廣場 (Chinatown Square) 周邊推車<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔵藍/🟣紫線至「牛車水站 (DT19/NE4)」A出口外廣場或周邊街道即可看到。" }
+                    ]
+                }
+            },
+            "marinabay": {
+                name: "濱海灣 / 老巴剎",
+                categories: {
+                    "hainanese": [
+                        { name: "威南記海南雞飯", feature: "深受當地人與總理喜愛的名店！雞肉可以選擇白斬雞或燒雞，燒雞外皮帶有獨特香氣，特製的蒜蓉辣椒醬是一絕。", address: "6 Raffles Blvd, #04-102B Marina Square<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃線至「濱海中心站 (CC3)」C出口，經地下通道步行至 Marina Square 商場 4樓。" },
+                        { name: "黃亞細肉骨茶 (金沙店)", feature: "胡椒味極其濃烈霸道的肉骨茶！如果喜歡重口味絕對不能錯過，豬肋排燉得軟爛入味，配上麵線非常搭。", address: "2 Bayfront Ave, #B2-50 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃/🔵藍線至「海灣舫站 (CE1/DT16)」C/D出口，進入金沙購物中心 B2 美食區。" },
+                        { name: "忠食館 (Rasapura Masters) 燒臘", feature: "位於金沙購物中心地下室的美食廣場，集合了許多新加坡知名小吃，這裡的燒臘與海南雞飯水準也相當不錯。", address: "2 Bayfront Ave, #B2-50 金沙購物中心地下二樓<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃/🔵藍線至「海灣舫站 (CE1/DT16)」C/D出口，進入金沙購物中心 B2。" }
+                    ],
+                    "seafood": [
+                        { name: "棕櫚灘海鮮 (Palm Beach)", feature: "一邊吃辣椒螃蟹一邊欣賞魚尾獅與金沙酒店無敵夜景！除了辣椒螃蟹，黑胡椒螃蟹與脆皮燒雞也是招牌必點。", address: "1 Fullerton Rd, #01-09 One Fullerton<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔴紅線至「萊佛士坊站 (EW14/NS26)」H出口，朝魚尾獅公園方向步行約8分鐘。" },
+                        { name: "無招牌海鮮 (濱海藝術中心店)", feature: "以「白胡椒螃蟹」創始者聞名！螃蟹飽滿鮮甜，白胡椒的香氣不會掩蓋海鮮本身的鮮味，地點就在大榴槤旁。", address: "8 Raffles Ave, #01-14/16 Esplanade<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃線至「濱海中心站 (CC3)」D出口，步行約5分鐘至大榴槤建築 1樓。" },
+                        { name: "珍寶海鮮 (金沙店)", feature: "如果不想到克拉碼頭人擠人，金沙購物中心內也有分店。品質穩定，招牌麥片蝦酥脆香甜，連殼都可以直接吃。", address: "2 Bayfront Ave, #01-85 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃/🔵藍線至「海灣舫站 (CE1/DT16)」C/D出口，進入金沙購物中心 1樓。" }
+                    ],
+                    "nanyang": [
+                        { name: "老巴剎沙嗲街 (Satay Street)", feature: "每到傍晚老巴剎旁邊的馬路就會封街，擺滿烤肉攤與桌椅。推薦點綜合沙嗲(雞肉/羊肉/牛肉)配上一大杯冰鮮釀啤酒。", address: "18 Raffles Quay, Lau Pa Sat (晚上7點後封街)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔴紅線至「萊佛士坊站 (EW14/NS26)」I出口步行約5分鐘；或 🔵藍線「市中心站 (DT17)」步行約3分鐘。" },
+                        { name: "Makansutra 貪吃街", feature: "位於濱海灣大看台旁的美食中心，集合了新加坡各路小吃精英。可以買到道地的沙爹、烤魔鬼魚與炒福建麵。", address: "8 Raffles Ave, #01-15 Esplanade<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃線至「濱海中心站 (CC3)」D出口，步行約6分鐘至濱海灣浮動舞台旁。" },
+                        { name: "金沙美食街 叻沙", feature: "在 Rasapura Masters 內可以找到濃郁道地的叻沙(Laksa)，椰奶香氣十足，配上吸滿湯汁的粗米粉與鮮蝦，非常過癮。", address: "2 Bayfront Ave, #B2-50 金沙購物中心<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃/🔵藍線至「海灣舫站 (CE1/DT16)」C/D出口，至地下二樓美食街。" }
+                    ],
+                    "kopitiam": [
+                        { name: "TWG Tea (金沙店)", feature: "新加坡發跡的奢華茶葉品牌，位於金沙水池上的玻璃屋內。提供頂級下午茶套餐，馬卡龍與各式特調茶飲是貴婦行程首選。", address: "2 Bayfront Ave, #B2-65 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃/🔵藍線至「海灣舫站 (CE1/DT16)」C/D出口，位於商場室內運河橋上。" },
+                        { name: "Bacha Coffee (金沙店)", feature: "來自摩洛哥的奢華精品咖啡！裝潢極度華麗，主打各種產地的頂級手沖咖啡，搭配招牌現烤可頌，排隊人潮總是滿滿。", address: "2 Bayfront Ave, #B2-86 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃/🔵藍線至「海灣舫站 (CE1/DT16)」C/D出口，商場地下2樓即可看到。" },
+                        { name: "土司工坊 (Toast Box 金沙店)", feature: "如果想在金沙尋找平價美味，這家南洋連鎖咖啡廳是好選擇。除了咖椰吐司，他們的咖哩雞與叻沙也有不錯的水準。", address: "2 Bayfront Ave, #B2-62 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃/🔵藍線至「海灣舫站 (CE1/DT16)」C/D出口，近美食廣場。" }
+                    ],
+                    "dessert": [
+                        { name: "Lady M (金沙店)", feature: "來自紐約的千層蛋糕名店，但在新加坡有時會推出限定口味。在金沙逛累了，來片極致輕盈的千層蛋糕非常享受。", address: "2 Bayfront Ave, #01-27 The Shoppes at Marina Bay Sands<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟡黃/🔵藍線至「海灣舫站 (CE1/DT16)」C/D出口，位於1樓精品區。" },
+                        { name: "Llaollao (優格冰淇淋)", feature: "在新加坡極度受歡迎的西班牙優格冰淇淋！酸甜的優格冰底，可以自由選擇加上新鮮水果、焦糖餅乾碎與各種罪惡醬料。", address: "金沙購物中心與市區各大百貨均有分店<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>金沙分店位於B2，搭乘地鐵至「海灣舫站 (CE1/DT16)」步行前往。" },
+                        { name: "濱海灣 街頭冰淇淋推車", feature: "沿著魚尾獅公園散步到濱海灣花園的途中，也能遇到賣著新幣1.5元的切塊冰淇淋推車，是炎熱天氣的救贖。", address: "魚尾獅公園周邊沿岸<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵至「萊佛士坊站 (EW14/NS26)」H出口，朝水岸步道散步即可發現推車。" }
+                    ]
+                }
+            },
+            "bugis": {
+                name: "武吉士 / 甘榜格南",
+                categories: {
+                    "hainanese": [
+                        { name: "逸群雞飯 (Yet Con)", feature: "具有懷舊風情的正宗海南雞飯老店，保留了傳統的做法，除了鮮嫩的白斬雞，他們家的海南燉豬肉也大受老饕歡迎。", address: "25 Purvis St (近武吉士/市政府)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」C出口，步行約8分鐘。" },
+                        { name: "津津餐室 (Chin Chin)", feature: "同樣位於 Purvis 街上的老字號，海南雞飯份量實在，另外必點的是炸得金黃酥脆的「海南炸豬排」，酸甜醬汁很開胃。", address: "19 Purvis St (近武吉士)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」C出口，步行約8分鐘。" },
+                        { name: "發起人肉骨茶 (Bugis)", feature: "許多港台明星來新加坡必訪的名店！屬於白胡椒湯底，湯頭較為清甜，排骨可以輕鬆骨肉分離，沾上黑醬油絕配。", address: "530 North Bridge Rd, #01-01 (Bugis Junction周邊)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」D出口，經 Bugis Junction 步行約5分鐘。" }
+                    ],
+                    "seafood": [
+                        { name: "龍海鮮螃蟹王 (Mellben Seafood)", feature: "雖然本店在宏茂橋，但武吉士分店一樣人氣爆棚！除了辣椒螃蟹，獨創的「砂鍋螃蟹米粉湯」湯頭濃郁充滿奶香，絕對必吃。", address: "7 Fraser St, #01-28/29 Duo Galleria (近Bugis)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」E/F出口，地下連通道直達 Duo Galleria 1樓。" },
+                        { name: "白米粉 (White Restaurant)", feature: "雖然不是螃蟹，但他們家的招牌「原味白米粉」吸滿了濃郁的海鮮高湯，配上豐富的鮮蝦與花枝，鮮甜美味無比。", address: "Suntec City 或 Bugis 周邊分店<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>Suntec分店請搭乘 🟡黃/🔵藍線至「寶門廊站 (CC4/DT15)」C出口，進入新達城 B1。" },
+                        { name: "亞秋蝦麵", feature: "位於甘榜格南附近的傳統蝦麵，湯頭用大量蝦頭與豬大骨熬製數小時，呈現深褐色且充滿濃郁鮮甜的海鮮精華。", address: "武吉士 / 甘榜格南巷弄內<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」B出口，步行約5-8分鐘至蘇丹回教堂周邊。" }
+                    ],
+                    "nanyang": [
+                        { name: "Zam Zam 印度烤餅", feature: "百年印度穆斯林名店！蘇丹回教堂對面，必點「印度煎餅 (Murtabak)」，內餡包滿香料碎肉與洋蔥，配上咖哩醬極度美味。", address: "697-699 North Bridge Rd (蘇丹回教堂正對面)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」B出口，步行約6分鐘 (位於蘇丹回教堂正門對面)。" },
+                        { name: "結霜橋叻沙 (Sungei Road)", feature: "全新加坡最後一家堅持用「炭火」熬煮的叻沙！湯頭椰奶與蝦米味極其濃郁，配上鮮血蛤，只有湯匙沒有筷子是特色。", address: "27 Jln Berseh, #01-100 (近惹蘭勿剎/武吉士)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔵藍線至「惹蘭勿剎站 (DT22)」B出口，步行約3分鐘即可抵達。" },
+                        { name: "白蘭閣街蝦麵 (Blanco Court)", feature: "哈芝巷旁的名店！超大隻的紅蝦與排骨鋪滿碗面，乾麵會附上一碗濃郁的蝦湯，加點辣粉提味更好吃。", address: "243 Beach Rd, #01-01<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」B出口，沿哈芝巷走到盡頭右轉 (步行約6分鐘)。" }
+                    ],
+                    "kopitiam": [
+                        { name: "% Arabica (Arab Street)", feature: "位於充滿中東風情的阿拉伯街上，純白極簡的設計與周圍鮮豔的建築形成對比。逛完哈芝巷來杯高品質的拿鐵非常愜意。", address: "56 Arab St<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」B出口，步行約7分鐘至阿拉伯街。" },
+                        { name: "Earlybird", feature: "哈芝巷周邊的人氣文青早午餐店，以鳥類為主題。招牌是炸雞鬆餅與各式精緻的西式早午餐，咖啡水準也很高。", address: "17 Jln Pinang (近甘榜格南)<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」B出口，步行約6分鐘 (近蘇丹回教堂)。" },
+                        { name: "亞坤 (Bugis Junction)", feature: "如果不想跑到總店，Bugis Junction 百貨內也有亞坤。逛街前來一份傳統咖椰吐司套餐，快速補充體力。", address: "200 Victoria St, #B1-11 Bugis Junction<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」C出口，直接連接商場 B1。" }
+                    ],
+                    "dessert": [
+                        { name: "阿秋甜品 (Ah Chew Desserts)", feature: "武吉士必吃的傳統中式甜品店！充滿古典裝潢，招牌是「楊枝甘露」與「鮮奶燉蛋」，香濃順口，經常大排長龍。", address: "1 Liang Seah St, #01-10/11<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」D出口，過馬路進入連城街，步行約3分鐘。" },
+                        { name: "記得吃甜品 (Mei Heong Yuen)", feature: "另一家在武吉士極受歡迎的甜品店，雪花冰份量極大，適合與朋友分享。榴槤雪花冰是敢吃榴槤者的最愛。", address: "Bugis 附近連城街分店<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」D出口，過馬路步行約3分鐘即可看見。" },
+                        { name: "哈芝巷 彩虹蛋糕", feature: "哈芝巷內有許多特色甜點店（如 I Am 咖啡廳），以巨大且色彩鮮豔的「彩虹蛋糕」聞名，是IG打卡的熱門甜點。", address: "Haji Lane 哈芝巷內<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🟢綠/🔵藍線至「武吉士站 (EW12/DT14)」B出口，步行約6分鐘進入哈芝巷內。" }
+                    ]
+                }
+            },
+            "orchard": {
+                name: "烏節路 / 索美塞",
+                categories: {
+                    "hainanese": [
+                        { name: "Chatterbox (文華大酒店)", feature: "傳說中「貴婦級的海南雞飯」！價格較高但環境奢華，雞肉使用特選品種，肉質極度細嫩，份量大且附湯與小菜非常精緻。", address: "333 Orchard Rd, #05-03 Hilton Singapore Orchard<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「索美塞站 (NS23)」B出口步行約5分鐘，或「烏節站 (NS22/TE14)」步行約6分鐘。" },
+                        { name: "報紙肉骨茶 (Bazaar)", feature: "位於烏節路巷弄，因為以前用報紙包裝而得名。屬於胡椒味適中的白湯，排骨大塊且入味，深受周邊上班族喜愛。", address: "烏節路百貨美食街內分店<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「烏節站 (NS22/TE14)」或「索美塞站 (NS23)」周邊百貨美食街。" },
+                        { name: "Lucky Plaza 雞飯", feature: "隱藏在 Lucky Plaza (印尼/菲律賓商場) 內的平價海南雞飯，被許多在地人私推為烏節路CP值最高的美食，香氣十足。", address: "304 Orchard Rd, Lucky Plaza<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「烏節站 (NS22/TE14)」A出口，沿烏節路主街步行約3分鐘。" }
+                    ],
+                    "seafood": [
+                        { name: "同樂海鮮 (TungLok Seafood)", feature: "位於烏節路的高級海鮮餐廳，除了必點的辣椒螃蟹，他們的「芥末美乃滋蝦球」更是招牌，環境非常適合長輩或家庭聚餐。", address: "181 Orchard Rd, #11-05 Orchard Central<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「索美塞站 (NS23)」C出口，直接連接 Orchard Central 商場。" },
+                        { name: "珍寶海鮮 (ION Orchard店)", feature: "如果行程主要在烏節路血拼，可以直接到 ION 百貨內的珍寶海鮮。環境現代舒適，辣椒螃蟹與海鮮炒飯水準依舊。", address: "2 Orchard Turn, #04-09/10 ION Orchard<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「烏節站 (NS22/TE14)」E出口，直接連接 ION Orchard 購物中心 4樓。" },
+                        { name: "海鮮共和國 (Seafood Republic)", feature: "由新加坡四家知名海鮮餐廳聯手打造，雖然主要在聖淘沙，但在市區百貨也有快閃或分店，一次能吃到各家招牌特色。", address: "烏節路商圈周邊分店<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>(若為聖淘沙本店，請搭乘 🟣紫/🟡黃線至「港灣站 (NE1/CC29)」轉乘聖淘沙捷運)。" }
+                    ],
+                    "nanyang": [
+                        { name: "Food Republic (313@Somerset)", feature: "烏節路逛街時的最佳平價選擇！大食代美食街內裝潢復古，裡面有一攤非常道地的叻沙(Laksa)與炒福建麵，值得一試。", address: "313 Orchard Rd, Level 5, 313@Somerset<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「索美塞站 (NS23)」B出口，商場直達 5 樓大食代。" },
+                        { name: "Violet Oon (國家美術館/烏節分店)", feature: "新加坡頂級娘惹菜餐廳，裝潢極度奢華優雅。小金杯、黑果雞與乾咖哩牛肉(Beef Rendang)是必點，體驗土生華人的精緻飲食。", address: "ION Orchard 內設有分店或周邊<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「烏節站 (NS22/TE14)」E出口，進入 ION Orchard 3樓。" },
+                        { name: "泰豐 (炒粿條)", feature: "百貨美食街內常見的連鎖品牌，他們家的「炒粿條」鑊氣十足，加入黑醬油、鮮蛤與臘腸大火快炒，鹹甜交織非常邪惡。", address: "ION Orchard 等大型百貨美食街 B4<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「烏節站 (NS22/TE14)」E出口，進入 ION 百貨地下4樓美食街。" }
+                    ],
+                    "kopitiam": [
+                        { name: "Bacha Coffee (ION Orchard)", feature: "位於 ION 百貨一樓的旗艦店，整面牆的咖啡罐與精緻甜點櫃極度吸睛。走累了來一杯精品手沖配上覆盆子可頌，非常享受。", address: "2 Orchard Turn, #01-15/16 ION Orchard<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「烏節站 (NS22/TE14)」E出口，搭電扶梯至 ION Orchard 1樓精品區。" },
+                        { name: "PS.Cafe (Paragon)", feature: "新加坡最知名的網美咖啡廳之一！隱身在百貨公司內卻擁有大片綠意植栽。必點「松露薯條」，份量極大且香氣濃郁。", address: "290 Orchard Rd, #03-41/42 Paragon<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「烏節站 (NS22/TE14)」A出口，沿烏節路步行約5分鐘至百麗宮商場 3樓。" },
+                        { name: "亞坤 (313@Somerset)", feature: "位於 Somerset 站樓上，不管是當早餐還是下午茶都適合。買完東西提著大包小包，來一份咖椰吐司休息一下最剛好。", address: "313 Orchard Rd, #01-32/33 313@Somerset<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「索美塞站 (NS23)」B出口，位於 313商場 1 樓外側徒步區。" }
+                    ],
+                    "dessert": [
+                        { name: "詹爺爺 街頭冰淇淋推車", feature: "烏節路義安城(Ngee Ann City)外最著名的紅色推車！各大旅遊節目採訪過，切塊冰淇淋夾彩色麵包，好吃又便宜的代表。", address: "391 Orchard Rd, 義安城外人行道<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「烏節站 (NS22)」或「索美塞站 (NS23)」B出口，步行5分鐘至義安城/高島屋門口。" },
+                        { name: "Mr. Coconut", feature: "新加坡近年爆紅的椰子飲料專賣店！招牌「椰子冰沙」加入新鮮椰肉打成，清涼退火且不會太甜，烏節路人手一杯。", address: "烏節路各大百貨地下室皆有分店<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵 🔴紅線至「索美塞站 (NS23)」前往 313@Somerset 等商場地下樓層即可找到。" },
+                        { name: "街頭現切水果攤", feature: "在烏節路街頭常可見到推車販售現切的冰涼西瓜、哈密瓜或紅毛丹。一袋新幣一塊多，是逛街時最天然的消暑聖品。", address: "烏節路沿線人行道<br><span class='text-orange-600 font-bold mt-1.5 inline-block'>🚇 自由行交通：</span>搭乘地鐵至「烏節站 (NS22)」或「索美塞站 (NS23)」，沿著烏節路人行道散步即可看到。" }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Singapore
+        const categoriesMap = {
+            "hainanese": { name: "🍗 海南雞與肉骨茶", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-400" },
+            "seafood": { name: "🦀 辣椒螃蟹與海鮮", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "nanyang": { name: "🍜 叻沙與娘惹風味", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "kopitiam": { name: "☕ 咖椰吐司與咖啡", color: "bg-emerald-100 text-emerald-800 hover:bg-emerald-600 hover:text-white border-emerald-400" },
+            "dessert": { name: "🍧 街頭甜品與小吃", color: "bg-sky-100 text-sky-800 hover:bg-sky-600 hover:text-white border-sky-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-orange-600', 'text-white', 'border-orange-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-orange-600');
+            clickedBtn.classList.add('bg-orange-600', 'text-white', 'border-orange-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('hainanese', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-orange-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-orange-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-gray-500">此分類目前無資料</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (加入 Singapore 關鍵字提升準確度，並用 split 濾掉交通指南的 HTML 標籤)
+                const pureAddress = item.address.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.name} Singapore ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded mr-1">特色</span>${item.feature}</p>
+                        
+                        <div class="bg-orange-50/50 p-3.5 rounded-xl flex items-start gap-3 border border-orange-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium"><span class="font-bold text-orange-800">地址：</span>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto flex flex-col gap-3">
+                        <!-- Google Maps 導航按鈕 (單一大按鈕更適合新加坡) -->
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md text-base">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>

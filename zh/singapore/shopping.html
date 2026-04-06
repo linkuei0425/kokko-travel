@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新加坡購物精選指南 | Singapore Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar for categories */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Singapore Emerald Theme Active State */
+        .tab-btn.active {
+            background-color: #059669; /* Emerald-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);
+            border-color: #059669;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button Hover */
+        .btn-maps {
+            background-color: #059669; /* Emerald-600 */
+        }
+        .btn-maps:hover {
+            background-color: #047857; /* Emerald-700 */
+        }
+    </style>
+</head>
+<body class="bg-[#f0fdf4] text-gray-800 font-sans antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-emerald-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>SG SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/Singapore/index.html" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> BACK TO HOME
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-emerald-600 via-teal-500 to-green-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">新加坡必買購物精選指南</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">精選獅城在地人氣品牌、國際精品與特色伴手禮，讓你在新加坡買到手軟！</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Category Buttons (Horizontal Scroll) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('mustbuy', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🌟</span> 新加坡必買
+            </button>
+            <button onclick="filterCategory('fashion', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👗</span> 流行服飾
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> 質感美妝
+            </button>
+            <button onclick="filterCategory('souvenir', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🎁</span> 特色伴手禮
+            </button>
+            <button onclick="filterCategory('mart', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛒</span> 零食超市
+            </button>
+            <button onclick="filterCategory('shoes', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-emerald-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👟</span> 潮流球鞋
+            </button>
+        </div>
+
+        <!-- Shop Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected dynamically via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">© 2026 Singapore Shopping Guide. 為你的新加坡之旅提供最佳購物建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        // Singapore Shop Database (Traditional Chinese)
+        const shopData = [
+            // --- MUST BUYS (Appears in 'mustbuy' and their respective categories) ---
+            { cat: ['mustbuy', 'souvenir'], name: 'IRVINS 鹹蛋黃魚皮', feature: '極度容易上癮的鹹蛋黃洋芋片與炸魚皮！新加坡最現象級的零食品牌，也是終極吃貨伴手禮。', loc: '星耀樟宜、濱海灣金沙、烏節路', transit: '可於樟宜機場或地鐵海灣舫站(金沙)購買' },
+            { cat: ['mustbuy', 'souvenir'], name: 'TWG Tea (金沙店)', feature: '新加坡奢華茶葉品牌。提供數百種頂級混合茶，包裝精美奢華，是送禮的完美首選。', loc: '2 Bayfront Ave, B2-65 (金沙購物中心 B2)', transit: '地鐵海灣舫站 (CE1/DT16) C/D 出口' },
+            { cat: ['mustbuy', 'souvenir'], name: 'Bacha Coffee', feature: '席捲新加坡的摩洛哥奢華咖啡品牌。以 100% 阿拉比卡濾掛咖啡包與極具質感的禮盒包裝聞名。', loc: 'ION Orchard、濱海灣金沙、星耀樟宜', transit: '地鐵烏節站 (ION) 或 海灣舫站 (金沙)' },
+            { cat: ['mustbuy', 'souvenir'], name: 'Bengawan Solo (班蘭蛋糕)', feature: '以傳統班蘭綠蛋糕 (Pandan Chiffon Cake) 與千層糕聞名。是搭機返國前必買的在地糕點伴手禮。', loc: '樟宜機場各航廈、ION Orchard', transit: '推薦離境前直接於樟宜機場購買最方便' },
+            { cat: ['mustbuy', 'fashion'], name: 'Charles & Keith (小CK)', feature: '新加坡最引以為傲的本土品牌！提供高品質、款式新穎的女鞋、包包與配件，且價格非常親民。', loc: 'ION Orchard、Wisma Atria、VivoCity', transit: '旗艦店可搭乘地鐵至烏節站 (NS22/TE14)' },
+            
+            // --- FASHION ---
+            { cat: 'fashion', name: 'Love, Bonito (Funan 旗艦店)', feature: '新加坡最大的本土女裝品牌。風格現代時髦，版型專為亞洲女性身形量身打造，非常修身。', loc: '107 North Bridge Rd, #02-09 Funan 數位福南商場', transit: '地鐵政府大廈站 (EW13/NS25) D出口，步行 3 分鐘' },
+            { cat: 'fashion', name: 'Design Orchard', feature: '匯集超過 100 位新加坡本土設計師的大型創意空間。非常適合在這裡尋找獨特的服飾、配件與生活小物。', loc: '250 Orchard Rd (烏節路路口)', transit: '地鐵索美塞站 (NS23) B出口，步行 3 分鐘' },
+            { cat: 'fashion', name: '武吉士街 (Bugis Street Market)', feature: '新加坡最大的平價購物街，擁有超過 600 個攤位，販售價格極為親民的流行服飾、配件與紀念品。', loc: '3 New Bugis Street', transit: '地鐵武吉士站 (EW12/DT14) C出口，步行 2 分鐘' },
+            { cat: 'fashion', name: '金沙購物中心 (The Shoppes at MBS)', feature: '終極奢華購物聖地。擁有壯觀的室內運河與建築設計，匯集了全球頂級的國際精品與時尚大牌。', loc: '10 Bayfront Ave (濱海灣金沙)', transit: '地鐵海灣舫站 (CE1/DT16) 地下連通道直達' },
+
+            // --- BEAUTY & SKINCARE ---
+            { cat: 'beauty', name: 'Sephora (ION Orchard 旗艦店)', feature: '美妝控的天堂！這間超大型旗艦店齊聚了全球知名彩妝、保養品牌，以及 CP 值極高的 Sephora 自有品牌。', loc: 'ION Orchard 地下2樓 (#B2-09)', transit: '地鐵烏節站 (NS22/TE14) E出口直連' },
+            { cat: 'beauty', name: 'Watsons 屈臣氏 (義安城店)', feature: '購買平價亞洲開架美妝與藥妝的好去處，這裡也是掃貨「虎標萬金油」與痠痛貼布等熱門伴手禮的聖地。', loc: '391 Orchard Rd, 義安城 (Ngee Ann City)', transit: '地鐵烏節站或索美塞站，步行 5 分鐘' },
+            { cat: 'beauty', name: 'Bath & Body Works', feature: '以香味迷人的沐浴乳、身體乳與香氛蠟燭大受歡迎。經常舉辦大型折扣活動，非常適合大量採買送禮。', loc: '金沙購物中心、VivoCity、ION Orchard 皆有分店', transit: '地鐵海灣舫站 或 港灣站' },
+
+            // --- SOUVENIR ---
+            { cat: 'souvenir', name: '慕斯達發中心 (Mustafa Centre)', feature: '小印度區的 24 小時超大型購物中心。這裡什麼都賣，從巧克力、香水到魚尾獅紀念品，價格都非常便宜。', loc: '145 Syed Alwi Rd (小印度區)', transit: '地鐵花拉公園站 (NE8) F出口，步行 5 分鐘' },
+            { cat: 'souvenir', name: '牛車水市集 (Chinatown Street Market)', feature: '大量採買便宜伴手禮的最佳去處！如魚尾獅鑰匙圈、冰箱貼、傳統工藝品與印花帆布袋等，這裡最齊全。', loc: '寶塔街 (Pagoda Street) 等牛車水周邊街道', transit: '地鐵牛車水站 (DT19/NE4) A出口出站即達' },
+            { cat: 'souvenir', name: '哈芝巷特色小店 (Haji Lane)', feature: '甘榜格南區一條色彩繽紛的巷弄，兩側充滿了獨立設計師小店、古著服飾與獨特的手工飾品。', loc: 'Haji Lane (哈芝巷)', transit: '地鐵武吉士站 (EW12/DT14) B出口，步行 5 分鐘' },
+
+            // --- SUPERMARKETS (MART) ---
+            { cat: 'mart', name: 'FairPrice Xtra 職總平價超市 (VivoCity)', feature: '新加坡最大的本土連鎖超市之一。非常適合採買百勝廚叻沙泡麵、亞坤咖椰醬與海南雞飯調理包。', loc: 'VivoCity 怡豐城 地下2樓 (#B2-23)', transit: '地鐵港灣站 (NE1/CC29) 地下連通道直達' },
+            { cat: 'mart', name: 'Cold Storage 超市 (Bugis Junction)', feature: '走高質感路線的超市，提供豐富的進口商品、當地特色零食與新鮮熱帶水果。地點十分便利。', loc: 'Bugis Junction 白沙浮廣場 地下1樓', transit: '地鐵武吉士站 (EW12/DT14) C出口' },
+            { cat: 'mart', name: 'Don Don Donki 唐吉訶德 (Orchard Central)', feature: '在新加坡極受歡迎的日本連鎖折扣店 (24小時營業)。非常適合採買零食、美妝，更是半夜睡不著的血拼好去處。', loc: 'Orchard Central 烏節中央城 B1 & B2', transit: '地鐵索美塞站 (NS23) C出口直達' },
+
+            // --- SNEAKERS & SPORTS ---
+            { cat: 'shoes', name: 'JD Sports (ION Orchard)', feature: '被譽為「無可爭議的球鞋之王」。擁有海量的 Nike、Adidas、New Balance 等各大品牌的獨家鞋款。', loc: 'ION Orchard 地下4樓 (#B4-17)', transit: '地鐵烏節站 (NS22/TE14) E出口' },
+            { cat: 'shoes', name: 'Nike 烏節路旗艦店', feature: '超大型 Nike 旗艦店。最大亮點是設有「Nike By You」客製化專區，可以在服飾上印製或燙印新加坡專屬的限定圖案。', loc: '268 Orchard Rd (烏節路主街)', transit: '地鐵索美塞站 (NS23) B出口，步行 3 分鐘' },
+            { cat: 'shoes', name: 'Foot Locker (Orchard Gateway)', feature: '多樓層的旗艦店，提供最新發售的限量球鞋、豐富的籃球服飾區，以及獨家潮流街頭服飾。', loc: '277 Orchard Rd, Orchard Gateway 商場', transit: '地鐵索美塞站 (NS23) 直達連通道' }
+        ];
+
+        // Function to render cards based on selected category
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; // Clear existing content
+
+            // Filter logic supporting array format (items can belong to multiple categories)
+            const filteredData = shopData.filter(item => {
+                const itemCats = Array.isArray(item.cat) ? item.cat : [item.cat];
+                return itemCats.includes(category);
+            });
+
+            if (filteredData.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center text-gray-500 py-10">此分類目前無推薦資料。</div>`;
+                return;
+            }
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; // Simple cascading animation delay
+                
+                // Generate Google Maps URL (Appending 'Singapore' for accuracy)
+                const pureName = shop.name.split('(')[0].trim();
+                const mapSearchQuery = encodeURIComponent(`${pureName} Singapore`);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
+                
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-yellow-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">特色亮點</p>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${shop.feature}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-emerald-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">詳細地址 / 購買地</p>
+                                    <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-train-subway text-emerald-500 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">交通方式</p>
+                                    <span class="inline-block bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded-md font-medium text-left leading-normal">${shop.transit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation Button Area -->
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white btn-maps focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            開啟 Google Map 導航
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Category Tab Click Handler
+        function filterCategory(category, btnElement) {
+            // Remove active state from all buttons
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            // Add active state to clicked button
+            btnElement.classList.add('active');
+
+            // Render relevant data
+            renderCards(category);
+        }
+
+        // Add simple fade-in animation CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.4s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initial load shows first category (Must Buys)
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('mustbuy', firstBtn);
+        };
+    </script>
+</body>
+</html>

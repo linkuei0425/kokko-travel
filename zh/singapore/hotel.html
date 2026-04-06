@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新加坡住宿推薦指南 | Singapore Hotel Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自訂滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #34d399; /* emerald-400 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #10b981; /* emerald-500 */
+        }
+        
+        /* 區域按鈕樣式 - 新加坡花園綠色系 */
+        .area-btn-active {
+            background-color: #047857; /* emerald-700 */
+            color: white;
+            border-color: #047857;
+            box-shadow: 0 4px 6px -1px rgba(4, 120, 87, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #ecfdf5; /* emerald-50 */
+            color: #065f46; /* emerald-800 */
+            border-color: #6ee7b7; /* emerald-300 */
+        }
+
+        /* 分類按鈕樣式 */
+        .cat-btn-active {
+            background-color: #059669; /* emerald-600 */
+            color: white;
+            border-color: #059669;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #ecfdf5; /* emerald-50 */
+            color: #059669;
+        }
+    </style>
+</head>
+<body class="bg-[#f0fdf4] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-emerald-900 tracking-wide">🇸🇬 新加坡住宿推薦指南</h1>
+                <!-- 連結已更新為新加坡的首頁位址 -->
+                <a href="https://linkuei0425.github.io/Singapore/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-emerald-100 text-emerald-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-emerald-200">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    回到首頁
+                </a>
+            </div>
+            <p class="text-emerald-600 font-medium text-sm md:text-base">精選新加坡各大旅遊商圈飯店，讓您的獅城之旅住得舒心又便利</p>
+        </header>
+
+        <!-- 第一層：區域按鈕 -->
+        <div id="district-buttons" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <!-- 區域按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 第二層：分類按鈕 -->
+        <div id="category-buttons" class="grid grid-cols-3 gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-emerald-100 hidden">
+            <!-- 分類按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 內容顯示區 -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-emerald-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-emerald-400 pt-20 pb-20">
+                <p>請點擊上方區域與分類以載入新加坡推薦住宿...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 依照新加坡熱門區域建置的資料結構 (包含指定的分潤 ID 299534159 與精確日期參數)
+        const hotelData = {
+            "marinabay": {
+                name: "濱海灣 (Marina Bay)",
+                categories: {
+                    "奢華地標": [
+                        { name: "Marina Bay Sands (濱海灣金沙酒店)", feature: "新加坡絕對地標！擁有舉世聞名的頂樓無邊際泳池（僅限房客使用），樓下直通大型購物中心與賭場。", address: "10 Bayfront Ave / 地鐵海灣舫站 (Bayfront) 直結", url: "https://tw.trip.com/hotels/singapore-hotel-detail-687592/marina-bay-sands-singapore/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" },
+                        { name: "The Ritz-Carlton (麗思卡爾頓美年酒店)", feature: "以八角形觀景窗的浴室聞名，能躺在浴缸裡將濱海灣全景盡收眼底，提供極致奢華的服務。", address: "7 Raffles Ave / 近地鐵寶門廊站 (Promenade)", url: "https://tw.trip.com/hotels/list?flexType=1&cityId=73&provinceId=0&countryId=3&cityName=%E6%96%B0%E5%8A%A0%E5%9D%A1&destName=%E6%96%B0%E5%8A%A0%E5%9D%A1%E9%BA%97%E6%80%9D%E5%8D%A1%E7%88%BE%E9%A0%93%E7%BE%8E%E5%B9%B4%E9%A3%AF%E5%BA%97&searchWord=%E6%96%B0%E5%8A%A0%E5%9D%A1%E9%BA%97%E6%80%9D%E5%8D%A1%E7%88%BE%E9%A0%93%E7%BE%8E%E5%B9%B4%E9%A3%AF%E5%BA%97&searchType=H&optionId=962739&searchValue=31%7C962739*31*962739&checkin=2026-03-15&checkout=2026-03-16&crn=1&adult=2&listFilters=29~1*29*1~2*2&curr=USD&locale=zh-TW&allianceid=7913725&sid=299534159&old=1" }
+                    ],
+                    "景觀高樓": [
+                        { name: "Swissotel The Stamford (史丹福瑞士酒店)", feature: "東南亞最高的酒店之一，高樓層房型擁有無敵海灣與城市景觀，樓下就是萊佛士城購物中心。", address: "2 Stamford Rd / 地鐵政府大廈站 (City Hall) 直上", url: "https://tw.trip.com/hotels/singapore-hotel-detail-998612/swissotel-the-stamford-singapore/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" }
+                    ]
+                }
+            },
+            "orchard": {
+                name: "烏節路 (Orchard Road)",
+                categories: {
+                    "頂級購物": [
+                        { name: "Hilton Singapore Orchard (希爾頓烏節酒店)", feature: "烏節路最大的飯店，重新裝修後極具現代感，位於購物天堂中心，逛街購物零距離。", address: "333 Orchard Rd / 近地鐵索美塞站 (Somerset)", url: "https://tw.trip.com/hotels/singapore-hotel-detail-84720555/xin-jia-po-wu-jie-xi-er-dun-jiu-dian/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" }
+                    ],
+                    "平價高CP": [
+                        { name: "YOTEL Singapore Orchard Road (優特爾酒店)", feature: "科技感十足的太空艙概念飯店，房間雖小但五臟俱全，備有智慧機器人服務，位置極佳。", address: "366 Orchard Rd / 地鐵烏節站 (Orchard) 步行 5 分鐘", url: "https://tw.trip.com/hotels/singapore-hotel-detail-8497129/yotel-singapore-orchard-road/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" },
+                        { name: "JEN Singapore Orchardgateway (JEN烏節門酒店)", feature: "香格里拉旗下年輕品牌，頂樓有美麗的無邊際泳池，下樓直接連接購物商場與地鐵站。", address: "277 Orchard Rd / 地鐵索美塞站 (Somerset) 直結", url: "https://tw.trip.com/hotels/singapore-hotel-detail-1466284/hotel-jen-singapore-orchardgateway-by-shangri-la/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D139695871" }
+                    ]
+                }
+            },
+            "chinatown": {
+                name: "牛車水/克拉碼頭 (Chinatown)",
+                categories: {
+                    "設計精品": [
+                        { name: "PARKROYAL COLLECTION Pickering (皮克林賓樂雅)", feature: "知名的「花園酒店」，建築外觀被大量綠色植物覆蓋，設計極具未來環保感。", address: "3 Upper Pickering St / 地鐵牛車水站或克拉碼頭站步行 5 分鐘", url: "https://tw.trip.com/hotels/singapore-hotel-detail-712600/parkroyal-on-pickering/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" }
+                    ],
+                    "平價首選": [
+                        { name: "Hotel Mono (新加坡莫諾飯店)", feature: "位於牛車水傳統保留區內，建築外觀與內部皆採用極致的黑白極簡設計，拍照打卡非常好看。", address: "18 Mosque St / 地鐵牛車水站 (Chinatown) 步行 3 分鐘", url: "https://tw.trip.com/hotels/singapore-hotel-detail-1708965/hotel-mono/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" },
+                        { name: "Furama City Centre (富麗華城市中心飯店)", feature: "位置便利，步行可達牛車水美食區與克拉碼頭夜生活區，房間寬敞，適合家庭與小資族。", address: "60 Eu Tong Sen St / 地鐵牛車水站 (Chinatown) 步行 5 分鐘", url: "https://tw.trip.com/hotels/singapore-hotel-detail-995050/furama-city-centre/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" }
+                    ]
+                }
+            },
+            "sentosa": {
+                name: "聖淘沙度假區 (Sentosa)",
+                categories: {
+                    "奢華度假": [
+                        { name: "Capella Singapore (新加坡嘉佩樂酒店)", feature: "位於聖淘沙熱帶雨林中，將歷史殖民建築與現代設計完美融合，提供極致私密的奢華度假體驗。", address: "1 The Knolls, Sentosa Island / 提供專屬接駁車", url: "https://tw.trip.com/hotels/singapore-hotel-detail-995014/capella-singapore/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" },
+                        { name: "Shangri-La Rasa Sentosa (香格里拉度假酒店)", feature: "新加坡唯一擁有私人海灘的度假飯店，擁有豐富的水上設施與兒童俱樂部。", address: "101 Siloso Rd, Sentosa Island / 西樂索海灘旁", url: "https://tw.trip.com/hotels/singapore-hotel-detail-996300/shangri-la-s-rasa-sentosa-resort-and-spa/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" }
+                    ],
+                    "親子友善": [
+                        { name: "Village Hotel Sentosa (聖淘沙鄉村酒店)", feature: "專為家庭與年輕客群設計，擁有四個不同主題的造型泳池，鄰近聖淘沙捷運站與環球影城。", address: "10 Artillery Ave, Sentosa Island / 聖淘沙捷運英比奧站 (Imbiah) 步行 3 分鐘", url: "https://tw.trip.com/hotels/singapore-hotel-detail-25469473/village-hotel-at-sentosa-by-far-east-hospitality/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" }
+                    ]
+                }
+            },
+            "bugis": {
+                name: "武吉士/小印度 (Bugis)",
+                categories: {
+                    "文化風情": [
+                        { name: "Andaz Singapore (新加坡安達仕酒店)", feature: "凱悅集團旗下品牌，設計融入了甘榜格南的在地色彩，頂樓酒吧 360 度視野絕佳。", address: "5 Fraser St / 地鐵武吉士站 (Bugis) 直通", url: "https://tw.trip.com/hotels/singapore-hotel-detail-11491662/andaz-singapore-by-hyatt/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D13969587" }
+                    ],
+                    "青年旅館": [
+                        { name: "The Pod Boutique Capsule Hotel", feature: "高質感的精品膠囊旅館，風格現代簡約，提供免費自助早餐，鄰近哈芝巷。", address: "289 Beach Rd / 近地鐵武吉士站 (Bugis) 與尼誥大道站", url: "https://tw.trip.com/hotels/singapore-hotel-detail-687791/the-pod-beach-road-boutique-capsule-hotel/?Allianceid=7913725&SID=299534159&trip_sub1=&trip_sub3=D1396958711" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. 初始化區域按鈕
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 border area-btn-inactive`;
+                btn.innerText = hotelData[key].name;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. 選擇區域
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. 渲染分類按鈕
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. 選擇分類
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. 渲染飯店資料
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-emerald-100">
+                    <h2 class="text-2xl font-bold text-emerald-900 mr-3">📍 ${districtData.name}</h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-emerald-100 text-emerald-800 text-sm font-bold rounded-full">${currentCategoryName}</span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center">此分類目前無推薦資料。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-4">`;
+                
+                hotels.forEach((hotel, index) => {
+                    const linkTagHTML = hotel.url 
+                        ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-1.5 mt-1 sm:mt-0 rounded-full text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm cursor-pointer ml-0 sm:ml-3">
+                               <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                               點我看飯店說明與優惠
+                           </a>`
+                        : `<span class="inline-flex items-center px-3 py-1 mt-1 sm:mt-0 rounded-md text-xs font-bold bg-slate-200 text-slate-500 ml-0 sm:ml-3">
+                               點我看飯店說明
+                           </span>`;
+
+                    htmlContent += `
+                        <div class="bg-[#f8fffa] border border-emerald-50 p-5 rounded-2xl hover:shadow-lg transition-all duration-300 group">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-start mb-4">
+                                <h4 class="text-xl font-bold text-emerald-900 flex items-center">
+                                    <span class="text-emerald-500 font-mono text-lg mr-2">${index + 1}.</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-6 space-y-3">
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md mr-2">特色亮點</span> ${hotel.feature}
+                                </p>
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md mr-2">地址交通</span> ${hotel.address}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict('marinabay', firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

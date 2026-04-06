@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新加坡捷運 (MRT) 路線與景點查詢</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f3f4f6; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- 1. 資料庫建置 ---
+        const mrtData = {
+            NS: [
+                { c: "NS1", n: "裕廊東", e: "Jurong East", a: "IMM Outlet Mall、裕廊東商圈" },
+                { c: "NS2", n: "武吉巴督", e: "Bukit Batok", a: "小桂林 (武吉巴督市鎮公園)" },
+                { c: "NS3", n: "武吉甘柏", e: "Bukit Gombak", a: "" },
+                { c: "NS4", n: "蔡厝港", e: "Choa Chu Kang", a: "轉乘輕軌 BP1" },
+                { c: "NS5", n: "油池", e: "Yew Tee", a: "" },
+                { c: "NS7", n: "克蘭芝", e: "Kranji", a: "新加坡賽馬公會" },
+                { c: "NS8", n: "馬西嶺", e: "Marsiling", a: "" },
+                { c: "NS9", n: "兀蘭", e: "Woodlands", a: "前往馬來西亞新山轉乘點" },
+                { c: "NS10", n: "海軍部", e: "Admiralty", a: "" },
+                { c: "NS11", n: "三巴旺", e: "Sembawang", a: "" },
+                { c: "NS13", n: "義順", e: "Yishun", a: "" },
+                { c: "NS14", n: "卡迪", e: "Khatib", a: "(可轉乘接駁車至新加坡動物園/夜間野生動物園)" },
+                { c: "NS15", n: "楊厝港", e: "Yio Chu Kang", a: "" },
+                { c: "NS16", n: "宏茂橋", e: "Ang Mo Kio", a: "(可轉乘公車至新加坡動物園/夜間野生動物園)" },
+                { c: "NS17", n: "碧山", e: "Bishan", a: "碧山宏茂橋公園" },
+                { c: "NS18", n: "布萊德", e: "Braddell", a: "" },
+                { c: "NS19", n: "大巴窯", e: "Toa Payoh", a: "晚晴園 (孫中山南洋紀念館)" },
+                { c: "NS20", n: "諾維娜", e: "Novena", a: "" },
+                { c: "NS21", n: "紐頓", e: "Newton", a: "紐頓熟食中心 (《瘋狂亞洲富豪》拍攝地)" },
+                { c: "NS22", n: "烏節", e: "Orchard", a: "烏節路商圈 (ION Orchard等大型百貨)" },
+                { c: "NS23", n: "索美塞", e: "Somerset", a: "烏節路商圈 (313@Somerset)" },
+                { c: "NS24", n: "多美歌", e: "Dhoby Ghaut", a: "獅城大廈、福康寧公園" },
+                { c: "NS25", n: "政府大廈", e: "City Hall", a: "新加坡國家美術館、聖安德烈教堂、讚美廣場" },
+                { c: "NS26", n: "萊佛士坊", e: "Raffles Place", a: "魚尾獅公園、老巴剎美食廣場" },
+                { c: "NS27", n: "濱海灣", e: "Marina Bay", a: "" },
+                { c: "NS28", n: "濱海南碼頭", e: "Marina South Pier", a: "新加坡遊輪中心、龜嶼/聖約翰島渡輪" }
+            ],
+            EW: [
+                { c: "EW1", n: "巴西立", e: "Pasir Ris", a: "巴西立公園" },
+                { c: "EW2", n: "淡濱尼", e: "Tampines", a: "淡濱尼天地 (Our Tampines Hub)" },
+                { c: "EW3", n: "四美", e: "Simei", a: "" },
+                { c: "EW4", n: "丹那美拉", e: "Tanah Merah", a: "⚠️ 往機場需在此站換車" },
+                { c: "EW5", n: "勿洛", e: "Bedok", a: "" },
+                { c: "EW6", n: "景萬岸", e: "Kembangan", a: "" },
+                { c: "EW7", n: "友諾士", e: "Eunos", a: "" },
+                { c: "EW8", n: "巴耶利峇", e: "Paya Lebar", a: "PLQ Mall" },
+                { c: "EW9", n: "阿裕尼", e: "Aljunied", a: "芽籠區 (美食與合法紅燈區)" },
+                { c: "EW10", n: "加冷", e: "Kallang", a: "新加坡國家體育場 (步行距離)" },
+                { c: "EW11", n: "勞明達", e: "Lavender", a: "結霜橋舊貨市場 (周邊)" },
+                { c: "EW12", n: "武吉士", e: "Bugis", a: "哈芝巷 (Haji Lane)、甘榜格南、蘇丹回教堂" },
+                { c: "EW13", n: "政府大廈", e: "City Hall", a: "國家美術館、讚美廣場" },
+                { c: "EW14", n: "萊佛士坊", e: "Raffles Place", a: "魚尾獅公園、浮爾頓酒店" },
+                { c: "EW15", n: "丹戎巴葛", e: "Tanjong Pagar", a: "達士嶺摩天摩天組合房屋 (Pinnacle@Duxton)" },
+                { c: "EW16", n: "歐南園", e: "Outram Park", a: "恭錫路 (特色酒吧與壁畫)" },
+                { c: "EW17", n: "中峇魯", e: "Tiong Bahru", a: "中峇魯市場、文青咖啡廳街區" },
+                { c: "EW18", n: "紅山", e: "Redhill", a: "" },
+                { c: "EW19", n: "女皇鎮", e: "Queenstown", a: "" },
+                { c: "EW20", n: "聯邦", e: "Commonwealth", a: "" },
+                { c: "EW21", n: "波那維斯達", e: "Buona Vista", a: "荷蘭村 (周邊)" },
+                { c: "EW22", n: "杜弗", e: "Dover", a: "新加坡理工學院" },
+                { c: "EW23", n: "金文泰", e: "Clementi", a: "" },
+                { c: "EW24", n: "裕廊東", e: "Jurong East", a: "IMM Outlet Mall" },
+                { c: "EW25", n: "裕華園", e: "Chinese Garden", a: "星和園、裕華園" },
+                { c: "EW26", n: "湖畔", e: "Lakeside", a: "" },
+                { c: "EW27", n: "文禮", e: "Boon Lay", a: "裕廊飛禽公園 (已搬遷至萬態野生動物世界)" },
+                { c: "EW28", n: "先驅", e: "Pioneer", a: "南洋理工大學 (轉乘校車)" },
+                { c: "EW29", n: "裕群", e: "Joo Koon", a: "新加坡知新館" },
+                { c: "EW30", n: "卡爾圈", e: "Gul Circle", a: "工業區" },
+                { c: "EW31", n: "大士新月", e: "Tuas Crescent", a: "工業區" },
+                { c: "EW32", n: "大士西路", e: "Tuas West Road", a: "工業區" },
+                { c: "EW33", n: "大士連", e: "Tuas Link", a: "工業區" }
+            ],
+            CG: [
+                { c: "CG1", n: "博覽", e: "Expo", a: "新加坡博覽中心" },
+                { c: "CG2", n: "樟宜機場", e: "Changi Airport", a: "星耀樟宜 (Jewel Changi)、機場各航廈" }
+            ],
+            NE: [
+                { c: "NE1", n: "港灣", e: "HarbourFront", a: "聖淘沙 (Sentosa) 轉乘站、VivoCity、花柏山纜車" },
+                { c: "NE3", n: "歐南園", e: "Outram Park", a: "恭錫路" },
+                { c: "NE4", n: "牛車水", e: "Chinatown", a: "牛車水商圈、佛牙寺、馬里安曼興都廟" },
+                { c: "NE5", n: "克拉碼頭", e: "Clarke Quay", a: "克拉碼頭酒吧街、新加坡河遊船、舊禧街警察局" },
+                { c: "NE6", n: "多美歌", e: "Dhoby Ghaut", a: "獅城大廈、福康寧公園" },
+                { c: "NE7", n: "小印度", e: "Little India", a: "小印度區、竹腳中心、維拉馬卡里拉曼廟" },
+                { c: "NE8", n: "花拉公園", e: "Farrer Park", a: "慕達發購物中心 (Mustafa Centre 24H)" },
+                { c: "NE9", n: "文慶", e: "Boon Keng", a: "" },
+                { c: "NE10", n: "波東巴西", e: "Potong Pasir", a: "" },
+                { c: "NE11", n: "兀里", e: "Woodleigh", a: "" },
+                { c: "NE12", n: "實龍崗", e: "Serangoon", a: "NEX 購物中心" },
+                { c: "NE13", n: "高文", e: "Kovan", a: "" },
+                { c: "NE14", n: "后港", e: "Hougang", a: "" },
+                { c: "NE15", n: "萬國", e: "Buangkok", a: "" },
+                { c: "NE16", n: "盛港", e: "Sengkang", a: "轉乘輕軌 STC" },
+                { c: "NE17", n: "榜鵝", e: "Punggol", a: "榜鵝水道公園" },
+                { c: "NE18", n: "榜鵝海岸", e: "Punggol Coast", a: "2024年底通車" }
+            ],
+            CC: [
+                { c: "CC1", n: "多美歌", e: "Dhoby Ghaut", a: "福康寧公園" },
+                { c: "CC2", n: "百勝", e: "Bras Basah", a: "新加坡國家博物館、新加坡美術館" },
+                { c: "CC3", n: "濱海中心", e: "Esplanade", a: "濱海藝術中心 (大榴槤)、新達城 (財富之泉)" },
+                { c: "CC4", n: "寶門廊", e: "Promenade", a: "新加坡摩天觀景輪 (Singapore Flyer)" },
+                { c: "CC5", n: "尼誥大道", e: "Nicoll Highway", a: "" },
+                { c: "CC6", n: "體育場", e: "Stadium", a: "新加坡國家體育場、室內體育館" },
+                { c: "CC7", n: "蒙巴登", e: "Mountbatten", a: "舊機場路熟食中心 (步行一小段)" },
+                { c: "CC8", n: "達科達", e: "Dakota", a: "舊機場路熟食中心" },
+                { c: "CC9", n: "巴耶利峇", e: "Paya Lebar", a: "" },
+                { c: "CC10", n: "麥波申", e: "MacPherson", a: "" },
+                { c: "CC11", n: "大成", e: "Tai Seng", a: "" },
+                { c: "CC12", n: "巴特禮", e: "Bartley", a: "" },
+                { c: "CC13", n: "實龍崗", e: "Serangoon", a: "NEX 購物中心" },
+                { c: "CC14", n: "羅弄泉", e: "Lorong Chuan", a: "" },
+                { c: "CC15", n: "碧山", e: "Bishan", a: "" },
+                { c: "CC16", n: "瑪麗蒙", e: "Marymount", a: "" },
+                { c: "CC17", n: "加利谷", e: "Caldecott", a: "麥里芝蓄水池 (樹梢吊橋)" },
+                { c: "CC19", n: "植物園", e: "Botanic Gardens", a: "新加坡植物園 (UNESCO 世界遺產)" },
+                { c: "CC20", n: "花拉路", e: "Farrer Road", a: "" },
+                { c: "CC21", n: "荷蘭村", e: "Holland Village", a: "荷蘭村 (異國風情酒吧與餐廳)" },
+                { c: "CC22", n: "波那維斯達", e: "Buona Vista", a: "啟匯城 (Fusionopolis)" },
+                { c: "CC23", n: "緯壹", e: "one-north", a: "" },
+                { c: "CC24", n: "肯特崗", e: "Kent Ridge", a: "新加坡國立大學 (NUS)" },
+                { c: "CC25", n: "虎豹別墅", e: "Haw Par Villa", a: "虎豹別墅 (獨特東方神話主題公園)" },
+                { c: "CC26", n: "巴西班讓", e: "Pasir Panjang", a: "" },
+                { c: "CC27", n: "拉柏多公園", e: "Labrador Park", a: "拉柏多自然保護區" },
+                { c: "CC28", n: "直落布蘭雅", e: "Telok Blangah", a: "亨德森波浪橋 (Henderson Waves)" },
+                { c: "CC29", n: "港灣", e: "HarbourFront", a: "聖淘沙 (Sentosa) 轉乘站、VivoCity" }
+            ],
+            CE: [
+                { c: "CE1", n: "海灣舫", e: "Bayfront", a: "濱海灣金沙酒店、濱海灣花園、藝術科學博物館" },
+                { c: "CE2", n: "濱海灣", e: "Marina Bay", a: "" }
+            ],
+            DT: [
+                { c: "DT1", n: "武吉班讓", e: "Bukit Panjang", a: "轉乘輕軌 BP6" },
+                { c: "DT2", n: "凱秀", e: "Cashew", a: "" },
+                { c: "DT3", n: "山景", e: "Hillview", a: "武吉知馬自然保護區" },
+                { c: "DT5", n: "美世界", e: "Beauty World", a: "美世界中心、武吉知馬熟食中心" },
+                { c: "DT6", n: "阿爾柏王園", e: "King Albert Park", a: "舊鐵道走廊 (Rail Corridor) 入口之一" },
+                { c: "DT7", n: "第六道", e: "Sixth Avenue", a: "" },
+                { c: "DT8", n: "陳嘉庚", e: "Tan Kah Kee", a: "" },
+                { c: "DT9", n: "植物園", e: "Botanic Gardens", a: "新加坡植物園" },
+                { c: "DT10", n: "史蒂芬", e: "Stevens", a: "" },
+                { c: "DT11", n: "紐頓", e: "Newton", a: "紐頓熟食中心" },
+                { c: "DT12", n: "小印度", e: "Little India", a: "小印度區" },
+                { c: "DT13", n: "梧槽", e: "Rochor", a: "森林商業中心 (Sim Lim Square 3C商場)" },
+                { c: "DT14", n: "武吉士", e: "Bugis", a: "哈芝巷、甘榜格南、白沙浮廣場" },
+                { c: "DT15", n: "寶門廊", e: "Promenade", a: "新加坡摩天觀景輪" },
+                { c: "DT16", n: "海灣舫", e: "Bayfront", a: "濱海灣金沙酒店、濱海灣花園" },
+                { c: "DT17", n: "市中心", e: "Downtown", a: "老巴剎美食廣場 (步行可達)" },
+                { c: "DT18", n: "直落亞逸", e: "Telok Ayer", a: "天福宮、廈門街熟食中心" },
+                { c: "DT19", n: "牛車水", e: "Chinatown", a: "牛車水商圈、珍珠坊" },
+                { c: "DT20", n: "福康寧", e: "Fort Canning", a: "福康寧公園 (網美樹洞打卡點)、克拉碼頭" },
+                { c: "DT21", n: "明古連", e: "Bencoolen", a: "(新加坡最深的地鐵站)" },
+                { c: "DT22", n: "惹蘭勿剎", e: "Jalan Besar", a: "惹蘭勿剎美食區" },
+                { c: "DT23", n: "明地迷亞", e: "Bendemeer", a: "" },
+                { c: "DT24", n: "芽籠峇魯", e: "Geylang Bahru", a: "" },
+                { c: "DT25", n: "瑪達", e: "Mattar", a: "" },
+                { c: "DT26", n: "麥波申", e: "MacPherson", a: "" },
+                { c: "DT27", n: "烏美", e: "Ubi", a: "" },
+                { c: "DT28", n: "加基武吉", e: "Kaki Bukit", a: "" },
+                { c: "DT29", n: "勿洛北", e: "Bedok North", a: "" },
+                { c: "DT30", n: "勿洛蓄水池", e: "Bedok Reservoir", a: "勿洛蓄水池公園" },
+                { c: "DT31", n: "淡濱尼西", e: "Tampines West", a: "" },
+                { c: "DT32", n: "淡濱尼", e: "Tampines", a: "淡濱尼天地 (Our Tampines Hub)" },
+                { c: "DT33", n: "淡濱尼東", e: "Tampines East", a: "" },
+                { c: "DT34", n: "上樟宜", e: "Upper Changi", a: "新加坡科技設計大學 (SUTD)" },
+                { c: "DT35", n: "博覽", e: "Expo", a: "新加坡博覽中心、樟宜商業園" }
+            ],
+            TE: [
+                { c: "TE1", n: "兀蘭北", e: "Woodlands North", a: "(未來將連接新柔捷運系統RTS往大馬)" },
+                { c: "TE2", n: "兀蘭", e: "Woodlands", a: "" },
+                { c: "TE3", n: "兀蘭南", e: "Woodlands South", a: "" },
+                { c: "TE4", n: "春葉", e: "Springleaf", a: "春葉自然公園" },
+                { c: "TE5", n: "倫多", e: "Lentor", a: "" },
+                { c: "TE6", n: "美華", e: "Mayflower", a: "" },
+                { c: "TE7", n: "光明山", e: "Bright Hill", a: "光明山普覺禪寺" },
+                { c: "TE8", n: "上湯申", e: "Upper Thomson", a: "湯申路咖啡廳一條街" },
+                { c: "TE9", n: "加利谷", e: "Caldecott", a: "麥里芝蓄水池" },
+                { c: "TE11", n: "史蒂芬", e: "Stevens", a: "" },
+                { c: "TE12", n: "納比雅", e: "Napier", a: "新加坡植物園 (東陵門入口)、格倫伊格爾斯醫院" },
+                { c: "TE13", n: "烏節大道", e: "Orchard Boulevard", a: "烏節路西側商圈、各國大使館區" },
+                { c: "TE14", n: "烏節", e: "Orchard", a: "烏節路商圈核心" },
+                { c: "TE15", n: "大世界", e: "Great World", a: "世界城購物中心 (Great World City)" },
+                { c: "TE16", n: "合樂", e: "Havelock", a: "新加坡河畔飯店區、中峇魯市場 (步行)" },
+                { c: "TE17", n: "歐南園", e: "Outram Park", a: "恭錫路壁畫與酒吧、新加坡中央醫院" },
+                { c: "TE18", n: "麥士威", e: "Maxwell", a: "麥士威熟食中心 (天天海南雞飯出站即達)" },
+                { c: "TE19", n: "珊頓道", e: "Shenton Way", a: "中央商業區 (CBD)、老巴剎美食廣場" },
+                { c: "TE20", n: "濱海灣", e: "Marina Bay", a: "濱海灣金融中心" },
+                { c: "TE22", n: "濱海灣花園", e: "Gardens by the Bay", a: "濱海灣花園、濱海堤壩 (Marina Barrage)" },
+                { c: "TE23", n: "丹戎禺", e: "Tanjong Rhu", a: "新加坡室內體育館 (步行過橋)" },
+                { c: "TE24", n: "加東公園", e: "Katong Park", a: "加東公園" },
+                { c: "TE25", n: "丹戎加東", e: "Tanjong Katong", a: "" },
+                { c: "TE26", n: "馬林百列", e: "Marine Parade", a: "馬林百列商圈、東海岸公園、加東區 (娘惹文化)" },
+                { c: "TE27", n: "馬林台", e: "Marine Terrace", a: "" },
+                { c: "TE28", n: "實乞納", e: "Siglap", a: "實乞納美食街" },
+                { c: "TE29", n: "碧灣", e: "Bayshore", a: "東海岸公園" }
+            ]
+        };
+
+        const lineColors = {
+            NS: { bg: 'bg-red-500', text: 'text-red-600', name: '南北線 (紅線)' },
+            EW: { bg: 'bg-green-500', text: 'text-green-600', name: '東西線 (綠線)' },
+            CG: { bg: 'bg-emerald-600', text: 'text-emerald-700', name: '樟宜支線 (綠線)' },
+            NE: { bg: 'bg-purple-600', text: 'text-purple-600', name: '東北線 (紫線)' },
+            CC: { bg: 'bg-yellow-500', text: 'text-yellow-600', name: '環線 (黃線)' },
+            CE: { bg: 'bg-yellow-600', text: 'text-yellow-700', name: '濱海灣支線 (黃線)' },
+            DT: { bg: 'bg-blue-600', text: 'text-blue-600', name: '濱海市區線 (藍線)' },
+            TE: { bg: 'bg-amber-700', text: 'text-amber-800', name: '湯申-東海岸線 (棕線)' }
+        };
+
+        // 扁平化所有站點，建立 graph 與選單資料
+        let allStationsMap = {};
+        let allStationsList = [];
+        let uniquePhysicalStations = {}; 
+
+        Object.keys(mrtData).forEach(lineKey => {
+            mrtData[lineKey].forEach(st => {
+                allStationsMap[st.c] = { ...st, line: lineKey };
+                allStationsList.push(allStationsMap[st.c]);
+
+                if (!uniquePhysicalStations[st.n]) {
+                    uniquePhysicalStations[st.n] = { name: st.n, en: st.e, codes: [], attractions: st.a };
+                }
+                uniquePhysicalStations[st.n].codes.push(st.c);
+                if (st.a && !uniquePhysicalStations[st.n].attractions.includes(st.a)) {
+                    uniquePhysicalStations[st.n].attractions += (uniquePhysicalStations[st.n].attractions ? "、" : "") + st.a;
+                }
+            });
+        });
+
+        // 按英文字母排序車站清單
+        const stationOptions = Object.values(uniquePhysicalStations).sort((a, b) => a.en.localeCompare(b.en));
+
+        // 建立圖 (Graph)
+        const graph = {};
+        const RIDE_TIME = 3; // 搭乘一站約3分鐘
+        const TRANSFER_TIME = 5; // 站內換線約5分鐘
+
+        function addEdge(u, v, weight, type, line) {
+            if (!graph[u]) graph[u] = [];
+            graph[u].push({ node: v, weight, type, line });
+        }
+
+        // 1. 同線相鄰站連線
+        Object.keys(mrtData).forEach(lineKey => {
+            const lineArr = mrtData[lineKey];
+            for (let i = 0; i < lineArr.length - 1; i++) {
+                addEdge(lineArr[i].c, lineArr[i+1].c, RIDE_TIME, 'ride', lineKey);
+                addEdge(lineArr[i+1].c, lineArr[i].c, RIDE_TIME, 'ride', lineKey);
+            }
+        });
+
+        // 2. 支線連接點
+        addEdge("EW4", "CG1", RIDE_TIME, 'ride', 'CG');
+        addEdge("CG1", "EW4", RIDE_TIME, 'ride', 'CG');
+        addEdge("CC4", "CE1", RIDE_TIME, 'ride', 'CE');
+        addEdge("CE1", "CC4", RIDE_TIME, 'ride', 'CE');
+
+        // 3. 轉乘站連線 (同名車站視為可轉乘)
+        Object.values(uniquePhysicalStations).forEach(station => {
+            if (station.codes.length > 1) {
+                for (let i = 0; i < station.codes.length; i++) {
+                    for (let j = i + 1; j < station.codes.length; j++) {
+                        addEdge(station.codes[i], station.codes[j], TRANSFER_TIME, 'transfer', null);
+                        addEdge(station.codes[j], station.codes[i], TRANSFER_TIME, 'transfer', null);
+                    }
+                }
+            }
+        });
+
+        // --- 2. 核心演算法 Dijkstra ---
+        function findShortestPath(startName, endName) {
+            if (startName === endName) return null;
+
+            const startCodes = uniquePhysicalStations[startName].codes;
+            const endCodes = uniquePhysicalStations[endName].codes;
+
+            const dist = {};
+            const prev = {};
+            const pq = [];
+
+            Object.keys(allStationsMap).forEach(node => {
+                dist[node] = Infinity;
+                prev[node] = null;
+            });
+
+            startCodes.forEach(code => {
+                dist[code] = 0;
+                pq.push({ node: code, dist: 0 });
+            });
+
+            while (pq.length > 0) {
+                pq.sort((a, b) => a.dist - b.dist);
+                const { node, dist: currentDist } = pq.shift();
+
+                if (dist[node] < currentDist) continue;
+                if (endCodes.includes(node)) {
+                    return reconstructPath(prev, node);
+                }
+
+                if (graph[node]) {
+                    graph[node].forEach(edge => {
+                        const alt = currentDist + edge.weight;
+                        if (alt < dist[edge.node]) {
+                            dist[edge.node] = alt;
+                            prev[edge.node] = { node: node, edgeFromPrev: edge };
+                            pq.push({ node: edge.node, dist: alt });
+                        }
+                    });
+                }
+            }
+            return null;
+        }
+
+        function reconstructPath(prev, endNode) {
+            const path = [];
+            let curr = endNode;
+            
+            // Backtrack
+            while (curr) {
+                const step = prev[curr];
+                if (step) {
+                    path.unshift({ node: curr, edge: step.edgeFromPrev });
+                    curr = step.node;
+                } else {
+                    path.unshift({ node: curr, edge: null }); // Start node
+                    curr = null;
+                }
+            }
+
+            // 將 Path 解析為 Legs (搭乘段與轉乘段)
+            const legs = [];
+            if (path.length < 2) return [];
+
+            let currentLeg = { 
+                type: path[1].edge.type, 
+                line: path[1].edge.line, 
+                nodes: [path[0].node, path[1].node],
+                time: path[1].edge.weight,
+                stops: path[1].edge.type === 'ride' ? 1 : 0
+            };
+
+            for (let i = 2; i < path.length; i++) {
+                const edge = path[i].edge;
+                if (edge.type === currentLeg.type && edge.line === currentLeg.line) {
+                    currentLeg.nodes.push(path[i].node);
+                    currentLeg.time += edge.weight;
+                    if(edge.type === 'ride') currentLeg.stops += 1;
+                } else {
+                    legs.push(currentLeg);
+                    currentLeg = { 
+                        type: edge.type, 
+                        line: edge.line, 
+                        nodes: [path[i-1].node, path[i].node],
+                        time: edge.weight,
+                        stops: edge.type === 'ride' ? 1 : 0
+                    };
+                }
+            }
+            legs.push(currentLeg);
+            return legs;
+        }
+
+        // --- 3. React 元件 ---
+        const { useState, useEffect } = React;
+
+        const App = () => {
+            const [startStation, setStartStation] = useState("牛車水");
+            const [endStation, setEndStation] = useState("海灣舫");
+            const [route, setRoute] = useState(null);
+
+            useEffect(() => {
+                if(startStation && endStation && startStation !== endStation) {
+                    const legs = findShortestPath(startStation, endStation);
+                    setRoute(legs);
+                } else {
+                    setRoute(null);
+                }
+            }, [startStation, endStation]);
+
+            const handleSwap = () => {
+                const temp = startStation;
+                setStartStation(endStation);
+                setEndStation(temp);
+            };
+
+            return (
+                <div className="min-h-screen pb-12">
+                    {/* Header */}
+                    <header className="bg-slate-900 text-white shadow-md pt-12 pb-8 px-6 text-center">
+                        <h1 className="text-3xl font-bold tracking-tight mb-2 flex items-center justify-center gap-2">
+                            <i data-lucide="train" className="w-8 h-8 text-blue-400"></i>
+                            新加坡捷運導航
+                        </h1>
+                        <p className="text-slate-400 text-sm">快速查詢路線、搭乘時間與景點指南</p>
+                    </header>
+
+                    <main className="max-w-2xl mx-auto px-4 -mt-6">
+                        {/* Search Box */}
+                        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 relative">
+                            <div className="flex flex-col gap-4">
+                                <div className="relative">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">出發站 (Start)</label>
+                                    <select 
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 pr-8 truncate font-medium appearance-none"
+                                        value={startStation}
+                                        onChange={(e) => setStartStation(e.target.value)}
+                                    >
+                                        {Object.keys(mrtData).map(lineKey => (
+                                            <optgroup key={`start-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                {mrtData[lineKey].map(st => (
+                                                    <option key={`start-${st.c}`} value={st.n}>
+                                                        [{st.c}] {st.n} ({st.e}){st.a ? ` 📍 ${st.a}` : ''}
+                                                    </option>
+                                                ))}
+                                            </optgroup>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                    </div>
+                                </div>
+
+                                <div className="relative flex justify-center -my-3 z-10">
+                                    <button 
+                                        onClick={handleSwap}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-full shadow-md transition-transform hover:scale-105"
+                                        title="反轉路線"
+                                    >
+                                        <i data-lucide="arrow-down-up" className="w-5 h-5"></i>
+                                    </button>
+                                </div>
+
+                                <div className="relative">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">抵達站 (Destination)</label>
+                                    <select 
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 pr-8 truncate font-medium appearance-none"
+                                        value={endStation}
+                                        onChange={(e) => setEndStation(e.target.value)}
+                                    >
+                                        {Object.keys(mrtData).map(lineKey => (
+                                            <optgroup key={`end-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                {mrtData[lineKey].map(st => (
+                                                    <option key={`end-${st.c}`} value={st.n}>
+                                                        [{st.c}] {st.n} ({st.e}){st.a ? ` 📍 ${st.a}` : ''}
+                                                    </option>
+                                                ))}
+                                            </optgroup>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Route Results */}
+                        {startStation === endStation ? (
+                            <div className="bg-yellow-50 text-yellow-800 p-4 rounded-xl text-center shadow-sm">
+                                📍 起點與終點相同，不需搭乘捷運唷！
+                            </div>
+                        ) : route ? (
+                            <RouteTimeline legs={route} destName={endStation} />
+                        ) : (
+                            <div className="text-center text-slate-500 py-8">
+                                正在計算路線...
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const RouteTimeline = ({ legs, destName }) => {
+            const totalTime = legs.reduce((acc, leg) => acc + leg.time, 0);
+            const totalTransfers = legs.filter(l => l.type === 'transfer').length;
+            
+            // Fetch attraction of final destination
+            const destInfo = uniquePhysicalStations[destName];
+
+            return (
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div className="bg-slate-50 border-b border-slate-100 p-5 flex justify-between items-center">
+                        <div>
+                            <p className="text-sm font-semibold text-slate-500 mb-1">預估時間</p>
+                            <p className="text-3xl font-bold text-slate-800">
+                                {totalTime} <span className="text-base font-normal text-slate-500">分鐘</span>
+                            </p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-sm font-semibold text-slate-500 mb-1">轉乘次數</p>
+                            <p className="text-lg font-bold text-slate-700">
+                                {totalTransfers} <span className="text-sm font-normal text-slate-500">次</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="p-6">
+                        <div className="relative border-l-2 border-slate-200 ml-4 pb-4">
+                            {legs.map((leg, idx) => (
+                                <LegItem key={idx} leg={leg} isLast={idx === legs.length - 1} destName={destName} />
+                            ))}
+                        </div>
+                        
+                        {/* Destination Marker */}
+                        <div className="relative pl-12 mt-4">
+                            <div className="absolute left-[-5px] top-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-sm"></div>
+                            <div className="absolute left-[-11px] top-[-5px] w-6 h-6 bg-red-100 rounded-full opacity-50 z-[-1]"></div>
+                            <h3 className="text-lg font-bold text-slate-800">{destName} <span className="text-sm font-normal text-slate-500 ml-1">{destInfo.en}</span></h3>
+                            <p className="text-sm text-slate-500 mb-2">抵達目的地 (Arrive)</p>
+                            
+                            {destInfo.attractions && (
+                                <div className="mt-2 bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-sm flex gap-2">
+                                    <i data-lucide="map-pin" className="w-5 h-5 text-indigo-500 shrink-0"></i>
+                                    <div>
+                                        <span className="font-semibold text-indigo-900 block mb-0.5">周邊景點：</span>
+                                        <span className="text-indigo-800">{destInfo.attractions}</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const LegItem = ({ leg, isLast, destName }) => {
+            const startNodeCode = leg.nodes[0];
+            const endNodeCode = leg.nodes[leg.nodes.length - 1];
+            const startStation = allStationsMap[startNodeCode];
+            const endStation = allStationsMap[endNodeCode];
+
+            if (leg.type === 'transfer') {
+                return (
+                    <div className="relative pl-8 pb-8">
+                        <div className="absolute left-[-9px] top-2 bg-white rounded-full p-1 border border-slate-300">
+                            <i data-lucide="footprints" className="w-3 h-3 text-slate-500"></i>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 inline-block">
+                            <p className="text-sm font-semibold text-slate-700">
+                                在 <span className="text-slate-900">{startStation.n}</span> 站內轉乘
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                <i data-lucide="clock" className="w-3 h-3"></i> 步行約 {leg.time} 分鐘
+                            </p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Ride Type
+            const lineTheme = lineColors[leg.line] || { bg: 'bg-slate-500', text: 'text-slate-600', name: leg.line };
+            
+            return (
+                <div className="relative pl-8 pb-8">
+                    {/* Circle Node */}
+                    <div className={`absolute left-[-7px] top-1 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm ${lineTheme.bg}`}></div>
+                    
+                    {/* Leg Start Info */}
+                    <div className="mb-2">
+                        <h3 className="text-base font-bold text-slate-800">
+                            {startStation.n} <span className="text-sm font-normal text-slate-500 ml-1">{startStation.e}</span>
+                        </h3>
+                        
+                        {/* Attractions at start of leg (if it's the very beginning or a transfer point) */}
+                        {startStation.a && (
+                            <p className="text-xs text-indigo-600 mt-1 flex items-start gap-1">
+                                <i data-lucide="star" className="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
+                                <span>{startStation.a}</span>
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Line Details Card */}
+                    <div className={`mt-3 border-l-4 rounded-r-lg p-3 ${lineTheme.bg.replace('bg-', 'border-').replace('500','400')} bg-white shadow-sm border border-slate-100`}>
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className={`${lineTheme.bg} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider`}>
+                                {startNodeCode}
+                            </span>
+                            <span className={`text-sm font-semibold ${lineTheme.text}`}>搭乘 {lineTheme.name}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 flex items-center gap-2 mt-2">
+                            <span>前往 <strong>{endStation.n}</strong></span>
+                            <span className="text-slate-300">|</span>
+                            <span>{leg.stops} 站</span>
+                            <span className="text-slate-300">|</span>
+                            <span>約 {leg.time} 分鐘</span>
+                        </p>
+                        
+                        {/* Pass through stations toggle could go here, keeping it clean for now */}
+                        <div className="mt-2 text-xs text-slate-400">
+                            途經: {leg.nodes.slice(1, -1).map(c => allStationsMap[c].n).join(' ➔ ') || '無中途站'}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Render App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
