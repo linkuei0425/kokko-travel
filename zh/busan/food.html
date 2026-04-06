@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>釜山美食導航 Busan Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f8ff; /* 淺藍色背景 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color for Busan (Ocean Blue vibe) */
+        .btn-nav {
+            background-color: #2563eb; /* 藍色系 */
+        }
+        .btn-nav:hover {
+            background-color: #1d4ed8;
+        }
+        /* Naver Map Brand Color */
+        .btn-naver {
+            background-color: #03C75A; /* Naver 綠色 */
+        }
+        .btn-naver:hover {
+            background-color: #02b351;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Busan Pass 釜山美食地圖
+            </h1>
+            <!-- 回到首頁連結 -->
+            <a href="https://linkuei0425.github.io/Busan/index.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                回到首頁
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇區域 (Select Region)</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇類別 (Select Category)</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">請先從上方選擇您想探索的釜山區域與類別</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Busan Data Structure (3 items per category strictly)
+        const db = {
+            "nampo": {
+                name: "南浦洞 / 札嘎其",
+                categories: {
+                    "pork_soup": [
+                        { name: "密陽血腸豬肉湯飯 (南浦店)", feature: "釜山靈魂美食！湯頭呈現濃郁的乳白色，24小時營業，必點血腸豬肉雙拼湯飯，肉片入口即化。", address: "부산 중구 광복로 6 (釜山中區光復路6) / 南浦站步行3分鐘" },
+                        { name: "陝川豬肉湯飯 (신창국밥)", feature: "南浦洞知名老字號，湯頭偏醬油色清爽不油膩，豬肉片切得較薄且極具嚼勁。", address: "부산 중구 보수대로 53 (釜山中區寶水大路53) / 土城站步行5分鐘" },
+                        { name: "大建名家豬肉湯飯 (대건명가돼지국밥)", feature: "位於釜山站與南浦洞商圈間，白醬大骨湯頭醇厚，店家特製的拌韭菜與泡菜非常對味。", address: "부산 동구 중앙대로 232 (釜山東區中央大路232) / 釜山站與中央站之間" }
+                    ],
+                    "seafood": [
+                        { name: "札嘎其市場 Oase 海鮮", feature: "韓國最大的海鮮市場。可在一樓挑選生鮮活魚、長腳蟹，再到二樓請阿珠嬤代客料理，體驗生吞章魚。", address: "부산 중구 자갈치해안로 52 (釜山中區札嘎其海岸路52) / 札嘎其站步行5分鐘" },
+                        { name: "海田烤盲鰻 (해전곱창)", feature: "釜山獨有特色美食！以韓式辣醬與洋蔥在鐵板上大火快炒的盲鰻，口感Q彈爽脆，非常下酒。", address: "부산 중구 광복로6번길 14 (釜山中區光復路6番街14) / 札嘎其盲鰻一條街" },
+                        { name: "釜山烤鯖魚 (부산고등어)", feature: "隱身在市場周邊巷弄的平民美食，現烤新鮮鯖魚定食，魚肉油脂豐富且外皮烤得極度酥脆。", address: "부산 서구 충무대로 282 (釜山西區忠武大路282) / 札嘎其市場對面巷弄" }
+                    ],
+                    "bbq": [
+                        { name: "味贊王鹽烤肉 (南浦店)", feature: "在地人狂推！超厚切3.5公分五花肉，有專人桌邊代烤服務，肉汁完美鎖在裡面，搭配水芹菜吃是絕配。", address: "부산 중구 남포길 34 (釜山中區南浦街34) / 南浦站步行5分鐘" },
+                        { name: "胖子家 (뚱보집)", feature: "專賣炭烤辣味豬肉與豆芽菜飯，是在地人下班最愛光顧的老店，價格親民且充滿懷舊氛圍。", address: "부산 중구 중앙대로29번길 2-11 (釜山中區中央大路29番街2-11) / 中央站步行3分鐘" },
+                        { name: "朝鮮的韓牛 (조선의한우)", feature: "浮誇的火秀烤韓牛！專人代烤並用高溫火焰炙燒，高級韓牛肉質入口即化，視覺味覺雙享受。", address: "부산 중구 부평2길 12 (釜山中區富平2街12) / 南浦洞商圈內" }
+                    ],
+                    "cafe": [
+                        { name: "Regular House", feature: "隱藏在國際市場巷弄二樓的英倫古典風咖啡酒吧。裝潢極具復古歐洲風情，氣氛靜謐，是逛街後的秘密基地。", address: "부산 중구 중구로40번길 12 2층 (釜山中區中區路40番街12 2樓) / 國際市場巷弄內" },
+                        { name: "BNC 釜山名品麵包店 (비엔씨)", feature: "南浦洞經典老牌烘焙坊，除了必買的招牌派沙拉，二樓也有舒適的咖啡座可以休息品嚐。", address: "부산 중구 구덕로 34 1층 (釜山中區九德路34 1樓) / 光復路主街" },
+                        { name: "Greem Cafe (南浦店)", feature: "知名2D黑白漫畫風咖啡廳，走進去彷彿進入手繪繪本世界，極度適合拍照打卡。", address: "부산 중구 광복중앙로 24 2층 (釜山中區光復中央路24 2樓) / 光復路商圈" }
+                    ],
+                    "street_food": [
+                        { name: "BIFF廣場 元祖黑糖餅", feature: "來釜山必吃的街頭甜點！將炸得金黃酥脆的麵團剪開，塞滿葵花子與各式堅果，鹹甜交織排隊人潮沒斷過。", address: "부산 중구 비프광장로 36 (釜山中區BIFF廣場路36) / BIFF廣場中心" },
+                        { name: "富平罐頭夜市", feature: "釜山第一個常設夜市，夜晚熱鬧非凡。推薦必吃烤肉串、蔥餅、炒冬粉與各種創意街頭小吃。", address: "부산 중구 부평1길 48 (釜山中區富平1街48) / 富平罐頭市場內" },
+                        { name: "光復路魷魚絲與魚糕攤", feature: "散佈在光復路周邊，現烤的奶油魷魚絲配上一串熱騰騰的魚糕與清湯，是最棒的散步美食。", address: "부산 중구 광복로 (釜山中區光復路) / 光復路步行街" }
+                    ]
+                }
+            },
+            "seomyeon": {
+                name: "西面 / 田浦",
+                categories: {
+                    "pork_soup": [
+                        { name: "松亭三代豬肉湯飯", feature: "位於西面「豬肉湯飯一條街」的70年老店。湯頭用大骨熬製清甜不腥，豬肉片給得極其大方，是在地學生的最愛。", address: "부산 부산진구 서면로68번길 33 (釜山釜山鎮區西面路68番街33) / 西面站1號出口步行3分鐘" },
+                        { name: "浦項豬肉湯飯 (포항돼지국밥)", feature: "豬肉湯飯街上的另一霸主，湯頭雪白濃郁，內臟處理得非常乾淨無腥味，麵線可以無限續加。", address: "부산 부산진구 서면로68번길 27 (釜山釜山鎮區西面路68番街27) / 西面豬肉湯飯街" },
+                        { name: "密陽加山豬肉湯飯", feature: "深受當地年輕人歡迎，除了基本的湯飯，他們的白切肉拼盤與馬鈴薯排骨湯也極具水準。", address: "부산 부산진구 서면로68번길 28 (釜山釜山鎮區西面路68番街28) / 西面豬肉湯飯街" }
+                    ],
+                    "seafood": [
+                        { name: "皇帝潛水艇 (황제잠수함)", feature: "浮誇系海鮮鍋代表！一整隻大龍蝦、章魚、鮑魚與扇貝排滿整鍋，視覺與味覺的雙重震撼，最後必煮刀削麵。", address: "부산 부산진구 서면로 16 (釜山釜山鎮區西面路16) / 西面站1號出口步行8分鐘" },
+                        { name: "蛤蜊的盛宴 (조개먹는돼지)", feature: "西面知名的海鮮烤貝與烤五花肉雙拼餐廳！一次滿足想吃海鮮與韓式烤肉的兩種願望。", address: "부산 부산진구 중앙대로692번길 45 (釜山釜山鎮區中央大路692番街45) / 西面商圈巷弄" },
+                        { name: "西面生魚片中心 (서면횟집)", feature: "位於市中心也能吃到平價新鮮的綜合生魚片，厚切生魚片搭配韓式辣醬與生菜包著吃非常道地。", address: "부산 부산진구 서면로68번길 40 (釜山釜山鎮區西面路68番街40) / 西面站9號出口附近" }
+                    ],
+                    "bbq": [
+                        { name: "西面烤腸一條街 (男男子烤腸)", feature: "充滿濃濃在地氛圍的烤牛腸/豬腸街，將內臟烤得外酥內軟，香氣四溢，最後一定要加點起司炒飯。", address: "부산 부산진구 동천로85번길 36 (釜山釜山鎮區東川路85番街36) / 西面烤腸胡同" },
+                        { name: "金色豬肉 (금돼지)", feature: "西面商圈的高人氣烤肉店，主打高品質的熟成五花肉，肉質鮮甜，店員的烤肉技術一流。", address: "부산 부산진구 중앙대로680번가길 78 (釜山釜山鎮區中央大路680番街78) / 西面商圈內" },
+                        { name: "今天金海後腿肉 (오늘김해뒷고기)", feature: "大學生最愛的平價烤後腿肉！肉質Q彈有嚼勁，最後必點像火山一樣的起司炒飯，CP值超高。", address: "부산 부산진구 동천로85번길 14 (釜山釜山鎮區東川路85番街14) / 田浦站步行3分鐘" }
+                    ],
+                    "cafe": [
+                        { name: "Vintage 38", feature: "田浦咖啡街指標性店家！由工業廠房改建，充滿復古美式氛圍。甜點與塔類選擇極多，且24小時營業。", address: "부산 부산진구 전포대로199번길 38 (釜山釜山鎮區田浦大路199番街38) / 田浦站步行5分鐘" },
+                        { name: "Space & Mood", feature: "隱身在西面商圈頂樓的華麗空間，擁有大片玻璃窗與華麗的水晶吊燈，推薦精緻的法式下午茶與早午餐。", address: "부산 부산진구 새싹로 22-1 13층 (釜山釜山鎮區新芽路22-1 13樓) / 西面商圈13樓" },
+                        { name: "FM Coffee House", feature: "田浦咖啡街的精品咖啡先驅，招牌是綿密奶泡的冷萃咖啡(Cold Brew)與精緻的拉花拿鐵。", address: "부산 부산진구 전포대로199번길 26 (釜山釜山鎮區田浦大路199番街26) / 田浦咖啡街主街" }
+                    ],
+                    "street_food": [
+                        { name: "西面市場辣炒年糕街", feature: "整排阿珠嬤的攤車，賣著紅通通的粗大辣炒年糕、熱騰騰的魚糕串與炸魷魚，便宜又飽足，充滿在地生命力。", address: "부산 부산진구 서면로 56 (釜山釜山鎮區西面路56) / 西面市場外圍" },
+                        { name: "NC百貨周邊布帳馬車", feature: "西面夜間特有的橘色帳篷攤販，提供辣炒雞爪、海鮮煎餅與燒酒，是體驗韓國在地宵夜文化的絕佳去處。", address: "부산 부산진구 동천로 92 (釜山釜山鎮區東川路92) / 田浦與西面交界處" },
+                        { name: "菊花餅與雞蛋糕攤車", feature: "西面地鐵站出口常見的傳統小吃，包著一整顆雞蛋的熱騰騰雞蛋糕與香甜的紅豆菊花餅。", address: "부산 부산진구 중앙대로 지하 730 (釜山釜山鎮區中央大路地下730) / 西面站出口周邊" }
+                    ]
+                }
+            },
+            "haeundae": {
+                name: "海雲台 / 中洞",
+                categories: {
+                    "pork_soup": [
+                        { name: "極東豬肉湯飯 (극동돼지국밥)", feature: "海雲台海景旁的湯飯名店，湯底純白濃郁，豬肉軟嫩，搭配鮮脆的現拌韭菜超級好吃。", address: "부산 해운대구 달맞이길62번길 17 (釜山海雲台區迎月路62番街17) / LCT 附近" },
+                        { name: "海雲台瓦罐鱈魚湯 (해운대기와집)", feature: "釜山人喝完酒的解酒聖品！清澈的湯頭加入鱈魚塊與白蘿蔔熬煮，清爽甘甜，魚肉極具彈性。", address: "부산 해운대구 달맞이길 104 (釜山海雲台區迎月路104) / 海雲台迎月路入口" },
+                        { name: "密陽血腸豬肉湯飯 (海雲台店)", feature: "位於海雲台主街上，24小時營業，不管玩到多晚都能來一碗熱騰騰的白醬湯底豬肉湯飯。", address: "부산 해운대구 구남로 28 (釜山海雲台區龜南路28) / 海雲台主街" }
+                    ],
+                    "seafood": [
+                        { name: "尾浦末家海景烤貝 (미포끝집)", feature: "網美最愛的海景烤貝店！坐在海雲台尾浦海岸邊的露天座位，邊烤著鋪滿起司的扇貝邊聽海浪聲，極度浪漫。", address: "부산 해운대구 달맞이길62번길 77 (釜山海雲台區迎月路62番街77) / LCT大樓後方" },
+                        { name: "錦繡河豚湯 (금수복국)", feature: "海雲台的傳奇老店，專賣處理得極為乾淨安全的河豚料理，河豚清湯肉質緊實，鮮味十足。", address: "부산 해운대구 중동1로43번길 23 (釜山海雲台區中洞1路43番街23) / 海雲台區廳附近" },
+                        { name: "海雲台市場盲鰻 (이름난기장산곰장어)", feature: "市場內的人氣盲鰻店，阿珠嬤用蒜香與韓式辣醬現炒，口感爽脆，最後必加點海苔炒飯。", address: "부산 해운대구 구남로41번길 42 (釜山海雲台區龜南路41番街42) / 海雲台傳統市場內" }
+                    ],
+                    "bbq": [
+                        { name: "海雲台傳說中的牛肋骨", feature: "擁有60年歷史的高級韓牛烤肉店，獨門醃製的醬汁令人回味無窮，烤盤邊緣煮的馬鈴薯麵條是不可錯過的絕配。", address: "부산 해운대구 중동2로10번길 32-10 (釜山海雲台區中洞2路10番街32-10) / 海雲台區廳步行3分鐘" },
+                        { name: "吳班長烤肉 (오반장)", feature: "海雲台超人氣半露天烤肉！特製烤盤外圈一邊烤蒸蛋，一邊烤泡菜，護心肉與五花肉必點。", address: "부산 해운대구 구남로24번길 20 (釜山海雲台區龜南路24番街20) / 海雲台站步行5分鐘" },
+                        { name: "味贊王鹽烤肉 (海雲台店)", feature: "品質極度穩定的連鎖名店，專人代烤的3.5公分極厚五花肉，咬下去滿滿的鮮甜肉汁爆發。", address: "부산 해운대구 해운대해변로265번길 9 (釜山海雲台區海雲台海濱路265番街9) / 海雲台海濱路附近" }
+                    ],
+                    "cafe": [
+                        { name: "Rendezja-Vous 海雲台店", feature: "將濟州島的石牆與渡假風搬進室內，最知名的就是大片落地窗前的「洞穴海景」打卡神位，無死角欣賞海雲台沙灘。", address: "부산 해운대구 달맞이길62번길 23 (釜山海雲台區迎月路62番街23) / 海雲台海景第一排" },
+                        { name: "Edge 993", feature: "位於尾浦海岸的景觀咖啡廳，擁有頂樓無死角海景，可同時將海雲台沙灘與廣安大橋的日落盡收眼底。", address: "부산 해운대구 달맞이길62번길 78 (釜山海雲台區迎月路62番街78) / 尾浦海岸線末端" },
+                        { name: "Snoopy Place Busan", feature: "史努比主題海景咖啡廳！不僅裝潢充滿可愛角色，蛋糕與餅乾也都做成史努比造型，少女心爆發。", address: "부산 해운대구 해운대해변로 297 (釜山海雲台區海雲台海濱路297) / 海雲台海濱商場內" }
+                    ],
+                    "street_food": [
+                        { name: "相國紫菜包飯 (상국이네)", feature: "海雲台傳統市場內大排長龍的名店，紫菜包飯配上濃稠的釜山特色辣炒年糕醬汁超對味。", address: "부산 해운대구 구남로41번길 40-1 (釜山海雲台區龜南路41番街40-1) / 海雲台傳統市場內" },
+                        { name: "海雲台布帳馬車村", feature: "夜間限定！在沙灘旁的橘色帳篷裡，可以點一盤現撈的活海鮮拼盤配上韓國燒酒，體驗韓劇主角的宵夜時光。", address: "부산 해운대구 해운대해변로 236 (釜山海雲台區海雲台海濱路236) / 海雲台海水浴場周邊" },
+                        { name: "蜂巢冰淇淋 (벌집아이스크림)", feature: "海雲台市場周圍常見的散步甜點，濃郁的牛奶冰淇淋放上一整塊天然蜂巢，甜蜜消暑。", address: "부산 해운대구 구남로 (釜山海雲台區龜南路) / 海雲台主街" }
+                    ]
+                }
+            },
+            "gwangan": {
+                name: "廣安里 / 水營",
+                categories: {
+                    "pork_soup": [
+                        { name: "水營本家豬肉湯飯", feature: "當地人私藏的不排隊神店！特色是肉片給得毫不手軟，幾乎比飯還多，配餐的辣蘿蔔塊非常清脆爽口。", address: "부산 수영구 무학로 60 (釜山水營區舞鶴路60) / 水營站附近步行" },
+                        { name: "姊妹豬肉湯飯 (자매국밥)", feature: "廣安里民樂洞的隱藏名店，湯頭清甜不膩，肉片肥瘦適中，在地人極推，經常提早賣完。", address: "부산 수영구 민락본동로27번길 56 (釜山水營區民樂本洞路27番街56) / 民樂洞住宅區內" },
+                        { name: "密陽血腸豬肉湯飯 (廣安店)", feature: "面對廣安大橋的湯飯分店，吃完可以直接去沙灘散步，手工血腸與濃郁的白湯是招牌。", address: "부산 수영구 광안해변로 179 (釜山水營區廣安海濱路179) / 廣安里海景第一排" }
+                    ],
+                    "seafood": [
+                        { name: "民樂水產市場", feature: "可以直接在市場一樓跟攤販挑選現切生魚片，然後帶著生魚片走到外面的廣安里沙灘野餐，這是釜山年輕人最Chill的吃法。", address: "부산 수영구 민락수변로 1 (釜山水營區民樂水邊路1) / 廣安里海灘盡頭" },
+                        { name: "幸福生魚片中心 (행복수산)", feature: "民樂水產市場樓上的景觀餐廳，提供滿桌的浮誇海鮮小菜與新鮮生魚片，直面廣安大橋絕美夜景。", address: "부산 수영구 민락수변로 1 8층 (釜山水營區民樂水邊路1 8樓) / 民樂水產市場大樓內" },
+                        { name: "螞蟻家 辣炒章魚大腸蝦子", feature: "釜山名物「落烤蝦(낙곱새)」，用特製辣醬拌炒章魚、牛腸與蝦仁，淋在白飯上超級下飯。", address: "부산 수영구 광안해변로 225 (釜山水營區廣安海濱路225) / 廣安里海水浴場主街" }
+                    ],
+                    "bbq": [
+                        { name: "兄弟烤肉 廣安店 (브라더고깃집)", feature: "位在海景大樓內，可以一邊吃著專人代烤的高級韓式烤肉，一邊透過大玻璃窗欣賞無敵廣安大橋夜景。", address: "부산 수영구 광안해변로 193 (釜山水營區廣安海濱路193) / 廣安里海景第一排" },
+                        { name: "豬蹄的精髓 (깐깐한족발)", feature: "雖然是豬蹄但也是美味肉宴！炭烤火香十足的半半豬蹄(原味/辣味)，膠質滿滿，是夜晚配啤酒的首選。", address: "부산 수영구 광안로61번길 60 (釜山水營區廣安路61番街60) / 廣安里主街後巷" },
+                        { name: "固城烤肉 (고성방가)", feature: "廣安里巷弄內的高質感炭火烤肉，提供經過熟成的頂級豬肉，配菜精緻且有專人專業代烤。", address: "부산 수영구 수영로510번길 7 (釜山水營區水營路510番街7) / 廣安站步行5分鐘" }
+                    ],
+                    "cafe": [
+                        { name: "Cafe El Di Maria", feature: "擁有法式古典氛圍的咖啡館，二樓的靠窗座位是拍攝廣安大橋的絕佳視角，手沖咖啡水準極高。", address: "부산 수영구 광안해변로 237 (釜山水營區廣安海濱路237) / 廣安里海濱路" },
+                        { name: "Byul Bed (星床咖啡)", feature: "一整排直接面海的階梯式沙發床，只要點一杯飲料就能慵懶地躺著看廣安里海景，非常適合發呆放空。", address: "부산 수영구 광안해변로 203 (釜山水營區廣安海濱路203) / 廣安里海水浴場旁" },
+                        { name: "CUPNUT 廣安店 (컵넛)", feature: "以超大顆且爆漿的美味甜甜圈聞名，二樓有絕佳的廣安大橋觀景大窗，極簡木質風令人放鬆。", address: "부산 수영구 광안해변로 207 (釜山水營區廣安海濱路207) / 廣安里海濱路" }
+                    ],
+                    "street_food": [
+                        { name: "廣安里深夜餐車", feature: "沿著海灘偶爾會出現賣著鐵板吐司夾蛋、熱狗與魚糕的發財車，是夜晚在沙灘散步的良伴。", address: "부산 수영구 광안해변로 (廣安里海水浴場沿線)" },
+                        { name: "廣安里 鯛魚燒攤車", feature: "韓國冬季國民小吃！裡面包著滿滿的紅豆或奶油餡，外皮烤得酥脆，拿在手裡熱騰騰的非常幸福。", address: "부산 수영구 광안로 (廣安站往海灘路上)" },
+                        { name: "民樂水邊公園 煎餅攤", feature: "買了生魚片後，當地人一定會順便在路邊買現煎的韭菜海鮮煎餅，帶去水邊公園吹海風野餐。", address: "부산 수영구 민락수변로 129 (民樂水邊公園旁)" }
+                    ]
+                }
+            },
+            "gijang": {
+                name: "機張 / 松亭",
+                categories: {
+                    "pork_soup": [
+                        { name: "松亭豬肉湯飯", feature: "位於松亭海灘周邊，是衝浪客的最愛。熱騰騰的湯飯是下水衝浪後補充體力與暖胃的最佳選擇。", address: "부산 해운대구 송정중앙로 33 (釜山海雲台區松亭中央路33) / 松亭海水浴場周邊" },
+                        { name: "大建名家豬肉湯飯 (機張店)", feature: "釜山市區名店在機張的分店，湯頭濃白，肉量十足，在機張也吃得到正宗的釜山純粹風味。", address: "부산 기장군 기장읍 차성로 321 (釜山機張郡機張邑車城路321) / 機張市場周圍" },
+                        { name: "松亭 麵條湯飯 (송정면가)", feature: "除了傳統飯食，這裡也提供加入Q彈麵條的豬肉湯麵，多樣的選擇深受當地遊客喜愛。", address: "부산 해운대구 송정광어골로 47 (釜山海雲台區松亭廣魚谷路47) / 松亭海水浴場旁" }
+                    ],
+                    "seafood": [
+                        { name: "大發螃蟹 (機張市場)", feature: "來機張必吃長腳蟹！這裡的價格比市區便宜許多，蟹肉飽滿鮮甜，最後把濃郁的蟹膏炒飯裝在蟹殼裡是靈魂。", address: "부산 기장군 기장읍 읍내로104번길 16 (釜山機張郡機張邑邑內路104番街16) / 機張市場內" },
+                        { name: "機張末家 鮑魚粥 (기장끝집)", feature: "使用大量鮑魚內臟熬煮出濃厚鮮綠色的鮑魚粥，配上海女新鮮捕撈的海鮮拼盤，有無敵海景相伴。", address: "부산 기장군 기장읍 기장해안로 895 (釜山機張郡機張邑機張海岸路895) / 機張海女村" },
+                        { name: "蓮花里海女村 (연화리 해녀촌)", feature: "體驗最生猛的綜合海鮮盆！海女現撈的海參、海鞘與活章魚，坐在海邊吹著微風品嚐最道地。", address: "부산 기장군 기장읍 연화1길 184 (釜山機張郡機張邑蓮花1街184) / 機張蓮花里海岸" }
+                    ],
+                    "bbq": [
+                        { name: "The Moving 露營車烤肉", feature: "機張海岸邊的網美露營車烤肉區，園區幫你準備好高級肉品與烤爐，免裝備就能體驗吹海風烤肉的樂趣。", address: "부산 기장군 장안읍 해맞이로 290 (釜山機張郡長安邑迎日路290) / 需預約" },
+                        { name: "機張 濟州黑豬肉 (제주항통고기)", feature: "在釜山也能吃到道地的濟州島黑豬肉！厚實的豬肉在炭火上烤得劈啪作響，油脂香氣逼人。", address: "부산 기장군 기장읍 차성동로 74 (釜山機張郡機張邑車城東路74) / 機張主幹道旁" },
+                        { name: "松亭 鐵板烤肉 (송정철판)", feature: "位於松亭海邊，提供大型鐵板炒辣豬肉與豐富的海鮮拼盤，份量超大，非常適合三五好友聚餐。", address: "부산 해운대구 송정광어골로 15 (釜山海雲台區松亭廣魚谷路15) / 松亭海灘周邊" }
+                    ],
+                    "cafe": [
+                        { name: "Waveon Coffee", feature: "機張最知名的海景咖啡廳！建築榮獲設計大獎，層層疊疊的戶外沙發區讓你無死角躺著看蔚藍大海。", address: "부산 기장군 장안읍 해맞이로 286 (釜山機張郡長安邑迎日路286) / 機張海岸" },
+                        { name: "Coralani", feature: "另一間極具規模的機張海景咖啡，以純白地中海風格為主，階梯式的露臺座位能拍出絕美渡假風照片。", address: "부산 기장군 기장읍 기장해안로 32 (釜山機張郡機張邑機張海岸路32) / 機張松亭海岸線" },
+                        { name: "Cafe Rosso (카페 로소)", feature: "機張經典的老字號海景咖啡廳，紅磚建築配上庭園與海岸松樹，每日現烤的烘焙麵包極受歡迎。", address: "부산 기장군 기장읍 기장해안로 864 (釜山機張郡機張邑機張海岸路864) / 機張海岸公路" }
+                    ],
+                    "street_food": [
+                        { name: "松亭三代吐司 (Moon Toast)", feature: "松亭海灘名物！牽絲起司搭配滿滿高麗菜煎蛋與特製甜醬汁的鐵板吐司，深夜依舊大排長龍。", address: "부산 해운대구 송정해변로 50 (釜山海雲台區松亭海濱路50) / 松亭海水浴場旁" },
+                        { name: "機張市場 糖餅與炸物", feature: "在逛完海鮮市場後，門口阿珠嬤現炸的炸地瓜、炸魷魚與熱騰騰的黑糖餅是最佳解饞小吃。", address: "부산 기장군 기장읍 읍내로104번길 16 (機張市場內入口處)" },
+                        { name: "龍宮寺 盲鰻烤串攤", feature: "在海東龍宮寺入口處常見的小吃攤，提供各種烤海鮮串與魚糕，方便遊客參拜完邊走邊吃。", address: "부산 기장군 기장읍 용궁길 86 (海東龍宮寺步道外圍)" }
+                    ]
+                }
+            },
+            "yeongdo": {
+                name: "影島 / 白淺灘",
+                categories: {
+                    "pork_soup": [
+                        { name: "南港豬肉湯飯", feature: "影島在地的隱藏版老店，保留了最傳統純粹的釜山風味，大骨湯頭醇厚，深受當地造船廠工人喜愛。", address: "부산 영도구 남항로 42 (釜山影島區南港路42) / 影島南港市場附近" },
+                        { name: "木島豬肉湯飯 (목도돼지국밥)", feature: "湯頭屬於清湯派，在地人評價極高，吃起來沒有豬腥味且非常清爽，配贈的小菜豐富好吃。", address: "부산 영도구 남항로31번길 36 (釜山影島區南港路31番街36) / 影島南港洞住宅區" },
+                        { name: "蓬萊豬肉湯飯 (봉래돼지국밥)", feature: "位於影島傳統市場旁的老字號，湯飯便宜大碗且肉量多，是體驗影島在地日常生活的首選。", address: "부산 영도구 태종로113번길 25 (釜山影島區太宗路113番街25) / 影島蓬萊市場周邊" }
+                    ],
+                    "seafood": [
+                        { name: "影島海女村", feature: "最接地氣的海鮮體驗！坐在海邊的礁石上，品嚐海女現抓現切的海膽、海參，搭配紫菜包飯與海鮮拉麵，超有氛圍。", address: "부산 영도구 중리북로 36 (釜山影島區中里北路36) / 影島中里海岸" },
+                        { name: "太宗台烤貝村", feature: "太宗台入口處的帳篷街，以炭火烤新鮮扇貝與大蛤蜊，鋪上滿滿的起司與奶油，香氣逼人。", address: "부산 영도구 태종로 830 (釜山影島區太宗路830) / 太宗台入口處" },
+                        { name: "影島 烤盲鰻胡同", feature: "靠近南港大橋底下，有許多專賣鐵板辣炒盲鰻的老店，口味比觀光區更為重擊、道地。", address: "부산 영도구 남항로 (釜山影島區南港大橋下周邊)" }
+                    ],
+                    "bbq": [
+                        { name: "影島露天黑豬肉", feature: "雖然影島以海鮮聞名，但部分山腰餐廳提供露天烤濟州黑豬肉的選項，一邊吃肉一邊看釜山大橋夜景。", address: "부산 영도구 조내기로 39 (釜山影島區祖內基路39) / 影島半山腰" },
+                        { name: "蒙麵豬肉 (몽면)", feature: "影島受歡迎的在地烤肉店，提供厚切五花肉與豬頸肉，並附上特色韓式冷麵解膩，份量十足。", address: "부산 영도구 태종로 300 (釜山影島區太宗路300) / 影島市區" },
+                        { name: "太宗台 火烤排骨", feature: "逛完太宗台後的能量補充站！主打秘製醬汁炭烤豬排骨，肉質鮮甜軟嫩，非常受家庭客喜愛。", address: "부산 영도구 태종로 836 (釜山影島區太宗路836) / 太宗台入口商圈" }
+                    ],
+                    "cafe": [
+                        { name: "Sinki Industry (新起產業)", feature: "由舊工廠改建的工業風咖啡館，頂樓視野極佳，可居高臨下俯瞰整個釜山港、貨櫃碼頭與跨海大橋。", address: "부산 영도구 와치로51번길 2 (釜山影島區瓦致路51番街2) / 影島半山腰" },
+                        { name: "Aether 絕壁咖啡", feature: "白淺灘文化村內的純白希臘風咖啡館，沿著海岸懸崖而建，圓弧形的露臺座位擁有毫無遮蔽的絕美海景。", address: "부산 영도구 절영로 234 (釜山影島區絕影路234) / 白淺灘文化村內" },
+                        { name: "P.ARK (피아크)", feature: "釜山目前最大型的巨無霸海景咖啡廳兼文化空間！建築宛如大型郵輪，階梯式座位讓你無死角看海。", address: "부산 영도구 해양로195번길 180 (釜山影島區海洋路195番街180) / 影島東三洞海岸" }
+                    ],
+                    "street_food": [
+                        { name: "三振魚糕 (影島本店)", feature: "韓國歷史最悠久的魚糕品牌發源地。店內像麵包店一樣陳列數十種炸魚糕（如起司、熱狗魚糕），還能報名體驗手作。", address: "부산 영도구 태종로99번길 36 (釜山影島區太宗路99番街36) / 影島蓬萊市場旁" },
+                        { name: "白淺灘 冰淇淋與手搖飲", feature: "沿著懸崖步道散步時，有許多小窗台販售可愛造型的冰淇淋與夢幻的漸層氣泡飲，解渴又好拍。", address: "부산 영도구 절영로 242 (釜山影島區絕影路242) / 白淺灘文化村步道" },
+                        { name: "影島 辣炒年糕小吃攤", feature: "位於影島南港市場內的傳統小吃攤，這裡的辣炒年糕醬汁特別濃稠，還帶有濃濃的在地海鮮味。", address: "부산 영도구 남항시장길 24 (釜山影島區南港市場街24) / 南港市場內" }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Busan
+        const categoriesMap = {
+            "pork_soup": { name: "🍲 豬肉湯飯", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "seafood": { name: "🦀 海鮮與烤貝", color: "bg-sky-100 text-sky-800 hover:bg-sky-600 hover:text-white border-sky-400" },
+            "bbq": { name: "🥩 韓式烤肉", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "cafe": { name: "☕ 絕美咖啡廳", color: "bg-teal-100 text-teal-800 hover:bg-teal-600 hover:text-white border-teal-400" },
+            "street_food": { name: "🍢 傳統小吃與夜市", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-blue-600');
+            clickedBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('pork_soup', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-gray-500">此分類目前無資料</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // 1. 產生 Google Maps 導航網址
+                const encodedGoogleQuery = encodeURIComponent(`${item.name} Busan ${item.address.split('/')[0]}`);
+                const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedGoogleQuery}`;
+
+                // 2. 產生 Naver Map 導航網址
+                // 為了提高 Naver Map 搜尋精準度，自動過濾並提取出「純韓文地址」（通常在左括號前）
+                const pureKoreanAddress = item.address.split('(')[0].trim();
+                const encodedNaverQuery = encodeURIComponent(pureKoreanAddress);
+                const naverMapsUrl = `https://map.naver.com/p/search/${encodedNaverQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded mr-1">特色</span>${item.feature}</p>
+                        
+                        <div class="bg-gray-50/80 p-3.5 rounded-xl flex items-start gap-3 border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium"><span class="font-bold text-blue-800">地址：</span>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto flex flex-col gap-2.5">
+                        <!-- Naver Map 按鈕 -->
+                        <a href="${naverMapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-naver text-white py-2.5 rounded-xl transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                            </svg>
+                            <div class="flex flex-col items-start justify-center">
+                                <span class="font-bold text-[15px] leading-tight">Naver MAP 導航</span>
+                                <span class="text-[11px] font-normal opacity-90 leading-tight mt-0.5">需下載APP，韓國建議使用</span>
+                            </div>
+                        </a>
+                        
+                        <!-- Google Maps 按鈕 -->
+                        <a href="${googleMapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-2.5 rounded-xl transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="font-bold text-[15px]">開啟 Google Maps 導航</span>
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>

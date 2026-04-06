@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>釜山住宿推薦指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自訂滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        
+        /* 區域按鈕樣式 */
+        .area-btn-active {
+            background-color: #1e40af; /* blue-800 */
+            color: white;
+            border-color: #1e40af;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #f3f4f6; /* gray-100 */
+            color: #1f2937;
+        }
+
+        /* 分類按鈕樣式 */
+        .cat-btn-active {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            border-color: #3b82f6;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #e2e8f0; /* slate-200 */
+            color: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-wide">🇰🇷 釜山住宿推薦指南</h1>
+                <!-- 連結已更新為釜山首頁 -->
+                <a href="https://linkuei0425.github.io/Busan/index.html" class="inline-flex items-center px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-bold rounded-lg transition-colors shadow-sm">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    回到首頁
+                </a>
+            </div>
+            <p class="text-slate-500 text-sm md:text-base">選擇區域與住宿類型，快速探索專屬推薦清單</p>
+        </header>
+
+        <!-- 第一層：區域按鈕 -->
+        <div id="district-buttons" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <!-- 區域按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 第二層：分類按鈕 -->
+        <div id="category-buttons" class="grid grid-cols-3 gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-slate-200 hidden">
+            <!-- 分類按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 內容顯示區 -->
+        <div id="content-area" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-slate-400 pt-20 pb-20">
+                <p>請點擊上方區域與分類以載入住宿推薦...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 依照釜山熱門區域建置的資料結構 (包含您的 Trip.com 分潤參數)
+        const hotelData = {
+            "haeundae": {
+                name: "海雲台區 (Haeundae)",
+                categories: {
+                    "五星海景飯店": [
+                        { name: "SIGNIEL Busan (釜山喜格尼爾飯店)", feature: "位於釜山最高樓 LCT 塔內，擁有極致奢華的高空無邊際泳池與無敵海景，是釜山最頂級的住宿選擇。", address: "30 Dalmaji-gil, Haeundae-gu / 緊鄰海雲台沙灘，LCT塔內", url: "https://tw.trip.com/hotels/busan-hotel-detail-61927965/signiel-busan/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" },
+                        { name: "Paradise Hotel Busan (釜山天堂飯店)", feature: "老字號的奢華海濱飯店，擁有知名的戶外海景溫泉 (Cimer) 設施，並附設賭場，度假感滿分。", address: "296 Haeundaehaebeen-ro, Haeundae-gu / 海雲台海灘第一排", url: "https://tw.trip.com/hotels/busan-hotel-detail-689014/paradise-hotel-busan/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" },
+                        { name: "Grand Josun Busan (釜山朝鮮大飯店)", feature: "由新世界集團打造，內部裝潢充滿法式優雅氣息，無邊際泳池視野極佳，下樓即是沙灘。", address: "292 Haeundaehaebeen-ro, Haeundae-gu / 海雲台海灘正中央", url: "https://tw.trip.com/hotels/busan-hotel-detail-67688375/grand-josun-busan/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ],
+                    "平價飯店": [
+                        { name: "Felix by STX", feature: "公寓式酒店，房間內附有小廚房與微波爐，空間寬敞，與海雲台地鐵站直接連通，交通極度便利。", address: "620 Haeun-daero, Haeundae-gu / 海雲台地鐵站上", url: "https://tw.trip.com/hotels/busan-hotel-detail-65112975/felix-by-stx/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" },
+                        { name: "Shilla Stay Haeundae (新羅舒泰海雲台)", feature: "韓國知名新羅酒店旗下的商務品牌，品質穩定，頂樓設有海景泳池與酒吧，CP值非常高。", address: "46 Haeun-daero 570beon-gil, Haeundae-gu / 距海灘與地鐵站皆步行 5 分鐘", url: "https://tw.trip.com/hotels/busan-hotel-detail-7074941/shilla-stay-busan-haeundae/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ],
+                    "青年旅館": [
+                        { name: "Canvas Hostel", feature: "純白極簡風格的超美青年旅館，環境乾淨且設計感十足，提供多樣的公共交流空間。", address: "14 Haeundaehaebyeon-ro 197beon-gil / 靠近冬柏站與海雲台站之間", url: "https://tw.trip.com/hotels/busan-hotel-detail-5612295/canvas-hostel/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ]
+                }
+            },
+            "seomyeon": {
+                name: "西面商圈 (Seomyeon)",
+                categories: {
+                    "五星飯店": [
+                        { name: "Lotte Hotel Busan (釜山樂天酒店)", feature: "西面站的地標性五星級飯店，與樂天百貨、免稅店共構，購物、美食、交通一次滿足。", address: "772 Gaya-daero, Busanjin-gu / 西面站步行 3 分鐘", url: "https://tw.trip.com/hotels/busan-hotel-detail-19517030/lotte-hotel-busan/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ],
+                    "平價高CP": [
+                        { name: "Arban Hotel (阿班酒店)", feature: "西面超高人氣平價住宿！房間寬敞舒適，頂樓大廳外有美麗的空中花園，樓下就是熱鬧商圈。", address: "32 Jungang-daero 691beonga-gil, Busanjin-gu / 位於西面商圈中心", url: "https://tw.trip.com/hotels/busan-hotel-detail-4396607/arban-hotel-busan/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" },
+                        { name: "Solaria Nishitetsu Hotel Busan (釜山索拉利亞西鐵飯店)", feature: "日系連鎖飯店，服務細膩，附設大浴場可以泡湯放鬆，隔音好且乾淨衛生。", address: "20 Seomyeon-ro, Busanjin-gu / 位於西面商圈內，步行可達地下街", url: "https://tw.trip.com/hotels/busan-hotel-detail-1585728/solaria-nishitetsu-hotel-busan/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ],
+                    "青年旅館": [
+                        { name: "Sangsang Stay Busan", feature: "結合文創空間與青年旅館/平價雙人房的複合式旅店，充滿年輕活力與設計感，非常受背包客歡迎。", address: "39 Seomyeon-ro, Busanjin-gu / 近西面站 1 號出口", url: "https://tw.trip.com/hotels/busan-hotel-detail-67108378/ktg-sangsang-madang-busan-stay-hostel/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ]
+                }
+            },
+            "nampo": {
+                name: "南浦洞/釜山站 (Nampo)",
+                categories: {
+                    "星級飯店": [
+                        { name: "Asti Hotel Busan Station (釜山站阿スティ飯店)", feature: "緊鄰釜山 KTX 站，適合搭乘高鐵或早晚班機的旅客。頂樓大廳與海景房視野開闊，將釜山港盡收眼底。", address: "12-5 Jungang-daero 214beon-gil, Dong-gu / 釜山火車站旁", url: "https://tw.trip.com/hotels/busan-hotel-detail-19636528/asti-hotel-busan/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" },
+                        { name: "Commodore Hotel Busan (釜山可毛多多飯店)", feature: "外觀為韓國傳統宮殿造型的特色飯店，韓劇《愛的迫降》曾在此取景，充滿濃厚的古典韓國風情。", address: "151 Junggu-ro, Jung-gu / 位於釜山站與南浦洞之間的山坡上", url: "https://tw.trip.com/hotels/busan-hotel-detail-1245961/commodore-hotel-busan/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ],
+                    "平價高CP": [
+                        { name: "Nampo Hound Hotel Premier (南浦獵犬特級飯店)", feature: "南浦洞高評價住宿，工業風設計，地點絕佳，走路即可抵達 BIFF 廣場、札嘎其市場與光復路商圈。", address: "10 Bosu-daero 24beon-gil, Jung-gu / 扎嘎其站 3 號出口步行 5 分鐘", url: "https://tw.trip.com/hotels/busan-hotel-detail-14474671/nampo-hound-hotel-premier/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" },
+                        { name: "Stanford Hotel Busan (釜山斯坦福飯店)", feature: "平價舒適的商務型飯店，對面就是 BIFF 廣場，樓下有超商，買美妝、吃美食地理位置無可挑剔。", address: "53 Gudeok-ro, Jung-gu / 南浦洞 BIFF 廣場對面", url: "https://tw.trip.com/hotels/busan-hotel-detail-11221494/stanford-inn-busan/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" },
+                        { name: "GNB Hotel", feature: "近富平罐頭市場與國際市場，方便晚上吃消夜逛街。房間空間寬敞，價格親民。", address: "11 Bupyeong-dong 1-ga, Jung-gu / 富平罐頭市場旁", url: "https://tw.trip.com/hotels/busan-hotel-detail-5612401/gnb-hotel/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ]
+                }
+            },
+            "gwangalli": {
+                name: "廣安里 (Gwangalli)",
+                categories: {
+                    "海景飯店": [
+                        { name: "Kent Hotel Gwangalli by Kensington", feature: "坐擁廣安里海灘正面海景，晚上能在房內直接欣賞廣安大橋夜景，頂樓有超人氣的高空海景酒吧。", address: "229 Gwanganhaebyeon-ro, Suyeong-gu / 廣安里海灘第一排", url: "https://tw.trip.com/hotels/busan-hotel-detail-5215454/kent-hotel-gwangalli-by-kensington/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" },
+                        { name: "Hotel Aqua Palace (水上皇宮飯店)", feature: "主打房內即可看廣安大橋，飯店內附設大型汗蒸幕與室內水上樂園，非常適合家庭旅客。", address: "225 Gwanganhaebyeon-ro, Suyeong-gu / 廣安里海灘第一排", url: "https://tw.trip.com/hotels/busan-hotel-detail-689065/hotel-aqua-palace/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ],
+                    "平價旅宿": [
+                        { name: "H Avenue Hotel Gwangalli", feature: "年輕人最愛的網美平價海景飯店，頂樓的露臺酒吧非常好拍，一樓大廳設計充滿時尚感。", address: "29 Gwanganhaebyeon-ro 278beon-gil, Suyeong-gu / 廣安里海灘東側", url: "https://tw.trip.com/hotels/busan-hotel-detail-10568278/hotel-h-avenue/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ]
+                }
+            },
+            "yeongdo": {
+                name: "影島/松島 (Yeongdo/Songdo)",
+                categories: {
+                    "渡假海景飯店": [
+                        { name: "La Valse Hotel (拉瓦爾斯飯店)", feature: "影島超人氣網美飯店！主打三面環海的無死角港灣海景，房內大片落地窗超級好拍，頂樓咖啡廳更是必訪。", address: "82 Bongnaenaru-ro, Yeongdo-gu / 影島，近南浦洞商圈", url: "https://tw.trip.com/hotels/busan-hotel-detail-31099521/lavalse-hotel-busan/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" },
+                        { name: "Fairfield by Marriott Busan Songdo Beach", feature: "位於松島海灘第一排，全房型皆為海景房！寧靜的度假氛圍，距離松島海上纜車非常近。", address: "113 Songdohaebyeon-ro, Seo-gu / 松島海灘旁", url: "https://tw.trip.com/hotels/busan-hotel-detail-62286239/fairfield-by-marriott-busan-songdo-beach/?Allianceid=7913725&SID=298157945&trip_sub3=D13696895" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. 初始化區域按鈕
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-3 rounded-lg font-bold text-sm transition-all duration-200 border area-btn-inactive`;
+                btn.innerText = hotelData[key].name;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. 選擇區域
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            // 更新區域按鈕外觀
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            // 顯示第二層的分類按鈕
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. 渲染分類按鈕 (動態抓取該區分類)
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            
+            // 動態取得該區域擁有的分類標籤
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // 預設點擊該區第一個分類 (如: 五星飯店)
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. 選擇分類並渲染飯店清單
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            // 更新分類按鈕外觀
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. 渲染飯店資料到畫面
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex items-center mb-6 border-b pb-4 border-slate-200">
+                    <h2 class="text-2xl font-bold text-slate-800 mr-3">📍 ${districtData.name}</h2>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-bold rounded-full">${currentCategoryName}</span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center">此分類目前無推薦資料。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-4">`;
+                
+                hotels.forEach((hotel, index) => {
+                    // 根據是否有提供 URL 決定 [飯店說明] 標籤的樣式
+                    const linkTagHTML = hotel.url 
+                        ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-1 mt-1 sm:mt-0 rounded-md text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm cursor-pointer ml-0 sm:ml-3">
+                               <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                               點我看飯店說明
+                           </a>`
+                        : `<span class="inline-flex items-center px-3 py-1 mt-1 sm:mt-0 rounded-md text-xs font-bold bg-slate-200 text-slate-500 ml-0 sm:ml-3">
+                               點我看飯店說明
+                           </span>`;
+
+                    htmlContent += `
+                        <div class="bg-slate-50 border border-slate-200 p-5 rounded-lg hover:shadow-md transition-shadow duration-200 group">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-start mb-4">
+                                <h4 class="text-lg font-bold text-slate-800 flex items-center">
+                                    <span class="text-blue-500 font-mono text-base mr-2">${index + 1}.</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-6 space-y-3">
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-slate-700 bg-blue-50 px-1.5 py-0.5 rounded mr-1">特色</span> ${hotel.feature}
+                                </p>
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded mr-1">地址/交通</span> ${hotel.address}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            
+            // 預設展開第一個區域 (海雲台 haeundae)
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict('haeundae', firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

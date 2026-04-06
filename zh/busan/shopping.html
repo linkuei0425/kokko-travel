@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>釜山購物精選指南 | Busan Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 自訂捲軸樣式（針對分類按鈕區塊） */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 釜山海洋藍色系 Active 狀態 */
+        .tab-btn.active {
+            background-color: #2563eb; /* Blue-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+            border-color: #2563eb;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        /* Naver Map Brand Color */
+        .btn-naver {
+            background-color: #03C75A; /* Naver 綠色 */
+        }
+        .btn-naver:hover {
+            background-color: #02b351;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- 頂部導覽列 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-blue-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>BUSAN SHOPPING</span>
+                </div>
+                <div>
+                    <!-- 回到首頁連結 -->
+                    <a href="https://linkuei0425.github.io/Busan/food.html" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> 回到首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 橫幅區域 -->
+    <header class="bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">釜山必買購物精選指南</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">精選韓國當紅品牌與釜山在地好物，從美妝保養、流行服飾到樂天超市大掃貨，買遍釜山無死角！</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 分類按鈕區 (可橫向滾動) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('fashion', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-blue-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👗</span> 流行服飾
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-blue-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> 韓國美妝
+            </button>
+            <button onclick="filterCategory('souvenir', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-blue-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🎁</span> 特色伴手禮
+            </button>
+            <button onclick="filterCategory('mart', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-blue-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛒</span> 零食超市
+            </button>
+            <button onclick="filterCategory('shoes', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-blue-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👟</span> 球鞋運動
+            </button>
+        </div>
+
+        <!-- 內容呈現區 -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 卡片將透過 JavaScript 動態生成 -->
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">© 2026 Busan Shopping Guide. 為你的釜山之旅提供最佳購物建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 店家資料庫 - 釜山品牌與商品推薦版
+        const shopData = [
+            // --- 流行服飾 ---
+            { cat: 'fashion', name: 'Mardi Mercredi (小雛菊服飾)', feature: '韓國爆紅設計師品牌，以經典小雛菊印花T恤與大學T聞名，法式慵懶風是近年來韓妞必備。', loc: '부산 해운대구 센텀남대로 35 (釜山海雲台區Centum南大路35) 新世界百貨地下2樓', transit: '地鐵2號線「Centum City站 (센텀시티역)」地下連通道直達，步行約1分鐘' },
+            { cat: 'fashion', name: 'Marithé François Girbaud', feature: '韓國時下最流行的法國復古丹寧品牌，經典字母 Logo T恤與帆布包出鏡率極高。', loc: '부산 해운대구 센텀남대로 35 (釜山海雲台區Centum南大路35) 新世界百貨地下2樓', transit: '地鐵2號線「Centum City站 (센텀시티역)」地下連通道直達' },
+            { cat: 'fashion', name: 'COVERNAT', feature: '韓國國民街頭潮牌，以 C 字 Logo 與大容量帆布包、棒球帽最受歡迎，設計百搭實穿。', loc: '부산 부산진구 중앙대로680번가길 38 (釜山釜山鎮區中央大路680番街38) 西面商圈內', transit: '地鐵1/2號線「西面站 (서면역)」2號出口，步行約5分鐘' },
+            { cat: 'fashion', name: 'SPAO', feature: '韓國平價快時尚品牌，必買與各種熱門 IP (蠟筆小新、哈利波特) 聯名的睡衣系列。', loc: '부산 부산진구 동천로 92 (釜山釜山鎮區東川路92) NC百貨 西面店', transit: '地鐵2號線「田浦站 (전포역)」7號出口，步行約3分鐘' },
+            { cat: 'fashion', name: 'ALAND', feature: '韓國大型連鎖複合式選物店，匯集眾多韓國小眾設計師品牌服飾、文青包包與配件。', loc: '부산 중구 광복로 59-1 (釜山中區光復路59-1) 光復路時尚街', transit: '地鐵1號線「南浦站 (남포역)」1號出口，沿光復路步行約5分鐘' },
+
+            // --- 韓國美妝 ---
+            { cat: 'beauty', name: 'Tamburins', feature: 'BLACKPINK Jennie 代言的爆紅香氛品牌，必買高顏值金鍊護手霜與絕美蛋型香水。', loc: '부산 해운대구 센텀남대로 35 (釜山海雲台區Centum南大路35) 新世界百貨1樓', transit: '地鐵2號線「Centum City站 (센텀시티역)」地下連通道直達' },
+            { cat: 'beauty', name: 'Rom&nd', feature: '韓國開架彩妝霸霸主！以高保濕果汁唇釉與絕美十色眼影盤聞名，包色也不心疼。', loc: '부산 부산진구 중앙대로 692 (釜山釜山鎮區中央大路692) Olive Young 西面中央店', transit: '地鐵1/2號線「西面站 (서면역)」2號出口，步行約2分鐘' },
+            { cat: 'beauty', name: 'Torriden', feature: '韓國化解榜(Hwahae)常勝軍，主打低敏玻尿酸保濕精華與面膜，韓國女生公認補水神器。', loc: '부산 해운대구 구남로 29 (釜山海雲台區龜南路29) Olive Young 海雲台海濱店', transit: '地鐵2號線「海雲台站 (해운대역)」3號出口，步行約3分鐘' },
+            { cat: 'beauty', name: 'VT Cosmetics', feature: '近期瘋搶的「老虎微針精華 (Reedle Shot)」，能幫助保養品吸收，居家煥膚保養必備神物。', loc: '부산 부산진구 가야대로 772 (釜山釜山鎮區伽倻大路772) 樂天百貨釜山總店免稅區', transit: '地鐵1/2號線「西面站 (서면역)」地下連通直達' },
+            { cat: 'beauty', name: 'Dasique', feature: '以仙女系水光唇膏與柔和色調眼影盤著稱，包裝極具質感，送禮自用兩相宜。', loc: '부산 해운대구 센텀남대로 35 (釜山海雲台區Centum南大路35) CHICOR 新世界百貨內', transit: '地鐵2號線「Centum City站 (센텀시티역)」地下連通道直達' },
+
+            // --- 特色伴手禮 ---
+            { cat: 'souvenir', name: '三振魚糕 (삼진어묵)', feature: '釜山必買名產！推薦購買可帶回國的真空包裝魚糕，或現場吃爆漿起司魚糕可樂餅。', loc: '부산 영도구 태종로99번길 36 (釜山影島區太宗路99番街36) 影島本店', transit: '地鐵1號線「南浦站」6號出口出站，轉乘公車 (8, 30, 88號) 至「蓬萊市場站」下車步行2分鐘' },
+            { cat: 'souvenir', name: '釜山海鷗麵包 (부산갈매기빵)', feature: '釜山限定超萌伴手禮，外觀是釜山市鳥海鷗造型，內餡為甜而不膩的紅豆與香草奶油。', loc: '부산 동구 중앙대로 206 (釜山東區中央大路206) 釜山火車站內 2樓特產店', transit: '地鐵1號線「釜山站 (부산역)」轉乘高鐵火車站層 (KTX站內)' },
+            { cat: 'souvenir', name: '古來思魚糕 (고래사어묵)', feature: '釜山另一大魚糕巨頭，主打無防腐劑，推薦海鮮蝦蝦魚糕串與可以用微波爐加熱的即食包。', loc: '부산 해운대구 구남로 14 (釜山海雲台區龜南路14) 海雲台店', transit: '地鐵2號線「海雲台站 (해운대역)」5號出口，步行約2分鐘' },
+            { cat: 'souvenir', name: '安妞廣安里 (안녕,광안리)', feature: '廣安里海灘的特色文創，必買廣安大橋造型的夢幻香氛蠟燭、紙膠帶與海鷗明信片。', loc: '부산 수영구 광안해변로 161 (釜山水營區廣安海濱路161) 廣安里海灘旁', transit: '地鐵2號線「廣安站 (광안역)」3號或5號出口，往海灘方向步行約10分鐘' },
+            { cat: 'souvenir', name: 'Kakao Friends (釜山限定版)', feature: '光復路旗艦店限定！戴著水手帽的釜山萊恩(Ryan)與海鷗造型春植娃娃，極具收藏價值。', loc: '부산 중구 광복로 62 (釜山中區光復路62) Kakao Friends 光復旗艦店', transit: '地鐵1號線「南浦站 (남포역)」1號出口，沿光復路主街步行約5分鐘' },
+
+            // --- 零食超市 ---
+            { cat: 'mart', name: 'HBAF 杏仁果', feature: '韓國國民零食！口味多達數十種，推薦蜂蜜奶油、大蒜麵包、烤玉米與提拉米蘇口味。', loc: '부산 중구 중앙대로 2 (釜山中區中央大路2) 樂天超市 光復店', transit: '地鐵1號線「南浦站 (남포역)」10號出口地下連通道直達' },
+            { cat: 'mart', name: 'No Brand 紫薯洋芋片', feature: 'E-mart 旗下自有品牌神級零食，微甜紫薯香氣酥脆唰嘴，一罐不到50元台幣，CP值極高。', loc: '부산 해운대구 좌동순환로 511 (釜山海雲台區佐洞循環路511) E-mart 海雲台中洞店', transit: '地鐵2號線「中洞站 (중동역)」7號出口，步行約2分鐘' },
+            { cat: 'mart', name: '釜山機張海帶 & 韓國麻油', feature: '釜山在地特產！購買在地產的厚實海帶與現榨韓國香油，煮湯拌飯絕配。', loc: '부산 중구 자갈치로 42 (釜山中區札嘎其路42) 釜山農協超市 (Hanaro Mart)', transit: '地鐵1號線「札嘎其站 (자갈치역)」10號出口，步行約3分鐘' },
+            { cat: 'mart', name: '韓國熱銷泡麵/拉麵', feature: '必掃農心辛拉麵、不倒翁金螃蟹海鮮拉麵、八道炸醬麵等，大賣場買多入組最划算。', loc: '부산 해운대구 해운대해변로 140 (釜山海雲台區海雲台海濱路140) Homeplus 海雲台店', transit: '地鐵2號線「冬柏站 (동백역)」1號出口，步行約5分鐘' },
+            { cat: 'mart', name: 'CW 巧克力大蒜麵包餅乾', feature: '爆紅超市零食，濃郁的大蒜奶油香氣加上底部的巧克力，甜鹹交織超上癮。', loc: '부산 부산진구 신천대로 241 (釜山釜山鎮區新川大路241) 樂天超市 釜山店 (西面)', transit: '地鐵2號線「釜岩站 (부암역)」2號出口，步行約7分鐘' },
+
+            // --- 球鞋運動 ---
+            { cat: 'shoes', name: 'FILA (韓版限定)', feature: '在韓國買 FILA 最便宜！必買韓國限定的老爹鞋 (Ray Tracer) 與厚底帆布鞋。', loc: '부산 중구 광복로 58-1 (釜山中區光復路58-1) FILA 光復路旗艦店', transit: '地鐵1號線「南浦站 (남포역)」1號或3號出口，步行約5分鐘' },
+            { cat: 'shoes', name: 'Discovery Expedition', feature: '韓國獨家授權的戶外機能品牌，其推出的老爹鞋與老帽深受韓國年輕人喜愛。', loc: '부산 중구 중앙대로 2 (釜山中區中央大路2) 樂天百貨 光復店 7樓', transit: '地鐵1號線「南浦站 (남포역)」10號出口地下連通道直達' },
+            { cat: 'shoes', name: 'National Geographic', feature: '國家地理頻道韓國獨家服飾線，巨大的 Logo 後背包與衝鋒衣是韓國大學生與代購爆款。', loc: '부산 해운대구 센텀남대로 35 (釜山海雲台區Centum南大路35) 新世界百貨內', transit: '地鐵2號線「Centum City站 (센텀시티역)」連通道直達' },
+            { cat: 'shoes', name: 'Autry', feature: '席捲韓國街頭的美式復古網球鞋(小白鞋)，搭配長襪穿搭極具韓系質感，潮人必備。', loc: '부산 부산진구 중앙대로692번길 19 (釜山釜山鎮區中央大路692番街19) FOLDER 西面店', transit: '地鐵1/2號線「西面站 (서면역)」2號出口，步行約3分鐘' },
+            { cat: 'shoes', name: 'Converse (韓國熱銷款)', feature: '韓國常有特殊配色的 Run Star Hike 厚底系列與 1970s，款式通常比台灣齊全。', loc: '부산 중구 광복로 67 (釜山中區光復路67) ABC-MART Mega Stage 光復店', transit: '地鐵1號線「南浦站 (남포역)」1號出口，步行約4分鐘' }
+        ];
+
+        // 負責渲染卡片的函數
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; // 清空現有內容
+
+            const filteredData = shopData.filter(item => item.cat === category);
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; // 簡單的進場動畫延遲
+                
+                // 1. 產生 Google Map 搜尋網址 (加入 Busan 提高精準度)
+                const mapSearchQuery = encodeURIComponent(`${shop.name} Busan`);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
+
+                // 2. 產生 Naver Map 導航網址
+                // 為了提高 Naver Map 搜尋精準度，自動過濾掉括號內的中文說明（例如把 "Mardi Mercredi (小雛菊服飾)" 變成 "Mardi Mercredi"）
+                const pureName = shop.name.split('(')[0].trim();
+                const naverSearchQuery = encodeURIComponent(pureName);
+                const naverMapsUrl = `https://map.naver.com/p/search/${naverSearchQuery}`;
+                
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-yellow-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">推薦商品</p>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${shop.feature}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-red-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">詳細地址</p>
+                                    <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-train-subway text-blue-500 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">自助交通方式</p>
+                                    <span class="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-md font-medium text-left leading-normal">${shop.transit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 導航按鈕區塊 -->
+                    <div class="mt-5 pt-4 border-t border-gray-100 flex flex-col gap-2.5">
+                        <!-- Naver Map 按鈕 -->
+                        <a href="${naverMapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-2 border border-transparent rounded-lg shadow-sm text-white btn-naver focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#03C75A] transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            <div class="flex flex-col items-start justify-center text-left">
+                                <span class="font-bold text-[14px] leading-tight">Naver MAP 導航</span>
+                                <span class="text-[11px] font-normal opacity-90 leading-tight mt-0.5">需下載APP，韓國建議使用</span>
+                            </div>
+                        </a>
+                        
+                        <!-- Google Map 導航按鈕 -->
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-[14px] font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            <i class="fa-solid fa-map-location-dot mr-2 text-lg"></i> 開啟 Google Map 導航
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 點擊分類按鈕的處理邏輯
+        function filterCategory(category, btnElement) {
+            // 移除所有按鈕的 active 狀態
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            // 為當前點擊的按鈕加上 active 狀態
+            btnElement.classList.add('active');
+
+            // 渲染對應的資料
+            renderCards(category);
+        }
+
+        // 新增簡單的進場動畫 CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 初始載入時顯示第一類 (流行服飾)
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('fashion', firstBtn);
+        };
+    </script>
+</body>
+</html>
