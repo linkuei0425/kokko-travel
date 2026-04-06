@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busan Food Navigator | Busan Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f8ff; /* Light blue background */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color for Busan (Ocean Blue vibe) */
+        .btn-nav {
+            background-color: #2563eb; 
+        }
+        .btn-nav:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Busan Food Pass
+            </h1>
+            <!-- Back to Home Link -->
+            <a href="https://linkuei0425.github.io/Busan-US/index.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Back to Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Region</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">Select Category</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">Please select a region and category above to explore Busan.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Busan Data Structure (3 items per category strictly)
+        const db = {
+            "nampo": {
+                name: "Nampo / Jagalchi",
+                categories: {
+                    "pork_soup": [
+                        { name: "Miryang Sundae Dwaeji Gukbap (Nampo)", feature: "Busan's soul food! Rich milky broth, open 24/7. The sundae & pork combo soup is a must-try, with meat that melts in your mouth.", address: "6 Gwangbok-ro, Jung-gu / 3 min from Nampo Stn" },
+                        { name: "Sinchang Gukbap", feature: "Famous Nampo old establishment. Clear soy-sauce-based broth that is light and not greasy, with thin and chewy pork slices.", address: "53 Bosu-daero, Jung-gu / 5 min from Toseong Stn" },
+                        { name: "Daegeon Myeongga Dwaeji Gukbap", feature: "Located between Busan Stn and Nampo. Thick pork bone broth pairs perfectly with their special chives and kimchi.", address: "232 Jungang-daero, Dong-gu / Between Busan Stn & Jungang Stn" }
+                    ],
+                    "seafood": [
+                        { name: "Oase Seafood (Jagalchi Market)", feature: "Korea's largest seafood market. Buy fresh fish and snow crabs on the 1st floor and have them prepared on the 2nd floor. Try the live octopus!", address: "52 Jagalchihaean-ro, Jung-gu / 5 min from Jagalchi Stn" },
+                        { name: "Haejeon Gopchang", feature: "A Busan specialty! Hagfish stir-fried with Korean spicy sauce and onions on an iron plate. Chewy, crunchy, and perfect with drinks.", address: "14 Gwangbok-ro 6beon-gil, Jung-gu / Jagalchi Hagfish Alley" },
+                        { name: "Busan Godeungeo (Mackerel)", feature: "A hidden local favorite near the market. Freshly grilled mackerel set meals featuring rich fats and super crispy skin.", address: "282 Chungmu-daero, Seo-gu / Alley opposite Jagalchi Market" }
+                    ],
+                    "bbq": [
+                        { name: "Mat Chan Deul Wang Sogeum Gui", feature: "Highly recommended by locals! 3.5cm ultra-thick pork belly roasted by staff. Perfectly locks in meat juices. Best eaten with water celery.", address: "34 Nampo-gil, Jung-gu / 5 min from Nampo Stn" },
+                        { name: "Ttungbojip", feature: "Specializes in charcoal-grilled spicy pork and bean sprout rice. A retro-style, affordable local favorite for after-work drinks.", address: "2-11 Jungang-daero 29beon-gil, Jung-gu / 3 min from Jungang Stn" },
+                        { name: "Joseon-ui Hanu", feature: "Spectacular flaming Hanwoo (Korean beef) BBQ! Staff expertly roast premium beef using a high-heat blowtorch. Melts in your mouth.", address: "12 Bupyeong 2-gil, Jung-gu / Inside Nampo-dong Shopping Area" }
+                    ],
+                    "cafe": [
+                        { name: "Regular House", feature: "A British vintage cafe and bar hidden on the 2nd floor in Gukje Market. Quiet, atmospheric, and a perfect secret hideout after shopping.", address: "2F, 12 Junggu-ro 40beon-gil, Jung-gu / Inside Gukje Market Alley" },
+                        { name: "BNC Bakery", feature: "A classic old bakery in Nampo. Famous for its signature pie salad, with comfortable cafe seating on the second floor.", address: "1F, 34 Gudeok-ro, Jung-gu / Gwangbok-ro Main Street" },
+                        { name: "Greem Cafe (Nampo)", feature: "A famous 2D black-and-white comic style cafe. Walking in feels like entering a hand-drawn picture book. Extremely photogenic.", address: "2F, 24 Gwangbokjungang-ro, Jung-gu / Gwangbok-ro Shopping Area" }
+                    ],
+                    "street_food": [
+                        { name: "BIFF Square Ssiat Hotteok", feature: "A must-eat street dessert in Busan! Deep-fried golden dough stuffed with sunflower seeds and nuts. Sweet and savory with endless queues.", address: "36 BIFF Gwangjang-ro, Jung-gu / Center of BIFF Square" },
+                        { name: "Bupyeong Kkangtong Night Market", feature: "Busan's first permanent night market. Try the meat skewers, scallion pancakes, stir-fried glass noodles, and creative street snacks.", address: "48 Bupyeong 1-gil, Jung-gu / Inside Bupyeong Kkangtong Market" },
+                        { name: "Gwangbok-ro Squid & Fish Cake", feature: "Scattered around Gwangbok-ro, freshly grilled butter squid and hot fish cake skewers are the best walking snacks.", address: "Gwangbok-ro, Jung-gu / Gwangbok-ro Pedestrian Street" }
+                    ]
+                }
+            },
+            "seomyeon": {
+                name: "Seomyeon / Jeonpo",
+                categories: {
+                    "pork_soup": [
+                        { name: "Songjeong 3rd Generation Dwaeji Gukbap", feature: "A 70-year-old shop on Seomyeon's Soup Street. Sweet, non-fishy bone broth with incredibly generous meat portions. A favorite among students.", address: "33 Seomyeon-ro 68beon-gil, Busanjin-gu / 3 min from Seomyeon Stn Exit 1" },
+                        { name: "Pohang Dwaeji Gukbap", feature: "Another giant on Soup Street. Milky white broth, perfectly clean offal without any smell, and unlimited noodle refills.", address: "27 Seomyeon-ro 68beon-gil, Busanjin-gu / Seomyeon Soup Street" },
+                        { name: "Miryang Gasan Dwaeji Gukbap", feature: "Popular among young locals. Besides the basic soup, their boiled pork slices and potato pork bone stew are also top-notch.", address: "28 Seomyeon-ro 68beon-gil, Busanjin-gu / Seomyeon Soup Street" }
+                    ],
+                    "seafood": [
+                        { name: "Hwangje Jamsuhap (Emperor Submarine)", feature: "Extravagant seafood pot! A whole lobster, octopus, abalone, and scallops fill the pot. A visual and tasteful shock. Must add kalguksu noodles at the end.", address: "16 Seomyeon-ro, Busanjin-gu / 8 min from Seomyeon Stn Exit 1" },
+                        { name: "Jogae Meongneun Dwaeji", feature: "Famous in Seomyeon for combining grilled clams and pork belly! Satisfies both seafood and Korean BBQ cravings at once.", address: "45 Jungang-daero 692beon-gil, Busanjin-gu / Seomyeon Alley" },
+                        { name: "Seomyeon Sashimi Center", feature: "Affordable and fresh sashimi right in the city center. Try wrapping thick-cut sashimi with lettuce and Korean spicy sauce.", address: "40 Seomyeon-ro 68beon-gil, Busanjin-gu / Near Seomyeon Stn Exit 9" }
+                    ],
+                    "bbq": [
+                        { name: "Seomyeon Gopchang Alley (Namnamja)", feature: "Authentic local vibe grilled beef/pork intestines. Crispy outside, soft inside. Highly recommend adding cheese fried rice at the end.", address: "36 Dongcheon-ro 85beon-gil, Busanjin-gu / Seomyeon Gopchang Alley" },
+                        { name: "Geumdwaeji (Golden Pork)", feature: "High-popularity BBQ shop in Seomyeon. Premium aged pork belly with sweet meat juices and excellent grilling service by staff.", address: "78 Jungang-daero 680beonga-gil, Busanjin-gu / Seomyeon Shopping Area" },
+                        { name: "Oneul Gimhae Dwitgogi", feature: "University students' favorite affordable rear leg meat BBQ! Chewy texture, finishes with a massive volcano cheese fried rice.", address: "14 Dongcheon-ro 85beon-gil, Busanjin-gu / 3 min from Jeonpo Stn" }
+                    ],
+                    "cafe": [
+                        { name: "Vintage 38", feature: "Iconic shop on Jeonpo Cafe Street! Converted from an industrial factory, full of retro American vibes. Lots of desserts and open 24 hours.", address: "38 Jeonpo-daero 199beon-gil, Busanjin-gu / 5 min from Jeonpo Stn" },
+                        { name: "Space & Mood", feature: "A gorgeous space hidden on the top floor of Seomyeon. Large glass windows, crystal chandeliers. Excellent French afternoon tea and brunch.", address: "13F, 22-1 Saessak-ro, Busanjin-gu / 13F Seomyeon" },
+                        { name: "FM Coffee House", feature: "Specialty coffee pioneer on Jeonpo Cafe Street. Famous for its cold brew with dense milk foam and exquisite latte art.", address: "26 Jeonpo-daero 199beon-gil, Busanjin-gu / Jeonpo Cafe Street" }
+                    ],
+                    "street_food": [
+                        { name: "Seomyeon Market Tteokbokki Street", feature: "A row of street carts selling thick red spicy rice cakes, fish cakes, and fried squid. Cheap, filling, and full of local life.", address: "56 Seomyeon-ro, Busanjin-gu / Outside Seomyeon Market" },
+                        { name: "NC Department Store Pojangmacha", feature: "Night-only orange tents in Seomyeon offering spicy chicken feet, seafood pancakes, and soju. The perfect place to experience late-night culture.", address: "92 Dongcheon-ro, Busanjin-gu / Border of Jeonpo & Seomyeon" },
+                        { name: "Gukhwappang & Gyeranppang", feature: "Traditional snacks commonly found at Seomyeon Station exits. Hot egg bread (with a whole egg) and sweet red bean chrysanthemum bread.", address: "B730 Jungang-daero, Busanjin-gu / Around Seomyeon Stn Exits" }
+                    ]
+                }
+            },
+            "haeundae": {
+                name: "Haeundae / Jung-dong",
+                categories: {
+                    "pork_soup": [
+                        { name: "Geukdong Dwaeji Gukbap", feature: "Famous soup shop by the Haeundae ocean. Pure white rich broth, tender pork, perfectly paired with fresh chives.", address: "17 Dalmaji-gil 62beon-gil, Haeundae-gu / Near LCT" },
+                        { name: "Haeundae Giwajip Daegutang", feature: "The ultimate hangover cure for locals! Clear broth boiled with cod and radish, refreshing and sweet with firm fish meat.", address: "104 Dalmaji-gil, Haeundae-gu / Haeundae Dalmaji-gil Entrance" },
+                        { name: "Miryang Sundae Dwaeji Gukbap", feature: "Located on Haeundae's main street, open 24/7. Grab a hot bowl of white-broth pork soup no matter how late it is.", address: "28 Gunam-ro, Haeundae-gu / Haeundae Main Street" }
+                    ],
+                    "seafood": [
+                        { name: "Mipo Kkeutjip", feature: "Instagrammer's favorite! Open-air seating by Mipo coast. Roasting cheese-covered scallops while listening to the waves is extremely romantic.", address: "77 Dalmaji-gil 62beon-gil, Haeundae-gu / Behind LCT Building" },
+                        { name: "Geumsu Bokguk", feature: "Legendary Haeundae shop specializing in perfectly clean and safe pufferfish cuisine. The clear pufferfish soup is firm and savory.", address: "23 Jungdong 1-ro 43beon-gil, Haeundae-gu / Near Haeundae District Office" },
+                        { name: "Haeundae Market Hagfish", feature: "Popular hagfish in the market. Stir-fried with garlic and Korean spicy sauce, giving a crunchy texture. Finish with seaweed fried rice.", address: "42 Gunam-ro 41beon-gil, Haeundae-gu / Inside Haeundae Traditional Market" }
+                    ],
+                    "bbq": [
+                        { name: "Haeundae Somunnan Amso Galbijip", feature: "60-year-old premium Hanwoo short ribs. The secret marinade is unforgettable, and the potato noodles cooked on the grill edges are a must.", address: "32-10 Jungdong 2-ro 10beon-gil, Haeundae-gu / 3 min from District Office" },
+                        { name: "Obanjang", feature: "Super popular semi-outdoor BBQ! The special grill cooks steamed egg on one side and kimchi on the other. Skirt meat and pork belly are must-orders.", address: "20 Gunam-ro 24beon-gil, Haeundae-gu / 5 min from Haeundae Stn" },
+                        { name: "Mat Chan Deul Wang Sogeum Gui", feature: "Highly consistent chain. 3.5cm thick pork belly roasted by professionals, bursting with fresh and sweet meat juices.", address: "9 Haeundaehaebyeon-ro 265beon-gil, Haeundae-gu / Near Haeundae Beach" }
+                    ],
+                    "cafe": [
+                        { name: "Rendezja-Vous Haeundae", feature: "Brings Jeju Island stone walls and resort vibes indoors. Famous for its 'cave ocean view' photo spot with a panoramic view of Haeundae beach.", address: "23 Dalmaji-gil 62beon-gil, Haeundae-gu / Haeundae Beachfront" },
+                        { name: "Edge 993", feature: "Landscape cafe at the end of Mipo coast. The rooftop offers an unobstructed view of Haeundae beach and Gwangan Bridge sunsets.", address: "78 Dalmaji-gil 62beon-gil, Haeundae-gu / End of Mipo Coast" },
+                        { name: "Snoopy Place Busan", feature: "Snoopy-themed ocean view cafe! Decorations, cakes, and cookies are all Snoopy-shaped. A total heart-melter.", address: "297 Haeundaehaebyeon-ro, Haeundae-gu / Haeundae Beach Mall" }
+                    ],
+                    "street_food": [
+                        { name: "Sanggugine Gimbap", feature: "A wildly popular shop in Haeundae Market. Their gimbap paired with thick Busan-style spicy tteokbokki sauce is a perfect match.", address: "40-1 Gunam-ro 41beon-gil, Haeundae-gu / Inside Haeundae Market" },
+                        { name: "Haeundae Pojangmacha Village", feature: "Night-only! Sit in orange tents by the beach, order a live seafood platter and soju, and experience a K-drama late-night vibe.", address: "236 Haeundaehaebyeon-ro, Haeundae-gu / Around Haeundae Beach" },
+                        { name: "Honeycomb Ice Cream", feature: "A common walking dessert around Haeundae Market. Rich milk ice cream topped with a whole piece of natural honeycomb.", address: "Gunam-ro, Haeundae-gu / Haeundae Main Street" }
+                    ]
+                }
+            },
+            "gwangan": {
+                name: "Gwangalli / Suyeong",
+                categories: {
+                    "pork_soup": [
+                        { name: "Suyeong Bonga Dwaeji Gukbap", feature: "Locals' secret no-queue gem! Extremely generous with meat (almost more meat than rice) and crispy spicy radish cubes.", address: "60 Muhak-ro, Suyeong-gu / Near Suyeong Stn" },
+                        { name: "Jamae Gukbap", feature: "Hidden famous shop in Millak-dong. Clear, sweet broth, perfect meat-fat ratio. Highly recommended by locals and sells out fast.", address: "56 Millakbondong-ro 27beon-gil, Suyeong-gu / Millak-dong Residential Area" },
+                        { name: "Miryang Sundae Dwaeji Gukbap", feature: "Branch facing Gwangan Bridge. Take a walk on the beach right after eating. Handmade sundae and rich white broth are signatures.", address: "179 Gwanganhaebyeon-ro, Suyeong-gu / Gwangalli Beachfront" }
+                    ],
+                    "seafood": [
+                        { name: "Millak Raw Fish Market", feature: "Pick live fish for sashimi on the 1st floor and take it to Gwangalli Beach for a picnic. This is the most chill way to eat for Busan youth.", address: "1 Millaksubyeon-ro, Suyeong-gu / End of Gwangalli Beach" },
+                        { name: "Haengbok Susan", feature: "View restaurant above Millak Market. Offers an extravagant spread of seafood side dishes and fresh sashimi, directly facing Gwangan Bridge.", address: "8F, 1 Millaksubyeon-ro, Suyeong-gu / Millak Raw Fish Market Building" },
+                        { name: "Gaemijip (Nakgopsae)", feature: "Busan's famous dish: octopus, beef intestine, and shrimp stir-fried in a special spicy sauce. Incredibly good with white rice.", address: "225 Gwanganhaebyeon-ro, Suyeong-gu / Gwangalli Beach Main Street" }
+                    ],
+                    "bbq": [
+                        { name: "Brother Gogi (Gwangan)", feature: "Located in an ocean view building. Enjoy premium Korean BBQ roasted by staff while gazing at the invincible Gwangan Bridge night view.", address: "193 Gwanganhaebyeon-ro, Suyeong-gu / Gwangalli Beachfront" },
+                        { name: "Kkankkanhan Jokbal", feature: "Charcoal-grilled pork trotters (half original/half spicy) full of collagen and smoky flavor. The top choice for late-night beer.", address: "60 Gwangan-ro 61beon-gil, Suyeong-gu / Back alley of Gwangalli" },
+                        { name: "Goseong Bangga", feature: "High-quality charcoal BBQ in Gwangalli alley. Offers premium aged pork, exquisite side dishes, and professional grilling service.", address: "7 Suyeong-ro 510beon-gil, Suyeong-gu / 5 min from Gwangan Stn" }
+                    ],
+                    "cafe": [
+                        { name: "Cafe El Di Maria", feature: "French classical cafe. The 2nd-floor window seats offer the best angle to photograph Gwangan Bridge. Excellent pour-over coffee.", address: "237 Gwanganhaebyeon-ro, Suyeong-gu / Gwangalli Beach Road" },
+                        { name: "Byul Bed", feature: "Tiered sofa beds facing the sea. Order a drink and lie down lazily to watch the Gwangalli ocean view. Perfect for relaxing.", address: "203 Gwanganhaebyeon-ro, Suyeong-gu / By Gwangalli Beach" },
+                        { name: "CUPNUT (Gwangan)", feature: "Famous for giant bursting donuts. The minimalist wooden style 2nd floor has large windows for viewing Gwangan Bridge.", address: "207 Gwanganhaebyeon-ro, Suyeong-gu / Gwangalli Beach Road" }
+                    ],
+                    "street_food": [
+                        { name: "Gwangalli Late-Night Food Trucks", feature: "Trucks along the beach selling iron-plate egg toast, hotdogs, and fish cakes. A great companion for night walks.", address: "Gwanganhaebyeon-ro, Suyeong-gu / Along Gwangalli Beach" },
+                        { name: "Gwangalli Bungeoppang Cart", feature: "Korea's winter national snack! Fish-shaped pastry filled with red bean or cream, crispy on the outside and warm in your hands.", address: "Gwangan-ro, Suyeong-gu / Road to beach from Gwangan Stn" },
+                        { name: "Millak Waterside Park Pancake Stall", feature: "Locals always buy freshly pan-fried chive and seafood pancakes here to pair with sashimi for a seaside picnic.", address: "129 Millaksubyeon-ro, Suyeong-gu / Next to Millak Waterside Park" }
+                    ]
+                }
+            },
+            "gijang": {
+                name: "Gijang / Songjeong",
+                categories: {
+                    "pork_soup": [
+                        { name: "Songjeong Dwaeji Gukbap", feature: "Located near Songjeong Beach, a favorite among surfers. The hot soup restores energy and warms the stomach after surfing.", address: "33 Songjeongjungang-ro, Haeundae-gu / Around Songjeong Beach" },
+                        { name: "Daegeon Myeongga Dwaeji Gukbap", feature: "Branch of the famous city shop. Thick white broth and plenty of meat, offering authentic Busan flavor in Gijang.", address: "321 Chaseong-ro, Gijang-eup, Gijang-gun / Around Gijang Market" },
+                        { name: "Songjeong Myeonga", feature: "Besides traditional rice soup, they also offer pork soup with chewy noodles. The variety makes it popular with tourists.", address: "47 Songjeonggwangeogol-ro, Haeundae-gu / Next to Songjeong Beach" }
+                    ],
+                    "seafood": [
+                        { name: "Daebak Crab (Gijang Market)", feature: "Must-eat snow crabs! Much cheaper than the city, full of sweet meat. The crab paste fried rice in the shell is the soul of the meal.", address: "16 Eumnae-ro 104beon-gil, Gijang-eup, Gijang-gun / Inside Gijang Market" },
+                        { name: "Gijang Kkeutjip (Abalone Porridge)", feature: "Thick, dark green porridge boiled with lots of abalone viscera. Served with fresh seafood caught by female divers and an ocean view.", address: "895 Gijanghaean-ro, Gijang-eup, Gijang-gun / Gijang Haenyeo Village" },
+                        { name: "Yeonhwa-ri Haenyeo Village", feature: "Experience the freshest seafood platter! Sea cucumbers, squirts, and live octopus caught by female divers, eaten right by the sea.", address: "184 Yeonhwa 1-gil, Gijang-eup, Gijang-gun / Gijang Yeonhwa-ri Coast" }
+                    ],
+                    "bbq": [
+                        { name: "The Moving Caravan BBQ", feature: "Instagrammable caravan BBQ by the coast. They provide premium meat and grills, so you can enjoy BBQ with the sea breeze hassle-free.", address: "290 Haemaji-ro, Jangan-eup, Gijang-gun / Reservation required" },
+                        { name: "Jeju Hangtong Gogi", feature: "Eat authentic Jeju Island black pork in Busan! Thick pork sizzling over charcoal with an irresistible fatty aroma.", address: "74 Chaseongdong-ro, Gijang-eup, Gijang-gun / Gijang Main Road" },
+                        { name: "Songjeong Cheolpan", feature: "Located by Songjeong Beach, offering large iron-plate spicy pork and rich seafood platters. Huge portions, perfect for groups.", address: "15 Songjeonggwangeogol-ro, Haeundae-gu / Around Songjeong Beach" }
+                    ],
+                    "cafe": [
+                        { name: "Waveon Coffee", feature: "Gijang's most famous ocean view cafe! Award-winning architecture with tiered outdoor sofas letting you lie back and watch the blue sea.", address: "286 Haemaji-ro, Jangan-eup, Gijang-gun / Gijang Coast" },
+                        { name: "Coralani", feature: "Another massive ocean view cafe in pure white Mediterranean style. Tiered terrace seating perfect for beautiful vacation photos.", address: "32 Gijanghaean-ro, Gijang-eup, Gijang-gun / Gijang Songjeong Coast" },
+                        { name: "Cafe Rosso", feature: "Classic old-established ocean view cafe in Gijang. Red brick building, pine trees, and daily freshly baked bread make it highly popular.", address: "864 Gijanghaean-ro, Gijang-eup, Gijang-gun / Gijang Coastal Road" }
+                    ],
+                    "street_food": [
+                        { name: "Songjeong 3rd Generation Toast", feature: "Songjeong Beach specialty! Iron-plate toast with stretchy cheese, cabbage omelet, and a special sweet sauce. Huge queues even late at night.", address: "50 Songjeonghaebyeon-ro, Haeundae-gu / Next to Songjeong Beach" },
+                        { name: "Gijang Market Hotteok & Fries", feature: "After browsing the seafood market, the fried sweet potatoes, squid, and hot brown sugar pancakes at the entrance are perfect snacks.", address: "16 Eumnae-ro 104beon-gil, Gijang-eup, Gijang-gun / Gijang Market Entrance" },
+                        { name: "Yonggungsa Eel Skewers", feature: "Snack stalls commonly seen at the entrance of Haedong Yonggungsa Temple. Offers various grilled seafood skewers and fish cakes.", address: "86 Yonggung-gil, Gijang-eup, Gijang-gun / Haedong Yonggungsa Path" }
+                    ]
+                }
+            },
+            "yeongdo": {
+                name: "Yeongdo / Huinnyeoul",
+                categories: {
+                    "pork_soup": [
+                        { name: "Namhang Dwaeji Gukbap", feature: "A hidden old shop in Yeongdo retaining the purest traditional Busan flavor. Thick bone broth loved by local shipyard workers.", address: "42 Namhang-ro, Yeongdo-gu / Near Yeongdo Namhang Market" },
+                        { name: "Mokdo Dwaeji Gukbap", feature: "Clear broth style, highly rated by locals. Clean taste with no pork smell, accompanied by generous side dishes.", address: "36 Namhang-ro 31beon-gil, Yeongdo-gu / Yeongdo Namhang-dong" },
+                        { name: "Bongnae Dwaeji Gukbap", feature: "Old shop next to Yeongdo Traditional Market. Cheap, large bowls with lots of meat. The best way to experience Yeongdo daily life.", address: "25 Taejong-ro 113beon-gil, Yeongdo-gu / Around Yeongdo Bongnae Market" }
+                    ],
+                    "seafood": [
+                        { name: "Yeongdo Haenyeo Village", feature: "The most authentic seafood experience! Sit on coastal rocks and taste fresh sea urchin and sea cucumber paired with gimbap and seafood ramen.", address: "36 Jungnibuk-ro, Yeongdo-gu / Yeongdo Jungni Coast" },
+                        { name: "Taejongdae Grilled Clam Village", feature: "Tent street at Taejongdae entrance. Charcoal-grilled fresh scallops and large clams covered in cheese and butter.", address: "830 Taejong-ro, Yeongdo-gu / Taejongdae Entrance" },
+                        { name: "Yeongdo Hagfish Alley", feature: "Under Namhang Bridge, you'll find old shops specializing in spicy iron-plate hagfish. The flavors are heavier and more authentic than tourist areas.", address: "Namhang-ro, Yeongdo-gu / Under Namhang Bridge" }
+                    ],
+                    "bbq": [
+                        { name: "Yeongdo Open-air Black Pork", feature: "Some hillside restaurants offer open-air Jeju black pork BBQ, letting you eat meat while enjoying the Yeongdo Bridge night view.", address: "39 Jonaegi-ro, Yeongdo-gu / Yeongdo Hillside" },
+                        { name: "Mongmyeon", feature: "Popular local BBQ shop in Yeongdo. Offers thick-cut pork belly and neck, served with characteristic Korean cold noodles to refresh the palate.", address: "300 Taejong-ro, Yeongdo-gu / Yeongdo City Center" },
+                        { name: "Taejongdae Charcoal Ribs", feature: "Energy recharge after Taejongdae! Specializes in secret sauce charcoal-grilled pork ribs. Sweet and tender, very popular with families.", address: "836 Taejong-ro, Yeongdo-gu / Taejongdae Entrance Area" }
+                    ],
+                    "cafe": [
+                        { name: "Sinki Industry", feature: "Industrial style cafe converted from an old factory. The top floor offers excellent panoramic views of Busan Port and the bridge.", address: "2 Wachi-ro 51beon-gil, Yeongdo-gu / Yeongdo Hillside" },
+                        { name: "Aether", feature: "Pure white Greek-style cafe in Huinnyeoul Culture Village. Built along the cliff, the curved terrace provides unobstructed ocean views.", address: "234 Jeoryeong-ro, Yeongdo-gu / Huinnyeoul Culture Village" },
+                        { name: "P.ARK", feature: "Busan's largest ocean view cafe and cultural space! Built like a giant cruise ship, the tiered seating lets you watch the sea without blind spots.", address: "180 Haeyang-ro 195beon-gil, Yeongdo-gu / Yeongdo Dongsam-dong Coast" }
+                    ],
+                    "street_food": [
+                        { name: "Samjin Amook (Yeongdo Main Store)", feature: "The birthplace of Korea's oldest fish cake brand. Displays dozens of fried fish cakes like a bakery, and offers hands-on workshops.", address: "36 Taejong-ro 99beon-gil, Yeongdo-gu / Next to Yeongdo Bongnae Market" },
+                        { name: "Huinnyeoul Ice Cream & Drinks", feature: "While walking along the cliff path, many small windows sell cute ice cream and dreamy gradient sparkling drinks.", address: "242 Jeoryeong-ro, Yeongdo-gu / Huinnyeoul Culture Village Path" },
+                        { name: "Yeongdo Tteokbokki Stall", feature: "Traditional stall in Namhang Market. The spicy tteokbokki sauce here is exceptionally thick and has a strong local seafood flavor.", address: "24 Namhangsijang-gil, Yeongdo-gu / Inside Namhang Market" }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Busan
+        const categoriesMap = {
+            "pork_soup": { name: "🍲 Pork Soup & Rice", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "seafood": { name: "🦀 Seafood & Clams", color: "bg-sky-100 text-sky-800 hover:bg-sky-600 hover:text-white border-sky-400" },
+            "bbq": { name: "🥩 Korean BBQ", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "cafe": { name: "☕ Scenic Cafes", color: "bg-teal-100 text-teal-800 hover:bg-teal-600 hover:text-white border-teal-400" },
+            "street_food": { name: "🍢 Street Food", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-blue-600');
+            clickedBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('pork_soup', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-gray-500">No data available for this category yet.</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (Focus query on Busan)
+                const encodedQuery = encodeURIComponent(`${item.name} Busan ${item.address.split('/')[0]}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded mr-1">Highlight</span>${item.feature}</p>
+                        
+                        <div class="bg-gray-50/80 p-3.5 rounded-xl flex items-start gap-3 border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium"><span class="font-bold text-blue-800">Address: </span>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto">
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            Open Google Maps
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>
