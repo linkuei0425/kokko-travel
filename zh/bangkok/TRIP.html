@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>泰國行程推薦指南</title>
+    
+    <!-- 引入 Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 React & ReactDOM (CDN) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- 引入 Babel 用於在瀏覽器中編譯 JSX (CDN) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* 隱藏水平捲軸但保留滾動功能 */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- 定義 SVG 圖示元件 (取代原本從 lucide-react 引入的圖示) ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const Utensils = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+
+        // 定義分類與圖示
+        const CATEGORIES = [
+            { id: '門票', icon: Ticket },
+            { id: '一日遊', icon: Sun },
+            { id: '餐廳', icon: Utensils },
+            { id: '按摩SPA', icon: Sparkles },
+            { id: '交通及E-sim', icon: TrainFront }
+        ];
+
+        const REGIONS = ['曼谷', '華欣', '芭達雅', '大城', '北碧府'];
+
+        // 取得指定地區可用的分類
+        const getAvailableCategoryIds = (region) => {
+            if (region === '大城' || region === '北碧府') return ['一日遊', '交通及E-sim'];
+            if (region === '華欣') return ['門票', '一日遊', '按摩SPA', '交通及E-sim'];
+            return ['門票', '一日遊', '餐廳', '按摩SPA', '交通及E-sim'];
+        };
+
+        // 行程資料庫
+        const itineraryData = {
+            '曼谷': {
+                '門票': [
+                {
+                    title: '曼谷王權 Mahanakhon SkyWalk 觀景台',
+                    description: '曼谷最高的新地標之一，擁有刺激的高空透明玻璃步道，可 360 度俯瞰曼谷日落與璀璨的城市夜景。',
+                    link: 'https://affiliate.klook.com/redirect?aid=105907&aff_adid=1231991&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F16870-king-power-mahanakhon-skywalk-ticket-bangkok%2F'
+                },
+                {
+                    title: '暹羅古城 76 府 ＆ 三頭象神博物館',
+                    description: '「暹羅古城」是將泰國各地名勝古蹟縮小還原的巨大戶外博物館，非常適合拍照；「三頭象神博物館」則以極為壯觀的巨大粉紅象雕像與精緻的內部雕刻聞名。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231992&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F368-ancient-city-erawan-museum-ticket-bangkok%2F'
+                },
+                {
+                    title: '曼谷野生動物園 (Safari World)',
+                    description: '泰國最大的開放式野生動物園。遊客可以搭車近距離觀看獅子、斑馬等野生動物，還有極受歡迎的「長頸鹿餵食」與各式動物表演。',
+                    link: 'https://www.klook.com/zh-TW/activity/365-safari-world-bangkok/?aid=114993&aff_adid=1231928&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124092825260-114993-1231928-60cac2c'
+                },
+                {
+                    title: '曼谷暹羅海洋世界 (Sea Life Bangkok)',
+                    description: '位於市中心 Siam Paragon 百貨地下室的巨大水族館，交通方便，是躲避高溫與雷雨的絕佳室內景點。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231990&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F357-sea-life-bangkok-ocean-world-bangkok%2F'
+                }
+                ],
+                '一日遊': [
+                {
+                    title: '丹嫩莎朵水上市場 ＆ 美功鐵道市場一日遊',
+                    description: '曼谷近郊最經典的行程。能親眼目睹火車貼著攤販駛過的奇景（美功鐵道），並搭船體驗泰國傳統的水上交易氛圍。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231993&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F127327-damnoen-saduak-floating-market-maeklong-railway-market%2F'
+                },
+                {
+                    title: '曼谷經典寺廟巡禮',
+                    description: '走訪大皇宮、玉佛寺、臥佛寺（看巨大金身臥佛）、鄭王廟（泰國艾菲爾鐵塔，還可體驗穿泰服拍照），深度體驗泰國佛教與皇室文化。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231994&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F3021-bangkok-must-visit-landmarks-day-tour%2F'
+                },
+                {
+                    title: '曼谷河濱碼頭夜市「侏羅紀世界：探險」體驗門票',
+                    description: '在曼谷，漫步於栩栩如生的恐龍之間，親身體驗經典電影系列中的場景。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232020&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F187815-jurassic-world-the-experience-bangkok-at-asiatique-the-riverfront%2F'
+                },
+                {
+                    title: '湄南河昭披耶河公主號遊船宴',
+                    description: '搭乘豪華郵輪夜遊曼谷的「母親之河」。行程包含享用國際自助餐、欣賞現場音樂表演，並從水上視角飽覽打燈後的大皇宮、鄭王廟與現代摩天大樓交織的夜景。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232022&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F375-chao-phraya-princess-cruise-bangkok%2F'
+                },
+                {
+                    title: '湄南河白蘭花號遊船',
+                    description: '搭乘豪華郵輪夜遊曼谷的「母親之河」。行程包含享用國際自助餐、欣賞現場音樂表演，並從水上視角飽覽打燈後的大皇宮、鄭王廟與現代摩天大樓交織的夜景。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231927&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F10538-chao-phraya-white-orchid-river-cruise-bangkok%2F'
+                },
+                {
+                    title: '湄南河Meridian遊船',
+                    description: '搭乘豪華郵輪夜遊曼谷的「母親之河」。行程包含享用國際自助餐、欣賞現場音樂表演，並從水上視角飽覽打燈後的大皇宮、鄭王廟與現代摩天大樓交織的夜景。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231930&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F29626-meridian-dinner-cruise-bangkok%2F'
+                }
+                ],
+                '餐廳': [
+                {
+                    title: 'Copper Beyond 自助餐（Gaysorn Amarin）',
+                    description: 'Copper Beyond 自助餐 - 不容錯過的優質國際自助餐。新分店位於曼谷市中心，距離 BTS Chit Lom 僅 200 米。',
+                    link: 'https://www.klook.com/zh-TW/activity/133148-copper-beyond-buffet-at-gaysorn-amarin/?spm=SearchResult.SearchResult_LIST&clickId=bd3a3d3033'
+                },
+                {
+                    title: 'ICONSIAM悅河廣場 Great Harbour 國際自助餐',
+                    description: '一邊享用令人驚豔的河畔景致，一邊品嚐頂級自助餐，體驗來自世界各地的佳餚、新鮮海味和現場烹飪料理。',
+                    link: 'https://www.klook.com/zh-TW/activity/108520-greatharbour-buffet-iconsiam/?spm=SearchResult.SearchResult_LIST&clickId=68740c56d7'
+                },
+                {
+                    title: 'You&I曼谷頂級壽喜燒自助餐',
+                    description: '無限量供應優質肉類、新鮮海鮮和時令蔬菜，享用和牛、黑毛豬等優質肉塊，用一系列美味的甜點和飲料結束您的用餐。',
+                    link: 'https://www.klook.com/zh-TW/activity/17696-youi-premium-suki-buffet-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=00397f941e'
+                },
+                {
+                    title: '曼谷君悅酒店Erawan Tea Room下午茶（米其林指南推薦）',
+                    description: 'Erawan Tea Room 被《孤獨星球》評為“世界上最好的下午茶之一”，是一個真正獨特的空間。',
+                    link: 'https://www.klook.com/zh-TW/activity/144457-erawan-tea-room-grand-hyatt-erawan-bangkok-michelin-guide-winner/?spm=SearchResult.SearchResult_LIST&clickId=70652c1fb2'
+                }
+                ],
+                '按摩SPA': [
+                {
+                    title: '曼谷 Chit Lom 的 One More Thai Massage & Spa',
+                    description: '想消除出遊疲勞，何不前往 One More Thai，享受道地泰式按摩及 Spa 水療，讓身體煥然一新，重拾滿滿元氣！按摩結束後，還可享用泰式傳統茶點，徹底放鬆身心，距 BTS 奇隆站（Chit Lom）僅1分鐘步行距離，便利好找不迷路。',
+                    link: 'https://www.klook.com/zh-TW/activity/18533-one-more-thai-spa-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=d52006bdf6'
+                },
+                {
+                    title: '曼谷 Health Land Spa (ASOK店)',
+                    description: '多種方案任您選擇，從舒緩身心的全身按摩到呵護備至的臉部護理，滿足您的不同需求。曼谷各地的 Health Land Spa 分店皆可預訂，彈性安排您的專屬療程。',
+                    link: 'https://www.klook.com/zh-TW/activity/4014-health-land-spa-coupons-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=1cbf5fe85b'
+                },
+                {
+                    title: '曼谷Phayathai的Let\'s Relax Spa',
+                    description: '前往披耶泰Let\'s Relax Spa放鬆身心，讓自己遠離壓力和焦慮。乘坐機場快線和曼谷空鐵輕鬆到達，結束旅行後立即享受水療護理，選擇按摩和水療方案進行體驗，讓疲憊的身體恢復活力。體驗後享用泰式小吃和草藥飲料。',
+                    link: 'https://www.klook.com/zh-TW/activity/65632-lets-relax-spa-treatment-phayathai-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=90e7ecc323'
+                },
+                {
+                    title: 'Divana Scentuara Spa 奇隆店',
+                    description: '皇家遺產之家：這座隱藏的建築瑰寶坐落於納裡薩拉·努瓦蒂翁親王擁有90年曆史的遺產宮殿內，在英國大使館附近提供一處寧靜的休憩之所。玫瑰之家：水療中心的設計靈感源自王子最喜愛的花朵和英格蘭的國花，是一個充滿花卉優雅的聖地，象徵著愛與永恆的美麗。',
+                    link: 'https://www.klook.com/zh-TW/activity/12585-divana-massage-spa-experience-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=fbdde0c84d'
+                },
+                {
+                    title: '曼谷暹羅廣場 6 巷 Lek 腳底按摩和 Spa 體驗',
+                    description: '盡享 Lek Massage 遍布曼谷的 20 家分店，交通便利，鄰近暹羅、通羅、阿索克、娜娜和澎蓬等熱門 BTS 站。立即預訂 Klook 憑證，輕鬆展開煥活身心之旅！',
+                    link: 'https://www.klook.com/zh-TW/activity/12585-divana-massage-spa-experience-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=fbdde0c84d'
+                }
+                ],
+                '交通及E-sim': [
+                {
+                    title: 'E-SIM',
+                    description: '最優惠的 eSIM 方案!App內一鍵開通，一秒加值用多少買多少! 啟用前可取消、使用期間網路「不穩就退」，安心有保障，24小時LINE中文客服，零時差為你服務。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232067&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F'
+                },
+                {
+                    title: '機場接送',
+                    description: '機場到市區&芭達雅 ＆ 大城 ＆ 華欣 ＆ 周邊城市私人接送',
+                    link: 'https://www.klook.com/zh-TW/activity/30353-private-city-transfers-bangkok-pattaya-ayutthaya-hua-hin/?spm=SearchResult.SearchResult_LIST&clickId=5975eee923'
+                },
+                {
+                    title: '曼谷機場租車',
+                    description: '',
+                    link: 'https://www.klook.com/zh-TW/car-rentals/results/?pick=Suvarnabhumi%20Airport&drop=Suvarnabhumi%20Airport&diffLoc=false&pDate=2026-03-11%2010%3A00&dDate=2026-03-14%2010%3A00&age=30&lat=13.68109989&long=100.7470016&dLat=13.68109989&dLong=100.7470016&code=TH&dCode=TH&iata=BKK&dIata=BKK&spm=SearchResult.SearchResult_LIST&clickId=0df72200de'
+                },
+                {
+                    title: '龜島車船聯程套票（Lomprayah 提供）',
+                    description: 'Lomprayah是值得信賴的渡輪公司，保證您前往龜島的旅程既可靠又愉快',
+                    link: 'https://www.klook.com/zh-TW/activity/19241-lomprayah-ferry-bus-ticket-koh-tao-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=2eead97a65'
+                }
+                ]
+            },
+            '華欣': {
+                '門票': [
+                {
+                    title: '華欣瓦納納瓦水上樂園（Vana Nava Waterpark）門票',
+                    description: '體驗亞洲首個水上叢林的刺激與歡樂',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232045&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F3871-vana-nava-waterpark-hua-hin%2F'
+                },
+                {
+                    title: '華欣樹頂冒險樂園叢林飛躍體驗',
+                    description: '在華欣盡情體驗刺激的新遊戲，如快速跳躍、鋸齒形吊橋和飛行滑板，乘坐不同的高空滑索飛越樹冠，其中一條還橫跨美麗的湖泊！',
+                    link: 'https://www.klook.com/zh-TW/activity/44174-zipline-experience-hua-hin/?aid=114993&aff_adid=1232047&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124109853205-114993-1232047-bf744e0'
+                }
+                ],
+                '一日遊': [
+                {
+                    title: '華欣拷汪宮一日遊',
+                    description: '探索華欣之美，這座度假小鎮過去是泰國皇室的避暑勝地。',
+                    link: 'https://www.klook.com/zh-TW/activity/2577-phra-nakhon-khiri-tham-khao-luang-hua-hin-thailand/?aid=114993&aff_adid=1231907&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124092967559-114993-1231907-ad507d9'
+                },
+                {
+                    title: '三百峰國家公園',
+                    description: '參觀洞內神秘的涼亭，欣賞美麗的海灘和徒步旅行;在荷花池乘船遊覽，欣賞美麗的景色',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232046&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F77299-khao-sam-roi-yod-nature-tour-experience-start-from-hua-hin%2F'
+                },
+                {
+                    title: '華欣熱門景點與Monsoon Valley Vineyards葡萄園之旅',
+                    description: '在前往筷子山 (เขาตะเกียบ) 的旅途中，盡情享受頑皮猴子的樂趣。參觀匯蒙坤寺 (วัดห้วยมงคล)，這裡供奉著巨大的龍普托 (หลวงพ่อทวด) 雕像。在華欣火車站 (สถานีรถไฟหัวหิน) 感受泰國火車站的獨特魅力和經典氛圍,透過參觀 Monson Valley (ไร่องุ่นมอนซูน แวลลีย์) 葡萄園，深入了解葡萄酒的生產過程。',
+                    link: 'https://www.klook.com/zh-TW/activity/4142-hua-hin-highlights-monsoon-valley-vineyards-tour-hua-hin/?aid=114993&aff_adid=1232049&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124110007631-114993-1232049-0d64643'
+                },
+                {
+                    title: '華欣Sam Roi Yot國家公園私人一日遊',
+                    description: '沉浸在拷森羅伊國家公園（Khao Sam Roi Yot National Park）的寧靜氛圍中享受愉快的乘船遊覽，欣賞周圍令人歎為觀止的美景，探索帕亞那空山洞，欣賞附近潔白的沙灘',
+                    link: 'https://www.klook.com/zh-TW/activity/74146-khao-sam-roi-yot-customize-tour/?aid=114993&aff_adid=1232050&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124110171271-114993-1232050-8b9271f'
+                },
+                {
+                    title: '曼谷華欣鐵道與海灘一日遊(曼谷出發)',
+                    description: '石洞佛寺.拷汪宮.華欣火車站.華欣海灘',
+                    link: 'https://www.klook.com/zh-TW/activity/9759-leisurely-day-tour-hua-hin-bangkok/?aid=114993&aff_adid=1232051&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124110292988-114993-1232051-ccb6823'
+                },
+                {
+                    title: '華欣泰式料理烹飪課程',
+                    description: '向來自泰國的專家學習如何烹飪道地的泰國菜！在友善的指導員的幫助下，輕鬆做出道地的泰國美食，造訪當地市場採購最新鮮的食材，了解泰國菜美味的秘訣，無論是初學者還是專家，這個課程都適合所有人！',
+                    link: 'https://www.klook.com/zh-TW/activity/4310-thai-cooking-course-hua-hin/?aid=114993&aff_adid=1232052&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124110586487-114993-1232052-8d69cec'
+                }
+                ],
+                '按摩SPA': [
+                {
+                    title: '華欣 Let\'s Relax Spa 華欣 100 店',
+                    description: 'Let\'s Relax Spa以物超所值的優質服務聞名，擁有超過20年的豐富經驗；榮獲多項SPA大獎，包括「泰國最受歡迎日間SPA」，並獲《寂寞星球》旅遊指南推薦',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232054&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F4392-let\'s-relax-spa-hua-hin%2F'
+                },
+                {
+                    title: '華欣凱悅酒店 THE BARAI水療中心按摩',
+                    description: '',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232055&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F17248-barai-spa-hyatt-regency-hua-hin%2F'
+                },
+                {
+                    title: '華欣安納塔拉度假飯店安納塔拉水療中心',
+                    description: '',
+                    link: 'https://www.klook.com/zh-TW/activity/135194-anantara-spa-at-anantara-hua-hin-resort/?aid=114993&aff_adid=1232057&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124111016559-114993-1232057-7632a88'
+                },
+                {
+                    title: '華欣阿瑪瑞度假飯店 Breeze Spa 按摩體驗',
+                    description: '',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232059&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F64270-breeze-spa-amari-hua-hin-massage%2F'
+                }
+                ],
+                '交通及E-sim': [
+                {
+                    title: 'E-SIM',
+                    description: '',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232067&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F'
+                },
+                {
+                    title: '華欣私人定製一日遊',
+                    description: '',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232062&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F73610-huahin-private-customize-point-to-point-roundtrips-transfer-service%2F'
+                },
+                {
+                    title: '華欣租車自駕',
+                    description: '',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232063&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fcar-rentals%2Fresults%2F%3Fpick%3DHua%2520Hin%2520Railway%2520Station%26drop%3DHua%2520Hin%2520Railway%2520Station%26diffLoc%3Dfalse%26pDate%3D2026-03-11%252010%3A00%26dDate%3D2026-03-14%252010%3A00%26age%3D30%26lat%3D12.5673417%26long%3D99.9547101%26dLat%3D12.5673417%26dLong%3D99.9547101%26code%3DTH%26dCode%3DTH%26iata%3D%26dIata%3D'
+                },
+                {
+                    title: '華欣合乘巴士交通服務',
+                    description: '',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232060&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F44571-shared-bus-transfer-hua-hin-bangkok%2F'
+                }
+                ]
+            },
+            '芭達雅': {
+                '交通及E-sim': [
+                {
+                    title: 'E-SIM',
+                    description: '最優惠的 eSIM 方案!App內一鍵開通，一秒加值用多少買多少! 啟用前可取消、使用期間網路「不穩就退」，安心有保障，24小時LINE中文客服，零時差為你服務',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232067&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F'
+                },
+                {
+                    title: '機場接送',
+                    description: '機場到市區&芭達雅 ＆ 大城 ＆ 華欣 ＆ 周邊城市私人接送',
+                    link: 'https://www.klook.com/zh-TW/activity/30353-private-city-transfers-bangkok-pattaya-ayutthaya-hua-hin/?spm=SearchResult.SearchResult_LIST&clickId=5975eee923'
+                },
+                {
+                    title: '曼谷-芭達雅巴士/小巴票',
+                    description: '',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232100&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F9820-shared-city-transfers-between-pattaya-and-bangkok%2F'
+                }
+                ],
+                '一日遊': [
+                {
+                    title: '格蘭島一日遊（含水上活動）- 芭達雅出發',
+                    description: '展開格蘭島浮潛一日遊，探索泰國小珊瑚島的迷人水上風光，跳上豪華快艇或遊艇，沿芭達雅海岸線航行，展開小島之旅，體驗水上摩托車、香蕉船，趣味萬分的水上活動應有盡有',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232103&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F1168-coral-island-snorkeling-tour-pattaya%2F'
+                },
+                {
+                    title: '芭達雅大象叢林保護區體驗',
+                    description: '與大象一起玩耍、觸摸和餵食',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232105&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F8053-elephant-jungle-sanctuary-pattaya-experience%2F'
+                },
+                {
+                    title: '芭堤雅島：Koh Larn 和 Koh Sak 一日遊及水上活動',
+                    description: '通過滑翔傘、海底漫步或乘坐水上摩托艇、香蕉船，追逐海風，乘風破浪！ 以及其他刺激的水上活動',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232107&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F43117-water-activity-koh-larn%2F'
+                },
+                {
+                    title: 'Tappia海上咖啡廳釣小管 芭達雅',
+                    description: '在船上享受釣小管的樂趣！您釣到的小管，主廚將為您烹製成生魚片或燒烤。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232111&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F58264-tappia-floating-cafe-pattaya-pattaya%2F'
+                },
+                {
+                    title: '芭達雅雙人高空跳傘體驗',
+                    description: '參加這項驚險刺激的跳傘活動，從地面13500 英尺的高空俯瞰泰國灣和芭達雅',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232112&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F13959-tandem-skydiving-pattaya%2F'
+                }
+                ],
+                '門票': [
+                {
+                    title: '真理寺門票',
+                    description: '座落於絕美的海傍，整座建築沒有使用一根金屬釘子，全由精湛的木雕卡榫工藝拼接而成。它不僅是一棟宏偉的建築，每個角落的雕刻都蘊含著哲學與宗教神話故事。非常適合喜歡文化深度、建築美學，以及想拍出壯闊美照的旅客。',
+                    link: 'https://www.klook.com/zh-TW/activity/1109-the-sanctuary-of-truth-pattaya/'
+                },
+                {
+                    title: '芭達雅東芭樂園門票',
+                    description: '佔地極廣的休閒園區，擁有精心設計的各式主題花園（如法國花園、仙人掌園、蘭花園等），還有一比一打造、極具震撼力的恐龍造景區。園內腹地廣大，非常適合全家大小一起散步、踏青與拍照。',
+                    link: 'https://www.klook.com/zh-TW/activity/335-nong-nooch-tropical-garden-pattaya/'
+                },
+                {
+                    title: '蒂芬妮人妖秀門票',
+                    description: '這是泰國歷史最悠久、最具代表性的跨性別歌舞秀。擁有極度華麗的舞台佈景、璀璨精緻的服裝設計，以及表演者專業的對嘴與舞蹈演出。整體節目水準極高，是體驗泰國獨特夜間娛樂文化的絕佳選擇。',
+                    link: 'https://www.klook.com/zh-TW/activity/336-tiffanys-show-pattaya/'
+                },
+                {
+                    title: '芭堤雅哥倫比亞影業水世界門票',
+                    description: '將《魔鬼剋星》、《野蠻遊戲》、《尖叫旅社》等知名電影場景搬進現實。園內提供刺激的高速滑水道、造浪池、漂語河，以及專為兒童設計的戲水區。無論是追求心跳加速的年輕人，還是帶小孩放電的家庭，都能在這裡瘋狂消暑。',
+                    link: 'https://www.klook.com/zh-TW/activity/85772-columbia-pictures-aquaverse-admission-ticket/'
+                },
+                {
+                    title: '芭堤雅海底世界門票',
+                    description: '帶領遊客沉浸式探索泰國灣的海洋生態。最受歡迎的設施是長長的海底隧道，可以近距離觀賞鯊魚、巨型魟魚與五顏六色的熱帶魚群從頭頂優游而過。作為一個不受日曬雨淋影響的室內景點，安排起來非常輕鬆且療癒。',
+                    link: 'https://www.klook.com/zh-TW/activity/1106-underwater-world-pattaya/'
+                },
+                {
+                    title: '芭達雅綠山野生動物園門票',
+                    description: '泰國最大的開放式野生動物園，主打零距離互動與餵食體驗。',
+                    link: 'https://www.klook.com/zh-TW/activity/338-khao-kheow-open-zoo-pattaya/'
+                },
+                {
+                    title: '芭堤雅藝術天堂門票',
+                    description: '館內擁有超過百幅栩栩如生的 3D 立體壁畫，劃分為海底世界、野生動物、奇幻冒險等多個主題區。這裡的畫作需要遊客親自「走入畫中」互動，利用視覺錯位拍出驚險、搞笑或充滿創意的照片',
+                    link: 'https://www.klook.com/zh-TW/activity/337-art-in-paradise-pattaya/'
+                },
+                {
+                    title: '芭堤雅89成人秀門票',
+                    description: '探索芭達雅獨特、大膽且充滿感官刺激的夜生活文化（僅限18歲以上）。',
+                    link: 'https://www.klook.com/zh-TW/activity/20608-89-adult-show-ticket-pattaya/'
+                }
+                ],
+                '餐廳': [
+                {
+                    title: '芭達雅 King Seafood Waterfront Dining 自助餐',
+                    description: '海濱第一排享受一邊吹海風、賞海景，一邊大啖各式新鮮海產的自助餐體驗。餐廳提供豐富的海鮮選擇，包含鮮蝦、螃蟹、貝類與各式泰式風味料理。這不僅是一場滿足味蕾的美食饗宴，更是傍晚看夕陽或欣賞芭達雅浪漫夜景的絕佳去處，非常適合安排在一天充實的行程後，用澎湃的海鮮大餐好好犒賞自己。',
+                    link: 'https://www.klook.com/zh-TW/activity/180524-king-seafood-pattaya-fresh-seafood-buffet/?spm=SearchResult.SearchResult_LIST&clickId=4e648c7f50'
+                },
+                {
+                    title: '芭達雅 Akara 飯店 Thale 海鮮吃到飽',
+                    description: '位於芭達雅 Akara Hotel 內的 Thale 餐廳，主打精緻且高水準的海鮮自助餐。相比於戶外的海景餐廳或傳統大排檔，這裡提供冷氣開放、現代且舒適的星級飯店用餐氛圍。餐點主打新鮮的生蠔、各式蝦蟹貝類、生魚片，以及多樣化的泰式與國際精緻料理。',
+                    link: 'https://www.klook.com/zh-TW/activity/187624-seafood-buffet-at-thale-akara-hotel-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=be12d5fd92'
+                },
+                {
+                    title: '芭達雅 Virgin 屋頂酒吧，坐擁全景海灘美景',
+                    description: '坐擁芭達雅絕佳的高空全景海景，結合精緻調酒與浪漫氛圍。',
+                    link: 'https://www.klook.com/zh-TW/activity/184151-virgin-rooftop-pattaya-with-panorama-beachview/?spm=SearchResult.SearchResult_LIST&clickId=d4444c4b8b'
+                }
+                ],
+                '按摩SPA': [
+                {
+                    title: '芭堤雅Baansuan按摩體驗',
+                    description: '充滿熱帶花園風情的平價高 CP 值道地按摩。',
+                    link: 'https://www.klook.com/zh-TW/activity/91962-baansuan-tropical-health-massage-thailand-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=e14777b692'
+                },
+                {
+                    title: 'Let\'s Relax Spa按摩水療體驗（芭達雅格蘭德中心點飯店Terminal 21）',
+                    description: '泰國最知名的頂級連鎖 Spa 品牌，交通與購物極度便利。',
+                    link: 'https://www.klook.com/zh-TW/activity/13369-lets-relax-spa-treatment-packages-pattaya-beachfront-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=f64b820aed'
+                },
+                {
+                    title: '芭達雅Grand Center Point Space飯店的Let\'s Relax溫泉水療中心',
+                    description: '結合星際太空主題飯店的高級「日式溫泉 + 泰式 Spa」雙重享受。',
+                    link: 'https://www.klook.com/zh-TW/activity/74145-lets-relax-onsen-spa-grand-center-point-space-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=07e56b4db0'
+                },
+                {
+                    title: '芭達雅 Grace Spa',
+                    description: '原汁原味的傳統泰式柚木建築，沉浸式文化水療體驗。',
+                    link: 'https://www.klook.com/zh-TW/activity/10085-grace-spa-massage-treatment-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=1e46bc7aa6'
+                },
+                {
+                    title: '芭達雅湯之森日式溫泉 & Spa體驗',
+                    description: '極致道地的日式禪意溫泉與泰式古法按摩的完美結合。',
+                    link: 'https://www.klook.com/zh-TW/activity/9852-yunomori-onsen-spa-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=734435d504'
+                }
+                ]
+            },
+            '大城': {
+                '一日遊': [
+                {
+                    title: '大城府 (Ayutthaya) 遺跡一日遊',
+                    description: '前往曼谷北部的世界文化遺產古都，欣賞壯觀的佛塔遺跡、歷史斑駁的寺廟與著名的「樹中佛頭」。',
+                    link: 'https://www.klook.com/zh-TW/activity/33742-ayuthaya-must-visit-temples-tour-bangkok/?aid=114993&aff_adid=1232024&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124108105254-114993-1232024-c92bb96'
+                },
+                {
+                    title: '大城必遊之旅：夏宮、寺廟一日遊',
+                    description: '夏日行宮融合了泰式、中式和歐式建築風格。走訪瑪哈泰寺(樹根纏繞佛頭)、拉嘉布拉那寺、帕席桑佩寺與崖差蒙空寺。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232025&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F127780-ayutthaya-must-visit-tour-summer-palace-temples-full-day%2F'
+                },
+                {
+                    title: '（免費eSIM卡）大城府新動物園 & 必看寺廟 & 泰式服裝體驗(曼谷出發)',
+                    description: '在曼谷最新的動物園與動物親密接觸,體驗傳統泰式服裝，並有機會拍照留念',
+                    link: 'https://www.klook.com/zh-TW/activity/100262-ayutthaya-cafe-thai-costume-tour/?spm=SearchResult.SearchResult_LIST&clickId=8dee1fdb79'
+                },
+                {
+                    title: '大城全日私人聯合國教科文組織世界遺產之旅(包車)',
+                    description: '帶您輕鬆前往名列聯合國教科文組織世界遺產的古都「大城府（Ayutthaya）」。行程不僅會造訪經典的「瑪哈泰寺」（著名的樹中佛頭）與超適合換上傳統泰服拍照的「柴瓦塔那蘭寺」，最大的特色是融入了年輕人喜愛的打卡熱點——您可以彈性選擇前往坐擁遼闊稻田景觀的「Rakna 咖啡廳」享受悠閒午後，或是到著名的「大城河蝦市場」大啖現烤的生猛大頭蝦。非常適合不想與陌生人併團、渴望擁有私人空間且彈性探索泰國古都魅力的旅客。',
+                    link: 'https://www.klook.com/zh-TW/activity/175886-ayutthaya-one-day-private-temple-cafe-tour-from-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=2012bcec22'
+                }
+                ],
+                '交通及E-sim': [
+                {
+                    title: 'E-SIM',
+                    description: '最優惠的 eSIM 方案!App內一鍵開通，一秒加值用多少買多少! 啟用前可取消、使用期間網路「不穩就退」，安心有保障，24小時LINE中文客服，零時差為你服務',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232067&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F'
+                },
+                {
+                    title: '機場接送',
+                    description: '機場到市區&芭達雅 ＆ 大城 ＆ 華欣 ＆ 周邊城市私人接送',
+                    link: 'https://www.klook.com/zh-TW/activity/30353-private-city-transfers-bangkok-pattaya-ayutthaya-hua-hin/?spm=SearchResult.SearchResult_LIST&clickId=5975eee923'
+                }
+                ]
+            },
+            '北碧府': {
+                '一日遊': [
+                {
+                    title: '北碧府野生動物園和桂河大橋',
+                    description: '在開放式動物園與各種動物直接互動，近距離觀察不同的動物！最棒的是可以近距離接觸長頸鹿、斑馬、駱駝和其他動物，並近距離餵食。',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231986&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F73965-kanchanaburi-safari-park-from-bangkok-by-ak-travel%2F'
+                },
+                {
+                    title: '北碧府精華景點一日遊',
+                    description: '回溯歷史，在桂河大橋上感受北碧府的輝煌與悲劇，探尋二戰著名地標死亡鐵路，沿著河畔的歷史街道漫步，感受當地美食，收穫一段充滿教育意義的旅程。',
+                    link: 'https://www.klook.com/zh-TW/activity/13209-kanchanaburi-full-day-tour-by-ak-travel-kanchanaburi/?aid=114993&aff_adid=1231989&aff_pid=&aff_sid=&utm_medium=affiliate-alwayson&utm_source=non-network&utm_campaign=114993&utm_term=&utm_content=&aff_klick_id=124105068560-114993-1231989-dc0fc5d'
+                },
+                {
+                    title: '北碧精華一日遊：野生動物園、茉莉之城、桂河大橋、死亡鐵路等多線路選擇（可選購吉普車長頸鹿套餐）(曼谷出發)',
+                    description: '行程會帶您搭乘充滿歷史意義的「死亡鐵路」復古火車駛過桂河大橋與懸崖；接著前往超人氣的野生動物園（Safari Park），體驗被呆萌長頸鹿探頭進車窗討食的驚喜；最後還會安排造訪能眺望虎穴寺的唯美稻田咖啡廳（如 Meena Cafe）或是充滿復古風情的茉莉之城。這裡充滿了強烈的視覺與故事感，無論是長頸鹿的可愛互動，還是行駛在木造棧橋上的老火車，都非常適合化作水彩或色鉛筆風格的可愛手繪插圖。',
+                    link: 'https://www.klook.com/zh-TW/activity/78677-kanchanaburi-historical-instagrammable-photogenic-routes-one-day-tour-from-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=430a7c3248'
+                }
+                ],
+                '交通及E-sim': [
+                {
+                    title: 'E-SIM',
+                    description: '最優惠的 eSIM 方案!App內一鍵開通，一秒加值用多少買多少! 啟用前可取消、使用期間網路「不穩就退」，安心有保障，24小時LINE中文客服，零時差為你服務',
+                    link: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1232067&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F'
+                },
+                {
+                    title: '機場接送',
+                    description: '機場到市區&芭達雅 ＆ 大城 ＆ 華欣 ＆ 周邊城市私人接送',
+                    link: 'https://www.klook.com/zh-TW/activity/30353-private-city-transfers-bangkok-pattaya-ayutthaya-hua-hin/?spm=SearchResult.SearchResult_LIST&clickId=5975eee923'
+                }
+                ]
+            }
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState('曼谷');
+            const [selectedCategory, setSelectedCategory] = useState('門票');
+
+            // 取得當前選定地區與分類的資料
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+                    {/* 頂部導覽列 */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10">
+                        <div className="max-w-5xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <MapPin className="text-orange-500 w-6 h-6 md:w-8 md:h-8" />
+                                <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-500">
+                                泰國自由行探索指南
+                                </h1>
+                            </div>
+                            
+                            {/* 地區選擇按鈕 */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                {/* 回到首頁按鈕 */}
+                                <a
+                                    href="https://linkuei0425.github.io/BANGKOK/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    回到首頁
+                                </a>
+
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            // 判斷該地區可用的分類，若目前選擇的分類不在其中，則自動切換至第一個可用分類
+                                            const allowed = getAvailableCategoryIds(region);
+                                            if (!allowed.includes(selectedCategory)) {
+                                                setSelectedCategory(allowed[0]);
+                                            }
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                                            selectedRegion === region
+                                            ? 'bg-slate-800 text-white shadow-md'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-5xl mx-auto px-4 py-6">
+                        {/* 分類標籤 */}
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                            {CATEGORIES.filter(cat => getAvailableCategoryIds(selectedRegion).includes(cat.id)).map(({ id, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSelectedCategory(id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                        selectedCategory === id
+                                        ? 'border-orange-500 bg-orange-50 text-orange-600 shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {id}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* 內容區域標題 */}
+                        <div className="mb-6">
+                            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                {selectedRegion} - {selectedCategory} 精選推薦
+                            </h2>
+                        </div>
+
+                        {/* 項目列表 */}
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                {currentData.map((item, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 md:p-6 flex flex-col justify-between hover:shadow-md transition-shadow"
+                                    >
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight">
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                        
+                                        {/* 詳細說明連結按鈕 */}
+                                        <div className="mt-auto pt-4 border-t border-slate-50 flex justify-end">
+                                            <a
+                                                href={item.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 px-5 rounded-lg transition-colors w-full sm:w-auto"
+                                            >
+                                                <Info className="w-4 h-4" />
+                                                <span>詳細說明與預訂</span>
+                                                <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            /* 無資料時的空狀態提示 */
+                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
+                                <div className="bg-slate-50 p-4 rounded-full mb-4">
+                                    <Sparkles className="w-8 h-8 text-slate-400" />
+                                </div>
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                                    目前 {selectedRegion} 尚未新增「{selectedCategory}」的推薦項目
+                                </h3>
+                                <p className="text-slate-500">
+                                    我們正在為您整理最優質的行程資料，敬請期待！
+                                </p>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        // 渲染 React 應用程式到 DOM
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

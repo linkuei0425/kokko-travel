@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>曼谷購物精選指南 | Bangkok Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 自訂捲軸樣式（針對分類按鈕區塊） */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .tab-btn.active {
+            background-color: #ec4899; /* Pink-500 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.3);
+            border-color: #ec4899;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- 頂部導覽列 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-pink-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>BKK SHOPPING</span>
+                </div>
+                <div>
+                    <!-- 回到首頁連結 -->
+                    <a href="https://linkuei0425.github.io/BANGKOK/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> 回到首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 橫幅區域 -->
+    <header class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">曼谷必買購物精選指南</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">精選 50 間曼谷人氣店鋪，從潮牌、藥妝到香氛寵物，跟著地圖輕鬆買爆曼谷！</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 分類按鈕區 (可橫向滾動) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('streetwear', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-pink-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛹</span> 潮牌推薦
+            </button>
+            <button onclick="filterCategory('pharmacy', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-pink-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💊</span> 藥品推薦
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-pink-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> 美妝推薦
+            </button>
+            <button onclick="filterCategory('fragrance', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-pink-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🌿</span> 香氛推薦
+            </button>
+            <button onclick="filterCategory('pet', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-pink-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🐾</span> 寵物用品
+            </button>
+        </div>
+
+        <!-- 內容呈現區 -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 卡片將透過 JavaScript 動態生成 -->
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">© 2026 Bangkok Shopping Guide. 為你的曼谷之旅提供最佳建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 店家資料庫
+        const shopData = [
+            // --- 潮牌推薦 ---
+            { cat: 'streetwear', name: 'Gentlewoman', feature: '泰國目前最火紅的帆布包、字體 Logo 服飾', loc: 'Siam Square 旗艦店', transit: 'BTS Siam 站，步行 3 分鐘' },
+            { cat: 'streetwear', name: 'Daddy and the Muscle Academy', feature: '極度可愛的復古插畫風、美式少女街頭服飾', loc: 'Siam Square Soi 2', transit: 'BTS Siam 站，步行 4 分鐘' },
+            { cat: 'streetwear', name: 'Carnival', feature: '泰國頂級街頭球鞋選物店，常有獨家聯名款', loc: 'Siam Square Soi 7', transit: 'BTS Siam 站，步行 5 分鐘' },
+            { cat: 'streetwear', name: 'Matchbox', feature: '匯集數十個泰國 IG 熱門網拍品牌的實體選物店', loc: 'Siam Square', transit: 'BTS Siam 站，步行 3 分鐘' },
+            { cat: 'streetwear', name: 'Frank Garcon', feature: '中性街頭風，提供服飾、文具與生活質感小物', loc: 'Siam Square Soi 2', transit: 'BTS Siam 站，步行 4 分鐘' },
+            { cat: 'streetwear', name: 'Tres Fashion', feature: '泰國設計師品牌集合店，風格清新微辣', loc: 'Siam Square Soi 5', transit: 'BTS Siam 站，步行 4 分鐘' },
+            { cat: 'streetwear', name: 'Mitr', feature: '泰式度假風與日常街頭結合，版型非常修飾', loc: 'Siam Center 2F', transit: 'BTS Siam 站，商場連通道' },
+            { cat: 'streetwear', name: 'Pomelo', feature: '號稱泰國版 Zara，剪裁俐落且款式更新極快', loc: 'Central World', transit: 'BTS Chit Lom 站，步行 5 分鐘' },
+            { cat: 'streetwear', name: 'V.A.C. (Vii Athletic Club)', feature: '美式街頭文化與泰國在地元素結合的潮牌', loc: 'Siam Square Soi 1', transit: 'BTS Siam 站，步行 4 分鐘' },
+            { cat: 'streetwear', name: 'Boyy', feature: '泰國揚名國際的精品級包款，經典方扣設計', loc: 'Gaysorn Village', transit: 'BTS Chit Lom 站，步行 3 分鐘' },
+
+            // --- 藥品推薦 ---
+            { cat: 'pharmacy', name: 'Big C Supercenter', feature: '鼻吸劑、五塔散、青草膏（適合整打大量採購）', loc: 'Rajdamri 總店', transit: 'BTS Chit Lom 站，步行 7 分鐘' },
+            { cat: 'pharmacy', name: 'Boots', feature: '英國連鎖，獨家販售泰國 Sabai-Arom 草本系列', loc: '各大商場皆有 (如 Siam Paragon)', transit: '各大 BTS 站商場內' },
+            { cat: 'pharmacy', name: 'Watsons 屈臣氏', feature: '常有泰國在地保健品、維他命與防蚊液促銷', loc: '各大商場皆有 (如 Central World)', transit: '各大 BTS 站商場內' },
+            { cat: 'pharmacy', name: 'Lab Pharmacy', feature: '走高端路線的藥局，提供專業藥師諮詢與進口藥', loc: 'Silom Complex', transit: 'BTS Sala Daeng 站，商場內' },
+            { cat: 'pharmacy', name: 'Fascino', feature: '泰國本土最具規模的專業連鎖藥局，醫療耗材齊全', loc: '曼谷市區多間分店', transit: '依各分店位置為主' },
+            { cat: 'pharmacy', name: 'Health Up', feature: '泰國常見連鎖藥局，傳統泰藥與現代保健品並重', loc: '各大百貨與 Big C 內', transit: '依各分店位置為主' },
+            { cat: 'pharmacy', name: 'Tsuruha 鶴羽藥妝', feature: '結合日系感冒藥與泰國本土常備藥', loc: 'Gateway Ekamai', transit: 'BTS Ekkamai 站，連通道直達' },
+            { cat: 'pharmacy', name: 'Matsumoto Kiyoshi', feature: '日本原裝藥品齊全，曼谷的最佳日藥選擇', loc: 'Central World', transit: 'BTS Chit Lom 站' },
+            { cat: 'pharmacy', name: 'Siam Pharmacy', feature: '傳統泰國藥房，價格親民，深受在地人信賴', loc: 'Phloen Chit 區', transit: 'BTS Phloen Chit 站附近' },
+            { cat: 'pharmacy', name: 'Asiatique 藥妝店', feature: '專為外國旅客準備的伴手禮型藥妝（皇家蜂蜜/涼膏）', loc: '碼頭夜市 Asiatique', transit: 'BTS Saphan Taksin 站轉乘免費接駁船' },
+
+            // --- 美妝推薦 ---
+            { cat: 'beauty', name: 'EVEANDBOY', feature: '有「泰國 Sephora」之稱，本土彩妝最齊全', loc: 'Siam Square One', transit: 'BTS Siam 站，商場地下室' },
+            { cat: 'beauty', name: 'Beautrium', feature: '超大型美妝通路，價格常比 EVEANDBOY 更殺', loc: 'Siam Square 旗艦店', transit: 'BTS Siam 站，步行 3 分鐘' },
+            { cat: 'beauty', name: 'Sephora', feature: '國際大牌以及部分獨家引進的泰國高階彩妝品牌', loc: 'Siam Center', transit: 'BTS Siam 站，商場內' },
+            { cat: 'beauty', name: 'KARMART', feature: '擁有 Cathy Doll 等多個平價且包裝可愛的彩妝品牌', loc: 'Siam Square', transit: 'BTS Siam 站，步行 4 分鐘' },
+            { cat: 'beauty', name: 'Oriental Princess', feature: '泰國國民保養品牌，主打身體乳、護髮與天然萃取', loc: 'Big C Rajdamri 一樓', transit: 'BTS Chit Lom 站，步行 7 分鐘' },
+            { cat: 'beauty', name: 'Beauty Buffet', feature: '暢銷全亞洲的「牛奶洗面乳、身體乳」系列', loc: 'MBK Center', transit: 'BTS National Stadium 站，步行 3 分鐘' },
+            { cat: 'beauty', name: 'Mistine Beauty Shop', feature: '泰國第一彩妝品牌專賣，防水眼線筆與粉餅必買', loc: 'MBK Center / Big C', transit: '依各分店位置為主' },
+            { cat: 'beauty', name: 'Multy Beauty', feature: '專攻韓國最新潮流彩妝與泰國本土話題商品', loc: 'Siam Square Soi 5', transit: 'BTS Siam 站，步行 4 分鐘' },
+            { cat: 'beauty', name: 'Gourmet Market 美妝區', feature: '超市內附設的美妝區，有泰國小眾有機保養品牌', loc: 'Siam Paragon G 樓', transit: 'BTS Siam 站，地下超市' },
+            { cat: 'beauty', name: 'KISS Beauty Store', feature: '複合式美妝店，提供許多開架式彩妝試用', loc: 'Central World', transit: 'BTS Chit Lom 站' },
+
+            // --- 香氛推薦 ---
+            { cat: 'fragrance', name: 'Karmakamet', feature: '頂級香氛，包裝極具復古藥房美學', loc: 'Central World / Phrom Phong', transit: 'BTS Chit Lom / Phrom Phong 站' },
+            { cat: 'fragrance', name: 'Panpuri', feature: '奢華有機保養與香氛，許多五星級飯店御用品牌', loc: 'Gaysorn Village', transit: 'BTS Chit Lom 站，步行 3 分鐘' },
+            { cat: 'fragrance', name: 'Copenn.', feature: '爆紅的工業冷淡風小眾香氛，木質調極具質感', loc: 'Charoen Krung (石龍軍路)', transit: 'BTS Saphan Taksin 站，轉計程車 5 分' },
+            { cat: 'fragrance', name: 'Thann', feature: '國際知名泰國 SPA 品牌，紫蘇與木質香氣出名', loc: 'Siam Paragon', transit: 'BTS Siam 站' },
+            { cat: 'fragrance', name: 'Harnn', feature: '主打亞洲草本，天然手工皂與室內擴香非常受歡迎', loc: 'Central World', transit: 'BTS Chit Lom 站' },
+            { cat: 'fragrance', name: 'Journal', feature: '以泰國椰子油為基底，結合泰國文化命名', loc: 'Siam Square One', transit: 'BTS Siam 站' },
+            { cat: 'fragrance', name: 'Erb', feature: '靈感來自皇室古老配方，融合現代精緻香水', loc: 'Central World', transit: 'BTS Chit Lom 站' },
+            { cat: 'fragrance', name: 'Vuudh', feature: '以亞洲各大城市為靈感的室內擴香與香氛蠟燭', loc: 'EmQuartier', transit: 'BTS Phrom Phong 站，商場內' },
+            { cat: 'fragrance', name: 'BsaB', feature: '強調環保天然，使用火山石作為擴香介質', loc: 'Central World', transit: 'BTS Chit Lom 站' },
+            { cat: 'fragrance', name: 'Mt. Sapola', feature: '在地老字號 Home Spa，精油與天然手工皂品質極高', loc: 'Siam Paragon', transit: 'BTS Siam 站' },
+
+            // --- 寵物用品 ---
+            { cat: 'pet', name: '洽圖洽週末市集 (Zone 13-15)', feature: '極度適合批發尋寶，從可愛服飾到配件全都有', loc: 'Chatuchak Weekend Market', transit: 'BTS Mo Chit 或 MRT Kamphaeng Phet 站' },
+            { cat: 'pet', name: 'Pet Safari', feature: '曼谷最高級寵物生活館之一，進口精品與質感牽繩', loc: 'IconSiam 商場內', transit: 'BTS Saphan Taksin 站轉乘免費接駁船' },
+            { cat: 'pet', name: 'Central Eastville', feature: '寵物友善商場，有大量的寵物推車、零食與專櫃', loc: 'Central Eastville', transit: '建議搭乘計程車或 Grab 前往' },
+            { cat: 'pet', name: 'Pet Lovers Centre', feature: '大型連鎖寵物超市，基礎用品與主食一應俱全', loc: 'CentralPlaza Grand Rama 9', transit: 'MRT Phra Ram 9 站，商場內' },
+            { cat: 'pet', name: 'Shamu Shamu Pet Shop', feature: '泰國在地烘焙的高級寵物手工零食與營養品', loc: 'Sukhumvit 49', transit: 'BTS Thong Lo 站，步行約 10 分鐘' },
+            { cat: 'pet', name: 'Moggie Doggie Pet Shop', feature: '精品級貓狗配件，適合找獨特設計款項圈與衣服', loc: 'Thong Lo 區', transit: 'BTS Thong Lo 站，建議轉乘計程車' },
+            { cat: 'pet', name: 'Bone and Yarn', feature: '泰國設計師品牌，高質感、不撞款的牽繩與外出包', loc: 'Ekkamai 區實體店', transit: 'BTS Ekkamai 站，建議轉乘計程車' },
+            { cat: 'pet', name: 'K-PET', feature: '匯集日韓與泰國在地的高性價比寵物玩具', loc: 'Mega Bangna', transit: 'BTS Udom Suk 站轉乘商場免費接駁車' },
+            { cat: 'pet', name: 'Hato Pet Wellness Center', feature: '偏向寵物健康與高級護理，有頂級天然洗毛精', loc: 'Central Eastville', transit: '建議搭乘計程車或 Grab 前往' },
+            { cat: 'pet', name: 'Good Dog Club', feature: '泰國本土網紅寵物店，服飾風格充滿童趣與潮流感', loc: '各大文創市集或快閃店', transit: '可於 Siam 區商場快閃店尋找' }
+        ];
+
+        // 負責渲染卡片的函數
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; // 清空現有內容
+
+            const filteredData = shopData.filter(item => item.cat === category);
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; // 簡單的進場動畫延遲
+                
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <i class="fa-solid fa-star text-yellow-400 mt-1 mr-3 w-4 text-center"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 font-semibold mb-1">特色商品</p>
+                                <p class="text-sm text-gray-700">${shop.feature}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fa-solid fa-location-dot text-red-400 mt-1 mr-3 w-4 text-center"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 font-semibold mb-1">購買地點</p>
+                                <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fa-solid fa-train-subway text-indigo-400 mt-1 mr-3 w-4 text-center"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 font-semibold mb-1">交通方式</p>
+                                <span class="inline-block bg-indigo-50 text-indigo-700 text-xs px-2 py-1 rounded-md font-medium">${shop.transit}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 點擊分類按鈕的處理邏輯
+        function filterCategory(category, btnElement) {
+            // 移除所有按鈕的 active 狀態
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            // 為當前點擊的按鈕加上 active 狀態
+            btnElement.classList.add('active');
+
+            // 渲染對應的資料
+            renderCards(category);
+        }
+
+        // 新增簡單的進場動畫 CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 初始載入時顯示第一類 (潮牌推薦)
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('streetwear', firstBtn);
+        };
+    </script>
+</body>
+</html>

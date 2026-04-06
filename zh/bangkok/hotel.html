@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>曼谷住宿推薦指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自訂滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        
+        /* 區域按鈕樣式 */
+        .area-btn-active {
+            background-color: #1e40af; /* blue-800 */
+            color: white;
+            border-color: #1e40af;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #f3f4f6; /* gray-100 */
+            color: #1f2937;
+        }
+
+        /* 分類按鈕樣式 */
+        .cat-btn-active {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            border-color: #3b82f6;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #e2e8f0; /* slate-200 */
+            color: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-wide">🇹🇭 曼谷住宿推薦指南</h1>
+                <a href="https://linkuei0425.github.io/BANGKOK/" class="inline-flex items-center px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-bold rounded-lg transition-colors shadow-sm">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    回到首頁
+                </a>
+            </div>
+            <p class="text-slate-500 text-sm md:text-base">選擇區域與住宿類型，快速探索專屬推薦清單</p>
+        </header>
+
+        <!-- 第一層：8 個區域按鈕 -->
+        <div id="district-buttons" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <!-- 區域按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 第二層：3 個分類按鈕 -->
+        <div id="category-buttons" class="grid grid-cols-3 gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-slate-200 hidden">
+            <!-- 分類按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 內容顯示區 -->
+        <div id="content-area" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-slate-400 pt-20 pb-20">
+                <p>請點擊上方區域與分類以載入住宿推薦...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 依照用戶最新需求建置的資料結構 (包含專屬連結)
+        const hotelData = {
+            "siam": {
+                name: "暹羅與水門區 (Siam & Pratunam)",
+                categories: {
+                    "五星飯店": [
+                        { name: "Siam Kempinski Hotel Bangkok", feature: "曼谷市中心唯一的度假村風格五星飯店，房間可直通絕美泳池，完美結合奢華與購物便利性。", address: "991/9 Rama I Rd / BTS Siam 站步行 3 分鐘，可由 Siam Paragon 直達。", url: "https://www.trip.com/t/JujjIYT4nT2" },
+                        { name: "Centara Grand at CentralWorld", feature: "位於 CentralWorld 百貨正上方，高樓層擁有知名的高空酒吧 Red Sky，逛街與夜生活一次滿足。", address: "999/99 Rama 1 Rd / BTS Siam 或 Chit Lom 站步行約 5-8 分鐘。", url: "https://www.trip.com/t/8a4qA3V4nT2" },
+                        { name: "Waldorf Astoria Bangkok", feature: "希爾頓集團的頂級奢華品牌，提供極致細膩的服務與高雅的設計，早餐被譽為曼谷最強之一。", address: "151 Ratchadamri Rd / BTS Ratchadamri 站步行 3 分鐘。", url: "https://www.trip.com/t/owfn53W4nT2" },
+                        { name: "InterContinental Bangkok", feature: "經典老牌奢華飯店，近期翻新後更顯摩登，服務穩紮穩打，緊鄰四面佛與頂級百貨商圈。", address: "973 Phloen Chit Rd / BTS Chit Lom 站步行 2 分鐘。", url: "https://www.trip.com/t/dCYdqgW4nT2" },
+                        { name: "Amari Bangkok", feature: "水門市場區的五星地標，過個天橋就能抵達水門市場，非常適合以批發購物為目標的旅客。", address: "847 Phetchaburi Rd / Airport Link Ratchaprarop 站步行 5 分鐘。", url: "https://www.trip.com/t/tTGXSXX4nT2" }
+                    ],
+                    "平價飯店": [
+                        { name: "Novotel Bangkok Platinum Pratunam", feature: "位於白金時尚購物中心（水門市場）樓上，買完東西可以直接送回房間，地理位置無可挑剔。", address: "220 Phetchaburi Rd / BTS Chit Lom 站步行 10 分鐘，或經由空橋步行。", url: "https://www.trip.com/t/H2XAdgY4nT2" },
+                        { name: "The Berkeley Hotel Pratunam", feature: "水門區規模極大的平價大型飯店，對面就是霓虹夜市（現為商圈），房價親民且空間寬敞。", address: "559 Ratchaprarop Rd / Airport Link Ratchaprarop 站步行 8 分鐘。", url: "https://www.trip.com/t/ZKvQLdZ4nT2" },
+                        { name: "Holiday Inn Express Bangkok Siam", feature: "鄰近 MBK 商場與國家體育場，標準化的連鎖品質，附贈免費早餐，CP 值極高。", address: "889 Rama I Rd / BTS National Stadium 站步行 2 分鐘。", url: "https://www.trip.com/t/08eVlRa4nT2" },
+                        { name: "GLOW Pratunam", feature: "藏身於水門區商場樓上的精品飯店，設計現代年輕，是許多代購與自由行旅客的最愛。", address: "919 Phetchaburi Rd / Airport Link Ratchaprarop 站步行 10 分鐘。", url: "" },
+                        { name: "Baiyoke Sky Hotel", feature: "曾是泰國最高樓，雖然設施較有年代感，但高樓層景觀無敵，且價格在水門區非常實惠。", address: "222 Ratchaprarop Rd / Airport Link Ratchaprarop 站步行 5 分鐘。", url: "" }
+                    ],
+                    "青年旅館": [
+                        { name: "Bed Station Hostel Ratchathewi", feature: "工業風設計，交誼廳氛圍極佳，非常容易認識各國背包客，設施乾淨完善。", address: "486/149-150 Phetchaburi 16 / BTS Ratchathewi 站步行 2 分鐘。", url: "https://www.trip.com/t/Nf8rrfd4nT2" },
+                        { name: "Lub d Bangkok Siam", feature: "曼谷最知名的連鎖青旅品牌之一，色彩鮮豔活潑，位於 Siam 商圈核心地帶。", address: "925/9 Rama I Rd / BTS National Stadium 站步行 1 分鐘。", url: "https://www.trip.com/t/bvV6VGe4nT2" },
+                        { name: "Boxpackers Hostel Pratunam", feature: "以膠囊旅館概念設計的木質調青旅，隱私性極高，床鋪舒適度在青旅中名列前茅。", address: "39/4 Phetchaburi 15 / BTS Phaya Thai 站步行 10 分鐘。", url: "https://www.trip.com/t/G3lET5f4nT2" },
+                        { name: "Chao Hostel", feature: "結合泰國傳統高腳屋元素的木質設計，環境清幽且非常有質感，完全不像平價青旅。", address: "865 Rama I Rd (Siam@Siam 飯店同棟) / BTS National Stadium 站步行 3 分鐘。", url: "https://www.trip.com/t/WS9V7hf4nT2" },
+                        { name: "The Posh Phayathai", feature: "號稱「精品級青旅」，頂樓有超美的小泳池和免費零食吧，緊鄰機場快線，交通完美。", address: "55/21-23 Phayathai Rd / BTS/Airport Link Phaya Thai 站步行 1 分鐘。", url: "https://www.trip.com/t/XkXw1Jg4nT2" }
+                    ]
+                }
+            },
+            "sukhumvit": {
+                name: "素坤逸區 (Sukhumvit)",
+                categories: {
+                    "五星飯店": [
+                        { name: "Bangkok Marriott Marquis Queen’s Park", feature: "曼谷規模最大的五星飯店之一，緊鄰班哲希利公園，Goji Kitchen 的自助餐評價極高。", address: "199 Sukhumvit Soi 22 / BTS Phrom Phong 站步行 8 分鐘。", url: "https://www.trip.com/t/KRJ796h4nT2" },
+                        { name: "Sofitel Bangkok Sukhumvit", feature: "濃厚的法式優雅風情，設有知名的 L'Appart 頂樓法式餐廳與酒吧，空橋直達捷運。", address: "189 Sukhumvit Rd / BTS Asok 站步行 5 分鐘。", url: "https://www.trip.com/t/dJm77ph4nT2" },
+                        { name: "Sheraton Grande Sukhumvit", feature: "充滿熱帶叢林風格的造型泳池是一大亮點，雖然是老字號但維護極佳，服務有口皆碑。", address: "250 Sukhumvit Rd / BTS Asok 站步行 2 分鐘（有空橋直達）。", url: "https://www.trip.com/t/EE9t7oi4nT2" },
+                        { name: "The Westin Grande Sukhumvit", feature: "以「天夢之床 (Heavenly Bed)」聞名，睡眠品質絕佳，對面就是 Terminal 21 購物中心。", address: "259 Sukhumvit Rd / BTS Asok 站步行 3 分鐘。", url: "https://www.trip.com/t/b8mynVj4nT2" },
+                        { name: "Grande Centre Point Terminal 21", feature: "樓下就是 Terminal 21 百貨與 BTS 轉乘大站，房間配有微波爐和洗脫烘衣機，便利性滿分。", address: "2 Sukhumvit Soi 19 / BTS Asok 站步行 1 分鐘。", url: "https://www.trip.com/t/eafgAmk4nT2" }
+                    ],
+                    "平價飯店": [
+                        { name: "Arte Hotel", feature: "巷弄內的平價精品飯店，頂樓擁有視野極佳的無邊際泳池，鬧中取靜。", address: "29 Sukhumvit Soi 19 / BTS Asok 站步行 5 分鐘。", url: "https://www.trip.com/t/NqqzxOm4nT2" },
+                        { name: "Holiday Inn Express Bangkok Sukhumvit 11", feature: "位於熱鬧的夜生活巷弄 Soi 11 內，周邊酒吧餐廳林立，適合喜歡夜生活的旅客。", address: "14 Sukhumvit Soi 11 / BTS Nana 站步行 8 分鐘。", url: "https://www.trip.com/t/wQog8Up4nT2" },
+                        { name: "Travelodge Sukhumvit 11", feature: "現代簡約的平價飯店，頂樓有小巧的泳池，周邊吃喝玩樂機能極為豐富。", address: "14 Sukhumvit Soi 11 / BTS Nana 站步行 10 分鐘。", url: "https://www.trip.com/t/VtHtxFr4nT2" },
+                        { name: "S15 Sukhumvit Hotel", feature: "位於主幹道上的商務精品飯店，雖然不大但設計典雅，過馬路就是韓國城 (Korean Town)。", address: "217 Sukhumvit Rd / BTS Asok 站步行 4 分鐘。", url: "https://www.trip.com/t/WHsZbxr4nT2" }
+                    ],
+                    "青年旅館": [
+                        { name: "3Howw Hostel at Sukhumvit 21", feature: "清水模與木質混搭的文青風格，提供免費簡單早餐與舒適的膠囊床位。", address: "32/9 Sukhumvit 21 / BTS Asok 站步行 8 分鐘。", url: "https://www.trip.com/t/Jpc8Ops4nT2" },
+                        { name: "Rezt Bangkok", feature: "隱藏在巷弄內的靜謐青旅，質感非常像無印良品風，適合喜歡安靜的背包客。", address: "75 Sukhumvit Soi 22 / BTS Phrom Phong 站步行 12 分鐘。", url: "https://www.trip.com/t/GahgJPv4nT2" }
+                    ]
+                }
+            },
+            "silom": {
+                name: "席隆與沙吞區 (Silom & Sathorn)",
+                categories: {
+                    "五星飯店": [
+                        { name: "W Bangkok", feature: "時尚前衛的設計指標，充滿紫色霓虹與現代感，旁邊就是知名的古蹟餐廳 The House on Sathorn。", address: "106 North Sathorn Rd / BTS Chong Nonsi 站步行 3 分鐘。", url: "https://www.trip.com/t/7cDzJJx4nT2" },
+                        { name: "Banyan Tree Bangkok", feature: "曼谷老字號頂級飯店，全套房設計，頂樓有著曼谷最具代表性的高空酒吧 Moon Bar。", address: "21/100 South Sathon Rd / MRT Lumphini 站步行 10 分鐘。", url: "https://www.trip.com/t/hXRmzzx4nT2" },
+                        { name: "The Sukhothai Bangkok", feature: "曼谷市中心的綠洲，採用泰國古代素可泰王朝的宮廷設計，靜謐且充滿濃厚文化底蘊。", address: "13/3 South Sathorn Rd / MRT Lumphini 站步行 8 分鐘。", url: "https://www.trip.com/t/D9Ipbky4nT2" },
+                        { name: "SO/ Bangkok", feature: "俯瞰倫披尼公園的無邊際泳池絕美，由多位設計師以「金木水火土」五行元素打造不同樓層。", address: "2 North Sathorn Rd / MRT Lumphini 站步行 3 分鐘。", url: "https://www.trip.com/t/fiMISZz4nT2" },
+                        { name: "Lebua at State Tower", feature: "電影《醉後大丈夫2》拍攝地，圓頂的 Sky Bar 是曼谷夜景經典，房間皆有大陽台。", address: "1055 Silom Rd / BTS Saphan Taksin 站步行 10 分鐘。", url: "https://www.trip.com/t/LvoLah05nT2" }
+                    ],
+                    "平價飯店": [
+                        { name: "Ibis Styles Bangkok Silom", feature: "充滿色彩繽紛與年輕氣息的設計，大廳非常適合拍照，交通便利且價格實惠。", address: "289 Silom Rd / BTS Sala Daeng 站步行 3 分鐘。", url: "https://www.trip.com/t/y1YLeY15nT2" },
+                        { name: "Furama Silom", feature: "席隆區的老牌平價飯店，雖然設施稍舊，但房間非常寬敞，且頂樓附有泳池。", address: "533 Silom Rd / BTS Chong Nonsi 站步行 10 分鐘。", url: "https://www.trip.com/t/FDi0my15nT2" },
+                        { name: "The Quarter Silom", feature: "位於熱鬧的 Silom 巷弄，現代化的設計與齊全的設備，CP 值在該區相當具競爭力。", address: "12 Silom Soi 6 / BTS Sala Daeng 站步行 8 分鐘。", url: "https://www.trip.com/t/lhMx6C35nT2" }
+                    ],
+                    "青年旅館": [
+                        { name: "Kinnon Hostel", feature: "擁有絕佳的頂樓玻璃屋交誼廳，環境整潔明亮，是該區評價極高的精品青旅。", address: "37/21-22 Silom Soi 9 / BTS Chong Nonsi 站步行 5 分鐘。", url: "https://www.trip.com/t/RprE3R45nT2" },
+                        { name: "Warm Window Silom", feature: "外觀有著大片溫暖的圓拱型窗戶，木質調設計讓人感到非常放鬆與舒適。", address: "50/4 Pan Rd / BTS Surasak 站步行 12 分鐘。", url: "https://www.trip.com/t/HGVyEF55nT2" },
+                        { name: "Silom Space Hostel", feature: "位置就在 BTS 站旁，交通滿分，太空艙設計的床位提供了很好的隱私與睡眠品質。", address: "1/2 Silom Soi 2 / BTS Sala Daeng 站步行 1 分鐘。", url: "https://www.trip.com/t/t5ISKj55nT2" }
+                    ]
+                }
+            },
+            "oldtown": {
+                name: "舊城區 (Old Town)",
+                categories: {
+                    "五星飯店": [
+                        { name: "The Siam Hotel", feature: "曼谷最頂級的奢華精品飯店之一，黑白交錯的殖民地風格設計，擁有私人碼頭與極致隱私。", address: "3/2 Khao Rd / 位於昭披耶河畔，需搭乘飯店接駁船或計程車。", url: "https://www.trip.com/t/GUSmxW75nT2" },
+                        { name: "Sala Rattanakosin Bangkok", feature: "房間內就能直擊絕美鄭王廟日落與夜景，是舊城區最具代表性的景觀精品飯店。", address: "39 Maha Rat Rd / MRT Sanam Chai 站步行 10 分鐘。", url: "https://www.trip.com/t/8lCNzH85nT2" },
+                        { name: "Riva Surya Bangkok", feature: "坐落於考山路周邊的河畔，鬧中取靜，帶有優雅的現代泰式風情與舒適的河景泳池。", address: "23 Phra Arthit Rd / 近考山路，建議搭乘計程車或交通船至 Phra Arthit 碼頭。", url: "https://www.trip.com/t/HUBJpo85nT2" },
+                        { name: "Chakrabongse Villas", feature: "由昔日泰國王室親王的宅邸改建，僅有少數幾間客房，充滿濃厚的皇家歷史氛圍與頂級服務。", address: "396 Maha Rat Rd / MRT Sanam Chai 站步行 12 分鐘。", url: "https://www.trip.com/t/8ILot985nT2" }
+                    ],
+                    "平價飯店": [
+                        { name: "Casa Nithra Bangkok", feature: "舊城區極受歡迎的平價住宿，頂樓配有精緻的泳池，設計融合了泰式古典與現代幾何。", address: "176 Samsen Rd / 近考山路，建議搭乘計程車。", url: "https://www.trip.com/t/M36v2OA5nT2" },
+                        { name: "Nouvo City Hotel", feature: "清真認證飯店，設施齊全（有泳池與健身房），步行至考山路有一定距離，相對安靜。", address: "2 Samsen Soi 2 / 建議搭乘計程車。", url: "https://www.trip.com/t/vwe0DLB5nT2" }
+                    ],
+                    "青年旅館": [
+                        { name: "Here Hostel Bangkok", feature: "曼谷最知名的青旅之一，裡面有一座標誌性的旋轉溜滑梯可以直接滑到一樓，氣氛極佳。", address: "196/3-8 Ratchadamnoen Klang Rd / 近考山路，建議搭乘計程車。", url: "https://www.trip.com/t/08hnmYF5nT2" },
+                        { name: "Bed Station Hostel Khaosan", feature: "以美式復古工業風打造，擁有一個超棒的中央撞球檯與吧台，非常容易交到朋友。", address: "120 Tanao Rd / 位於考山路商圈，建議搭乘計程車。", url: "https://www.trip.com/t/aPOLo4G5nT2" },
+                        { name: "NapPark Hostel at Khao San", feature: "多次獲得亞洲最佳青旅獎項，泰式傳統涼亭設計的交誼廳非常舒適，且極度乾淨。", address: "5 Tanao Rd / 位於考山路商圈，建議搭乘計程車。", url: "https://www.trip.com/t/Lvf30sG5nT2" }
+                    ]
+                }
+            },
+            "riverside": {
+                name: "昭披耶河畔區 (Riverside)",
+                categories: {
+                    "五星飯店": [
+                        { name: "Mandarin Oriental Bangkok", feature: "泰國最具傳奇色彩的百年奢華飯店，各國政要與巨星首選，服務與下午茶皆為世界頂級。", address: "48 Oriental Ave / 飯店提供接駁船至 BTS Saphan Taksin 站。", url: "https://www.trip.com/t/nVd0BMI5nT2" },
+                        { name: "The Peninsula Bangkok", feature: "經典W型建築設計，確保每間房都能欣賞壯麗河景，以復古奢華與泰式款待聞名。", address: "333 Charoen Nakhon Rd / 飯店提供接駁船至 BTS Saphan Taksin 站。", url: "https://www.trip.com/t/8b92tnI5nT2" },
+                        { name: "Capella Bangkok", feature: "全新開幕的極致奢華品牌，全房型皆面河且無邊際泳池設計極為私密，擁有米其林三星主廚坐鎮。", address: "300/2 Charoen Krung Rd / 飯店提供專屬接駁船至 BTS 站。", url: "https://www.trip.com/t/s7waPHJ5nT2" },
+                        { name: "Four Seasons Hotel Bangkok", feature: "建築由頂級設計師打造，融合水景與藝術品，BKK Social Club 是亞洲頂尖酒吧之一。", address: "300/1 Charoen Krung Rd / 飯店提供專屬接駁船至 BTS 站。", url: "https://www.trip.com/t/qpIfAmJ5nT2" },
+                        { name: "Shangri-La Bangkok", feature: "佔地廣大的老牌河畔五星，設施豐富如城市度假村，且緊鄰捷運站，交通在河畔區中最便利。", address: "89 Soi Wat Suan Plu / BTS Saphan Taksin 站步行 2 分鐘。", url: "https://www.trip.com/t/R1MqsEK5nT2" }
+                    ],
+                    "平價飯店": [
+                        { name: "Ibis Bangkok Riverside", feature: "河畔區最平價的選擇之一，擁有緊鄰河岸的泳池，高 CP 值享受無敵昭披耶河景。", address: "27 Soi Charoen Nakhon 17 / 近 BTS Krung Thon Buri 站，建議轉乘計程車。", url: "https://www.trip.com/t/ToXBYXL5nT2" },
+                        { name: "Bossotel Bangkok", feature: "雖然裝潢較有年代感，但地點絕佳，走到捷運跟碼頭只要幾分鐘，是非常經濟實惠的中轉站。", address: "55/8-14 Soi Charoen Krung 42/1 / BTS Saphan Taksin 站步行 5 分鐘。", url: "https://www.trip.com/t/HqVORbM5nT2" }
+                    ],
+                    "青年旅館": [
+                        { name: "Bangkok Bed and Bike", feature: "結合自行車主題的復古青旅，建築本身具有古典美，並提供老城區單車導覽。", address: "19/6 Charoen Krung Rd / MRT Sam Yot 站步行 5 分鐘。", url: "https://www.trip.com/t/sKi9HTO5nT2" },
+                        { name: "River View Guest House", feature: "隱藏在小巷底，擁有一個內行人皆知的頂樓平價高空河景酒吧，氣氛悠閒隨性。", address: "768 Soi Phanurangsri / 建議從華南蓬車站轉搭嘟嘟車。", url: "https://www.trip.com/t/L2bv2yO5nT2" },
+                        { name: "Yolo Hostel", feature: "氣氛極佳的家庭式青旅，老闆非常熱情，位置靠近 IconSiam，過個河就能到熱鬧市區。", address: "121/1 Khlong San / 近 IconSiam，建議轉搭計程車。", url: "https://www.trip.com/t/6OcdERP5nT2" }
+                    ]
+                }
+            },
+            "chinatown": {
+                name: "耀華力中國城 (Yaowarat)",
+                categories: {
+                    "五星飯店": [
+                        { name: "Shanghai Mansion Bangkok", feature: "極具上海灘奢華復古風情的精品飯店，一秒穿越到 1930 年代，內部有一個美麗的室內水池庭院。", address: "479-481 Yaowarat Rd / MRT Wat Mangkon 站步行 5 分鐘。", url: "https://www.trip.com/t/iiVxJRQ5nT2" },
+                        { name: "ASAI Bangkok Chinatown", feature: "都喜集團旗下的年輕品牌，位於 I’m Chinatown 商場樓上，設計帶有日式無印與中式極簡風，極度新穎。", address: "531 Charoen Krung Rd / MRT Wat Mangkon 站步行 2 分鐘。", url: "https://www.trip.com/t/rn0DMqQ5nT2" },
+                        { name: "W22 by Burasari", feature: "結合年輕活力與中國風元素的精品旅店，中庭採光極佳，房價在高級住宿中相對親民。", address: "422 Maitri Chit Rd / MRT Wat Mangkon 站步行 6 分鐘。", url: "https://www.trip.com/t/hIdjyMS5nT2" }
+                    ],
+                    "平價飯店": [
+                        { name: "Norn Yaowarat Hotel", feature: "非常溫馨且乾淨的小型平價旅店，提供美味的簡單早餐，員工非常熱心。", address: "202 Phadung Dao Rd / MRT Wat Mangkon 站步行 5 分鐘。", url: "https://www.trip.com/t/tXKhdKU5nT2" },
+                        { name: "Pho Place", feature: "隱藏在中國城巷弄中的安靜住宿，外觀中規中矩但房間寬敞，CP 值很高。", address: "61 Soi Yaowa Phanit / MRT Wat Mangkon 站步行 8 分鐘。", url: "https://www.trip.com/t/yCXQbkU5nT2" },
+                        { name: "The Krungkasem Srikrung Hotel", feature: "曼谷老字號平價飯店，帶有濃濃的復古味，就在運河與火車站旁，房價非常便宜。", address: "1860 Krung Kasem Rd / MRT Hua Lamphong 站步行 3 分鐘。", url: "https://www.trip.com/t/s4ZEjNV5nT2" }
+                    ],
+                    "青年旅館": [
+                        { name: "Luk Hostel", feature: "中國城最潮的青旅，頂樓有一個非常夯的玻璃屋酒吧與交誼廳，設施極具設計感。", address: "382-384-386 Yaowarat Rd / MRT Wat Mangkon 站步行 5 分鐘。", url: "https://www.trip.com/t/0C5ILfW5nT2" },
+                        { name: "Ama Hostel Bangkok", feature: "「阿嬤青旅」保留了老房子的復古靈魂，還設有小泳池，就像回到鄉下阿嬤家一樣溫馨。", address: "191 Soi Saphan Han / 位於三聘批發市場內，建議步行前往。", url: "https://www.trip.com/t/zln7SJX5nT2" },
+                        { name: "The Unforgotten B&B", feature: "充滿古典歐洲與舊上海混合風格的民宿型青旅，佈置極其用心，非常適合拍照。", address: "102 Soi Nana (Chinatown) / MRT Hua Lamphong 站步行 8 分鐘。", url: "https://www.trip.com/t/l5YVQnX5nT2" }
+                    ]
+                }
+            },
+            "ratchada": {
+                name: "拉差達與匯狂區 (Ratchada)",
+                categories: {
+                    "五星飯店": [
+                        { name: "Lancaster Bangkok", feature: "房間極度寬敞且裝潢現代大氣，頂樓擁有風景優美的泳池與頂級健身中心。", address: "1777 Phetchaburi Rd / MRT Phetchaburi 站步行 5 分鐘。", url: "https://www.trip.com/t/z0ucsnZ5nT2" },
+                        { name: "Somerset Rama 9 Bangkok", feature: "頂級的酒店式公寓，房間內有完備的廚房與洗衣設備，非常適合長住或家庭旅客。", address: "22 Ratchadaphisek Rd / MRT Phra Ram 9 站步行 5 分鐘。", url: "https://www.trip.com/t/uXMs9ba5nT2" },
+                        { name: "The Emerald Hotel", feature: "匯狂區老字號大型飯店，雖然稍有年代，但以豐盛的自助餐和寬敞的房間聞名。", address: "99 Ratchadaphisek Rd / MRT Huai Khwang 站步行 5 分鐘。", url: "https://www.trip.com/t/JPja0Ib5nT2" }
+                    ],
+                    "平價飯店": [
+                        { name: "Ibis Styles Bangkok Ratchada", feature: "活潑充滿色彩的設計，地點無可挑剔，旁邊就是捷運站與熱鬧的夜市區域。", address: "212 Ratchadaphisek Rd / MRT Huai Khwang 站步行 1 分鐘。", url: "https://www.trip.com/t/zo5Ou2e5nT2" },
+                        { name: "Amanta Hotel & Residence Ratchada", feature: "隱藏在商場後方巷內的酒店式公寓，擁有大片熱帶綠意中庭與泳池，猶如城市綠洲。", address: "77-79 Ratchadaphisek Rd / MRT Thailand Cultural Centre 站步行 5 分鐘。", url: "https://www.trip.com/t/FVfjHWe5nT2" },
+                        { name: "Prom Ratchada Hotel", feature: "簡單乾淨且價格親民，地點就在拉差達火車夜市（現為 The One Ratchada）周邊。", address: "558 Ratchadaphisek Soi 7 / MRT Thailand Cultural Centre 站步行 8 分鐘。", url: "https://www.trip.com/t/b6d135f5nT2" },
+                        { name: "Ratchada Boutique Hotel", feature: "走暗色系現代風格的平價商旅，房間不大但很精緻，適合年輕旅客與情侶。", address: "121 Ratchadaphisek Soi 17 / MRT Sutthisan 站步行 5 分鐘。", url: "https://www.trip.com/t/pGWspqf5nT2" },
+                        { name: "Mybed Ratchada", feature: "以極簡與極低價格為賣點的現代經濟型旅館，過個馬路就是捷運站。", address: "8/71 Ratchadaphisek Rd / MRT Lat Phrao 站步行 1 分鐘。", url: "https://www.trip.com/t/5GU9Fbg5nT2" }
+                    ],
+                    "青年旅館": [
+                        { name: "Siamaze Hostel", feature: "提供少見的青旅雙人房與家庭房，週末還有免費的泰國料理教學活動。", address: "90 Ratchadaphisek Soi 17 / MRT Sutthisan 站步行 10 分鐘。", url: "https://www.trip.com/t/m65siNh5nT2" },
+                        { name: "Sova Hotel & Hostel", feature: "清水模工業風，床鋪寬敞舒適且極度乾淨，大廳像間非常有質感的文青咖啡廳。", address: "309/20 Ratchadaphisek Rd / MRT Huai Khwang 站步行 5 分鐘。", url: "https://www.trip.com/t/EBiNR5i5nT2" }
+                    ]
+                }
+            },
+            "chatuchak": {
+                name: "恰圖恰與阿里區 (Chatuchak & Ari)",
+                categories: {
+                    "五星飯店": [
+                        { name: "Centara Grand at Central Plaza Ladprao", feature: "與大型商場 Central Ladprao 共構，購物覓食極其方便，房間能俯瞰廣大的恰圖恰公園。", address: "1695 Phahonyothin Rd / BTS Ha Yaek Lat Phrao 站步行 2 分鐘。", url: "https://www.trip.com/t/OvA2ZUk5nT2" },
+                        { name: "The Quarter Ari by UHG", feature: "阿里區的地標級四星飯店，頂樓的無邊際高空泳池與健身房視野極佳，時尚且現代。", address: "428 Phahonyothin Rd / BTS Ari 站步行 8 分鐘。", url: "https://www.trip.com/t/eBRMo7l5nT2" },
+                        { name: "Best Western Chatuchak", feature: "鄰近洽圖洽市集的新穎連鎖飯店，設備非常乾淨現代，是批貨或週末逛市集首選。", address: "104 Phahonyothin Rd / MRT Kamphaeng Phet 站步行 2 分鐘。", url: "https://www.trip.com/t/UFRdwZl5nT2" },
+                        { name: "Josh Hotel", feature: "曼谷網美必訪的復古風精品飯店！薄荷綠的泳池與周邊的美式復古裝潢，隨處皆可拍。", address: "19/2 Ari Soi 4 (Nua) / BTS Ari 站步行 8 分鐘。", url: "https://www.trip.com/t/i7YYp6m5nT2" },
+                        { name: "Vibe Hotel Bangkok", feature: "充滿活力的年輕品牌，色彩繽紛且設計感十足，離洽圖洽與 BTS 站非常近。", address: "59 Phahonyothin Rd / BTS Sena Nikhom 站步行 5 分鐘。", url: "https://www.trip.com/t/JQAfnhm5nT2" }
+                    ],
+                    "平價飯店": [
+                        { name: "Suda Palace Hotel", feature: "雖然偏向老派泰式旅館，但地點就在打卡熱點水牛橋站旁，且價格極為便宜。", address: "245 Pradiphat Rd / BTS Saphan Khwai 站步行 5 分鐘。", url: "https://www.trip.com/t/62ni8Un5nT2" },
+                        { name: "The Yard Bangkok (提供私人房型)", feature: "原本是知名青旅，其私人房型利用貨櫃屋打造，被庭院的綠植包圍，氣氛超級Chill。", address: "51 Phahonyothin Soi 5 / BTS Ari 站步行 8 分鐘。", url: "https://www.trip.com/t/pg73Tso5nT2" },
+                        { name: "Craftsman Bangkok", feature: "雖為平價預算，但具備極高質感的裝潢與絕美泳池，底下的 Baby Bar 也是熱門打卡點。", address: "34-36 Phahonyothin Soi 11 / 建議搭乘嘟嘟車或計程車抵達。", url: "https://www.trip.com/t/I41bOZp5nT2" }
+                    ],
+                    "青年旅館": [
+                        { name: "Bed to Bangkok", feature: "走路就能去逛洽圖洽市集！純白極簡的設計風格，並設有舒適的公共閱讀與辦公區。", address: "1021/1 Phahonyothin Rd / BTS Mo Chit 站步行 5 分鐘。", url: "https://www.trip.com/t/ch9YKfq5nT2" },
+                        { name: "Udee Bangkok Hostel", feature: "老宅改建的溫馨青旅，提供簡單卻美味的泰式自製早餐，像住進當地朋友家一樣。", address: "49 Pradiphat Soi 19 / BTS Saphan Khwai 站步行 12 分鐘。", url: "https://www.trip.com/t/d8cPKCr5nT2" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        const categoriesList = ["五星飯店", "平價飯店", "青年旅館"];
+
+        // 1. 初始化區域按鈕
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-3 rounded-lg font-bold text-sm transition-all duration-200 border area-btn-inactive`;
+                btn.innerText = hotelData[key].name;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. 選擇區域
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            // 更新區域按鈕外觀
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            // 顯示第二層的分類按鈕
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. 渲染分類按鈕
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            
+            categoriesList.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // 預設點擊該區第一個分類 (五星飯店)
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(categoriesList[0], firstCatBtn);
+            }
+        }
+
+        // 4. 選擇分類並渲染飯店清單
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            // 更新分類按鈕外觀
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. 渲染飯店資料到畫面
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex items-center mb-6 border-b pb-4 border-slate-200">
+                    <h2 class="text-2xl font-bold text-slate-800 mr-3">📍 ${districtData.name}</h2>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-bold rounded-full">${currentCategoryName}</span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center">此分類目前無推薦資料。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-4">`;
+                
+                hotels.forEach((hotel, index) => {
+                    // 根據是否有提供 URL 決定 [飯店說明] 標籤的樣式
+                    const linkTagHTML = hotel.url 
+                        ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-1 mt-1 sm:mt-0 rounded-md text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm cursor-pointer ml-0 sm:ml-3">
+                               <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                               點我看飯店說明
+                           </a>`
+                        : `<span class="inline-flex items-center px-3 py-1 mt-1 sm:mt-0 rounded-md text-xs font-bold bg-slate-200 text-slate-500 ml-0 sm:ml-3">
+                               點我看飯店說明
+                           </span>`;
+
+                    htmlContent += `
+                        <div class="bg-slate-50 border border-slate-200 p-5 rounded-lg hover:shadow-md transition-shadow duration-200 group">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-start mb-4">
+                                <h4 class="text-lg font-bold text-slate-800 flex items-center">
+                                    <span class="text-blue-500 font-mono text-base mr-2">${index + 1}.</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-6 space-y-3">
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-slate-700 bg-blue-50 px-1.5 py-0.5 rounded mr-1">特色</span> ${hotel.feature}
+                                </p>
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded mr-1">地址/交通</span> ${hotel.address}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            
+            // 預設展開第一個區域 (Siam)
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict('siam', firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>曼谷美食導航 Bangkok Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Bangkok Pass 曼谷美食地圖
+            </h1>
+            <a href="https://linkuei0425.github.io/BANGKOK/" class="flex items-center gap-1 text-sm md:text-base font-medium bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                回到首頁
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇區域 (Select Region)</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇類別 (Select Category)</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <p class="text-lg">請先從上方選擇您想探索的區域與類別</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Data Structure
+        const db = {
+            "siam": {
+                name: "暹羅與水門區",
+                categories: {
+                    "michelin": [
+                        { name: "紅大哥水門雞飯", feature: "水門市場絕對不能錯過的經典！雞肉鮮嫩多汁，配上用雞油與高湯慢熬出來的香Ｑ米飯。", address: "960-962 Phetchaburi Rd / BTS Chit Lom 站步行 10 分。" },
+                        { name: "Pe Aor Tom Yum Kung", feature: "招牌是放上一整隻龍蝦或巨無霸鮮蝦的酸辣濃湯麵，視覺衝擊力滿分。", address: "68/51 Soi Phetchaburi 5 / BTS Phaya Thai 站步行 10 分。" },
+                        { name: "Chakki (查奇牛肉河粉)", feature: "隱身巷弄的老店，濃郁勾芡的肉汁淋在酥脆炸麵條上，冒著熱氣十分誘人。", address: "1/1-2 Ratchawithi Rd / BTS Victory Monument 站步行 8 分。" }
+                    ],
+                    "greenbowl": [
+                        { name: "廣興海南雞飯 (Kuang Heng)", feature: "水門市場另一巨頭，綠色制服為標誌，沙嗲烤肉串在炭火上翻烤的煙霧感極佳。", address: "930 Phetchaburi Rd / BTS Chit Lom 站步行 10 分。" },
+                        { name: "Rod Dee Ded (羅弟牛肉麵)", feature: "暹羅廣場的老字號，大鍋熬煮的深色秘製牛肉黑湯，搭配鮮嫩牛肉片。", address: "420-420/1 Rama I Rd / BTS Siam 站步行 3 分。" },
+                        { name: "Somtam Nua", feature: "將泰北料理精緻化，滿桌鮮豔的青木瓜沙拉、炸雞與糯米飯，色彩豐富飽滿。", address: "392/14 Siam Square Soi 5 / BTS Siam 站步行 3 分。" }
+                    ],
+                    "dessert": [
+                        { name: "After You Dessert Cafe", feature: "傳奇泰奶日式刨冰、海鹽鮮奶油蜜糖吐司，綿密冰山內部藏有仙草與吐司塊。", address: "Siam Square One, Ground Floor, 388 Rama I Rd / BTS Siam 站步行 1 分。" },
+                        { name: "Pang Cha (CentralWorld)", feature: "米其林推薦巨無霸泰奶刨冰，裝在奢華銅鼎中，頂端鋪滿鮮奶油與三種珍珠寒天。", address: "3rd Floor, CentralWorld, 999/9 Rama I Rd / BTS Chit Lom 站步行 8 分。" },
+                        { name: "Mango Tango", feature: "專賣芒果甜點的排隊名店，金黃色的芒果冰沙與芒果糯米飯經典組合。", address: "Siam Square Soi 3, Rama I Rd / BTS Siam 站步行 3 分。" },
+                        { name: "Karun Thai Tea", feature: "質感系精品泰式奶茶，包裝精美，提供撒上金箔的奢華泰奶冰沙。", address: "G Floor, Siam Paragon, 991 Rama I Rd / BTS Siam 站步行 2 分。" }
+                    ],
+                    "cafe": [
+                        { name: "The Cassette Coffee Bar", feature: "復古粉紅外觀，擁有一整面超適合打卡的粉色系網美牆與旋轉門。", address: "264/4 Siam Square Soi 3 / BTS Siam 站步行 3 分。" },
+                        { name: "Factory Coffee", feature: "泰國冠軍咖啡師坐鎮，必點桌邊現調的特調冷萃咖啡，展現專業的吧台展演。", address: "49 Phayathai Rd / BTS Phaya Thai 站步行 2 分。" },
+                        { name: "Peace Oriental Teahouse", feature: "鬧區中的極簡日式禪意空間，提供頂級手沖抹茶與精緻茶點。", address: "120/1 Siam Square Soi 1 / BTS Siam 站步行 4 分。" },
+                        { name: "Pour Over Lab", feature: "實驗室工業風設計，專注於精緻手沖精品咖啡，各種手沖器具一字排開。", address: "1st Floor, Siam Discovery, 989 Rama I Rd / BTS Siam 站步行 5 分。" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Red Sky (Centara Grand)", feature: "55樓高空酒吧，以會變色的巨大半圓形拱門為地標，360度無死角夜景。", address: "55th Floor, Centara Grand at CentralWorld, 999/9 Rama I Rd / BTS Chit Lom 站步行 8 分。" },
+                        { name: "CRU Champagne Bar", feature: "59樓全曼谷最高的全景香檳酒吧，純白與紅色的奢華設計極度上相。", address: "59th Floor, Centara Grand at CentralWorld / BTS Chit Lom 站步行 8 分。" },
+                        { name: "Wisdom International Buffet", feature: "曼谷頂級國際吃到飽，提供和牛、魚子醬、焗烤龍蝦與巨無霸泰國蝦。", address: "5th Floor, Siam Square One, Rama I Rd / BTS Siam 站步行 1 分。" },
+                        { name: "Burn Whale", feature: "位於鬧區的純海鮮燒烤吃到飽，主打「不用自己動手剝蝦」，滿滿烤蝦與生蠔。", address: "238 Siam Square Soi 2, Rama I Rd / BTS Siam 站步行 2 分。" }
+                    ]
+                }
+            },
+            "sukhumvit": {
+                name: "素坤逸區",
+                categories: {
+                    "michelin": [
+                        { name: "榮泰豬肉粉 (Rung Rueang)", feature: "飄香超過半世紀的傳奇麵店。湯頭濃郁鮮甜，配料滿滿都是軟嫩的豬絞肉、豬雜和魚板。", address: "10/3 Soi Sukhumvit 26 / BTS Phrom Phong 站步行 5 分。" },
+                        { name: "Here Hai (海鮮炒飯)", feature: "隱身在二樓的超狂海鮮小店，以「不計成本的蟹肉炒飯」聞名。", address: "112/1 Ekkamai Rd / BTS Ekkamai 站步行或轉乘計程車。" },
+                        { name: "Saengchai Phochana", feature: "牆上貼滿明星合照的深夜熱炒店，大火快炒的空心菜與生醃蟹充滿道地街頭感。", address: "762/5-7 Sukhumvit Rd / BTS Thong Lo 站步行 5 分。" }
+                    ],
+                    "greenbowl": [
+                        { name: "郭炎松牛肉粉 (Wattana Panich)", feature: "店門口那口從不熄火、熬煮了超過半世紀的巨大老滷鍋是最好認的招牌。", address: "336-338 Ekkamai Rd / BTS Ekkamai 站轉乘計程車。" },
+                        { name: "Mae Varee", feature: "超人氣芒果糯米飯，門口堆滿金黃色芒果的壯觀景象，切開熟透芒果淋上純白椰漿。", address: "1 Soi Thong Lo / BTS Thong Lo 站步行 2 分。" },
+                        { name: "Bamee Kon Sae Lee (李記麵條)", feature: "傳承數代的手工雞蛋麵，搭配蜜汁烤脆皮豬肉與蟹肉，金黃油亮。", address: "1081 Sukhumvit Rd / BTS Thong Lo 站步行 3 分。" }
+                    ],
+                    "dessert": [
+                        { name: "Thongyoy Cafe", feature: "熱帶花草系裝潢，華麗黃銅盤盛裝傳統泰式甜點，充滿濃厚的泰式奢華華麗感。", address: "88/2 Ekkamai Rd (Soi Sukhumvit 63) / BTS Ekkamai 站轉乘計程車。" },
+                        { name: "Paris Mikki", feature: "曼谷頂級法式甜點，精緻如藝術品的法式蛋糕。", address: "27 Metha Watthana, Sukhumvit Soi 19 / BTS Asok 站步行 4 分。" },
+                        { name: "Mae Varee", feature: "超人氣外帶芒果糯米飯，金黃芒果堆積如山。", address: "1 Thong Lo Rd (Soi Sukhumvit 55) / BTS Thong Lo 站步行 2 分。" },
+                        { name: "Kyo Roll En", feature: "日式宇治抹茶甜點、竹筒霜淇淋與特色生乳捲。", address: "EmQuartier, M Floor, 689 Sukhumvit Rd / BTS Phrom Phong 站步行 2 分。" }
+                    ],
+                    "cafe": [
+                        { name: "Flat+White Cafe", feature: "純白流線型設計與懸浮階梯，充滿未來感。", address: "810/5 Thara Rom 2 Alley / BTS Thong Lo 站轉乘計程車。" },
+                        { name: "ROAST (The Commons)", feature: "曼谷早午餐指標，自家烘焙精品咖啡與舒適空間。", address: "335 Thong Lo 17 Alley (The Commons) / BTS Thong Lo 站轉乘計程車。" },
+                        { name: "CPS Coffee", feature: "服飾品牌跨界，黑色冷酷型格裝潢，個性十足。", address: "63/1 Sukhumvit Soi 53 / BTS Thong Lo 站步行 5 分。" },
+                        { name: "% Arabica (EmQuartier)", feature: "知名極簡白設計，提供高品質香醇拿鐵。", address: "EmQuartier, M Floor, 689 Sukhumvit Rd / BTS Phrom Phong 站步行 2 分。" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Tichuca Rooftop Bar", feature: "吧台上巨大的巨型發光水母觸手隨風搖曳，賽博龐克感極強，視覺效果滿分。", address: "46th Floor, T-One Building, 8 Soi Sukhumvit 40 / BTS Thong Lo 站步行 3 分。" },
+                        { name: "Octave Rooftop Lounge & Bar", feature: "三個樓層的高空酒吧，最高層提供無玻璃阻擋的 360 度開闊視野。", address: "45th Floor, Bangkok Marriott Hotel Sukhumvit, 2 Sukhumvit Soi 57 / BTS Thong Lo 站步行 3 分。" },
+                        { name: "Goji Kitchen & Bar (萬豪吃到飽)", feature: "海鮮區極度澎湃，提供各式現剖生蠔、阿拉斯加帝王蟹腳與炭烤海鮮。", address: "Bangkok Marriott Marquis Queen’s Park, 199 Sukhumvit Soi 22 / BTS Phrom Phong 站步行 8 分。" },
+                        { name: "The Seafood Cafe & Restaurant", feature: "點餐式的海鮮吃到飽，新鮮生蠔、泰國大頭蝦、生醃鮮蝦與螃蟹無限量供應。", address: "10 Sukhumvit Soi 24/1 / BTS Phrom Phong 站步行 5 分。" }
+                    ]
+                }
+            },
+            "silom": {
+                name: "席隆與沙吞區",
+                categories: {
+                    "michelin": [
+                        { name: "Charoen Saeng Silom (豬腳飯)", feature: "豬腳燉到焦糖色澤，入口即化，靈魂酸辣沾醬完美平衡了膠質濃郁感。", address: "492/6 Soi Charoen Krung 49 / BTS Saphan Taksin 站步行 10 分。" },
+                        { name: "王子戲院豬肉粥 (Jok Prince)", feature: "帶有獨特「炭燒焦香味」，生滾粥極度綿密，配上巨大手工豬肉丸。", address: "1391 Charoen Krung Rd / BTS Saphan Taksin 站步行 8 分。" },
+                        { name: "Soi Polo 炸雞", feature: "曼谷傳奇炸雞，鋪上一座「金黃炸蒜酥小山」，炸雞外皮薄脆肉質多汁。", address: "137/1-3 Sanam Khli Alley / MRT Lumphini 站步行 10 分。" }
+                    ],
+                    "greenbowl": [
+                        { name: "巷仔內豬腳飯 (Khao Kha Moo Trok Sung)", feature: "藏在窄巷中，肥瘦相間的滷豬腳搭配翠綠芥藍菜與半熟滷蛋。", address: "106/5 Charoen Wiang Rd / BTS Saphan Taksin 站步行 5 分。" },
+                        { name: "Sa-nguan Sri (傳統泰菜)", feature: "保留了傳統泰國家庭餐桌的樣貌，綠咖哩的色澤濃郁醇厚。", address: "59/1 Witthayu Rd / BTS Phloen Chit 站步行 5 分。" },
+                        { name: "Som Tam Jay So", feature: "巷弄裡的東北料理，炭爐上烤著焦香的雞翅與豬頸肉。", address: "Soi Phiphat 2, Convent Rd / BTS Chong Nonsi 站步行 8 分。" }
+                    ],
+                    "dessert": [
+                        { name: "Brioche from Heaven", feature: "巴黎風烘焙坊，招牌是極度邪惡的爆漿焦糖胡桃布里歐捲。", address: "156 Naradhiwas Rajanagarindra Rd / BTS Chong Nonsi 站步行 1 分。" },
+                        { name: "KIN Donut", feature: "每日手工現做造型甜甜圈，口味創新豐富。", address: "156 Naradhiwas Rajanagarindra Rd / BTS Chong Nonsi 站步行 1 分。" },
+                        { name: "Chu Chocolate Bar", feature: "巧克力控的天堂，提供濃郁的熱巧克力、爆漿熔岩蛋糕。", address: "1/6 Soi Sathon 10 / BTS Saint Louis 站步行 4 分。" },
+                        { name: "Bua Loy Khai Keng", feature: "在地人熱愛的泰式彩色湯圓小攤，浸泡在椰奶中，推薦加半熟蛋。", address: "Soi Silom 20 / BTS Sala Daeng 站步行 8 分。" }
+                    ],
+                    "cafe": [
+                        { name: "Luka Bangkok", feature: "復古時髦風格，結合選物店，提供高顏值早午餐盤。", address: "64/3 Pan Rd / BTS Saint Louis 站步行 6 分。" },
+                        { name: "Sarnies Bangkok", feature: "百年修船廠老屋改建，保留粗獷斑駁的磚牆與重工業風。", address: "101-103 Charoen Krung 44 Alley / BTS Saphan Taksin 站步行 5 分。" },
+                        { name: "Roots at Sathon", feature: "專注泰國在地精品咖啡豆，質感木質調空間隱身於辦公大樓中。", address: "1st Floor, Bhiraj Tower, 31/1 Sathon Tai Rd / BTS Surasak 站步行 2 分。" },
+                        { name: "The Commons Saladaeng", feature: "複合式紅磚建築，半開放空間裡的咖啡與餐飲聚落。", address: "126 Sala Daeng 1 Alley / BTS Sala Daeng 站步行 8 分。" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Mahanakhon Bangkok SkyBar", feature: "泰國最高大樓，全透明的玻璃天空步道，無可匹敵的上帝視角。", address: "78th Floor, King Power Mahanakhon, 114 Naradhiwas Rajanagarindra Rd / BTS Chong Nonsi 站步行 1 分。" },
+                        { name: "Vertigo & Moon Bar", feature: "狹長的船型甲板設計懸浮在 61 樓高空，沒有屋頂遮蔽，視野極度震撼。", address: "61st Floor, Banyan Tree Bangkok, 21/100 Sathon Tai Rd / MRT Lumphini 站步行 10 分。" },
+                        { name: "Red Oven (SO/ Bangkok 吃到飽)", feature: "以強大的「海鮮冰島」聞名，龍蝦、螃蟹、生蠔堆積如山。", address: "7th Floor, SO/ Bangkok, 2 N Sathon Rd / MRT Lumphini 站步行 3 分。" },
+                        { name: "Praya Kitchen (蘇拉翁萬豪吃到飽)", feature: "吃到飽的大頭蝦、螃蟹由師傅現場炭火直烤，鑊氣與鮮味十足。", address: "3rd Floor, Bangkok Marriott Hotel The Surawongse, 262 Surawong Rd / BTS Chong Nonsi 站步行 12 分。" }
+                    ]
+                }
+            },
+            "oldtown": {
+                name: "舊城區",
+                categories: {
+                    "michelin": [
+                        { name: "鬼門炒河粉 (Pad Thai Thipsamai)", feature: "金黃蛋皮完美包裹著紅潤的炒河粉，切開的畫面十分療癒。", address: "313-315 Maha Chai Rd / MRT Sam Yot 站步行 10 分。" },
+                        { name: "Kor Panit (芒果糯米飯)", feature: "皇室秘方傳承，糯米飯粒粒分明散發光澤。", address: "431-433 Tanao Rd / MRT Sam Yot 站步行 12 分。" },
+                        { name: "Krua Apsorn (古斯阿波森餐廳)", feature: "招牌「黃金蟹肉煎蛋」，厚實圓潤如飛碟般的烘蛋，切開滿滿蟹肉。", address: "169 Dinso Rd / 鄰近民主紀念碑，建議搭乘計程車。" }
+                    ],
+                    "greenbowl": [
+                        { name: "Mont Nomsod (烤土司)", feature: "曼谷人的國民甜點，厚片吐司淋上滿滿的綠色香蘭葉卡士達醬。", address: "160/1-3 Dinso Rd / MRT Sam Yot 站步行 12 分。" },
+                        { name: "Udom Pochana", feature: "中泰融合老店，深褐色的燉牛肉咖哩淋在白飯上，搭配酥脆炸春捲。", address: "78 Phraeng Phuthon Rd / MRT Sam Yot 站步行 10 分。" },
+                        { name: "Nattaporn Ice Cream", feature: "手工純天然無添加椰奶冰淇淋，可自由添加玉米、花生等復古配料。", address: "94 Phraeng Phuthon Rd / MRT Sam Yot 站步行 10 分。" }
+                    ],
+                    "dessert": [
+                        { name: "Mont Nomsod", feature: "曼谷國民宵夜，現烤厚片吐司淋滿綠色香蘭葉醬。", address: "160/1-3 Dinso Rd, Sao Chingcha / MRT Sam Yot 站步行 12 分。" },
+                        { name: "Nattaporn Ice Cream", feature: "隱身老社區，傳統手工純天然椰奶冰淇淋。", address: "94 Phraeng Phuthon Rd / MRT Sam Yot 站步行 10 分。" },
+                        { name: "Kor Panit", feature: "傳承皇室秘方的百年老字號芒果糯米飯。", address: "431-433 Tanao Rd / MRT Sam Yot 站步行 10 分。" },
+                        { name: "Cheng Sim Ei", feature: "泰式傳統剉冰，數十種鮮豔配料自由搭配。", address: "312, 314 Dinso Rd / MRT Sam Yot 站步行 12 分。" }
+                    ],
+                    "cafe": [
+                        { name: "Baan Khanom Pang Khing", feature: "兩百多年歷史泰式柚木老屋，精緻泰式下午茶放置在黃銅器皿上。", address: "47 Phraeng Phuthon Rd / MRT Sam Yot 站步行 10 分。" },
+                        { name: "Simiao Kafe (寺廟咖啡)", feature: "緊鄰中式寺廟旁的老屋咖啡，保留斑駁牆面與中藥櫃設計。", address: "121 Fueang Nakhon Rd / MRT Sam Yot 站步行 8 分。" },
+                        { name: "ELEFIN Coffee", feature: "大皇宮周邊少見的高質感咖啡，拿鐵拉花藝術精緻。", address: "394 Maha Rat Rd / MRT Sanam Chai 站步行 6 分。" },
+                        { name: "Kopi Hya Tai Kee (邢泰記)", feature: "70年老字號，保留傳統泰式大理石桌與玻璃杯裝盛的泰式熱咖啡。", address: "37 Siriphong Rd / MRT Sam Yot 站步行 5 分。" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Eagle Nest Bar", feature: "欣賞鄭王廟（黎明寺）日落與大皇宮夜景的最佳無死角露天酒吧。", address: "5th Floor, Sala Arun, 47-49 Maha Rat Rd / MRT Sanam Chai 站步行 8 分。" },
+                        { name: "Sala Rattanakosin Rooftop Bar", feature: "緊鄰昭披耶河畔，正對著鄭王廟的絕美身姿，極度浪漫。", address: "5th Floor, Sala Rattanakosin, 39 Maha Rat Rd / MRT Sanam Chai 站步行 8 分。" },
+                        { name: "Jay Fai (痣姐熱炒)", feature: "米其林一星的神級熱炒，黃金蟹肉煎蛋切開後滿滿的巨無霸鮮甜蟹肉。", address: "327 Maha Chai Rd / MRT Sam Yot 站步行 8 分。" },
+                        { name: "Tom Yum Goong Banglamphu", feature: "隱身在考山路旁，一鍋料多到滿出來的濃郁版海鮮冬蔭功。", address: "Soi Kraisi, Talat Yot, Phra Nakhon / 鄰近考山路。" }
+                    ]
+                }
+            },
+            "riverside": {
+                name: "昭披耶河畔",
+                categories: {
+                    "michelin": [
+                        { name: "頌莎粉絲蟹煲 (Somsak Pu Ob)", feature: "一排紅土砂鍋在炭火上同時熬煮，掀開鍋蓋時蒸騰的熱氣與鮮紅的螃蟹。", address: "Charoen Rat Rd / BTS Wongwian Yai 站步行 5 分。" },
+                        { name: "Baan Phadthai (泰式炒河粉之家)", feature: "藍色復古木造建築，精緻炒河粉與烤大蝦，環境極度好拍。", address: "21-23 Soi Charoen Krung 44 / BTS Saphan Taksin 站步行 5 分。" },
+                        { name: "Ten Suns (十光無骨牛肉湯)", feature: "清澈卻風味深沉的牛肉湯，大塊牛腩與牛筋燉得晶瑩剔透。", address: "Wisut Kasat Rd / 建議從渡輪碼頭轉乘嘟嘟車。" }
+                    ],
+                    "greenbowl": [
+                        { name: "Prachak Roasted Duck (新記烤鴨)", feature: "百年老店，櫥窗裡掛滿油亮紅潤的烤鴨，淋上深色甜麵醬汁。", address: "1415 Charoen Krung Rd / BTS Saphan Taksin 站步行 3 分。" },
+                        { name: "Volcanic Fried Mussel", feature: "鐵板上麵糊煎得劈啪作響，如火山爆發般酥脆的邊緣，堆滿新鮮海鮮。", address: "3 Charoen Krung 50 Alley / BTS Saphan Taksin 站步行 3 分。" },
+                        { name: "Tuptim Krob Wongwian Yai", feature: "鮮紅如寶石的荸薺泡在雪白濃郁的椰奶冰沙中，消暑首選。", address: "316 Lat Ya Rd / BTS Wongwian Yai 站步行 10 分。" }
+                    ],
+                    "dessert": [
+                        { name: "Tuptim Krob Wongwian Yai", feature: "鮮紅荸薺泡在椰奶冰沙中，色彩夢幻消暑。", address: "316 Lat Ya Rd / BTS Wongwian Yai 站步行 10 分。" },
+                        { name: "Panlee Bakery", feature: "70年歷史復古烘焙，必吃會爆漿的泰奶與香蘭葉小餐包。", address: "1335 Charoen Krung Rd / BTS Saphan Taksin 站步行 3 分。" },
+                        { name: "Bua Loy Somwang", feature: "手工揉製小湯圓，湯頭溫潤香甜不膩口。", address: "Charoen Krung Soi 44 / BTS Saphan Taksin 站步行 4 分。" },
+                        { name: "Karun Thai Tea (ICONSIAM)", feature: "撒上金箔的奢華泰奶冰沙，杯身設計極具質感。", address: "G Floor, ICONSIAM, 299 Charoen Nakhon Rd / BTS Charoen Nakhon 站步行 1 分。" }
+                    ],
+                    "cafe": [
+                        { name: "Hong Sieng Kong (宏祥黌)", feature: "兩百年廢墟風古董建築，戶外老樹盤根錯節緊鄰昭披耶河畔。", address: "734, 736 Soi Wanit 2 / MRT Hua Lamphong 站步行 15 分。" },
+                        { name: "Woodbrook Bangkok", feature: "擁有一個絕佳的河景木棧露台，是欣賞昭披耶河夕陽的秘境。", address: "1222/1 Song Wat Rd / MRT Wat Mangkon 站步行 10 分。" },
+                        { name: "Mother Roaster", feature: "隱身廢鐵堆巷弄裡的傳奇咖啡，木造老屋裡由老奶奶親自手沖。", address: "117 San Chao Rong Kueak Alley / MRT Hua Lamphong 站步行 15 分。" },
+                        { name: "The Jam Factory", feature: "舊倉庫改建的文創園區，擁有大片草地與綠樹，工業風與自然結合。", address: "41/1-5 Charoen Nakhon Rd / BTS Charoen Nakhon 站步行 8 分。" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Sky Bar at Lebua", feature: "《醉後大丈夫2》拍攝地，標誌性金色圓頂，曼谷最奢華高空酒吧。", address: "63rd Floor, State Tower, 1055 Silom Rd / BTS Saphan Taksin 站步行 10 分。" },
+                        { name: "Three Sixty Lounge", feature: "360度全景玻璃飛碟造型酒吧，將昭披耶河的Ｓ型河道完美捕捉。", address: "32nd Floor, Millennium Hilton Bangkok / BTS Charoen Nakhon 站步行 3 分。" },
+                        { name: "Next2 Cafe (香格里拉吃到飽)", feature: "無限量供應波士頓龍蝦、阿拉斯加雪蟹腳，戶外伴隨河景用餐。", address: "Shangri-La Bangkok, 89 Wat Suan Phlu Alley / BTS Saphan Taksin 站步行 5 分。" },
+                        { name: "Jumbo Seafood (ICONSIAM)", feature: "新加坡國寶級海鮮，招牌辣椒螃蟹與黑胡椒螃蟹選用巨大活蟹。", address: "G Floor, ICONSIAM, 299 Charoen Nakhon Rd / BTS Charoen Nakhon 站步行 1 分。" }
+                    ]
+                }
+            },
+            "chinatown": {
+                name: "耀華力中國城",
+                categories: {
+                    "michelin": [
+                        { name: "胖子粿汁", feature: "乳白色的重胡椒高湯配上捲曲的粿條與酥脆炸燒肉。", address: "408 Yaowarat Rd / MRT Wat Mangkon 站步行 5 分。" },
+                        { name: "林老五蠔煎 (Nai Mong Hoi Thod)", feature: "老師傅在巨大鐵板上將蚵仔煎煎至金黃焦脆，油花四濺。", address: "539 Phlap Phla Chai Rd / MRT Wat Mangkon 站步行 3 分。" },
+                        { name: "Pa Tong Go Savoey", feature: "炸過的短胖油條再拿到炭火上烤出格紋焦香，沾香蘭葉醬。", address: "Yaowarat Rd / MRT Wat Mangkon 站步行 5 分。" }
+                    ],
+                    "greenbowl": [
+                        { name: "色莫高脆皮燒肉飯 (Si Morakot)", feature: "金黃酥脆的脆皮豬與紅潤叉燒鋪滿白飯，淋上濃稠的紅醬汁。", address: "80-82 Sukon 1 Alley / MRT Hua Lamphong 站步行 5 分。" },
+                        { name: "Odean Wonton Noodle", feature: "清湯掛麵上豪邁地擺放一整支完整的巨無霸新鮮蟹鉗。", address: "724 Charoen Krung Rd / MRT Wat Mangkon 站步行 5 分。" },
+                        { name: "Sweettime (甜湯車)", feature: "熱門甜品車，粉紅色的招牌下，一碗碗黑芝麻湯圓在霓虹燈下閃爍。", address: "436 Yaowarat Rd / MRT Wat Mangkon 站步行 5 分。" }
+                    ],
+                    "dessert": [
+                        { name: "Ba Hao Tian Mi (八號甜蜜)", feature: "時髦中式甜品店，招牌枸杞布丁，店內霓虹燈光影有王家衛電影感。", address: "8 Phadung Dao Rd / MRT Wat Mangkon 站步行 5 分。" },
+                        { name: "Yaowarat Toasted Bread", feature: "排隊的爆漿炭烤小餐包，流出的咖椰醬與巧克力醬畫面極度罪惡。", address: "452 Yaowarat Rd / MRT Wat Mangkon 站步行 6 分。" },
+                        { name: "Sweettime (甜湯車)", feature: "耀華力路粉紅霓虹燈下的熱門甜品車，提供燕窩與黑芝麻湯圓。", address: "436 Yaowarat Rd / MRT Wat Mangkon 站步行 5 分。" },
+                        { name: "Nam Dao Huu (南豆腐)", feature: "復古文青風豆花店，各式泰中融合的養生甜湯裝在復古碗碟中。", address: "33 Plaeng Nam Rd / MRT Wat Mangkon 站步行 3 分。" }
+                    ],
+                    "cafe": [
+                        { name: "Wallflowers Cafe", feature: "結合花店與咖啡廳，充滿乾燥花、木質調與頹廢浪漫主義。", address: "31-33 Soi Nana / MRT Hua Lamphong 站步行 5 分。" },
+                        { name: "Lhong Tou Cafe (龍頭)", feature: "創意雙層梯子港式茶樓設計座位，中國城最知名的打卡點。", address: "538 Yaowarat Rd / MRT Wat Mangkon 站步行 4 分。" },
+                        { name: "CHATA Specialty Coffee", feature: "隱身在溫室玻璃屋與斑駁老紅磚牆中的精品咖啡，新舊交融。", address: "98 Phat Sai Rd / MRT Wat Mangkon 站步行 6 分。" },
+                        { name: "As.is", feature: "粗獷裸露的清水模與紅磚，極具個性的工業風。", address: "45 Rama IV Rd / MRT Hua Lamphong 站步行 4 分。" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Sky View 360", feature: "中國城最高的觀景點，擁有復古的 360 度緩慢旋轉景觀。", address: "25th Floor, Grand China Hotel, 215 Yaowarat Rd / MRT Wat Mangkon 站步行 8 分。" },
+                        { name: "Wallflowers Rooftop", feature: "頹廢工業風與迷幻花藝的露天花園酒吧，各式特色調酒裝飾華麗。", address: "Rooftop, 31-33 Soi Nana / MRT Hua Lamphong 站步行 5 分。" },
+                        { name: "T&K Seafood (綠色制服)", feature: "中國城最火爆的海鮮攤。炭火直烤的大頭蝦與咖哩炒蟹。", address: "49, 51 Phadung Dao Rd / MRT Wat Mangkon 站步行 5 分。" },
+                        { name: "Rut & Uri Seafood (紅色制服)", feature: "生醃生蠔、烤魚與酸辣海鮮湯的口味極重且道地，熱鬧氛圍。", address: "Yaowarat Rd / MRT Wat Mangkon 站步行 5 分。" }
+                    ]
+                }
+            },
+            "ratchada": {
+                name: "拉差達與匯狂區",
+                categories: {
+                    "michelin": [
+                        { name: "建興酒家 拉差達店", feature: "招牌「咖哩炒蟹」，滑嫩的黃色蛋汁與紅油蟹肉交織，拌飯誘惑力強。", address: "167 Ratchadaphisek Rd / MRT Huai Khwang 站 3 號出口即達。" },
+                        { name: "Zabb One Ratchada", feature: "巨大的烤魚、紅通通的涼拌海鮮與生蝦，展現熱辣東北風情。", address: "Ratchadaphisek Rd / MRT Thailand Cultural Centre 站步行 5 分。" },
+                        { name: "Raan Nae-Naw", feature: "堆積如山的「火山排骨」酸辣湯，綠色的新鮮辣椒撒滿整座肉山。", address: "Pracha Songkhro Rd / 建議由 MRT Huai Khwang 轉乘計程車。" }
+                    ],
+                    "greenbowl": [
+                        { name: "Meng Pochana (明記麵館)", feature: "匯狂在地老字號，大火快炒的廣東炒麵與充滿鑊氣的燒肉炒芥藍。", address: "Pracha Songkhro Rd / MRT Huai Khwang 站步行或轉乘。" },
+                        { name: "Kuang Seafood (光海鮮)", feature: "大蒜蒸烤生蠔或咖哩炒蟹氣勢驚人，水族箱活跳跳海鮮。", address: "Soi Ratchadaphisek 10 / MRT Huai Khwang 站步行 8 分。" },
+                        { name: "Huai Khwang Night Market 豬腳飯", feature: "深夜的匯狂夜市，熱氣騰騰的滷水鍋，充滿真實曼谷夜生活感。", address: "Pracha Songkhro Rd / MRT Huai Khwang 站出口即達。" }
+                    ],
+                    "dessert": [
+                        { name: "Bua Loy Parinya", feature: "匯狂夜市湯圓，七彩爆漿芝麻湯圓浸泡在熱鮮奶中，展現夜市煙火氣。", address: "Pracha Songkhro Rd, Din Daeng / MRT Huai Khwang 站步行 4 分。" },
+                        { name: "Cheng Sim Ei (Ratchada)", feature: "傳統甜湯剉冰連鎖，提供多達四五十種配料，淋上紅糖水極度消暑。", address: "G Floor, Esplanade, 99 Ratchadaphisek Rd / MRT Thailand Cultural Centre 站步行 2 分。" },
+                        { name: "Hollys Coffee", feature: "24小時韓式咖啡，招牌是堆滿新鮮草莓或芒果的巨大雪花冰。", address: "1st Floor, The Street Ratchada / MRT Thailand Cultural Centre 站步行 6 分。" },
+                        { name: "After You (The Street Ratchada)", feature: "經典泰奶刨冰與罪惡甜點，是在地人吃完夜市後的完美收尾。", address: "1st Floor, The Street Ratchada / MRT Thailand Cultural Centre 站步行 6 分。" }
+                    ],
+                    "cafe": [
+                        { name: "Greytown Cafe", feature: "隱身在拉差達巷弄內的極簡灰黑色調質感咖啡館，空間沉穩安靜。", address: "80 Ratchadaphisek Soi 18 / MRT Huai Khwang 站步行 8 分。" },
+                        { name: "A Lot of Love", feature: "位於商場內但充滿綠意植栽的溫室風格，提供健康早午餐與果昔。", address: "3rd Floor, Fortune Town, 1 Ratchadaphisek Rd / MRT Rama 9 站步行 2 分。" },
+                        { name: "Casa Lapin (Rama 9)", feature: "曼谷知名精品咖啡，木質工業風設計，提供高品質義式咖啡。", address: "3rd Floor, Central Plaza Rama 9 / MRT Rama 9 站步行 2 分。" },
+                        { name: "% Arabica (Rama 9)", feature: "純白極簡的太空艙幾何設計，提供香醇高品質拿鐵，極具現代感。", address: "G Floor, Central Plaza Rama 9 / MRT Rama 9 站步行 2 分。" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "180 Sky Lounge", feature: "提供 180 度的曼谷新 CBD 天際線視野，空間舒適且人潮不擁擠。", address: "29th Floor, Grand Mercure Bangkok Fortune / MRT Rama 9 站步行 2 分。" },
+                        { name: "Vela Rooftop", feature: "高架捷運旁的頂樓露天酒吧，現場 Live Band 演出氣氛極度熱烈。", address: "5th Floor, 1029/2 Phahon Yothin Rd / BTS Sanam Pao 站步行 1 分。" },
+                        { name: "Mungkorn Seafood (吃到飽)", feature: "平價海鮮燒烤吃到飽，無限量供應活跳跳的大頭蝦、螃蟹與貝類。", address: "Ratchadaphisek Soi 36 / MRT Phahon Yothin 站轉乘計程車。" },
+                        { name: "Best Beef (Ratchada 吃到飽)", feature: "燒烤吃到飽，無限量的新鮮海鮮配上鐵板燒烤極度過癮。", address: "Ratchadaphisek Rd / MRT Huai Khwang 站步行 10 分。" }
+                    ]
+                }
+            },
+            "chatuchak": {
+                name: "恰圖恰與阿里區",
+                categories: {
+                    "michelin": [
+                        { name: "Ong Tong Khao Soi", feature: "黃澄澄椰奶咖哩湯底，上面頂著一叢金黃酥脆炸麵條，裝在木質餐具中。", address: "31 Phahon Yothin 7 Alley / BTS Ari 站步行 5 分。" },
+                        { name: "Lay Lao", feature: "華欣海鮮與東北口味結合，裝在木盆裡的新鮮涼拌墨魚與青木瓜。", address: "65 Phahon Yothin 7 Alley / BTS Ari 站步行 5 分。" },
+                        { name: "Somsak Mhu Ping", feature: "恰圖恰市集邊緣名攤，炭火上滋滋作響的秘醬烤豬肉串。", address: "153 Kamphaeng Phet 2 Rd / MRT Kamphaeng Phet 站步行 5 分。" }
+                    ],
+                    "greenbowl": [
+                        { name: "Thanee Khao Moo Daeng", feature: "阿里區傳奇燒肉，櫥窗裡厚實脆皮豬，切開時清晰可見酥脆表皮層。", address: "1061 Phahon Yothin Rd / BTS Ari 站步行 5 分。" },
+                        { name: "Sudjai Kai Yang", feature: "貴婦市場內，攤位擺滿金黃色的 Isan 烤雞與各式涼拌菜。", address: "Or Tor Kor Market / MRT Kamphaeng Phet 站 3 號出口。" },
+                        { name: "Prik Yuak", feature: "像珠寶盒般展示的各種泰式咖哩，一鍋鍋鮮豔的紅綠咖哩。", address: "Or Tor Kor Market / MRT Kamphaeng Phet 站 3 號出口。" }
+                    ],
+                    "dessert": [
+                        { name: "Coco JJ", feature: "恰圖恰市集必吃！裝在半殼椰子裡的椰奶冰淇淋，附清涼椰子水。", address: "Section 1, Chatuchak Market, Kamphaeng Phet 2 Rd / MRT Kamphaeng Phet 站步行 2 分。" },
+                        { name: "Waan D", feature: "阿里區的復古泰式冰品店，提供清涼滑嫩仙草與傳統刨冰。", address: "16 Ari 1 Alley / BTS Ari 站步行 3 分。" },
+                        { name: "Qraft.", feature: "日系木質調，專賣現烤可頌與濃郁度分級的抹茶冰淇淋。", address: "9/3 Ari Soi 1 / BTS Ari 站步行 3 分。" },
+                        { name: "Kanom Krok Bai Toey", feature: "恰圖恰人氣攤位，現烤的香蘭葉綠色傳統小糕點，帶微焦邊緣。", address: "Section 22, Chatuchak Market / BTS Mo Chit 站步行 8 分。" }
+                    ],
+                    "cafe": [
+                        { name: "Nana Coffee Roasters Ari", feature: "屢獲殊榮老屋改造熱帶花園，陽光穿透樹葉灑落紅磚建築。", address: "24/2 Ari 4 Fang Tai Alley / BTS Ari 站步行 8 分。" },
+                        { name: "Porcupine Café", feature: "白色洞穴風格設計，搭配溫潤木質傢俱與乾燥花，充滿波希米亞風。", address: "48 Ari 4 Fang Nua Alley / BTS Ari 站步行 7 分。" },
+                        { name: "Bar Storia del Caffè", feature: "歐式復古綠色外牆，坐在戶外座位區彷彿置身於歐洲街頭。", address: "13 Ari 4 Fang Nua Alley / BTS Ari 站步行 7 分。" },
+                        { name: "Yellow Lane", feature: "結合早午餐與庭院的慢活風格，大片草皮非常適合放鬆。", address: "2/16 Phahon Yothin 5 Alley / BTS Ari 站步行 8 分。" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Blue Sky Rooftop Bar", feature: "俯瞰恰圖恰公園的巨大綠地與曼谷北部的遼闊天際線，視野震撼。", address: "24th Floor, Centara Grand Ladprao, 1695 Phahon Yothin Rd / BTS Ha Yaek Lat Phrao 站步行 3 分。" },
+                        { name: "Dumbo Jazz & Vinyl Bar", feature: "美式復古爵士酒吧，黑膠與霓虹燈交織，平視 BTS 列車駛過。", address: "6th Floor, INN-Office Building, Phahon Yothin Rd / BTS Saphan Khwai 站步行 2 分。" },
+                        { name: "Best Beef (Saphan Khwai 吃到飽)", feature: "高品質肉類與帶殼海鮮、新鮮活蝦烤肉吃到飽，平價且氣氛熱鬧。", address: "1530 Phahon Yothin Rd / BTS Saphan Khwai 站步行 5 分。" },
+                        { name: "Or Tor Kor Seafood Center", feature: "曼谷最乾淨貴婦市場，眾多提供頂級烤大蝦、蟹肉與生蠔的現點現吃攤位。", address: "Or Tor Kor Market, Kamphaeng Phet Rd / MRT Kamphaeng Phet 站步行 2 分。" }
+                    ]
+                }
+            }
+        };
+
+        const categoriesMap = {
+            "michelin": { name: "🌟 米其林推薦", color: "bg-red-100 text-red-700 hover:bg-red-500 hover:text-white border-red-500" },
+            "greenbowl": { name: "🟢 綠碗公認證", color: "bg-green-100 text-green-700 hover:bg-green-500 hover:text-white border-green-500" },
+            "dessert": { name: "🍧 甜點飲料", color: "bg-pink-100 text-pink-700 hover:bg-pink-500 hover:text-white border-pink-500" },
+            "cafe": { name: "☕ 咖啡廳", color: "bg-amber-100 text-amber-700 hover:bg-amber-500 hover:text-white border-amber-500" },
+            "rooftop_seafood": { name: "🍸 高空酒吧&海鮮", color: "bg-purple-100 text-purple-700 hover:bg-purple-500 hover:text-white border-purple-500" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-colors font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-blue-500');
+            clickedBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('michelin', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500', 'shadow-md');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500', 'shadow-md');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-gray-500">此分類目前無資料</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL
+                const encodedQuery = encodeURIComponent(`${item.name} ${item.address.split('/')[0]}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col fade-in hover:shadow-md transition-shadow";
+                card.style.animationDelay = `${index * 0.05}s`;
+
+                card.innerHTML = `
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4 leading-relaxed"><span class="font-semibold text-gray-700">特色：</span>${item.feature}</p>
+                        
+                        <div class="bg-gray-50 p-3 rounded-lg flex items-start gap-2 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight">${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-5 pb-5 mt-auto">
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            開啟導航
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>

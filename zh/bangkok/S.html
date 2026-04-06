@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>泰國自由行 行程魔法師</title>
+  
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 載入 FontAwesome 圖示庫 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- 載入 React 核心庫與 Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    @media print {
+      body { background-color: white !important; }
+      .print-hidden { display: none !important; }
+      .print-break-avoid { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+  
+  <div id="root"></div>
+
+  <!-- React 應用程式邏輯 -->
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // --- 景點資料庫 (包含精確時間視窗、時數、新分潤連結與交通指南) ---
+    const ATTRACTIONS = [
+      // ================= 曼谷 (Bangkok) & 機場 =================
+      { id: 'bkk_airport', city: 'bangkok', name: '蘇凡納布國際機場 (BKK)', stay: 1.5, region: 10, regionName: '曼谷機場', type: '機場', desc: '泰國主要門戶，抵達後領取行李並辦理入境。', transport: '於機場 B1 層搭乘 ARL 機場快線 (Airport Rail Link) 進入市區，或於入境大廳搭乘預約接送專車。', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/activity/110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher/?aid=114993', text: '5G eSIM 吃到飽' },
+          { url: 'https://www.klook.com/zh-TW/activity/74427-truemoveh-thailand-tourist-sim-card/?aid=114993', text: 'True5G 實體卡' },
+          { url: 'https://www.klook.com/zh-TW/activity/11626-bts-skytrain-rabbit-card-bangkok/?aid=114993', text: 'BTS 兔子卡' },
+          { url: 'https://www.klook.com/zh-TW/airport-transfers/?aid=114993', text: '預約專人接送' }
+        ] 
+      },
+      { id: 'dmk_airport', city: 'bangkok', name: '廊曼國際機場 (DMK)', stay: 1.5, region: 10, regionName: '曼谷機場', type: '機場', desc: '曼谷老牌機場，主要運行低成本航空。', transport: '於機場搭乘 SRT 紅線捷運，或至航廈外搭乘 A1/A2 機場巴士前往 BTS Mo Chit 站轉乘。', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/activity/110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher/?aid=114993', text: '5G eSIM 吃到飽' },
+          { url: 'https://www.klook.com/zh-TW/activity/11626-bts-skytrain-rabbit-card-bangkok/?aid=114993', text: 'BTS 兔子卡' },
+          { url: 'https://www.klook.com/zh-TW/airport-transfers/?aid=114993', text: '預約專人接送' }
+        ] 
+      },
+
+      // ================= 曼谷住宿區域 =================
+      { id: 'acc_siam', city: 'bangkok', name: '住宿: 暹羅 / 巴吞旺', stay: 1, region: 14, regionName: '市中心', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 BTS 淺綠/深綠線至 Siam 站 (CEN) 下車，步行前往飯店。' },
+      { id: 'acc_sukhumvit', city: 'bangkok', name: '住宿: 素坤逸 (Sukhumvit)', stay: 1, region: 18, regionName: '素坤逸區', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 BTS 淺綠線至素坤逸沿線各站下車，步行前往飯店。' },
+      { id: 'acc_asok', city: 'bangkok', name: '住宿: 阿索克 (Asok)', stay: 1, region: 18, regionName: '素坤逸區', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 BTS 淺綠線至 Asok 站 (E4) 或 MRT 藍線至 Sukhumvit 站 (BL22) 下車。' },
+      { id: 'acc_nana', city: 'bangkok', name: '住宿: 那那 (Nana)', stay: 1, region: 18, regionName: '素坤逸區', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 BTS 淺綠線至 Nana 站 (E3) 下車。' },
+      { id: 'acc_phromphong', city: 'bangkok', name: '住宿: 澎蓬 (Phrom Phong)', stay: 1, region: 18, regionName: '素坤逸區', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 BTS 淺綠線至 Phrom Phong 站 (E5) 下車。' },
+      { id: 'acc_thonglo', city: 'bangkok', name: '住宿: 通羅 (Thong Lo)', stay: 1, region: 18, regionName: '素坤逸區', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 BTS 淺綠線至 Thong Lo 站 (E6) 下車。' },
+      { id: 'acc_ekkamai', city: 'bangkok', name: '住宿: 伊卡邁 (Ekkamai)', stay: 1, region: 18, regionName: '素坤逸區', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 BTS 淺綠線至 Ekkamai 站 (E7) 下車。' },
+      { id: 'acc_oldcity', city: 'bangkok', name: '住宿: 老城區 / 拉達那哥欣', stay: 1, region: 11, regionName: '舊城區', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 MRT 藍線至 Sam Yot 站 (BL30) 或 Sanam Chai 站 (BL31) 下車。' },
+      { id: 'acc_riverside', city: 'bangkok', name: '住宿: 河畔區 / 石龍軍路', stay: 1, region: 12, regionName: '昭披耶河畔', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 BTS 深綠線至 Saphan Taksin 站 (S6) 下車轉乘飯店接駁船。' },
+      { id: 'acc_silom', city: 'bangkok', name: '住宿: 是隆 / 沙吞 (Silom / Sathorn)', stay: 1, region: 15, regionName: '是隆沙吞', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 BTS 深綠線至 Sala Daeng 站 (S2) 或 Chong Nonsi 站 (S3) 下車。' },
+      { id: 'acc_ari_chatuchak', city: 'bangkok', name: '住宿: 阿黎 / 洽圖洽', stay: 1, region: 13, regionName: '北區', type: '住宿區域', desc: '辦理飯店入住手續並放置行李。', transport: '搭乘 BTS 淺綠線至 Ari 站 (N5) 或 Mo Chit 站 (N8) 下車。' },
+
+      // ================= 換匯推薦 (強制飯店後首段行程) =================
+      { id: 'super_rich_green', city: 'bangkok', name: 'Superrich Thailand (綠標)', stay: 0.5, region: 14, regionName: '市中心', type: '換匯推薦', desc: '首要行程，市區最優匯率。', transport: '搭乘 BTS 淺綠線至 Chit Lom 站 (E1) 下車，由 6 號出口步行約 10 分鐘抵達本店。' },
+      { id: 'super_rich_orange', city: 'bangkok', name: 'Superrich 1965 (橘標)', stay: 0.5, region: 14, regionName: '市中心', type: '換匯推薦', desc: '首要行程，分店極多。', transport: '搭乘 BTS/MRT 於站內或鄰近商場內兌換 (如 Asok 站或 Chit Lom 站周邊)。' },
+      { id: 'vasu_exchange', city: 'bangkok', name: 'Vasu Exchange (活素)', stay: 0.5, region: 18, regionName: '素坤逸區', type: '換匯推薦', desc: '首要行程，Nana站旁老字號。', transport: '搭乘 BTS 淺綠線至 Nana 站 (E3) 下車，由 1 號出口出站即達。' },
+      { id: 'bkk_super_rich', city: 'bangkok', name: '機場 B1 Super Rich (橘標)', stay: 0.5, region: 10, regionName: '曼谷機場', type: '換匯推薦', desc: '機場內匯率最佳點。', transport: '位於蘇凡納布機場 B1 層 ARL 機場快線站區旁。' },
+      { id: 'dmk_happy_rich', city: 'bangkok', name: '廊曼機場 Happy Rich', stay: 0.5, region: 10, regionName: '曼谷機場', type: '換匯推薦', desc: '廊曼機場首選換匯點。', transport: '位於廊曼機場航廈內與聯外天橋上。' },
+
+      // ================= 大型超市 =================
+      { id: 'big_c_rajdamri', city: 'bangkok', name: 'Big C Supercenter (本店)', stay: 2, region: 14, regionName: '市中心', type: '大型超市', desc: '觀光客掃貨必去。必買Pocky、魷魚絲、泰奶。', transport: '搭乘 BTS 淺綠線至 Chit Lom 站 (E1) 下車，沿 R-Walk 空橋步行約 10 分鐘，位於 Central World 對面。' },
+      { id: 'lotus_onnut', city: 'bangkok', name: "Lotus's 蓮花超市 (On Nut)", stay: 1.5, region: 18, regionName: '素坤逸區', type: '大型超市', desc: '在地量販店。必買藍象調理包、蛇牌沐浴乳。', transport: '搭乘 BTS 淺綠線至 On Nut 站 (E9) 下車，由 2 號出口空橋直結。' },
+      { id: 'gourmet_market', city: 'bangkok', name: 'Gourmet Market', stay: 1.5, timeWindow: [10, 21], region: 14, regionName: '市中心', type: '大型超市', desc: '精品超市。必買皇家農場果乾。', transport: '搭乘 BTS 淺綠線/深綠線至 Siam 站 (CEN) 下車，位於 Siam Paragon 地下樓層。' },
+
+      // ================= 購物商場 (10:00~21:00) =================
+      { id: 'one_bangkok', city: 'bangkok', name: 'One Bangkok', stay: 3, timeWindow: [10, 21], region: 15, regionName: '是隆沙吞', type: '購物商場', desc: '2024年底開幕全新巨型地標！', transport: '搭乘 MRT 藍線至 Lumphini 站 (BL25) 下車，由 3 號出口直通商場地下層。' },
+      { id: 'emsphere', city: 'bangkok', name: 'Emsphere', stay: 3, timeWindow: [10, 21], region: 18, regionName: '素坤逸區', type: '購物商場', desc: '曼谷最潮未來感購物中心。', transport: '搭乘 BTS 淺綠線至 Phrom Phong 站 (E5) 下車，沿天橋步行約 5 分鐘抵達。' },
+      { id: 'iconsiam', city: 'bangkok', name: 'ICONSIAM 暹羅天地', stay: 3, timeWindow: [10, 21], region: 12, regionName: '昭披耶河畔', type: '購物商場', desc: '最奢華河畔地標，擁有超浮誇室內水上市場。', transport: '搭乘 BTS 金線至 Charoen Nakhon 站 (G2) 下車直達；或搭深綠線至 Saphan Taksin 站 (S6) 下車，至 Sathorn 碼頭轉乘免費接駁船。' },
+      { id: 'terminal21', city: 'bangkok', name: 'Terminal 21 Asok', stay: 2.5, timeWindow: [10, 21], region: 18, regionName: '素坤逸區', type: '購物商場', desc: '機場主題，全曼谷最便宜 Pier 21 美食街。', transport: '搭乘 BTS 淺綠線至 Asok 站 (E4) 下車由 1/3 號出口直通；或搭 MRT 藍線至 Sukhumvit 站 (BL22) 下車由 3 號出口直通。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/8376-lets-relax-spa-treatments-bangkok/?aid=114993', text: '線上預約 SPA'}] },
+      { id: 'siam_paragon', city: 'bangkok', name: 'Siam Paragon', stay: 3, timeWindow: [10, 21], region: 14, regionName: '市中心', type: '購物商場', desc: '市中心奢華指標，地下有超大水族館。', transport: '搭乘 BTS 淺綠線/深綠線至 Siam 站 (CEN) 下車，由 3/5 號出口直通商場。' },
+      { id: 'central_world', city: 'bangkok', name: 'Central World 中央世界', stay: 3, timeWindow: [10, 21], region: 14, regionName: '市中心', type: '購物商場', desc: '好逛度極高的大型商城。', transport: '搭乘 BTS 淺綠線至 Chit Lom 站 (E1) 下車，由 6 號出口經 R-Walk 空橋步行抵達。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/65634-lets-relax-spa-treatment-central-world-bangkok/?aid=114993', text: '線上預約 SPA'}] },
+      { id: 'mbk', city: 'bangkok', name: 'MBK 中心', stay: 2, timeWindow: [10, 21], region: 14, regionName: '市中心', type: '購物商場', desc: '電子、雜貨與美食老字號。', transport: '搭乘 BTS 深綠線至 National Stadium 站 (W1) 下車，由 4 號出口直通。' },
+      { id: 'siam_square', city: 'bangkok', name: '暹羅廣場 (Siam Square)', stay: 2.5, timeWindow: [10, 21], region: 14, regionName: '市中心', type: '購物商場', desc: '曼谷原宿，在地年輕人流行指標。', transport: '搭乘 BTS 淺綠線/深綠線至 Siam 站 (CEN) 下車，由 2/4/6 號出口步行即達。' },
+      { id: 'emquartier', city: 'bangkok', name: 'EmQuartier', stay: 2.5, timeWindow: [10, 21], region: 18, regionName: '素坤逸區', type: '購物商場', desc: '高設計感的空中花園商場。', transport: '搭乘 BTS 淺綠線至 Phrom Phong 站 (E5) 下車，由 1 號出口直通。' },
+      { id: 'gateway_ekkamai', city: 'bangkok', name: 'Gateway Ekkamai', stay: 2, timeWindow: [10, 21], region: 18, regionName: '素坤逸區', type: '購物商場', desc: '日式主題百貨，有許多連鎖餐廳。', transport: '搭乘 BTS 淺綠線至 Ekkamai 站 (E7) 下車，由 4 號出口直通。' },
+      { id: 'bacc', city: 'bangkok', name: 'BACC 曼谷藝術文化中心', stay: 2, timeWindow: [10, 21], region: 14, regionName: '市中心', type: '購物商場', desc: '充滿設計感的螺旋狀藝術空間。', transport: '搭乘 BTS 深綠線至 National Stadium 站 (W1) 下車，由 3 號出口步行即達。' },
+      { id: 'pratunam', city: 'bangkok', name: '水門市場 (Pratunam)', stay: 2.5, timeWindow: [10, 21], region: 14, regionName: '市中心', type: '購物商場', desc: '泰國版五分埔，最大成衣批發中心。', transport: '搭乘 BTS 淺綠線至 Chit Lom 站 (E1) 下車，經 R-Walk 空橋往北步行約 15 分鐘。' },
+
+      // ================= 寺廟與經典必訪 (10:00~21:00) =================
+      { id: 'grand_palace', city: 'bangkok', name: '大皇宮 & 玉佛寺', stay: 2.5, timeWindow: [10, 21], region: 11, regionName: '舊城區', type: '經典必訪', desc: '最具指標性的皇室宗教建築。', transport: '搭乘 MRT 藍線至 Sanam Chai 站 (BL31) 下車，由 1 號出口出站，步行約 15 分鐘可達。', bookingLinks: [{url: 'https://affiliate.klook.com/redirect?aid=114993&aff_adid=1231994&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F3021-bangkok-must-visit-landmarks-day-tour%2F', text: '優惠預約'}] },
+      { id: 'wat_pho', city: 'bangkok', name: '臥佛寺 (Wat Pho)', stay: 1.5, timeWindow: [10, 21], region: 11, regionName: '舊城區', type: '經典必訪', desc: '巨大金身臥佛，泰式按摩發源地。', transport: '搭乘 MRT 藍線至 Sanam Chai 站 (BL31) 下車，由 1 號出口出站，步行約 10 分鐘。' },
+      { id: 'wat_arun', city: 'bangkok', name: '鄭王廟 (Wat Arun)', stay: 1.5, timeWindow: [10, 21], region: 11, regionName: '舊城區', type: '經典必訪', desc: '河畔絕美白塔，拍泰服首選。', transport: '搭乘 MRT 藍線至 Sanam Chai 站 (BL31) 下車，步行至 Tha Tien 碼頭轉搭跨河渡輪直達對岸。' },
+      { id: 'wat_saket', city: 'bangkok', name: '金山寺 (Wat Saket)', stay: 1.5, timeWindow: [10, 21], region: 11, regionName: '舊城區', type: '經典必訪', desc: '曼谷老城區制高點，360度俯瞰全景。', transport: '搭乘空盛桑運河快船至終點站 Panfa Leelard 碼頭，下船後步行約 5 分鐘。' },
+      { id: 'wat_paknam', city: 'bangkok', name: '水門寺 (Wat Paknam)', stay: 1.5, timeWindow: [10, 21], region: 17, regionName: '吞武里區', type: '經典必訪', desc: '69公尺高金色大佛，琉璃佛塔。', transport: '搭乘 MRT 藍線至 Bang Phai 站 (BL33) 下車，步行或轉乘嘟嘟車約 10 分鐘抵達。' },
+      { id: 'erawan_shrine', city: 'bangkok', name: '四面佛 (Erawan)', stay: 1, timeWindow: [10, 21], region: 14, regionName: '市中心', type: '經典必訪', desc: '香火極度鼎盛！著名的信仰中心。', transport: '搭乘 BTS 淺綠線至 Chit Lom 站 (E1) 下車，由 2 號出口步行約 3 分鐘。' },
+      { id: 'mahanakhon', city: 'bangkok', name: '瑪哈納功 SkyWalk', stay: 1.5, timeWindow: [10, 21], region: 15, regionName: '是隆沙吞', type: '經典必訪', desc: '透明玻璃觀景台，俯瞰曼谷。', transport: '搭乘 BTS 深綠線至 Chong Nonsi 站 (S3) 下車，由 3 號出口直達大樓入口。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/16870-king-power-mahanakhon-skywalk-ticket-bangkok/?aid=114993', text: '優惠門票'}] },
+
+      // ================= 熱門市集與夜市 =================
+      { id: 'khlong_lat_mayom', city: 'bangkok', name: '空叻瑪榮水上市場', stay: 3, timeWindow: [9, 12], region: 17, regionName: '吞武里區', type: '熱門市集', desc: '在地人最愛水上市場。', transport: '搭乘 BTS 深綠線至 Bang Wa 站 (S12) 下車，轉乘計程車約 15 分鐘可達。' },
+      { id: 'yaowarat', city: 'bangkok', name: '中國城 (Yaowarat)', stay: 2.5, timeWindow: [17, 21], region: 11, regionName: '舊城區', type: '熱門市集', desc: '深夜海鮮小吃天堂，米其林推薦雲集。', transport: '搭乘 MRT 藍線至 Wat Mangkon 站 (BL29) 下車，由 1 號出口步行約 5 分鐘抵達主街。' },
+      { id: 'jodd_fairs', city: 'bangkok', name: '喬德拉差達夜市', stay: 2, timeWindow: [17, 21], region: 14, regionName: '市中心', type: '熱門市集', desc: '全曼谷最熱門夜市，火山排骨首選。', transport: '搭乘 MRT 藍線至 Phra Ram 9 站 (BL20) 下車，由 2 號出口步行約 5 分鐘抵達。' },
+      { id: 'chatuchak', city: 'bangkok', name: '恰圖恰週末市集', stay: 4, timeWindow: [10, 17], region: 13, regionName: '北區', type: '熱門市集', desc: '全球最大跳蚤市場。', transport: '搭乘 BTS 淺綠線至 Mo Chit 站 (N8) 由 1 號出口，或搭 MRT 藍線至 Chatuchak Park 站 (BL13) 由 1 號出口出站即達。' },
+      { id: 'banthat_thong', city: 'bangkok', name: '班塔通美食街', stay: 2.5, timeWindow: [10, 17], region: 14, regionName: '市中心', type: '熱門市集', desc: '朱拉隆功大學旁美食街。', transport: '搭乘 MRT 藍線至 Sam Yan 站 (BL27) 下車，由 2 號出口步行約 10 分鐘抵達。' },
+      { id: 'save_one_go', city: 'bangkok', name: 'Save One Go 夜市', stay: 2.5, timeWindow: [17, 21], region: 13, regionName: '北區', type: '熱門市集', desc: '在地人平價大型夜市。', transport: '搭乘 BTS 淺綠線至 Yaek Kor Por Aor 站 (N23) 下車，由 4 號出口步行約 5 分鐘。' },
+      { id: 'srinagarindra', city: 'bangkok', name: '席娜卡林火車夜市', stay: 3, timeWindow: [17, 21], region: 19, regionName: '東南區', type: '熱門市集', desc: '美式復古風火車夜市。', transport: '搭乘 MRT 黃線至 Suan Luang Rama IX 站 (YL15) 下車，步行約 10 分鐘抵達。' },
+      { id: 'khaosan', city: 'bangkok', name: '考山路 (Khao San)', stay: 2, timeWindow: [17, 21], region: 11, regionName: '舊城區', type: '熱門市集', desc: '背包客、按摩與夜生活集中地。', transport: '無直達捷運，建議搭乘 Grab，或於民主紀念碑周邊下車步行抵達。' },
+      { id: 'asiatique', city: 'bangkok', name: 'Asiatique 河濱夜市', stay: 2.5, timeWindow: [12, 21], region: 12, regionName: '昭披耶河畔', type: '熱門市集', desc: '擁有大型摩天輪與浪漫的河景。', transport: '搭乘 BTS 深綠線至 Saphan Taksin 站 (S6) 下車，由 2 號出口轉乘 Asiatique 免費接駁船。' },
+      { id: 'the_one_ratchada', city: 'bangkok', name: 'The One Ratchada 夜市', stay: 2.5, timeWindow: [17, 21], region: 14, regionName: '市中心', type: '熱門市集', desc: '原拉差達火車夜市舊址改建。', transport: '搭乘 MRT 藍線至 Thailand Cultural Centre 站 (BL19) 下車，由 3 號出口步行即達。' },
+      { id: 'ramkhamhaeng_night', city: 'bangkok', name: '蘭甘亨大學夜市', stay: 2.5, timeWindow: [17, 21], region: 19, regionName: '東南區', type: '熱門市集', desc: '泰國大學生私藏夜市，物價超便宜。', transport: '搭乘 ARL 機場快線至 Ramkhamhaeng 站下車，轉乘計程車約 10 分鐘抵達。' },
+
+      // ================= 近郊特色 =================
+      { id: 'damnoen_saduak', city: 'bangkok', name: '丹能沙朵水上市場', stay: 2, timeWindow: [8, 20], region: 16, regionName: '近郊', type: '近郊特色', desc: '與美功鐵道市場一起綁定出現。', transport: '建議由曼谷出發包車前往。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/127327-damnoen-saduak-floating-market-maeklong-railway-market/?aid=114993', text: '線上預約'}, {url: 'https://www.klook.com/zh-TW/activity/96602-pattaya-discovery-private-tour-private-day-tour-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=22a3a98efb&aid=114993', text: '水上+鐵道+遊船晚餐'}] },
+      { id: 'maeklong', city: 'bangkok', name: '美功鐵道市場', stay: 2, timeWindow: [8, 20], region: 16, regionName: '近郊', type: '近郊特色', desc: '與丹能沙朵水上市場一起綁定出現。', transport: '建議由曼谷出發包車前往。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/127327-damnoen-saduak-floating-market-maeklong-railway-market/?aid=114993', text: '線上預約'}, {url: 'https://www.klook.com/zh-TW/activity/96602-pattaya-discovery-private-tour-private-day-tour-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=22a3a98efb&aid=114993', text: '水上+鐵道+遊船晚餐'}] },
+      { id: 'amphawa', city: 'bangkok', name: '安帕瓦水上市場', stay: 3, timeWindow: [13, 19], region: 16, regionName: '近郊', type: '近郊特色', desc: '黃昏市場，看螢火蟲。', transport: '建議由曼谷出發包車前往。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/2488-follow-the-locals-tour-amphawa-bangkok/?aid=114993', text: '線上預約'}] },
+      { id: 'koh_kret', city: 'bangkok', name: '陶瓷島 (Koh Kret)', stay: 3, timeWindow: [8, 20], region: 16, regionName: '近郊', type: '近郊特色', desc: '陶器與蒙族文化古樸島嶼。', transport: '搭乘 MRT 粉紅線至 Pak Kret 站下車，轉乘計程車至 Pak Kret 碼頭搭乘渡輪登島。' },
+      
+      // ★ 暹羅古城 76府
+      { id: 'ancient_city', city: 'bangkok', name: '暹羅古城 76府', stay: 4, timeWindow: [8, 20], region: 19, regionName: '東南區', type: '近郊特色', desc: '世界最大戶外博物館。', transport: '可從曼谷市區搭乘 BTS 淺綠線 (Sukhumvit Line) 至終點站 Kheha 站 (E23) 下車，出站轉乘 36 路雙條車直達入口。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/33167-bangkok-historical-tour/?aid=114993', text: '優惠門票'}] },
+
+      // ================= 在地市場 =================
+      { id: 'sampeng', city: 'bangkok', name: '三聘批發市場 (Sampeng)', stay: 2, timeWindow: [8, 12], region: 11, regionName: '舊城區', type: '在地市場', desc: '批發老街，商品包羅萬象。', transport: '搭乘 MRT 藍線至 Wat Mangkon 站 (BL29) 下車，步行約 10 分鐘可達。' },
+      { id: 'trok_mor', city: 'bangkok', name: 'Trok Mor 早市', stay: 1.5, timeWindow: [8, 12], region: 11, regionName: '舊城區', type: '在地市場', desc: '老曼谷人的傳統日常早市。', transport: '搭乘 MRT 藍線至 Sam Yot 站 (BL30) 下車，步行約 10 分鐘抵達。' },
+      { id: 'pak_khlong_talat', city: 'bangkok', name: '曼谷花卉市場', stay: 1.5, timeWindow: [8, 12], region: 11, regionName: '舊城區', type: '在地市場', desc: '泰國最大的鮮花市場。', transport: '搭乘 MRT 藍線至 Sanam Chai 站 (BL31) 下車，由 4 號出口出站步行即達。' },
+      { id: 'nang_loeng', city: 'bangkok', name: '南龍市場 (百年老街)', stay: 1.5, timeWindow: [8, 12], region: 11, regionName: '舊城區', type: '在地市場', desc: '歷史感滿分，古法甜點眾多。', transport: '搭乘 MRT 藍線至 Sam Yot 站下車，轉乘計程車或嘟嘟車約 10 分鐘抵達。' },
+      { id: 'thonburi_market', city: 'bangkok', name: '吞武里海鮮市場', stay: 2.5, timeWindow: [8, 20], region: 17, regionName: '吞武里區', type: '在地市場', desc: '曼谷最浮誇的海鮮殿堂。', transport: '搭乘 MRT 藍線至 Phasi Charoen 站 (BL38) 下車，轉乘計程車約 15 分鐘抵達。' },
+      { id: 'wanglang', city: 'bangkok', name: '王朗市場', stay: 1.5, timeWindow: [8, 12], region: 11, regionName: '舊城區', type: '在地市場', desc: '昭披耶河畔傳統市場。', transport: '搭乘昭披耶河遊船至 Wang Lang (Siriraj) 碼頭下船即達。' },
+
+      // ================= 泰式按摩 =================
+      { id: 'lets_relax', city: 'bangkok', name: "Let's Relax Spa (CW)", stay: 2.5, region: 14, regionName: '市中心', type: '泰式按摩', desc: '中價位連鎖首選。若同時選 Central World 將排在一起。', transport: '搭乘 BTS 淺綠線至 Chit Lom 站 (E1) 下車，經 R-Walk 前往 Central World 百貨內。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/65634-lets-relax-spa-treatment-central-world-bangkok/?aid=114993', text: '線上預約'}] },
+      { id: 'health_land', city: 'bangkok', name: 'Health Land Spa', stay: 2.5, region: 18, regionName: '素坤逸區', type: '泰式按摩', desc: 'CP值極高，環境寬敞。', transport: '搭乘 BTS 淺綠線至 Asok 站 (E4) 或 Ekkamai 站下車步行前往。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/4014-health-land-spa-coupons-bangkok/?aid=114993', text: '線上預約'}] },
+      { id: 'onnut_massage', city: 'bangkok', name: '安奴按摩街 (On Nut)', stay: 2, region: 18, regionName: '素坤逸區', type: '泰式按摩', desc: '整條街都是平價按摩店，小資族最愛。', transport: '搭乘 BTS 淺綠線至 On Nut 站 (E9) 下車，步行約 3 分鐘抵達 Sukhumvit 77 巷。' },
+      { id: 'asia_herb', city: 'bangkok', name: 'Asia Herb Association', stay: 2.5, region: 18, regionName: '素坤逸區', type: '泰式按摩', desc: '獨家自製泰國草藥球熱敷，環境舒適隱密。', transport: '搭乘 BTS 淺綠線至 Phrom Phong 站 (E5) 下車，步行約 5 分鐘抵達。' },
+      { id: 'divana_spa', city: 'bangkok', name: 'Divana Massage & Spa', stay: 3, region: 18, regionName: '素坤逸區', type: '泰式按摩', desc: '貴婦級精品精油按摩，日式細膩服務。', transport: '搭乘 BTS 淺綠線至 Asok 站 (E4) 下車，步行約 7 分鐘抵達。' },
+      { id: 'panpuri_wellness', city: 'bangkok', name: 'Panpuri Wellness', stay: 3, region: 14, regionName: '市中心', type: '泰式按摩', desc: '頂級奢華溫泉 SPA，可邊泡湯邊俯瞰市景。', transport: '搭乘 BTS 淺綠線至 Chit Lom 站 (E1) 下車，經天橋步行至 Gaysorn Village 12樓。' },
+      { id: 'oasis_spa', city: 'bangkok', name: 'Oasis Spa', stay: 3, region: 18, regionName: '素坤逸區', type: '泰式按摩', desc: '市區隱藏的綠意秘密花園，提供極致放鬆按摩。', transport: '搭乘 BTS 淺綠線至 Phrom Phong 站 (E5) 下車，轉乘店家專屬接駁車。' },
+      
+      // ================= 遊樂休閒 =================
+      { id: 'chao_phraya_cruise', city: 'bangkok', name: '昭披耶河公主號 遊船晚餐', stay: 3, timeWindow: [17, 21.5], region: 12, regionName: '昭披耶河畔', type: '遊樂休閒', desc: '豪華遊船上享用自助晚餐。', transport: '搭乘 BTS 至 Saphan Taksin 站轉接駁船至 ICONSIAM 或 Asiatique 碼頭報到登船。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/375-chao-phraya-princess-cruise-bangkok/?aid=114993', text: '優惠預訂'}, {url: 'https://www.klook.com/zh-TW/activity/96602-pattaya-discovery-private-tour-private-day-tour-bangkok/?spm=SearchResult.SearchResult_LIST&clickId=22a3a98efb&aid=114993', text: '水上+鐵道+遊船晚餐'}] },
+      { id: 'silom_cooking', city: 'bangkok', name: 'Silom Thai 泰國菜廚藝教室', stay: 3.5, region: 15, regionName: '是隆沙吞', type: '遊樂休閒', desc: '專業老師帶領採買新鮮食材，親手學做泰國菜。', transport: '預訂後自行前往指定的 BTS Sala Daeng 或 MRT Silom 站點集合。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/3965-silom-thai-cooking-school-bangkok/?aid=114993', text: '線上預約'}] },
+      { id: 'bus_tour', city: 'bangkok', name: '曼谷美食觀光巴士', stay: 2, region: 11, regionName: '舊城區', type: '遊樂休閒', desc: '乘坐觀光巴士遊覽老城，享用米其林星級泰菜。', transport: '依據票券指示，至 MRT Hua Lamphong 站或指定地點集合上車。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/27212-thai-food-sightseeing-bus-experience-bangkok/?aid=114993', text: '線上預約'}] },
+      
+      // ================= 追星景點 =================
+      { id: 'gmm_grammy', city: 'bangkok', name: 'GMM Grammy 大廈', stay: 1.5, region: 18, regionName: '素坤逸區', type: '追星景點', desc: '泰星製造聖地，周邊專賣店。', transport: '搭乘 MRT 藍線至 Phetchaburi 站 (BL21) 下車，由 2 號出口步行約 10 分鐘。' },
+      { id: 'studio_wabi_sabi', city: 'bangkok', name: 'Studio Wabi Sabi', stay: 1, region: 14, regionName: '市中心', type: '追星景點', desc: '熱門 BL 劇製作工作室。', transport: '搭乘 Grab 或計程車依最新導航地址前往。' },
+      { id: 'channel_3', city: 'bangkok', name: '泰國第3電視台', stay: 1.5, region: 15, regionName: '是隆沙吞', type: '追星景點', desc: '影視演員常出沒地。', transport: '搭乘 MRT 藍線至 Khlong Toei 站 (BL24) 下車，步行前往 Maleenont Tower。' },
+
+      // ================= 北碧府 (Kanchanaburi) =================
+      { id: 'acc_kanchanaburi', city: 'kanchanaburi', name: '住宿: 北碧府', stay: 1, region: 51, regionName: '市區', type: '住宿區域', desc: '飯店入住。', transport: '抵達北碧市區或桂河畔飯店辦理入住。' },
+      { id: 'river_kwai', city: 'kanchanaburi', name: '桂河大橋', stay: 1.5, region: 51, regionName: '市區', type: '歷史人文', desc: '二戰地標死亡鐵路。', transport: '從北碧市區搭乘嘟嘟車或雙條車前往大橋入口。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/78677-kanchanaburi-historical-instagrammable-photogenic-routes-one-day-tour-from-bangkok/?aid=114993', text: '線上預約'}] },
+      { id: 'safari_park_kan', city: 'kanchanaburi', name: '北碧府野生動物園', stay: 3, region: 54, regionName: '郊區', type: '遊樂休閒', desc: '吉普車長頸鹿近距離拍照。', transport: '強烈建議由曼谷或北碧包車前往。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/66367-safari-park-kanchanaburi/?aid=114993', text: '線上預約'}] },
+      { id: 'erawan_waterfall', city: 'kanchanaburi', name: '愛侶灣七層瀑布', stay: 4, region: 52, regionName: '郊區', type: '戶外絕景', desc: '翡翠色清澈水潭，可下水游泳。', transport: '從北碧公車總站搭乘往 Erawan 的在地巴士，或包車直達。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/66922-erawan-waterfall-riverkwai-bridge-fullday/?aid=114993', text: '線上預約'}] },
+      { id: 'death_railway', city: 'kanchanaburi', name: '死亡鐵路 (Tham Krasae)', stay: 2, region: 53, regionName: '郊區', type: '經典必訪', desc: '險峻壯麗的木造高架鐵路。', transport: '可至北碧火車站搭乘普通火車體驗此段路程，於 Tham Krasae 站下車。' },
+      { id: 'hellfire_pass', city: 'kanchanaburi', name: '地獄火關口', stay: 2.5, region: 53, regionName: '郊區', type: '歷史人文', desc: '戰俘手工鑿穿山壁鐵道遺址。', transport: '距離北碧市區約 80 公里，建議包車前往。' },
+      { id: 'malika', city: 'kanchanaburi', name: '茉莉之城 (Malika R.E. 124)', stay: 3, region: 53, regionName: '郊區', type: '遊樂休閒', desc: '懷舊復古城鎮，可換傳統泰服。', transport: '位於前往地獄火關口的必經之路上，建議包車順遊。' },
+      { id: 'giant_rain_tree', city: 'kanchanaburi', name: '巨雨霽樹', stay: 1, region: 51, regionName: '市區', type: '自然絕景', desc: '超過百年巨大雨樹。', transport: '從北碧市區出發，騎機車或包車約 20 分鐘即可抵達。' },
+      { id: 'wat_tham_sua', city: 'kanchanaburi', name: '虎穴寺 (Wat Tham Sua)', stay: 2, region: 55, regionName: '近郊', type: '特色寺廟', desc: '北碧府最壯觀寺廟，俯瞰稻田。', transport: '距離北碧市區約 15 公里，建議包車前往。' },
+      { id: 'meena_cafe', city: 'kanchanaburi', name: 'Meena Cafe (稻田咖啡廳)', stay: 1.5, region: 55, regionName: '近郊', type: '網美餐廳', desc: '木棧道延伸入稻田，虎穴寺背景。', transport: '位於虎穴寺後方，參觀完虎穴寺後可直接步行或搭車前往。' },
+
+      // ================= 芭達雅 (Pattaya) =================
+      { id: 'acc_pattaya', city: 'pattaya', name: '住宿: 芭達雅', stay: 1, region: 32, regionName: '市區', type: '住宿區域', desc: '海濱度假飯店入住。', transport: '抵達芭達雅市區，前往飯店辦理入住。' },
+      { id: 'sanctuary_truth', city: 'pattaya', name: '真理寺', stay: 2, region: 31, regionName: '北區', type: '經典必訪', desc: '全木造精雕，宏偉震撼。', transport: '從芭達雅市區搭乘雙條車或 Grab 往北區海岸前往。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/1109-the-sanctuary-of-truth-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=da30204547&aid=114993', text: '優惠門票'}] },
+      { id: 'khao_kheow', city: 'pattaya', name: '綠山動物園 (彈跳豬)', stay: 4, region: 31, regionName: '春武里', type: '遊樂休閒', desc: '近距離餵食與超紅侏儒河馬。', transport: '距離芭達雅市區約 40 分鐘車程，建議包車前往。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/78315-day-tour-khao-kheaw-zoo-from-pattaya-or-bangkok/?aid=114993', text: '線上預約'}] },
+      { id: 'aquaverse', city: 'pattaya', name: '哥倫比亞影業水世界', stay: 4, region: 35, regionName: '納喬姆天', type: '遊樂休閒', desc: '電影主題水上樂園。', transport: '從市區沿素坤逸路往南搭乘 Grab 或包車約 25 分鐘可達。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/85772-columbia-pictures-aquaverse-admission-ticket/?aid=114993', text: '優惠門票'}] },
+      { id: 'nongnooch', city: 'pattaya', name: '東芭樂園', stay: 3, region: 35, regionName: '納喬姆天', type: '遊樂休閒', desc: '大型熱帶花園。', transport: '距離市區約 30 分鐘車程，可透過票券平台預約接駁服務。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/335-nong-nooch-tropical-garden-pattaya/?aid=114993', text: '優惠門票'}] },
+      { id: 'pattaya_skydiving', city: 'pattaya', name: '雙人高空跳傘', stay: 3, region: 35, regionName: '郊區', type: '戶外絕景', desc: '芭達雅極限運動首選。', transport: '跳傘行程通常包含芭達雅市區飯店來回接送服務。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/13959-tandem-skydiving-pattaya/?aid=114993', text: '線上預約'}] },
+      { id: 'kohlarn_tour', city: 'pattaya', name: '小珊瑚島跳島遊', stay: 6, region: 33, regionName: '外海', type: '海島休閒', desc: '玩拖曳傘與浮潛。', transport: '前往芭達雅 Bali Hai 碼頭搭乘公營渡輪或快艇前往。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/46046-pattaya-beach-koh-larn-day-island-hopping-tour-bangkok/?aid=114993', text: '線上預約'}] },
+      { id: 'pattaya_floating_market', city: 'pattaya', name: '芭達雅四方水上市場', stay: 2, timeWindow: [9, 12], region: 34, regionName: '中天海灘區', type: '經典必訪', desc: '融合泰國四大區域特色的水上市場。', transport: '從市區搭乘雙條車沿素坤逸路往南行駛即可抵達。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/2920-floating-market-pattaya/?spm=SearchResult.SearchResult_LIST&clickId=9157cf71c7&aid=114993', text: '優惠門票'}] },
+      { id: 'pattaya_viewpoint', city: 'pattaya', name: '芭達雅觀景台 (Khao Pattaya)', stay: 1, region: 32, regionName: '市區', type: '經典必訪', desc: '俯瞰芭達雅月牙灣海岸線最美的地方。', transport: '搭乘 Grab 或包雙條車前往帕塔納克山 (Pratumnak Hill) 山頂。' },
+      { id: 'ramayana_water_park', city: 'pattaya', name: '羅摩衍那水上樂園', stay: 4, region: 35, regionName: '納喬姆天', type: '遊樂休閒', desc: '全泰國最大水上樂園！', transport: '距離市區較遠，建議搭乘 Grab 或選購含飯店接送的門票。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/2322-ramayana-water-park-pattaya/?aid=114993', text: '優惠門票'}] },
+      { id: 'jomtien_beach', city: 'pattaya', name: '中天海灘 (Jomtien Beach)', stay: 2, region: 34, regionName: '中天海灘區', type: '海島休閒', desc: '環境安靜，許多特色海景咖啡廳。', transport: '從芭達雅市區搭乘深藍色雙條車往南行駛即可直達。' },
+      { id: 'na_jomtien_beach', city: 'pattaya', name: '納喬姆天海灘 (Na Jomtien)', stay: 2.5, region: 35, regionName: '納喬姆天區', type: '海島休閒', desc: '時髦區塊，高質感海灘俱樂部集中地。', transport: '建議搭乘 Grab 沿著海岸線前往。' },
+      { id: 'cave_beach_club', city: 'pattaya', name: 'Cave Beach Club 網美俱樂部', stay: 2.5, region: 35, regionName: '納喬姆天區', type: '海灘俱樂部', desc: '熱門波西米亞風海灘俱樂部。', transport: '建議從市區搭乘 Grab 導航前往，抵達納喬姆天海岸。' },
+      { id: 'glass_house_pattaya', city: 'pattaya', name: 'The Glass House 景觀餐廳', stay: 2, region: 35, regionName: '納喬姆天區', type: '海灘俱樂部', desc: '氣氛浪漫的玻璃屋景觀餐廳。', transport: '建議搭乘 Grab 前往納喬姆天區。' },
+      { id: 'walking_street', city: 'pattaya', name: '芭達雅步行街 (Walking Street)', stay: 2, timeWindow: [17, 21.5], region: 32, regionName: '市區', type: '熱鬧商圈', desc: '紅燈區與夜店酒吧聚集的不夜城。', transport: '位於芭達雅海灘路南端，可搭乘市區環狀雙條車在入口下車。' },
+      { id: 'terminal21_pattaya', city: 'pattaya', name: 'Terminal 21 Pattaya', stay: 2.5, region: 31, regionName: '北區', type: '購物商場', desc: '機場航廈主題大型商場。', transport: '位於芭達雅北區圓環，搭乘市區環狀雙條車即可抵達。' },
+      { id: 'pattaya_island_hopping', city: 'pattaya', name: '芭達雅秘境跳島 (Koh Phai)', stay: 6, region: 33, regionName: '外海', type: '海島休閒', desc: '搭乘豪華雙體帆船前往無人秘境島嶼。', transport: '至指定碼頭搭船。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/88614-join-pattaya-islands-hopping-ko-phai-koh-rin-koh-ped-luxury-catamaran-lunch-chonburi/?aid=114993', text: '線上預約'}] },
+      { id: 'koh_samaesarn', city: 'pattaya', name: '沙邁珊島 (Koh Samaesarn)', stay: 6, region: 36, regionName: '春武里', type: '海島休閒', desc: '秘境島嶼，適合浮潛與獨木舟。', transport: '需包車前往春武里 Khao Ma Cho 碼頭購票搭船。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/22960-koh-samae-san-island-snorkeling-kayak-private-tour-bangkok/?aid=114993', text: '線上預約'}] },
+      { id: 'koh_sichang', city: 'pattaya', name: '西昌島 (Koh Sichang)', stay: 6, region: 36, regionName: '春武里', type: '海島休閒', desc: '保留泰國傳統風情的寧靜小島。', transport: '搭車至是拉差 Koh Loy 碼頭轉乘渡輪登島。' },
+
+      // ================= 大城 (Ayutthaya) =================
+      { id: 'acc_ayutthaya', city: 'ayutthaya', name: '住宿: 大城', stay: 1, region: 22, regionName: '市區', type: '住宿區域', desc: '古都住宿。', transport: '抵達大城市區辦理入住。' },
+      { id: 'wat_mahathat', city: 'ayutthaya', name: '瑪哈泰寺 (樹中佛頭)', stay: 1.5, region: 21, regionName: '古城', type: '寺廟古蹟', desc: '大城代表性地標。', transport: '從大城火車站搭乘嘟嘟車前往大城歷史公園，於瑪哈泰寺入口下車。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/125097-funky-froggy-tuk-tuk-ride-to-top-attractions-in-ayutthaya/?aid=114993', text: '線上預約'}] },
+      { id: 'bang_pa_in', city: 'ayutthaya', name: '邦芭茵夏宮', stay: 2, region: 23, regionName: '近郊', type: '歷史人文', desc: '絕美皇室避暑行宮。', transport: '從大城火車站搭乘火車往南至 Bang Pa-in 站下車，步行或轉乘雙條車。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/391-ayutthaya-historical-park-day-tour-bang-pa-in-summer-palace-ayutthaya-temples-night-market/?aid=114993', text: '線上預約'}] },
+      { id: 'lion_park_ayu', city: 'ayutthaya', name: '獅子王動物園', stay: 3, region: 24, regionName: '郊區', type: '遊樂休閒', desc: '長頸鹿吉普車拍照地。', transport: '距離大城市區約 40 分鐘車程，強烈建議包車前往。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/100262-ayutthaya-cafe-thai-costume-tour/?aid=114993', text: '線上預約'}] },
+      { id: 'wat_yai_chai_mongkhon', city: 'ayutthaya', name: '崖差蒙空寺', stay: 1.5, region: 21, regionName: '古城', type: '歷史人文', desc: '巨大錫蘭式鐘形佛塔。', transport: '位於大城島外東南側，從市區搭乘嘟嘟車約 10 分鐘抵達。' },
+      { id: 'wat_chaiwatthanaram', city: 'ayutthaya', name: '柴瓦塔那蘭寺', stay: 1.5, region: 21, regionName: '古城', type: '歷史人文', desc: '高棉風格建築，夕陽絕景。', transport: '位於大城島外西南側，可從古城區包嘟嘟車前往。' },
+      { id: 'wat_phra_si_sanphet', city: 'ayutthaya', name: '帕席桑碧寺', stay: 1, region: 21, regionName: '古城', type: '歷史人文', desc: '三座壯觀的灰白色鐘形佛塔。', transport: '位於大城歷史公園核心區，從瑪哈泰寺步行或騎腳踏車可達。' },
+      { id: 'wat_niwet', city: 'ayutthaya', name: '尼維塔瑪帕萬寺 (西式佛寺)', stay: 1.5, region: 23, regionName: '近郊', type: '特色寺廟', desc: '全泰唯一西式教堂風格佛寺。', transport: '抵達邦芭茵夏宮後，於旁邊的碼頭搭乘免費人力纜車過河。' },
+      { id: 'portuguese_village', city: 'ayutthaya', name: '葡萄牙村遺跡', stay: 1, region: 24, regionName: '郊區', type: '歷史人文', desc: '早期葡萄牙殖民者遺跡。', transport: '位於大城島外南側，建議從市區包嘟嘟車或騎機車前往。' },
+      { id: 'busaba_cafe', city: 'ayutthaya', name: 'Busaba Cafe & Meal', stay: 1.5, region: 21, regionName: '古城', type: '網美餐廳', desc: '古宅改建白色系咖啡廳。', transport: '位於大城歷史公園瑪哈泰寺對面，步行即可抵達。' },
+      { id: 'wine_ayudhya', city: 'ayutthaya', name: 'The Wine Ayudhya', stay: 2, region: 22, regionName: '市區', type: '網美餐廳', desc: '昭披耶河畔木造玻璃屋餐廳。', transport: '從大城市區搭乘嘟嘟車約 15 分鐘可達。' },
+      { id: 'ayothaya_floating_market', city: 'ayutthaya', name: '大城水上市場', stay: 2.5, region: 22, regionName: '市區', type: '近郊特色', desc: '專門為觀光設計的水上市場。', transport: '位於火車站東北側，從火車站搭乘嘟嘟車約 10 分鐘。' },
+      { id: 'ayutthaya_prawn_market', city: 'ayutthaya', name: '大城蝦市場', stay: 2, region: 25, regionName: '郊區', type: '在地市場', desc: '大城最大海鮮集散地，必吃現烤大頭蝦。', transport: '位於 32 號公路旁，建議從市區搭乘嘟嘟車或包車前往。' },
+      { id: 'ayutthaya_night_market', city: 'ayutthaya', name: '大城週末夜市', stay: 2.5, timeWindow: [17, 21.5], region: 22, regionName: '市區', type: '夜市區', desc: '充滿復古氛圍的在地夜市。', transport: '位於大城市區內，可輕鬆騎機車或搭嘟嘟車前往。' },
+
+      // ================= 華欣 (Hua Hin) =================
+      { id: 'acc_huahin', city: 'huahin', name: '住宿: 華欣', stay: 1, region: 41, regionName: '市區', type: '住宿區域', desc: '濱海度假勝地。', transport: '抵達華欣市中心辦理入住。' },
+      { id: 'khao_wang', city: 'huahin', name: '拷汪宮', stay: 2, region: 40, regionName: '碧武里', type: '歷史人文', desc: '山頂白塔皇宮。', transport: '位於曼谷前往華欣的途中，建議包車順路停留搭乘纜車上山。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/2577-phra-nakhon-khiri-tham-khao-luang-hua-hin-thailand/?spm=SearchResult.SearchResult_LIST&clickId=9dc8fef942&aid=114993', text: '線上預約'}] },
+      { id: 'huahin_station', city: 'huahin', name: '華欣火車站', stay: 1, region: 41, regionName: '市區', type: '歷史人文', desc: '最美百年木造車站。', transport: '位於華欣市中心，步行或搭乘嘟嘟車皆可輕易抵達。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/9759-leisurely-day-tour-hua-hin-bangkok/?aid=114993', text: '線上預約'}] },
+      { id: 'cicada', city: 'huahin', name: 'Cicada 文青市集', stay: 2.5, timeWindow: [17, 21.5], region: 42, regionName: '南區', type: '夜市區', desc: '最高質感週末市集。', transport: '於華欣市區搭乘綠色雙條車往南行駛，於 Cicada 站下車。' },
+      { id: 'mrigadayavan', city: 'huahin', name: '愛與希望之宮', stay: 1.5, region: 40, regionName: '七岩近郊', type: '歷史人文', desc: '浪漫淡藍色與鵝黃色全木造濱海行宮。', transport: '位於七岩與華欣之間，建議租機車或包車前往。' },
+      { id: 'huahin_beach', city: 'huahin', name: '華欣海灘 (沙灘騎馬)', stay: 2, region: 41, regionName: '市區', type: '海島休閒', desc: '在海邊騎馬漫步。', transport: '從華欣市中心鐘塔步行約 10 分鐘即可抵達沙灘入口。' },
+      { id: 'huahin_cafes', city: 'huahin', name: '人氣海灘咖啡廳', stay: 2, region: 42, regionName: '南區', type: '網美餐廳', desc: '設計精美直接面對大海的咖啡廳。', transport: '從華欣市區搭乘綠色雙條車往 Khao Takiab 方向行駛抵達。' },
+      { id: 'monsoon_valley', city: 'huahin', name: '季風谷酒莊', stay: 3, region: 43, regionName: '郊區', type: '特色景點', desc: '品嚐葡萄酒與大象體驗。', transport: '距離市區約 45 分鐘車程，建議於市區 Market Village 搭乘酒莊專屬接駁車。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/4142-hua-hin-highlights-monsoon-valley-vineyards-tour-hua-hin/?aid=114993', text: '線上預約'}] },
+      { id: 'phraya_nakhon', city: 'huahin', name: '帕亞那空山洞', stay: 4, region: 44, regionName: '遠郊', type: '戶外絕景', desc: '神祕洞穴內的光影絕景。', transport: '從華欣包車約 1 小時至 Bang Pu 村，轉搭長尾船後步行爬山進入。' },
+      { id: 'tamarind_market', city: 'huahin', name: 'Tamarind Market (羅望子夜市)', stay: 1.5, timeWindow: [17, 21.5], region: 42, regionName: '南區', type: '夜市區', desc: '在地美食為主的週末夜市。', transport: '搭乘綠色雙條車於 Cicada 站下車，步行 1 分鐘即可抵達。' },
+      { id: 'huahin_night_market', city: 'huahin', name: '華欣傳統夜市 (Chatchai)', stay: 2, timeWindow: [17, 21.5], region: 41, regionName: '市區', type: '夜市區', desc: '巨大烤大蝦與海鮮熱炒。', transport: '位於華欣市中心，從火車站步行約 10 分鐘。' },
+      { id: 'vana_nava', city: 'huahin', name: '瓦納納瓦水上樂園', stay: 4, timeWindow: [10, 18], region: 42, regionName: '南區', type: '遊樂休閒', desc: '華欣叢林主題水上樂園。', transport: '於華欣市中心搭乘綠色雙條車往 Khao Takiab 方向，於 Vana Nava 下車。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/3871-vana-nava-waterpark-hua-hin/?aid=114993', text: '優惠門票'}] },
+
+      // ================= 羅勇 & 象島 =================
+      { id: 'acc_rayong', city: 'rayong', name: '住宿: 羅勇', stay: 1, region: 62, regionName: '海岸區', type: '住宿區域', desc: '海岸線平價度假村。', transport: '抵達羅勇市區轉雙條車前往海岸飯店。' },
+      { id: 'koh_samet', city: 'rayong', name: '沙美島度假', stay: 8, region: 61, regionName: '外海', type: '海島休閒', desc: '細白沙灘與絕美火舞。', transport: '至羅勇 Ban Phe 碼頭購票搭乘渡輪或快艇登島。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/124518-from-bangkok-or-pattaya-self-guided-day-tour-to-koh-samet-island/?aid=114993', text: '線上預約'}] },
+      { id: 'khao_laem_ya', city: 'rayong', name: '考萊姆雅國家公園', stay: 2.5, region: 62, regionName: '海岸區', type: '自然絕景', desc: '眺望沙美島，白色小燈塔。', transport: '從 Ban Phe 碼頭搭乘雙條車前往國家公園入口。' },
+      { id: 'mae_ramphueng', city: 'rayong', name: '美藍屏海灘 (Mae Ramphueng)', stay: 2.5, region: 62, regionName: '海岸區', type: '海島休閒', desc: '羅勇最長海灘，海鮮餐廳多。', transport: '從羅勇市區或碼頭搭乘沿海雙條車抵達。' },
+      { id: 'suan_son', city: 'rayong', name: '松樹海灘 (Suan Son Beach)', stay: 2, region: 62, regionName: '海岸區', type: '海島休閒', desc: '海岸線種滿高聳松樹，無商業氣息。', transport: '位於 Ban Phe 碼頭以東，搭乘雙條車約 10 分鐘。' },
+      { id: 'tung_prong_thong', city: 'rayong', name: '通波隆金黃紅樹林', stay: 1.5, region: 64, regionName: '郊區', type: '自然絕景', desc: '極為壯觀的金黃色紅樹林木棧道。', transport: '距離市區較遠，建議從羅勇市區包車前往 Klaeng 區。' },
+      { id: 'ban_phe_market', city: 'rayong', name: '班斐碼頭市場 (Ban Phe)', stay: 1, region: 62, regionName: '海岸區', type: '在地市場', desc: '乾貨大市場，買海鮮伴手禮。', transport: '位於前往沙美島的碼頭周邊，步行即達。' },
+      { id: 'suphattra_land', city: 'rayong', name: '素帕他觀光果園', stay: 3, region: 63, regionName: '內陸區', type: '特色果園', desc: '熱帶水果吃到飽。', transport: '從羅勇市區包車或自駕約 40 分鐘前往內陸果園區。' },
+      { id: 'suan_sang_dad', city: 'rayong', name: 'Suan Sang Dad (榴槤名園)', stay: 2, region: 63, regionName: '內陸區', type: '特色果園', desc: '高品質榴槤天堂。', transport: '位於羅勇內陸水果產區，建議包車前往。' },
+      { id: 'suan_lung_thongbai', city: 'rayong', name: 'Suan Lung Thongbai 果園', stay: 2, region: 63, regionName: '內陸區', type: '特色果園', desc: '純樸自然的水果豐收季體驗。', transport: '建議與其他果園一併包車前往。' },
+      
+      { id: 'acc_kohchang', city: 'kohchang', name: '住宿: 象島', stay: 1, region: 71, regionName: '西岸', type: '住宿區域', desc: '西岸各沙灘度假村。', transport: '抵達象島碼頭後，搭乘島上雙條車前往西岸飯店。' },
+      { id: 'white_sand_beach', city: 'kohchang', name: '白沙灘', stay: 4, region: 71, regionName: '西岸', type: '海島休閒', desc: '象島最熱鬧沙灘區。', transport: '從象島碼頭搭乘雙條車，為下船後的第一個主要沙灘區。' },
+      { id: 'pearl_beach', city: 'kohchang', name: '珍珠海灘', stay: 2, region: 71, regionName: '西岸', type: '海島休閒', desc: '安靜適合浮潛。', transport: '搭乘雙條車於白沙灘與孔拋海灘之間下車。' },
+      { id: 'klong_prao', city: 'kohchang', name: '孔拋海灘', stay: 3, region: 71, regionName: '西岸', type: '海島休閒', desc: '象島最長沙灘，氛圍悠閒。', transport: '搭乘雙條車沿西岸公路往南行駛抵達。' },
+      { id: 'lonely_beach', city: 'kohchang', name: '孤獨海灘', stay: 3, region: 71, regionName: '西岸', type: '熱鬧商圈', desc: '背包客天堂與夜生活中心。', transport: '搭乘雙條車往南越過觀景台後抵達。' },
+      { id: 'klong_plu', city: 'kohchang', name: '孔拋瀑布', stay: 2.5, region: 71, regionName: '西岸', type: '戶外絕景', desc: '容易抵達的深潭瀑布。', transport: '於孔拋海灘區的岔路轉入，騎機車或包雙條車前往。' },
+      { id: 'kai_bae_viewpoint', city: 'kohchang', name: '象島觀景台', stay: 1, region: 71, regionName: '西岸', type: '自然絕景', desc: '俯瞰海岸線夕陽絕景。', transport: '騎車或搭雙條車於前往孤獨海灘的山路上途經。' },
+      { id: 'salak_khok', city: 'kohchang', name: '紅樹林獨木舟', stay: 2.5, region: 73, regionName: '東岸', type: '遊樂休閒', desc: '寧靜的東岸紅樹林。', transport: '位於人煙稀少的東岸，必須租機車或包車繞島前往。' },
+      { id: 'bang_bao', city: 'kohchang', name: '邦寶漁村', stay: 2, region: 72, regionName: '南端', type: '近郊特色', desc: '海上傳統木造高腳屋。', transport: '搭乘雙條車至西岸公路最南端盡頭下車。' },
+      { id: 'koh_rang', city: 'kohchang', name: '朗島浮潛', stay: 5, region: 74, regionName: '外海', type: '海島休閒', desc: '透明度極高的浮潛地。', transport: '於邦寶碼頭 (Bang Bao) 報名跳島行程搭船出發。' },
+      { id: 'koh_wai', city: 'kohchang', name: '威島 (Koh Wai) 跳島', stay: 4, region: 74, regionName: '外海', type: '海島休閒', desc: '清澈原始秘境島。', transport: '於邦寶碼頭搭乘快艇或參加跳島行程前往。' }
+    ];
+
+    const CITIES = [
+      { id: 'bangkok', name: '曼谷', color: 'blue' },
+      { id: 'pattaya', name: '芭達雅', color: 'rose' },
+      { id: 'ayutthaya', name: '大城', color: 'amber' },
+      { id: 'huahin', name: '華欣', color: 'teal' },
+      { id: 'kanchanaburi', name: '北碧府', color: 'emerald' },
+      { id: 'rayong', name: '羅勇/沙美', color: 'indigo' },
+      { id: 'kohchang', name: '象島', color: 'sky' }
+    ];
+
+    // --- 核心交通邏輯區 ---
+    const formatTime = (h) => {
+      let hh = Math.floor(h) % 24;
+      let mm = Math.round((h - Math.floor(h)) * 60);
+      if (mm === 60) { hh++; mm = 0; }
+      return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+    };
+
+    const getCityColor = (cityId) => {
+      const colors = { bangkok: 'blue', pattaya: 'rose', ayutthaya: 'amber', huahin: 'teal', kanchanaburi: 'emerald', rayong: 'indigo', kohchang: 'sky' };
+      const c = colors[cityId] || 'slate';
+      return `text-${c}-600 bg-${c}-100 border-${c}-200`;
+    };
+
+    const getSmartTransit = (prev, curr) => {
+      if (curr.id === 'ret') return '✈️ 【準備回國】搭乘機場快線(ARL)、機場巴士或預約專車前往機場報到。';
+
+      if (!prev || prev.id === 'accommodation' || prev.type === '起點') {
+        if (curr.type === '機場') return `🛬 【抵達泰國】搭乘專車或機場快線/巴士前往市區 ${curr.name}。`;
+        return `🏨 【出發前往】出發前往 ${curr.name}。`;
+      }
+
+      if (prev.city !== curr.city && prev.id !== 'bangkok_origin') {
+         let text = '';
+         if (prev.city === 'bangkok' && curr.city === 'ayutthaya') text = '搭乘火車，或搭乘 Minivan，亦可線上預約包車直達 (車程約 1.5~2 小時)。';
+         else if (prev.city === 'bangkok' && curr.city === 'pattaya') text = '前往 Ekkamai 東部巴士總站搭乘大巴，或線上預約包車直達 (車程約 2.5 小時)。';
+         else if (prev.city === 'bangkok' && curr.city === 'huahin') text = '前往南部巴士總站 / Mochit 搭乘 Minivan，或線上預約專車直達 (車程約 3~4 小時)。';
+         else if (prev.city === 'bangkok' && curr.city === 'kanchanaburi') text = '於吞武里火車站搭火車，或於南部巴士總站搭 Minivan (車程約 2.5~3 小時)。';
+         else if (prev.city === 'bangkok' && curr.city === 'rayong') text = '前往 Ekkamai 東部巴士總站搭乘大巴士至羅勇 (車程約 3~3.5 小時)。';
+         else if (prev.city === 'bangkok' && curr.city === 'kohchang') text = '搭乘大巴前往達叻府 (Trat) 碼頭，再轉乘渡輪登島 (總車程約 5.5 小時)。';
+         else text = `搭乘跨府大巴、Minivan 或預約專車，從 ${CITIES.find(c=>c.id===prev.city)?.name} 前往 ${CITIES.find(c=>c.id===curr.city)?.name}。`;
+         return `🚐 【跨府長途轉乘】${text}\n💡 建議：跨城移動請提早確認班次或預約接送。`;
+      }
+
+      return `🚖 【市區交通銜接】從 ${prev.name} 前往 ${curr.name}。`;
+    };
+
+    // --- 主應用程式 ---
+    function App() {
+      const [activeCity, setActiveCity] = useState('bangkok');
+      const [selectedIds, setSelectedIds] = useState([]);
+      const [showPrintView, setShowPrintView] = useState(false);
+      const [tripDuration, setTripDuration] = useState(5);
+
+      const toggleAttr = (id) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+      const itineraryDays = useMemo(() => {
+        if (selectedIds.length === 0) return [];
+
+        let idsToSchedule = [...selectedIds];
+        // 綁定邏輯 (丹能沙朵 & 美功)
+        if (idsToSchedule.includes('damnoen_saduak') || idsToSchedule.includes('maeklong')) {
+            if (!idsToSchedule.includes('damnoen_saduak')) idsToSchedule.push('damnoen_saduak');
+            if (!idsToSchedule.includes('maeklong')) idsToSchedule.push('maeklong');
+        }
+        idsToSchedule = [...new Set(idsToSchedule)];
+
+        // 基礎分類判斷
+        // 古城不視為「近郊」防綁定
+        const isSuburb = (a) => a && a.id !== 'ancient_city' && (['近郊特色'].includes(a.type) || ['damnoen_saduak', 'maeklong', 'amphawa', 'koh_kret'].includes(a.id) || a.regionName.includes('郊'));
+        const isNightMarket = (a) => a && (a.type === '熱門市集' || a.type === '夜市區' || a.name.includes('夜市') || a.id === 'yaowarat' || a.id === 'khaosan' || a.name.includes('中國城') || a.id === 'asiatique');
+
+        // 排序權重定義 (確保城市分群與換匯強制首段行程)
+        const getPriority = (item) => {
+            if (item.id === 'ret') return 999;
+            if (item.type === '起點') return 10;
+            if (item.type === '機場') return 15;
+            if (item.type === '換匯推薦' && item.region === 10) return 18; // 機場換匯：排在機場後
+            if (item.type === '住宿區域') return 20; // 住宿地
+            if (item.type === '換匯推薦' && item.region !== 10) return 25; // 市區換匯：強制接在住宿放行李後
+            
+            if (isNightMarket(item)) return 90; // 夜市強制排最後
+            
+            let win = item.timeWindow || [9.5, 21.5];
+            if (win[1] <= 12) return 30; // 早市
+            if (isSuburb(item)) return 40; // 郊區
+            
+            return 50; // 一般景點
+        };
+
+        const sorted = idsToSchedule
+          .map(id => ATTRACTIONS.find(a => a.id === id))
+          .filter(a => a)
+          .sort((a, b) => {
+            const getSortKey = (item) => {
+              let r = item.region || 50; 
+              let sk = getPriority(item);
+              // 若為外府行程，用 City Index 強制將同城市的資料分群綁定
+              let cityGroup = item.city !== 'bangkok' ? 50 + CITIES.findIndex(c => c.id === item.city) : Math.floor(r / 10);
+              return cityGroup * 100000 + sk * 1000 + r; 
+            };
+            return getSortKey(a) - getSortKey(b);
+          });
+
+        let remaining = [...sorted];
+        let days = [];
+        
+        // ★ 第一天強制從 12:00 開始
+        let curDay = { items: [], dayCity: 'bangkok', dayType: null, currentTime: 12.0 }; 
+        let lCity = 'bangkok', lReg = 14;
+        let prevItemObj = null; 
+        let forceNextId = null;
+
+        // 交通時間計算 (精準修正近郊車程 1.5h)
+        const getTTime = (isNewDay, fCity, tCity, fReg, tReg) => {
+            // 跨城市移動
+            if (fCity && tCity && fCity !== tCity) {
+                if (tCity === 'kohchang' || fCity === 'kohchang') return 5.5;
+                if (tCity === 'rayong' || fCity === 'rayong') return 3.5;
+                if (tCity === 'huahin' || fCity === 'huahin') return 3.5;
+                if (tCity === 'kanchanaburi' || fCity === 'kanchanaburi') return 2.5;
+                if (tCity === 'pattaya' || fCity === 'pattaya') return 2.5;
+                if (tCity === 'ayutthaya' || fCity === 'ayutthaya') return 1.5;
+                return 2.5;
+            }
+            
+            // 同一天行程之間的移動
+            if (fReg === 40 || tReg === 40) return 2.0;
+            // 曼谷市區與近郊(水上市場區/陶瓷島)之間移動 -> 精準 1.5h
+            if (fReg === 16 || tReg === 16) {
+                if (fReg === 16 && tReg === 16) return 0.5; // 丹能沙朵 -> 美功 (0.5h)
+                return 1.5; // 曼谷市區 <-> 水上市場 (1.5h)
+            }
+            
+            if (isNewDay) {
+                if (tReg === 19) return 1.0; 
+                if (tReg === 52 || tReg === 53 || tReg === 54 || tReg === 55) return 1.0; 
+                return 0.5; 
+            }
+            
+            return (fReg !== tReg ? 1.0 : 0.5);
+        };
+
+        const checkValid = (a, isF, curTime) => {
+            // 第一天強制不可排近郊景點
+            if (days.length === 0 && (isSuburb(a) || a.id === 'ancient_city')) return false;
+
+            let tTime = getTTime(isF, lCity, a.city, lReg, a.region);
+            let arrivalTime = curTime + tTime;
+            let isLastDay = days.length === tripDuration - 1;
+            
+            if (!isF) {
+                let isBasic = ['住宿區域', '機場', '起點', '換匯推薦'].includes(a.type);
+                if (!isBasic) {
+                    // 同城市強制排同天，不夠才排到隔天
+                    if (a.city !== curDay.dayCity) return false; 
+                    
+                    // 近郊獨立一天：若今天是曼谷市區日，不可插近郊
+                    if (isSuburb(a) && curDay.dayType === 'city') return false; 
+                    
+                    // 若今天是近郊日，允許插入「17:00後」的夜市或按摩行程 (有空檔補曼谷)
+                    if (curDay.dayType === 'suburb' && !isSuburb(a)) {
+                        let win = a.timeWindow || [9.5, 21.5];
+                        if (win[0] < 17 && a.type !== '泰式按摩') return false; 
+                    }
+                }
+            }
+
+            let win = a.timeWindow || [9.5, 21.5]; 
+            if (['住宿區域', '機場', '換匯推薦'].includes(a.type)) win = [0, 24];
+
+            let waitTime = 0;
+            if (arrivalTime < win[0]) {
+                waitTime = win[0] - arrivalTime;
+                // 一般行程等太久就先跳過 (換匯除外)
+                if (waitTime > 3.0 && !isF && a.type !== '換匯推薦') return false; 
+            }
+
+            let actStart = arrivalTime + waitTime;
+            let actEnd = actStart + a.stay;
+
+            if (actStart >= win[1]) return false; // 抵達時已過營業時間
+            
+            // 最後一天的時間必須鎖死，確保能接上 14:00 結束
+            if (isLastDay) {
+                let retTFromA = getTTime(false, a.city, 'bangkok', a.region, 10);
+                let maxEndTime = 14.0 - 2.5 - retTFromA; 
+                if (actEnd > maxEndTime) return false;
+            } else {
+                if (!isF && actEnd > 21.5) return false; // 每天不超過 21:30
+            }
+
+            return { valid: true, tTime, waitTime, actStart, actEnd };
+        };
+
+        while (remaining.length > 0) {
+            const isF = curDay.items.length === 0;
+            let chosenIdx = -1;
+            let chosenStats = null;
+
+            // 1. 強制連動 
+            if (forceNextId) {
+                let fIdx = remaining.findIndex(a => a.id === forceNextId);
+                if (fIdx !== -1) {
+                    let stats = checkValid(remaining[fIdx], isF, curDay.currentTime);
+                    if (stats && stats.valid) {
+                        chosenIdx = fIdx;
+                        chosenStats = stats;
+                    }
+                }
+                forceNextId = null; 
+            }
+
+            // 2. 全域智慧搜尋 (尋找最適合的行程)
+            if (chosenIdx === -1) {
+                let validCands = [];
+                for (let i = 0; i < remaining.length; i++) {
+                    let stats = checkValid(remaining[i], isF, curDay.currentTime);
+                    if (stats && stats.valid) {
+                        validCands.push({ a: remaining[i], idx: i, prio: getPriority(remaining[i]), stats });
+                    }
+                }
+
+                if (validCands.length > 0) {
+                    // 排序: 1.優先權 2.車程 3.營業結束時間
+                    validCands.sort((ca, cb) => {
+                        if (ca.prio !== cb.prio) return ca.prio - cb.prio;
+                        if (ca.stats.tTime !== cb.stats.tTime) return ca.stats.tTime - cb.stats.tTime;
+                        let winA = ca.a.timeWindow || [9.5, 21.5];
+                        let winB = cb.a.timeWindow || [9.5, 21.5];
+                        return winA[1] - winB[1];
+                    });
+                    chosenIdx = validCands[0].idx;
+                    chosenStats = validCands[0].stats;
+                }
+            }
+
+            // 3. 本日真的塞不下了，強制換天
+            if (chosenIdx === -1) {
+                days.push(curDay);
+                // 智慧刪除邏輯：若天數已滿，直接中斷
+                if (days.length >= tripDuration) break;
+                
+                curDay = { items: [], dayCity: remaining[0].city, dayType: null, currentTime: 9.5 };
+                continue;
+            }
+
+            const a = remaining.splice(chosenIdx, 1)[0];
+            const { tTime, waitTime, actStart, actEnd } = chosenStats;
+
+            // 設定綁定下一個行程
+            if (a.id === 'terminal21') forceNextId = 'lets_relax';
+            if (a.id === 'lets_relax') forceNextId = 'terminal21';
+            if (a.id === 'damnoen_saduak') forceNextId = 'maeklong';
+            if (a.id === 'maeklong') forceNextId = 'damnoen_saduak';
+
+            if (isF && days.length === 0) prevItemObj = { id: 'bangkok_origin', city: 'bangkok', name: '曼谷市區 (預設出發地)', type: '起點' };
+            if (isF && days.length > 0) prevItemObj = { id: 'accommodation', city: a.city, name: '住宿地', type: '住宿區域' }; 
+
+            let finalTTime = tTime;
+            // 若為同商場免車程
+            if (prevItemObj && ((a.id === 'lets_relax' && prevItemObj.id === 'central_world') || (a.id === 'central_world' && prevItemObj.id === 'lets_relax'))) {
+                finalTTime = 0; 
+            }
+
+            let sTime = curDay.currentTime;
+            let aTime = sTime + finalTTime;
+            let finalWaitTime = actStart - aTime; 
+
+            let transitMsg = getSmartTransit(prevItemObj, a);
+            transitMsg += `\n📍 路線指南：${a.transport}`;
+            
+            let win = a.timeWindow || [9.5, 21.5];
+            if (finalWaitTime > 0 && win[0] > 0 && !['住宿區域', '機場', '換匯推薦'].includes(a.type)) {
+                transitMsg += `\n💡 建議：此行程建議 ${win[0]}:00 後開始，預計 ${formatTime(aTime)} 抵達，可於周邊稍作休息。`;
+            } else if (a.type === '換匯推薦' && finalWaitTime > 0) {
+                transitMsg += `\n💡 建議：預計 ${formatTime(aTime)} 抵達，若尚未開始營業可先於附近等待。`;
+            }
+
+            if (finalTTime === 0 && prevItemObj && prevItemObj.id.includes('central_world')) {
+                transitMsg = '📍 位於同一百貨內，無須車程，直接步行前往。';
+            }
+
+            let isFirstAirport = (days.length === 0 && isF && a.type === '機場');
+
+            curDay.items.push({
+                ...a, tTime: finalTTime, prevName: prevItemObj.name, transitTransport: transitMsg,
+                tStr: `${formatTime(sTime)} - ${formatTime(aTime)}`,
+                sStr: isFirstAirport ? '到達曼谷' : `${formatTime(actStart)} - ${formatTime(actEnd)}`,
+                isFirstAirport,
+                endTime: actEnd
+            });
+
+            curDay.currentTime = actEnd;
+            lCity = a.city; lReg = a.region; prevItemObj = a;
+            
+            if (isF) curDay.dayCity = a.city;
+            if (isSuburb(a)) curDay.dayType = 'suburb'; 
+            else if (!['住宿區域','機場','換匯推薦'].includes(a.type)) curDay.dayType = 'city';
+        }
+        
+        // 如果天數還沒滿，繼續把空天數塞進去
+        if (curDay.items.length > 0 && days.length < tripDuration) {
+            days.push(curDay);
+        }
+        while (days.length < tripDuration) {
+            days.push({ items: [], dayCity: lCity, dayType: null, currentTime: 9.5 });
+        }
+
+        // ================= ★ 壓軸機場 (強制定死在最後一天 14:00) =================
+        let lastD = days[days.length-1];
+        if (!lastD) {
+            lastD = { items: [], dayCity: 'bangkok', dayType: null, currentTime: 9.5 };
+            days.push(lastD);
+        }
+        
+        let retT = getTTime(lastD.items.length === 0, lCity, 'bangkok', lReg, 10);
+
+        // 如果最後一天加上前往機場的時間超過了 14:00，把超過限制的行程吐掉
+        while (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            let testRetT = getTTime(false, lastItem.city, 'bangkok', lastItem.region, 10);
+            if (lastItem.endTime > (14.0 - 2.5 - testRetT)) {
+                lastD.items.pop();
+            } else {
+                break;
+            }
+        }
+
+        if (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            lastD.currentTime = lastItem.endTime;
+            lCity = lastItem.city;
+            lReg = lastItem.region;
+            prevItemObj = lastItem;
+        } else {
+            lastD.currentTime = 9.5;
+            lReg = 14;
+            prevItemObj = { name: '住宿地', city: lCity };
+        }
+        
+        retT = getTTime(lastD.items.length === 0, lCity, 'bangkok', lReg, 10);
+        let startTransit = 14.0 - 2.5 - retT;
+        let transitMsg = '🚐 搭乘機場快線、機場巴士或預約專車前往機場報到。';
+        
+        if (lastD.currentTime < startTransit) {
+            transitMsg = `💡 距離前往機場還有空檔時間，建議於 ${formatTime(startTransit)} 準備出發。\n🚐 搭乘機場快線、機場巴士或預約專車前往機場。`;
+        }
+        
+        let retPrev = prevItemObj || {name: '住宿地', city: 'bangkok'};
+        lastD.items.push({
+            id: 'ret', city: 'bangkok', name: '結束旅程前往機場回國', stay: 2.5, region: 999, regionName: '機場', type: '機場',
+            desc: '祝您有趟完美的泰國回憶！請務必提早報到。', transport: '於飯店或最後行程地點搭乘機場快線或預約專車。',
+            tTime: retT, prevName: retPrev.name, transitTransport: transitMsg,
+            tStr: `${formatTime(startTransit)} - ${formatTime(14.0 - 2.5)}`,
+            sStr: `${formatTime(14.0 - 2.5)} - 14:00`,
+            isFirstAirport: false,
+            endTime: 14.0
+        });
+        
+        lastD.currentTime = 14.0;
+
+        return days.map((d, i) => {
+          const base = (i === 0 && d.items[0]?.isFirstAirport ? 12.0 : (i === 0 ? 12.0 : 9.5));
+          const end = d.currentTime;
+          return { dayNum: i+1, totalH: (end - base > 0 ? (end - base).toFixed(1) : "0.0"), cityName: CITIES.find(c => c.id === d.dayCity)?.name || '曼谷', items: d.items };
+        });
+      }, [selectedIds, tripDuration]);
+
+      if (showPrintView) {
+        return (
+          <div className="min-h-screen bg-white p-8">
+            <div className="max-w-3xl mx-auto border-2 border-slate-800 p-8 rounded-2xl">
+              <div className="text-center mb-10"><h1 className="text-3xl font-bold">🇹🇭 專屬泰國自由行 行程表</h1><p className="mt-2 text-slate-500">選擇您想去的行程再選擇天數</p></div>
+              {itineraryDays.map(d => (
+                <div key={d.dayNum} className="mb-10 print-break-avoid">
+                  <h2 className="text-xl font-bold border-b-2 pb-2 mb-6">🌞 第 {d.dayNum} 天 - 【{d.cityName}】 ({d.totalH}h)</h2>
+                  <div className="space-y-6 ml-4 border-l-2 pl-6 border-slate-300">
+                    {d.items.map((it, idx) => (
+                      <div key={`${it.id}-${idx}`} className="relative mb-8">
+                        {!it.isFirstAirport && (
+                          <div className="mb-4 bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm">
+                             <div className="font-bold mb-2">{it.prevName} ➔ {it.name}</div>
+                             <div className="flex gap-3 mb-2"><span className="bg-white px-2 py-1 rounded border font-mono text-blue-500"><i className="fa-regular fa-clock"></i> {it.tStr}</span><span>車程：{it.tTime}h</span></div>
+                             <div className="whitespace-pre-wrap text-slate-600">{it.transitTransport}</div>
+                          </div>
+                        )}
+                        <div className="relative">
+                          <div className="absolute -left-[31px] top-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>
+                          <div className="font-bold text-sm text-slate-500 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留：'}{it.sStr}</div>
+                          <h4 className="text-xl font-bold text-slate-900">{it.name}</h4>
+                          <p className="text-sm text-slate-600 my-2 leading-relaxed">{it.desc}</p>
+                          {it.bookingLinks && <div className="mt-3 flex gap-2 flex-wrap print:hidden">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] text-white text-xs px-2.5 py-1.5 rounded font-bold hover:bg-[#e05000]">🎟️ {l.text}</a>)}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="mt-10 text-center print-hidden">
+                <button onClick={() => setShowPrintView(false)} className="bg-slate-800 text-white px-6 py-2 rounded-xl font-bold mr-4 hover:bg-slate-700">返回編輯</button>
+                <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-500">列印行程</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const grouped = ATTRACTIONS.filter(a => a.city === activeCity).reduce((acc, c) => { (acc[c.type] = acc[c.type] || []).push(c); return acc; }, {});
+
+      return (
+        <div className="min-h-screen bg-slate-50 pb-10">
+          <header className="bg-white p-4 shadow-sm flex justify-between items-center sticky top-0 z-20 border-b">
+            <div className="flex items-center gap-4">
+              <h1 className="font-bold text-xl flex items-center gap-2"><i className="fa-solid fa-plane-departure text-blue-600"></i>泰國行程魔法師</h1>
+              <a href="https://linkuei0425.github.io/BANGKOK/" className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-full transition-colors border border-slate-200 hover:border-blue-200 shadow-sm">
+                <i className="fa-solid fa-house"></i><span>回到首頁</span>
+              </a>
+            </div>
+            <div className="text-xs font-bold bg-slate-800 text-white px-3 py-1 rounded-full shadow-sm">已選 {selectedIds.length} 站</div>
+          </header>
+          <main className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-6">
+            <div className="lg:w-1/2 flex flex-col gap-4">
+              <div className="bg-white p-2 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar">
+                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all duration-200 ${activeCity === c.id ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}>{c.name}</button>)}
+              </div>
+              <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+                {Object.entries(grouped).map(([type, items]) => (
+                  <div key={type} className="mb-6">
+                    <h3 className="font-bold text-slate-700 mb-3 sticky top-0 bg-slate-50/90 py-2 backdrop-blur-sm z-10 border-b border-slate-200">{type}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {items.map(it => (
+                        <div key={it.id} onClick={() => toggleAttr(it.id)} className={`p-4 rounded-xl cursor-pointer border-2 transition-all duration-200 ${selectedIds.includes(it.id) ? 'bg-blue-50 border-blue-500 scale-[1.02] shadow-md' : 'bg-white border-transparent shadow-sm hover:border-slate-300'}`}>
+                          <div className="font-bold text-slate-900 leading-tight mb-2">{it.name}</div>
+                          <div className="text-[10px] flex gap-2"><span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600"><i className="fa-regular fa-clock mr-1"></i>{it.stay}h</span><span className={`px-1.5 py-0.5 rounded border ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot"></i> {it.regionName}</span></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="lg:w-1/2">
+              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] sticky top-24">
+                <div className="bg-slate-800 text-white p-5 lg:p-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2"><i className="fa-regular fa-calendar-check text-blue-400"></i>您的行程表</h2>
+                  <p className="text-xs opacity-80 mt-1.5">💡 已啟用智慧排程：若行程過多將為您自動刪減以符合天數</p>
+                  
+                  <div className="flex flex-row gap-2 mt-4">
+                    <select 
+                      value={tripDuration} 
+                      onChange={(e) => setTripDuration(Number(e.target.value))}
+                      className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-4 rounded-xl outline-none cursor-pointer transition-colors shadow-lg border border-slate-600"
+                      title="選擇旅遊總天數"
+                    >
+                      <option value={4}>4 日遊</option>
+                      <option value={5}>5 日遊</option>
+                      <option value={6}>6 日遊</option>
+                      <option value={7}>7 日遊</option>
+                    </select>
+                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="flex-1 bg-blue-500 hover:bg-blue-600 py-3 rounded-xl font-bold shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed text-white">產出詳細行程 (包含線上優惠)</button>
+                  </div>
+                </div>
+                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-24 flex flex-col items-center gap-4"><i className="fa-solid fa-map text-6xl opacity-10"></i><p>尚未選擇任何景點</p></div> : 
+                    itineraryDays.map(d => (
+                      <div key={d.dayNum} className="mb-10">
+                        <h3 className="font-bold text-lg mb-4 border-b-2 border-slate-200 pb-2 flex items-center gap-2 text-slate-800"><i className="fa-solid fa-sun text-orange-500"></i> 第 {d.dayNum} 天 - 【{d.cityName}】 <span className="text-xs font-normal text-slate-400 ml-auto">總計: {d.totalH}h</span></h3>
+                        <div className="space-y-5 border-l-[3px] border-slate-200 ml-4 pl-7 relative pb-4">
+                          {d.items.map((it, idx) => (
+                            <div key={`${it.id}-${idx}`} className="relative mb-6">
+                              {!it.isFirstAirport && (
+                                <div className="mb-4 relative">
+                                  <div className="absolute -left-[40px] top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-100 rounded-full border-2 border-slate-300 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[8px] text-slate-400"></i></div>
+                                  <div className="bg-blue-50/70 rounded-lg p-3 text-[11px] border border-blue-100 shadow-sm">
+                                    <div className="font-bold text-blue-800 mb-1.5">{it.prevName} ➔ {it.name}</div>
+                                    <div className="flex items-center gap-3 mb-1.5"><span className="bg-white px-2 py-0.5 rounded border border-blue-200 font-mono text-blue-600 shadow-sm"><i className="fa-regular fa-clock mr-1"></i> {it.tStr}</span><span className="text-blue-600 font-medium">車程 {it.tTime}h</span></div>
+                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{it.transitTransport}</div>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative hover:shadow-md transition-shadow">
+                                <div className="absolute -left-[37px] top-4 w-4.5 h-4.5 bg-blue-500 rounded-full border-[3px] border-white shadow-sm z-10"></div>
+                                <div className="text-xs font-bold text-slate-400 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留: '}{it.sStr}</div>
+                                <h4 className="font-bold text-base mb-1">{it.name}</h4>
+                                <p className="text-xs text-slate-500 leading-relaxed">{it.desc}</p>
+                                {it.bookingLinks && <div className="mt-3 flex gap-1.5 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[9px] px-2.5 py-1 rounded-lg font-bold transition-colors shadow-sm"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
