@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hanoi Attractions Guide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Hide scrollbar but keep functionality */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body id="app-body" class="min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800">
+
+  <!-- Header -->
+  <header id="app-header" class="bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500">
+    
+    <!-- Back to Home Button -->
+    <div class="max-w-6xl mx-auto px-4 pt-4">
+      <a href="https://linkuei0425.github.io/Hanoi-US/" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 bg-white/60 hover:bg-white hover:text-gray-900 rounded-full border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-x-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Back to Home
+      </a>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 pb-6 pt-2">
+      <div class="flex items-center justify-center space-x-3 mb-2">
+        <div id="title-icon-left" class="animate-pulse"></div>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 transition-colors duration-500">
+          Thousand-Year Capital: Hanoi Guide
+        </h1>
+        <div id="title-icon-right" class="animate-pulse"></div>
+      </div>
+      <p class="text-center text-gray-500 text-sm md:text-base">
+        Must-visit <span id="season-text" class="font-semibold">historical</span> attractions in Hoan Kiem, Ba Dinh, and Tay Ho.
+      </p>
+    </div>
+
+    <!-- Category Toggle -->
+    <div class="flex justify-center mb-4">
+      <div class="bg-gray-100/80 backdrop-blur-sm p-1.5 rounded-full inline-flex border border-gray-200 shadow-inner">
+        <button id="btn-history" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M2 22h20"/><path d="M12 2v20"/><path d="m4 12 8-8 8 8"/><path d="M6 22v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/></svg>
+          History & Culture
+        </button>
+        <button id="btn-trendy" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          Trendy & Popular
+        </button>
+      </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="max-w-4xl mx-auto px-4 pb-4">
+      <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar space-x-2 md:justify-center py-2">
+        <!-- Tabs injected by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 mt-8">
+    <div class="mb-6 flex items-center space-x-2 transition-colors duration-500" id="section-title-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <h2 id="section-title" class="text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500">
+        Hoan Kiem Highlights
+      </h2>
+    </div>
+
+    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Cards injected by JS -->
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="max-w-6xl mx-auto px-4 mt-16 text-center text-gray-400 text-sm">
+    <p id="footer-text">※ The Hanoi Metro is partially operational, but using Grab is still highly recommended for getting around. Hanoi has distinct seasons, including a chilly winter, so please monitor the weather.</p>
+  </footer>
+
+  <script>
+    const historyData = {
+      'Hoan Kiem': [
+        { name: 'St. Joseph\'s Cathedral', feature: 'A late 19th-century Gothic Revival church. Its weathered exterior is full of historical charm, making it the oldest church in Hanoi. The surrounding area is packed with cafes, perfect for admiring the architecture.', transport: '🚶 【Walk】 If staying in the Old Quarter, it is a 5-15 minute walk.<br>🚗 【Grab】 The Old Quarter has many one-way streets. Set your drop-off at "Nha Tho" intersection and walk.<br>🚌 【Bus】 Take bus 09A or 09B to Hoan Kiem Lake, then walk.' },
+        { name: 'Hoa Lo Prison Relic', feature: 'Used by French colonists for political prisoners, and later for US POWs during the Vietnam War (sarcastically dubbed the "Hanoi Hilton"). The exhibits are rich and profoundly moving.', transport: '🚶 【Walk】 About a 15-minute walk from the south end of Hoan Kiem Lake (Trang Tien Plaza).<br>🚗 【Grab】 Set your destination to "Hoa Lo Prison Relic" for an easy drop-off.<br>🚇 【Metro/Bus】 No direct metro yet. Take bus 02 or 38.' },
+        { name: 'Dong Xuan Market', feature: 'The largest indoor traditional market in Hanoi with over a century of history. The first floor sells dried goods, souvenirs, and wholesale clothing, offering an authentic local vibe. It turns into a bustling night market on weekends.', transport: '🚶 【Walk】 Located north of the Old Quarter, a 15-minute walk from the north end of the lake.<br>🚗 【Grab】 Set destination to "Dong Xuan Market". Be careful of traffic and crowds when alighting.' }
+      ],
+      'Ba Dinh': [
+        { name: 'Ho Chi Minh Mausoleum & One Pillar Pagoda', feature: 'The resting place of Vietnamese leader Ho Chi Minh, characterized by a solemn atmosphere. Nearby, the "One Pillar Pagoda" is built on a lotus pond, an iconic historical temple in Hanoi.', transport: '🚗 【Grab】 Note: Traffic controls are strict around the Mausoleum (e.g., Hung Vuong St). Grab drivers will usually drop you at the "Ngoc Ha" street entrance, requiring a short walk.<br>🚌 【Bus】 Take bus 09A to "Le Hong Phong" station.' },
+        { name: 'Imperial Citadel of Thang Long', feature: 'A UNESCO World Heritage site witnessing centuries of Vietnamese dynasties. The massive stone gates and excavated palace ruins are perfect for history buffs.', transport: '🚶 【Walk】 If you just visited the Mausoleum, it’s a 10-15 minute walk (enter from Hoang Dieu St).<br>🚗 【Grab】 Set destination to "Imperial Citadel of Thang Long". The main gate is on Hoang Dieu St.<br>🚌 【Bus】 Bus 22A stops near the main gate.' }
+      ],
+      'Tay Ho': [
+        { name: 'Tran Quoc Pagoda', feature: 'The oldest Buddhist temple in Hanoi, over a millennium old. Located on a scenic peninsula in West Lake, its towering red pagoda is especially mesmerizing at sunset.', transport: '🚗 【Grab】 Located on Thanh Nien road. About 15-20 mins by Grab from the Old Quarter.<br>🚶 【Bike/E-bike】 Many tourists rent bikes to cycle around West Lake. This is a perfect stop.<br>🚌 【Bus】 Bus 50 drops you right at the entrance.' }
+      ],
+      'Dong Da': [
+        { name: 'Temple of Literature', feature: 'Vietnam\'s first national university, dedicated to Confucius. Featuring perfectly preserved traditional Vietnamese architecture, it is a sacred site where local students pray for academic success.', transport: '🚇 【Metro】 Take the Metro (Line 2A) to "Cat Linh" station, then walk 10-15 minutes.<br>🚗 【Grab】 About 10-15 minutes from the Old Quarter. Set destination to "Temple of Literature".<br>🚌 【Bus】 Bus 02 or 23 stops opposite the main gate.' }
+      ]
+    };
+
+    const trendyData = {
+      'Hoan Kiem': [
+        { name: 'Old Quarter (36 Streets)', feature: 'The vibrant soul of Hanoi! Historically, each street specialized in one trade. Now, it\'s a maze of street food, boutique shops, and cafes. Getting lost in these alleys is part of the fun.', transport: '🚶 【Walk】 A must-stay area for independent travelers! Walking is highly recommended to explore the local life.<br>🛺 【Cyclo/Electric Car】 If tired, take a cyclo (negotiate first!) or electric tour car by the lake.<br>🚗 【Grab】 Alleys are narrow and streets close on weekends. Grab can only drop you at the perimeter.' },
+        { name: 'Hanoi Train Street', feature: 'A bizarre sight where houses closely hug the train tracks. Trains passing by at an arm\'s length offer a thrilling experience. Packed with aesthetic trackside cafes.', transport: '🚶 【Walk】 About 15 mins walk from the Old Quarter.<br>⚠️ 【Notice】 Currently, authorities restrict tourists on the tracks. Go to the intersection of "Tran Phu" and "Phung Hung" and let a licensed cafe owner escort you in (buying a drink is required).<br>🚗 【Grab】 Set destination to "Train Street Tran Phu".' },
+        { name: 'Hoan Kiem Lake Weekend Walking Street', feature: 'Every weekend, the roads around the lake close to traffic, transforming into a massive pedestrian zone. Full of street performers, traditional games, local food, and a joyful vibe.', transport: '🚶 【Walk】 From Friday evening to Sunday night, the lake perimeter is strictly pedestrian-only.<br>🚗 【Grab】 Drop off at the outer perimeter (e.g., Hanoi Opera House, Trang Tien Plaza) and walk in.<br>💡 【Tip】 Crowds are huge on weekend nights; beware of pickpockets.' },
+        { name: 'Trang Tien Plaza', feature: 'An elegant century-old French-style department store located south of the lake, dazzling when lit up at night. Houses luxury brands, cosmetics, and upscale dining.', transport: '🚶 【Walk】 Right next to the south end of Hoan Kiem Lake. Easy to visit while strolling around the lake.<br>🚗 【Grab】 Set destination to "Trang Tien Plaza", a very familiar landmark for all drivers.' }
+      ],
+      'Tay Ho': [
+        { name: 'Tay Ho Lakeside Cafe Street', feature: 'West Lake is popular among expats. Areas like Quang An hide incredibly aesthetic French cafes and bistros. Sipping coconut coffee by the lake at sunset is a highly popular trendy activity.', transport: '🚗 【Grab】 Grab is the best choice. West Lake is massive, so pin the exact cafe (e.g., Xuan Dieu street in Quang An).<br>🛵 【Scooter】 If confident in SE Asian traffic, renting a scooter to circle the lake is popular among backpackers.<br>🚌 【Bus】 Not recommended as routes don\'t go deep into the alleys.' },
+        { name: 'Lotte Mall West Lake', feature: 'Hanoi\'s newest and largest mega-mall! Besides massive retail space, supermarkets, and cinemas, it features the beautiful Lotte World Aquarium. A perfect escape for hot or rainy days.', transport: '🚗 【Grab】 Located on the outskirts of Tay Ho, 20-30 mins from the Old Quarter. Highly recommend taking Grab.<br>🚌 【Bus】 Take route 68 or other relevant city buses.' }
+      ],
+      'Ba Dinh': [
+        { name: 'Lotte Observation Deck', feature: 'Located on the 65th floor of the Lotte Center, offering a spectacular 360-degree panoramic view of Hanoi. The glass-bottom "Sky Walk" is incredibly popular for thrilling photos.', transport: '🚗 【Grab】 Located on the border of Ba Dinh and Cau Giay. About 20-30 mins from the Old Quarter.<br>🚌 【Bus】 Take bus 09A or 12 to "Lotte Center".<br>🚇 【Metro】 Future Line 3 will stop here. For now, Grab is best.' }
+      ]
+    };
+
+    // State
+    let activeCategory = 'history';
+    let activeTab = 'Hoan Kiem';
+
+    // SVG Icons
+    const svgMonument = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22h20"/><path d="M12 2v20"/><path d="m4 12 8-8 8 8"/><path d="M6 22v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/></svg>`;
+    const svgCamera = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`;
+    const svgSparkles = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400 mr-2 flex-shrink-0 mt-0.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`;
+    const svgMapPin = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 mr-2 flex-shrink-0 mt-0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
+
+    // Theme Config
+    const themeConfig = {
+      history: {
+        bg: 'bg-amber-50', selection: 'selection:bg-amber-300', textMain: 'text-amber-600',
+        borderMain: 'border-amber-100', tabActive: 'bg-amber-600 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-amber-100 hover:text-amber-700', iconH2: 'text-amber-600', borderH2: 'border-amber-200',
+        cardGradient: 'from-amber-300 via-amber-400 to-amber-300 group-hover:from-amber-400 group-hover:to-amber-500',
+        numberBg: 'bg-amber-100 text-amber-700', transportBg: 'bg-amber-50',
+        btnActive: 'bg-white text-amber-600 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-amber-500 hover:bg-white/50'
+      },
+      trendy: {
+        bg: 'bg-teal-50', selection: 'selection:bg-teal-300', textMain: 'text-teal-600',
+        borderMain: 'border-teal-100', tabActive: 'bg-teal-500 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-teal-100 hover:text-teal-600', iconH2: 'text-teal-600', borderH2: 'border-teal-200',
+        cardGradient: 'from-teal-300 via-teal-400 to-teal-300 group-hover:from-teal-400 group-hover:to-teal-500',
+        numberBg: 'bg-teal-100 text-teal-600', transportBg: 'bg-teal-50',
+        btnActive: 'bg-white text-teal-600 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-teal-500 hover:bg-white/50'
+      }
+    };
+
+    function updateTheme() {
+      const t = themeConfig[activeCategory];
+      
+      // Body & Header
+      document.getElementById('app-body').className = `min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800 ${t.bg} ${t.selection} selection:text-white`;
+      document.getElementById('app-header').className = `bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500 ${t.borderMain}`;
+      
+      // Icons & Text
+      const iconSvg = activeCategory === 'history' ? svgMonument : svgCamera;
+      document.getElementById('title-icon-left').innerHTML = iconSvg;
+      document.getElementById('title-icon-right').innerHTML = iconSvg;
+      document.getElementById('title-icon-left').className = `animate-pulse ${t.textMain}`;
+      document.getElementById('title-icon-right').className = `animate-pulse ${t.textMain}`;
+      
+      document.getElementById('season-text').innerText = activeCategory === 'history' ? 'historical' : 'trendy';
+
+      // Section Title
+      document.getElementById('section-title-container').className = `mb-6 flex items-center space-x-2 transition-colors duration-500 ${t.iconH2}`;
+      document.getElementById('section-title').className = `text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500 ${t.borderH2}`;
+
+      // Toggle Buttons
+      document.getElementById('btn-history').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeCategory === 'history' ? t.btnActive : t.btnInactive}`;
+      document.getElementById('btn-trendy').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeCategory === 'trendy' ? t.btnActive : t.btnInactive}`;
+    }
+
+    function renderTabs() {
+      const t = themeConfig[activeCategory];
+      const data = activeCategory === 'history' ? historyData : trendyData;
+      const cities = Object.keys(data);
+      const container = document.getElementById('tabs-container');
+      
+      if (!cities.includes(activeTab)) {
+        activeTab = cities[0];
+      }
+
+      container.innerHTML = cities.map(city => `
+        <button
+          onclick="setTab('${city}')"
+          class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-in-out ${activeTab === city ? t.tabActive : t.tabHover}"
+        >
+          ${city}
+        </button>
+      `).join('');
+    }
+
+    function renderCards() {
+      const t = themeConfig[activeCategory];
+      const data = activeCategory === 'history' ? historyData : trendyData;
+      const spots = data[activeTab];
+      
+      document.getElementById('section-title').innerText = `${activeTab} Highlights`;
+
+      const container = document.getElementById('cards-container');
+      container.innerHTML = spots.map((spot, index) => `
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-50 flex flex-col h-full group">
+          <div class="h-2 w-full bg-gradient-to-r transition-colors duration-500 ${t.cardGradient}"></div>
+          <div class="p-6 flex-grow flex flex-col">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-start">
+              <span class="rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5 transition-colors duration-500 ${t.numberBg}">
+                ${index + 1}
+              </span>
+              ${spot.name}
+            </h3>
+            
+            <div class="mb-6 flex-grow">
+              <div class="flex items-start text-gray-600 mb-1">
+                ${svgSparkles}
+                <span class="font-semibold text-gray-700">Highlights</span>
+              </div>
+              <p class="text-gray-600 leading-relaxed pl-7 text-sm">
+                ${spot.feature}
+              </p>
+            </div>
+
+            <div class="rounded-xl p-4 mt-auto transition-colors duration-500 ${t.transportBg}">
+              <div class="flex items-start text-gray-700 mb-2">
+                ${svgMapPin}
+                <span class="font-semibold">Transport Guide</span>
+              </div>
+              <p class="text-gray-600 text-sm pl-7 leading-relaxed space-y-1">
+                ${spot.transport}
+              </p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Events and Logic
+    function setCategory(category) {
+      if (activeCategory === category) return;
+      activeCategory = category;
+      updateTheme();
+      renderTabs();
+      renderCards();
+    }
+
+    function setTab(tab) {
+      if (activeTab === tab) return;
+      activeTab = tab;
+      renderTabs();
+      renderCards();
+    }
+
+    document.getElementById('btn-history').addEventListener('click', () => setCategory('history'));
+    document.getElementById('btn-trendy').addEventListener('click', () => setCategory('trendy'));
+
+    // Initialize
+    updateTheme();
+    renderTabs();
+    renderCards();
+  </script>
+</body>
+</html>

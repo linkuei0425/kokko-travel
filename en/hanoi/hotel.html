@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanoi Hotel Guide | Hanoi Hotel Recommendations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5eead4; /* teal-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2dd4bf; /* teal-400 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* District Button Styles */
+        .area-btn-active {
+            background-color: #0f766e; /* teal-700 */
+            color: white;
+            border-color: #0f766e;
+            box-shadow: 0 4px 6px -1px rgba(15, 118, 110, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #f0fdfa; /* teal-50 */
+            color: #115e59; /* teal-800 */
+            border-color: #5eead4; /* teal-300 */
+        }
+
+        /* Category Button Styles */
+        .cat-btn-active {
+            background-color: #0d9488; /* teal-600 */
+            color: white;
+            border-color: #0d9488;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #f0fdfa; /* teal-50 */
+            color: #0d9488;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#f0fdfa] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-teal-900 tracking-wide">
+                    <i class="fa-solid fa-hotel mr-2 text-teal-600"></i>Hanoi Hotel Guide
+                </h1>
+                <a href="https://linkuei0425.github.io/Hanoi-US/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-teal-100 text-teal-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-teal-200">
+                    <i class="fa-solid fa-house mr-2"></i>
+                    Back to Home
+                </a>
+            </div>
+            <p class="text-teal-600 font-medium text-sm md:text-base">A curated selection of premium hotels across Hanoi's districts to make your trip comfortable and convenient.</p>
+        </header>
+
+        <!-- Layer 1: District Buttons (Horizontal Scroll) -->
+        <div class="mb-6 overflow-hidden relative">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-bold text-teal-700 uppercase tracking-wider">Select District</span>
+                <!-- Scroll Arrows -->
+                <div class="flex gap-2">
+                    <button onclick="scrollDistricts('left')" class="p-1.5 rounded-full bg-teal-100 text-teal-600 hover:bg-teal-200 transition-colors shadow-sm" aria-label="Scroll left">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollDistricts('right')" class="p-1.5 rounded-full bg-teal-100 text-teal-600 hover:bg-teal-200 transition-colors shadow-sm" aria-label="Scroll right">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-3 pb-2 scroll-smooth">
+                <!-- Buttons injected by JS -->
+            </div>
+        </div>
+
+        <!-- Layer 2: Category Buttons -->
+        <div id="category-buttons" class="flex flex-wrap justify-center gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-teal-100 hidden">
+            <!-- Buttons injected by JS -->
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-teal-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-teal-300 pt-20 pb-20">
+                <p class="font-bold text-lg"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading recommended hotels...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto px-4 mt-8 pb-4 text-center text-teal-700/70 text-sm">
+        <p>※ The Hanoi Metro is partially operational, but using Grab is highly recommended for moving between attractions and hotels. Hanoi has distinct seasons, including a chilly winter, so you may want to look for heated pool facilities when booking.</p>
+    </footer>
+
+    <script>
+        // Hanoi Hotel Database
+        const hotelData = {
+            "hoankiem": {
+                name: "Hoan Kiem (Old Quarter)",
+                categories: {
+                    "Luxury Hotels": [
+                        { name: "Sofitel Legend Metropole Hanoi", feature: ["Century-old French luxury landmark with unparalleled elegance", "Hosted Charlie Chaplin and world leaders; features a Vietnam War-era bomb shelter tour", "Features a stunning French courtyard garden and a classic heated pool"], address: "15 Ngo Quyen Street, Hoan Kiem District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-1501255/sofitel-legend-metropole-hanoi/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Capella Hanoi", feature: ["'Opera House' themed ultra-luxury hotel by renowned designer Bill Bensley", "Steps away from Hoan Kiem Lake and the Opera House, prime location", "Offers Michelin-starred dining experiences and exclusive butler service"], address: "11 Le Phung Hieu, Hoan Kiem District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-71667925/capella-hanoi/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Apricot Hotel", feature: ["Perfectly situated on the shores of Hoan Kiem Lake, adorned with neo-classical style and Vietnamese artworks", "Rooftop features a stunning high-altitude pool and lounge bar overlooking the entire lake", "Step out to immediately begin exploring the Old Quarter and its 36 streets"], address: "136 Hang Trong, Hoan Kiem District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-2533663/apricot-hotel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ],
+                    "High Value/Budget": [
+                        { name: "La Siesta Premium Hang Be", feature: ["Highly rated and popular boutique hotel chain within the Old Quarter", "The rooftop Cloud Sky Bar offers excellent views, a great place to relax at night", "Staff are known for their warm hospitality; excellent overall value for money"], address: "27 Hang Be, Hoan Kiem District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-33520498/la-siesta-classic-hang-be/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "The Oriental Jade Hotel", feature: ["Only a few minutes' walk to St. Joseph's Cathedral and Hoan Kiem Lake", "Features a rare outdoor high-altitude infinity pool in the Old Quarter", "Modern, comfortable, and well-soundproofed rooms; a quiet oasis in the bustling city"], address: "92-94 Hang Trong, Hoan Kiem District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-38427456/the-oriental-jade-hotel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "JM Marvel Hotel & Spa", feature: ["Design-focused hotel full of retro French charm and exquisite details", "The attached Spa massage service is highly rated, perfect for relaxing after shopping", "Cozy rooftop bar serving welcome drinks and exquisite afternoon tea"], address: "16 Hang Da, Hoan Kiem District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-15859227/jm-marvel-hotel-and-spa/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ],
+                    "Hostels": [
+                        { name: "Hanoi Buffalo Hostel", feature: ["Super popular hostel in the Old Quarter, gathering backpackers from all over the world with a great party vibe", "Features a free heated pool and a social lounge bar", "Daily themed parties and free city walking tours"], address: "44 Hang Giay, Hoan Kiem District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-47635090/hanoi-buffalo-hostel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Old Quarter View Hanoi Hostel", feature: ["Clean and tidy, extremely passionate and friendly staff, high Google ratings", "Provides free and hearty breakfast and an evening beer Happy Hour", "Perfect location, just a 2-minute walk to Ta Hien Beer Street"], address: "42 Hang Giay, Hoan Kiem District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-7605150/old-quarter-view-hanoi-hostel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Little Charm Hanoi Hostel", feature: ["High-quality hostel with an elegant Italian style", "Capsule-style wooden beds offer excellent privacy and soundproofing", "Features an indoor heated pool and a high-standard attached Italian restaurant"], address: "44 Hang Bo, Hoan Kiem District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-26595412/little-charm-hanoi-hostel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "tayho": {
+                name: "Tay Ho (West Lake)",
+                categories: {
+                    "Luxury Hotels": [
+                        { name: "InterContinental Hanoi Westlake", feature: ["Unique overwater resort built on West Lake, peaceful and elegant environment", "Features the incredibly romantic overwater Sunset Bar", "Perfectly escapes the noise of the Old Quarter, offering a Southeast Asian island resort vibe"], address: "5 Tu Hoa, Tay Ho District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-1646527/intercontinental-hotels-hanoi-westlake-by-ihg/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Sheraton Hanoi Hotel", feature: ["Classic 5-star hotel offering expansive views of West Lake", "Lush gardens with a huge outdoor pool and comprehensive fitness facilities", "Surrounded by an expat community with numerous fine dining restaurants and cafes"], address: "K5 Nghi Tam, 11 Xuan Dieu, Tay Ho District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-993421/sheraton-hanoi-hotel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Somerset West Point Hanoi", feature: ["Premium serviced apartments in Tay Ho with diverse room types", "Offers fully equipped kitchens, living rooms, and washer-dryers", "Extremely spacious, perfect for families or long-term stays"], address: "2 Tay Ho Road, Tay Ho District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-9134551/somerset-west-point-hanoi/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ],
+                    "High Value/Budget": [
+                        { name: "Parosand Hanoi Hotel", feature: ["High-value boutique hotel by West Lake with bright, light-luxury design", "Some rooms offer fantastic panoramic views of West Lake with great natural light", "Surrounded by unique cafes and international restaurants, relaxed pace of life"], address: "537 Lac Long Quan, Tay Ho District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-33996842/parosand-hanoi-hotel-and-apartment/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Dragon Hotel", feature: ["Located in the bustling Xuan Dieu expat commercial area by West Lake, very convenient", "Offers clean and comfortable accommodation with enthusiastic service at affordable prices", "Very close to the lakeside and multiple highly photogenic cafes"], address: "48 Xuan Dieu, Tay Ho District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-713303/dragon-hotel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Wild Lotus Hotel", feature: ["Textured lodging hidden in the quiet alleys of West Lake", "Spacious and fully equipped rooms, friendly staff", "Perfect for long-stay travelers or couples looking to escape the city noise"], address: "106 Xuan Dieu, Tay Ho District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-2611320/wild-lotus-hotel-travel-2/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ],
+                    "Hostels": [
+                        { name: "Hanoi Westlake Hostel", feature: ["Small and cozy lakeside hostel with a home-like comfortable atmosphere", "Hidden cheap and delicious local street food nearby", "Convenient location for exploring the romantic West Lake perimeter"], address: "154 Yen Phu, Tay Ho District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-101232705/luck-apart-8/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "badinh": {
+                name: "Ba Dinh",
+                categories: {
+                    "Luxury Hotels": [
+                        { name: "Lotte Hotel Hanoi", feature: ["Located on the upper floors of Lotte Center, offering unbeatable bird's-eye views of the city and West Lake", "Lotte Mall and a large supermarket downstairs make souvenir shopping extremely convenient", "Rooftop features the famous Top of Hanoi sky bar and a transparent skywalk"], address: "54 Lieu Giai, Ba Dinh District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-96297576/lotte-hotel-hanoi/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Dolce by Wyndham Hanoi Golden Lake", feature: ["Highly talked-about '24K gold-plated' ultra-luxury hotel", "Features a globally unique gold-plated infinity sky pool", "From bathtubs to sinks and toilets, rooms are extravagantly accented with gold"], address: "B7 Giang Vo, Ba Dinh District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-68045905/dolce-by-wyndham-hanoi-golden-lake/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Hanoi Daewoo Hotel", feature: ["Historic and iconic classic 5-star business hotel in Hanoi", "Boasts one of the city's largest and most beautiful outdoor gardens and swimming pools", "Adjacent to the scenic Thu Le Lake, offering a comfortable and quiet environment"], address: "360 Kim Ma Street, Ba Dinh District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-993426/hanoi-daewoo-hotel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ],
+                    "High Value/Budget": [
+                        { name: "The Q Hotel", feature: ["Decorated in a modern light-luxury style with exquisite details, great for photos", "Rich breakfast selection, perfectly blending local Vietnamese and Western flavors", "Moderate location, very convenient to both the Old Quarter and West Lake"], address: "87 Nguyen Truong To, Ba Dinh District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-46700750/the-q-hotel-hanoi/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "A25 Hotel - Doi Can", feature: ["A well-known local budget chain hotel brand in Vietnam", "Extremely affordable, suitable for budget-conscious travelers just looking for a clean place to sleep", "Surrounded by many local snack stalls, pho restaurants, and convenience stores"], address: "385 Doi Can, Ba Dinh District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-1476675/a25-premium-hotel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ],
+                    "Hostels": [
+                        { name: "Urban Alley Hostel", feature: ["Quality hostel featuring a minimalist industrial style with comfortable public areas", "Spacious beds with independent reading lights and blackout curtains for high privacy", "Walking distance to major historical sites like the Ho Chi Minh Mausoleum and Thang Long Imperial Citadel"], address: "10 Chau Long, Ba Dinh District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-713086/urban-alley-hotel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "The Autumn Homestay", feature: ["Combines hostel beds with private suites, full of romantic autumn warm tones", "The ground floor lounge is beautiful, perfect for taking photos and relaxing with a book", "Quiet and safe surrounding environment; a short walk to Lotte Mall"], address: "12 Kim Ma, Ba Dinh District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-24148484/the-autumn-homestay/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "haibatrung": {
+                name: "Hai Ba Trung",
+                categories: {
+                    "Luxury Hotels": [
+                        { name: "Hotel du Parc Hanoi", feature: ["Japanese-managed 5-star hotel known for meticulous service and exquisite amenities", "Adjacent to Thong Nhat Park, offering a quiet environment with good security and convenience", "Features high-standard Japanese restaurants and top-tier facilities suitable for business travelers"], address: "84 Tran Nhan Tong, Hai Ba Trung District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-993385/hotel-du-parc-hanoi/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Sunway Hotel Hanoi", feature: ["Well-established, high-level 4/5-star boutique business hotel", "Rooms feature classic French colonial decor, elegant and comfortable", "Well-trained staff, and not far from the Old Quarter and Opera House"], address: "19 Pham Dinh Ho, Hai Ba Trung District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-993475/sunway-hotel-hanoi/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Somerset Grand Hanoi", feature: ["Large premium serviced apartments in an excellent location, spanning Hoan Kiem and Hai Ba Trung", "Rooms come with full kitchens, large refrigerators, and family-sized living rooms", "A large supermarket and mall downstairs make daily shopping extremely convenient"], address: "49 Hai Ba Trung Street", url: "https://www.trip.com/hotels/hanoi-hotel-detail-2192562/somerset-grand-hanoi/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ],
+                    "High Value/Budget": [
+                        { name: "Halais Hotel", feature: ["Excellent location right next to the beautiful Thien Quang Lake", "Rooms are modern, bright, and well-lit; the buffet breakfast is exquisite and delicious", "Affordable pricing but provides friendly service comparable to star-rated hotels"], address: "48 Tran Quoc Toan, Hai Ba Trung District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-25731039/halais-hotel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "Nesta Hotel Hanoi", feature: ["Located in a quiet neighborhood in Hai Ba Trung, away from the noise of the main roads", "Spacious rooms with wooden tones, providing a warm and cozy feel", "Walking distance to the famous 'Coffee Street' (Trieu Viet Vuong)"], address: "30 Nguyen Binh Khiem, Hai Ba Trung District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-993461/nesta-hanoi-hotel/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" },
+                        { name: "The Ann Hanoi", feature: ["A 4-star hotel with a modern and grand exterior and very new facilities", "Features a fantastic high-altitude heated pool and comprehensive gym facilities", "Superb value for money, loved by business travelers and quality-seeking leisure tourists"], address: "38A Hang Chuoi, Hai Ba Trung District", url: "https://www.trip.com/hotels/hanoi-hotel-detail-3745694/the-ann-hanoi/?Allianceid=7913725&SID=303147160&trip_sub1=&trip_sub3=D14691847&locale=en_xx&curr=USD" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. Initialize District Buttons
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70"></i>${hotelData[key].name}`;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. Select District
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. Render Category Buttons
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive shadow-sm`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // Click the first category by default
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. Select Category
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. Render Hotel Data
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-teal-100 animate-fade-in">
+                    <h2 class="text-2xl font-bold text-teal-900 mr-3">
+                        <i class="fa-solid fa-location-dot mr-2 text-teal-500"></i>${districtData.name}
+                    </h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-teal-100 text-teal-800 text-sm font-bold rounded-full border border-teal-200">
+                        <i class="fa-solid fa-tag mr-1"></i>${currentCategoryName}
+                    </span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in">No recommended hotels in this category.</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5">`;
+                
+                hotels.forEach((hotel, index) => {
+                    // Uses provided URL or falls back to Google Maps search
+                    let searchUrl = hotel.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotel.name + ' Hanoi')}`;
+                    
+                    const linkTagHTML = `
+                        <a href="${searchUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 mt-3 sm:mt-0 rounded-xl text-sm font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-auto">
+                            <i class="fa-solid fa-magnifying-glass mr-1.5"></i>View Details
+                        </a>
+                    `;
+
+                    htmlContent += `
+                        <div class="bg-white border border-teal-100 p-5 md:p-6 rounded-2xl hover:shadow-lg transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 0.05}s;">
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2">
+                                <h4 class="text-xl font-bold text-teal-900 flex items-start leading-tight pt-1">
+                                    <span class="text-white bg-teal-500 rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2 flex-shrink-0">${index + 1}</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-0 sm:pl-8 space-y-3">
+                                <div class="flex items-start">
+                                    <span class="font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-star mr-1"></i>Highlights</span> 
+                                    <ul class="list-disc pl-4 m-0 text-sm text-slate-700 leading-relaxed font-medium space-y-1.5 w-full">
+                                        ${hotel.feature.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-map-pin mr-1"></i>Location</span> 
+                                    <span class="text-sm text-slate-700 leading-relaxed font-medium pt-0.5">${hotel.address}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // Horizontal scroll control for districts
+        function scrollDistricts(direction) {
+            const container = document.getElementById('district-buttons');
+            const scrollAmount = 200; // scroll distance
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            
+            // Auto-load the first district
+            const firstDistrictKey = Object.keys(hotelData)[0];
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict(firstDistrictKey, firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>
