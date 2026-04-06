@@ -1,1 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Busan Pass - Travel Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .app-container { max-width: 414px; margin: 0 auto; background-color: #f9fafb; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow-x: hidden; }
+        
+        .bg-busan-gradient { background: linear-gradient(135deg, #1e3a8a 0%, #06b6d4 100%); }
+        .bg-attraction-gradient { background: linear-gradient(135deg, #4c1d95 0%, #d946ef 100%); }
+        .bg-food-gradient { background: linear-gradient(135deg, #b91c1c 0%, #f43f5e 100%); }
+        .bg-itinerary-gradient { background: linear-gradient(135deg, #065f46 0%, #0284c7 100%); }
+        .bg-hotel-gradient { background: linear-gradient(135deg, #3730a3 0%, #60a5fa 100%); }
+        .bg-essentials-gradient { background: linear-gradient(135deg, #5b21b6 0%, #3b82f6 100%); }
+        .bg-train-gradient { background: linear-gradient(135deg, #312e81 0%, #6366f1 100%); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        select { -webkit-appearance: none; appearance: none; }
+        optgroup { font-weight: bold; background-color: #1f2937; color: #38bdf8; }
+        option { font-weight: normal; color: white; }
+        .dyn-tab-content { display: none; animation: fadeIn 0.3s ease-out; }
+        .dyn-tab-content.active { display: block; }
+        .carousel-track { display: flex; transition: transform 0.5s ease-out; }
+    </style>
+</head>
+<body>
 
+<div class="app-container pb-20">
+    
+    <!-- Header -->
+    <div class="bg-busan-gradient text-white pt-6 pb-4 px-5 rounded-b-[2rem] shadow-md relative z-20">
+        <div class="flex justify-between items-center">
+            <div>
+                <p id="datetime-display" class="text-[10px] font-medium text-cyan-50 tracking-wide opacity-90">Loading time...</p>
+                <p id="weather-display" class="text-xs opacity-100 font-bold flex items-center gap-1"><i class="ph ph-sun-dim"></i> Loading weather...</p>
+                <h1 class="text-2xl font-extrabold tracking-tight mt-0.5 drop-shadow-sm">Busan Pass</h1>
+            </div>
+            <div class="flex gap-2">
+                <a href="https://linkuei0425.github.io/Busan/" target="_blank" rel="noopener noreferrer" class="w-9 h-9 bg-black/10 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform text-sm font-bold">繁</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carousel -->
+    <div class="px-5 mt-4 relative overflow-hidden">
+        <div id="carousel-track" class="carousel-track gap-3">
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
+                <img src="https://linkuei0425.github.io/Busan/1.jpeg" alt="Gamcheon Culture Village" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/400x200?text=Gamcheon+Culture+Village'">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Explore Gamcheon Culture Village</span></div>
+            </div>
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
+                <img src="https://linkuei0425.github.io/Busan/2.jpeg" alt="Gwangandaegyo Bridge" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/400x200?text=Gwangandaegyo+Bridge'">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Gwangandaegyo Night View</span></div>
+            </div>
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5">
+                <img src="https://linkuei0425.github.io/Busan/3.jpeg" alt="Haeundae Beach" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/400x200?text=Haeundae+Beach'">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Haeundae Beach</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Tools -->
+    <div class="px-5 mt-4">
+        <h2 class="text-sm font-bold text-gray-500 mb-4 px-1">Quick Tools</h2>
+        <div class="grid grid-cols-4 gap-y-6 gap-x-3">
+            <button onclick="window.openModal('airportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(14,165,233,0.2)]"><i class="ph ph-airplane-tilt text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Airport Guide</span></button>
+            <button onclick="window.openModal('mapModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(249,115,22,0.8)]"><i class="ph ph-train text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Metro Map</span></button>
+            <button onclick="window.openModal('boatModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(79,70,229,0.2)]"><i class="ph ph-train-regional text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Intercity</span></button>
+            <button onclick="window.openModal('attractionModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-purple-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(147,51,234,0.2)]"><i class="ph ph-camera text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Attractions</span></button>
+            
+            <button onclick="window.open('https://linkuei0425.github.io/Busan-US/food.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-red-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(239,68,68,0.2)]"><i class="ph ph-fork-knife text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Food Guide</span></button>
+            <button onclick="window.open('https://linkuei0425.github.io/Busan-US/shopping.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,63,94,0.2)]"><i class="ph ph-handbag text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Shopping</span></button>
+            <a href="https://linkuei0425.github.io/Busan-US/S.html" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-teal-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(20,184,166,0.2)]"><i class="ph ph-calendar-check text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Itinerary</span></a>
+            
+            <button onclick="window.open('https://linkuei0425.github.io/Busan-US/trip.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(16,185,129,0.2)]"><i class="ph ph-ticket text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Tour Guide</span></button>
+            
+            <button onclick="window.open('https://linkuei0425.github.io/Busan-US/hotel.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(59,130,246,0.2)]"><i class="ph ph-bed text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Hotels</span></button>
+            
+            <button onclick="window.open('https://linkuei0425.github.io/Busan-US/go.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-cyan-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(6,182,212,0.2)]"><i class="ph ph-globe text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Global Pass</span></button>
+            
+            <button onclick="window.openModal('essentialsModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(139,92,246,0.2)]"><i class="ph ph-suitcase text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Essentials</span></button>
+            <button onclick="window.openModal('aboutModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(71,85,105,0.2)]"><i class="ph ph-info text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">About Us</span></button>
+            <button onclick="window.openModal('fanModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(236,72,153,0.2)]"><i class="ph ph-heart text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Follow Us</span></button>
+            
+        </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Airport Guide -->
+    <div id="airportModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-800 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
+            <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> Airport Guide</h2>
+            <button onclick="window.closeModal('airportModal')"><i class="ph ph-x text-2xl"></i></button>
+        </div>
+        <div class="bg-slate-900 px-4 pt-3 z-10">
+            <div class="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+                <button onclick="window.switchAirportTab('pus')" id="btn-airport-pus" class="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap">Gimhae Airport (PUS)</button>
+                <button onclick="window.switchAirportTab('ktx')" id="btn-airport-ktx" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap">Busan Station (KTX)</button>
+            </div>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
+            <div id="airport-pus" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                <div class="flex gap-2 w-full mb-2">
+                    <a href="https://affiliate.klook.com/redirect?aid=115300&aff_adid=1233590&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F109354-south-korea-esim-high-speed-internet-qr-code-voucher%2F" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-1 rounded-xl font-bold shadow-lg active:scale-95 transition-transform">
+                        <i class="ph-fill ph-sim-card text-2xl"></i>
+                        <span class="text-[11px] text-center leading-tight">Korea eSIM</span>
+                    </a>
+                    <a href="https://affiliate.klook.com/redirect?aid=115300&aff_adid=1233591&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F86208-wowpass-card-seoul%2F" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-1 rounded-xl font-bold shadow-lg active:scale-95 transition-transform">
+                        <i class="ph-fill ph-train text-2xl"></i>
+                        <span class="text-[11px] text-center leading-tight">WOWPASS</span>
+                    </a>
+                    <a href="https://affiliate.klook.com/redirect?aid=115300&aff_adid=1233592&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Fairport-transfers%2F%3FflightDirection%3D1%26code%3DPUS" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white py-3 px-1 rounded-xl font-bold shadow-lg active:scale-95 transition-transform">
+                        <i class="ph-fill ph-car-profile text-2xl"></i>
+                        <span class="text-[11px] text-center leading-tight">Airport Transfer</span>
+                    </a>
+                </div>
+                
+                <!-- 1. Light Rail -->
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-train text-lg"></i> (1) Gimhae Light Rail + Metro</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Route:</span> Take the Light Rail from the airport to <span class="text-green-400 font-bold">[Sasang Station] to transfer to Metro Line 2</span> (towards Seomyeon/Haeundae), or to <span class="text-yellow-500 font-bold">[Daejeo Station] to transfer to Metro Line 3</span> to head downtown.</li>
+                        <li><span class="text-white font-bold">Pros:</span> Cheapest fare and traffic-free (Light rail is around 1,300 KRW, transit discount available with transit card).</li>
+                    </ul>
+                </div>
+
+                <!-- 2. Bus -->
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-amber-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-bus text-lg"></i> (2) Limousine & City Bus</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Airport Limousine:</span> Comfortable and directly reaches major hotels. Two main routes: "Seomyeon/Busan Station" and "Haeundae". Fare: 6,000 - 8,500 KRW.</li>
+                        <li><span class="text-white font-bold">City Bus:</span> If traveling light, take Bus 307 directly to Haeundae for standard bus fare.</li>
+                    </ul>
+                </div>
+
+                <!-- 3. Taxi -->
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-rose-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-taxi text-lg"></i> (3) Taxi</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Features:</span> Great for groups of 3-4 or carrying large luggage. Standard (silver/white) and deluxe (black) taxis are outside the terminal.</li>
+                        <li><span class="text-white font-bold">Est. Fare:</span> To Seomyeon around 15,000 ~ 20,000 KRW; to Haeundae around 25,000 ~ 30,000 KRW (Nighttime/traffic surcharges apply).</li>
+                    </ul>
+                </div>
+            </div>
+            <div id="airport-ktx" class="hidden space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                <div class="flex gap-2 w-full mb-2">
+                    <a href="https://affiliate.klook.com/redirect?aid=115300&aff_adid=1233594&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F47751-ktx-one-way-ticket-busan%2F" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-3 px-2 rounded-xl font-bold shadow-lg active:scale-95 transition-transform">
+                        <i class="ph-fill ph-train text-2xl"></i>
+                        <span class="text-[11px] text-center leading-tight">Seoul to Busan KTX</span>
+                    </a>
+                </div>
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-indigo-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-train text-lg"></i> Busan Station (KTX)</h3>
+                    <p class="text-[11px] text-slate-300">Metro Line 1 [Busan Station] is located directly underground.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Metro Routing -->
+    <div id="mapModal" class="fixed inset-0 bg-gray-900 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto">
+        <div class="pt-10 pb-6 px-5 flex justify-between items-center border-b border-gray-800 shadow-md">
+            <div class="flex items-center gap-2"><i class="ph-fill ph-train text-2xl text-orange-500"></i><div><h2 class="text-white font-bold text-lg leading-tight">Busan Metro (Tourist stops only)</h2><p class="text-[10px] text-gray-400">Busan Metro Core Network</p></div></div>
+            <button onclick="window.closeModal('mapModal')" class="text-white bg-white/10 p-1.5 rounded-full"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="p-5 flex-1 overflow-y-auto bg-gray-900 no-scrollbar text-white">
+            <div class="relative bg-gray-800/50 p-4 rounded-2xl border border-gray-700">
+                <div class="absolute left-[29px] top-9 bottom-12 w-0.5 bg-gray-600 border-dashed border-l-2"></div>
+                <div class="flex items-center gap-3 mb-4 relative z-10">
+                    <div class="w-3 h-3 rounded-full bg-orange-500 shrink-0 shadow-[0_0_8px_rgba(249,115,22,0.8)]"></div>
+                    <div class="relative w-full"><select id="mrt-origin" class="w-full bg-gray-900 text-white border border-gray-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-orange-500 text-sm"><option value="" disabled selected>Select Origin...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
+                </div>
+                <div class="flex items-center gap-3 relative z-10 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-green-500 shrink-0 shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
+                    <div class="relative w-full"><select id="mrt-dest" class="w-full bg-gray-900 text-white border border-gray-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-green-500 text-sm"><option value="" disabled selected>Select Destination...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
+                </div>
+                <button onclick="window.calcMrt()" class="w-full bg-orange-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-transform shadow-lg relative z-10">Search Route</button>
+            </div>
+            <div id="mrt-result" class="hidden mt-6 animate-[fadeIn_0.3s]">
+                <div class="bg-gray-800 rounded-2xl p-5 border border-orange-900/50 shadow-lg">
+                    <div class="flex justify-between items-end border-b border-gray-700 pb-3 mb-4">
+                        <div><p class="text-[10px] text-gray-400 mb-0.5">Total Stops</p><div id="mrt-stops-count" class="text-xl font-bold text-orange-400"></div></div>
+                        <div class="text-right"><p class="text-[10px] text-gray-400 mb-0.5">Est. Time</p><span id="mrt-time" class="text-lg font-bold text-white mr-2"></span></div>
+                    </div>
+                    <div id="mrt-path-detail" class="text-sm text-gray-200"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Intercity Transit -->
+    <div id="boatModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-train-gradient pt-10 pb-6 px-5 flex justify-between items-center text-white shadow-md">
+            <div class="flex items-center gap-2"><i class="ph-fill ph-train-regional text-2xl text-indigo-200"></i><div><h2 class="font-bold text-lg leading-tight">Intercity Transit</h2><p class="text-[10px] text-indigo-200">KTX & Express Bus</p></div></div>
+            <button onclick="window.closeModal('boatModal')" class="bg-white/20 p-1.5 rounded-full"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
+            <div class="relative bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+                <div class="absolute left-[29px] top-9 bottom-12 w-0.5 bg-slate-600 border-dashed border-l-2"></div>
+                <div class="flex items-center gap-3 mb-4 relative z-10">
+                    <div class="w-3 h-3 rounded-full bg-indigo-400 shrink-0 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
+                    <div class="relative w-full"><select id="boat-origin" class="w-full bg-slate-900 text-white border border-slate-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-indigo-400 text-sm"><option value="" disabled selected>Select Origin...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div>
+                </div>
+                <div class="flex items-center gap-3 relative z-10 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-blue-500 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
+                    <div class="relative w-full"><select id="boat-dest" class="w-full bg-slate-900 text-white border border-slate-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-blue-400 text-sm"><option value="" disabled selected>Select Destination...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div>
+                </div>
+                <button onclick="window.calcBoat()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-transform shadow-lg relative z-10">Search Route</button>
+            </div>
+            <div id="boat-result" class="hidden mt-6 bg-slate-800 rounded-2xl p-5 border border-indigo-900/50 space-y-4 shadow-lg animate-[fadeIn_0.3s]">
+                <div class="flex justify-between items-end border-b border-slate-700 pb-3">
+                    <div><p class="text-[10px] text-slate-400 mb-0.5">Recommended Transit</p><span id="boat-type" class="text-lg font-bold text-indigo-400"></span></div>
+                    <div class="text-right"><p class="text-[10px] text-slate-400 mb-0.5">Est. Duration</p><span id="boat-time" class="text-lg font-bold text-white mr-2"></span></div>
+                </div>
+                <div id="boat-path-detail" class="pt-2 text-sm text-gray-200 space-y-3 relative pl-4 border-l-2 border-indigo-500/30"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attractions -->
+    <div id="attractionModal" class="fixed inset-0 bg-purple-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-attraction-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">Explore Attractions</h2><button onclick="window.closeModal('attractionModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-4 flex-1 overflow-y-auto bg-purple-950 no-scrollbar text-white relative">
+            <div id="attr-cat-grid" class="grid grid-cols-2 gap-3"></div>
+            <div id="attr-detail-view" class="hidden animate-[fadeIn_0.3s]">
+                <button onclick="window.resetAttrView()" class="mb-4 text-fuchsia-300 flex items-center gap-1 bg-purple-900/50 px-3 py-2 rounded-lg text-sm font-medium"><i class="ph ph-arrow-left"></i> Back to Categories</button>
+                <h3 id="current-cat-title" class="text-xl font-bold mb-3 border-b border-purple-800 pb-2"></h3>
+                <div class="relative">
+                    <select id="attraction-select" onchange="window.showAttractionDetail()" class="w-full bg-purple-900 border border-purple-700 rounded-xl p-3 pr-8 mb-4 focus:outline-none focus:border-fuchsia-400 text-sm appearance-none"></select>
+                    <i class="ph ph-caret-down absolute right-3 top-4 text-purple-400 pointer-events-none"></i>
+                </div>
+                <div id="attr-result" class="hidden space-y-4 pb-8">
+                    <div class="bg-purple-900/50 p-5 rounded-2xl border border-purple-800 space-y-3">
+                        <h3 id="attr-name" class="font-bold text-xl text-fuchsia-300"></h3>
+                        <p id="attr-desc" class="text-sm text-purple-100 leading-relaxed"></p>
+                    </div>
+                    <div class="bg-indigo-900/40 p-5 rounded-2xl border border-indigo-800/60 space-y-2">
+                        <h4 class="font-bold text-sm text-indigo-300 flex items-center gap-1.5 border-b border-indigo-800/50 pb-2"><i class="ph-fill ph-bus"></i> Public Transit Info</h4>
+                        <p id="attr-transport" class="text-sm text-indigo-100/90 leading-relaxed"></p>
+                    </div>
+                    <a id="attr-map-link" href="#" target="_blank" class="block w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-center py-3.5 rounded-xl font-bold shadow-lg mt-2 text-white">View on Map</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itinerary -->
+    <div id="itineraryModal" class="fixed inset-0 bg-teal-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto">
+        <div class="bg-itinerary-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">Perfect Busan Itineraries</h2><button onclick="window.closeModal('itineraryModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-4 flex-1 overflow-y-auto bg-teal-950 no-scrollbar text-white">
+            <div class="flex gap-2 mb-5 overflow-x-auto no-scrollbar pb-1" id="itin-tabs-header">
+                <button onclick="window.renderItin('day1')" id="btn-itin-day1" class="itin-btn bg-teal-600 px-4 py-2 rounded-lg text-xs font-bold shadow-md shrink-0">Day 1: Nampo/Jagalchi</button>
+                <button onclick="window.renderItin('day2')" id="btn-itin-day2" class="itin-btn bg-teal-900 border border-teal-700 px-4 py-2 rounded-lg text-xs font-bold shadow-md shrink-0">Day 2: Haeundae/Gijang</button>
+                <button onclick="window.renderItin('day3')" id="btn-itin-day3" class="itin-btn bg-teal-900 border border-teal-700 px-4 py-2 rounded-lg text-xs font-bold shadow-md shrink-0">Day 3: Seomyeon/Gwangan</button>
+            </div>
+            <div id="itin-list" class="space-y-5 pb-8 relative border-l-2 border-teal-700 ml-3 pl-5"></div>
+        </div>
+    </div>
+
+    <!-- Essentials -->
+    <div id="essentialsModal" class="fixed inset-0 bg-slate-900 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-essentials-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">Travel Essentials</h2><button onclick="window.closeModal('essentialsModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
+            <div id="ess-checklist" class="space-y-3 pb-8"></div>
+        </div>
+    </div>
+
+    <!-- About Us -->
+    <div id="aboutModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-slate-800 text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">About Us</h2><button onclick="window.closeModal('aboutModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-6 text-sm">
+            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-2 flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> Our Mission</h3><p class="leading-relaxed text-gray-300">We accompany travelers from the first second of finding inspiration to the last moment of their journey homeward. We hope to write unique stories for our users.</p></div>
+            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-3 flex items-center gap-2 text-amber-400"><i class="ph-fill ph-briefcase"></i> Partnerships</h3><ul class="space-y-3 text-gray-300"><li>📍 Destination Marketing & Branding</li><li>🎟️ Travel API Integration & Affiliation</li><li>⛺ Local Business & Brand Sponsorships</li></ul></div>
+            <div class="bg-blue-900/30 p-5 rounded-2xl border border-blue-800/50">
+                <h3 class="font-bold mb-2 flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> Contact Email</h3>
+                <a href="mailto:imimdesignstudio@yahoo.com" class="text-blue-400 font-bold break-all hover:underline">imimdesignstudio@yahoo.com</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow Us Modal -->
+    <div id="fanModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">Follow Us</h2><button onclick="window.closeModal('fanModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white flex flex-col items-center gap-6 no-scrollbar">
+            <img src="https://i.imgur.com/C8pWBp8.jpg" alt="Fan Page" class="w-full rounded-2xl shadow-lg border border-white/10 object-cover">
+            <div class="w-full space-y-3">
+                <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-instagram-logo text-xl"></i> Follow on Instagram</a>
+                <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-zinc-800 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform border border-zinc-700"><i class="ph-fill ph-threads-logo text-xl"></i> Follow on Threads</a>
+                <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-chat-circle text-xl"></i> Add LINE Official Account</a>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 text-center leading-relaxed">Follow us for firsthand Busan travel tips,<br>hidden food gems, and limited-time offers!</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-5 py-3 rounded-xl shadow-2xl z-[100] transition-all duration-300 opacity-0 hidden text-sm font-bold flex items-center gap-2 whitespace-nowrap">
+        <i class="ph-fill ph-info text-blue-400 text-lg"></i>
+        <span id="toast-msg"></span>
+    </div>
+
+</div>
+
+<script>
+// --- Global Logic ---
+window.currentAttrCatIdx = -1;
+window.openModal = id => { const el = document.getElementById(id); el.classList.remove('hidden'); setTimeout(() => el.classList.remove('opacity-0'), 10); };
+window.closeModal = id => { const el = document.getElementById(id); el.classList.add('opacity-0'); setTimeout(() => el.classList.add('hidden'), 300); };
+
+window.showToast = (msg) => {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.remove('hidden');
+    void t.offsetWidth;
+    t.classList.remove('opacity-0');
+    t.classList.add('translate-y-2');
+    setTimeout(() => {
+        t.classList.add('opacity-0');
+        t.classList.remove('translate-y-2');
+        setTimeout(() => t.classList.add('hidden'), 300);
+    }, 3000);
+};
+
+window.switchAirportTab = tab => {
+    ['pus', 'ktx'].forEach(t => {
+        const btn = document.getElementById('btn-airport-' + t);
+        const view = document.getElementById('airport-' + (t === 'pus' ? 'pus' : 'ktx'));
+        if(t === tab) {
+            btn.className = "flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
+            view.classList.remove('hidden');
+        } else {
+            btn.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+            view.classList.add('hidden');
+        }
+    });
+};
+
+// --- Subway Database ---
+const busLinesDataLocal = [
+    { line: "🟠 Line 1 (Orange)", items: [
+        "[102] Hadan: Transfer to bus for Jangnim Port.",
+        "[109] Toseong: Transfer to minibus for Gamcheon Culture Village.",
+        "[110] Jagalchi: Jagalchi Market, BIFF Square.",
+        "[111] Nampo: Nampo Shopping, Yongdusan Park, Busan Tower.",
+        "[113] Busan Station: KTX Station, Choryang Story The Way.",
+        "[119] Seomyeon: [Transfer Line 1 & 2] Seomyeon Shopping Area.",
+        "[123] Yeonsan: [Transfer Line 1 & 3].",
+        "[124] Busan Nat'l Univ. of Edu.: [Transfer Line 1 & Donghae].",
+        "[125] Dongnae: [Transfer Line 1 & 4].",
+        "[127] Oncheonjang: Geumjeongsanseong Cable Car, Hurshimchung Spa.",
+        "[128] Pusan Nat'l Univ.: PNU Shopping Area.",
+        "[133] Beomeosa: Beomeosa Temple (Autumn Leaves).",
+        "[134] Nopo: Busan Central Bus Terminal."
+    ] },
+    { line: "🟢 Line 2 (Green)", items: [
+        "[202] Jung-dong: Blue Line Park Mipo Station.",
+        "[203] Haeundae: Haeundae Beach, Traditional Market, Dongbaekseom.",
+        "[205] BEXCO: [Transfer Line 2 & Donghae], Museum of Art.",
+        "[206] Centum City: Shinsegae Dept. Store, Spa Land, Cinema Center.",
+        "[208] Suyeong: [Transfer Line 2 & 3].",
+        "[209] Gwangan: Gwangalli Beach, Gwangandaegyo Night View.",
+        "[212] Kyungsung Univ. Pukyong Nat'l Univ.: Transfer to Oryukdo Skywalk.",
+        "[213] Daeyeon: Busan Museum, UN Memorial Cemetery.",
+        "[218] Jeonpo: Jeonpo Cafe Street.",
+        "[219] Seomyeon.",
+        "[227] Sasang: [Transfer Line 2 & Light Rail], West Bus Terminal.",
+        "[233] Deokcheon: [Transfer Line 2 & 3]."
+    ] },
+    { line: "🟤 Line 3 (Brown) & 🔵 Line 4 (Blue)", items: [
+        "[308] Sajik: Sajik Baseball Stadium.",
+        "[309] Minam: [Transfer Line 3 & 4].",
+        "[317] Daejeo: [Transfer Line 3 & Light Rail], Daejeo Eco Park.",
+        "[403] Suan: Dongnae Eupseong History Hall."
+    ] },
+    { line: "🚆 Donghae Line", items: [
+        "[K110] Bujeon: Transfer to Metro Line 1 [120] and standard trains.",
+        "[K112] Geoje: Transfer to Metro Line 3 [306].",
+        "[K113] Busan Nat'l Univ. of Edu.: Transfer to Metro Line 1 [124].",
+        "[K119] BEXCO: Transfer to Metro Line 2 [205].",
+        "[K120] Sinhaeundae: Transfer to standard trains.",
+        "[K122] OSIRIA: To Lotte World, Haedong Yonggungsa.",
+        "[K123] Gijang: To Gijang Market for seafood.",
+        "[K132] Taehwagang: Terminal Station, to Ulsan downtown."
+    ] },
+    { line: "🟣 Busan-Gimhae Light Rail", items: [
+        "[BGL1] Sasang: Transfer to Metro Line 2.",
+        "[BGL4] Gimhae International Airport: Gimhae Airport.",
+        "[BGL7] Daejeo: Transfer to Metro Line 3."
+    ] }
+];
+
+const codeToNameLocal = {};
+busLinesDataLocal.forEach(line => line.items.forEach(i => { 
+    let code = i.split(']')[0] + ']';
+    codeToNameLocal[code] = i; 
+}));
+
+Object.assign(codeToNameLocal, {
+    "[305]": "[305] Yeonsan",
+    "[K113]": "[K113] Busan Nat'l Univ. of Edu.",
+    "[402]": "[402] Dongnae",
+    "[K119]": "[K119] BEXCO",
+    "[301]": "[301] Suyeong",
+    "[BGL1]": "[BGL1] Sasang",
+    "[313]": "[313] Deokcheon",
+    "[401]": "[401] Minam",
+    "[BGL7]": "[BGL7] Daejeo",
+    "[120]": "[120] Bujeon",
+    "[306]": "[306] Geoje"
+});
+
+// --- Graph Logic ---
+const buildBusGraphLocal = () => {
+    const edges = [];
+    const addPath = (start, end, prefix, lineName) => {
+        for(let i=start; i<end; i++) {
+            edges.push({ u: `[${prefix}${i}]`, v: `[${prefix}${i+1}]`, line: lineName, type: 'travel' });
+            edges.push({ u: `[${prefix}${i+1}]`, v: `[${prefix}${i}]`, line: lineName, type: 'travel' });
+        }
+    };
+    
+    addPath(101, 134, "", "Line 1");
+    addPath(201, 243, "", "Line 2");
+    addPath(301, 317, "", "Line 3");
+    addPath(401, 414, "", "Line 4");
+    for(let i=110; i<132; i++) {
+        edges.push({ u:`[K${i}]`, v:`[K${i+1}]`, line:"Donghae Line", type:"travel"});
+        edges.push({ u:`[K${i+1}]`, v:`[K${i}]`, line:"Donghae Line", type:"travel"});
+    }
+    addPath(1, 22, "BGL", "Light Rail");
+
+    const addTransfer = (u, v) => { 
+        edges.push({u: u, v: v, line:"Station Transfer", type:"transfer"}); 
+        edges.push({u: v, v: u, line:"Station Transfer", type:"transfer"}); 
+    };
+    
+    addTransfer("[119]", "[219]"); 
+    addTransfer("[123]", "[305]"); 
+    addTransfer("[124]", "[K113]"); 
+    addTransfer("[125]", "[402]"); 
+    addTransfer("[205]", "[K119]"); 
+    addTransfer("[208]", "[301]"); 
+    addTransfer("[227]", "[BGL1]");   
+    addTransfer("[233]", "[313]"); 
+    addTransfer("[309]", "[401]"); 
+    addTransfer("[317]", "[BGL7]");   
+    addTransfer("[120]", "[K110]"); 
+    addTransfer("[306]", "[K112]"); 
+
+    const graph = {};
+    edges.forEach(e => { if(!graph[e.u]) graph[e.u]=[]; graph[e.u].push({node:e.v, line:e.line, type:e.type}); });
+    return graph;
+};
+
+const mrtGraphLocal = buildBusGraphLocal();
+
+// --- BFS Logic ---
+const bfsEdgeTrack = (g, s, e) => {
+    if (s === e) return { path: [s], edges: [] };
+    let q = [{ node: s, path: [s], edges: [] }], v = new Set([s]);
+    while (q.length > 0) {
+        let curr = q.shift();
+        if (curr.node === e) return curr;
+        if (g[curr.node]) {
+            for (let edge of g[curr.node]) {
+                if (!v.has(edge.node)) { v.add(edge.node); q.push({ node: edge.node, path: [...curr.path, edge.node], edges: [...curr.edges, edge] }); }
+            }
+        }
+    }
+    return null;
+};
+
+window.calcMrt = () => {
+    try {
+        const o = document.getElementById('mrt-origin').value;
+        const d = document.getElementById('mrt-dest').value;
+        if (!o || !d) { window.showToast('Please select origin and destination'); return; }
+        
+        const result = bfsEdgeTrack(mrtGraphLocal, o, d);
+        if (!result) { window.showToast('Route not found, please check connections'); return; }
+
+        const res = document.getElementById('mrt-result'); 
+        res.classList.remove('hidden');
+
+        let segments = [];
+        let currentSegment = null;
+        result.edges.forEach((edge, i) => {
+            if(edge.type === 'transfer') {
+                if(currentSegment) segments.push(currentSegment);
+                segments.push({ line: 'Station Transfer', isTransfer: true, node: edge.node });
+                currentSegment = null;
+            } else {
+                if(!currentSegment || currentSegment.line !== edge.line) {
+                    if(currentSegment) segments.push(currentSegment);
+                    currentSegment = { line: edge.line, start: result.path[i], end: edge.node, stops: 1 };
+                } else {
+                    currentSegment.end = edge.node; currentSegment.stops++;
+                }
+            }
+        });
+        if(currentSegment) segments.push(currentSegment);
+
+        const totalStops = segments.reduce((s, seg) => s + (seg.stops || 0), 0);
+        
+        const cleanName = (code) => {
+            if (!code) return "";
+            let name = codeToNameLocal[code] || code;
+            return name.split(/：|—|:/)[0].replace('。', '').trim();
+        };
+
+        const actualTransfers = segments.filter(seg => seg.isTransfer && cleanName(seg.node) !== cleanName(d));
+        const hasTransfer = actualTransfers.length > 0;
+        const transferBadge = hasTransfer ? '' : '<span class="ml-2 bg-green-500/20 text-green-400 border border-green-500/50 px-2 py-0.5 rounded text-[10px] align-middle inline-block -mt-1 shadow-sm">Direct</span>';
+
+        document.getElementById('mrt-stops-count').innerHTML = `<span class="text-2xl">${totalStops}</span><span class="text-sm ml-1 text-gray-400">stops</span>${transferBadge}`;
+        document.getElementById('mrt-time').textContent = `~${totalStops * 3 + 5} mins`;
+        
+        let html = `<div class="relative pl-6 border-l-2 border-gray-600 ml-3 space-y-5 mt-2 pb-2">`;
+        
+        html += `
+            <div class="relative">
+                <div class="absolute -left-[33px] top-1 bg-gray-900 border-[3px] border-orange-500 w-4 h-4 rounded-full z-10"></div>
+                <p class="text-[10px] text-gray-400 font-bold mb-0.5">Origin</p>
+                <p class="text-base font-bold text-white leading-none">${cleanName(o)}</p>
+            </div>
+        `;
+        
+        segments.forEach((seg, idx) => {
+            if(seg.isTransfer) {
+                if (cleanName(seg.node) === cleanName(d)) return;
+
+                const getShortLine = (lineStr) => {
+                    if(!lineStr) return "";
+                    if(lineStr.includes("Line 1")) return "Line 1";
+                    if(lineStr.includes("Line 2")) return "Line 2";
+                    if(lineStr.includes("Line 3")) return "Line 3";
+                    if(lineStr.includes("Line 4")) return "Line 4";
+                    if(lineStr.includes("Donghae")) return "Donghae";
+                    if(lineStr.includes("Light Rail")) return "Light Rail";
+                    return lineStr;
+                };
+
+                const getLineFromNode = (code) => {
+                    if (!code) return "";
+                    if (code.includes("BGL")) return "Light Rail";
+                    if (code.includes("K")) return "Donghae";
+                    if (code.includes("[1")) return "Line 1";
+                    if (code.includes("[2")) return "Line 2";
+                    if (code.includes("[3")) return "Line 3";
+                    if (code.includes("[4")) return "Line 4";
+                    return "";
+                };
+                
+                let fromLine = (segments[idx-1] && segments[idx-1].line) ? getShortLine(segments[idx-1].line) : getLineFromNode(o);
+                let toLine = (segments[idx+1] && segments[idx+1].line) ? getShortLine(segments[idx+1].line) : getLineFromNode(d);
+
+                let isCrossSystem = false;
+                if (fromLine && toLine) {
+                    let fromIsSubway = fromLine.includes("Line ");
+                    let toIsSubway = toLine.includes("Line ");
+                    if (fromIsSubway !== toIsSubway) {
+                        isCrossSystem = true;
+                    }
+                }
+
+                let isStartTransfer = (idx === 0);
+                let titleClass = isCrossSystem ? "text-yellow-400" : "text-rose-400";
+                let subClass = isCrossSystem ? "text-yellow-200" : "text-rose-200";
+                let dotClass = isCrossSystem ? "border-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]" : "border-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]";
+                
+                let titleText = "Transfer";
+                if (isCrossSystem && isStartTransfer) {
+                    titleText = "Cross-System Transfer (Tap out required)";
+                } else if (isCrossSystem) {
+                    titleText = "Cross-System Transfer (Tap out required)";
+                } else if (isStartTransfer) {
+                    titleText = "Enter to";
+                }
+
+                let transferDesc = `(${fromLine || 'Unknown'} to ${toLine || 'Unknown'})`;
+
+                html += `
+                    <div class="relative">
+                        <div class="absolute -left-[33px] top-1 bg-gray-900 border-[3px] ${dotClass} w-4 h-4 rounded-full z-10"></div>
+                        <p class="text-[10px] ${titleClass} font-bold mb-0.5">${titleText} <span class="${subClass}">${transferDesc}</span></p>
+                        <p class="text-sm font-bold text-white leading-none">${cleanName(seg.node)}</p>
+                    </div>
+                `;
+            } else {
+                let lineCol = "text-gray-300";
+                if(seg.line && seg.line.includes("Line 1")) lineCol = "text-orange-400";
+                else if(seg.line && seg.line.includes("Line 2")) lineCol = "text-green-400";
+                else if(seg.line && seg.line.includes("Line 3")) lineCol = "text-yellow-600";
+                else if(seg.line && seg.line.includes("Line 4")) lineCol = "text-blue-400";
+                else if(seg.line && seg.line.includes("Donghae")) lineCol = "text-teal-400";
+                else if(seg.line && seg.line.includes("Light Rail")) lineCol = "text-purple-400";
+
+                html += `
+                    <div class="relative py-1">
+                        <div class="bg-gray-800/80 rounded-xl p-3 border border-gray-700 shadow-sm inline-block min-w-[140px]">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-fill ph-train text-xl ${lineCol}"></i>
+                                <div>
+                                    <p class="text-xs font-bold ${lineCol}">${seg.line || 'Unknown Line'}</p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">Ride <span class="text-white font-bold">${seg.stops || 0}</span> stops</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        html += `
+            <div class="relative">
+                <div class="absolute -left-[33px] top-1 bg-gray-900 border-[3px] border-green-500 w-4 h-4 rounded-full z-10"></div>
+                <p class="text-[10px] text-gray-400 font-bold mb-0.5">Destination</p>
+                <p class="text-base font-bold text-white leading-none">${cleanName(d)}</p>
+            </div>
+        `;
+
+        html += `</div>`;
+        document.getElementById('mrt-path-detail').innerHTML = html;
+        
+    } catch (error) {
+        console.error("Route Calculation Error: ", error);
+        window.showToast("Routing error, please try again");
+    }
+};
+
+// --- Boat/KTX City Transit Logic ---
+const cities = [
+    { id: "busan", name: "Busan" },
+    { id: "seoul", name: "Seoul" },
+    { id: "daegu", name: "Daegu" },
+    { id: "gyeongju", name: "Gyeongju" }
+];
+
+window.calcBoat = () => {
+    const o = document.getElementById('boat-origin').value;
+    const d = document.getElementById('boat-dest').value;
+    if (!o || !d) { window.showToast('Please select origin and destination'); return; }
+    if (o === d) { window.showToast('Origin and destination cannot be the same'); return; }
+
+    const res = document.getElementById('boat-result');
+    res.classList.remove('hidden');
+
+    let time = "~2.5 hours";
+    let type = "KTX High-Speed";
+    let detailHtml = "";
+
+    if ((o === 'busan' && d === 'seoul') || (o === 'seoul' && d === 'busan')) {
+        time = "~2.5 hours"; type = "KTX High-Speed";
+        detailHtml = `<p class="before:content-[''] before:absolute before:w-2 before:h-2 before:bg-indigo-500 before:rounded-full before:-left-1.5 before:top-1.5 relative text-white">Origin: ${o==='busan'?'Busan Station':'Seoul Station'}</p>
+                      <p class="before:content-[''] before:absolute before:w-2 before:h-2 before:bg-blue-500 before:rounded-full before:-left-1.5 before:top-1.5 relative text-white">Destination: ${d==='busan'?'Busan Station':'Seoul Station'}</p>
+                      <p class="text-xs text-indigo-300 mt-2">Recommended to take KTX. Frequent departures and fastest. Fare is around 59,800 KRW.</p>`;
+    } else if ((o === 'busan' && d === 'daegu') || (o === 'daegu' && d === 'busan')) {
+        time = "~45 mins"; type = "KTX / SRT";
+        detailHtml = `<p class="before:content-[''] before:absolute before:w-2 before:h-2 before:bg-indigo-500 before:rounded-full before:-left-1.5 before:top-1.5 relative text-white">Origin: ${o==='busan'?'Busan Station':'Dongdaegu Station'}</p>
+                      <p class="before:content-[''] before:absolute before:w-2 before:h-2 before:bg-blue-500 before:rounded-full before:-left-1.5 before:top-1.5 relative text-white">Destination: ${d==='busan'?'Busan Station':'Dongdaegu Station'}</p>
+                      <p class="text-xs text-indigo-300 mt-2">Fare is around 17,100 KRW, available at Busan Station.</p>`;
+    } else {
+        time = "~1 hour"; type = "Express Bus / SRT";
+        detailHtml = `<p class="before:content-[''] before:absolute before:w-2 before:h-2 before:bg-indigo-500 before:rounded-full before:-left-1.5 before:top-1.5 relative text-white">Depart Origin</p>
+                      <p class="before:content-[''] before:absolute before:w-2 before:h-2 before:bg-blue-500 before:rounded-full before:-left-1.5 before:top-1.5 relative text-white">Arrive Destination</p>
+                      <p class="text-xs text-indigo-300 mt-2">To Gyeongju, you can take an Express Bus from [Nopo Station] or take SRT/KTX to [Singyeongju Station].</p>`;
+    }
+
+    document.getElementById('boat-type').textContent = type;
+    document.getElementById('boat-time').textContent = time;
+    document.getElementById('boat-path-detail').innerHTML = detailHtml;
+};
+
+// --- Attractions Logic ---
+const attractionCategories = [
+    {
+        id: "nature", icon: "ph-tree-palm", name: "Nature Views",
+        list: [
+            { name: "Haeundae Blueline Park", desc: "Take the sky capsule to enjoy the beautiful scenery of the sea meeting the sky.", transport: "Take Metro Line 2 to [Jung-dong Station] (202), walk about 15 mins to Mipo Station; or take Metro to [Haeundae Station] and transfer to bus/taxi." },
+            { name: "Huinnyeoul Culture Village", desc: "Built along a cliffside, offering an up-close experience of the waves and ships.", transport: "Take Metro Line 1 to [Nampo Station] (111) Exit 6, transfer to bus 6, 7, 71, or 508 to Huinnyeoul Culture Village." },
+            { name: "Taejongdae", desc: "Experience magnificent coastal cliffs and rock formations, Busan's most pristine coastline.", transport: "Take Metro Line 1 to [Nampo Station] (111) Exit 6, transfer to bus 8, 30, 66, or 88 to the terminal station 'Taejongdae'." },
+            { name: "Gwangalli Beach", desc: "With 'Gwangandaegyo Bridge' as its backdrop, this is Busan's most iconic city beach.", transport: "Take Metro Line 2 to [Gwangan Station] (209) Exit 3 or 5, walk 10-15 mins." },
+            { name: "Songdo Marine Cable Car", desc: "Hover over the sea and overlook the clear blue water.", transport: "Take Metro Line 1 to [Nampo Station] (111) Exit 1, transfer to bus 7, 26, 30, or 71 to 'Songdo Beach'." },
+            { name: "Busan X the SKY", desc: "Enjoy a breathtaking panoramic view of the entire city from the 100th floor.", transport: "Take Metro Line 2 to [Jung-dong Station] (202) Exit 7, walk 12 mins." }
+        ]
+    },
+    {
+        id: "culture", icon: "ph-bank", name: "Culture & History",
+        list: [
+            { name: "Gamcheon Culture Village", desc: "Painted alleys and art installations witness Busan's transformation from a refugee camp to an art village.", transport: "Take Metro Line 1 to [Toseong Station] (109) Exit 6, transfer to minibus to Gamcheon Culture Village." },
+            { name: "Haedong Yonggungsa", desc: "A rare seaside temple offering a solemn blend of Buddhist culture and sea views.", transport: "Take Donghae Line to [OSIRIA Station] (K121) Exit 1, transfer to bus 139, 1001 or take a taxi for 5 mins." },
+            { name: "BIFF Square", desc: "The birthplace of the Busan International Film Festival, featuring handprints of world-renowned directors.", transport: "Take Metro Line 1 to [Jagalchi Station] (110) Exit 7, walk 5 mins." },
+            { name: "Beomeosa Temple", desc: "A millennia-old temple on Mt. Geumjeong, and Busan's top spot for autumn leaves.", transport: "Take Metro Line 1 to [Beomeosa Station] (133) Exit 5 or 7, follow signs to transfer to bus 90." }
+        ]
+    },
+    {
+        id: "shopping", icon: "ph-shopping-bag", name: "Shopping Spots",
+        list: [
+            { name: "Seomyeon Shopping Area", desc: "The heart of Busan, packed with clothing stores and cosmetics from the metro to the surface streets.", transport: "Take Metro Line 1 or 2 to [Seomyeon Station] (119/219), accessible from all major exits." },
+            { name: "Shinsegae Centum City", desc: "Once the world's largest department store. Aside from shopping, it houses the luxurious Spa Land.", transport: "Take Metro Line 2 to [Centum City Station] (206), accessible via underground passage." },
+            { name: "Jeonpo Cafe Street", desc: "Located next to Seomyeon, filled with design-centric cafes and handmade shops.", transport: "Take Metro Line 2 to [Jeonpo Station] (218) Exit 7, walk 5 mins; or walk 10 mins from Seomyeon Station." },
+            { name: "Millac the Market", desc: "A complex combining food, culture, and performances, currently Busan's trendiest gathering spot.", transport: "Take Metro Line 2 to [Millak Station] (210) or [Gwangan Station] (209), transfer by taxi for 5-10 mins; or walk from Gwangalli Beach." }
+        ]
+    },
+    {
+        id: "market", icon: "ph-storefront", name: "Traditional Markets",
+        list: [
+            { name: "Jagalchi Market", desc: "The largest seafood wholesale market in the country where you can pick fresh shrimp and crabs to eat on the spot.", transport: "Take Metro Line 1 to [Jagalchi Station] (110) Exit 10, walk 5 mins towards the sea." },
+            { name: "Gukje & Bupyeong Market", desc: "A comprehensive market formed after the war, offering everything from daily goods to street food like Busan fish cakes.", transport: "Take Metro Line 1 to [Jagalchi Station] (110) Exit 7, cross the street and walk 5-10 mins." }
+        ]
+    },
+    {
+        id: "exchange", icon: "ph-money", name: "Currency Exchange",
+        list: [
+            { name: "Nampo-dong Exchange", desc: "The area with the best rates in Busan, located in the alleys near Nampo Station Exit 7. The most famous are 'Woori Exchange' and 'Youngjin Exchange'.", transport: "Take Metro Line 1 to [Nampo Station] (111) Exit 7, walk straight and turn left at the alley." },
+            { name: "Seomyeon Exchange", desc: "Many exchange offices are located around Seomyeon Market, highly convenient. 'Seoul Exchange' is well-known.", transport: "Take Metro Line 1/2 to [Seomyeon Station] (119/219) Exit 7, walk straight to Seomyeon Market alleys." },
+            { name: "Money Box Haeundae", desc: "A famous legal chain exchange in Haeundae. A safe and reasonably-priced option if you're staying nearby.", transport: "Take Metro Line 2 to [Haeundae Station] (203) Exit 3, walk 5 mins towards the beach." }
+        ]
+    }
+];
+
+let currentCat = null;
+
+const renderAttrCategories = () => {
+    const grid = document.getElementById('attr-cat-grid');
+    grid.innerHTML = attractionCategories.map((cat, idx) => `
+        <button onclick="window.openAttrCategory(${idx})" class="bg-purple-900/40 hover:bg-purple-800/60 border border-purple-700/50 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all active:scale-95">
+            <i class="ph ${cat.icon} text-4xl text-fuchsia-400"></i>
+            <span class="text-sm font-bold text-purple-100">${cat.name}</span>
+        </button>
+    `).join('');
+};
+
+window.openAttrCategory = (idx) => {
+    currentCat = attractionCategories[idx];
+    document.getElementById('attr-cat-grid').classList.add('hidden');
+    document.getElementById('attr-detail-view').classList.remove('hidden');
+    document.getElementById('current-cat-title').textContent = currentCat.name;
+    
+    const select = document.getElementById('attraction-select');
+    select.innerHTML = `<option value="" disabled selected>Select Attraction...</option>` + 
+        currentCat.list.map((item, i) => `<option value="${i}">${item.name}</option>`).join('');
+    
+    document.getElementById('attr-result').classList.add('hidden');
+};
+
+window.resetAttrView = () => {
+    document.getElementById('attr-cat-grid').classList.remove('hidden');
+    document.getElementById('attr-detail-view').classList.add('hidden');
+};
+
+window.showAttractionDetail = () => {
+    const idx = document.getElementById('attraction-select').value;
+    if(idx === "") return;
+    const item = currentCat.list[idx];
+    
+    document.getElementById('attr-name').textContent = item.name;
+    document.getElementById('attr-desc').textContent = item.desc;
+    document.getElementById('attr-transport').textContent = item.transport || 'No transport info yet';
+    document.getElementById('attr-map-link').href = `https://map.naver.com/v5/search/${encodeURIComponent(item.name)}`;
+    
+    document.getElementById('attr-result').classList.remove('hidden');
+};
+
+
+// --- Itinerary Logic ---
+const itineraries = {
+    day1: [
+        { time: "09:30", title: "Gamcheon Culture Village", desc: "Rent Hanbok and take beautiful photos next to the Little Prince statue. Minibus is recommended." },
+        { time: "12:30", title: "Jagalchi Market", desc: "Lunch time! Enjoy the freshest sashimi or grilled hagfish." },
+        { time: "14:00", title: "BIFF Square & Gukje Market", desc: "Eat Hotteok (sweet pancakes) and shop for souvenirs." },
+        { time: "16:00", title: "Yongdusan Park & Busan Tower", desc: "Overlook the port and city views." },
+        { time: "18:30", title: "Nampo Shopping Area", desc: "Have Korean BBQ for dinner, then go shopping on Gwangbokro Fashion Street." }
+    ],
+    day2: [
+        { time: "09:00", title: "Haedong Yonggungsa", desc: "Korea's most beautiful seaside temple. Pray by the ocean." },
+        { time: "11:30", title: "Gijang Market", desc: "Feast on Gijang Snow Crabs for lunch, excellent value!" },
+        { time: "14:00", title: "Blueline Park", desc: "Take the adorable sky capsule train (Mipo-Cheongsapo)." },
+        { time: "16:30", title: "Haeundae Beach & Dongbaekseom", desc: "Stroll along the beach and visit Nurimaru APEC House." },
+        { time: "19:00", title: "The Bay 101", desc: "Enjoy beer and fish & chips with a stunning skyscraper night view." }
+    ],
+    day3: [
+        { time: "10:00", title: "Seomyeon Shopping Area", desc: "Brunch with the famous 'Songjeong Samdae Gukbap' (Pork Soup)." },
+        { time: "11:30", title: "Jeonpo Cafe Street", desc: "Pick a chic cafe and enjoy some relaxing time." },
+        { time: "14:00", title: "Shinsegae Centum City", desc: "Experience the luxurious Spa Land and wash your fatigue away." },
+        { time: "18:00", title: "Gwangalli Beach", desc: "Find an ocean-view restaurant for dinner and admire the lighted bridge." }
+    ]
+};
+
+window.renderItin = (day) => {
+    // Update tabs
+    ['day1', 'day2', 'day3'].forEach(d => {
+        const btn = document.getElementById('btn-itin-' + d);
+        if(d === day) {
+            btn.className = "itin-btn bg-teal-600 px-4 py-2 rounded-lg text-xs font-bold shadow-md shrink-0 text-white transition-all";
+        } else {
+            btn.className = "itin-btn bg-teal-900 border border-teal-700 text-teal-200 px-4 py-2 rounded-lg text-xs font-bold shadow-md shrink-0 transition-all";
+        }
+    });
+
+    // Render list
+    const list = document.getElementById('itin-list');
+    list.innerHTML = itineraries[day].map(item => `
+        <div class="relative">
+            <div class="absolute -left-[27px] w-4 h-4 bg-teal-500 rounded-full border-4 border-teal-950"></div>
+            <p class="text-[10px] text-teal-400 font-mono font-bold mb-1">${item.time}</p>
+            <div class="bg-teal-900/40 p-3 rounded-xl border border-teal-800">
+                <h4 class="font-bold text-white text-sm mb-1">${item.title}</h4>
+                <p class="text-xs text-teal-100/70 leading-relaxed">${item.desc}</p>
+            </div>
+        </div>
+    `).join('');
+};
+
+// --- Essentials Logic ---
+const essentialItems = [
+    { name: "Passport & K-ETA", checked: true },
+    { name: "Cash (KRW) & Credit Card", checked: false },
+    { name: "Transit Card (T-money or WOWPASS)", checked: false },
+    { name: "Adapter (220V Round pins)", checked: false },
+    { name: "Internet (eSIM or SIM)", checked: false },
+    { name: "Power Bank & Cable", checked: false },
+    { name: "Comfortable Walking Shoes", checked: false },
+    { name: "Personal Medicine", checked: false },
+    { name: "Download Naver Map / Kakao T", checked: false }
+];
+
+const renderEssentials = () => {
+    const container = document.getElementById('ess-checklist');
+    container.innerHTML = essentialItems.map((item, i) => `
+        <label class="flex items-center gap-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700 active:bg-slate-800 transition-colors">
+            <input type="checkbox" class="w-5 h-5 rounded border-slate-600 text-indigo-500 focus:ring-indigo-500 bg-slate-900" ${item.checked ? 'checked' : ''}>
+            <span class="text-sm font-medium text-slate-200">${item.name}</span>
+        </label>
+    `).join('');
+};
+
+// --- Initialization ---
+document.addEventListener('DOMContentLoaded', () => {
+    const mo = document.getElementById('mrt-origin'), md = document.getElementById('mrt-dest');
+    busLinesDataLocal.forEach(g => { 
+        let opt = `<optgroup label="${g.line}">${g.items.map(i => {
+            let code = i.split(']')[0] + ']';
+            return `<option value="${code}">${i}</option>`;
+        }).join('')}</optgroup>`; 
+        mo.innerHTML += opt; 
+        md.innerHTML += opt; 
+    });
+    
+    const bo = document.getElementById('boat-origin'), bd = document.getElementById('boat-dest');
+    let cityOptions = cities.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    bo.innerHTML += cityOptions; bd.innerHTML += cityOptions;
+
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('datetime-display').textContent = now.toLocaleString('en-US', { timeZone: 'Asia/Seoul', hour12: false }) + " (KST)";
+    }, 1000);
+    
+    setTimeout(() => {
+        document.getElementById('weather-display').innerHTML = '<i class="ph-fill ph-sun text-yellow-400 text-sm"></i> Sunny 18°C';
+    }, 1500);
+    
+    const track = document.getElementById('carousel-track'); let slide = 0;
+    setInterval(() => { slide = (slide + 1) % 3; track.style.transform = `translateX(-${slide * 93}%)`; }, 3000);
+
+    renderAttrCategories();
+    renderItin('day1');
+    renderEssentials();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busan Trip Guide | Explore Busan & Surrounding Areas</title>
+    
+    <!-- 引入 Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 React & ReactDOM (CDN) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- 引入 Babel 用於在瀏覽器中編譯 JSX (CDN) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* 隱藏水平捲軸但保留滾動功能 */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- 定義 SVG 圖示元件 ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const Utensils = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+
+        // 英文版本分類與圖示
+        const CATEGORIES = [
+            { id: 'Tickets', icon: Ticket },
+            { id: 'Tours', icon: Sun },
+            { id: 'Dining', icon: Utensils },
+            { id: 'Spas & Experiences', icon: Sparkles },
+            { id: 'Transport & Wi-Fi', icon: TrainFront }
+        ];
+
+        // 英文周邊區域
+        const REGIONS = ['Busan', 'Gyeongju', 'Daegu'];
+
+        // 取得指定地區可用的分類
+        const getAvailableCategoryIds = (region) => {
+            if (region === 'Gyeongju' || region === 'Daegu') return ['Tickets', 'Tours', 'Transport & Wi-Fi'];
+            return ['Tickets', 'Tours', 'Dining', 'Spas & Experiences', 'Transport & Wi-Fi'];
+        };
+
+        // 英文版行程資料庫 (包含連結 en-US 更新)
+        const itineraryData = {
+            'Busan': {
+                'Tickets': [
+                {
+                    title: 'Visit Busan Pass',
+                    description: 'One pass to explore Busan! Includes free entry to over 30 top attractions like Busan X the Sky, Lotte World, and Songdo Marine Cable Car, plus it functions as a transit card. A must-have for independent travelers.',
+                    link: 'https://affiliate.klook.com/redirect?aid=115300&aff_adid=1234062&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F81576-visit-busan-pass%2F'
+                },
+                {
+                    title: 'Haeundae Blueline Park Sky Capsule / Beach Train Ticket',
+                    description: 'Busan\'s hottest photo spot! Ride the retro-style Sky Capsule along the coastline and enjoy the stunning ocean views of Haeundae. Early booking is highly recommended!',
+                    link: 'https://affiliate.klook.com/redirect?aid=115300&aff_adid=1234064&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F133293-haeundae-blueline-park-ticket-in-busan%2F'
+                },
+                {
+                    title: 'Busan X the Sky Ticket',
+                    description: 'Located in Haeundae LCT, Korea\'s second-tallest building. Enjoy a 360-degree panoramic view of Haeundae Beach, Gwangan Bridge, and the cityscape from the 100th floor. The transparent glass floor will test your courage!',
+                    link: 'https://affiliate.klook.com/redirect?aid=115300&aff_adid=1234065&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F81280-busan-haeundae-lct-x-the-sky-admission-ticket%2F'
+                },
+                {
+                    title: 'Lotte World Adventure Busan Ticket',
+                    description: 'Busan\'s latest massive theme park! Themed "Fairy Tale Kingdom", it features thrilling roller coasters, family-friendly rides, and spectacular parade shows.',
+                    link: 'https://affiliate.klook.com/redirect?aid=115300&aff_adid=1234066&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F75094-lotte-world-busan%2F'
+                },
+                {
+                    title: 'Songdo Marine Cable Car Ticket',
+                    description: 'Enjoy a thrilling ride on the Songdo Marine Cable Car and take in the beautiful scenery of the Namhang Bridge and beyond.',
+                    link: 'https://www.klook.com/en-US/activity/29068-busan-air-cruise-cable-car-ticket/'
+                }
+                ],
+                'Tours': [
+                {
+                    title: 'Busan Essential Day Tour (Haedong Yonggungsa, Songdo)',
+                    description: 'Easily explore Busan! Visit the stunning Haedong Yonggungsa Temple built along the coastline and enjoy the beautiful Songdo area.',
+                    link: 'https://www.klook.com/en-US/activity/13011-skywalk-haedong-yonggungsa-temple-tour-busan/?spm=SearchResult.SearchResult_LIST&clickId=7eb6cf62cd'
+                },
+                {
+                    title: 'Gamcheon Culture Village & Haeundae Blueline Day Tour',
+                    description: 'Beach Train & Sky Capsule: Experience the breathtaking views of Busan\'s charming east coast from a unique perspective.',
+                    link: 'https://affiliate.klook.com/redirect?aid=115300&aff_adid=1234068&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F74132-busan-oneday-tour-busan%2F'
+                },
+                {
+                    title: 'Busan Skywalk & East Coast Exploration Tour',
+                    description: 'Experience the thrill of the Oryukdo Skywalk, stroll along the coastline, feel the unique charm of Busan\'s seaside, and easily visit major attractions.',
+                    link: 'https://www.klook.com/en-US/activity/2431-exploration-east-busan/?spm=SearchResult.SearchResult_LIST&clickId=c387deeb7c'
+                }
+                ],
+                'Dining': [
+                {
+                    title: 'Jagalchi & Bupyeong Market Local Food Tour',
+                    description: 'Follow a professional local guide deep into Jagalchi Market and Bupyeong Kkangtong Market! Taste authentic Korean street food while learning about Busan\'s deep history and culinary culture.',
+                    link: 'https://www.klook.com/en-US/activity/172716-jagalchi-market-bupyeong-kkangtong-market-half-day-local-food-small-group-tour/?spm=SearchResult.SearchResult_LIST&clickId=87d9d1f6a4'
+                }
+                ],
+                'Spas & Experiences': [
+                {
+                    title: 'Spa Land Centum City Admission Ticket',
+                    description: 'Known as Korea\'s most luxurious five-star jjimjilbang! Featuring natural hot spring water from underground and various themed sauna rooms (yellow mud, charcoal, etc.), it\'s the perfect place to relax after shopping.',
+                    link: 'https://www.klook.com/en-US/activity/33180-spa-land-centum-city-ticket-busan/?spm=SearchResult.SearchResult_LIST&clickId=2340a4db88'
+                },
+                {
+                    title: 'ClubD Oasis Water Park & Spa in Haeundae',
+                    description: 'A new premium complex combining a high-end jjimjilbang with an infinity ocean view water park. Enjoy soaking in the outdoor hot spring while taking in the stunning views of Haeundae.',
+                    link: 'https://affiliate.klook.com/redirect?aid=115196&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F89874-club-d-oasis-busan%2F'
+                },
+                {
+                    title: 'Gamcheon Culture Village Hanbok/School Uniform Rental',
+                    description: 'Dress up in traditional Hanbok or retro Korean high school uniforms, wander through the colorful alleys and cute murals of Gamcheon Culture Village, and take memorable photos with the Little Prince statue.',
+                    link: 'https://affiliate.klook.com/redirect?aid=115300&aff_adid=1233989&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F94949-gamcheon-hanbok-rental%2F'
+                }
+                ],
+                'Transport & Wi-Fi': [
+                {
+                    title: 'South Korea 4G / 5G eSIM',
+                    description: 'No need to swap physical SIM cards, simply scan the QR code to connect! Offers stable networks from major telecom providers like SKT / KT, with unlimited data options available.',
+                    link: 'https://www.klook.com/en-US/activity/100060-4g-esim-korea/?spm=SearchResult.SearchResult_LIST&clickId=a0b01c0b41'
+                },
+                {
+                    title: 'Gimhae Airport (PUS) to Busan Private Transfer',
+                    description: 'Skip the hassle of squeezing into the subway with heavy luggage! Enjoy a private airport transfer directly to your hotel in Haeundae, Seomyeon, or Nampo-dong safely and comfortably.',
+                    link: 'https://www.klook.com/en-US/airport-transfers/'
+                },
+                {
+                    title: 'Korea Rail Pass (KR PASS)',
+                    description: 'If you plan to take the KTX from Seoul to Busan, the KR Pass is a must-have for savings! Offers unlimited rides on Korean trains and high-speed rails within the validity period.',
+                    link: 'https://www.klook.com/en-US/activity/2847-korea-rail-pass-seoul/?spm=SearchResult.SearchResult_LIST&clickId=78e6f93444'
+                },
+                {
+                    title: 'Gimhae Airport (PUS) to Busan Shuttle Bus',
+                    description: 'An affordable point-to-point transfer service. Travel comfortably to your destination at the best price, making it a great alternative to taxis.',
+                    link: 'https://www.klook.com/en-US/activity/192772-gimhae-international-airport-pus-busan-city-shuttle-bus/?spm=SearchResult.SearchResult_LIST&clickId=f116e15797'
+                },
+                {
+                    title: 'Busan - Fukuoka New Camellia Line Ferry',
+                    description: 'Experience a comfortable cross-border voyage from Fukuoka to Busan aboard the New Camellia Line.',
+                    link: 'https://www.klook.com/en-US/activity/92564-camellia-line-fukuoka-busan/?spm=SearchResult.SearchResult_LIST&clickId=de544a0a60'
+                }
+                ]
+            },
+            'Gyeongju': {
+                'Tours': [
+                {
+                    title: 'Gyeongju Historic Day Tour from Busan (Bulguksa, Daereungwon)',
+                    description: 'Step into Korea\'s "museum without walls"! Visit the UNESCO World Heritage Site Bulguksa Temple, admire the spectacular ancient tombs at Daereungwon, and taste local snacks on Hwangridan-gil.',
+                    link: 'https://affiliate.klook.com/redirect?aid=115300&aff_adid=1234091&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F161323-gyeongju-unesco-legacy-1-day-tour-from-busan%2F'
+                },
+                {
+                    title: 'Gyeongju Heritage & Night View Tour from Busan',
+                    description: 'Specially arranged evening tour to show you Gyeongju\'s most famous night views! The reflections at Donggung Palace and Wolji Pond, along with the illuminated Woljeonggyo Bridge, are breathtaking.',
+                    link: 'https://www.klook.com/en-US/activity/74147-gyeongju-oneday-tour-gyeongju/?spm=SearchResult.SearchResult_LIST&clickId=489e8e61b9'
+                }
+                ],
+                'Tickets': [
+                {
+                    title: 'Gyeongju World Amusement Park Ticket',
+                    description: 'The largest theme park in southern Korea! Home to "Draken", Korea\'s only 90-degree vertical drop roller coaster. A must-visit for thrill-seekers.',
+                    link: 'https://www.klook.com/en-US/activity/51533-gyeongju-world-gyeongju/?spm=SearchResult.SearchResult_LIST&clickId=4d2c1b8f02'
+                }
+                ],
+                'Transport & Wi-Fi': [
+                {
+                    title: 'South Korea 4G / 5G eSIM',
+                    description: 'Stable network coverage all over Korea, ensuring you can check maps and post stories smoothly in Gyeongju.',
+                    link: 'https://www.klook.com/en-US/activity/100060-4g-esim-korea/?spm=SearchResult.SearchResult_LIST&clickId=a0b01c0b41'
+                }
+                ]
+            },
+            'Daegu': {
+                'Tours': [
+                {
+                    title: 'Daegu Hot Spots Day Tour (Palgongsan, Kim Kwang-seok Street)',
+                    description: 'Easily travel to Daegu by private transport! Ride the Palgongsan Cable Car to enjoy stunning mountain views, and stroll through the artistic Kim Kwang-seok Street to feel the city\'s unique vibe.',
+                    link: 'https://www.klook.com/en-US/activity/194467-daegu-one-day-tour-palgongsan-cable-car-e-world-night-view/?spm=SearchResult.SearchResult_LIST&clickId=2e1bcfe467'
+                }
+                ],
+                'Tickets': [
+                {
+                    title: 'Daegu E-World & 83 Tower Ticket',
+                    description: 'Daegu\'s most iconic amusement park! Besides a variety of rides, it\'s a famous cherry blossom viewing spot in spring. Ascend the 83 Tower at sunset for a romantic city view.',
+                    link: 'https://www.klook.com/en-US/activity/134856-daegu-e-world-ticket/?spm=SearchResult.SearchResult_LIST&clickId=24bcdbd222'
+                }
+                ],
+                'Transport & Wi-Fi': [
+                {
+                    title: 'South Korea 4G / 5G eSIM',
+                    description: 'Stable network coverage all over Korea, ensuring you can check maps and post stories smoothly in Daegu.',
+                    link: 'https://www.klook.com/en-US/activity/100060-4g-esim-korea/?spm=SearchResult.SearchResult_LIST&clickId=a0b01c0b41'
+                }
+                ]
+            }
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState('Busan');
+            const [selectedCategory, setSelectedCategory] = useState('Tickets');
+
+            // 取得當前選定地區與分類的資料
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+                    {/* 頂部導覽列：海洋藍色系以符合釜山意象 */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10">
+                        <div className="max-w-5xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <MapPin className="text-blue-600 w-6 h-6 md:w-8 md:h-8" />
+                                <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
+                                Busan & Surrounding Areas Trip Guide
+                                </h1>
+                            </div>
+                            
+                            {/* 地區選擇按鈕 */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                {/* 回到首頁按鈕 */}
+                                <a
+                                    href="https://linkuei0425.github.io/Busan-US/index.html"
+                                    className="flex items-center gap-1.5 whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    Back to Home
+                                </a>
+
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            // 判斷該地區可用的分類，若目前選擇的分類不在其中，則自動切換至第一個可用分類
+                                            const allowed = getAvailableCategoryIds(region);
+                                            if (!allowed.includes(selectedCategory)) {
+                                                setSelectedCategory(allowed[0]);
+                                            }
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                                            selectedRegion === region
+                                            ? 'bg-slate-800 text-white shadow-md'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-5xl mx-auto px-4 py-6">
+                        {/* 分類標籤 */}
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                            {CATEGORIES.filter(cat => getAvailableCategoryIds(selectedRegion).includes(cat.id)).map(({ id, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSelectedCategory(id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                        selectedCategory === id
+                                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {id}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* 內容區域標題 */}
+                        <div className="mb-6">
+                            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                Top {selectedCategory} in {selectedRegion}
+                            </h2>
+                        </div>
+
+                        {/* 項目列表 */}
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                {currentData.map((item, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 md:p-6 flex flex-col justify-between hover:shadow-md transition-shadow"
+                                    >
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight">
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                        
+                                        {/* 詳細說明連結按鈕 */}
+                                        <div className="mt-auto pt-4 border-t border-slate-50 flex justify-end">
+                                            <a
+                                                href={item.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg transition-colors w-full sm:w-auto"
+                                            >
+                                                <Info className="w-4 h-4" />
+                                                <span>View Details</span>
+                                                <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            /* 無資料時的空狀態提示 */
+                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
+                                <div className="bg-slate-50 p-4 rounded-full mb-4">
+                                    <Sparkles className="w-8 h-8 text-slate-400" />
+                                </div>
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                                    No recommendations for '{selectedCategory}' in {selectedRegion} yet.
+                                </h3>
+                                <p className="text-slate-500">
+                                    We are curating the best itineraries for you, please stay tuned!
+                                </p>
+                            </div>
+                        )}
+
+                        {/* 探索更多 Klook 釜山行程按鈕 (全局顯示) */}
+                        <div className="mt-10 flex justify-center">
+                            <a 
+                                href="https://affiliate.klook.com/redirect?aid=115300&aff_adid=1234096&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Fsearch%2Fresult%2F%3Fquery%3D%25E9%2587%259C%25E5%25B1%25B1" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3.5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                <Sparkles className="w-5 h-5" />
+                                <span className="tracking-wide">Explore more Busan trips on Klook</span>
+                                <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
+                            </a>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        // 渲染 React 應用程式到 DOM
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busan Shopping Selection Guide | Busan Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom scrollbar style (for category buttons section) */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Busan Ocean Blue Active State */
+        .tab-btn.active {
+            background-color: #2563eb; /* Blue-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+            border-color: #2563eb;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-blue-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>BUSAN SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/Busan-US/index.html" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Banner Area -->
+    <header class="bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">Busan Essential Shopping Guide</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">Handpicked trending Korean brands and Busan local goods. From beauty products and trendy fashion to Lotte Mart hauls, shop all over Busan!</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Category Buttons (Horizontal Scroll) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('fashion', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-blue-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👗</span> Trendy Fashion
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-blue-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> K-Beauty
+            </button>
+            <button onclick="filterCategory('souvenir', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-blue-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🎁</span> Souvenirs
+            </button>
+            <button onclick="filterCategory('mart', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-blue-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🛒</span> Snacks & Mart
+            </button>
+            <button onclick="filterCategory('shoes', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-blue-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👟</span> Shoes & Sports
+            </button>
+        </div>
+
+        <!-- Content Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be dynamically generated via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">© 2026 Busan Shopping Guide. Providing the best shopping advice for your Busan trip.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Shop Database - Busan brands and recommended products
+        const shopData = [
+            // --- Trendy Fashion ---
+            { cat: 'fashion', name: 'Mardi Mercredi', feature: 'A viral Korean designer brand famous for its classic daisy print T-shirts and sweatshirts. The "French effortless" style is a must-have for Korean fashionistas.', loc: 'Shinsegae Centum City / Lotte Dept Store', transit: 'Connected to Centum City Station' },
+            { cat: 'fashion', name: 'Marithé François Girbaud', feature: 'A trendy French retro denim brand currently popular in Korea. Its classic logo T-shirts and canvas bags have a very high appearance rate.', loc: 'Inside Shinsegae Centum City', transit: 'Connected to Centum City Station' },
+            { cat: 'fashion', name: 'COVERNAT', feature: 'A national Korean street brand. Most popular for its "C" logo, large-capacity canvas bags, and baseball caps. Versatile and wearable designs.', loc: 'Seomyeon District / Shinsegae Dept Store', transit: '3-min walk from Seomyeon Station' },
+            { cat: 'fashion', name: 'SPAO', feature: 'A popular Korean fast-fashion brand. A must-buy is their pajama collection collaborated with popular IPs like Crayon Shin-chan and Harry Potter.', loc: 'NC Department Store Seomyeon', transit: '3-min walk from Jeonpo Station' },
+            { cat: 'fashion', name: 'ALAND', feature: 'A large multi-brand store gathering various Korean niche designer brands, trendy bags, and accessories.', loc: 'Gwangbok-ro Fashion Street', transit: '5-min walk from Nampo Station' },
+
+            // --- K-Beauty ---
+            { cat: 'beauty', name: 'Tamburins', feature: 'A viral fragrance brand endorsed by BLACKPINK\'s Jennie. Must-buys include the high-aesthetic gold chain hand cream and beautiful egg-shaped perfumes.', loc: 'Shinsegae Centum City 1F', transit: 'Connected to Centum City Station' },
+            { cat: 'beauty', name: 'Rom&nd', feature: 'The king of Korean drugstore makeup! Famous for its high-moisture Juicy Lasting Tint and beautiful 10-color eyeshadow palettes.', loc: 'Olive Young Stores (Seomyeon/Nampo)', transit: 'Seomyeon / Nampo Stations' },
+            { cat: 'beauty', name: 'Torriden', feature: 'A frequent winner on the Hwahae rankings, focusing on low-sensitivity Hyaluronic Acid essences and masks. A recognized hydration holy grail.', loc: 'Olive Young Stores', transit: 'Available in all major districts' },
+            { cat: 'beauty', name: 'VT Cosmetics', feature: 'The trending "Reedle Shot" essence that helps skincare absorption. An essential item for home-based skin resurfacing and care.', loc: 'Olive Young / Lotte Duty Free', transit: 'Available in all major districts' },
+            { cat: 'beauty', name: 'Dasique', feature: 'Known for fairy-style water-gloss lipsticks and soft-toned eyeshadow palettes. High-quality packaging, great for gifts or personal use.', loc: 'Olive Young Flagship / CHICOR', transit: 'Seomyeon / Centum City Stations' },
+
+            // --- Souvenirs ---
+            { cat: 'souvenir', name: 'Samjin Amook (Fish Cake)', feature: 'A Busan specialty! Vacuum-packed fish cakes for travel or fresh cheesy fish cake croquettes to eat on-site.', loc: 'Inside Busan Station / Yeongdo Main Store', transit: 'Inside Busan Station / Bus from Nampo' },
+            { cat: 'souvenir', name: 'Busan Seagull Bread', feature: 'A cute Busan-limited souvenir shaped like a seagull. Filled with sweet red bean and vanilla cream.', loc: 'Specialty Stores inside Busan Stn / Souvenir Shops', transit: 'Inside Busan Station' },
+            { cat: 'souvenir', name: 'Goraesa Eomuk', feature: 'Another giant in the fish cake industry, specializing in preservative-free products. Try the seafood shrimp skewers.', loc: 'Haeundae Main Street / Busan Stn', transit: '3-min walk from Haeundae Station' },
+            { cat: 'souvenir', name: 'Hello Gwangalli', feature: 'Unique creative goods from Gwangalli Beach. Dreamy Gwangan Bridge-shaped scented candles, washi tapes, and postcards.', loc: 'Gwangalli Beachfront Main Street', transit: '10-min walk from Gwangan Station' },
+            { cat: 'souvenir', name: 'Kakao Friends (Busan Edition)', feature: 'Gwangbok Flagship limited! Ryan wearing a sailor hat and seagull-shaped Chunsik dolls. Highly collectible.', loc: 'Kakao Friends Gwangbok Store', transit: '5-min walk from Nampo Station' },
+
+            // --- Snacks & Mart ---
+            { cat: 'mart', name: 'HBAF Almonds', feature: 'Korea\'s national snack! Dozens of flavors available. Recommended: Honey Butter, Garlic Bread, Roasted Corn, and Tiramisu.', loc: 'Lotte Mart / Convenience Stores', transit: 'Nampo Station (Lotte Mart Gwangbok)' },
+            { cat: 'mart', name: 'No Brand Purple Potato Chips', feature: 'The legend snack of E-mart\'s private brand. Slightly sweet purple potato aroma, crispy and addictive. Excellent value.', loc: 'E-mart Haeundae Jung-dong', transit: '3-min walk from Jung-dong Station' },
+            { cat: 'mart', name: 'Gijang Seaweed & Sesame Oil', feature: 'Local Busan specialties! Buy thick locally-produced seaweed and freshly pressed Korean sesame oil for soups.', loc: 'NH Hanaro Mart (Jagalchi)', transit: '2-min walk from Jagalchi Station' },
+            { cat: 'mart', name: 'Trending Korean Ramen', feature: 'Stock up on Nongshim Shin Ramyun, Ottogi Jin Jjambbong, and Paldo Jajangmyeon. Multi-packs at hypermarkets are cheapest.', loc: 'Homeplus / Lotte Mart', transit: 'Dongbaek / Nampo Stations' },
+            { cat: 'mart', name: 'CW Chocolate Garlic Bread Cookies', feature: 'A viral mart snack. Rich garlic butter aroma paired with chocolate at the bottom. A perfect sweet and savory mix.', loc: 'Lotte Mart / E-mart', transit: 'Major supermarkets in Busan' },
+
+            // --- Shoes & Sports ---
+            { cat: 'shoes', name: 'FILA (Korean Edition)', feature: 'Cheapest in Korea! Must-buys are the Korean-limited Ray Tracer "Dad Shoes" and thick-soled canvas shoes.', loc: 'Gwangbok Flagship / Seomyeon', transit: 'Nampo / Seomyeon Stations' },
+            { cat: 'shoes', name: 'Discovery Expedition', feature: 'An outdoor brand exclusively licensed in Korea. Their "Dad Shoes" and logo caps are highly popular among Korean youth.', loc: 'Lotte Department Store Gwangbok', transit: 'Connected to Nampo Station' },
+            { cat: 'shoes', name: 'National Geographic', feature: 'Exclusive apparel line for Korea. Massive logo backpacks and parkas are bestsellers for university students.', loc: 'Shinsegae Centum City', transit: 'Connected to Centum City Station' },
+            { cat: 'shoes', name: 'Autry', feature: 'American vintage-style tennis shoes (white shoes) taking over Korean streets. Best paired with long socks for a K-style look.', loc: 'FOLDER Seomyeon / Gwangbok', transit: 'Seomyeon / Nampo Stations' },
+            { cat: 'shoes', name: 'Converse (K-Best Sellers)', feature: 'Often stocks special colorways of the Run Star Hike series and 1970s that are more complete than other regions.', loc: 'ABC-MART Mega Stage', transit: 'Seomyeon / Nampo Stations' }
+        ];
+
+        // Rendering function
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; 
+
+            const filteredData = shopData.filter(item => item.cat === category);
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; 
+                
+                const mapSearchQuery = encodeURIComponent(`${shop.name} Busan`);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
+                
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-yellow-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Recommended Product</p>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${shop.feature}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-red-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Where to Buy</p>
+                                    <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-train-subway text-blue-500 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">Transportation</p>
+                                    <span class="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-md font-medium">${shop.transit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Google Map Navigation Button -->
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            <i class="fa-solid fa-map-location-dot mr-2"></i> Open Google Map
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Category filter logic
+        function filterCategory(category, btnElement) {
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderCards(category);
+        }
+
+        // Add simple entrance animation CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initial load
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('fashion', firstBtn);
+        };
+    </script>
+</body>
+</html>
