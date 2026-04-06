@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>河內市景點導覽</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 隱藏卷軸但保留滑動功能 */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body id="app-body" class="min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800">
+
+  <!-- Header -->
+  <header id="app-header" class="bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500">
+    
+    <!-- 回到首頁按鈕 -->
+    <div class="max-w-6xl mx-auto px-4 pt-4">
+      <a href="https://linkuei0425.github.io/Hanoi/" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 bg-white/60 hover:bg-white hover:text-gray-900 rounded-full border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-x-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        回到首頁
+      </a>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 pb-6 pt-2">
+      <div class="flex items-center justify-center space-x-3 mb-2">
+        <div id="title-icon-left" class="animate-pulse"></div>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 transition-colors duration-500">
+          千年古都：河內市導覽
+        </h1>
+        <div id="title-icon-right" class="animate-pulse"></div>
+      </div>
+      <p class="text-center text-gray-500 text-sm md:text-base">
+        精選還劍、巴亭、西湖等郡的必訪<span id="season-text">歷史</span>景點
+      </p>
+    </div>
+
+    <!-- Category Toggle -->
+    <div class="flex justify-center mb-4">
+      <div class="bg-gray-100/80 backdrop-blur-sm p-1.5 rounded-full inline-flex border border-gray-200 shadow-inner">
+        <button id="btn-history" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M2 22h20"/><path d="M12 2v20"/><path d="m4 12 8-8 8 8"/><path d="M6 22v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/></svg>
+          歷史人文
+        </button>
+        <button id="btn-trendy" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          流行打卡
+        </button>
+      </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="max-w-4xl mx-auto px-4 pb-4">
+      <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar space-x-2 md:justify-center py-2">
+        <!-- Tabs injected by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 mt-8">
+    <div class="mb-6 flex items-center space-x-2 transition-colors duration-500" id="section-title-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <h2 id="section-title" class="text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500">
+        還劍郡 精選景點
+      </h2>
+    </div>
+
+    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Cards injected by JS -->
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="max-w-6xl mx-auto px-4 mt-16 text-center text-gray-400 text-sm">
+    <p id="footer-text">※ 河內市輕軌已部分通車，但市區景點間移動仍強烈建議多利用 Grab 叫車代步。河內四季分明，冬季偏冷，請留意天氣變化。</p>
+  </footer>
+
+  <script>
+    const historyData = {
+      '還劍郡': [
+        { name: '聖若瑟主教座堂', feature: '建於19世紀末的哥德式建築，外觀斑駁充滿歷史感，是河內最古老的教堂。周邊有許多咖啡廳，適合坐下欣賞建築之美。', transport: '🚶 【步行】若住宿在還劍湖周邊（老城區），步行約 5-15 分鐘即可抵達。<br>🚗 【Grab】老城區單行道多且常塞車，建議定位在教堂附近的「Nha Tho」街口下車再步行。<br>🚌 【公車】可搭乘 09A、09B 號公車至還劍湖畔，再步行前往。' },
+        { name: '火爐監獄 (Hoa Lo Prison)', feature: '法國殖民時期用來關押政治犯，越戰時期則關押美軍戰俘（被戲稱為「河內希爾頓」）。內部展示豐富，能深刻感受歷史的沉重。', transport: '🚶 【步行】從還劍湖南端（如長前廣場）步行約 15 分鐘。<br>🚗 【Grab】直接定位「Hoa Lo Prison Relic」，門口方便上下車。<br>🚇 【輕軌/公車】目前尚無直達輕軌，可搭乘 02、38 號公車至附近。' },
+        { name: '同春市場 (Dong Xuan Market)', feature: '河內最大的室內傳統市場，擁有超過百年歷史。一樓主要販售乾貨、伴手禮與各式服飾批發，體驗最道地的河內市井氣息。周邊到了週末夜晚會化身為熱鬧的夜市。', transport: '🚶 【步行】位於三十六古街北側，從還劍湖北端步行約 15 分鐘。<br>🚗 【Grab】定位「Dong Xuan Market」，周圍人車與攤販眾多，上下車請留意安全。' }
+      ],
+      '巴亭郡': [
+        { name: '胡志明陵寢 & 一柱寺', feature: '越南精神領袖胡志明的長眠之地，氣氛莊嚴。旁邊的「一柱寺」建於蓮花池中，造型獨特，是河內最具代表性的古剎之一。', transport: '🚗 【Grab】注意！陵寢周邊如「雄王路 (Hung Vuong)」常有嚴格交通管制，Grab 司機通常會放你在「玉河街 (Ngoc Ha)」的入口處，需步行進入。<br>🚌 【公車】可搭乘 09A 號公車至「Le Hong Phong」站下車步行。建議預留半天時間連同巴亭廣場一起逛。' },
+        { name: '昇龍皇城', feature: '聯合國教科文組織世界遺產，見證了越南多個歷史朝代的更迭。巨大的石造城門與出土的皇宮遺跡，非常適合歷史愛好者。', transport: '🚶 【步行】若剛逛完胡志明陵寢，步行約 10-15 分鐘可達（從黃耀街 Hoang Dieu 進入）。<br>🚗 【Grab】直接定位「Imperial Citadel of Thang Long」，正門位於 Hoang Dieu 街。<br>🚌 【公車】搭乘 22A 號公車可抵達正門附近。' }
+      ],
+      '西湖郡': [
+        { name: '鎮國寺', feature: '河內最古老的佛寺，歷史超過千年。位於風景秀麗的西湖半島上，高聳的紅色佛塔在夕陽西下時尤其迷人。', transport: '🚗 【Grab】位於西湖的青年路（Thanh Nien）上，距離老城區約 15-20 分鐘車程，建議直接搭 Grab 最方便。<br>🚶 【自行車/電動車】許多自由行旅客會租借自行車沿著西湖騎行，鎮國寺是絕佳的停留點。<br>🚌 【公車】搭乘 50 號公車可直達門口。' }
+      ],
+      '棟多郡': [
+        { name: '文廟 - 國子監', feature: '越南第一所最高學府，主要供奉孔子。建築保存完好的傳統越南風格，是當地學生逢考必來祈求學業順利的聖地。', transport: '🚇 【輕軌】搭乘河內輕軌（2A線）至「吉靈站 (Cat Linh)」，出站後步行約 10-15 分鐘。<br>🚗 【Grab】從老城區搭車約 10-15 分鐘，直接定位「Temple of Literature」。<br>🚌 【公車】搭乘 02、23 號公車可停靠正門對面。' }
+      ]
+    };
+
+    const trendyData = {
+      '還劍郡': [
+        { name: '三十六古街 (Old Quarter)', feature: '河內最具活力的靈魂地帶！每條街過去專賣一種商品，現在則是小吃、文創小店與咖啡廳的聚集地。穿梭在迷宮般的巷弄中充滿尋寶樂趣。', transport: '🚶 【步行】自由行必住區域！強烈建議以「步行」為主要方式，穿梭巷弄體驗當地生活。<br>🛺 【電瓶車/三輪車】若走累了，可於還劍湖畔搭乘觀光電瓶車或傳統三輪車（Cyclo，務必先議價！）。<br>🚗 【Grab】巷弄狹窄且週末會封街，Grab 只能停在外圍（如還劍湖北端或東河門）。' },
+        { name: '河內火車街 (Train Street)', feature: '民宅緊貼著鐵軌的奇特景觀，火車近距離呼嘯而過非常震撼。兩旁有許多景觀咖啡廳，打卡時請務必遵守當地店家的安全指示。', transport: '🚶 【步行】從老城區步行約 15 分鐘可達。<br>⚠️ 【管制注意】目前官方禁止遊客在鐵軌上逗留，建議在「Tran Phu」街與「Phung Hung」街交界處，找一間有牌照的鐵道咖啡廳，由店家帶領進入（不喝咖啡無法進入）。<br>🚗 【Grab】定位「Train Street Tran Phu」。' },
+        { name: '還劍湖週末步行街', feature: '每到週末，還劍湖周邊會封閉車流成為行人徒步區。不僅有各式街頭藝人表演、傳統遊戲，還有滿滿的當地小吃，氣氛歡樂。', transport: '🚶 【步行】週五晚間至週日全天，環湖道路全線封閉禁止汽機車進入，只能徒步。<br>🚗 【Grab】若從其他郡搭車來，請司機放在步行街外圍（如河內大劇院、長前廣場）再走進去。<br>💡 【提示】週末夜晚人潮極多，請注意隨身包包防竊。' },
+        { name: '長前廣場 (Trang Tien Plaza)', feature: '位於還劍湖南端的百年法式建築百貨，外觀典雅華麗，夜晚點燈後更是璀璨奪目。內部進駐眾多國際精品、化妝品與高級餐廳，是河內的奢華地標。', transport: '🚶 【步行】緊鄰還劍湖南側，在還劍湖散步時可順道造訪。<br>🚗 【Grab】直接定位「Trang Tien Plaza」，是各路 Grab 司機都非常熟悉的地標。' }
+      ],
+      '西湖郡': [
+        { name: '西湖畔景觀咖啡街', feature: '西湖區充滿了歐美外派人士，周邊（如廣安區）隱藏著許多裝潢極美的法式咖啡館、餐酒館。坐在湖畔喝椰子咖啡看夕陽，是超人氣網美行程。', transport: '🚗 【Grab】自由行最推薦搭 Grab。西湖範圍極大，請明確定位特定咖啡廳（如廣安區 Quảng An 的 Xuan Dieu 街）。<br>🛵 【租機車】若對東南亞交通有自信，租機車環西湖是非常受歐美背包客歡迎的玩法。<br>🚌 【公車】公車班次較少且不深入巷弄，不建議搭乘。' },
+        { name: '西湖樂天購物中心 (Lotte Mall West Lake)', feature: '河內最新、規模最大的複合式商場！除了擁有超大的室內購物空間、超市、電影院，更結合了超美的水族館 (Lotte World Aquarium)，是躲避酷暑與雨天備案的完美選擇。', transport: '🚗 【Grab】位於西湖區外圍，距離老城區約 20-30 分鐘車程，強烈建議直接搭乘 Grab 前往。<br>🚌 【公車】可從市區搭乘 68 號路線或相關市區公車抵達附近。' }
+      ],
+      '巴亭郡': [
+        { name: '樂天觀景台 (Lotte Observation Deck)', feature: '位於樂天中心65樓，可以360度俯瞰整個河內市區的壯麗景色。最受歡迎的是底層透明的「天空步道」，絕對能拍出驚險刺激的打卡照。', transport: '🚗 【Grab】位於巴亭郡與紙橋郡交界，從老城區出發車程約 20-30 分鐘，建議直接搭 Grab。<br>🚌 【公車】可搭乘 09A、12 號公車至「Lotte Center」站。<br>🚇 【輕軌】未來輕軌3號線通車後可直達，目前暫時以 Grab 為主。' }
+      ]
+    };
+
+    // 狀態
+    let activeCategory = 'history';
+    let activeTab = '還劍郡';
+
+    // SVG 圖示
+    const svgMonument = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22h20"/><path d="M12 2v20"/><path d="m4 12 8-8 8 8"/><path d="M6 22v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/></svg>`;
+    const svgCamera = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`;
+    const svgSparkles = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400 mr-2 flex-shrink-0 mt-0.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`;
+    const svgMapPin = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 mr-2 flex-shrink-0 mt-0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
+
+    // 色彩主題設定：歷史採用暖琥珀色，打卡採用都會藍綠色
+    const themeConfig = {
+      history: {
+        bg: 'bg-amber-50', selection: 'selection:bg-amber-300', textMain: 'text-amber-600',
+        borderMain: 'border-amber-100', tabActive: 'bg-amber-600 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-amber-100 hover:text-amber-700', iconH2: 'text-amber-600', borderH2: 'border-amber-200',
+        cardGradient: 'from-amber-300 via-amber-400 to-amber-300 group-hover:from-amber-400 group-hover:to-amber-500',
+        numberBg: 'bg-amber-100 text-amber-700', transportBg: 'bg-amber-50',
+        btnActive: 'bg-white text-amber-600 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-amber-500 hover:bg-white/50'
+      },
+      trendy: {
+        bg: 'bg-teal-50', selection: 'selection:bg-teal-300', textMain: 'text-teal-600',
+        borderMain: 'border-teal-100', tabActive: 'bg-teal-500 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-teal-100 hover:text-teal-600', iconH2: 'text-teal-600', borderH2: 'border-teal-200',
+        cardGradient: 'from-teal-300 via-teal-400 to-teal-300 group-hover:from-teal-400 group-hover:to-teal-500',
+        numberBg: 'bg-teal-100 text-teal-600', transportBg: 'bg-teal-50',
+        btnActive: 'bg-white text-teal-600 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-teal-500 hover:bg-white/50'
+      }
+    };
+
+    function updateTheme() {
+      const t = themeConfig[activeCategory];
+      
+      // Body & Header
+      document.getElementById('app-body').className = `min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800 ${t.bg} ${t.selection} selection:text-white`;
+      document.getElementById('app-header').className = `bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500 ${t.borderMain}`;
+      
+      // Icons & Text
+      const iconSvg = activeCategory === 'history' ? svgMonument : svgCamera;
+      document.getElementById('title-icon-left').innerHTML = iconSvg;
+      document.getElementById('title-icon-right').innerHTML = iconSvg;
+      document.getElementById('title-icon-left').className = `animate-pulse ${t.textMain}`;
+      document.getElementById('title-icon-right').className = `animate-pulse ${t.textMain}`;
+      
+      document.getElementById('season-text').innerText = activeCategory === 'history' ? '歷史' : '打卡';
+
+      // Section Title
+      document.getElementById('section-title-container').className = `mb-6 flex items-center space-x-2 transition-colors duration-500 ${t.iconH2}`;
+      document.getElementById('section-title').className = `text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500 ${t.borderH2}`;
+
+      // Toggle Buttons
+      document.getElementById('btn-history').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeCategory === 'history' ? t.btnActive : t.btnInactive}`;
+      document.getElementById('btn-trendy').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeCategory === 'trendy' ? t.btnActive : t.btnInactive}`;
+    }
+
+    function renderTabs() {
+      const t = themeConfig[activeCategory];
+      const data = activeCategory === 'history' ? historyData : trendyData;
+      const cities = Object.keys(data);
+      const container = document.getElementById('tabs-container');
+      
+      // 若切換類別時，當前的 tab 不在新類別的列表中，則預設選擇第一個
+      if (!cities.includes(activeTab)) {
+        activeTab = cities[0];
+      }
+
+      container.innerHTML = cities.map(city => `
+        <button
+          onclick="setTab('${city}')"
+          class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-in-out ${activeTab === city ? t.tabActive : t.tabHover}"
+        >
+          ${city}
+        </button>
+      `).join('');
+    }
+
+    function renderCards() {
+      const t = themeConfig[activeCategory];
+      const data = activeCategory === 'history' ? historyData : trendyData;
+      const spots = data[activeTab];
+      
+      document.getElementById('section-title').innerText = `${activeTab} 精選景點`;
+
+      const container = document.getElementById('cards-container');
+      container.innerHTML = spots.map((spot, index) => `
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-50 flex flex-col h-full group">
+          <div class="h-2 w-full bg-gradient-to-r transition-colors duration-500 ${t.cardGradient}"></div>
+          <div class="p-6 flex-grow flex flex-col">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-start">
+              <span class="rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5 transition-colors duration-500 ${t.numberBg}">
+                ${index + 1}
+              </span>
+              ${spot.name}
+            </h3>
+            
+            <div class="mb-6 flex-grow">
+              <div class="flex items-start text-gray-600 mb-1">
+                ${svgSparkles}
+                <span class="font-semibold text-gray-700">景點特色</span>
+              </div>
+              <p class="text-gray-600 leading-relaxed pl-7 text-sm">
+                ${spot.feature}
+              </p>
+            </div>
+
+            <div class="rounded-xl p-4 mt-auto transition-colors duration-500 ${t.transportBg}">
+              <div class="flex items-start text-gray-700 mb-2">
+                ${svgMapPin}
+                <span class="font-semibold">自由行交通指南</span>
+              </div>
+              <p class="text-gray-600 text-sm pl-7 leading-relaxed space-y-1">
+                ${spot.transport}
+              </p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 事件與更新邏輯
+    function setCategory(category) {
+      if (activeCategory === category) return;
+      activeCategory = category;
+      updateTheme();
+      renderTabs();
+      renderCards();
+    }
+
+    function setTab(tab) {
+      if (activeTab === tab) return;
+      activeTab = tab;
+      renderTabs();
+      renderCards();
+    }
+
+    document.getElementById('btn-history').addEventListener('click', () => setCategory('history'));
+    document.getElementById('btn-trendy').addEventListener('click', () => setCategory('trendy'));
+
+    // 初始化
+    updateTheme();
+    renderTabs();
+    renderCards();
+  </script>
+</body>
+</html>
