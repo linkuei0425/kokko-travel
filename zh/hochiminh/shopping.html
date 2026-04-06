@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>胡志明購物精選指南 | Ho Chi Minh Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Custom Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Active State for Tabs */
+        .tab-btn.active {
+            background-color: #e11d48; /* rose-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.3);
+            border-color: #e11d48;
+        }
+        .city-btn.active {
+            background-color: #881337; /* rose-900 */
+            color: white;
+            border-color: #881337;
+        }
+        .tab-btn, .city-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button Hover */
+        .btn-maps {
+            background-color: #e11d48; /* rose-600 */
+        }
+        .btn-maps:hover {
+            background-color: #be123c; /* rose-700 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-rose-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-rose-700 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>HCM SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/HoChiMinh/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> 回到首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-rose-800 via-rose-600 to-orange-500 py-10 lg:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm drop-shadow-md">胡志明必買購物精選指南</h1>
+            <p class="text-base md:text-lg text-rose-100 max-w-2xl mx-auto font-medium">嚴選胡志明市 5 大精華郡區、熱門伴手禮、帶皮腰果、G7咖啡、頂級巧克力與在地超市，讓您買到手軟！</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- City Selector -->
+        <section class="mb-6 relative">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot mr-1"></i> 選擇區域 (Select District)</h2>
+            <div class="relative group">
+                <!-- Left Arrow -->
+                <button onclick="scrollNav('city-container', -250)" class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center w-9 h-9 bg-white border border-rose-200 rounded-full shadow-md text-rose-600 hover:bg-rose-50 hover:text-rose-800 hover:scale-110 transition-all focus:outline-none opacity-0 group-hover:opacity-100">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                
+                <div id="city-container" class="flex overflow-x-auto hide-scrollbar space-x-2 pb-2 scroll-smooth px-1">
+                    <!-- JS Inject -->
+                </div>
+
+                <!-- Right Arrow -->
+                <button onclick="scrollNav('city-container', 250)" class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center w-9 h-9 bg-white border border-rose-200 rounded-full shadow-md text-rose-600 hover:bg-rose-50 hover:text-rose-800 hover:scale-110 transition-all focus:outline-none opacity-0 group-hover:opacity-100">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 relative" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> 選擇類別 (Select Category)</h2>
+            <div class="relative group">
+                <!-- Left Arrow -->
+                <button onclick="scrollNav('category-container', -250)" class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center w-9 h-9 bg-white border border-rose-200 rounded-full shadow-md text-rose-600 hover:bg-rose-50 hover:text-rose-800 hover:scale-110 transition-all focus:outline-none opacity-0 group-hover:opacity-100">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <div id="category-container" class="flex overflow-x-auto hide-scrollbar space-x-3 pb-2 scroll-smooth px-1">
+                    <!-- JS Inject -->
+                </div>
+
+                <!-- Right Arrow -->
+                <button onclick="scrollNav('category-container', 250)" class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center w-9 h-9 bg-white border border-rose-200 rounded-full shadow-md text-rose-600 hover:bg-rose-50 hover:text-rose-800 hover:scale-110 transition-all focus:outline-none opacity-0 group-hover:opacity-100">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Shop Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected dynamically via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Ho Chi Minh Shopping Guide. 為您的越南之旅提供最佳購物建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data Structure for Ho Chi Minh
+        const db = {
+            d1: {
+                name: "第一郡 (市中心)",
+                cat: {
+                    souvenir: [
+                        {n:"Maison Marou Saigon",f:"被紐約時報譽為「最棒巧克力」！使用越南可可豆製作，包裝絕美，送禮極具品味。",a:"167-169, Calmette, Quận 1",t:"捷運濱城站 (Bến Thành) 步行約10分鐘，或搭乘Grab汽車/機車約3分鐘可達。"},
+                        {n:"邊青市場 (Chợ Bến Thành)",f:"市中心最具代表性的傳統市場。可購買咖啡豆、帶皮腰果、手工藝品與木雕。",a:"Chợ Bến Thành, Lê Lợi, Quận 1",t:"捷運濱城站 (Bến Thành) 出站即達，此處亦為各路市區公車（如152路機場線）交匯總站。"},
+                        {n:"The Craft House",f:"集結越南在地年輕設計師的文創品牌，木製拼圖、特色帆布袋與明信片超有質感。",a:"53a Nguyễn Du, Bến Nghé, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約8分鐘；從紅教堂出發沿Nguyễn Du街步行2-3分鐘。"},
+                        {n:"Trung Nguyên Legend (中原咖啡)",f:"越南咖啡第一品牌。除了有名的G7即溶咖啡，這裡的「傳奇滴漏咖啡粉」是長輩最愛。",a:"80 Đồng Khởi, Bến Nghé, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約3分鐘即可看見，位於熱鬧的同啟街。"},
+                        {n:"L'angfarm (大叻特產)",f:"專賣大叻高原農產品，包裝精緻的綜合果乾、朝鮮薊茶與蔬菜乾，健康伴手禮首選。",a:"112 Đường Trần Hưng Đạo, Quận 1",t:"捷運濱城站 (Bến Thành) 步行約10分鐘，靠近背包客街（范五老街），適合逛街後順道採買。"},
+                        {n:"Phúc Long (福隆咖啡茶飲)",f:"被譽為越南星巴克！除了現場喝奶茶，店內販售的蓮花茶與蜜桃茶包非常受歡迎。",a:"各大百貨與街角皆有",t:"捷運大劇院站或濱城站皆可達。市區各大百貨（如高島屋、Vincom）與街角皆有密集展店。", cLink:"#", cName:"福隆飲品 9折優惠券 (範例)", cIcon:"fa-solid fa-mug-hot"},
+                        {n:"Sense Market (地下商場)",f:"位於923公園地下，有大型超市與美食街，買完伴手禮可以直接吃越南小吃。",a:"Khu B, Công Viên 23/9, Quận 1",t:"捷運濱城站 (Bến Thành) 步行約5-8分鐘，位於923公園（Công Viên 23/9）地下室入口。"},
+                        {n:"咖啡公寓 (The Cafe Apartment)",f:"整棟老舊公寓改建的咖啡聚落，除了拍照，許多店家有自家烘焙的特色咖啡豆可買。",a:"42 Nguyễn Huệ, Bến Nghé, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約3-5分鐘，位於阮惠街行人廣場中段。"}
+                    ],
+                    fashion: [
+                        {n:"Saigon Centre / 髙島屋",f:"胡志明市最高檔、最現代的購物中心。匯集國際一線精品、化妝品與知名餐廳。",a:"65 Lê Lợi, Bến Nghé, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 或濱城站步行皆約5-8分鐘，為第一郡最核心的購物地標。", cLink:"#", cName:"髙島屋 遊客專屬優惠卡 (範例)", cIcon:"fa-solid fa-building"},
+                        {n:"Vincom Center Đồng Khởi",f:"分為兩棟的巨型商場，有ZARA、H&M等大型快時尚品牌，地下室有豐富餐廳與超市。",a:"72 Lê Thánh Tôn, Bến Nghé, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約3-5分鐘可達，位於第一郡精華十字路口。"},
+                        {n:"Saigon Square (西貢廣場)",f:"被稱為「有冷氣的市集」。以販售各大品牌的A貨服飾、運動鞋與背包聞名，需殺價。",a:"81 Nam Kỳ Khởi Nghĩa, Bến Nghé, Quận 1",t:"捷運大劇院站或濱城站步行約5-8分鐘，位於高島屋（Saigon Centre）正對面。"},
+                        {n:"Miss Áo Dài (訂製奧黛)",f:"體驗越南傳統服飾的最佳去處，提供快速量身訂製服務，布料選擇極多且質感好。",a:"19 Nguyễn Thái Học, Quận 1",t:"從捷運濱城站 (Bến Thành) 轉乘Grab，車程約5分鐘（車資約3-5萬越盾）。"},
+                        {n:"Diamond Plaza",f:"位於紅教堂後方的老牌百貨公司，以化妝品專櫃與香水為主，頂樓有保齡球館。",a:"34 Lê Duẩn, Bến Nghé, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約8-10分鐘，位於紅教堂與百年郵局的正後方。"},
+                        {n:"Ginkgo T-shirts",f:"以越南文化為設計靈感的原創T恤品牌，布料舒適，圖案幽默，非常適合當紀念衣。",a:"254 Đề Thám, Phạm Ngũ Lão, Quận 1",t:"捷運濱城站 (Bến Thành) 步行約10-15分鐘，位於范五老背包客街區（De Tham街上）。"}
+                    ],
+                    beauty: [
+                        {n:"Watsons 屈臣氏 (Vincom)",f:"市區最大的屈臣氏之一，販售歐美、泰國與日韓彩妝，常有買一送一活動。",a:"Vincom Center B1, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行3分鐘，搭乘電梯至Vincom地下室B1層即可看到。", cLink:"#", cName:"Watsons 觀光客免稅優惠 (範例)", cIcon:"fa-solid fa-prescription-bottle-medical"},
+                        {n:"Guardian (佳寧藥妝)",f:"越南最常見的連鎖藥妝店。適合補充防曬乳、蘆薈膠、虎標萬金油與平價面膜。",a:"第一郡各大街區",t:"市區密集展店。近捷運大劇院站或濱城站的商圈皆有門市，直接開Google Map找最近步行距離。"},
+                        {n:"Hasaki Beauty & Clinic",f:"當地人最愛的複合式美妝店，品牌極多（包含La Roche-Posay、Vichy等）且價格極具競爭力。",a:"71 Hoàng Hoa Thám, Quận 1",t:"位於第一郡較外圍，建議從捷運濱城站轉乘Grab，車程約10分鐘。"},
+                        {n:"Saigon Cosmetics (西貢香水)",f:"越南經典香水品牌「西貢小姐」，穿著奧黛的陶瓷瓶身極具越南風情。",a:"各大百貨與超市專櫃",t:"各大百貨公司皆有專櫃，從捷運大劇院站或濱城站步行皆可順便逛到。"},
+                        {n:"L'Apothiquaire (法式香氛)",f:"充滿法式殖民風情的頂級香氛與SPA品牌，手工皂與精油品質極佳。",a:"100 Mạc Thị Bưởi, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約3分鐘，充滿法式風情的小巷內。"}
+                    ],
+                    mart: [
+                        {n:"Lucky Plaza / Tax Supermarket",f:"觀光客買土產的超級秘密基地！三樓的超市有齊全的咖啡、腰果、綠豆糕與河粉包。",a:"69 Đồng Khởi, Bến Nghé, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約3分鐘，位於同啟街，入口較不起眼需留意招牌上3樓。"},
+                        {n:"Annam Gourmet (安南超市)",f:"胡志明市的「貴婦超市」。專賣高級進口食品、起司、紅白酒與頂級越南咖啡豆。",a:"Saigon Centre B2, Quận 1",t:"捷運大劇院站或濱城站步行皆約5-8分鐘，位於高島屋（Saigon Centre）地下2樓。"},
+                        {n:"WinMart (Vincom)",f:"越南最大的連鎖超市之一。生鮮水果、零食餅乾與越南當地的調味料這裡最齊全。",a:"Vincom Center B3, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約5分鐘，位於Vincom Center地下3樓。"},
+                        {n:"Co.opmart (Cống Quỳnh)",f:"第一郡邊緣的本土大型超市。當地人採買日用品的首選，伴手禮價格比市中心更親民。",a:"189C Cống Quỳnh, Quận 1",t:"捷運濱城站 (Bến Thành) 步行約15分鐘，若採買大量建議回程直接轉搭Grab（車程3分鐘）。"},
+                        {n:"Farmer's Market",f:"主打有機與健康食品的精緻超市，水果品質非常好，適合買回飯店享用。",a:"104 Hai Bà Trưng, Quận 1",t:"從捷運大劇院站轉乘Grab約5-8分鐘，或從紅教堂步行約15分鐘。"}
+                    ],
+                    hobby: [
+                        {n:"書報街 (Đường Sách)",f:"紅教堂旁邊的絕美林蔭步道，兩側皆是書店與咖啡館，販售明信片與文青雜貨。",a:"Đường Nguyễn Văn Bình, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約8-10分鐘，緊鄰百年郵局與紅教堂。"},
+                        {n:"Artbook",f:"專賣美術設計書籍與復古海報的質感小店，越南主題的復古宣傳畫非常值得收藏。",a:"43 Đồng Khởi, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約2分鐘，位於同啟街上適合文青散步順遊。"},
+                        {n:"Sadec District (第一郡店)",f:"結合東南亞多國工藝的家居雜貨店，陶瓷餐盤與竹編器皿美到讓人想全包。",a:"101 Đồng Khởi, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約3分鐘，位於舊公寓樓上或巷弄內。"},
+                        {n:"Couleurs by Rehahn",f:"知名攝影師 Rehahn 的藝廊，販售極具震撼力的越南人文攝影集與明信片。",a:"74 Đồng Khởi, Quận 1",t:"捷運大劇院站 (Nhà hát Thành phố) 步行約2分鐘，與各大精品店相鄰。"},
+                        {n:"The Box Market",f:"週末限定的年輕人文創市集，有許多獨立手作飾品、香氛與二手古著。",a:"Cultural Center, Quận 1 (依檔期)",t:"週末市集地點會變動，建議先至FB確認當週地點後，從捷運濱城站轉搭Grab前往。"}
+                    ]
+                }
+            },
+            d2: {
+                name: "第二郡 (草田區)",
+                cat: {
+                    souvenir: [
+                        {n:"Amaï (質感陶瓷)",f:"草田區必逛！絕美的不規則邊緣與莫蘭迪色系陶瓷餐盤，讓餐桌瞬間升級。",a:"83 Xuân Thủy, Thảo Điền, Quận 2",t:"捷運草田站 (Thảo Điền) 轉乘GrabBike約5分鐘，或步行約15分鐘。"},
+                        {n:"Sông (高檔亞麻)",f:"販售極具度假風情的高質感亞麻服飾與居家布品，深受歐美外派人士喜愛。",a:"Thảo Điền, Quận 2",t:"捷運草田站 (Thảo Điền) 出站後，建議轉乘GrabBike直達店門口，草田區人行道較窄。"},
+                        {n:"Liti Florist & Gifts",f:"精緻的進口花藝與歐系禮品店，包裝服務極度用心。",a:"Quận 2 商圈內",t:"從捷運草田站 (Thảo Điền) 步行或搭短程GrabBike前往，位於草田商圈內。"}
+                    ],
+                    fashion: [
+                        {n:"Vincom Mega Mall (Thảo Điền)",f:"第二郡最大的購物中心，有室內溜冰場，各大國際休閒服飾與運動品牌齊全。",a:"161 Xa lộ Hà Nội, Thảo Điền, Quận 2",t:"捷運草田站 (Thảo Điền) 出站即達/步行極近，位於河內大道旁。"},
+                        {n:"Xuân Thủy 街 (精品小店)",f:"這條街上隱藏著許多歐美設計師開的獨立服飾店與概念店，風格悠閒時髦。",a:"Đường Xuân Thủy, Quận 2",t:"從捷運草田站 (Thảo Điền) 步行約10分鐘即可抵達街口，適合花半天時間慢慢漫遊。"},
+                        {n:"The Oxygen",f:"複合式社區商場，有一些精緻的童裝與休閒服飾品牌。",a:"628C Xa lộ Hà Nội, Quận 2",t:"捷運安富站 (An Phú) 步行約5分鐘即可抵達商場。"}
+                    ],
+                    beauty: [
+                        {n:"Watsons (Vincom Mega Mall)",f:"大型屈臣氏，因為外派人士多，這裡的歐美防曬與洗沐品牌特別齊全。",a:"Vincom Mega Mall B1, Quận 2",t:"捷運草田站 (Thảo Điền) 出站即達，位於Vincom Mega Mall地下室。"},
+                        {n:"Thảo Điền Spa 保養品",f:"草田區有許多高級Villa Spa，他們通常會販售自家使用的純天然精油與磨砂膏。",a:"Thảo Điền 各大Spa",t:"隱藏在草田區高級別墅內，從捷運草田站 (Thảo Điền) 轉乘GrabBike前往各大Spa門口。"},
+                        {n:"Organik Thảo Điền",f:"有機超市內附設的美妝區，販售純天然、無動物實驗的環保肥皂與洗髮餅。",a:"Thảo Điền, Quận 2",t:"從捷運草田站 (Thảo Điền) 轉搭GrabBike深入草田區採買。"}
+                    ],
+                    mart: [
+                        {n:"MM Mega Market",f:"超大型倉儲量販店（類似好市多）。如果想買「整箱」的河粉或咖啡，來這裡最划算。",a:"Khu B, KĐT mới An Phú, Quận 2",t:"捷運安富站 (An Phú) 步行約5-10分鐘，採買大量物資後務必直接叫Grab汽車載回飯店。"},
+                        {n:"Annam Gourmet (Thảo Điền)",f:"規模極大的頂級超市，擁有極其豐富的起司櫃、冷肉與進口葡萄酒，外國人最愛。",a:"41 Thảo Điền, Quận 2",t:"捷運草田站 (Thảo Điền) 步行約10-15分鐘或轉乘GrabBike，適合買些起司回飯店。"},
+                        {n:"Nam An Market",f:"另一家高質感的生鮮超市，水果與蔬菜的品質極佳，店內明亮舒適。",a:"Thảo Điền, Quận 2",t:"從捷運草田站 (Thảo Điền) 步行約15分鐘，或轉乘GrabBike。"}
+                    ],
+                    hobby: [
+                        {n:"The Snap Cafe (商店聚落)",f:"不只是咖啡廳，裡面有一個小型的商店聚落，販售各式童書、文創小物與環保雜貨。",a:"32 Trần Ngọc Diện, Thảo Điền, Quận 2",t:"從捷運草田站 (Thảo Điền) 轉乘Grab約5-8分鐘直達，是個半開放式的悠閒聚落。"},
+                        {n:"Vesta Lifestyle & Gifts",f:"專賣極具設計感的居家擺飾、文具與香氛蠟燭，是挑選質感禮物的好地方。",a:"34 Ngô Quang Huy, Thảo Điền, Quận 2",t:"位於草田區寧靜巷內，從捷運草田站 (Thảo Điền) 轉乘Grab約5-8分鐘。"}
+                    ]
+                }
+            },
+            d3: {
+                name: "第三郡 (服飾與市集)",
+                cat: {
+                    souvenir: [
+                        {n:"新定市場 (Chợ Tân Định)",f:"粉紅教堂旁的在地市場。裡面的「帶皮腰果」與「夏威夷豆」便宜又新鮮，必買！",a:"336 Hai Bà Trưng, Quận 1/3交界",t:"從捷運大劇院站或濱城站轉乘Grab，車程約10分鐘（粉紅教堂對面）。"},
+                        {n:"布料街 (新定市場內)",f:"除了堅果，市場內的布料攤商極多，可以挑選喜歡的布料直接在周邊訂做服飾。",a:"Chợ Tân Định, Quận 3",t:"從捷運大劇院站或濱城站轉乘Grab約10分鐘至新定市場，直接走進一/二樓即是。"},
+                        {n:"滿月茶品牌門市",f:"高質感的越南茶葉品牌，烏龍與花茶包裝雅致，適合送給長輩。",a:"Nguyễn Đình Chiểu, Quận 3",t:"位於第三郡，建議從捷運站或粉紅教堂轉乘Grab，車程約10分鐘。"}
+                    ],
+                    fashion: [
+                        {n:"Vạn Hạnh Mall (萬幸商場)",f:"第十郡超大型購物中心！當地年輕人最愛，有各種本土快時尚品牌與超大美食街。",a:"11 Sư Vạn Hạnh, Quận 10",t:"距離捷運與市區較遠，強烈建議從捷運濱城站轉乘Grab前往，車程約20-25分鐘。"},
+                        {n:"阮廷沼街 (Nguyễn Đình Chiểu)",f:"第三郡著名的「服飾一條街」，兩側充滿越南本地設計師品牌與女裝小店，價格實惠。",a:"Đường Nguyễn Đình Chiểu, Quận 3",t:"單行道長街，從捷運大劇院站轉乘Grab約10分鐘抵達街口後，沿街慢慢步行逛街。"},
+                        {n:"Lê Văn Sỹ 服飾街",f:"橫跨第三與富潤郡的超長街道，晚上極度熱鬧，服飾、鞋包與小吃店林立。",a:"Đường Lê Văn Sỹ, Quận 3",t:"非常長的購物街，建議從捷運濱城站轉乘Grab（約15分鐘）抵達中段，再選定一段步行逛街。"}
+                    ],
+                    beauty: [
+                        {n:"Hasaki (第十郡旗艦店)",f:"美妝保養品備貨量極大，價格非常有競爭力，許多越南網紅愛用的本土保養品都有。",a:"Sư Vạn Hạnh, Quận 10",t:"靠近萬幸商場，建議從捷運濱城站轉乘Grab（車程20分鐘），可與商場行程綁在一起。"},
+                        {n:"Pharmacity",f:"越南最大的連鎖現代化藥局，店鋪明亮乾淨，常備藥品與保健食品齊全。",a:"第三郡各大街角",t:"遍布第三郡與市中心，隨處可見，可從捷運站步行或搭Grab前往最近門市。"},
+                        {n:"The Body Shop",f:"在第三郡的街邊獨立店，經常有配合節慶的沐浴保養禮盒折扣。",a:"Hai Bà Trưng, Quận 3",t:"靠近粉紅教堂，從捷運大劇院站轉乘Grab約10分鐘可達。"}
+                    ],
+                    mart: [
+                        {n:"Co.opmart Nguyễn Đình Chiểu",f:"第三郡核心區的本土大型超市，品項齊全，傍晚時分會有許多當地人來買菜。",a:"168 Nguyễn Đình Chiểu, Quận 3",t:"從捷運大劇院站轉乘Grab約10分鐘，或沿Nguyễn Đình Chiểu街步行約20分鐘。"},
+                        {n:"Lotte Mart (Phú Thọ)",f:"第十一郡交界的樂天超市，規模雖不如第七郡大，但採買咖啡與零食依然非常方便。",a:"Đường 3/2, Quận 11",t:"離捷運站較遠，建議直接從捷運濱城站轉乘Grab前往（車程約25分鐘）。"},
+                        {n:"Aeon Citimart",f:"日系連鎖中型超市，環境整潔，生鮮與日本進口調味料選擇較多。",a:"第三郡周邊",t:"第三郡社區型超市，從捷運大劇院站轉乘Grab約10分鐘。"}
+                    ],
+                    hobby: [
+                        {n:"樂器街 (Nguyễn Thiện Thuật)",f:"著名的吉他與樂器一條街！滿滿的手工吉他店，熱愛音樂的人必來尋寶。",a:"Đường Nguyễn Thiện Thuật, Quận 3",t:"滿街都是吉他店，從捷運濱城站轉乘Grab，車程約10-15分鐘。"},
+                        {n:"棋盤街 模型/電玩店",f:"隱藏在第三郡巷弄間的電玩與模型店，能找到各式公仔與組裝模型。",a:"Cư xá Đô Thành, Quận 3",t:"位於住宅區巷弄複雜，強烈建議從捷運濱城站轉搭Grab定位店家門口（車程約15分鐘）。"}
+                    ]
+                }
+            },
+            d4: {
+                name: "第四郡 (在地生活圈)",
+                cat: {
+                    souvenir: [
+                        {n:"Xóm Chiếu 市場 (Chợ Xóm Chiếu)",f:"第四郡在地人的廚房！市場內外可以買到最接地氣的越南零食、米線與特色乾貨。",a:"Đinh Tiên Hoàng, Phường 12, Quận 4",t:"從捷運濱城站轉乘Grab過橋，車程約10分鐘即可抵達這座充滿活力的傳統市場。"},
+                        {n:"在地海鮮乾貨攤",f:"第四郡以海鮮小吃聞名，這裡的市場周邊能買到便宜新鮮的魷魚絲與烤魚乾。",a:"Chợ Xóm Chiếu 周邊",t:"位於Xóm Chiếu市場外圍的攤販，從捷運濱城站轉搭Grab至此後步行漫遊尋寶。"}
+                    ],
+                    fashion: [
+                        {n:"Hoàng Diệu 服飾街",f:"第四郡的主要幹道，兩側有許多平價的越南本土流行服飾與鞋包店。",a:"Đường Hoàng Diệu, Quận 4",t:"從捷運濱城站搭Grab過橋約5分鐘即達，建議沿路散步逛街。"},
+                        {n:"在地成衣小店",f:"穿梭在第四郡的巷弄中，常能發現價格低廉的日常休閒服飾與當地睡衣。",a:"Quận 4 巷弄內",t:"適合從捷運濱城站搭Grab至第四郡著名的「海鮮大排檔」吃飽後，隨意散步消化時逛逛。"}
+                    ],
+                    beauty: [
+                        {n:"Pharmacity (第四郡)",f:"連鎖現代化藥局，店鋪明亮乾淨，常備藥品、維他命與保健食品齊全。",a:"Hoàng Diệu, Quận 4",t:"從捷運濱城站轉搭Grab至第四郡主要幹道Hoàng Diệu上，非常容易尋找。"},
+                        {n:"Guardian (第四郡)",f:"補充防曬乳、蘆薈膠、虎標萬金油與平價面膜的好去處。",a:"Bến Vân Đồn, Quận 4",t:"從捷運濱城站搭Grab至美麗的Bến Vân Đồn河岸道路上。"}
+                    ],
+                    mart: [
+                        {n:"Bách Hóa XANH",f:"越南非常密集的社區型生鮮超市，雖然不大，但買當地零食與飲料非常便宜。",a:"Quận 4 各大街角",t:"第四郡的巷弄隨處可見，從捷運濱城站轉搭Grab過來體驗當地人買菜日常。"},
+                        {n:"Co.op Food (第四郡)",f:"Co.opmart 旗下的便利生鮮店，適合回民宿前買些新鮮水果或越南泡麵。",a:"Đường Khánh Hội, Quận 4",t:"從捷運濱城站轉搭Grab至第四郡的主要街道Khánh Hội上。"}
+                    ],
+                    hobby: [
+                        {n:"在地五金雜貨舖",f:"充滿生活氣息的雜貨店，能挖到經典的越南滴漏咖啡壺與傳統不鏽鋼餐具。",a:"Tôn Đản, Quận 4",t:"從捷運濱城站搭Grab至熱鬧的Tôn Đản街後，在兩側的傳統店鋪中步行尋寶。"}
+                    ]
+                }
+            },
+            d5: {
+                name: "第五郡 (安東市場/華人區)",
+                cat: {
+                    souvenir: [
+                        {n:"安東市場 (Chợ An Đông)",f:"胡志明市買「帶皮腰果、綜合果乾、燕窩」的終極聖地！價格便宜且商家多通曉中文。",a:"Công trường An Đông, Quận 5",t:"從捷運濱城站轉乘Grab汽車，車程約15-20分鐘（車資約5-8萬越盾），建議搭車直達入口。"},
+                        {n:"林珍香 / 廣東臘味",f:"第五郡老字號肉乾與臘味店，充滿濃濃的華人傳統風味，肉乾香氣撲鼻。",a:"Châu Văn Liêm, Quận 5",t:"位於第五郡熱鬧街道，從捷運濱城站搭Grab約15-20分鐘前往，可與華人區行程綁在一起。"},
+                        {n:"安東市場 (海味乾貨區)",f:"除了腰果，這裡的燕窩、花膠與各式海味乾貨也非常豐富，深受當地華人喜愛。",a:"Công trường An Đông, Quận 5",t:"從捷運濱城站搭Grab直達安東市場一樓與地下室區域。"}
+                    ],
+                    fashion: [
+                        {n:"安東廣場 (An Đông Plaza)",f:"安東市場旁邊的高樓層商場。主打成衣、鞋子與包包「批發」，款式多偏成熟。",a:"18 An Dương Vương, Quận 5",t:"從捷運濱城站搭Grab至安東市場旁，兩棟建築步行約1分鐘可互通。"},
+                        {n:"銀樓街 (Nhiêu Tâm)",f:"第五郡著名的金飾與珠寶一條街，許多當地華人會在此交易金飾。",a:"Đường Nhiêu Tâm, Quận 5",t:"距離捷運較遠，需從捷運濱城站轉乘Grab前往，車程約20分鐘。"},
+                        {n:"大娘水餃旁 奧黛布莊",f:"第五郡有許多傳統的布莊，價格比第一郡更便宜，適合懂布料的旅客。",a:"Quận 5 巷弄內",t:"建議從捷運濱城站搭Grab至大娘水餃或周邊地標後步行尋找。"}
+                    ],
+                    beauty: [
+                        {n:"和平市場 中藥街",f:"第五郡 Hải Thượng Lãn Ông 街上滿滿的傳統中藥行，空氣中瀰漫著濃濃的藥草香。",a:"Hải Thượng Lãn Ông, Quận 5",t:"從捷運濱城站轉搭Grab到天后宮附近，再步行約5-10分鐘漫遊這條長街。"},
+                        {n:"堤岸在地美髮材料行",f:"專門批發給當地美髮沙龍的店鋪，能找到便宜又大碗的洗髮精與護髮霜。",a:"Quận 5 市場周邊",t:"散佈在第五郡的傳統巷弄中，建議從捷運濱城站轉搭Grab白天前往。"}
+                    ],
+                    mart: [
+                        {n:"Co.opmart Chợ Lớn",f:"第五郡華人區最大的本土超市，由於客群關係，這裡的中式調味料與食材非常豐富。",a:"96 Hùng Vương, Quận 5",t:"從捷運濱城站轉乘Grab約15-20分鐘至第五郡中心，若在安東廣場逛完可搭短程Grab過去。"},
+                        {n:"An Đông Plaza 超市",f:"位於安東廣場內的超市，方便批發客買完衣服後，順便採買零食伴手禮。",a:"18 An Dương Vương, Quận 5",t:"從捷運濱城站搭Grab直達安東廣場樓上即可找到。"}
+                    ],
+                    hobby: [
+                        {n:"燈籠街 (Lương Nhữ Học)",f:"中秋節前夕限定的絕美街道！整條街掛滿傳統紙燈籠，是攝影與打卡的絕佳地點。",a:"Lương Nhữ Học, Quận 5",t:"中秋前夕人潮擁擠，從捷運濱城站搭Grab約20分鐘，建議提早下車步行。"},
+                        {n:"香燭宗教用品店",f:"天后宮等寺廟周邊，有許多販售傳統香燭、神像與華人宗教用品的老店。",a:"Nguyễn Trãi, Quận 5",t:"集中在天后宮一帶，從捷運濱城站轉搭Grab約20分鐘抵達後徒步順遊。"}
+                    ]
+                }
+            },
+            d6: {
+                name: "第六郡 (平西市場/批發)",
+                cat: {
+                    souvenir: [
+                        {n:"平西市場 (Chợ Bình Tây)",f:"堤岸最大的批發市場，建築古色古香。乾貨、香菇、五金雜貨批發大本營。",a:"57A Tháp Mười, Quận 6",t:"位於華人區深處，建議從捷運濱城站轉乘Grab，車程約25-30分鐘。"},
+                        {n:"傳統乾貨批發街",f:"平西市場外圍，整條街都在賣大包裝的南北乾貨、米線與魚露。",a:"Trần Bình, Quận 6",t:"從捷運濱城站搭Grab至平西市場後，徒步繞行外圍即可逛到。"}
+                    ],
+                    fashion: [
+                        {n:"平西市場 成衣區",f:"市場二樓與周圍有著極大量的成衣、布料與鞋子批發，款式非常傳統，適合挖寶。",a:"Chợ Bình Tây 內",t:"從捷運濱城站搭Grab抵達平西市場後，直上二樓即可看到。"},
+                        {n:"Hậu Giang 服飾街",f:"第六郡的繁華商業街道，有許多本土的服飾連鎖店與平價鞋店。",a:"Đường Hậu Giang, Quận 6",t:"從捷運濱城站搭Grab約25-30分鐘即可抵達這條熱鬧幹道。"}
+                    ],
+                    beauty: [
+                        {n:"第六郡在地美妝行",f:"販售傳統的越南護膚品（如Thorakao）與美髮用具，價格通常是批發價。",a:"Chợ Bình Tây 周邊",t:"從捷運濱城站搭Grab至平西市場周邊的傳統店家尋寶，建議白天前往。"},
+                        {n:"中藥批發延伸區",f:"第五郡中藥街的延伸，第六郡也有許多專做大宗批發的草藥行。",a:"Quận 6 靠近 Q5 交界",t:"從捷運濱城站搭Grab至第五郡中藥街後，沿著堤岸區幹道一路散步過來。"}
+                    ],
+                    mart: [
+                        {n:"Mega Market (第六郡)",f:"超大型倉儲量販店！買大包裝的越南零食、G7咖啡與河粉最划算的地方。",a:"Bình Phú, Phường 11, Quận 6",t:"從捷運濱城站搭Grab約30分鐘，採買大量物資後建議直接叫車回飯店。"},
+                        {n:"Co.opmart (第六郡)",f:"在地人愛去的大型連鎖超市，生鮮水果與日常用品一應俱全。",a:"Vòng xoay Phú Lâm, Quận 6",t:"位於富林圓環旁，從捷運濱城站搭Grab前往非常顯眼。"}
+                    ],
+                    hobby: [
+                        {n:"華人宗教用品大宗",f:"平西市場周邊有許多販售傳統香燭、神像與華人宗教用品的老店，規模比第五郡更大。",a:"Tháp Mười, Quận 6",t:"從捷運濱城站搭Grab抵達平西市場外圍的馬路上即可看到。"},
+                        {n:"在地塑膠/竹編雜貨",f:"第六郡是批發大本營，這裡可以買到極其便宜的編織提籃、塑膠椅與生活雜貨。",a:"Chợ Bình Tây 外圍",t:"從捷運濱城站轉搭Grab至平西市場周邊巷弄體驗當地的批發文化。"}
+                    ]
+                }
+            },
+            d7: {
+                name: "第七郡 (富美興)",
+                cat: {
+                    souvenir: [
+                        {n:"樂天超市 伴手禮特區",f:"觀光客最愛！超市內特別規劃了「伴手禮專區」，把最熱門的G7咖啡、芒果乾全集中在一起。",a:"469 Nguyễn Hữu Thọ, Quận 7",t:"從捷運濱城站搭Grab南下，車程約20-25分鐘（車資約10-15萬越盾），採買完直接搭車回飯店最省力。", cLink:"#", cName:"Lotte Mart 遊客專屬折扣 (範例)", cIcon:"fa-solid fa-cart-shopping"},
+                        {n:"高檔燕窩專賣店",f:"富美興區有許多裝潢氣派的燕窩專賣店，提供高品質的越南野生/屋燕燕窩。",a:"Khu Phú Mỹ Hưng, Quận 7",t:"從捷運濱城站搭Grab車程約25-30分鐘，位於富美興高級住宅區內，街道寬敞適合步行。"}
+                    ],
+                    fashion: [
+                        {n:"Crescent Mall (新月廣場)",f:"胡志明市最美的高級購物中心之一。緊鄰半月湖，品牌多元，逛起來非常寬敞舒適。",a:"101 Tôn Dật Tiên, Quận 7",t:"從捷運濱城站搭Grab約30分鐘；商場外可連接星光橋步行散步。"},
+                        {n:"SC VivoCity",f:"由新加坡財團打造的超大型商場。平價服飾、Uniqlo、各類運動鞋品牌超級齊全。",a:"1058 Nguyễn Văn Linh, Quận 7",t:"從捷運濱城站搭Grab車程約25分鐘可達第七郡主幹道Nguyễn Văn Linh上。"}
+                    ],
+                    beauty: [
+                        {n:"Guardian (Crescent Mall)",f:"位於商場內，環境極佳，適合買些隨身常備藥或平價開架彩妝。",a:"Crescent Mall B1, Quận 7",t:"從捷運濱城站搭Grab至Crescent Mall商場地下1樓，約30分鐘。"},
+                        {n:"韓國進口美妝店",f:"第七郡是著名的「韓國村」，路上隨處可見專賣韓國最新流行保養品與彩妝的小店。",a:"Phú Mỹ Hưng, Quận 7",t:"從捷運濱城站搭Grab約30分鐘至富美興韓國村（如Sky Garden周邊）抵達後步行漫遊。"}
+                    ],
+                    mart: [
+                        {n:"Lotte Mart (第七郡南西貢店)",f:"胡志明市「買伴手禮最強超市」！三層樓超大空間，買咖啡、帶皮腰果、河粉包一次搞定。",a:"469 Nguyễn Hữu Thọ, Quận 7",t:"從捷運濱城站搭Grab車程約20-25分鐘即可抵達這棟極具標誌性的三層樓大賣場。"},
+                        {n:"K-Market / K-Mart",f:"想念韓國零食或泡麵？第七郡有全越南最密集的韓國超市，品項與韓國同步。",a:"Phú Mỹ Hưng, Quận 7",t:"建議從捷運濱城站搭Grab到韓國聚落（Sky Garden等）後徒步逛各家超市。"},
+                        {n:"Finelife Supermarket",f:"Co.opmart旗下的高階品牌超市，生鮮與高檔進口食材豐富，環境高級。",a:"Urban Hill, Quận 7",t:"從捷運濱城站搭Grab車程約30分鐘至第七郡高級公寓下方，客群主要為韓國外派人士。"}
+                    ],
+                    hobby: [
+                        {n:"誠品風格書店 (商場內)",f:"Crescent Mall 與 VivoCity 內皆有大型書店，販售精緻文具、原文書與玩具模型。",a:"各大商場內",t:"從捷運濱城站搭Grab抵達商場(車程30分)後直接搭電梯上樓即可。"},
+                        {n:"Board Game 咖啡廳",f:"第七郡年輕人聚集地，有許多販售/體驗桌遊的特色咖啡館。",a:"Phú Mỹ Hưng, Quận 7",t:"從捷運濱城站搭Grab約30分鐘，是體驗當地韓國年輕人生活的好去處。"}
+                    ]
+                }
+            }
+        };
+
+        const catsMap = {
+            souvenir: { icon: "🛍️", name: "伴手禮", bg: "bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white border-rose-200" },
+            fashion:  { icon: "🏬", name: "百貨服飾", bg: "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-600 hover:text-white border-fuchsia-200" },
+            beauty:   { icon: "💊", name: "藥妝美妝", bg: "bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border-sky-200" },
+            mart:     { icon: "🛒", name: "超市零食", bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200" },
+            hobby:    { icon: "🧸", name: "文創雜貨", bg: "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border-amber-200" }
+        };
+
+        let currentCity = "d1"; // Default view: District 1
+        let currentCat = "souvenir"; 
+
+        const cityContainer = document.getElementById('city-container');
+        const categoryContainer = document.getElementById('category-container');
+        const shopContainer = document.getElementById('shop-container');
+
+        // Scroll Function for Nav Arrows
+        function scrollNav(containerId, offset) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.scrollBy({ left: offset, behavior: 'smooth' });
+            }
+        }
+
+        function initUI() {
+            // 確保區域按鈕排序嚴格依照：1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
+            const cityOrder = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7'];
+            
+            cityOrder.forEach(cityKey => {
+                if(db[cityKey]) {
+                    const btn = document.createElement('button');
+                    btn.className = `city-btn whitespace-nowrap px-6 py-2.5 rounded-full border border-rose-200 bg-white text-rose-700 font-bold hover:bg-rose-100 hover:text-rose-900 shadow-sm ${cityKey === currentCity ? 'active' : ''}`;
+                    btn.innerText = db[cityKey].name;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        currentCity = cityKey;
+                        renderContent();
+                    };
+                    cityContainer.appendChild(btn);
+                }
+            });
+
+            // Render Categories
+            Object.keys(catsMap).forEach(catKey => {
+                const c = catsMap[catKey];
+                const btn = document.createElement('button');
+                btn.className = `tab-btn whitespace-nowrap px-5 py-2.5 rounded-full border transition-all font-bold shadow-sm flex items-center ${c.bg} ${catKey === currentCat ? 'active' : ''}`;
+                btn.innerHTML = `<span class="mr-1.5 text-lg">${c.icon}</span> ${c.name}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCat = catKey;
+                    renderContent();
+                };
+                categoryContainer.appendChild(btn);
+            });
+
+            // Load Default View
+            renderContent();
+        }
+
+        function renderContent() {
+            shopContainer.innerHTML = '';
+            const items = db[currentCity].cat[currentCat];
+
+            if(!items || items.length === 0) {
+                shopContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-lg font-bold">此分類目前無推薦資料。</div>`;
+                return;
+            }
+
+            // 將「含有優惠券 (cLink)」的店家排序到最上方
+            const sortedItems = [...items].sort((a, b) => {
+                if (a.cLink && !b.cLink) return -1;
+                if (!a.cLink && b.cLink) return 1;
+                return 0;
+            });
+
+            sortedItems.forEach((item, index) => {
+                // Generate Google Maps URL
+                const pureAddress = item.a.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.n} 越南 胡志明市 ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                // 如果該項目有專屬優惠券，生成粉色優惠券按鈕
+                const couponHtml = item.cLink ? `
+                    <a href="${item.cLink}" target="_blank" rel="noopener noreferrer" 
+                       class="w-full flex items-center justify-center gap-2 px-4 py-3 mb-3 border border-rose-300 rounded-xl shadow-sm text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-400 focus:outline-none transition-colors">
+                        <i class="${item.cIcon} text-lg"></i>
+                        領取優惠：${item.cName}
+                    </a>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border ${item.cLink ? 'border-rose-200' : 'border-rose-50'} p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                ${item.n}
+                                ${item.cLink ? '<span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">優惠券</span>' : ''}
+                            </h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-amber-400 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-rose-400 font-bold mb-1 uppercase tracking-wider">亮點特色</p>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-medium">${item.f}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-rose-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-rose-400 font-bold mb-1 uppercase tracking-wider">地址</p>
+                                    <p class="text-sm text-slate-600 font-medium">${item.a}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-motorcycle text-rose-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-rose-400 font-bold mb-1 uppercase tracking-wider">交通方式</p>
+                                    <span class="inline-block bg-rose-50 text-rose-700 text-xs px-2.5 py-1 rounded-md font-bold text-left leading-normal">${item.t}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-rose-50">
+                        ${couponHtml}
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white btn-maps focus:outline-none transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                shopContainer.appendChild(card);
+            });
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>

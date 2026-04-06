@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>胡志明市美食導航 HCMC Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fffaf0; /* 暖橘色背景 orange-50 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color */
+        .btn-nav {
+            background-color: #ea580c; /* orange-600 */
+        }
+        .btn-nav:hover {
+            background-color: #c2410c; /* orange-700 */
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-orange-500 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                HCMC Pass 胡志明市美食地圖
+            </h1>
+            <!-- 回到首頁連結 -->
+            <a href="https://linkuei0425.github.io/HoChiMinh/" class="flex items-center gap-1 text-sm md:text-base font-medium bg-orange-600 hover:bg-orange-700 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-orange-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                回到首頁
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">選擇區域 (Select District)</h2>
+                <!-- 滑動箭頭 -->
+                <div class="flex gap-2">
+                    <button onclick="scrollRegions('left')" class="p-1.5 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors shadow-sm" aria-label="向左滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollRegions('right')" class="p-1.5 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors shadow-sm" aria-label="向右滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide scroll-smooth">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider">選擇類別 (Select Category)</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-slate-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">請先從上方選擇您想探索的區域與美食類別</p>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto px-4 mt-8 pb-8 text-center text-slate-500 text-sm">
+        <p>※ 胡志明市捷運 1 號線已開通，第一郡及塔甸區可善用捷運。其他區域建議多利用 Grab 叫車代步。</p>
+    </footer>
+
+    <script>
+        // HCMC Food Database
+        const db = {
+            "d1": {
+                name: "第一郡 (District 1)",
+                categories: {
+                    "street_food": [
+                        { name: "Bánh Mì Huỳnh Hoa (黃花法國麵包)", feature: "被譽為胡志明市最好吃的越式法國麵包！內餡極度豐富，包含多種火腿、肉醬、醃蘿蔔與香菜，份量巨大，建議兩人分食。", address: "26 Lê Thị Riêng, Phường Phạm Ngũ Lão, Quận 1", transport: "🚇 【捷運】搭乘至「濱城站 (Ben Thanh)」，步行約7分鐘。<br>🚗 【Grab】位於第一郡市中心，搭乘 Grab 非常方便。" },
+                        { name: "Phở Hòa Pasteur (和平河粉)", feature: "歷史悠久的百年河粉名店。湯頭清甜回甘，桌上擺滿免費的生菜、九層塔與油條，是最正宗的南越河粉吃法。", address: "260C Pasteur, Phường 8, Quận 1", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】從粉紅教堂或第一郡中心搭乘 Grab 約5分鐘可達。" },
+                        { name: "Phở Quỳnh (瓊河粉)", feature: "位於范五老背包客街的人氣河粉店，營業到深夜。招牌「紅燒牛肉河粉」湯頭濃郁辛香，牛肉燉得極為軟爛入味。", address: "323 Phạm Ngũ Lão, Phường Phạm Ngũ Lão, Quận 1", transport: "🚇 【捷運】搭乘至「濱城站 (Ben Thanh)」，步行約10-15分鐘。<br>🚗 【Grab】位於碧文街 (Bui Vien) 街口旁，步行即達。" },
+                        { name: "Bến Thành Market (濱城市場街頭小吃)", feature: "市場內與周邊聚集了無數道地小吃，從烤肉米線 (Bún Thịt Nướng)、生春捲到各式越式甜湯 (Chè) 應有盡有。", address: "Chợ Bến Thành, Phường Bến Thành, Quận 1", transport: "🚇 【捷運】搭乘捷運1號線至「濱城站 (Ben Thanh)」出站即達。<br>🚗 【Grab】直接定位濱城市場即可。" }
+                    ],
+                    "coffee": [
+                        { name: "The Cafe Apartments (咖啡公寓)", feature: "一整棟九層樓的老舊公寓改建成數十家風格各異的咖啡廳。挑選一間有陽台的店，點杯滴漏咖啡俯瞰阮惠街廣場，極具文青氣息。", address: "42 Nguyễn Huệ, Phường Bến Nghé, Quận 1", transport: "🚇 【捷運】搭乘至「大劇院站 (Opera House)」，步行約3分鐘。<br>🚗 【Grab】位於阮惠街行人廣場上。" },
+                        { name: "Cộng Cà Phê (越共咖啡)", feature: "以越戰時期為主題的復古連鎖咖啡廳。招牌「椰奶冰沙咖啡 (Cot Dua Ca Phe)」濃郁消暑，是來越南必喝的特色飲品。", address: "第一郡設有多家分店 (如阮惠街或董啟街旁)", transport: "🚇 【捷運】搭乘至「大劇院站 (Opera House)」，步行可達阮惠街分店。<br>🚗 【Grab】市區步行隨處可見。" },
+                        { name: "Trung Nguyên Legend (中原咖啡)", feature: "越南最大的連鎖咖啡品牌，被譽為越南的星巴克。環境高級，提供現滴的傳統越南滴漏咖啡與世界級的麝香貓咖啡。", address: "第一郡設有多家旗艦店", transport: "🚇 【捷運】搭乘至「大劇院站 (Opera House)」或「濱城站 (Ben Thanh)」，依分店步行。<br>🚗 【Grab】第一郡核心區域皆可輕鬆抵達。" }
+                    ],
+                    "restaurant": [
+                        { name: "Secret Garden Restaurant", feature: "隱身在舊公寓頂樓的秘境餐廳。佈滿植栽與燈籠，主打道地的越式家常菜，氣氛悠閒且菜色豐富，深受歐美旅客喜愛。", address: "158 Pasteur, Phường Bến Nghé, Quận 1", recommend: true, transport: "🚇 【捷運】搭乘至「大劇院站 (Opera House)」，步行約10分鐘。<br>🚗 【Grab】需走入巷弄並爬樓梯至頂樓。" },
+                        { name: "Nhà Hàng Ngon (好吃餐廳)", feature: "在一棟美麗的黃色法式別墅內，集結了越南大江南北的特色小吃。菜單豐富且衛生乾淨，適合想一次嚐遍越南美食的人。", address: "160 Pasteur, Phường Bến Nghé, Quận 1", transport: "🚇 【捷運】搭乘至「大劇院站 (Opera House)」，步行約8分鐘。<br>🚗 【Grab】位於 Pasteur 街上，搭乘 Grab 非常方便。" },
+                        { name: "Quán Bụi Original", feature: "以高品質與精緻擺盤聞名的越式餐廳。裝潢典雅，提供傳統但精緻化的越南料理，竹籃拼盤與炸春捲是必點。", address: "19 Ngô Văn Năm, Phường Bến Nghé, Quận 1", transport: "🚇 【捷運】搭乘至「大劇院站 (Opera House)」，步行約10-15分鐘。<br>🚗 【Grab】近西貢河畔與日本街，搭乘 Grab 前往。" }
+                    ],
+                    "french": [
+                        { name: "Pizza 4P's (Ben Thanh店)", feature: "雖然是披薩店，但卻是胡志明市最難訂位的餐廳之一！由日本人開設，招牌自製布拉塔起司披薩與蟹肉義大利麵絕對必點。", address: "8 Thủ Khoa Huân, Phường Bến Thành, Quận 1", recommend: true, transport: "🚇 【捷運】搭乘至「濱城站 (Ben Thanh)」，步行約2分鐘可達。<br>🚗 【Grab】緊鄰濱城市場。" },
+                        { name: "The Refinery", feature: "隱身在昔日鴉片工廠舊址的法式小酒館。充滿濃厚的歐式殖民風情，提供精緻的法式早午餐與排餐，氣氛極佳。", address: "74 Hai Bà Trưng, Phường Bến Nghé, Quận 1", transport: "🚇 【捷運】搭乘至「大劇院站 (Opera House)」，步行約5分鐘。<br>🚗 【Grab】位於大劇院後方的院落內。" },
+                        { name: "L'Usine (Le Loi)", feature: "結合精品選物與法式餐飲的複合式咖啡館。工業風設計極具質感，提供道地的法式三明治、早午餐與甜點。", address: "70B Lê Lợi, Phường Bến Nghé, Quận 1", transport: "🚇 【捷運】搭乘至「大劇院站 (Opera House)」或「濱城站 (Ben Thanh)」，步行約5分鐘。<br>🚗 【Grab】位於 Lê Lợi 大道上，近阮惠街。" }
+                    ],
+                    "nightlife": [
+                        { name: "Bùi Viện Walking Street (碧文街)", feature: "胡志明市著名的不夜城！整條街擠滿了酒吧、夜店與街頭藝人。音樂震耳欲聾，點杯啤酒坐在路邊看人潮是最佳體驗。", address: "Đường Bùi Viện, Phường Phạm Ngũ Lão, Quận 1", transport: "🚇 【捷運】搭乘至「濱城站 (Ben Thanh)」，步行約10-15分鐘。<br>🚗 【Grab】夜晚車輛管制，請搭乘 Grab 至街口後步行進入。" },
+                        { name: "Pasteur Street Brewing Co.", feature: "隱身小巷內的知名精釀啤酒吧！將越南在地食材（如百香果、茉莉花、可可）融入啤酒中，風味獨特且屢獲國際大獎。", address: "144/3 Pasteur, Phường Bến Nghé, Quận 1", transport: "🚇 【捷運】搭乘至「大劇院站 (Opera House)」，步行約5-8分鐘。<br>🚗 【Grab】入口較隱密，位於 Pasteur 街上的小巷內。" },
+                        { name: "Chill Skybar", feature: "胡志明市最經典的高空酒吧之一。位於AB Tower頂樓，可以360度俯瞰璀璨的城市夜景，需注意服裝儀容規定。", address: "AB Tower, 76A Lê Lai, Phường Bến Thành, Quận 1", transport: "🚇 【捷運】搭乘至「濱城站 (Ben Thanh)」，步行約5分鐘。<br>🚗 【Grab】搭乘 Grab 至 AB Tower，近濱城市場。" }
+                    ]
+                }
+            },
+            "d2": {
+                name: "第二郡 / 塔甸 (District 2 / Thao Dien)",
+                categories: {
+                    "street_food": [
+                        { name: "Bánh Mì 362", feature: "起源於胡志明市的精緻越式法國麵包連鎖品牌。店面乾淨明亮，麵包現烤酥脆，口味選擇多樣，適合重視衛生的旅客。", address: "Thảo Điền, Quận 2 (多處分店)", transport: "🚇 【捷運】搭乘至「塔甸站 (Thao Dien)」，出站步行可達。<br>🚗 【Grab】塔甸區內有多家分店。" },
+                        { name: "Bún Bò Huế (在地順化牛肉麵)", feature: "塔甸區除了異國料理，巷弄內也藏有許多道地的順化牛肉麵小店，湯頭微辣帶有香茅氣息，非常開胃。", address: "Khu vực Thảo Điền, Quận 2", transport: "🚇 【捷運】搭乘至「塔甸站 (Thao Dien)」後步行。<br>🚗 【Grab】建議於塔甸區內探索街邊小店。" }
+                    ],
+                    "coffee": [
+                        { name: "The Deck Saigon", feature: "位於西貢河畔的高級景觀餐廳與酒吧。傍晚時分來這裡喝杯調酒或咖啡，欣賞夕陽在河面上灑下金光，極度浪漫。", address: "38 Nguyễn Ư Dĩ, Thảo Điền, Quận 2", transport: "🚇 【捷運】搭乘至「塔甸站 (Thao Dien)」，轉乘 Grab 約5分鐘。<br>🚗 【Grab】直接搭乘 Grab 前往西貢河畔。" },
+                        { name: "Dolphy Cafe", feature: "塔甸區在地歐美外派人士最愛的街角咖啡店。提供價格親民且品質極佳的義式咖啡與越式咖啡，外帶一杯漫步街區十分愜意。", address: "31 Thảo Điền, Thảo Điền, Quận 2", transport: "🚇 【捷運】搭乘至「塔甸站 (Thao Dien)」，步行約5分鐘。<br>🚗 【Grab】位於塔甸主街上，非常醒目。" }
+                    ],
+                    "restaurant": [
+                        { name: "Quán Bụi Garden", feature: "相較於第一郡的店面，第二郡的花園店擁有極美的戶外庭園。在熱帶綠意中享用高品質的傳統越式砂鍋料理與特色拼盤。", address: "55 Ngô Quang Huy, Thảo Điền, Quận 2", transport: "🚇 【捷運】搭乘至「塔甸站 (Thao Dien)」，轉乘 Grab 約3分鐘。<br>🚗 【Grab】搭乘 Grab 進入塔甸巷弄內即可抵達。" },
+                        { name: "Thao Dien Village", feature: "結合水療、精品酒店與多家精緻餐廳的複合式河畔度假村。可在此享用越式、義式或泰式料理，享受遠離塵囂的寧靜。", address: "189-197, 197/1 Nguyễn Văn Hưởng, Thảo Điền, Quận 2", transport: "🚇 【捷運】搭乘至「塔甸站 (Thao Dien)」，轉乘 Grab 約5分鐘。<br>🚗 【Grab】位於塔甸區較深處的河畔，建議搭乘 Grab 前往。" }
+                    ],
+                    "french": [
+                        { name: "La Villa French Restaurant", feature: "位於豪華別墅內的頂級正宗法式餐廳。由法國主廚親自打理，提供極致的法式饗宴、起司車與酒單，是慶祝重要節日的首選。", address: "14 Ngô Quang Huy, Thảo Điền, Quận 2", recommend: true, transport: "🚇 【捷運】搭乘至「塔甸站 (Thao Dien)」，轉乘 Grab 約3分鐘。<br>🚗 【Grab】搭乘 Grab 直接前往餐廳門口。" },
+                        { name: "The Vintage Emporium Thao Dien", feature: "充滿法式殖民風情的絕美早午餐咖啡廳。戶外有泳池與花園，室內則佈滿復古家具，餐點顏值極高且美味。", address: "Số 1 Đường số 39, Thảo Điền, Quận 2", transport: "🚇 【捷運】搭乘至「塔甸站 (Thao Dien)」，轉乘 Grab 約3分鐘。<br>🚗 【Grab】位於塔甸住宅區巷弄內，建議搭乘 Grab。" }
+                    ],
+                    "nightlife": [
+                        { name: "Saigon Outcast", feature: "由貨櫃屋搭建而成的次文化與藝術聚落。常舉辦戶外電影院、跳蚤市場與現場音樂表演，氣氛自由奔放，歐美人士聚集。", address: "188/1 Nguyễn Văn Hưởng, Thảo Điền, Quận 2", transport: "🚇 【捷運】搭乘至「塔甸站 (Thao Dien)」，轉乘 Grab 約5分鐘。<br>🚗 【Grab】位於塔甸區深處，建議搭乘 Grab 前往。" },
+                        { name: "BiaCraft Artisan Ales", feature: "以提供全越南種類最豐富的精釀啤酒聞名。這裡匯集了當地各大精釀品牌的生啤酒，搭配美式熱狗與薯條非常過癮。", address: "90 Xuân Thủy, Thảo Điền, Quận 2", transport: "🚇 【捷運】搭乘至「塔甸站 (Thao Dien)」，步行或轉乘 Grab。<br>🚗 【Grab】位於塔甸熱鬧的 Xuan Thuy 街上。" }
+                    ]
+                }
+            },
+            "d3": {
+                name: "第三郡 (District 3)",
+                categories: {
+                    "street_food": [
+                        { name: "Bánh Xèo 46A (46A 越南煎餅)", feature: "胡志明市最知名的越式煎餅老店！用大鐵鍋現煎的薄脆餅皮，包滿豬肉、蝦子與豆芽，用生菜包著沾魚露吃，口感豐富清爽。", address: "46A Đinh Công Tráng, Tân Định, Quận 3", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】距離粉紅教堂步行約5-8分鐘，建議搭乘 Grab。" },
+                        { name: "Phở Lệ (錦麗河粉)", feature: "被許多當地人評為最好吃的河粉（第三郡與第五郡交界）。湯頭偏甜濃郁，牛肉丸極具彈性，肉片給得大方毫不手軟。", address: "303-305 Võ Văn Tần, Phường 5, Quận 3", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】搭乘 Grab 從第一郡前往約10分鐘。" }
+                    ],
+                    "coffee": [
+                        { name: "Cheo Leo Cafe", feature: "胡志明市現存最古老的咖啡館之一。至今仍使用傳統的「陶鍋」來煮咖啡，擁有獨特的焦香與歷史滄桑感，極具特色。", address: "109-36 Nguyễn Thiện Thuật, Phường 2, Quận 3", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】隱身在舊住宅區巷弄內，搭乘 Grab 至巷口步行進入。" },
+                        { name: "Oromia Coffee & Lounge", feature: "隱蔽在巷弄盡頭的秘境花園咖啡。庭院有錦鯉池與豐富的綠色植栽，室內裝潢充滿文青設計感，非常適合拍照打卡。", address: "85 Phan Kế Bính, Đa Kao, Quận 1 (近第三郡交界)", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】搭乘 Grab 前往，需稍微步行進入小巷。" }
+                    ],
+                    "restaurant": [
+                        { name: "Hum Vegetarian (素食餐廳)", feature: "顛覆對素食想像的極美餐廳！以荷花與原木為設計主題，將新鮮蔬菜與菇類化為精緻的越式創意料理，口味極佳。", address: "32 Võ Văn Tần, Phường 6, Quận 3", recommend: true, transport: "🚇 【捷運】未直達。<br>🚗 【Grab】位於戰爭遺跡博物館附近，搭乘 Grab 前往最方便。" },
+                        { name: "Nhậu Nhậu (餐酒館)", feature: "摩登又復古的越式餐酒館。將傳統的越南下酒菜 (Nhậu) 重新解構，並提供極具創意的越式調酒，氣氛輕鬆有趣。", address: "89 Tôn Thất Đạm, Bến Nghé, Quận 1", transport: "🚇 【捷運】搭乘至「濱城站 (Ben Thanh)」步行約10分鐘。<br>🚗 【Grab】搭乘 Grab 前往舊公寓區。" }
+                    ],
+                    "nightlife": [
+                        { name: "Hồ Con Rùa (龜湖夜間小吃)", feature: "這座圓環地標到了晚上會成為在地年輕人的聚集地。周圍停滿了販售烤米紙 (Banh Trang Nuong)、越式薄餅的攤車，是體驗在地庶民夜生活的好去處。", address: "Hồ Con Rùa, Phường 6, Quận 3", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】位於第三郡圓環，從紅教堂步行約10-15分鐘，或搭 Grab。" }
+                    ]
+                }
+            },
+            "d4": {
+                name: "第四郡 (District 4)",
+                categories: {
+                    "street_food": [
+                        { name: "Chợ Xóm Chiếu (西街市場 & 200巷)", feature: "第四郡最具代表性的美食一條街！下午開始，市場周邊的「200巷」會化身美食天堂，各式越式滷味、甜湯、海鮮蝸牛應有盡有，是老饕的最愛。", address: "Chợ Xóm Chiếu / Hẻm 200 Xóm Chiếu, Quận 4", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】巷弄狹小擁擠，建議搭乘 Grab (機車尤佳) 前往。" },
+                        { name: "Phá Lấu Bò (越式牛雜湯)", feature: "第四郡的特色在地小吃。濃郁的椰奶咖哩湯頭熬煮各式牛內臟，沾著酥脆的法國麵包吃，風味獨特濃厚。", address: "Khu vực Quận 4 (200巷內有多家)", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】在西街市場周邊巷弄內尋找，搭 Grab 最方便。" }
+                    ],
+                    "nightlife": [
+                        { name: "Ốc Oanh (永慶街 螺肉海鮮大排檔)", feature: "來到第四郡必吃的超人氣海鮮大排檔！坐在路邊的塑膠小板凳上，大啖炭烤胡椒螺、蒜香奶油扇貝與鮮蝦，氣氛超級熱烈。", address: "534 Vĩnh Khánh, Phường 8, Quận 4", recommend: true, transport: "🚇 【捷運】未直達。<br>🚗 【Grab】直接搭乘 Grab 至 Vinh Khanh 海鮮街，距離第一郡約10分鐘車程。" },
+                        { name: "Vĩnh Khánh Seafood Street (永慶海鮮街)", feature: "整條街到了夜晚燈火通明，兩側排滿了各式海鮮熱炒店，不時還有街頭藝人表演吞火或唱歌，是體驗越南狂野夜生活的最佳地點。", address: "Đường Vĩnh Khánh, Quận 4", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】從第一郡跨越橋樑後即達，強烈建議搭乘 Grab。" }
+                    ]
+                }
+            },
+            "d5": {
+                name: "第五郡 (District 5 / Cho Lon)",
+                categories: {
+                    "street_food": [
+                        { name: "Cơm Gà Đông Nguyên (東源雞飯)", feature: "堤岸華人區的超級名店。提供鮮嫩多汁的白斬雞飯，米飯吸滿雞汁精華，搭配特製的薑蓉醬，撫慰許多在地華人的胃。", address: "801 Nguyễn Trãi, Phường 14, Quận 5", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】位於第五郡鬧區，從第一郡搭乘 Grab 約20-30分鐘。" },
+                        { name: "Hải Ký Mì Gia (海記麵家)", feature: "傳承數十年的傳統廣東麵館。招牌「鴨腿竹昇麵」麵條極具彈性，鴨腿燉得軟爛入味，湯頭清甜不油膩。", address: "349 Nguyễn Trãi, Phường 7, Quận 5", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】位於第五郡主街上，搭乘 Grab 前往。" }
+                    ],
+                    "coffee": [
+                        { name: "Chè Hà Ký (夏記甜品)", feature: "堤岸區極具盛名的中式與越式甜湯老店。必吃清涼退火的芝麻糊、杏仁豆腐與各式越式豆類甜湯 (Chè)，是飯後最佳甜點。", address: "138 Châu Văn Liêm, Phường 11, Quận 5", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】搭乘 Grab 前往，周邊為傳統華人街區。" }
+                    ],
+                    "restaurant": [
+                        { name: "Baoz Dim Sum (包子點心)", feature: "第五郡最火紅的港式飲茶餐廳！裝潢氣派，點心現點現做，保留了傳統港味並融合了在地特色，用餐時間總是一位難求。", address: "82-88 Nguyễn Tri Phương, Phường 7, Quận 5", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】搭乘 Grab 前往，店面非常寬闊醒目。" },
+                        { name: "Chợ Bình Tây (平西市場周邊美食)", feature: "平西市場不僅是批發中心，外圍也圍繞著許多平價在地小吃，如越式粉捲 (Banh Cuon)、烤肉飯等，充滿濃濃的庶民生活感。", address: "57a Tháp Mười, Phường 2, Quận 6 (近第五郡交界)", transport: "🚇 【捷運】未直達。<br>🚗 【Grab】搭乘 Grab 至平西市場正門後步行探索。" }
+                    ]
+                }
+            }
+        };
+
+        // Custom Categories adapted for Ho Chi Minh City
+        const categoriesMap = {
+            "street_food": { name: "🍜 河粉與在地小吃", color: "bg-red-100 text-red-800 hover:bg-red-600 hover:text-white border-red-400" },
+            "coffee": { name: "☕ 咖啡館與甜點", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "restaurant": { name: "🍽️ 經典越式餐廳", color: "bg-emerald-100 text-emerald-800 hover:bg-emerald-600 hover:text-white border-emerald-400" },
+            "french": { name: "🥐 法式料理與異國", color: "bg-blue-100 text-blue-800 hover:bg-blue-600 hover:text-white border-blue-400" },
+            "nightlife": { name: "🍻 海鮮大排檔與酒吧", color: "bg-purple-100 text-purple-800 hover:bg-purple-600 hover:text-white border-purple-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-5 py-2.5 rounded-full border border-slate-300 bg-white text-slate-700 font-bold hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-bold ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-orange-600', 'text-white', 'border-orange-600');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-slate-700', 'hover:bg-orange-600');
+            clickedBtn.classList.add('bg-orange-600', 'text-white', 'border-orange-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Filter categories based on region data
+            Array.from(categoryContainer.children).forEach(btn => {
+                const catKey = Object.keys(categoriesMap).find(k => categoriesMap[k].name === btn.innerText);
+                if (db[regionKey].categories[catKey]) {
+                    btn.style.display = "block";
+                } else {
+                    btn.style.display = "none";
+                }
+            });
+
+            // Auto select first available category if none selected or current is hidden
+            if(!currentCategory || !db[regionKey].categories[currentCategory]) {
+                const availableCat = Object.keys(categoriesMap).find(k => db[regionKey].categories[k]);
+                if (availableCat) {
+                    const targetBtn = Array.from(categoryContainer.children).find(btn => btn.innerText === categoriesMap[availableCat].name);
+                    selectCategory(availableCat, targetBtn);
+                } else {
+                    contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-slate-500">此區域目前無美食資料</p>`;
+                }
+            } else {
+                const targetBtn = Array.from(categoryContainer.children).find(btn => btn.innerText === categoriesMap[currentCategory].name);
+                selectCategory(currentCategory, targetBtn);
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-orange-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.5";
+            });
+            if (clickedBtn) {
+                clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-orange-500', 'shadow-md', 'scale-105');
+                clickedBtn.style.opacity = "1";
+            }
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-12 text-slate-500 text-lg font-bold">此分類目前無推薦名單，去探索其他美食吧！</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL
+                const pureAddress = item.address.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.name} 越南 胡志明市 ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const badgeHtml = item.recommend ? `<span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded ml-2 align-middle shadow-sm">🔥 強烈推薦</span>` : '';
+
+                const bookingBtnHtml = item.bookingLink ? `
+                    <a href="${item.bookingLink}" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#ff5b00] hover:bg-[#e05000] text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md text-base">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                        </svg>
+                        線上預訂專屬優惠
+                    </a>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-slate-800 leading-tight flex items-center flex-wrap gap-y-2">${item.name} ${badgeHtml}</h3>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded mr-1 shadow-sm">特色</span>${item.feature}</p>
+                        
+                        <div class="space-y-3">
+                            <div class="bg-orange-50/50 p-3 rounded-xl flex items-start gap-3 border border-orange-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <div class="text-sm text-slate-600 leading-tight font-medium w-full">
+                                    <span class="font-bold text-orange-800 block mb-1">地址：</span>
+                                    ${item.address}
+                                </div>
+                            </div>
+                            
+                            <div class="bg-orange-50/50 p-3 rounded-xl flex items-start gap-3 border border-orange-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>
+                                </svg>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium w-full">
+                                    <span class="font-bold text-orange-800 block mb-1">捷運與 Grab 交通指南：</span>
+                                    <div class="space-y-1">${item.transport}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto flex flex-col gap-3">
+                        ${bookingBtnHtml}
+                        <!-- Google Maps 導航按鈕 -->
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md text-base">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // 區域左右滑動控制
+        function scrollRegions(direction) {
+            const container = document.getElementById('region-buttons');
+            const scrollAmount = 200; // 每次滑動的距離
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>

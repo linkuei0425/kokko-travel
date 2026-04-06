@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>胡志明市景點導覽</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 隱藏卷軸但保留滑動功能 */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body id="app-body" class="min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800">
+
+  <!-- Header -->
+  <header id="app-header" class="bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500">
+    
+    <!-- 回到首頁按鈕 -->
+    <div class="max-w-6xl mx-auto px-4 pt-4">
+      <a href="https://linkuei0425.github.io/HoChiMinh/" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 bg-white/60 hover:bg-white hover:text-gray-900 rounded-full border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-x-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        回到首頁
+      </a>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 pb-6 pt-2">
+      <div class="flex items-center justify-center space-x-3 mb-2">
+        <div id="title-icon-left" class="animate-pulse"></div>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 transition-colors duration-500">
+          東方小巴黎：胡志明市導覽
+        </h1>
+        <div id="title-icon-right" class="animate-pulse"></div>
+      </div>
+      <p class="text-center text-gray-500 text-sm md:text-base">
+        精選第一、二、三、四、五郡的必訪<span id="season-text">歷史</span>景點
+      </p>
+    </div>
+
+    <!-- Category Toggle -->
+    <div class="flex justify-center mb-4">
+      <div class="bg-gray-100/80 backdrop-blur-sm p-1.5 rounded-full inline-flex border border-gray-200 shadow-inner">
+        <button id="btn-history" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M2 22h20"/><path d="M12 2v20"/><path d="m4 12 8-8 8 8"/><path d="M6 22v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/></svg>
+          歷史人文
+        </button>
+        <button id="btn-trendy" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          流行打卡
+        </button>
+      </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="max-w-4xl mx-auto px-4 pb-4">
+      <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar space-x-2 md:justify-center py-2">
+        <!-- Tabs injected by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 mt-8">
+    <div class="mb-6 flex items-center space-x-2 transition-colors duration-500" id="section-title-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <h2 id="section-title" class="text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500">
+        第一郡 精選景點
+      </h2>
+    </div>
+
+    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Cards injected by JS -->
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="max-w-6xl mx-auto px-4 mt-16 text-center text-gray-400 text-sm">
+    <p id="footer-text">※ 胡志明市捷運 1 號線已開通，第一郡及塔甸區可善用捷運。其他區域天氣炎熱且常有陣雨，建議多利用 Grab 叫車代步。</p>
+  </footer>
+
+  <script>
+    const historyData = {
+      '第一郡': [
+        { name: '西貢中心郵政局', feature: '由法國建築師設計，充滿古典法式風情，內部挑高圓頂與復古地圖牆是必拍亮點。可在這裡買張明信片，寫好後直接寄給自己或親友留念。', transport: '🚇 【捷運】搭乘捷運 1 號線至「大劇院站 (Opera House)」，步行約 8 分鐘。<br>🚗 【Grab】從市區任一處叫車前往，可與紅教堂順遊。' },
+        { name: '統一宮', feature: '前南越總統府，完整保留了60年代的建築風格、外交接待室與地下軍事指揮中心。這裡是了解越南近代史、越戰結束歷史性一刻的重要地標。', transport: '🚇 【捷運】搭乘捷運 1 號線至「濱城站 (Ben Thanh)」，出站沿黎筍大道步行約 10 分鐘。<br>🚗 【Grab】從市區出發約 5-10 分鐘車程。' },
+        { name: '西貢聖母大教堂 (紅教堂)', feature: '以法國進口紅磚砌成，雙塔造型宏偉。目前雖在整修中無法進入內部，但其外觀依然是胡志明市最具代表性的精神地標與歷史建築。', transport: '🚇 【捷運】搭乘捷運 1 號線至「大劇院站 (Opera House)」，步行約 8 分鐘。<br>🚗 【Grab】緊鄰西貢中心郵政局。' }
+      ],
+      '第三郡': [
+        { name: '戰爭遺跡博物館', feature: '透過大量歷史照片與實物（如美軍戰機、坦克）展示越戰的殘酷，雖然氣氛較為沉重，但極具教育意義，是外國遊客必訪的博物館。', transport: '🚇 【捷運】未直達。<br>🚗 【Grab】建議從第一郡（如濱城站）搭乘 Grab 約 10 分鐘車程。' },
+        { name: '永嚴寺', feature: '胡志明市面積最大的佛寺之一，融合了傳統越南佛教與現代建築風格。寺內有一座高達七層的舍利塔，氣氛莊嚴肅穆，是當地人的信仰中心。', transport: '🚇 【捷運】未直達。<br>🚗 【Grab】距離市中心較遠，建議直接搭乘 Grab 前往。' }
+      ],
+      '第四郡': [
+        { name: '胡志明博物館 (龍屋碼頭)', feature: '位於西貢河畔的獨特法越混合建築。這裡是越南國父胡志明當年離開越南尋求救國之道的出發地，現為展示其生平與歷史文物的博物館。', transport: '🚇 【捷運】未直達。<br>🚗 【Grab】從第一郡市區越過橋樑即可抵達，車程約 5-10 分鐘，距離非常近。' }
+      ],
+      '第五郡': [
+        { name: '天后宮 (穗城會館)', feature: '位於堤岸（華人區），建於18世紀。廟內精美的陶瓷立體浮雕與天花板上繚繞的大型盤香是最大特色，充滿濃厚傳統氣息，見證了華人移民的歷史。', transport: '🚇 【捷運】未直達。<br>🚗 【Grab】位於堤岸華人區，距離第一郡市區約 20-30 分鐘車程，強烈建議搭乘 Grab。' },
+        { name: '平西市場', feature: '堤岸區最大的批發市場，擁有獨特的法式鐘樓外觀與中式庭園設計。這裡是體驗在地庶民生活與批發活力的好去處，販售各類乾貨與日用品。', transport: '🚇 【捷運】未直達。<br>🚗 【Grab】同樣位於第五郡，距離天后宮約 5 分鐘車程，建議搭乘 Grab。' }
+      ]
+    };
+
+    const trendyData = {
+      '第一郡': [
+        { name: '咖啡公寓 (The Cafe Apartment)', feature: '位於阮惠街旁，一整棟九層樓的老舊公寓改建成數十家風格各異的咖啡廳與文創小店。夜晚點燈後宛如九宮格魔術方塊，是胡志明市最具代表性的文青打卡地。', transport: '🚇 【捷運】搭乘捷運 1 號線至「大劇院站 (Opera House)」，出站即是阮惠街，步行約 3-5 分鐘。<br>🚗 【Grab】直接設定目的地為 The Cafe Apartment。' },
+        { name: '阮惠街行人廣場', feature: '寬敞的步行街，直通美麗的胡志明市人民委員會大廳。傍晚時分涼爽宜人，周圍高級飯店與商場林立，晚上常有街頭藝人表演，越夜越美麗。', transport: '🚇 【捷運】搭乘捷運 1 號線至「大劇院站 (Opera House)」，出站即抵達廣場。<br>🚗 【Grab】可定位於胡志明市大劇院或市政廳。' },
+        { name: '碧文街 (范五老背包客街)', feature: '著名的不夜城，街道兩旁擠滿了酒吧、餐廳與街頭小吃。夜晚音樂震耳欲聾，燈光炫目，是體驗胡志明市狂熱夜生活、與各國背包客交流的首選。', transport: '🚇 【捷運】搭乘捷運 1 號線至「濱城站 (Ben Thanh)」，出站步行約 10 分鐘。<br>🚗 【Grab】夜晚車流大且會管制，建議搭 Grab 至街口後步行。' }
+      ],
+      '第二郡 (塔甸)': [
+        { name: '塔甸文創街區', feature: '被譽為胡志明市的天母，充滿歐美外派人士的異國風情區。街道兩旁林立著質感選物店、法式烘焙坊、手工藝品與綠意盎然的庭園咖啡。', transport: '🚇 【捷運】搭乘捷運 1 號線至「塔甸站 (Thao Dien)」或「安富站 (An Phu)」，出站即達。<br>🚗 【Grab】從市中心搭 Grab 跨越西貢河約 20-30 分鐘。' },
+        { name: '西貢流浪客 (Saigon Outcast)', feature: '以貨櫃屋搭建而成的次文化與藝術聚落。這裡經常舉辦週末跳蚤市場、農夫市集與戶外電影院，充滿歐美自由奔放的氣息，是文青最愛的打卡點。', transport: '🚇 【捷運】搭乘捷運 1 號線至「塔甸站 (Thao Dien)」，建議轉乘 Grab 進入約 5 分鐘。<br>🚗 【Grab】直接定位 Saigon Outcast。' },
+        { name: '西貢河畔景觀餐廳', feature: '塔甸區緊鄰西貢河，傍晚時分非常推薦在此挑選一間高空酒吧或河畔餐廳，一邊享用晚餐或調酒，一邊欣賞夕陽餘暉與對岸第一郡的繁華天際線。', transport: '🚇 【捷運】搭乘捷運 1 號線至「塔甸站 (Thao Dien)」，轉乘短程 Grab 或步行前往河畔。<br>🚗 【Grab】建議直接搭乘 Grab 前往預訂的餐廳。' }
+      ],
+      '第三郡': [
+        { name: '新定教堂 (粉紅教堂)', feature: '擁有夢幻的馬卡龍粉紅色外觀，搭配哥德式與文藝復興風格的建築細節，是IG上最夯的少女心打卡聖地。無論哪個角度拍都非常吸睛。', transport: '🚇 【捷運】未直達。<br>🚗 【Grab】位於第三郡的 Hai Ba Trung 街上，車流量大。從第一郡搭 Grab 約 10-15 分鐘可達。' },
+        { name: '龜湖周邊咖啡街', feature: '當地年輕人聚集的圓環地標，看似普通的圓環周邊隱藏著許多充滿設計感的獨立咖啡廳與特色街頭小吃攤，是體驗越南年輕世代休閒生活的好去處。', transport: '🚇 【捷運】未直達。<br>🚗 【Grab】距離第一郡市區不遠，可從大劇院站轉乘 Grab 或步行約 15-20 分鐘。' }
+      ],
+      '第四郡': [
+        { name: '西街市場 & 200巷美食街', feature: '第四郡最具代表性的傳統市場(Chợ Xóm Chiếu)。白天是當地人採買生鮮的重鎮，下午到夜晚周邊的「200巷」會化身為在地美食天堂，想吃最道地的越南平民小吃來這就對了。', transport: '🚇 【捷運】未直達。<br>🚗 【Grab】位於第四郡深處，巷弄狹窄，建議搭乘 Grab 機車或汽車至外圍後步行體驗。' },
+        { name: '永慶海鮮大排檔街 (Vinh Khanh)', feature: '喜歡體驗越南夜生活與街頭熱炒絕對不能錯過！整條街滿是海鮮餐廳與塑膠小板凳，常有街頭藝人表演，氣氛超High，是非常接地氣的打卡熱點。', transport: '🚇 【捷運】未直達。<br>🚗 【Grab】夜晚人潮眾多且熱鬧，建議從第一郡搭乘 Grab 前往，車程約 10-15 分鐘。' }
+      ]
+    };
+
+    // 狀態
+    let activeCategory = 'history';
+    let activeTab = '第一郡';
+
+    // SVG 圖示
+    const svgMonument = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22h20"/><path d="M12 2v20"/><path d="m4 12 8-8 8 8"/><path d="M6 22v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/></svg>`;
+    const svgCamera = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`;
+    const svgSparkles = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400 mr-2 flex-shrink-0 mt-0.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`;
+    const svgMapPin = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 mr-2 flex-shrink-0 mt-0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
+
+    // 色彩主題設定：歷史採用暖琥珀色，打卡採用都會藍綠色
+    const themeConfig = {
+      history: {
+        bg: 'bg-amber-50', selection: 'selection:bg-amber-300', textMain: 'text-amber-600',
+        borderMain: 'border-amber-100', tabActive: 'bg-amber-600 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-amber-100 hover:text-amber-700', iconH2: 'text-amber-600', borderH2: 'border-amber-200',
+        cardGradient: 'from-amber-300 via-amber-400 to-amber-300 group-hover:from-amber-400 group-hover:to-amber-500',
+        numberBg: 'bg-amber-100 text-amber-700', transportBg: 'bg-amber-50',
+        btnActive: 'bg-white text-amber-600 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-amber-500 hover:bg-white/50'
+      },
+      trendy: {
+        bg: 'bg-teal-50', selection: 'selection:bg-teal-300', textMain: 'text-teal-600',
+        borderMain: 'border-teal-100', tabActive: 'bg-teal-500 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-teal-100 hover:text-teal-600', iconH2: 'text-teal-600', borderH2: 'border-teal-200',
+        cardGradient: 'from-teal-300 via-teal-400 to-teal-300 group-hover:from-teal-400 group-hover:to-teal-500',
+        numberBg: 'bg-teal-100 text-teal-600', transportBg: 'bg-teal-50',
+        btnActive: 'bg-white text-teal-600 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-teal-500 hover:bg-white/50'
+      }
+    };
+
+    function updateTheme() {
+      const t = themeConfig[activeCategory];
+      
+      // Body & Header
+      document.getElementById('app-body').className = `min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800 ${t.bg} ${t.selection} selection:text-white`;
+      document.getElementById('app-header').className = `bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500 ${t.borderMain}`;
+      
+      // Icons & Text
+      const iconSvg = activeCategory === 'history' ? svgMonument : svgCamera;
+      document.getElementById('title-icon-left').innerHTML = iconSvg;
+      document.getElementById('title-icon-right').innerHTML = iconSvg;
+      document.getElementById('title-icon-left').className = `animate-pulse ${t.textMain}`;
+      document.getElementById('title-icon-right').className = `animate-pulse ${t.textMain}`;
+      
+      document.getElementById('season-text').innerText = activeCategory === 'history' ? '歷史' : '打卡';
+
+      // Section Title
+      document.getElementById('section-title-container').className = `mb-6 flex items-center space-x-2 transition-colors duration-500 ${t.iconH2}`;
+      document.getElementById('section-title').className = `text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500 ${t.borderH2}`;
+
+      // Toggle Buttons
+      document.getElementById('btn-history').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeCategory === 'history' ? t.btnActive : t.btnInactive}`;
+      document.getElementById('btn-trendy').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeCategory === 'trendy' ? t.btnActive : t.btnInactive}`;
+    }
+
+    function renderTabs() {
+      const t = themeConfig[activeCategory];
+      const data = activeCategory === 'history' ? historyData : trendyData;
+      const cities = Object.keys(data);
+      const container = document.getElementById('tabs-container');
+      
+      // 若切換類別時，當前的 tab 不在新類別的列表中，則預設選擇第一個
+      if (!cities.includes(activeTab)) {
+        activeTab = cities[0];
+      }
+
+      container.innerHTML = cities.map(city => `
+        <button
+          onclick="setTab('${city}')"
+          class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-in-out ${activeTab === city ? t.tabActive : t.tabHover}"
+        >
+          ${city}
+        </button>
+      `).join('');
+    }
+
+    function renderCards() {
+      const t = themeConfig[activeCategory];
+      const data = activeCategory === 'history' ? historyData : trendyData;
+      const spots = data[activeTab];
+      
+      document.getElementById('section-title').innerText = `${activeTab} 精選景點`;
+
+      const container = document.getElementById('cards-container');
+      container.innerHTML = spots.map((spot, index) => `
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-50 flex flex-col h-full group">
+          <div class="h-2 w-full bg-gradient-to-r transition-colors duration-500 ${t.cardGradient}"></div>
+          <div class="p-6 flex-grow flex flex-col">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-start">
+              <span class="rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5 transition-colors duration-500 ${t.numberBg}">
+                ${index + 1}
+              </span>
+              ${spot.name}
+            </h3>
+            
+            <div class="mb-6 flex-grow">
+              <div class="flex items-start text-gray-600 mb-1">
+                ${svgSparkles}
+                <span class="font-semibold text-gray-700">景點特色</span>
+              </div>
+              <p class="text-gray-600 leading-relaxed pl-7 text-sm">
+                ${spot.feature}
+              </p>
+            </div>
+
+            <div class="rounded-xl p-4 mt-auto transition-colors duration-500 ${t.transportBg}">
+              <div class="flex items-start text-gray-700 mb-2">
+                ${svgMapPin}
+                <span class="font-semibold">捷運與 Grab 交通指南</span>
+              </div>
+              <p class="text-gray-600 text-sm pl-7 leading-relaxed space-y-1">
+                ${spot.transport}
+              </p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 事件與更新邏輯
+    function setCategory(category) {
+      if (activeCategory === category) return;
+      activeCategory = category;
+      updateTheme();
+      renderTabs();
+      renderCards();
+    }
+
+    function setTab(tab) {
+      if (activeTab === tab) return;
+      activeTab = tab;
+      renderTabs();
+      renderCards();
+    }
+
+    document.getElementById('btn-history').addEventListener('click', () => setCategory('history'));
+    document.getElementById('btn-trendy').addEventListener('click', () => setCategory('trendy'));
+
+    // 初始化
+    updateTheme();
+    renderTabs();
+    renderCards();
+  </script>
+</body>
+</html>

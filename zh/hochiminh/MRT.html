@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>胡志明市交通 (捷運/水上巴士/機場巴士) 路線與景點查詢</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f8fafc; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- 1. 資料庫建置 (胡志明市) ---
+        const mrtData = {
+            L1: [ // 胡志明市捷運 1 號線
+                { c: "L1-01", n: "濱城", e: "Bến Thành", a: "濱城市場、胡志明市美術館" },
+                { c: "L1-02", n: "大劇院", e: "Opera House", a: "胡志明市大劇院、阮惠街、咖啡公寓" },
+                { c: "L1-03", n: "巴山", e: "Ba Son", a: "西貢河畔風景、日本街" },
+                { c: "L1-04", n: "文態公園", e: "Văn Thánh Park", a: "文態旅遊區" },
+                { c: "L1-05", n: "新港", e: "Tân Cảng", a: "Landmark 81 地標塔、中央公園" },
+                { c: "L1-06", n: "塔甸", e: "Thảo Điền", a: "塔甸異國風情區、文創小店" },
+                { c: "L1-07", n: "安富", e: "An Phú", a: "Mega Mall 購物中心" },
+                { c: "L1-08", n: "迪石", e: "Rạch Chiếc", a: "國家體育園區" },
+                { c: "L1-09", n: "福隆", e: "Phước Long", a: "" },
+                { c: "L1-10", n: "平泰", e: "Bình Thái", a: "" },
+                { c: "L1-11", n: "守德", e: "Thủ Đức", a: "守德大學城" },
+                { c: "L1-12", n: "高科技園區", e: "Khu Công nghệ cao", a: "" },
+                { c: "L1-13", n: "仙泉公園", e: "Suối Tiên", a: "仙泉主題遊樂園" },
+                { c: "L1-14", n: "新東部客運站", e: "Bến xe Miền Đông Mới", a: "長途客運轉乘樞紐" }
+            ],
+            W1: [ // 西貢水上巴士
+                { c: "W1-01", n: "白藤碼頭", e: "Bạch Đằng", a: "西貢河夜景、水上巴士總站" },
+                { c: "W1-02", n: "平安碼頭", e: "Bình An", a: "" },
+                { c: "W1-03", n: "清多碼頭", e: "Thanh Đa", a: "清多半島" },
+                { c: "W1-04", n: "協平正碼頭", e: "Hiệp Bình Chánh", a: "Gigamall 巨型商場" },
+                { c: "W1-05", n: "靈東碼頭", e: "Linh Đông", a: "" }
+            ],
+            A1: [ // 機場巴士 109 線
+                { c: "A1-01", n: "新山一機場", e: "Tân Sơn Nhất (SGN)", a: "國際/國內航廈" },
+                { c: "A1-02", n: "黃文樹", e: "Hoàng Văn Thụ", a: "" },
+                { c: "A1-03", n: "南圻起義", e: "Nam Kỳ Khởi Nghĩa", a: "粉紅教堂 (步行可達)" },
+                { c: "A1-04", n: "濱城", e: "Bến Thành", a: "轉乘捷運 1 號線" },
+                { c: "A1-05", n: "9月23日公園", e: "CV 23/9", a: "碧文街 (范五老背包客不夜城)" }
+            ]
+        };
+
+        const lineColors = {
+            L1: { bg: 'bg-blue-600', border: 'border-blue-600', text: 'text-blue-700', name: '🚇 捷運 1 號線' },
+            W1: { bg: 'bg-yellow-500', border: 'border-yellow-500', text: 'text-yellow-600', name: '🚤 西貢水上巴士' },
+            A1: { bg: 'bg-orange-500', border: 'border-orange-500', text: 'text-orange-600', name: '🚌 機場巴士 109 線' }
+        };
+
+        // 解決同站不同名的問題，建立轉乘節點
+        const aliasMap = {
+            "白藤碼頭": "大劇院", // 步行轉乘距離近
+            "9月23日公園": "濱城"   // 步行轉乘距離近
+        };
+
+        // 扁平化所有站點，建立 graph 與選單資料
+        let allStationsMap = {};
+        let allStationsList = [];
+        let uniquePhysicalStations = {}; 
+
+        Object.keys(mrtData).forEach(lineKey => {
+            mrtData[lineKey].forEach(st => {
+                allStationsMap[st.c] = { ...st, line: lineKey };
+                allStationsList.push(allStationsMap[st.c]);
+
+                // 若有群組對應，使用主站名作為底層的 ID 進行節點綁定
+                let baseName = aliasMap[st.n] || st.n;
+
+                if (!uniquePhysicalStations[baseName]) {
+                    uniquePhysicalStations[baseName] = { name: baseName, en: st.e, codes: [], attractions: st.a };
+                }
+                uniquePhysicalStations[baseName].codes.push(st.c);
+                if (st.a && !uniquePhysicalStations[baseName].attractions.includes(st.a)) {
+                    uniquePhysicalStations[baseName].attractions += (uniquePhysicalStations[baseName].attractions ? "、" : "") + st.a;
+                }
+            });
+        });
+
+        // 建立圖 (Graph)
+        const graph = {};
+        const RIDE_TIME = 4; // 胡志明市搭乘一站約抓4分鐘
+        const TRANSFER_TIME = 8; // 站外步行轉乘時間
+
+        function addEdge(u, v, weight, type, line) {
+            if (!graph[u]) graph[u] = [];
+            graph[u].push({ node: v, weight, type, line });
+        }
+
+        // 1. 同線相鄰站連線
+        Object.keys(mrtData).forEach(lineKey => {
+            const lineArr = mrtData[lineKey];
+            for (let i = 0; i < lineArr.length - 1; i++) {
+                addEdge(lineArr[i].c, lineArr[i+1].c, RIDE_TIME, 'ride', lineKey);
+                addEdge(lineArr[i+1].c, lineArr[i].c, RIDE_TIME, 'ride', lineKey);
+            }
+        });
+
+        // 2. 轉乘站連線 (包含被 aliasMap 同化進同一群組的車站)
+        Object.values(uniquePhysicalStations).forEach(station => {
+            if (station.codes.length > 1) {
+                for (let i = 0; i < station.codes.length; i++) {
+                    for (let j = i + 1; j < station.codes.length; j++) {
+                        addEdge(station.codes[i], station.codes[j], TRANSFER_TIME, 'transfer', null);
+                        addEdge(station.codes[j], station.codes[i], TRANSFER_TIME, 'transfer', null);
+                    }
+                }
+            }
+        });
+
+        // --- 2. 核心演算法 Dijkstra ---
+        function findShortestPath(startBaseName, endBaseName) {
+            if (startBaseName === endBaseName) return null;
+
+            const startCodes = uniquePhysicalStations[startBaseName].codes;
+            const endCodes = uniquePhysicalStations[endBaseName].codes;
+
+            const dist = {};
+            const prev = {};
+            const pq = [];
+
+            Object.keys(allStationsMap).forEach(node => {
+                dist[node] = Infinity;
+                prev[node] = null;
+            });
+
+            startCodes.forEach(code => {
+                dist[code] = 0;
+                pq.push({ node: code, dist: 0 });
+            });
+
+            while (pq.length > 0) {
+                pq.sort((a, b) => a.dist - b.dist);
+                const { node, dist: currentDist } = pq.shift();
+
+                if (dist[node] < currentDist) continue;
+                if (endCodes.includes(node)) {
+                    return reconstructPath(prev, node);
+                }
+
+                if (graph[node]) {
+                    graph[node].forEach(edge => {
+                        const alt = currentDist + edge.weight;
+                        if (alt < dist[edge.node]) {
+                            dist[edge.node] = alt;
+                            prev[edge.node] = { node: node, edgeFromPrev: edge };
+                            pq.push({ node: edge.node, dist: alt });
+                        }
+                    });
+                }
+            }
+            return null;
+        }
+
+        function reconstructPath(prev, endNode) {
+            const path = [];
+            let curr = endNode;
+            
+            while (curr) {
+                const step = prev[curr];
+                if (step) {
+                    path.unshift({ node: curr, edge: step.edgeFromPrev });
+                    curr = step.node;
+                } else {
+                    path.unshift({ node: curr, edge: null }); 
+                    curr = null;
+                }
+            }
+
+            const legs = [];
+            if (path.length < 2) return [];
+
+            let currentLeg = { 
+                type: path[1].edge.type, 
+                line: path[1].edge.line, 
+                nodes: [path[0].node, path[1].node],
+                time: path[1].edge.weight,
+                stops: path[1].edge.type === 'ride' ? 1 : 0
+            };
+
+            for (let i = 2; i < path.length; i++) {
+                const edge = path[i].edge;
+                if (edge.type === currentLeg.type && edge.line === currentLeg.line) {
+                    currentLeg.nodes.push(path[i].node);
+                    currentLeg.time += edge.weight;
+                    if(edge.type === 'ride') currentLeg.stops += 1;
+                } else {
+                    legs.push(currentLeg);
+                    currentLeg = { 
+                        type: edge.type, 
+                        line: edge.line, 
+                        nodes: [path[i-1].node, path[i].node],
+                        time: edge.weight,
+                        stops: edge.type === 'ride' ? 1 : 0
+                    };
+                }
+            }
+            legs.push(currentLeg);
+            return legs;
+        }
+
+        // --- 3. React 元件 ---
+        const { useState, useEffect } = React;
+
+        const App = () => {
+            const [startStation, setStartStation] = useState("新山一機場");
+            const [endStation, setEndStation] = useState("大劇院");
+            const [route, setRoute] = useState(null);
+
+            // 確保 React 每次渲染完畢後，強制繪製圖示 (解決圖示消失的問題)
+            useEffect(() => {
+                lucide.createIcons();
+            });
+
+            useEffect(() => {
+                if(startStation && endStation && startStation !== endStation) {
+                    const legs = findShortestPath(startStation, endStation);
+                    setRoute(legs);
+                } else {
+                    setRoute(null);
+                }
+            }, [startStation, endStation]);
+
+            const handleSwap = () => {
+                const temp = startStation;
+                setStartStation(endStation);
+                setEndStation(temp);
+            };
+
+            return (
+                <div className="min-h-screen pb-12">
+                    {/* Header */}
+                    <header className="bg-teal-900 text-white shadow-md pt-12 pb-8 px-6 text-center">
+                        <div className="flex items-center justify-center gap-4 mb-3">
+                            <a href="https://linkuei0425.github.io/HoChiMinh/" title="回到首頁" className="inline-flex items-center justify-center text-teal-100 hover:text-white bg-teal-800 hover:bg-teal-700 p-2.5 rounded-full transition-colors shadow-sm">
+                                <i data-lucide="home" className="w-5 h-5"></i>
+                            </a>
+                            <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
+                                <i data-lucide="train" className="w-7 h-7 text-yellow-400"></i>
+                                胡志明市交通指南
+                            </h1>
+                        </div>
+                        <p className="text-teal-200 text-sm">捷運 Line 1、水上巴士與機場巴士路線查詢</p>
+                    </header>
+
+                    <main className="max-w-2xl mx-auto px-4 -mt-6">
+                        {/* Search Box */}
+                        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 relative">
+                            <div className="flex flex-col gap-4">
+                                <div className="relative">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">出發站 (Start)</label>
+                                    <select 
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-teal-500 focus:border-teal-500 block p-3.5 pr-8 truncate font-medium appearance-none"
+                                        value={startStation}
+                                        onChange={(e) => setStartStation(e.target.value)}
+                                    >
+                                        {Object.keys(mrtData).map(lineKey => (
+                                            <optgroup key={`start-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                {mrtData[lineKey].map(st => {
+                                                    const baseName = aliasMap[st.n] || st.n;
+                                                    return (
+                                                        <option key={`start-${st.c}`} value={baseName}>
+                                                            [{st.c}] {st.n} ({st.e}){st.a ? ` 📍 ${st.a.split('、')[0]}` : ''}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </optgroup>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                    </div>
+                                </div>
+
+                                <div className="relative flex justify-center -my-3 z-10">
+                                    <button 
+                                        onClick={handleSwap}
+                                        className="bg-teal-600 hover:bg-teal-700 text-white p-2.5 rounded-full shadow-md transition-transform hover:scale-105"
+                                        title="反轉路線"
+                                    >
+                                        <i data-lucide="arrow-down-up" className="w-5 h-5"></i>
+                                    </button>
+                                </div>
+
+                                <div className="relative">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">抵達站 (Destination)</label>
+                                    <select 
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-teal-500 focus:border-teal-500 block p-3.5 pr-8 truncate font-medium appearance-none"
+                                        value={endStation}
+                                        onChange={(e) => setEndStation(e.target.value)}
+                                    >
+                                        {Object.keys(mrtData).map(lineKey => (
+                                            <optgroup key={`end-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                {mrtData[lineKey].map(st => {
+                                                    const baseName = aliasMap[st.n] || st.n;
+                                                    return (
+                                                        <option key={`end-${st.c}`} value={baseName}>
+                                                            [{st.c}] {st.n} ({st.e}){st.a ? ` 📍 ${st.a.split('、')[0]}` : ''}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </optgroup>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Route Results */}
+                        {startStation === endStation ? (
+                            <div className="bg-yellow-50 text-yellow-800 p-4 rounded-xl text-center shadow-sm">
+                                📍 起點與終點位於同一個站點/轉乘區唷！
+                            </div>
+                        ) : route ? (
+                            <RouteTimeline legs={route} destName={endStation} />
+                        ) : (
+                            <div className="text-center text-slate-500 py-8">
+                                正在計算路線...
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const RouteTimeline = ({ legs, destName }) => {
+            const totalTime = legs.reduce((acc, leg) => acc + leg.time, 0);
+            const totalTransfers = legs.filter(l => l.type === 'transfer').length;
+            
+            const destInfo = uniquePhysicalStations[destName];
+
+            return (
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div className="bg-slate-50 border-b border-slate-100 p-5 flex justify-between items-center">
+                        <div>
+                            <p className="text-sm font-semibold text-slate-500 mb-1">預估時間</p>
+                            <p className="text-3xl font-bold text-slate-800">
+                                {totalTime} <span className="text-base font-normal text-slate-500">分鐘</span>
+                            </p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-sm font-semibold text-slate-500 mb-1">轉乘次數</p>
+                            <p className="text-lg font-bold text-slate-700">
+                                {totalTransfers} <span className="text-sm font-normal text-slate-500">次</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="p-6">
+                        <div className="ml-4">
+                            {legs.map((leg, idx) => (
+                                <LegItem key={idx} leg={leg} isLast={idx === legs.length - 1} destName={destName} />
+                            ))}
+                        </div>
+                        
+                        {/* Destination Marker */}
+                        <div className="relative pl-8 border-l-4 border-transparent">
+                            <div className="absolute left-[-10px] top-1 w-4 h-4 bg-slate-800 rounded-full border-4 border-white shadow-sm z-10"></div>
+                            <div className="absolute left-[-16px] top-[-5px] w-7 h-7 bg-slate-200 rounded-full opacity-50 z-0 animate-pulse"></div>
+                            <h3 className="text-lg font-bold text-slate-800">{destInfo.name} <span className="text-sm font-normal text-slate-500 ml-1">{destInfo.en}</span></h3>
+                            <p className="text-sm text-slate-500 mb-2">抵達目的地 (Arrive)</p>
+                            
+                            {destInfo.attractions && (
+                                <div className="mt-2 bg-teal-50 border border-teal-100 rounded-lg p-3 text-sm flex gap-2">
+                                    <i data-lucide="map-pin" className="w-5 h-5 text-teal-600 shrink-0"></i>
+                                    <div>
+                                        <span className="font-semibold text-teal-900 block mb-0.5">周邊景點：</span>
+                                        <span className="text-teal-800">{destInfo.attractions}</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const LegItem = ({ leg, isLast, destName }) => {
+            const startNodeCode = leg.nodes[0];
+            const endNodeCode = leg.nodes[leg.nodes.length - 1];
+            const startStation = allStationsMap[startNodeCode];
+            const endStation = allStationsMap[endNodeCode];
+
+            if (leg.type === 'transfer') {
+                return (
+                    <div className="relative pl-8 pb-8 border-l-4 border-dashed border-slate-300">
+                        <div className="absolute left-[-14px] top-1 w-6 h-6 bg-white rounded-full border-2 border-slate-300 z-10 flex items-center justify-center">
+                            <i data-lucide="footprints" className="w-3.5 h-3.5 text-slate-500"></i>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 inline-block">
+                            <p className="text-sm font-semibold text-slate-700">
+                                於 <span className="text-slate-900">{aliasMap[startStation.n] || startStation.n}</span> 步行轉乘
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                <i data-lucide="clock" className="w-3 h-3"></i> 步行約 {leg.time} 分鐘
+                            </p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Ride Type
+            const lineTheme = lineColors[leg.line] || { bg: 'bg-slate-500', border: 'border-slate-500', text: 'text-slate-600', name: leg.line };
+            
+            return (
+                <div className={`relative pl-8 pb-8 border-l-4 ${lineTheme.border}`}>
+                    {/* Circle Node */}
+                    <div className={`absolute left-[-10px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm z-10 ${lineTheme.bg}`}></div>
+                    
+                    {/* Leg Start Info */}
+                    <div className="mb-2">
+                        <h3 className="text-base font-bold text-slate-800">
+                            {startStation.n} <span className="text-sm font-normal text-slate-500 ml-1">{startStation.e}</span>
+                        </h3>
+                        
+                        {startStation.a && (
+                            <p className="text-xs text-teal-600 mt-1 flex items-start gap-1">
+                                <i data-lucide="star" className="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
+                                <span>{startStation.a}</span>
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Line Details Card */}
+                    <div className={`mt-3 border-l-4 rounded-r-lg p-4 bg-white shadow-sm border-y border-r border-slate-100 ${lineTheme.border}`}>
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className={`${lineTheme.bg} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider`}>
+                                {startNodeCode}
+                            </span>
+                            <span className={`text-sm font-semibold ${lineTheme.text}`}>搭乘 {lineTheme.name}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 flex items-center gap-2 mt-2">
+                            <span>前往 <strong>{endStation.n}</strong></span>
+                            <span className="text-slate-300">|</span>
+                            <span>{leg.stops} 站</span>
+                            <span className="text-slate-300">|</span>
+                            <span>約 {leg.time} 分鐘</span>
+                        </p>
+                        
+                        {/* Pass through stations */}
+                        <div className="mt-2 text-xs text-slate-400">
+                            途經: {leg.nodes.slice(1, -1).map(c => allStationsMap[c].n).join(' ➔ ') || '無中途站'}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Render App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

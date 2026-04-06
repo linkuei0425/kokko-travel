@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>胡志明市行程推薦指南 | Ho Chi Minh Trip Guide</title>
+    
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* 隱藏水平捲軸但保留滾動功能 */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- 導覽圖示 ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+
+        const REGIONS = ['胡志明市區', '古芝地道', '湄公河三角洲', '西寧/黑婆山', '近郊城市(美奈/頭頓)'];
+        const CATEGORIES = [
+            { id: '景點門票', icon: Ticket },
+            { id: '一日遊', icon: Sun },
+            { id: '體驗與娛樂', icon: Sparkles },
+            { id: '交通及網路', icon: TrainFront }
+        ];
+
+        // --- 胡志明行程資料 ---
+        const itineraryData = {
+            '胡志明市區': {
+                '景點門票': [
+                    { title: 'Landmark 81 空中觀景台門票', description: '登上東南亞最高摩天大樓，從絕佳的制高點俯瞰胡志明市天際線，日落與璀璨夜景令人屏息。', link: 'https://www.klook.com/zh-TW/search/result/?query=Landmark%2081%20%E8%A7%80%E6%99%AF%E5%8F%B0&aid=117167' },
+                    { title: '金融塔觀景台門票', description: '登上西貢摩天觀景台，360度無死角俯瞰胡志明市日落與絕美夜景。', link: 'https://www.klook.com/zh-TW/activity/5496-saigon-skydeck-bitexco-financial-tower-admission-ticket-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=95663493fd&aid=117167' },
+                    { title: '金龍水上木偶戲門票', description: '來到越南絕不能錯過的傳統國粹！生動活潑的水上木偶結合傳統樂器伴奏，充滿濃濃的在地文化風情。', link: 'https://www.klook.com/zh-TW/activity/7795-traditional-water-puppet-theater-admission-ticket-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=31fcdd3fb6&aid=117167' },
+                    { title: 'A O Show 門票', description: '被譽為越南版太陽馬戲團！在百年歌劇院內欣賞結合竹藝、雜技與現代舞的震撼演出。', link: 'https://www.klook.com/zh-TW/activity/7980-a-o-show-ticket-at-saigon-opera-house-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=a2ab3bd695&aid=117167' },
+                    { title: '西貢動植物園門票', description: '世界最古老的動物園之一。園內樹木參天、環境清幽，是胡志明市中心的綠洲，非常適合親子同行。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E8%A5%BF%E8%B2%A2%E5%8B%95%E6%A4%8D%E7%89%A9%E5%9C%92&aid=117167' },
+                    { title: '胡志明市雙層觀光巴士車票', description: '搭乘敞篷雙層巴士，隨上隨下輕鬆遊覽紅教堂、中央郵局、歌劇院與濱城市場等市區著名法式地標。', link: 'https://affiliate.klook.com/redirect?aid=117167&aff_adid=1246124&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F87162-ho-chi-minh-city-sightseeing-bus-ticket%2F' },
+                    { title: '戰爭遺跡博物館 & 獨立宮 半日導覽', description: '由專業導遊帶領，深入解說越戰歷史與南越共和國時代，親眼見證歷史遺留下的戰機與震撼照片。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E7%8D%A8%E7%AB%8B%E5%AE%AE%20%E6%88%B0%E7%88%AD%E9%81%BA%E8%B7%A1&aid=117167' }
+                ],
+                '一日遊': [
+                    { title: '胡志明市區機車美食半日遊', description: '最接地的玩法！搭乘在地嚮導的機車穿梭於大街小巷，品嚐最道地的越式法國麵包、越式煎餅與烤肉米線。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E8%83%A1%E5%BF%97%E6%98%8E%20%E6%A9%9F%E8%BB%8A%20%E7%BE%8E%E9%A3%9F&aid=117167' },
+                    { title: '奧黛租借與市區寫真攝影體驗', description: '換上優雅合身的越南傳統服飾「奧黛」，在粉紅教堂、百年郵局前拍下絕美紀念照，留下最美回憶。', link: 'https://www.klook.com/zh-TW/activity/135492-ao-dai-experience-with-iconic-instagram-tour-in-saigon/?spm=SearchResult.SearchResult_LIST&clickId=516d9a87bb&aid=117167' }
+                ],
+                '體驗與娛樂': [
+                    { title: '西貢河豪華遊船晚宴 (印度支那號/西貢公主號)', description: '在西貢河上享受極致浪漫的夜晚！一邊享用頂級的越式或西式套餐，一邊欣賞兩岸璀璨的城市夜景。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E8%A5%BF%E8%B2%A2%E6%B2%B3%20%E9%81%8A%E8%88%B9&aid=117167' },
+                    { title: 'Noir. 無光餐廳 / 黑暗中用餐體驗', description: '在全黑的環境中用餐，由視障服務員引導。失去視覺後，您將體驗到味覺與嗅覺被無限放大的獨特感官饗宴。', link: 'https://www.klook.com/zh-TW/search/result/?query=Noir.%20Dining%20in%20the%20Dark&aid=117167' },
+                    { title: '越式洗頭與頂級 SPA 按摩體驗', description: '來到越南必試！包含洗臉、洗髮、頭部按摩、敷臉甚至采耳的全套越式放鬆服務，徹底消除旅行疲憊。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E8%83%A1%E5%BF%97%E6%98%8E%20SPA%20%E6%B4%97%E9%A0%AD&aid=117167' },
+                    { title: '越南在地料理烹飪課與市場採買', description: '跟著當地主廚走進傳統市場挑選香料與食材，並親手製作生春捲、越式河粉等經典越南美食。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E8%83%A1%E5%BF%97%E6%98%8E%20%E7%83%B9%E9%A3%AA%E8%AA%B2&aid=117167' }
+                ],
+                '交通及網路': [
+                    { title: '新山一國際機場 (SGN) 至胡志明市區私人接送', description: '免去機場外喊價與溝通的困擾，專車司機舉牌接機，讓您安全、舒適且快速地直達市區飯店。', link: 'https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=SGN&spm=SearchResult.SearchResult_LIST&clickId=55b43213e9&aid=117167' },
+                    { title: '新山一國際機場（SGN）VIP 快速通關服務', description: '避開大排長龍的海關隊伍！由專人引導使用尊榮VIP通道，為您省下寶貴的旅行時間。', link: 'https://affiliate.klook.com/redirect?aid=117167&aff_adid=1246126&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F196249-vip-fast-track-service-for-immigration-at-ho-chi-minh-city-tan-son-nhat-international-airport-sgn%2F' },
+                    { title: '5G eSIM 越南｜吃到飽、不穩就退', description: '掃描 QR Code 即可開通上網，免換實體卡超方便。網速穩定，是您在胡志明市導航與打卡的必備神物。', link: 'https://affiliate.klook.com/redirect?aid=117167&aff_adid=1246123&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F123902-vietnam-esim-high-speed-internet-qr-code-voucher%2F' },
+                    { title: '越南 4G 上網 SIM 卡（新山一國際機場領取）', description: '抵達機場即可領取並由專人協助開通。網路穩定不斷線，導航打卡最安心。', link: 'https://www.klook.com/zh-TW/activity/16599-3g-4g-sim-card-vietnam/?spm=SearchResult.SearchResult_LIST&clickId=d18cf68252&aid=117167' },
+                    { title: '胡志明市私人包車 一日/半日遊', description: '行程完全由您作主！無論是市區觀光還是前往近郊景點，專屬司機讓您在炎熱的天氣中輕鬆移動。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E8%83%A1%E5%BF%97%E6%98%8E%20%E5%8C%85%E8%BB%8A&aid=117167' }
+                ]
+            },
+            '古芝地道': {
+                '一日遊': [
+                    { title: '古芝地道半日遊 (胡志明市出發)', description: '探索越戰時期錯綜複雜的地下迷宮，親身鑽入狹窄的地道，感受歷史的震撼與游擊隊的生存智慧。', link: 'https://www.klook.com/zh-TW/activity/1471-cu-chi-tunnels-experience-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=60dec49b13&aid=117167' },
+                    { title: '古芝地道與湄公河三角洲 豪華一日遊', description: '一天之內走訪兩大必去景點！上午鑽入神秘地道，下午搭乘手搖船感受水鄉澤國風情。', link: 'https://www.klook.com/zh-TW/activity/858-cu-chi-tunnesl-mekong-river-day-tour-hochiminh/?spm=SearchResult.SearchResult_LIST&clickId=9c949d009f&aid=117167' },
+                    { title: '古芝地道與高台教神廟一日遊', description: '完美結合歷史遺跡與獨特宗教文化。參觀完古芝地道後，前往色彩繽紛、融合世界多大宗教的高台教總壇。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E5%8F%A4%E8%8A%9D%E5%9C%B0%E9%81%93%20%E9%AB%98%E5%8F%B0%E6%95%99&aid=117167' },
+                    { title: '古芝地道 豪華快艇半日遊', description: '避開陸上的塞車之苦！從西貢河搭乘快艇直達古芝地道，沿途還能迎著微風欣賞水上人家風光。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E5%8F%A4%E8%8A%9D%E5%9C%B0%E9%81%93%20%E5%BF%AB%E8%89%87&aid=117167' }
+                ],
+                '體驗與娛樂': [
+                    { title: '古芝地道 AK-47 實彈射擊體驗', description: '在專業人員指導與安全的靶場環境內，親自扣下板機，體驗射擊越戰時期經典步槍的強大後座力。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E5%8F%A4%E8%8A%9D%E5%9C%B0%E9%81%93%20%E5%B0%84%E6%93%8A&aid=117167' }
+                ]
+            },
+            '湄公河三角洲': {
+                '一日遊': [
+                    { title: '湄公河三角洲一日遊 (美托與檳椥)', description: '搭乘傳統手搖船穿梭於茂密的水椰林間，品嚐在地蜂蜜茶、椰子糖與熱帶水果，感受濃濃的南越水鄉風情。', link: 'https://www.klook.com/zh-TW/activity/2016-full-day-excursion-mekong-delta-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=44e480e69e&aid=117167' },
+                    { title: '芹苴 丐冷水上市場一日遊 (胡志明出發)', description: '感受湄公河最真實的活力！清晨搭船進入水上市場，看著船隻互相交易農產品，還能在船上吃碗熱騰騰的河粉。', link: 'https://www.klook.com/zh-TW/activity/37667-private-hidden-cai-rang-floating-market-tour-can-tho/?spm=SearchResult.SearchSuggest_LIST&clickId=fb65cfc0cc&aid=117167' },
+                    { title: '湄公河三角洲 自然生態兩日遊', description: '放慢腳步的深度體驗。夜宿湄公河畔的特色民宿，騎著單車穿梭於村落間，深入體驗南越農村的純樸生活。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E6%B9%84%E5%85%AC%E6%B2%B3%20%E5%85%A9%E6%97%A5%E9%81%8A&aid=117167' },
+                    { title: '湄公河 螢火蟲生態夜遊船', description: '傍晚時分出航，欣賞湄公河畔迷人的日落後，在寧靜的河道中尋找樹叢間閃爍的螢火蟲，浪漫又神秘。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E6%B9%84%E5%85%AC%E6%B2%B3%20%E8%9E%A2%E7%81%AB%E8%9F%B2&aid=117167' }
+                ]
+            },
+            '西寧/黑婆山': {
+                '景點門票': [
+                    { title: '太陽世界黑婆山纜車門票 (Sun World Ba Den)', description: '搭乘擁有金氏世界紀錄的纜車系統前往南越第一高峰，欣賞壯麗的雲海與山頂巨大的莊嚴佛像。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E9%BB%91%E5%A9%86%E5%B1%B1%20%E7%BA%9C%E8%BB%8A&aid=117167' }
+                ],
+                '一日遊': [
+                    { title: '西寧黑婆山與古芝地道一日遊', description: '一天內走訪南越兩大指標景點！上午登上雲霧繚繞的黑婆山，下午探秘充滿歷史故事的古芝地道。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E9%BB%91%E5%A9%86%E5%B1%B1%20%E5%8F%A4%E8%8A%9D%E5%9C%B0%E9%81%93&aid=117167' },
+                    { title: '西寧高台教聖座與黑婆山一日遊', description: '探索融合了佛教、基督教、道教等多教派的高台教建築美學，並登上黑婆山俯瞰西寧全境的壯闊風光。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E9%BB%91%E5%A9%86%E5%B1%B1%20%E9%AB%98%E5%8F%B0%E6%95%99&aid=117167' }
+                ]
+            },
+            '近郊城市(美奈/頭頓)': {
+                '一日遊': [
+                    { title: '美奈沙丘一日遊', description: '從胡志明市出發，前往絕美的美奈白沙丘與紅沙丘，體驗刺激的滑沙與吉普車狂飆的沙漠風情。', link: 'https://www.klook.com/zh-TW/activity/88282-mui-ne-tour/?spm=SearchResult.SearchResult_LIST&clickId=142f270280&aid=117167' },
+                    { title: '美奈吉普車沙漠與仙女溪探險', description: '專屬彩色吉普車帶您拍出沙漠時尚大片！走訪如火星般奇特的仙女溪與充滿當地色彩的小漁村。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E7%BE%8E%E5%A5%88%20%E5%90%89%E6%99%AE%E8%BB%8A&aid=117167' },
+                    { title: '頭頓一日遊 (胡志明出發)', description: '距離胡志明市最近的海濱度假勝地。參觀宏偉的巨大耶穌山、保大皇行宮，並享受美麗的海岸線風光。', link: 'https://www.klook.com/zh-TW/activity/41303-vung-tau-day-tour-vietnamese-speaking-guide/?spm=SearchResult.SearchResult_LIST&clickId=cee3b88f46&aid=117167' },
+                    { title: '頭頓包車一日遊', description: '專屬司機帶您暢遊頭頓海岸線、耶穌山與周邊秘境，行程彈性最適合家庭與朋友出遊。', link: 'https://www.klook.com/zh-TW/activity/136430-ho-chi-minh-car-rental-with-driver-to-vung-tau-ho-tram-long-hai/?spm=SearchResult.SearchResult_LIST&clickId=01d974d47c&aid=117167' }
+                ],
+                '交通及網路': [
+                    { title: '胡志明市至美奈/頭頓 豪華臥鋪巴士車票', description: '平躺著前往海灘！體驗越南特有的豪華臥鋪巴士，不僅舒適度滿分，更是省下交通費的絕佳選擇。', link: 'https://www.klook.com/zh-TW/activity/20542-sleeper-bus-transfers-phan-thiet-ho-chi-minh-city/?spm=SearchResult.SearchResult_LIST&clickId=b2bd8b8165&aid=117167' },
+                    { title: '胡志明市至美奈 私人包車接送', description: '約三小時直達美奈的各大度假村。非常適合家庭旅遊或多人同行，出發時間最彈性，舒適度最高。', link: 'https://www.klook.com/zh-TW/activity/71114-private-transfer-ho-chi-minh-city-phan-thiet/?spm=SearchResult.SearchResult_LIST&clickId=824364db5b&aid=117167' }
+                ]
+            }
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState('胡志明市區');
+            const [selectedCategory, setSelectedCategory] = useState('景點門票');
+
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen bg-rose-50 font-sans text-slate-800 pb-12">
+                    {/* 頂部導覽列 */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-rose-100">
+                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center justify-between gap-2 mb-4">
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="text-rose-600 w-6 h-6 md:w-8 md:h-8" />
+                                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-orange-500">
+                                        胡志明市行程推薦指南
+                                    </h1>
+                                </div>
+                                <a
+                                    href="https://linkuei0425.github.io/HoChiMinh/"
+                                    className="hidden md:flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 bg-rose-600 text-white hover:bg-rose-700 shadow-sm"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    回到首頁
+                                </a>
+                            </div>
+                            
+                            {/* 地區選擇 */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                <a
+                                    href="https://linkuei0425.github.io/HoChiMinh/"
+                                    className="md:hidden flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-rose-600 text-white hover:bg-rose-700 shadow-sm"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    首頁
+                                </a>
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            // 切換地區時，如果該地區沒有當前分類，自動切換到該地區有的第一個分類
+                                            if (!itineraryData[region]?.[selectedCategory]) {
+                                                const availableCategories = Object.keys(itineraryData[region] || {});
+                                                if (availableCategories.length > 0) {
+                                                    setSelectedCategory(availableCategories[0]);
+                                                }
+                                            }
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${
+                                            selectedRegion === region
+                                            ? 'bg-orange-500 text-white shadow-md'
+                                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-orange-50 hover:text-orange-600'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 py-8">
+                        {/* 分類標籤 */}
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                            {CATEGORIES.map(({ id, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSelectedCategory(id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border text-sm font-bold transition-all ${
+                                        selectedCategory === id
+                                        ? 'border-rose-500 bg-rose-50 text-rose-700 shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {id}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* 內容區標題 */}
+                        <div className="mb-6 flex items-center gap-2">
+                            <h2 className="text-2xl font-bold text-slate-800">
+                                {selectedRegion} - {selectedCategory} <span className="text-rose-600">精選推薦</span>
+                            </h2>
+                        </div>
+
+                        {/* 卡片列表 */}
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
+                                {currentData.map((item, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-fade-in"
+                                        style={{ animationDelay: `${index * 0.05}s` }}
+                                    >
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight flex items-start gap-2">
+                                                <span className="text-orange-500 mt-1"><Sparkles className="w-5 h-5"/></span>
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed font-medium">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="mt-auto pt-4 border-t border-slate-100 flex justify-end">
+                                            <a
+                                                href={item.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-sm hover:shadow-md w-full sm:w-auto"
+                                            >
+                                                <Info className="w-4 h-4" />
+                                                <span>詳細說明</span>
+                                                <ExternalLink className="w-4 h-4 ml-1 opacity-80" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                                    此區域目前無對應項目的資料
+                                </h3>
+                                <p className="text-slate-500">請嘗試選擇其他分類或分頁。</p>
+                            </div>
+                        )}
+
+                        {/* 全局探索按鈕 */}
+                        <div className="mt-12 flex justify-center">
+                            <a 
+                                href={`https://www.klook.com/zh-TW/search/result/?query=${encodeURIComponent(selectedRegion)}&aid=117167`}
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-700 hover:to-orange-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                <span className="tracking-wide">前往探索更多 {selectedRegion} 行程</span>
+                                <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
+                            </a>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

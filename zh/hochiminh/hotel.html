@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>胡志明市住宿推薦指南 | HCMC Hotel Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 自訂滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5eead4; /* teal-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2dd4bf; /* teal-400 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* 區域按鈕樣式 - 湖水綠主題 */
+        .area-btn-active {
+            background-color: #0f766e; /* teal-700 */
+            color: white;
+            border-color: #0f766e;
+            box-shadow: 0 4px 6px -1px rgba(15, 118, 110, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #f0fdfa; /* teal-50 */
+            color: #115e59; /* teal-800 */
+            border-color: #5eead4; /* teal-300 */
+        }
+
+        /* 分類按鈕樣式 */
+        .cat-btn-active {
+            background-color: #0d9488; /* teal-600 */
+            color: white;
+            border-color: #0d9488;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #f0fdfa; /* teal-50 */
+            color: #0d9488;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#f0fdfa] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-teal-900 tracking-wide">
+                    <i class="fa-solid fa-hotel mr-2 text-teal-600"></i>胡志明市住宿指南
+                </h1>
+                <a href="https://linkuei0425.github.io/HoChiMinh/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-teal-100 text-teal-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-teal-200">
+                    <i class="fa-solid fa-house mr-2"></i>
+                    回到首頁
+                </a>
+            </div>
+            <p class="text-teal-600 font-medium text-sm md:text-base">精選胡志明市各郡優質飯店，讓您的越南之旅住得舒心又便利</p>
+        </header>
+
+        <!-- 第一層：區域按鈕 (橫向滾動) -->
+        <div class="mb-6 overflow-hidden relative">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-bold text-teal-700 uppercase tracking-wider">選擇區域 (Select District)</span>
+                <!-- 滑動箭頭 -->
+                <div class="flex gap-2">
+                    <button onclick="scrollDistricts('left')" class="p-1.5 rounded-full bg-teal-100 text-teal-600 hover:bg-teal-200 transition-colors shadow-sm" aria-label="向左滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollDistricts('right')" class="p-1.5 rounded-full bg-teal-100 text-teal-600 hover:bg-teal-200 transition-colors shadow-sm" aria-label="向右滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-3 pb-2 scroll-smooth">
+                <!-- 區域按鈕將由 JS 動態生成 -->
+            </div>
+        </div>
+
+        <!-- 第二層：分類按鈕 -->
+        <div id="category-buttons" class="flex flex-wrap justify-center gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-teal-100 hidden">
+            <!-- 分類按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 內容顯示區 -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-teal-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-teal-300 pt-20 pb-20">
+                <p class="font-bold text-lg"><i class="fa-solid fa-spinner fa-spin mr-2"></i>載入推薦住宿中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 胡志明市飯店資料庫 (更新專屬連結與刪除指定飯店)
+        const hotelData = {
+            "d1": {
+                name: "第一郡 (District 1)",
+                categories: {
+                    "頂級奢華飯店": [
+                        { name: "The Reverie Saigon (西貢萬韻酒店)", feature: ["胡志明市最奢華的六星級酒店", "義大利古典皇室風格裝潢，華麗至極", "高樓層視野享有西貢河無敵夜景"], address: "22-36 Nguyen Hue Boulevard, District 1", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-2507659/the-reverie-saigon/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Park Hyatt Saigon (西貢柏悅酒店)", feature: ["經典法式殖民風格五星級酒店", "環境優雅寧靜，擁有絕美的戶外休閒泳池", "絕佳地段，距離市標大劇院僅一步之遙"], address: "2 Lam Son Square, District 1", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-2073112/park-hyatt-saigon/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Caravelle Saigon (帆船酒店)", feature: ["越戰時期深具代表性的傳奇歷史酒店", "地段無可挑剔，位於市中心精華區", "頂樓 Saigon Saigon Bar 是俯瞰市區夜景的絕佳去處"], address: "19-23 Lam Son Square, District 1", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-839839/caravelle-saigon/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Hotel Majestic Saigon (華麗飯店)", feature: ["建於 1925 年，保留濃厚的法國殖民色彩", "擁有復古優雅的老式電梯設計", "面向西貢河，極具浪漫的歷史情調"], address: "1 Dong Khoi Street, District 1", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-993081/hotel-majestic-saigon/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" }
+                    ],
+                    "平價高CP值": [
+                        { name: "Silverland Yen Hotel (銀地燕酒店)", feature: ["日系與越式融合的木質調放鬆設計", "頂樓擁有絕美的無邊際溫水按摩池", "氣氛溫馨舒適，具備極高的性價比"], address: "73-75 Thu Khoa Huan Street, District 1", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-713825/silverland-yen-hotel/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "The Hammock Hotel Fine Arts Museum (吊床酒店-美術館)", feature: ["充滿活力的設計型精品旅館", "每間客房皆配有標誌性的休閒吊床", "頂樓交誼廳提供免費的零食與飲料"], address: "59-61 Nguyen Thai Binh Street, District 1", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-2469821/the-hammock-hotel-fine-arts-museum/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Liberty Central Saigon Citypoint (西貢自由中心城市點酒店)", feature: ["位置極佳，步行即可達各大景點與百貨", "頂樓設有高空泳池與休閒酒吧", "探索胡志明市區的完美便利據點"], address: "59-61 Pasteur Street, District 1", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-1171819/liberty-central-saigon-citypoint/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Cochin Sang Hotel (科欽桑酒店)", feature: ["法式復古風格的質感精品酒店", "每個角落都充滿設計感，非常適合拍照", "設有戶外水療池，且周邊美食林立"], address: "28-30 Nguyen An Ninh Street, District 1", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-91659052/cochin-sang-hotel/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Fusion Suites Saigon (西貢融合套房酒店)", feature: ["以健康與放鬆為主題的木質極簡風格", "客房內具備獨特的「懸浮浴缸」設計", "住宿專案通常包含專屬的 SPA 放鬆服務"], address: "3-5 Suong Nguyet Anh Street, District 1", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-5483003/fusion-suites-saigon/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" }
+                    ],
+                    "設計風/公寓式": [
+                        { name: "Sedona Suites Ho Chi Minh City (西貢詩當娜套房酒店)", feature: ["位於知名百貨西貢中心(Saigon Centre)樓上", "頂級服務式公寓，空間寬敞且廚房設施齊全", "高樓層坐擁無敵的城市全景"], address: "67 Le Loi Boulevard, District 1", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-2125576/sedona-suites-ho-chi-minh-city/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Sherwood Suites (舍伍德套房酒店)", feature: ["奢華高雅的公寓式酒店設計", "提供完善的廚房設備與寬敞客廳空間", "非常適合家庭旅遊或長天期住宿需求"], address: "192 Pasteur Street, District 3 (近第一郡交界)", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-12515356/sherwood-suites/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" }
+                    ]
+                }
+            },
+            "d2": {
+                name: "第二郡 / 塔甸 (District 2)",
+                categories: {
+                    "河畔度假風": [
+                        { name: "Mia Saigon – Luxury Boutique Hotel (米亞西貢精品酒店)", feature: ["西貢河畔的頂級法式奢華度假酒店", "擁有華麗的室外景觀泳池與絕佳河景", "一邊享用早餐一邊欣賞河上船隻，度假感滿分"], address: "2-4 Street 10, An Phu Ward, District 2", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-40370975/mia-saigon-luxury-boutique-hotel/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Villa Song Saigon (西貢別墅飯店)", feature: ["充滿濃厚法式殖民風情的純白河畔別墅", "環境清幽隱密，完美遠離市區的喧囂", "提供專屬的快艇接駁服務前往第一郡"], address: "199 Nguyen Van Huong, Thao Dien Ward, District 2", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-1314801/villa-song-saigon/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Thao Dien Boutique Hotel (塔甸精品酒店)", feature: ["位於塔甸區深處的靜謐綠洲", "擁有綠意盎然的庭園與傳統越式風格建築", "充滿東南亞度假風情，讓人完全放鬆身心"], address: "189-197 Nguyen Van Huong, Thao Dien Ward, District 2", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-123256976/thao-dien-masteri-riverside-saigon-home/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Somerset Vista Ho Chi Minh City (西貢盛捷維斯塔服務公寓)", feature: ["塔甸區內知名的高級酒店式公寓", "擁有超大泳池與完善的健身俱樂部設施", "空間寬敞，非常適合親子與家庭旅客入住"], address: "628C Hanoi Highway, An Phu Ward, District 2", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-703806/somerset-vista-ho-chi-minh-city/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" }
+                    ]
+                }
+            },
+            "d3": {
+                name: "第三郡 (District 3)",
+                categories: {
+                    "寧靜與質感": [
+                        { name: "Hotel des Arts Saigon, MGallery (西貢藝術飯店 - 美憬閣)", feature: ["充滿巴黎法式風情與濃郁藝術氣息", "頂樓的無邊際玻璃泳池為著名打卡聖地", "附設極具人氣的高空酒吧俯瞰城市美景"], address: "76-78 Nguyen Thi Minh Khai, District 3", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-2637837/hotel-des-arts-saigon-mgallery-collection/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Mai House Saigon Hotel (邁之家西貢酒店)", feature: ["極具質感的法式古典建築外觀", "內部裝潢充滿優雅的法越融合美學", "服務細膩到位，早餐精緻且美味"], address: "1-3-5 Ngo Thoi Nhiem, District 3", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-35913091/mai-house-saigon/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "La Vela Saigon Hotel (拉維拉西貢飯店)", feature: ["擁有全胡志明市最大、最壯觀的頂樓無邊際泳池", "能在高空將美麗的城市天際線盡收眼底", "房間設計風格現代且空間寬敞舒適"], address: "280 Nam Ky Khoi Nghia, District 3", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-54612636/la-vela-saigon-hotel/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Bach Suites Saigon (巴赫西貢套房飯店)", feature: ["位於 Turtle Lake 龜湖旁的小型精品酒店", "引人注目的黑白相間復古建築外觀", "房間內充滿歐式古典細節與優雅氛圍"], address: "10A Phạm Ngọc Thạch, District 3", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-16052500/bach-suites-saigon/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" }
+                    ]
+                }
+            },
+            "d5": {
+                name: "第五郡 (District 5 / Cho Lon)",
+                categories: {
+                    "平價與便利": [
+                        { name: "Windsor Plaza Hotel (溫莎廣場飯店)", feature: ["位於第五郡華人區的大型五星級酒店", "樓下即是安東廣場，採買伴手禮極度方便", "頂樓設有視野極佳的景觀餐廳"], address: "18 An Duong Vuong Street, District 5", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-758766/windsor-plaza-hotel/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Equatorial Ho Chi Minh City (胡志明市赤道酒店)", feature: ["歷史悠久且口碑極佳的經典五星級酒店", "房間面積寬敞，提供極佳的居住舒適度", "擁有大型露天游泳池與健身房，性價比高"], address: "242 Tran Binh Trong, District 5", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-993064/hotel-equatorial-ho-chi-minh-city/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" },
+                        { name: "Zazz Urban Ho Chi Minh (扎茲城市飯店)", feature: ["充滿活力的潮流設計精品酒店", "房間配色大膽現代，設備新穎齊全", "提供良好的睡眠體驗與休閒的頂樓空間"], address: "28 Su Van Hanh, District 5", url: "https://hk.trip.com/hotels/ho-chi-minh-city-hotel-detail-42814486/zazz-urban-ho-chi-minh/?Allianceid=7913725&SID=303142750&trip_sub1=&trip_sub3=D14678848" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. 初始化區域按鈕
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70"></i>${hotelData[key].name}`;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. 選擇區域
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. 渲染分類按鈕
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive shadow-sm`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // 預設點擊第一個分類
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. 選擇分類
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. 渲染飯店資料
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-teal-100 animate-fade-in">
+                    <h2 class="text-2xl font-bold text-teal-900 mr-3">
+                        <i class="fa-solid fa-location-dot mr-2 text-teal-500"></i>${districtData.name}
+                    </h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-teal-100 text-teal-800 text-sm font-bold rounded-full border border-teal-200">
+                        <i class="fa-solid fa-tag mr-1"></i>${currentCategoryName}
+                    </span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in">此分類目前無推薦資料。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5">`;
+                
+                hotels.forEach((hotel, index) => {
+                    const linkTagHTML = hotel.url 
+                        ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 mt-3 sm:mt-0 rounded-xl text-sm font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-auto">
+                               <i class="fa-solid fa-magnifying-glass mr-1.5"></i>詳細說明
+                           </a>`
+                        : '';
+
+                    htmlContent += `
+                        <div class="bg-white border border-teal-100 p-5 md:p-6 rounded-2xl hover:shadow-lg transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 0.05}s;">
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2">
+                                <h4 class="text-xl font-bold text-teal-900 flex items-start leading-tight pt-1">
+                                    <span class="text-white bg-teal-500 rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2 flex-shrink-0">${index + 1}</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-0 sm:pl-8 space-y-3">
+                                <div class="flex items-start">
+                                    <span class="font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-star mr-1"></i>亮點</span> 
+                                    <ul class="list-disc pl-4 m-0 text-sm text-slate-700 leading-relaxed font-medium space-y-1.5 w-full">
+                                        ${hotel.feature.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-map-pin mr-1"></i>位置</span> 
+                                    <span class="text-sm text-slate-700 leading-relaxed font-medium pt-0.5">${hotel.address}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // 區域左右滑動控制
+        function scrollDistricts(direction) {
+            const container = document.getElementById('district-buttons');
+            const scrollAmount = 200; // 每次滑動的距離
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict('d1', firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>
