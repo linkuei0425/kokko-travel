@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>富國島交通 (VinBus 巴士) 路線導覽</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f8fafc; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- 1. Database Setup (Phu Quoc Bus Routes) ---
+        const busData = {
+            V17: [ // VinBus Route 17 (Airport - North Island)
+                { c: "V17-1", n: "富國島機場", e: "Phu Quoc Airport", a: "國際與國內航廈" },
+                { c: "V17-2", n: "長灘 (中南部)", e: "Long Beach", a: "Eden Resort, Novotel 等沿線飯店" },
+                { c: "V17-3", n: "陽東市區 / 夜市", e: "Duong Dong Town", a: "陽東夜市, 小龍王廟" },
+                { c: "V17-4", n: "翁郎海灘", e: "Ong Lang Beach", a: "安靜海灘區域" },
+                { c: "V17-5", n: "大世界", e: "Grand World", a: "威尼斯運河, 水舞秀 (可轉乘內部接駁車)" },
+                { c: "V17-6", n: "珍珠奇幻樂園", e: "VinWonders", a: "巨龜水族館, 越南版迪士尼" },
+                { c: "V17-7", n: "野生動物園", e: "Vinpearl Safari", a: "半野生動物園, 搭遊園車餵長頸鹿" }
+            ],
+            V19: [ // VinBus Route 19 (South Island - North Island)
+                { c: "V19-1", n: "太陽世界纜車站", e: "Sun World Cable Car", a: "跨海纜車, 前往香島水上樂園" },
+                { c: "V19-2", n: "日落小鎮", e: "Sunset Town", a: "親吻橋 (Kiss Bridge), 浪漫歐洲風情" },
+                { c: "V19-3", n: "翡翠灣", e: "Kem Beach", a: "JW Marriott, 超美白沙灘" },
+                { c: "V19-4", n: "桑奈托日落海灘", e: "Sunset Sanato", a: "異形沙灘, 最潮網美夕陽打卡點" },
+                { c: "V19-5", n: "富國島機場", e: "Phu Quoc Airport", a: "轉乘 V17 路線" },
+                { c: "V19-6", n: "陽東市區 / 夜市", e: "Duong Dong Town", a: "轉乘 V17 路線" },
+                { c: "V19-7", n: "大世界", e: "Grand World", a: "轉乘 V17 路線" }
+            ],
+            S1: [ // Tourist Route (Central - South East)
+                { c: "S1-1", n: "陽東市區 / 夜市", e: "Duong Dong Town", a: "轉乘 V17/V19 路線" },
+                { c: "S1-2", n: "富國島監獄", e: "Phu Quoc Prison", a: "椰樹監獄, 越戰歷史遺跡" },
+                { c: "S1-3", n: "白沙灘", e: "Sao Beach", a: "富國島最美白沙, 海上網美鞦韆" },
+                { c: "S1-4", n: "護國寺", e: "Ho Quoc Pagoda", a: "富國島最大佛教寺廟, 依山傍海" }
+            ]
+        };
+
+        const lineColors = {
+            V17: { bg: 'bg-green-600', border: 'border-green-600', text: 'text-green-700', name: '🚌 VinBus V17 (機場 ↔ 北島)' },
+            V19: { bg: 'bg-blue-600', border: 'border-blue-600', text: 'text-blue-700', name: '🚌 VinBus V19 (南島 ↔ 北島)' },
+            S1: { bg: 'bg-orange-500', border: 'border-orange-500', text: 'text-orange-600', name: '🚐 南島觀光路線 (市區 ↔ 白沙灘)' }
+        };
+
+        // Resolve same stations with different names (if any)
+        const aliasMap = {};
+
+        // Flatten all stations
+        let allStationsMap = {};
+        let allStationsList = [];
+        let uniquePhysicalStations = {}; 
+
+        Object.keys(busData).forEach(lineKey => {
+            busData[lineKey].forEach(st => {
+                allStationsMap[st.c] = { ...st, line: lineKey };
+                allStationsList.push(allStationsMap[st.c]);
+
+                let baseName = aliasMap[st.n] || st.n;
+
+                if (!uniquePhysicalStations[baseName]) {
+                    uniquePhysicalStations[baseName] = { name: baseName, en: st.e, codes: [], attractions: st.a };
+                }
+                uniquePhysicalStations[baseName].codes.push(st.c);
+                if (st.a && !uniquePhysicalStations[baseName].attractions.includes(st.a)) {
+                    uniquePhysicalStations[baseName].attractions += (uniquePhysicalStations[baseName].attractions ? ", " : "") + st.a;
+                }
+            });
+        });
+
+        // Graph Construction
+        const graph = {};
+        const RIDE_TIME = 15; // Approx. 15 mins per bus stop (island distances)
+        const TRANSFER_TIME = 10; // Transfer waiting/walking time
+
+        function addEdge(u, v, weight, type, line) {
+            if (!graph[u]) graph[u] = [];
+            graph[u].push({ node: v, weight, type, line });
+        }
+
+        // 1. Connect adjacent stations
+        Object.keys(busData).forEach(lineKey => {
+            const lineArr = busData[lineKey];
+            for (let i = 0; i < lineArr.length - 1; i++) {
+                addEdge(lineArr[i].c, lineArr[i+1].c, RIDE_TIME, 'ride', lineKey);
+                addEdge(lineArr[i+1].c, lineArr[i].c, RIDE_TIME, 'ride', lineKey);
+            }
+        });
+
+        // 2. Connect transfer stations
+        Object.values(uniquePhysicalStations).forEach(station => {
+            if (station.codes.length > 1) {
+                for (let i = 0; i < station.codes.length; i++) {
+                    for (let j = i + 1; j < station.codes.length; j++) {
+                        addEdge(station.codes[i], station.codes[j], TRANSFER_TIME, 'transfer', null);
+                        addEdge(station.codes[j], station.codes[i], TRANSFER_TIME, 'transfer', null);
+                    }
+                }
+            }
+        });
+
+        // --- 2. Dijkstra Algorithm ---
+        function findShortestPath(startBaseName, endBaseName) {
+            if (startBaseName === endBaseName) return null;
+
+            const startCodes = uniquePhysicalStations[startBaseName].codes;
+            const endCodes = uniquePhysicalStations[endBaseName].codes;
+
+            const dist = {};
+            const prev = {};
+            const pq = [];
+
+            Object.keys(allStationsMap).forEach(node => {
+                dist[node] = Infinity;
+                prev[node] = null;
+            });
+
+            startCodes.forEach(code => {
+                dist[code] = 0;
+                pq.push({ node: code, dist: 0 });
+            });
+
+            while (pq.length > 0) {
+                pq.sort((a, b) => a.dist - b.dist);
+                const { node, dist: currentDist } = pq.shift();
+
+                if (dist[node] < currentDist) continue;
+                if (endCodes.includes(node)) {
+                    return reconstructPath(prev, node);
+                }
+
+                if (graph[node]) {
+                    graph[node].forEach(edge => {
+                        const alt = currentDist + edge.weight;
+                        if (alt < dist[edge.node]) {
+                            dist[edge.node] = alt;
+                            prev[edge.node] = { node: node, edgeFromPrev: edge };
+                            pq.push({ node: edge.node, dist: alt });
+                        }
+                    });
+                }
+            }
+            return null;
+        }
+
+        function reconstructPath(prev, endNode) {
+            const path = [];
+            let curr = endNode;
+            
+            while (curr) {
+                const step = prev[curr];
+                if (step) {
+                    path.unshift({ node: curr, edge: step.edgeFromPrev });
+                    curr = step.node;
+                } else {
+                    path.unshift({ node: curr, edge: null }); 
+                    curr = null;
+                }
+            }
+
+            const legs = [];
+            if (path.length < 2) return [];
+
+            let currentLeg = { 
+                type: path[1].edge.type, 
+                line: path[1].edge.line, 
+                nodes: [path[0].node, path[1].node],
+                time: path[1].edge.weight,
+                stops: path[1].edge.type === 'ride' ? 1 : 0
+            };
+
+            for (let i = 2; i < path.length; i++) {
+                const edge = path[i].edge;
+                if (edge.type === currentLeg.type && edge.line === currentLeg.line) {
+                    currentLeg.nodes.push(path[i].node);
+                    currentLeg.time += edge.weight;
+                    if(edge.type === 'ride') currentLeg.stops += 1;
+                } else {
+                    legs.push(currentLeg);
+                    currentLeg = { 
+                        type: edge.type, 
+                        line: edge.line, 
+                        nodes: [path[i-1].node, path[i].node],
+                        time: edge.weight,
+                        stops: edge.type === 'ride' ? 1 : 0
+                    };
+                }
+            }
+            legs.push(currentLeg);
+            return legs;
+        }
+
+        // --- 3. React Components ---
+        const { useState, useEffect } = React;
+
+        const App = () => {
+            const [startStation, setStartStation] = useState("富國島機場");
+            const [endStation, setEndStation] = useState("大世界");
+            const [route, setRoute] = useState(null);
+
+            useEffect(() => {
+                lucide.createIcons();
+            });
+
+            useEffect(() => {
+                if(startStation && endStation && startStation !== endStation) {
+                    const legs = findShortestPath(startStation, endStation);
+                    setRoute(legs);
+                } else {
+                    setRoute(null);
+                }
+            }, [startStation, endStation]);
+
+            const handleSwap = () => {
+                const temp = startStation;
+                setStartStation(endStation);
+                setEndStation(temp);
+            };
+
+            return (
+                <div className="min-h-screen pb-12">
+                    {/* Header */}
+                    <header className="bg-teal-900 text-white shadow-md pt-12 pb-8 px-6 text-center">
+                        <div className="flex items-center justify-center gap-4 mb-3">
+                            <a href="https://linkuei0425.github.io/PhuQuoc/" title="回到首頁" className="inline-flex items-center justify-center text-teal-100 hover:text-white bg-teal-800 hover:bg-teal-700 p-2.5 rounded-full transition-colors shadow-sm">
+                                <i data-lucide="home" className="w-5 h-5"></i>
+                            </a>
+                            <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
+                                <i data-lucide="bus" className="w-7 h-7 text-yellow-400"></i>
+                                富國島交通路線指南
+                            </h1>
+                        </div>
+                        <p className="text-teal-200 text-sm">VinBus 免費接駁車與觀光巴士路線查詢</p>
+                    </header>
+
+                    <main className="max-w-2xl mx-auto px-4 -mt-6">
+                        {/* Search Box */}
+                        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 relative">
+                            <div className="flex flex-col gap-4">
+                                <div className="relative">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">出發站點</label>
+                                    <select 
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-teal-500 focus:border-teal-500 block p-3.5 pr-8 truncate font-medium appearance-none"
+                                        value={startStation}
+                                        onChange={(e) => setStartStation(e.target.value)}
+                                    >
+                                        {Object.keys(busData).map(lineKey => (
+                                            <optgroup key={`start-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                {busData[lineKey].map(st => {
+                                                    const baseName = aliasMap[st.n] || st.n;
+                                                    return (
+                                                        <option key={`start-${st.c}`} value={baseName}>
+                                                            [{st.c}] {st.n} ({st.e}){st.a ? ` 📍 ${st.a.split(',')[0]}` : ''}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </optgroup>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                    </div>
+                                </div>
+
+                                <div className="relative flex justify-center -my-3 z-10">
+                                    <button 
+                                        onClick={handleSwap}
+                                        className="bg-teal-600 hover:bg-teal-700 text-white p-2.5 rounded-full shadow-md transition-transform hover:scale-105"
+                                        title="反轉路線"
+                                    >
+                                        <i data-lucide="arrow-down-up" className="w-5 h-5"></i>
+                                    </button>
+                                </div>
+
+                                <div className="relative">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">抵達站點</label>
+                                    <select 
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-teal-500 focus:border-teal-500 block p-3.5 pr-8 truncate font-medium appearance-none"
+                                        value={endStation}
+                                        onChange={(e) => setEndStation(e.target.value)}
+                                    >
+                                        {Object.keys(busData).map(lineKey => (
+                                            <optgroup key={`end-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                {busData[lineKey].map(st => {
+                                                    const baseName = aliasMap[st.n] || st.n;
+                                                    return (
+                                                        <option key={`end-${st.c}`} value={baseName}>
+                                                            [{st.c}] {st.n} ({st.e}){st.a ? ` 📍 ${st.a.split(',')[0]}` : ''}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </optgroup>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Route Results */}
+                        {startStation === endStation ? (
+                            <div className="bg-yellow-50 text-yellow-800 p-4 rounded-xl text-center shadow-sm">
+                                📍 起點與終點相同或位於同一轉乘區！
+                            </div>
+                        ) : route ? (
+                            <RouteTimeline legs={route} destName={endStation} />
+                        ) : (
+                            <div className="text-center text-slate-500 py-8">
+                                路線計算中...
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const RouteTimeline = ({ legs, destName }) => {
+            const totalTime = legs.reduce((acc, leg) => acc + leg.time, 0);
+            const totalTransfers = legs.filter(l => l.type === 'transfer').length;
+            
+            const destInfo = uniquePhysicalStations[destName];
+
+            return (
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div className="bg-slate-50 border-b border-slate-100 p-5 flex justify-between items-center">
+                        <div>
+                            <p className="text-sm font-semibold text-slate-500 mb-1">預估時間</p>
+                            <p className="text-3xl font-bold text-slate-800">
+                                {totalTime} <span className="text-base font-normal text-slate-500">分鐘</span>
+                            </p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-sm font-semibold text-slate-500 mb-1">換乘次數</p>
+                            <p className="text-lg font-bold text-slate-700">
+                                {totalTransfers} <span className="text-sm font-normal text-slate-500">次</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="p-6">
+                        <div className="ml-4">
+                            {legs.map((leg, idx) => (
+                                <LegItem key={idx} leg={leg} isLast={idx === legs.length - 1} destName={destName} />
+                            ))}
+                        </div>
+                        
+                        {/* Destination Marker */}
+                        <div className="relative pl-8 border-l-4 border-transparent">
+                            <div className="absolute left-[-10px] top-1 w-4 h-4 bg-slate-800 rounded-full border-4 border-white shadow-sm z-10"></div>
+                            <div className="absolute left-[-16px] top-[-5px] w-7 h-7 bg-slate-200 rounded-full opacity-50 z-0 animate-pulse"></div>
+                            <h3 className="text-lg font-bold text-slate-800">{destInfo.name} <span className="text-sm font-normal text-slate-500 ml-1">{destInfo.en}</span></h3>
+                            <p className="text-sm text-slate-500 mb-2">抵達目的地</p>
+                            
+                            {destInfo.attractions && (
+                                <div className="mt-2 bg-teal-50 border border-teal-100 rounded-lg p-3 text-sm flex gap-2">
+                                    <i data-lucide="map-pin" className="w-5 h-5 text-teal-600 shrink-0"></i>
+                                    <div>
+                                        <span className="font-semibold text-teal-900 block mb-0.5">附近景點：</span>
+                                        <span className="text-teal-800">{destInfo.attractions}</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const LegItem = ({ leg, isLast, destName }) => {
+            const startNodeCode = leg.nodes[0];
+            const endNodeCode = leg.nodes[leg.nodes.length - 1];
+            const startStation = allStationsMap[startNodeCode];
+            const endStation = allStationsMap[endNodeCode];
+
+            if (leg.type === 'transfer') {
+                return (
+                    <div className="relative pl-8 pb-8 border-l-4 border-dashed border-slate-300">
+                        <div className="absolute left-[-14px] top-1 w-6 h-6 bg-white rounded-full border-2 border-slate-300 z-10 flex items-center justify-center">
+                            <i data-lucide="footprints" className="w-3.5 h-3.5 text-slate-500"></i>
+                        </div>
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 inline-block">
+                            <p className="text-sm font-semibold text-slate-700">
+                                在此站換乘： <span className="text-slate-900">{aliasMap[startStation.n] || startStation.n}</span>
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                <i data-lucide="clock" className="w-3 h-3"></i> 步行與等候約 {leg.time} 分鐘
+                            </p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Ride Type
+            const lineTheme = lineColors[leg.line] || { bg: 'bg-slate-500', border: 'border-slate-500', text: 'text-slate-600', name: leg.line };
+            
+            return (
+                <div className={`relative pl-8 pb-8 border-l-4 ${lineTheme.border}`}>
+                    {/* Circle Node */}
+                    <div className={`absolute left-[-10px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm z-10 ${lineTheme.bg}`}></div>
+                    
+                    {/* Leg Start Info */}
+                    <div className="mb-2">
+                        <h3 className="text-base font-bold text-slate-800">
+                            {startStation.n} <span className="text-sm font-normal text-slate-500 ml-1">{startStation.e}</span>
+                        </h3>
+                        
+                        {startStation.a && (
+                            <p className="text-xs text-teal-600 mt-1 flex items-start gap-1">
+                                <i data-lucide="star" className="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
+                                <span>{startStation.a}</span>
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Line Details Card */}
+                    <div className={`mt-3 border-l-4 rounded-r-lg p-4 bg-white shadow-sm border-y border-r border-slate-100 ${lineTheme.border}`}>
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className={`${lineTheme.bg} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider`}>
+                                {startNodeCode}
+                            </span>
+                            <span className={`text-sm font-semibold ${lineTheme.text}`}>搭乘 {lineTheme.name}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 flex items-center gap-2 mt-2">
+                            <span>前往 <strong>{endStation.n}</strong></span>
+                            <span className="text-slate-300">|</span>
+                            <span>{leg.stops} 站</span>
+                            <span className="text-slate-300">|</span>
+                            <span>約 {leg.time} 分鐘</span>
+                        </p>
+                        
+                        {/* Pass through stations */}
+                        <div className="mt-2 text-xs text-slate-400">
+                            途經： {leg.nodes.slice(1, -1).map(c => allStationsMap[c].n).join(' ➔ ') || '無中途停靠站'}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Render App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

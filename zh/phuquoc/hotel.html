@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>富國島住宿指南 | 富國島飯店推薦</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5eead4; /* teal-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2dd4bf; /* teal-400 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* District Button Styles */
+        .area-btn-active {
+            background-color: #0f766e; /* teal-700 */
+            color: white;
+            border-color: #0f766e;
+            box-shadow: 0 4px 6px -1px rgba(15, 118, 110, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #f0fdfa; /* teal-50 */
+            color: #115e59; /* teal-800 */
+            border-color: #5eead4; /* teal-300 */
+        }
+
+        /* Category Button Styles */
+        .cat-btn-active {
+            background-color: #0d9488; /* teal-600 */
+            color: white;
+            border-color: #0d9488;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #f0fdfa; /* teal-50 */
+            color: #0d9488;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#f0fdfa] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-teal-900 tracking-wide">
+                    <i class="fa-solid fa-hotel mr-2 text-teal-600"></i>富國島住宿指南
+                </h1>
+                <a href="https://linkuei0425.github.io/PhuQuoc/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-teal-100 text-teal-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-teal-200">
+                    <i class="fa-solid fa-house mr-2"></i>
+                    回到首頁
+                </a>
+            </div>
+            <p class="text-teal-600 font-medium text-sm md:text-base">精選富國島各區優質飯店，讓您的海島旅程舒適又便利。</p>
+        </header>
+
+        <!-- Layer 1: District Buttons (Horizontal Scroll) -->
+        <div class="mb-6 overflow-hidden relative">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-bold text-teal-700 uppercase tracking-wider">選擇區域</span>
+                <!-- Scroll Arrows -->
+                <div class="flex gap-2">
+                    <button onclick="scrollDistricts('left')" class="p-1.5 rounded-full bg-teal-100 text-teal-600 hover:bg-teal-200 transition-colors shadow-sm" aria-label="向左滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollDistricts('right')" class="p-1.5 rounded-full bg-teal-100 text-teal-600 hover:bg-teal-200 transition-colors shadow-sm" aria-label="向右滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-3 pb-2 scroll-smooth">
+                <!-- Buttons injected by JS -->
+            </div>
+        </div>
+
+        <!-- Layer 2: Category Buttons -->
+        <div id="category-buttons" class="flex flex-wrap justify-center gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-teal-100 hidden">
+            <!-- Buttons injected by JS -->
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-teal-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-teal-300 pt-20 pb-20">
+                <p class="font-bold text-lg"><i class="fa-solid fa-spinner fa-spin mr-2"></i>載入推薦飯店中...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto px-4 mt-8 pb-4 text-center text-teal-700/70 text-sm">
+        <p>※ 富國島大眾運輸主要依賴 Grab 或計程車。富國島氣候溫暖炎熱，建議挑選附設無邊際泳池或私人海灘的度假村，以享受最佳的海島體驗。</p>
+    </footer>
+
+    <script>
+        // Phu Quoc Hotel Database
+        const hotelData = {
+            "central": {
+                name: "中島 (陽東市區/長灘)",
+                categories: {
+                    "奢華度假村": [
+                        { name: "Salinda Resort Phu Quoc Island", feature: ["富國島極具口碑的五星級精品度假村，服務無微不至", "擁有被綠意包圍的絕美鹽水泳池，直通私人海灘", "早餐提供無限量氣泡酒，並有精彩的現場音樂表演"], address: "Cửa Lấp, Dương Tơ, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-1470539/salinda-resort-phu-quoc-sparkling-wine-breakfast/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" },
+                        { name: "InterContinental Phu Quoc Long Beach Resort (洲際度假酒店)", feature: ["IHG集團頂級奢華度假村，擁有富國島最高的空中酒吧 INK 360", "設施極其豐富，包含多個壯觀的無邊際泳池與頂級SPA", "非常適合親子與情侶，海灘夕陽景色絕佳"], address: "Bãi Trường, Dương Tơ, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-15858542/intercontinental-phu-quoc-long-beach-resort/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" },
+                        { name: "Seashells Phu Quoc Hotel & Spa", feature: ["外觀如巨大貝殼般的造型飯店，位於陽東市區心臟地帶", "地理位置無敵，走路5分鐘即可抵達陽東夜市與小龍王廟", "海景房擁有無邊際海景與陽台，頂樓無邊際泳池超好拍"], address: "1 Võ Thị Sáu, Dương Đông, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-10200862/seashells-phu-quoc-hotel-and-spa/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" }
+                    ],
+                    "高 CP 值精選": [
+                        { name: "Lahana Resort Phu Quoc", feature: ["隱身在陽東市區小山丘上的生態度假村，充滿大自然原始風情", "擁有絕美的無邊際森林泳池，CP值極高", "鬧中取靜，下山走一小段路即可到達市區熱鬧街道"], address: "91/1 Trần Hưng Đạo, Dương Đông, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-9585235/lahana-resort-phu-quoc/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" },
+                        { name: "M Village Phu Quoc", feature: ["近期非常受年輕人歡迎的文青風格質感住宿", "極簡木質調設計，園區內有美麗的熱帶花園與泳池", "整體氛圍輕鬆舒適，價格平實，非常適合閨蜜或情侶"], address: "189 Trần Hưng Đạo, Dương Đông, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-65267468/m-village-resort-spa/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" }
+                    ],
+                    "特色青旅/平價": [
+                        { name: "Phu House Hostel", feature: ["外觀是傳統中式木造建築，內部則是乾淨舒適的青年旅館", "頂樓附設超人氣的海景Sky Bar，是看夕陽的秘密基地", "位於熱鬧的 Trần Hưng Đạo 路上，吃喝玩樂都方便"], address: "122 Trần Hưng Đạo, Dương Đông, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-6146290/phu-house/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" }
+                    ]
+                }
+            },
+            "north": {
+                name: "北島 (珍珠樂園/大世界)",
+                categories: {
+                    "奢華度假村": [
+                        { name: "Crowne Plaza Phu Quoc Starbay (皇冠假日星灣度假酒店)", feature: ["IHG集團北島奢華據點，裝潢現代且具質感", "擁有超大面積的不規則度假泳池與寧靜的私人海灘", "遠離塵囂，適合想要純粹放鬆、享受高階飯店設施的旅客"], address: "Khu Du Lịch Bãi Dài, Gành Dầu, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-68490848/crowne-plaza-phu-quoc-starbay-by-ihg/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" },
+                        { name: "Vinpearl Resort & Spa Phu Quoc (珍珠度假村及水療中心)", feature: ["珍珠集團旗下的經典五星度假村，紅瓦建築充滿濃郁越式風情", "擁有北島面積最大的戶外泳池，直通綿延白沙灘", "提供含樂園門票或三餐的全包式方案，省去安排行程的煩惱"], address: "Bãi Dài, Gành Dầu, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-2113148/vinpearl-resort-and-spa-phu-quoc/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" }
+                    ],
+                    "親子/樂園精選": [
+                        { name: "VinHolidays Fiesta Phu Quoc", feature: ["就位於『富國大世界 (Grand World)』園區內，下樓即可逛街看秀", "價格親民的珍珠集團旗下飯店，擁有巨大的中庭泳池", "搭乘免費 VinBus 前往野生動物園與奇幻樂園極度方便"], address: "Khu Bãi Dài, Gành Dầu, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-67667557/vinholidays-1-phu-quoc/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" },
+                        { name: "Radisson Blu Resort Phu Quoc (麗笙藍標度假村)", feature: ["國際連鎖品牌，設施完善且對親子旅客極度友善", "旁邊就是 Corona 賭場，且距離大世界與樂園都很近", "提供免費的自行車與獨木舟租借服務，泳池寬敞好玩"], address: "Bãi Dài, Gành Dầu, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-23192360/radisson-blu-resort-phu-quoc/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" }
+                    ]
+                }
+            },
+            "south": {
+                name: "南島 (日落小鎮/翡翠灣)",
+                categories: {
+                    "頂級奢華度假": [
+                        { name: "JW Marriott Phu Quoc Emerald Bay Resort (JW萬豪翡翠灣度假酒店)", feature: ["由設計大師 Bill Bensley 打造的『奇幻大學』主題奢華度假村", "位於絕美『翡翠灣』，獨擁私人粉白沙灘與貝殼造型泳池", "每個角落都是極致的網美打卡點，被譽為富國島最美飯店"], address: "Bãi Kem, An Thới, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-6489167/jw-marriott-phu-quoc-emerald-bay-resort-and-spa/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" },
+                        { name: "Premier Village Phu Quoc Resort", feature: ["位於南島最南端的半島秘境，可同時欣賞日出與日落", "全別墅 (Villa) 房型，每棟皆附私人泳池，極致奢華隱密", "擁有層疊式無邊際大泳池，適合家族旅遊或蜜月度假"], address: "Mũi Ông Đội, An Thới, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-17472672/premier-village-phu-quoc-resort-managed-by-accor/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" },
+                        { name: "New World Phu Quoc Resort (新世界度假村)", feature: ["主打越南漁村風格的全別墅奢華度假村，茅草屋頂極具特色", "每棟 Villa 都有獨立的寬敞私人泳池，隱私性極佳", "擁有綿長且沙質細軟的專屬白沙灘，服務極致貼心"], address: "Bãi Kem, An Thới, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-73295459/new-world-phu-quoc/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" }
+                    ],
+                    "精品/高 CP 值": [
+                        { name: "La Festa Phu Quoc, Curio Collection by Hilton (希爾頓格芮精選酒店)", feature: ["希爾頓集團全新力作，完美融入日落小鎮的地中海風情建築", "正對著『親吻橋 (Kiss Bridge)』，擁有全島最佳的看秀視野", "充滿濃厚義大利阿瑪菲海岸氛圍，極度浪漫"], address: "Sunset Town, An Thới, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-92027026/la-festa-phu-quoc-curio-collection-by-hilton/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" },
+                        { name: "Premier Residences Phu Quoc Emerald Bay", feature: ["位於南島翡翠灣，與 JW 萬豪相鄰，共用同一片絕美沙灘", "擁有超巨大、多層次的海島風情泳池，還設有滑水道", "雅高集團 (Accor) 管理，房價相對親民，親子設施豐富"], address: "Bãi Kem, An Thới, Phú Quốc", url: "https://hk.trip.com/hotels/phu-quoc-island-hotel-detail-25873380/premier-residences-phu-quoc-emerald-bay-managed-by-accorhotels/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. Initialize District Buttons
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70"></i>${hotelData[key].name}`;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. Select District
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. Render Category Buttons
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive shadow-sm`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // Click the first category by default
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. Select Category
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. Render Hotel Data
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-teal-100 animate-fade-in">
+                    <h2 class="text-2xl font-bold text-teal-900 mr-3">
+                        <i class="fa-solid fa-location-dot mr-2 text-teal-500"></i>${districtData.name}
+                    </h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-teal-100 text-teal-800 text-sm font-bold rounded-full border border-teal-200">
+                        <i class="fa-solid fa-tag mr-1"></i>${currentCategoryName}
+                    </span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in">此類別尚無推薦飯店。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5">`;
+                
+                hotels.forEach((hotel, index) => {
+                    // Uses provided URL or falls back to Google Maps search
+                    let searchUrl = hotel.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotel.name + ' Phu Quoc')}`;
+                    
+                    const linkTagHTML = `
+                        <a href="${searchUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 mt-3 sm:mt-0 rounded-xl text-sm font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-auto">
+                            <i class="fa-solid fa-magnifying-glass mr-1.5"></i>查看詳情
+                        </a>
+                    `;
+
+                    htmlContent += `
+                        <div class="bg-white border border-teal-100 p-5 md:p-6 rounded-2xl hover:shadow-lg transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 0.05}s;">
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2">
+                                <h4 class="text-xl font-bold text-teal-900 flex items-start leading-tight pt-1">
+                                    <span class="text-white bg-teal-500 rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2 flex-shrink-0">${index + 1}</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-0 sm:pl-8 space-y-3">
+                                <div class="flex items-start">
+                                    <span class="font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-star mr-1"></i>住宿特色</span> 
+                                    <ul class="list-disc pl-4 m-0 text-sm text-slate-700 leading-relaxed font-medium space-y-1.5 w-full">
+                                        ${hotel.feature.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-map-pin mr-1"></i>飯店位置</span> 
+                                    <span class="text-sm text-slate-700 leading-relaxed font-medium pt-0.5">${hotel.address}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // Horizontal scroll control for districts
+        function scrollDistricts(direction) {
+            const container = document.getElementById('district-buttons');
+            const scrollAmount = 200; // scroll distance
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            
+            // Auto-load the first district
+            const firstDistrictKey = Object.keys(hotelData)[0];
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict(firstDistrictKey, firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>富國島景點指南</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 隱藏滾動條但保留功能 */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body id="app-body" class="min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800">
+
+  <!-- Header -->
+  <header id="app-header" class="bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500">
+    
+    <!-- 回到首頁按鈕 -->
+    <div class="max-w-6xl mx-auto px-4 pt-4">
+      <a href="https://linkuei0425.github.io/PhuQuoc/" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 bg-white/60 hover:bg-white hover:text-gray-900 rounded-full border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-x-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        回到首頁
+      </a>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 pb-6 pt-2">
+      <div class="flex items-center justify-center space-x-3 mb-2">
+        <div id="title-icon-left" class="animate-pulse"></div>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 transition-colors duration-500">
+          珍珠島：富國島景點指南
+        </h1>
+        <div id="title-icon-right" class="animate-pulse"></div>
+      </div>
+      <p class="text-center text-gray-500 text-sm md:text-base">
+        探索北島、中島與南島的 <span id="season-text" class="font-semibold">歷史文化</span> 必訪精選。
+      </p>
+    </div>
+
+    <!-- 類別切換 -->
+    <div class="flex justify-center mb-4">
+      <div class="bg-gray-100/80 backdrop-blur-sm p-1.5 rounded-full inline-flex border border-gray-200 shadow-inner">
+        <button id="btn-history" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M2 22h20"/><path d="M12 2v20"/><path d="m4 12 8-8 8 8"/><path d="M6 22v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/></svg>
+          歷史文化
+        </button>
+        <button id="btn-trendy" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          熱門打卡
+        </button>
+      </div>
+    </div>
+    
+    <!-- 導覽分頁 (Tabs) -->
+    <div class="max-w-4xl mx-auto px-4 pb-4">
+      <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar space-x-2 md:justify-center py-2">
+        <!-- JS 動態生成 -->
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要內容區 -->
+  <main class="max-w-6xl mx-auto px-4 mt-8">
+    <div class="mb-6 flex items-center space-x-2 transition-colors duration-500" id="section-title-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <h2 id="section-title" class="text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500">
+        區域精選景點
+      </h2>
+    </div>
+
+    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- JS 動態生成 -->
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="max-w-6xl mx-auto px-4 mt-16 text-center text-gray-400 text-sm">
+    <p id="footer-text">※ 富國島大眾運輸主要依賴 Grab 或包車。前往北島強烈建議下載 <strong>VinBus App</strong>，可查詢 17號(機場-大世界)、19號(中南部-大世界) 等免費電動巴士即時動態。全年氣候溫暖，請注意防曬與補充水分。</p>
+  </footer>
+
+  <script>
+    // 歷史文化景點資料
+    const historyData = {
+      '中島': [
+        { name: '小龍王廟 / 舅舅廟 (Dinh Cau)', feature: '位於陽東市區海邊的礁石上，是當地漁民出海前祈求平安的信仰中心。這裡同時也是欣賞絕美日落的絕佳地點，充滿濃厚的在地文化氣息。', transport: '🚶 【步行】 如果住在陽東夜市附近，步行即可抵達。<br>🚗 【Grab】 若從其他區域出發，可設定目的地為 "Dinh Cau Shrine"。' },
+        { name: '傳統魚露工廠 (Fish Sauce Factory)', feature: '富國島的魚露聞名全球。在這裡可以參觀傳統的巨大木桶釀造過程，了解這項百年流傳的獨特工藝，還能買到最道地的伴手禮。', transport: '🚗 【Grab】 陽東市區有多家知名工廠（如 Khai Hoan），搭乘 Grab 約 5-10 分鐘即可到達。<br>💡 【注意】 魚露味道較濃烈，且不可攜帶上飛機，購買時請多留意。' }
+      ],
+      '南島': [
+        { name: '護國寺 (Ho Quoc Pagoda)', feature: '富國島最大、最寧靜的佛教寺廟。背山面海，風水極佳。清晨或黃昏時分來此，可俯瞰無敵海景，感受祥和與寧靜的氛圍。', transport: '🚗 【包車/Grab】 距離陽東市區約 30 分鐘車程，建議包車前往較為方便，或是請 Grab 司機等候回程。' },
+        { name: '富國島監獄 (Phu Quoc Prison)', feature: '歷史的見證者，曾被稱為「椰樹監獄」。透過逼真的模型與豐富的展品，讓人深刻了解越戰時期的殘酷與戰俘的艱辛，極具教育意義。', transport: '🚗 【Grab】 位於南島，靠近星海灘（Sao Beach），可安排在同日順遊。' }
+      ]
+    };
+
+    // 熱門打卡景點資料
+    const trendyData = {
+      '北島': [
+        { name: '富國大世界 (Grand World)', feature: '不夜城，被譽為「越南版威尼斯」，有著色彩繽紛的歐式建築、威尼斯運河、泰迪熊博物館。夜晚的大型水舞秀更是不可錯過的視覺盛宴。', transport: '🚌 【免費巴士】 可搭乘 <strong>VinBus 17號線</strong> (機場出發) 或 <strong>19號線</strong> (中南島出發) 直達大世界。<br>🚗 【Grab】 從中島市區搭 Grab 約需 40 分鐘。' },
+        { name: '珍珠奇幻樂園 (VinWonders)', feature: '越南版迪士尼！擁有巨型的海龜水族館、刺激的陸上遊樂設施與超大型水上樂園，非常適合親子度假嗨玩一整天。', transport: '🚌 【免費巴士】 先搭乘 VinBus 17/19 號線至大世界，再轉乘 <strong>園區免費接駁專車</strong> 直達樂園。' },
+        { name: '珍珠野生動物園 (Vinpearl Safari)', feature: '亞洲最大野生動物園！最特別的是可以搭乘「遊園車」進入猛獸區，近距離觀賞野生動物，還能親手餵食長頸鹿。', transport: '🚌 【免費巴士】 先搭乘 VinBus 17/19 號線至大世界，再轉乘 <strong>野生動物園免費接駁專車</strong> 前往。' },
+        { name: '海星沙灘 (Starfish Beach)', feature: '富國島北部的拍照秘境！這裡擁有清澈的海水，淺灘中可以見到大量美麗的紅海星，非常適合網美打卡。', transport: '🚗 【包車】 位於北島較偏遠處，部分路段為泥土路，強烈建議包車前往，較不建議騎機車。' }
+      ],
+      '南島': [
+        { name: '太陽世界跨海纜車 (Sun World Hon Thom)', feature: '世界最長海上纜車！長達20分鐘的車程可俯瞰安泰群島的清澈漸層海水與漁船風光，景色絕美。', transport: '🚗 【Grab】 從陽東市區搭 Grab 至南島纜車站約 40 分鐘。<br>🚌 【接駁車】 部分飯店有提供專屬接駁服務。' },
+        { name: '日落小鎮 / 地中海小鎮 (Sunset Town)', feature: '充滿歐式建築的地中海風情小鎮，每一處都超級好拍。標誌性的「親吻之橋 (Kiss Bridge)」更是適合看夕陽打卡的浪漫聖地。', transport: '🚶 【步行】 位於南島纜車站旁，強烈建議安排在搭乘纜車回程後的傍晚時分順遊。' },
+        { name: '香島自然公園 (Hon Thom)', feature: '纜車的終點站，島上擁有美麗的沙灘與 Aquatopia 水上樂園，是非常適合全家大小放鬆的水上天堂。', transport: '🚠 【纜車】 需從日落小鎮搭乘太陽世界跨海纜車前往。' },
+        { name: '白沙灘 (Sao Beach)', feature: '富國島最美沙灘之一！以細緻如粉末的白沙聞名，海水清澈見底，還有著名的網美海上鞦韆。', transport: '🚗 【Grab/包車】 位於南島東側，建議搭乘 Grab 或包車，可與護國寺或富國島監獄順遊。' }
+      ],
+      '中島': [
+        { name: '桑奈托日落海灘 (Sunset Sanato)', feature: '著名的「異形沙灘」，以長腿大象、人臉雕像、天上飛的魚等特殊裝置藝術聞名。這裡是全島賞夕陽的最潮網美景點。', transport: '🚗 【Grab】 距離富國島機場與陽東市區不遠，搭乘 Grab 約 10-15 分鐘。<br>🎫 【門票】 進入此沙灘俱樂部需購買門票，可抵扣部分餐飲。' },
+        { name: '陽東夜市 (Phu Quoc Night Market)', feature: '富國島最熱鬧的夜市！必吃各式各樣的海鮮大排檔、炒冰與花生糖，是體驗當地夜生活與採買伴手禮的最佳去處。', transport: '🚶 【步行/Grab】 位於中島市中心。若住市區可步行；稍遠的話搭 Grab 是最方便的選擇。' }
+      ]
+    };
+
+    // 狀態管理
+    let activeCategory = 'history';
+    let activeTab = '中島';
+
+    // SVG 圖示
+    const svgMonument = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22h20"/><path d="M12 2v20"/><path d="m4 12 8-8 8 8"/><path d="M6 22v-6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/></svg>`;
+    const svgCamera = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`;
+    const svgSparkles = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400 mr-2 flex-shrink-0 mt-0.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`;
+    const svgMapPin = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 mr-2 flex-shrink-0 mt-0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
+
+    // 主題配色設定
+    const themeConfig = {
+      history: {
+        bg: 'bg-amber-50', selection: 'selection:bg-amber-300', textMain: 'text-amber-600',
+        borderMain: 'border-amber-100', tabActive: 'bg-amber-600 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-amber-100 hover:text-amber-700', iconH2: 'text-amber-600', borderH2: 'border-amber-200',
+        cardGradient: 'from-amber-300 via-amber-400 to-amber-300 group-hover:from-amber-400 group-hover:to-amber-500',
+        numberBg: 'bg-amber-100 text-amber-700', transportBg: 'bg-amber-50',
+        btnActive: 'bg-white text-amber-600 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-amber-500 hover:bg-white/50'
+      },
+      trendy: {
+        bg: 'bg-teal-50', selection: 'selection:bg-teal-300', textMain: 'text-teal-600',
+        borderMain: 'border-teal-100', tabActive: 'bg-teal-500 text-white shadow-md transform scale-105',
+        tabHover: 'bg-white text-gray-600 hover:bg-teal-100 hover:text-teal-600', iconH2: 'text-teal-600', borderH2: 'border-teal-200',
+        cardGradient: 'from-teal-300 via-teal-400 to-teal-300 group-hover:from-teal-400 group-hover:to-teal-500',
+        numberBg: 'bg-teal-100 text-teal-600', transportBg: 'bg-teal-50',
+        btnActive: 'bg-white text-teal-600 shadow-sm transform scale-105',
+        btnInactive: 'text-gray-500 hover:text-teal-500 hover:bg-white/50'
+      }
+    };
+
+    function updateTheme() {
+      const t = themeConfig[activeCategory];
+      
+      // 更新背景與 Header
+      document.getElementById('app-body').className = `min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800 ${t.bg} ${t.selection} selection:text-white`;
+      document.getElementById('app-header').className = `bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500 ${t.borderMain}`;
+      
+      // 更新圖示與文字顏色
+      const iconSvg = activeCategory === 'history' ? svgMonument : svgCamera;
+      document.getElementById('title-icon-left').innerHTML = iconSvg;
+      document.getElementById('title-icon-right').innerHTML = iconSvg;
+      document.getElementById('title-icon-left').className = `animate-pulse ${t.textMain}`;
+      document.getElementById('title-icon-right').className = `animate-pulse ${t.textMain}`;
+      
+      document.getElementById('season-text').innerText = activeCategory === 'history' ? '歷史文化' : '熱門打卡';
+
+      // 區塊標題
+      document.getElementById('section-title-container').className = `mb-6 flex items-center space-x-2 transition-colors duration-500 ${t.iconH2}`;
+      document.getElementById('section-title').className = `text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500 ${t.borderH2}`;
+
+      // 切換按鈕
+      document.getElementById('btn-history').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeCategory === 'history' ? t.btnActive : t.btnInactive}`;
+      document.getElementById('btn-trendy').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeCategory === 'trendy' ? t.btnActive : t.btnInactive}`;
+    }
+
+    function renderTabs() {
+      const t = themeConfig[activeCategory];
+      const data = activeCategory === 'history' ? historyData : trendyData;
+      const cities = Object.keys(data);
+      const container = document.getElementById('tabs-container');
+      
+      // 若當前選取的 tab 不存在於新類別中，則預設選擇第一個
+      if (!cities.includes(activeTab)) {
+        activeTab = cities[0];
+      }
+
+      container.innerHTML = cities.map(city => `
+        <button
+          onclick="setTab('${city}')"
+          class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-in-out ${activeTab === city ? t.tabActive : t.tabHover}"
+        >
+          ${city}
+        </button>
+      `).join('');
+    }
+
+    function renderCards() {
+      const t = themeConfig[activeCategory];
+      const data = activeCategory === 'history' ? historyData : trendyData;
+      const spots = data[activeTab];
+      
+      document.getElementById('section-title').innerText = `${activeTab} 精選景點`;
+
+      const container = document.getElementById('cards-container');
+      container.innerHTML = spots.map((spot, index) => `
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-50 flex flex-col h-full group">
+          <div class="h-2 w-full bg-gradient-to-r transition-colors duration-500 ${t.cardGradient}"></div>
+          <div class="p-6 flex-grow flex flex-col">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-start">
+              <span class="rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5 transition-colors duration-500 ${t.numberBg}">
+                ${index + 1}
+              </span>
+              ${spot.name}
+            </h3>
+            
+            <div class="mb-6 flex-grow">
+              <div class="flex items-start text-gray-600 mb-1">
+                ${svgSparkles}
+                <span class="font-semibold text-gray-700">景點特色</span>
+              </div>
+              <p class="text-gray-600 leading-relaxed pl-7 text-sm">
+                ${spot.feature}
+              </p>
+            </div>
+
+            <div class="rounded-xl p-4 mt-auto transition-colors duration-500 ${t.transportBg}">
+              <div class="flex items-start text-gray-700 mb-2">
+                ${svgMapPin}
+                <span class="font-semibold">交通指南</span>
+              </div>
+              <p class="text-gray-600 text-sm pl-7 leading-relaxed space-y-1">
+                ${spot.transport}
+              </p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 事件監聽與邏輯
+    function setCategory(category) {
+      if (activeCategory === category) return;
+      activeCategory = category;
+      updateTheme();
+      renderTabs();
+      renderCards();
+    }
+
+    function setTab(tab) {
+      if (activeTab === tab) return;
+      activeTab = tab;
+      renderTabs();
+      renderCards();
+    }
+
+    document.getElementById('btn-history').addEventListener('click', () => setCategory('history'));
+    document.getElementById('btn-trendy').addEventListener('click', () => setCategory('trendy'));
+
+    // 初始渲染
+    updateTheme();
+    renderTabs();
+    renderCards();
+  </script>
+</body>
+</html>

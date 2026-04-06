@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>富國島行程魔法師</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- React & Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    @media print {
+      body { background-color: white !important; }
+      .print-hidden { display: none !important; }
+      .print-break-avoid { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+  
+  <div id="root"></div>
+
+  <!-- React Logic -->
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // --- Attraction Database (Phu Quoc) ---
+    const ATTRACTIONS = [
+      // ================= 機場與住宿 =================
+      { id: 'pqc_airport', city: 'central', name: '富國島國際機場 (PQC)', stay: 1.5, region: 10, regionName: '機場', type: '機場與交通', desc: '旅程開始！抵達富國島並辦理入境手續。建議出發前先準備好網卡與下載好 Grab APP。', transport: '搭乘 Grab、包車或飯店接駁車前往市區。', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/airport-transfers/?aid=117232', text: '富國島機場接送' },
+          { url: 'https://www.klook.com/zh-TW/activity/117294-4g-sim-card-phu-quoc-airport-pick-up-for-vietnam/?spm=SearchResult.SearchResult_LIST&clickId=88ee710a66&aid=117232', text: '越南 4G 上網卡(機場領)' },
+          { url: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246549&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F123902-vietnam-esim-high-speed-internet-qr-code-voucher%2F', text: '越南 5G e-sim 上網卡' },
+          { url: 'https://www.klook.com/zh-TW/activity/96718-high-speed-ferry-rach-gia-phu-quoc/?aid=117232', text: '迪石⇋富國島高速輪渡' }
+        ] 
+      },
+      { id: 'acc_central', city: 'central', name: '住宿：中島 (陽東市區/長灘)', stay: 1, region: 11, regionName: '中島', type: '住宿', desc: '辦理入住並放置行李。中島是富國島最熱鬧的區域，前往各區景點或傍晚逛夜市都非常方便。', transport: '依據飯店位置搭乘 Grab 抵達。',
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/activity/6343-private-car-charter-phu-quoc/?aid=117232', text: '富國島8小時包車' },
+          { url: 'https://www.klook.com/zh-TW/activity/69602-phu-quoc-play-and-stay-travel-pass/?aid=117232', text: 'Klook 富國島景點通票' }
+        ]
+      },
+      { id: 'acc_north', city: 'north', name: '住宿：北島 (珍珠度假村/大世界)', stay: 1, region: 12, regionName: '北島', type: '住宿', desc: '辦理入住並放置行李。北島擁有超大主題樂園與動物園，適合親子或喜歡樂園行程的旅客。', transport: '搭乘 Grab 或 VinBus (免費接駁車) 抵達。' },
+      { id: 'acc_south', city: 'south', name: '住宿：南島 (日落小鎮/翡翠灣)', stay: 1, region: 13, regionName: '南島', type: '住宿', desc: '辦理入住並放置行李。南島以奢華度假村與絕美沙灘聞名，適合追求質感與網美打卡的旅客。', transport: '依據飯店位置搭乘 Grab 抵達。' },
+
+      // ================= 中島 (Central) =================
+      { id: 'night_market', city: 'central', name: '陽東夜市 (Phu Quoc Night Market)', stay: 2.5, timeWindow: [17, 22], region: 11, regionName: '中島', type: '購物與夜市', desc: '富國島最熱鬧的夜市！傍晚開始營業，充滿各式現烤海鮮、海膽、花生糖與炒冰，充滿道地風味與活力。', transport: '位於陽東市中心，住市區可步行，稍遠建議搭 Grab。' },
+      { id: 'dinh_cau', city: 'central', name: '小龍王廟 / 舅舅廟 (Dinh Cau)', stay: 1, timeWindow: [8, 20], region: 11, regionName: '中島', type: '歷史與文化', desc: '位於陽東市區海邊礁石上，是當地漁民出海前的信仰中心，更是欣賞絕美日落的絕佳地點。', transport: '距離陽東夜市很近，步行即可抵達。' },
+      { id: 'sunset_sanato', city: 'central', name: '桑奈托日落海灘 (Sunset Sanato)', stay: 2, timeWindow: [15, 20], region: 11, regionName: '中島', type: '自然與海灘', desc: '著名的「異形沙灘」，沙灘上有長腿大象、人臉雕像等超現實裝置藝術，是全島賞日落的最潮網美景點。', transport: '距離富國島機場與陽東市區不遠，搭乘 Grab 約 10-15 分鐘。需購票入場。', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/activity/58425-sunset-sanato-beach-admission-ticket/?aid=117232', text: '日落海灘門票' },
+          { url: 'https://www.klook.com/zh-TW/activity/155191-starfish-beach-sunset-sanato-twilight-sunset-night-fishing-tour/?aid=117232', text: '海星沙灘/Sanato/夜釣之旅' }
+        ] 
+      },
+      { id: 'chuon_chuon', city: 'central', name: 'Chuồn Chuồn 景觀咖啡廳', stay: 1.5, timeWindow: [9, 21], region: 11, regionName: '中島', type: '打卡熱點', desc: '位於陽東市區半山腰，擁有全島最棒的俯瞰視角，白天是絕美咖啡廳，傍晚是賞夕陽聖地。', transport: '上山的路非常陡峭，強烈建議搭乘 Grab 上去。' },
+      { id: 'mud_bath', city: 'central', name: 'Soc Nau 泥漿浴與水療', stay: 2.5, timeWindow: [9, 21], region: 11, regionName: '中島', type: '打卡熱點', desc: '體驗富國島特色的泥漿浴，享受舒緩身心的水療與按摩服務，消除旅行的疲勞。', transport: '搭乘 Grab 前往。',
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/activity/36869-thoc-mud-bath-spa-experience-in-phu-quoc/?aid=117232', text: '泥漿浴與水療體驗' }
+        ]
+      },
+
+      // ================= 北島 (North) =================
+      { id: 'grand_world', city: 'north', name: '富國大世界 (Grand World)', stay: 3, timeWindow: [15, 22], region: 12, regionName: '北島', type: '主題樂園', desc: '被譽為「越南版威尼斯」，有著色彩繽紛的歐式建築與運河。傍晚的運河風光與晚上的水舞秀是必看重點。', transport: '搭乘 VinBus 免費接駁車，或從中島搭 Grab (約40分鐘)。',
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/activity/56159-grand-world-phu-quoc-attraction-ticket/?aid=117232', text: '富國大世界景點門票' }
+        ]
+      },
+      { id: 'vinwonders', city: 'north', name: '珍珠奇幻樂園 (VinWonders)', stay: 4.5, timeWindow: [9, 19.5], region: 12, regionName: '北島', type: '主題樂園', desc: '越南最大主題樂園！擁有巨型海龜水族館、刺激陸上遊樂設施與超大型水上樂園，適合嗨玩大半天。', transport: '搭乘 VinBus 至大世界轉乘園區車，或直接搭 Grab。', 
+        bookingLinks: [{url: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246553&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F11989-vinwonders-phu-quoc-ticket%2F', text: '珍珠奇幻樂園門票'}] 
+      },
+      { id: 'safari', city: 'north', name: '珍珠野生動物園 (Vinpearl Safari)', stay: 3.5, timeWindow: [9, 16.5], region: 12, regionName: '北島', type: '主題樂園', desc: '亞洲最大半野生動物園。最特別的是搭乘「遊園巴士」進入猛獸區，還能近距離親手餵食長頸鹿。', transport: '動物園關門較早，建議安排在上午。可搭乘 VinBus 前往。', 
+        bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/11990-vinpearl-safari-phu-quoc-ticket/?aid=117232', text: '野生動物園門票'}] 
+      },
+      { id: 'starfish', city: 'north', name: '海星沙灘 (Starfish Beach)', stay: 2, timeWindow: [9, 17.5], region: 12, regionName: '北島', type: '自然與海灘', desc: '富國島北部的拍照秘境！清澈的淺灘中可以見到大量美麗的紅海星，非常適合網美打卡。', transport: '路況較差(部分為泥土路)，強烈建議包車前往。',
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/activity/4341-nature-discovery-phu-quoc/?aid=117232', text: '北島獨木舟/星魚沙灘一日遊' }
+        ]
+      },
+
+      // ================= 南島 (South) =================
+      { id: 'cable_car', city: 'south', name: '太陽世界跨海纜車 (Sun World)', stay: 4, timeWindow: [9, 17.5], region: 13, regionName: '南島', type: '主題樂園', desc: '世界最長海上纜車！20分鐘車程俯瞰漸層海水。終點香島擁有美麗沙灘與 Aquatopia 水上樂園。', transport: '從中島搭 Grab 至南島纜車站約需 40 分鐘。', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/activity/23196-island-hopping-tour-cable-car-experience-phu-quoc/?aid=117232', text: '跨海纜車＆樂園門票' },
+          { url: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246554&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F20750-sun-world-hon-thom-cable-car-ticket%2F', text: '香島自然公園門票' }
+        ] 
+      },
+      { id: 'sunset_town', city: 'south', name: '日落小鎮 & 親吻橋', stay: 2.5, timeWindow: [15, 21], region: 13, regionName: '南島', type: '打卡熱點', desc: '充滿地中海風情的小鎮，每個角落都像一幅畫。夕陽時分在「親吻橋」打卡最為浪漫，晚上也有精彩表演。', transport: '位於南島纜車站旁，建議搭完纜車回程後順遊。',
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/activity/81479-kiss-the-star-show-ticket/?aid=117232', text: 'Kiss of the Sea 門票' },
+          { url: 'https://www.klook.com/zh-TW/activity/155428-dining-experience-at-sun-bavaria-magic-in-sunset-town-phu-quoc/?aid=117232', text: 'Sun Bavaria 用餐體驗' }
+        ]
+      },
+      { id: 'island_hopping', city: 'south', name: '南島跳島浮潛之旅', stay: 6.5, timeWindow: [8, 17], region: 13, regionName: '南島', type: '自然與海灘', desc: '搭乘快艇前往布姆島、甘吉島、瑪魯島，體驗豐富的海洋生態與絕美的珊瑚礁浮潛。', transport: '通常包含市區或南島飯店的接送服務。',
+        bookingLinks: [
+          { url: 'https://www.klook.com/zh-TW/activity/10834-fingernail-island-dam-ngang-may-rut-island-day-tour-phu-quoc/?aid=117232', text: '布姆/甘吉/瑪魯島跳島' },
+          { url: 'https://www.klook.com/zh-TW/activity/56528-phu-quoc-snorkeling-day-tour-by-speedboat/?aid=117232', text: '珊瑚山&半月礁浮潛' }
+        ]
+      },
+      { id: 'sao_beach', city: 'south', name: '白沙灘 (Sao Beach)', stay: 2, timeWindow: [9, 17.5], region: 13, regionName: '南島', type: '自然與海灘', desc: '富國島最美沙灘之一！以細緻如粉末的白沙聞名，海水清澈見底，還有著名的網美海上鞦韆。', transport: '位於南島東側，建議搭乘 Grab 或包車前往。' },
+      { id: 'ho_quoc', city: 'south', name: '護國寺 (Ho Quoc Pagoda)', stay: 1, timeWindow: [8, 17.5], region: 13, regionName: '南島', type: '歷史與文化', desc: '富國島最大、最寧靜的佛教寺廟。背山面海，風水極佳。可俯瞰無敵海景，感受祥和氛圍。', transport: '距離市區約 30 分鐘，建議包車或請 Grab 司機等候回程。' },
+      { id: 'prison', city: 'south', name: '富國島監獄 (Phu Quoc Prison)', stay: 1.5, timeWindow: [8, 17.5], region: 13, regionName: '南島', type: '歷史與文化', desc: '曾被稱為「椰樹監獄」。透過逼真模型展示越戰時期的殘酷與戰俘的艱辛，極具教育意義。', transport: '位於南島，靠近星海灘，可安排在同日順遊。' }
+    ];
+
+    const CITIES = [
+      { id: 'central', name: '中島 (陽東市區)', color: 'blue' },
+      { id: 'north', name: '北島 (大世界/樂園)', color: 'fuchsia' },
+      { id: 'south', name: '南島 (日落小鎮/纜車)', color: 'emerald' }
+    ];
+
+    // --- Core Routing & Transit Logic ---
+    const formatTime = (h) => {
+      let hh = Math.floor(h) % 24;
+      let mm = Math.round((h - Math.floor(h)) * 60);
+      if (mm === 60) { hh++; mm = 0; }
+      return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+    };
+
+    // 將小數點小時轉換為更容易閱讀的「小時/分鐘」格式
+    const formatDuration = (h) => {
+      const num = Number(h);
+      if (isNaN(num) || num === 0) return "0分鐘";
+      const hrs = Math.floor(num);
+      const mins = Math.round((num - hrs) * 60);
+      if (hrs > 0 && mins > 0) return `${hrs}小時${mins}分鐘`;
+      if (hrs > 0) return `${hrs}小時`;
+      return `${mins}分鐘`;
+    };
+
+    const getCityColor = (cityId) => {
+      const colors = { central: 'blue', north: 'fuchsia', south: 'emerald' };
+      const c = colors[cityId] || 'slate';
+      return `text-${c}-600 bg-${c}-100 border-${c}-200`;
+    };
+
+    const getSmartTransit = (prev, curr) => {
+      if (curr.id === 'ret') return '✈️ [離境] 搭乘 Grab 或包車前往富國島國際機場 (PQC) 辦理報到。';
+
+      if (!prev || prev.id.startsWith('acc_') || prev.type === 'Start Point') {
+        if (curr.type === '機場與交通') return `🛬 [抵達] 搭乘 Grab 或飯店接送前往 ${curr.name}。`;
+        return `🏨 [出發] 搭乘 Grab 或 VinBus 前往 ${curr.name}。`;
+      }
+
+      if (prev.city !== curr.city && prev.id !== 'hcmc_origin') {
+         let text = '';
+         if (prev.city === 'north' || curr.city === 'north') {
+            text = '搭乘 Grab 或 VinBus (免費電動巴士) 進行跨區移動 (約 45-50 分鐘)。';
+         } else {
+            text = '搭乘 Grab 或包車進行跨區移動 (約 35-40 分鐘)。';
+         }
+         if ((prev.city === 'north' && curr.city === 'south') || (prev.city === 'south' && curr.city === 'north')) {
+             text = '搭乘 Grab 或包車進行南北島大跨區移動 (約 70 分鐘)。建議調整行程減少長途拉車。';
+         }
+         return `🚗 [跨區移動] ${text}`;
+      }
+
+      return `🚶 [區域交通] 距離較近，可步行或搭乘短程 Grab 從 ${prev.name} 前往 ${curr.name}。`;
+    };
+
+    const getTTime = (isNewDay, fCity, tCity, fReg, tReg) => {
+        if (fCity && tCity && fCity !== tCity) {
+            if ((fCity === 'north' && tCity === 'south') || (fCity === 'south' && tCity === 'north')) return 1.2; // 72 mins
+            return 0.8; // 48 mins
+        }
+        if (isNewDay) return 0.2; // morning start
+        return 0.3; // local transit
+    };
+
+    // --- Main App Component ---
+    function App() {
+      const [activeCity, setActiveCity] = useState('central');
+      const [selectedIds, setSelectedIds] = useState([]);
+      const [showPrintView, setShowPrintView] = useState(false);
+      const [tripDuration, setTripDuration] = useState(5);
+
+      const toggleAttr = (id) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+      const itineraryDays = useMemo(() => {
+        if (selectedIds.length === 0) return [];
+        let idsToSchedule = [...new Set(selectedIds)];
+
+        const getPriority = (item) => {
+            if (item.id === 'ret') return 999;
+            if (item.type === 'Start Point') return 10;
+            if (item.type === '機場與交通') return 15;
+            if (item.type === '住宿') return 20; 
+            let win = item.timeWindow || [9.5, 21.5];
+            const isNight = ['購物與夜市'].includes(item.type) || item.id === 'grand_world' || item.id === 'sunset_town' || item.id === 'sunset_sanato';
+            if (isNight) return 90; 
+            if (win[1] <= 17.5) return 30; // closes early (e.g., Safari, Cable Car)
+            return 50; 
+        };
+
+        const sorted = idsToSchedule
+          .map(id => ATTRACTIONS.find(a => a.id === id))
+          .filter(a => a)
+          .sort((a, b) => {
+            const getSortKey = (item) => {
+              let sk = getPriority(item);
+              let cityGroup = CITIES.findIndex(c => c.id === item.city);
+              return cityGroup * 100000 + sk * 1000; 
+            };
+            return getSortKey(a) - getSortKey(b);
+          });
+
+        let remaining = [...sorted];
+        let days = [];
+        let curDay = { items: [], dayCity: 'central', dayType: null, currentTime: 13.0, startTime: 13.0 }; 
+        let lCity = 'central', lReg = 11, prevItemObj = null; 
+
+        const checkValid = (a, isF, curTime) => {
+            let tTime = getTTime(isF, lCity, a.city, lReg, a.region);
+            let arrivalTime = curTime + tTime;
+            let isLastDay = days.length === tripDuration - 1;
+            
+            // 【核心修正】：打破同一區的強制限制
+            // 如果不是第一站，且不是住宿/機場，只在時間較晚時(>17:30)才限制跨區，白天則允許自由跨區填補空檔
+            if (!isF && !['住宿', '機場與交通', 'Start Point'].includes(a.type)) {
+                if (a.city !== lCity && curTime > 17.5) return false;
+            }
+            
+            let win = a.timeWindow || [9, 21.5]; 
+            if (['住宿', '機場與交通'].includes(a.type)) win = [0, 24];
+            let waitTime = arrivalTime < win[0] ? win[0] - arrivalTime : 0;
+            if (waitTime > 4.5 && !isF) return false;
+            
+            let actStart = arrivalTime + waitTime;
+            let actEnd = actStart + a.stay;
+            if (actStart >= win[1] - 0.5) return false; 
+            
+            if (isLastDay) {
+                let retTFromA = getTTime(false, a.city, 'central', a.region, 10);
+                if (actEnd > (14.0 - 2.5 - retTFromA)) return false;
+            } else if (!isF && actEnd > 21.5) return false; // 最晚排到 21:30 結束
+            
+            return { valid: true, tTime, waitTime, actStart, actEnd };
+        };
+
+        while (remaining.length > 0) {
+            const isF = curDay.items.length === 0;
+            let chosenIdx = -1, chosenStats = null, validCands = [];
+            
+            for (let i = 0; i < remaining.length; i++) {
+                let stats = checkValid(remaining[i], isF, curDay.currentTime);
+                if (stats && stats.valid) validCands.push({ a: remaining[i], idx: i, prio: getPriority(remaining[i]), stats });
+            }
+            
+            if (validCands.length > 0) {
+                validCands.sort((ca, cb) => {
+                    // 【核心修正】：計算「交通＋等待」的總閒置時間 (Gap)
+                    let gapA = ca.stats.tTime + ca.stats.waitTime;
+                    let gapB = cb.stats.tTime + cb.stats.waitTime;
+                    
+                    // 如果去「別區」可以省下超過 1.0 小時的「乾等時間」，就打破同區綁定，優先去別區！
+                    if (Math.abs(gapA - gapB) > 1.0) return gapA - gapB;
+
+                    // 否則，依然優先待在同一區，節省交通費與體力
+                    let isSameCityA = ca.a.city === lCity ? 1 : 0, isSameCityB = cb.a.city === lCity ? 1 : 0;
+                    if (isSameCityA !== isSameCityB) return isSameCityB - isSameCityA;
+                    
+                    if (ca.prio !== cb.prio) return ca.prio - cb.prio;
+                    if (ca.stats.tTime !== cb.stats.tTime) return ca.stats.tTime - cb.stats.tTime;
+                    return ca.idx - cb.idx; 
+                });
+                chosenIdx = validCands[0].idx; chosenStats = validCands[0].stats;
+            }
+            
+            if (chosenIdx === -1) {
+                days.push(curDay);
+                if (days.length >= tripDuration) break;
+                curDay = { items: [], dayCity: remaining[0].city, dayType: null, currentTime: 9.0, startTime: 9.0 };
+                continue;
+            }
+            
+            const a = remaining.splice(chosenIdx, 1)[0];
+            const { tTime, waitTime, actStart, actEnd } = chosenStats;
+            
+            if (isF && days.length === 0) prevItemObj = { id: 'hcmc_origin', city: 'central', name: '抵達機場', type: 'Start Point' };
+            if (isF && days.length > 0) prevItemObj = { id: 'acc_central', city: a.city, name: `飯店出發 (${CITIES.find(c=>c.id===a.city)?.name || '中島'})`, type: '住宿' }; 
+            
+            let sTime = curDay.currentTime;
+            // 如果是第一站且需要等待，自動延後出發時間
+            if (isF && waitTime > 0) {
+                sTime += waitTime;
+                curDay.startTime = sTime;
+            }
+            let aTime = sTime + tTime;
+
+            let transitMsg = getSmartTransit(prevItemObj, a) + `\n📍 交通建議: ${a.transport}`;
+            let win = a.timeWindow || [9, 21.5];
+            
+            if (actStart - aTime > 0 && win[0] > 0 && !['住宿', '機場與交通'].includes(a.type) && !isF) {
+                transitMsg += `\n💡 提示: 建議於 ${formatTime(win[0])} 後開始遊玩。預計於 ${formatTime(aTime)} 抵達，可稍作休息。`;
+            }
+
+            curDay.items.push({ ...a, tTime: tTime.toFixed(1), prevName: prevItemObj.name, transitTransport: transitMsg, tStr: `${formatTime(sTime)} - ${formatTime(aTime)}`, sStr: (days.length === 0 && isF && a.type === '機場與交通') ? '抵達與通關' : `${formatTime(actStart)} - ${formatTime(actEnd)}`, isFirstAirport: (days.length === 0 && isF && a.type === '機場與交通'), endTime: actEnd });
+            curDay.currentTime = actEnd; lCity = a.city; lReg = a.region; prevItemObj = a;
+            if (isF) curDay.dayCity = a.city;
+        }
+        
+        if (curDay.items.length > 0 && days.length < tripDuration) days.push(curDay);
+        while (days.length < tripDuration) days.push({ items: [], dayCity: lCity, dayType: null, currentTime: 9.0, startTime: 9.0 });
+        
+        let lastD = days[days.length-1];
+        if (!lastD) { lastD = { items: [], dayCity: 'central', dayType: null, currentTime: 9.0, startTime: 9.0 }; days.push(lastD); }
+        while (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            if (lastItem.endTime > (14.0 - 2.5 - getTTime(false, lastItem.city, 'central', lastItem.region, 10))) lastD.items.pop();
+            else break;
+        }
+        if (lastD.items.length > 0) { let lastItem = lastD.items[lastD.items.length-1]; lastD.currentTime = lastItem.endTime; lCity = lastItem.city; lReg = lastItem.region; prevItemObj = lastItem; }
+        else { lastD.currentTime = 9.0; lastD.startTime = 9.0; lReg = 11; prevItemObj = { name: '飯店', city: lCity }; }
+        
+        let retT = getTTime(lastD.items.length === 0, lCity, 'central', lReg, 10), startTransit = 14.0 - 2.5 - retT;
+        let transitMsg = lastD.currentTime < startTransit ? `💡 距離前往機場還有一點空檔時間。建議於 ${formatTime(startTransit)} 出發。\n🚐 預約接送或搭乘 Grab 直接前往富國島機場。` : '🚐 搭乘 Grab 或預約接駁車前往富國島機場 (PQC) 辦理報到。';
+        lastD.items.push({ id: 'ret', city: 'central', name: '旅程結束 - 前往機場', stay: 2.5, region: 999, regionName: '機場', type: '機場與交通', desc: '祝您對富國島留下美好的回憶！富國島機場出境人潮可能較多，務必提早報到。', transport: '搭乘 Grab 或飯店接駁車直達機場。', tTime: retT.toFixed(1), prevName: prevItemObj.name, transitTransport: transitMsg, tStr: `${formatTime(startTransit)} - ${formatTime(14.0 - 2.5)}`, sStr: `${formatTime(14.0 - 2.5)} - 14:00`, isFirstAirport: false, endTime: 14.0 });
+        lastD.currentTime = 14.0;
+
+        return days.map((d, i) => ({ dayNum: i+1, totalH: (d.currentTime - d.startTime > 0 ? (d.currentTime - d.startTime).toFixed(1) : "0.0"), cityName: CITIES.find(c => c.id === d.dayCity)?.name || '中島', items: d.items }));
+      }, [selectedIds, tripDuration]);
+
+      if (showPrintView) {
+        return (
+          <div className="min-h-screen bg-white p-4 sm:p-8">
+            <div className="max-w-3xl mx-auto border-2 border-slate-800 p-4 sm:p-8 rounded-2xl">
+              <div className="text-center mb-10"><h1 className="text-2xl sm:text-3xl font-bold">🇻🇳 富國島自由行專屬行程表</h1><p className="mt-2 text-slate-500 text-sm">系統已自動計算跨區交通時間，並考量了各景點的最佳營業時間進行智慧排程。</p></div>
+              {itineraryDays.map(d => (
+                <div key={d.dayNum} className="mb-10 print-break-avoid">
+                  <h2 className="text-xl font-bold border-b-2 pb-2 mb-6">🌞 第 {d.dayNum} 天 - 【{d.cityName}】行程 ({formatDuration(d.totalH)})</h2>
+                  <div className="space-y-6 ml-2 sm:ml-4 border-l-2 pl-4 sm:pl-6 border-slate-300">
+                    {d.items.map((it, idx) => (
+                      <div key={`${it.id}-${idx}`} className="relative mb-8">
+                        {!it.isFirstAirport && (
+                          <div className="mb-4 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs sm:text-sm">
+                             <div className="font-bold mb-2">{it.prevName} ➔ {it.name}</div>
+                             <div className="flex gap-3 mb-2"><span className="bg-white px-2 py-1 rounded border font-mono text-blue-500"><i className="fa-regular fa-clock"></i> {it.tStr}</span><span>預估交通: {formatDuration(it.tTime)}</span></div>
+                             <div className="whitespace-pre-wrap text-slate-600">{it.transitTransport}</div>
+                          </div>
+                        )}
+                        <div className="relative">
+                          <div className="absolute -left-[23px] sm:-left-[31px] top-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>
+                          <div className="font-bold text-xs sm:text-sm text-slate-500 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留：'}{it.sStr}</div>
+                          <h4 className="text-lg sm:text-xl font-bold text-slate-900">{it.name}</h4>
+                          <p className="text-xs sm:text-sm text-slate-600 my-2 leading-relaxed">{it.desc}</p>
+                          {it.bookingLinks && <div className="mt-3 flex gap-2 flex-wrap print:hidden">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] text-white text-xs px-2.5 py-1.5 rounded font-bold hover:bg-[#e05000]"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="mt-10 text-center flex flex-col sm:flex-row justify-center gap-4 print-hidden">
+                <button onClick={() => setShowPrintView(false)} className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700">返回編輯</button>
+                <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-500">列印 / 儲存為 PDF</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const grouped = ATTRACTIONS.filter(a => a.city === activeCity && !a.id.startsWith('acc_')).reduce((acc, c) => { (acc[c.type] = acc[c.type] || []).push(c); return acc; }, {});
+
+      return (
+        <div className="min-h-screen bg-slate-50 pb-10">
+          <header className="bg-white p-4 shadow-sm flex flex-wrap justify-between items-center sticky top-0 z-20 border-b gap-3">
+            <div className="flex items-center gap-4">
+              <h1 className="font-bold text-xl flex items-center gap-2"><i className="fa-solid fa-wand-magic-sparkles text-blue-600"></i>富國島行程魔法師</h1>
+              <a href="https://linkuei0425.github.io/PhuQuoc/" className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-full border border-slate-200"><i className="fa-solid fa-house"></i> 回到首頁</a>
+            </div>
+            <div className="flex items-center gap-3">
+              {selectedIds.length > 0 && <button onClick={() => setSelectedIds([])} className="text-xs font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1 cursor-pointer"><i className="fa-solid fa-trash-can"></i> 清空</button>}
+              <div className="text-xs font-bold bg-slate-800 text-white px-3 py-1.5 rounded-full shadow-sm">已選 {selectedIds.length} 個</div>
+            </div>
+          </header>
+          
+          <main className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-6 mt-2">
+            <div className="lg:w-1/2 flex flex-col gap-4">
+              <div className="bg-white p-2 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar">
+                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeCity === c.id ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}>{c.name}</button>)}
+              </div>
+              <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+                <h2 className="text-sm font-bold flex items-center gap-2 mb-1"><i className="fa-solid fa-circle-info text-blue-500"></i>智慧排程提示</h2>
+                <p className="text-xs text-slate-500">系統會自動判斷，如果同一區等太久，會<strong className="text-orange-500">聰明地幫您安排到不同區遊玩</strong>！每日行程最晚會於 21:30 結束，跨區交通時間亦會自動計算。</p>
+              </div>
+              <div className="max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+                {Object.entries(grouped).map(([type, items]) => (
+                  <div key={type} className="mb-6">
+                    <h3 className="font-bold text-slate-700 mb-3 sticky top-0 bg-slate-50/90 py-2 backdrop-blur-sm z-10 border-b border-slate-200">{type}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {items.map(it => (
+                        <div key={it.id} onClick={() => toggleAttr(it.id)} className={`p-4 rounded-xl cursor-pointer border-2 transition-all ${selectedIds.includes(it.id) ? 'bg-blue-50 border-blue-500 scale-[1.02] shadow-md' : 'bg-white border-transparent shadow-sm hover:border-slate-300'}`}>
+                          <div className="font-bold text-slate-900 mb-2">{it.name}</div>
+                          <div className="text-[10px] flex gap-2 mb-2"><span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600"><i className="fa-regular fa-clock mr-1"></i>{formatDuration(it.stay)}</span><span className={`px-1.5 py-0.5 rounded border ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot"></i> {it.regionName}</span></div>
+                          <p className="text-xs text-slate-500 line-clamp-2">{it.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:w-1/2">
+              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] sticky top-24">
+                <div className="bg-slate-800 text-white p-5 lg:p-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2"><i className="fa-regular fa-calendar-check text-blue-400"></i>專屬行程表</h2>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <select value={tripDuration} onChange={(e) => setTripDuration(Number(e.target.value))} className="flex-1 sm:flex-none bg-slate-700 text-white font-bold py-3 px-3 rounded-xl border border-slate-600">
+                      <option value={3}>3 天</option>
+                      <option value={4}>4 天</option>
+                      <option value={5}>5 天</option>
+                    </select>
+                    <button onClick={() => setSelectedIds([])} className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl font-bold shadow-lg transition-all ${selectedIds.length > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'}`}><i className="fa-solid fa-rotate-right"></i><span>重設</span></button>
+                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="w-full sm:flex-1 bg-blue-500 py-3 px-2 rounded-xl font-bold text-white text-sm sm:text-base cursor-pointer disabled:opacity-30">生成詳細行程表</button>
+                  </div>
+                </div>
+                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-24 flex flex-col items-center gap-4"><i className="fa-brands fa-fort-awesome text-6xl opacity-10"></i><p>尚未選擇任何景點</p></div> : 
+                    itineraryDays.map(d => (
+                      <div key={d.dayNum} className="mb-10">
+                        <h3 className="font-bold text-lg mb-4 border-b-2 border-slate-200 pb-2 flex items-center gap-2 text-slate-800"><i className="fa-solid fa-sun text-orange-500"></i> 第 {d.dayNum} 天 - 【{d.cityName}】 <span className="text-xs font-normal text-slate-400 ml-auto">共計: {formatDuration(d.totalH)}</span></h3>
+                        <div className="space-y-5 border-l-[3px] border-slate-200 ml-4 pl-7 relative pb-4">
+                          {d.items.map((it, idx) => (
+                            <div key={`${it.id}-${idx}`} className="relative mb-6">
+                              {!it.isFirstAirport && (
+                                <div className="mb-4 relative">
+                                  <div className="absolute -left-[40px] top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-100 rounded-full border-2 border-slate-300 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[8px] text-slate-400"></i></div>
+                                  <div className={`rounded-lg p-3 text-[11px] border shadow-sm bg-blue-50/70 border-blue-100`}>
+                                    <div className={`font-bold mb-1.5 text-blue-800`}>{it.prevName} ➔ {it.name}</div>
+                                    <div className="flex items-center gap-3 mb-1.5"><span className={`bg-white px-2 py-0.5 rounded border font-mono shadow-sm border-blue-200 text-blue-600`}><i className="fa-regular fa-clock mr-1"></i> {it.tStr}</span><span className={`font-medium text-blue-600`}>預估交通: {formatDuration(it.tTime)}</span></div>
+                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{it.transitTransport}</div>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative hover:shadow-md transition-shadow">
+                                <div className="absolute -left-[37px] top-4 w-4.5 h-4.5 bg-blue-500 rounded-full border-[3px] border-white shadow-sm z-10"></div>
+                                <div className="text-xs font-bold text-slate-400 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留：'}{it.sStr}</div>
+                                <h4 className="font-bold text-base mb-1">{it.name}</h4>
+                                <p className="text-xs text-slate-500 leading-relaxed">{it.desc}</p>
+                                {it.bookingLinks && <div className="mt-3 flex gap-1.5 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[9px] px-2.5 py-1 rounded-lg font-bold transition-colors shadow-sm"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

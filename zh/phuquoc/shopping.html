@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>富國島購物指南 | 必買伴手禮與逛街聖地</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Custom Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Active State for Tabs */
+        .tab-btn.active {
+            background-color: #0ea5e9; /* sky-500 for a more island/beach vibe */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
+            border-color: #0ea5e9;
+        }
+        .city-btn.active {
+            background-color: #0369a1; /* sky-700 */
+            color: white;
+            border-color: #0369a1;
+        }
+        .tab-btn, .city-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button Hover */
+        .btn-maps {
+            background-color: #0ea5e9; 
+        }
+        .btn-maps:hover {
+            background-color: #0284c7; 
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-sky-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-sky-700 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>富國島購物指南</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/PhuQuoc/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> 回到首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-sky-800 via-sky-500 to-teal-400 py-10 lg:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm drop-shadow-md">富國島購物指南</h1>
+            <p class="text-base md:text-lg text-sky-50 max-w-2xl mx-auto font-medium">為您精選富國島 3 大區域的購物好去處！從陽東夜市的珍珠伴手禮、金剛超市的腰果胡椒，到大世界與日落小鎮的特色選物，讓您買得開心！</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- City Selector -->
+        <section class="mb-6 relative">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot mr-1"></i> 選擇區域</h2>
+                <!-- Scroll Arrows -->
+                <div class="flex gap-2">
+                    <button onclick="scrollNav('city-container', -250)" class="p-1.5 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors shadow-sm" aria-label="向左滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollNav('city-container', 250)" class="p-1.5 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors shadow-sm" aria-label="向右滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="city-container" class="flex overflow-x-auto hide-scrollbar space-x-2 pb-2 scroll-smooth px-1">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 relative" id="category-section">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> 選擇類別</h2>
+                <!-- Scroll Arrows -->
+                <div class="flex gap-2">
+                    <button onclick="scrollNav('category-container', -250)" class="p-1.5 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors shadow-sm" aria-label="向左滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollNav('category-container', 250)" class="p-1.5 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors shadow-sm" aria-label="向右滑動">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="category-container" class="flex overflow-x-auto hide-scrollbar space-x-3 pb-2 scroll-smooth px-1">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Shop Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected dynamically via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 富國島購物指南. 提供您越南海島旅行最佳的購物與伴手禮建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 富國島購物資料庫
+        const db = {
+            center: {
+                name: "中島 (陽東市區)",
+                cat: {
+                    souvenir: [
+                        {n:"富國島陽東夜市 (Phu Quoc Night Market)", f:"富國島最熱鬧的夜市！必買當地珍珠飾品、手工藤編包、現炒花生、椰子糖與各式海鮮乾貨。", a:"54 Đường Nguyễn Trãi, Khu 1, Phú Quốc", t:"🚶 位於市中心 / 🚗 搭乘 Grab 或嘟嘟車前往"},
+                        {n:"富國島珍珠農場 (Ngoc Hien Pearl Farm)", f:"專業的珍珠養殖展示中心，販售附有保證書的高品質珍珠項鍊、耳環與飾品，送禮自用兩相宜。", a:"Trần Hưng Đạo, Dương Tơ, Phú Quốc", t:"🚗 搭乘 Grab，位於中島偏南沿海大道上"},
+                        {n:"Khu Tuong 胡椒農場", f:"富國島胡椒世界聞名！在這裡可以參觀農園，並買到最純正、香氣濃郁的黑胡椒、白胡椒與紅胡椒。", a:"Cửa Dương, Phú Quốc", t:"🚗 距離市區稍遠，建議包車或搭乘 Grab 前往"}
+                    ],
+                    fashion: [
+                        {n:"陽東市區平價服飾店", f:"沿著市區主要街道 Trần Hưng Đạo，有許多販售海島風情洋裝、沙龍、編織帽的當地小店，價格親民。", a:"Đường Trần Hưng Đạo, Dương Đông", t:"🚶 步行或搭乘 Grab"},
+                        {n:"夜市周邊服裝攤販", f:"陽東夜市外圍有許多服飾攤販，非常適合臨時購買玩水裝備、泳衣、夾腳拖或輕便夏裝。", a:"Khu vực Chợ Đêm, Phú Quốc", t:"🚶 步行前往夜市即可抵達"},
+                        {n:"傳統奧黛訂製服 (Tailor Shops)", f:"市區內隱藏著幾家傳統裁縫店，提供快速訂做越南傳統服飾「奧黛」(Ao Dai) 或西服的服務。", a:"Dương Đông, Phú Quốc", t:"🚗 建議搭乘 Grab 前往市區周邊裁縫店"}
+                    ],
+                    beauty: [
+                        {n:"市區傳統藥局 (Nhà Thuốc)", f:"陽東市區街道上隨處可見，方便購買防曬乳、蘆薈修復凝膠、白虎膏、綠油精等熱帶海島必備品。", a:"Đường Trần Hưng Đạo, Phú Quốc", t:"🚶 步行即可找到多間藥局"},
+                        {n:"SPA 附設天然保養品", f:"許多市區的高級 SPA (如 Phiphi SPA) 內部有販售自製的天然精油、椰子油與按摩護膚霜。", a:"Dương Đông Area, Phú Quốc", t:"🚶 步行或搭乘 Grab"},
+                        {n:"特產店椰子護膚品", f:"許多伴手禮店專賣以天然椰子萃取的護膚產品，包含護唇膏、身體乳與椰子香皂，滋潤度極高。", a:"Khu vực Dương Đông", t:"🚶 步行至市區特產店"}
+                    ],
+                    mart: [
+                        {n:"金剛超市 (Kingkong Mart)", f:"富國島最大、最受遊客歡迎的伴手禮超市！採買帶皮腰果、G7咖啡、綠豆糕、果乾與各式零食的首選之地。", a:"141A Trần Hưng Đạo, Dương Đông", t:"🚗 位於市區主幹道，搭乘 Grab 約 5-10 分鐘"},
+                        {n:"Co.opmart 聯營超市", f:"越南在地的大型連鎖超市，價格親民且標價透明，生鮮水果、泡麵與當地生活用品非常齊全。", a:"Đường Nguyễn Trung Trực, Dương Đông", t:"🚗 位於市區偏東，搭乘 Grab 前往"},
+                        {n:"WinMart+ 便利商店", f:"隨處可見的紅色招牌連鎖便利店，適合隨時補充冷飲、購買越南當地特色優格與解饞小零食。", a:"Trung tâm Dương Đông", t:"🚶 市區主要街道皆有分店"}
+                    ],
+                    hobby: [
+                        {n:"Phung Hung 魚露工廠", f:"富國島特產最高級的魚露！雖然大瓶無法帶上飛機，但可在此購買精緻小包裝或純粹參觀了解在地文化。", a:"Nguyễn Văn Cừ, An Thới", t:"🚗 位於中島與南島交界，建議搭乘 Grab"},
+                        {n:"手工明信片與文創攤位", f:"在陽東夜市內有不少藝術家擺攤，販售手繪的富國島風景明信片、手工編織品與貝殼工藝品。", a:"Chợ Đêm Phú Quốc", t:"🚶 步行前往夜市"},
+                        {n:"當地傳統木雕與漆器店", f:"販售越南傳統木雕工藝品、精美漆器盒與特色竹編，適合作為送給長輩的高級禮物。", a:"Dương Đông, Phú Quốc", t:"🚶 步行或搭乘 Grab"}
+                    ]
+                }
+            },
+            north: {
+                name: "北島 (珍珠區)",
+                cat: {
+                    souvenir: [
+                        {n:"富國大世界商店街 (Grand World)", f:"威尼斯運河兩側充滿各具特色的紀念品店，可以一邊欣賞美景，一邊挑選精緻的小禮物與伴手禮。", a:"Grand World, Gành Dầu, Phú Quốc", t:"🚌 位於北島核心，可搭乘 VinBus 免費巴士或步行"},
+                        {n:"珍珠樂園紀念品店 (VinWonders Shop)", f:"樂園專屬商品！包含可愛的海龜吉祥物玩偶、樂園主題T恤、特色水杯與兒童玩具。", a:"VinWonders, Gành Dầu", t:"🚶 位於珍珠樂園入口與各主題區內"},
+                        {n:"泰迪熊博物館商店", f:"位於大世界內的泰迪熊博物館，除了展覽外，商店販售各國造型的可愛泰迪熊與限定獨家周邊商品。", a:"Grand World, Gành Dầu", t:"🚌 搭乘 VinBus 至大世界"}
+                    ],
+                    fashion: [
+                        {n:"大世界運河精品服飾", f:"大世界的運河旁有許多進口服飾店與越南在地設計師品牌的質感小店，適合尋找度假風洋裝。", a:"Grand World Phú Quốc", t:"🚶 步行遊覽大世界"},
+                        {n:"珍珠度假村購物廊 (Vinpearl Resort)", f:"北島高級度假村內部常設有販售高端度假風服飾、高爾夫球裝與名牌泳裝的精品購物廊。", a:"Khu nghỉ dưỡng Vinpearl", t:"🚶 度假村內步行或搭乘電瓶車"},
+                        {n:"樂園水上裝備專賣店", f:"忘記帶泳衣？珍珠水上樂園周邊與內部有許多販售時尚泳具、防曬衣與防水袋的店鋪。", a:"VinWonders Water Park", t:"🚶 位於水上樂園區域"}
+                    ],
+                    beauty: [
+                        {n:"大世界連鎖藥妝店", f:"提供基本的美妝保養品、高係數防曬乳、蘆薈膠與緊急常備藥品，滿足遊客在北島的即時需求。", a:"Grand World Khu vực", t:"🚶 步行至大世界商圈"},
+                        {n:"Akoya SPA 護膚專區", f:"北島珍珠系列飯店內的頂級 SPA 中心，提供購買其療程所使用的頂級天然精油與海藻保養品。", a:"Vinpearl Resorts", t:"🚶 飯店內部"},
+                        {n:"天然手工皂專賣店", f:"隱身於大世界街道內，販售各種熱帶水果(如芒果、椰子)造型與香氣的天然純手工皂，香氣迷人。", a:"Grand World Phú Quốc", t:"🚶 步行遊覽"}
+                    ],
+                    mart: [
+                        {n:"VinMart 珍珠超市", f:"位於大世界與珍珠飯店區周邊的大型超市，方便購買零食、越南泡麵與各種冷飲，明碼標價不被坑。", a:"Khu Grand World, Phú Quốc", t:"🚌 步行或搭乘 VinBus"},
+                        {n:"K-Mart 韓國進口超市", f:"北島吸引許多韓國遊客，因此這裡有專賣韓國泡麵、燒酒、辣炒年糕與韓系零食的專門超市。", a:"Grand World, Gành Dầu", t:"🚶 大世界商圈內"},
+                        {n:"大世界夜間小賣部", f:"晚上在大世界準備觀賞水舞秀前，可以沿路買點在地小吃、切片熱帶水果與啤酒的便利小商店。", a:"Grand World 運河旁", t:"🚶 步行即可抵達"}
+                    ],
+                    hobby: [
+                        {n:"威尼斯面具與工藝店", f:"大世界充滿濃厚的義大利風情，你可以在這買到精緻華麗的威尼斯面具與手繪歐洲風工藝品。", a:"Grand World Phú Quốc", t:"🚶 步行遊覽"},
+                        {n:"野生動物園紀念店 (Safari Shop)", f:"珍珠野生動物園專屬，販售精美的長頸鹿、狐猴、獅子等動物造型木雕與非常可愛的兒童周邊商品。", a:"Vinpearl Safari", t:"🚌 搭乘 VinBus 至動物園，位於出口處"},
+                        {n:"越南竹編與燈籠藝術", f:"販售各種以竹子編織的精美家飾、會安風格燈籠與提籃，極具熱帶島嶼與越南傳統氣息。", a:"Grand World, Gành Dầu", t:"🚶 大世界步行區"}
+                    ]
+                }
+            },
+            south: {
+                name: "南島 (日落小鎮)",
+                cat: {
+                    souvenir: [
+                        {n:"日落小鎮文創市集 (VuiFest Bazaar)", f:"富國島最美的海濱夜市！除了美食，還有許多質感攤位販售手工藝品、客製化鑰匙圈與當地特產。", a:"Sunset Town, An Thới, Phú Quốc", t:"🚗 搭乘 Grab 至日落小鎮後步行"},
+                        {n:"香島纜車站紀念品中心", f:"位於太陽世界跨海纜車站內的大型紀念品店，販售富國島主題馬克杯、特色磁鐵與風景明信片。", a:"Ga An Thới, Phú Quốc", t:"🚗 搭乘 Grab 至安泰纜車站"},
+                        {n:"香島水上樂園伴手禮", f:"搭乘纜車抵達對岸的香島後，樂園內部有販售充滿熱帶海洋與原住民主題的可愛紀念商品。", a:"Hon Thom Island", t:"🚠 搭乘跨海纜車前往香島"}
+                    ],
+                    fashion: [
+                        {n:"地中海風情服飾店", f:"日落小鎮內的階梯與小巷旁，隱藏著幾間販售波西米亞風、手工編織洋裝與草帽的網美服飾店。", a:"Sunset Town, An Thới", t:"🚶 日落小鎮內步行"},
+                        {n:"香島海灘休閒裝備店", f:"販售極具海島風格的衝浪褲、比基尼、草帽與精美沙灘巾，讓您隨時準備好擁抱清澈大海。", a:"Sun World Hon Thom", t:"🚠 纜車至香島後步行"},
+                        {n:"太陽世界休閒精品店", f:"安泰纜車站一樓大廳設有幾間進口休閒品牌與運動品牌的專賣店，提供高品質的服飾選擇。", a:"Ga An Thới", t:"🚶 位於纜車站內"}
+                    ],
+                    beauty: [
+                        {n:"南島現代化便利藥局", f:"日落小鎮周邊有新開設的現代化藥局，提供非常齊全的曬後修復、蘆薈凝膠、防蚊液與急救包。", a:"An Thới Town, Phú Quốc", t:"🚶 步行或搭乘短程 Grab"},
+                        {n:"頂級度假村 SPA 香氛", f:"如 JW Marriott 或 Premier Village 等頂級飯店內的 SPA 中心，販售世界級的奢華香氛與頂級保養品。", a:"Kem Beach Area", t:"🚗 需搭乘 Grab 前往東南海灘區"},
+                        {n:"椰油與海鹽護膚概念店", f:"專門販售以富國島當地純淨海鹽與新鮮椰子油製成的天然去角質產品與護膚霜。", a:"Sunset Town", t:"🚶 日落小鎮內步行"}
+                    ],
+                    mart: [
+                        {n:"日落小鎮便利超商 (Mini Marts)", f:"充滿歐洲風情的街道上隱藏著幾間便利商店，提供各式進口飲料、冰淇淋、啤酒與零食解饞。", a:"Sunset Town, Phú Quốc", t:"🚶 步行遊覽"},
+                        {n:"安泰傳統市場 (Chợ An Thới)", f:"想體驗最在地的生活？南島的安泰傳統市場可以買到超便宜的熱帶水果與各式海鮮乾貨。", a:"Chợ An Thới, Phú Quốc", t:"🚗 搭乘 Grab 前往南島市區"},
+                        {n:"纜車站輕食補給站", f:"準備搭乘長達 20 分鐘的跨海纜車前，可以先在這裡購買一些輕食、瓶裝水與小零食帶上車。", a:"Ga An Thới", t:"🚶 位於纜車站內"}
+                    ],
+                    hobby: [
+                        {n:"親吻橋專屬紀念品店 (Kiss Bridge Shop)", f:"專賣南島地標「親吻橋」主題的浪漫明信片、情侶對飾、馬克杯與各式唯美文創小物。", a:"Sunset Town, Phú Quốc", t:"🚶 靠近親吻橋入口處"},
+                        {n:"藝術畫廊與陶藝工作室", f:"日落小鎮的藝術街區內，有當地藝術家進駐，販售手繪富國島風景畫與獨一無二的手作陶藝品。", a:"Sunset Town Art District", t:"🚶 日落小鎮內步行"},
+                        {n:"海洋風居家工藝品店", f:"販售由貝殼、海星(非活體)與漂流木等海洋元素製成的精美居家裝飾品與風鈴。", a:"Ga An Thới Area", t:"🚶 步行於南島街道"}
+                    ]
+                }
+            }
+        };
+
+        const catsMap = {
+            souvenir: { icon: "🛍️", name: "必買伴手禮", bg: "bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border-sky-200" },
+            fashion:  { icon: "👗", name: "商場與服飾", bg: "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-600 hover:text-white border-fuchsia-200" },
+            beauty:   { icon: "✨", name: "藥妝與保養", bg: "bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white border-teal-200" },
+            mart:     { icon: "🛒", name: "超市與便利店", bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200" },
+            hobby:    { icon: "🎨", name: "文創與特色小物", bg: "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border-amber-200" }
+        };
+
+        let currentCity = "center"; // 預設視圖：中島
+        let currentCat = "souvenir"; 
+
+        const cityContainer = document.getElementById('city-container');
+        const categoryContainer = document.getElementById('category-container');
+        const shopContainer = document.getElementById('shop-container');
+
+        // Nav Arrows 滾動功能
+        function scrollNav(containerId, offset) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.scrollBy({ left: offset, behavior: 'smooth' });
+            }
+        }
+
+        function initUI() {
+            // 設定區域順序 (中島、北島、南島)
+            const cityOrder = ['center', 'north', 'south'];
+            
+            cityOrder.forEach(cityKey => {
+                if(db[cityKey]) {
+                    const btn = document.createElement('button');
+                    btn.className = `city-btn whitespace-nowrap px-6 py-2.5 rounded-full border border-sky-200 bg-white text-sky-700 font-bold hover:bg-sky-100 hover:text-sky-900 shadow-sm ${cityKey === currentCity ? 'active' : ''}`;
+                    btn.innerText = db[cityKey].name;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        currentCity = cityKey;
+                        renderContent();
+                    };
+                    cityContainer.appendChild(btn);
+                }
+            });
+
+            // 渲染類別
+            Object.keys(catsMap).forEach(catKey => {
+                const c = catsMap[catKey];
+                const btn = document.createElement('button');
+                btn.className = `tab-btn whitespace-nowrap px-5 py-2.5 rounded-full border transition-all font-bold shadow-sm flex items-center ${c.bg} ${catKey === currentCat ? 'active' : ''}`;
+                btn.innerHTML = `<span class="mr-1.5 text-lg">${c.icon}</span> ${c.name}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCat = catKey;
+                    renderContent();
+                };
+                categoryContainer.appendChild(btn);
+            });
+
+            // 載入預設視圖
+            renderContent();
+        }
+
+        function renderContent() {
+            shopContainer.innerHTML = '';
+            const items = db[currentCity].cat[currentCat];
+
+            if(!items || items.length === 0) {
+                shopContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-lg font-bold">此區域目前沒有該類別的推薦項目。</div>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // 生成 Google Maps URL (替換關鍵字為 Phú Quốc Vietnam)
+                const pureAddress = item.a.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.n} Phú Quốc Vietnam ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-sky-50 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                ${item.n}
+                            </h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-amber-400 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">亮點特色</p>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-medium">${item.f}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">地址</p>
+                                    <p class="text-sm text-slate-600 font-medium">${item.a}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-motorcycle text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">交通指南</p>
+                                    <span class="inline-block bg-sky-50 text-sky-700 text-xs px-2.5 py-1 rounded-md font-bold text-left leading-normal">${item.t}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-sky-50">
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white btn-maps focus:outline-none transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            在 Google Maps 中打開
+                        </a>
+                    </div>
+                `;
+                shopContainer.appendChild(card);
+            });
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>
