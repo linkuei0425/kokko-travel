@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da Nang Accommodation Guide | Recommended Hotels in Da Nang & Hoi An</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #93c5fd; /* blue-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #60a5fa; /* blue-400 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* District Button Styles */
+        .area-btn-active {
+            background-color: #1e40af; /* blue-800 */
+            color: white;
+            border-color: #1e40af;
+            box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #eff6ff; /* blue-50 */
+            color: #1e3a8a; /* blue-900 */
+            border-color: #93c5fd; /* blue-300 */
+        }
+
+        /* Category Button Styles */
+        .cat-btn-active {
+            background-color: #2563eb; /* blue-600 */
+            color: white;
+            border-color: #2563eb;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #eff6ff; /* blue-50 */
+            color: #2563eb;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#eff6ff] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-blue-900 tracking-wide">
+                    <i class="fa-solid fa-hotel mr-2 text-blue-600"></i>Da Nang & Hoi An Accommodation
+                </h1>
+                <a href="https://linkuei0425.github.io/DaNang-US/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-blue-100 text-blue-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-blue-200">
+                    <i class="fa-solid fa-house mr-2"></i>
+                    Back to Home
+                </a>
+            </div>
+            <p class="text-blue-600 font-medium text-sm md:text-base">Curated selection of top-rated stays in Da Nang City, My Khe Beach, and Hoi An Ancient Town.</p>
+        </header>
+
+        <!-- Layer 1: District Buttons (Horizontal Scroll) -->
+        <div class="mb-6 overflow-hidden relative">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-bold text-blue-700 uppercase tracking-wider">Select Region</span>
+                <!-- Scroll Arrows -->
+                <div class="flex gap-2">
+                    <button onclick="scrollDistricts('left')" class="p-1.5 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors shadow-sm" aria-label="Scroll Left">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollDistricts('right')" class="p-1.5 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors shadow-sm" aria-label="Scroll Right">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-3 pb-2 scroll-smooth">
+                <!-- Buttons injected by JS -->
+            </div>
+        </div>
+
+        <!-- Layer 2: Category Buttons -->
+        <div id="category-buttons" class="flex flex-wrap justify-center gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-blue-100 hidden">
+            <!-- Buttons injected by JS -->
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-blue-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-blue-300 pt-20 pb-20">
+                <p class="font-bold text-lg"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading recommended hotels...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto px-4 mt-8 pb-4 text-center text-blue-700/70 text-sm">
+        <p>※ Hotel prices fluctuate daily. Booking 1-2 months in advance is recommended. Grab is the preferred way to get around the city.</p>
+    </footer>
+
+    <script>
+        // Da Nang & Hoi An Hotel Database (English Version)
+        const hotelData = {
+            "danang_city": {
+                name: "Da Nang City (Han River / Center)",
+                categories: {
+                    "Luxury 5-Star": [
+                        { name: "Novotel Danang Premier Han River", feature: ["Iconic skyscraper on the riverbank with views of Han River and Dragon Bridge", "Home to Sky36, the most famous open-air rooftop bar in Da Nang", "Excellent facilities including an outdoor pool, premium SPA, and diverse dining"], address: "36 Bach Dang, Hai Chau, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-1963544/novotel-danang-premier-han-river/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Hilton Da Nang", feature: ["Prime location within walking distance to Han Market and the Pink Church", "Modern interiors with floor-to-ceiling windows and luxurious bathrooms", "Rooftop bar and riverside restaurant perfect for sunset dinners"], address: "50 Bach Dang, Hai Chau, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-23151826/hilton-da-nang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Grand Mercure Danang", feature: ["Located in the quiet Green Island area, offering a peaceful 5-star retreat", "Free shuttle service provided to the city center and My Khe Beach", "Famous for its seafood buffet dinner every Friday and Saturday"], address: "Lot A1, Green Island, Hai Chau, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-1571289/grand-mercure-danang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" }
+                    ],
+                    "Best Value": [
+                        { name: "Wink Hotel Danang Centre", feature: ["Trendy design combined with smart self-service tech, popular with digital nomads", "Stay24 concept allows you to check out 24 hours after your arrival", "Located right in the heart of the shopping district with great connectivity"], address: "178 Tran Phu, Phuoc Ninh, Hai Chau, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-105594116/wink-danang-riverside-unscripted-by-hyatt-24-hours-stay/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Sanouva Danang Hotel", feature: ["European vintage style architecture with excellent guest reviews", "Selected rates include daily complimentary foot or body massage", "Located next to Han Market and popular local specialty cafes"], address: "68 Phan Chau Trinh, Hai Chau, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-1902230/sanouva-danang-hotel-daily-afternoon-tea-inclusive/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Vanda Hotel", feature: ["Situated at the foot of Dragon Bridge, perfect for the weekend fire show", "Rooftop Star Bar offers an unobstructed, stunning view of the city night", "Refined service with an indoor pool to escape the afternoon heat"], address: "3 Nguyen Van Linh, Hai Chau, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-2603560/vanda-hotel/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" }
+                    ],
+                    "Budget / Hostel": [
+                        { name: "Seahorse Hostel & Bar by HAVI", feature: ["Modern minimalist decor with bright and comfortable public spaces", "Boutique cafe and bar on the first floor with great evening vibes", "High-quality capsule beds and private suites available near Han Market"], address: "7 Nguyen Thai Hoc, Hai Chau, Da Nang", url: "https://www.trip.com/hotels/list?flexType=1&fixedDate=0&cityId=1356&provinceId=0&districtId=0&countryId=111&cityName=Da%20Nang&destName=Seahorse%20Han%20Market%20Da%20Nang%20Apartment%20by%20Haviland%2C%20Da%20Nang%2C%20Vietnam&searchWord=Seahorse%20Han%20Market%20Da%20Nang%20Apartment%20by%20Haviland&searchType=H&optionId=41589562&searchValue=31%7C41589562*31*41589562&checkin=2026-05-17&checkout=2026-05-21&crn=1&adult=2&listFilters=29~1*29*1~2*2&curr=USD&locale=en_xx&old=1" },
+                        { name: "The Memory - Danang", feature: ["Aesthetically designed space that feels like a modern art gallery", "Fusion of local materials and industrial minimalism with open spaces", "Ideal for travelers seeking style and artistic vibes on a budget"], address: "202 Tran Phu, Hai Chau, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-40361479/the-memory-danang-boutique/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "City Hostel Da Nang", feature: ["Hidden in a quiet alley next to the Pink Church, extremely affordable", "Provides simple, clean dormitory beds with very helpful staff", "Excellent for long-term travelers and budget-conscious backpackers"], address: "114 Đ. Tran Phu, Hai Chau, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-14182505/city-hostel-da-nang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "my_khe": {
+                name: "My Khe Beach (Oceanfront)",
+                categories: {
+                    "Luxury Resorts": [
+                        { name: "Furama Resort Danang", feature: ["Da Nang's most iconic traditional resort with tropical garden vibes", "Features two stunning infinity pools, one leading directly to a private beach", "Renowned for its cuisine, afternoon tea, and professional diving center"], address: "105 Vo Nguyen Giap, Ngu Hanh Son, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-999113/furama-resort-danang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Pullman Danang Beach Resort", feature: ["Modern and elegant 5-star resort with spacious manicured lawns", "Family-friendly with a dedicated kids' club and exciting beach parties", "Famous beach bar, perfect for enjoying cocktails by the waves"], address: "101 Vo Nguyen Giap, Ngu Hanh Son, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-1877388/pullman-danang-beach-resort-da-nang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Sheraton Grand Danang Resort", feature: ["Features one of the longest infinity pools in Central Vietnam (250m)", "Grand and luxurious decor, all rooms include private ocean-view balconies", "Quiet location away from city noise, perfect for complete relaxation"], address: "35 Vo Nguyen Giap, Ngu Hanh Son, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-11818274/sheraton-grand-danang-resort/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" }
+                    ],
+                    "Ocean View Hotels": [
+                        { name: "A La Carte Da Nang Beach", feature: ["Apartment-style suites with spacious living areas and kitchenettes", "Rooftop infinity pool is a top Instagrammable spot in Da Nang", "Located at the heart of the beach district with easy coastal access"], address: "200 Vo Nguyen Giap, Son Tra, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-1247137/a-la-carte-da-nang-beach/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Sala Danang Beach Hotel", feature: ["Fresh and bright modern decor with direct ocean sunrise views", "Rooftop infinity pool and floating breakfast are major highlights", "Friendly service and great breakfast options with high value"], address: "36 Lam Hoanh, Phuoc My, Son Tra, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-34994003/sala-danang-beach-hotel/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "TMS Hotel Da Nang Beach", feature: ["Modern chic design with a spectacular glass-edged rooftop pool", "Warm and well-equipped rooms suitable for all types of travelers", "Convenient location with many restaurants and mini-marts nearby"], address: "292 Vo Nguyen Giap, Ngu Hanh Son, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-24529624/tms-hotel-da-nang-beach/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" }
+                    ],
+                    "Best Value": [
+                        { name: "HAIAN Beach Hotel & Spa", feature: ["Known for exceptional service and value, includes daily afternoon tea", "Rooftop pool transforms into a lively music lounge bar at night", "Fully equipped rooms at competitive prices, a top choice for families"], address: "278 Vo Nguyen Giap, Son Tra, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-20027768/haian-beach-hotel-spa/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Diamond Sea Hotel", feature: ["Located at the mid-section of My Khe with a cozy rooftop pool and bar", "Bright minimalist room style with some rooms offering side sea views", "Quiet environment and very experienced in serving international guests"], address: "232 Vo Nguyen Giap, Son Tra, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-2098166/diamond-sea-hotel/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Cicilia Danang Hotels & Spa", feature: ["Light French style decor with a professional mud bath and sauna center", "Just a 3-minute walk to the beach, quieter than first-row hotels", "Ideal for travelers seeking refined spa facilities in a serene setting"], address: "06-08-10 Do Ba, Ngu Hanh Son, Da Nang", url: "https://www.trip.com/hotels/da-nang-hotel-detail-2803485/cicilia-danang-hotels-spa/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "hoi_an": {
+                name: "Hoi An (Ancient Town / Cultural)",
+                categories: {
+                    "Premium Luxury": [
+                        { name: "Four Seasons Resort The Nam Hai", feature: ["One of Vietnam's most prestigious resorts with Zen-inspired luxury", "Three magnificent cascading infinity pools reaching the shoreline", "Personal butler service and immersive local cultural activities"], address: "Block Ha My Dong B, Dien Ban, Quang Nam", url: "https://www.trip.com/hotels/dien-ban-hotel-detail-993571/four-seasons-resort-the-nam-hai-hoi-an/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Hotel Royal Hoi An - MGallery", feature: ["Fusion of French colonial elegance and Japanese romantic style", "Features the highest rooftop bar in Hoi An overlooking the river", "Artistic interiors reflecting Hoi An's rich multicultural heritage"], address: "39 Dao Duy Tu, Cam Pho, Hoi An", url: "https://www.trip.com/hotels/hoi-an-hotel-detail-1613763/hotel-royal-hoi-an-danang/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Anantara Hoi An Resort", feature: ["Colonial-style buildings on the riverbank with poetic garden views", "All suites feature private porches in a quiet and elegant setting", "Only a 5-minute walk to the heart of the Ancient Town"], address: "1 Pham Hong Thai, Cam Chau, Hoi An", url: "https://www.trip.com/hotels/hoi-an-hotel-detail-993573/anantara-hoi-an-resort/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" }
+                    ],
+                    "Best Value": [
+                        { name: "Allegro Hoi An Luxury Hotel & Spa", feature: ["Golden lantern decor and wooden interiors recreating ancient vibes", "Free shuttle to private beach and exceptionally polite staff", "Breakfast includes authentic freshly made local Hoi An specialties"], address: "86 Tran Hung Dao, Minh An, Hoi An", url: "https://www.trip.com/hotels/hoi-an-hotel-detail-14261677/allegro-hoi-an-a-little-boutique-lux-hotel-and-spa/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Laluna Hoi An Riverside Hotel & Spa", feature: ["Built along the Thu Bon River with a beautiful courtyard pool", "Spacious rooms just 3 minutes away from Hoi An Night Market", "River-view rooms offer a great view of fishing boats and sunsets"], address: "12 Nguyen Du, Minh An, Hoi An", url: "https://www.trip.com/hotels/hoi-an-hotel-detail-21859285/laluna-hoi-an-riverside-hotel-and-spa/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Little Hoi An Boutique Hotel & Spa", feature: ["Warm vintage decor with historical details of old Hoi An", "Located near the edge of the old town, away from major crowds", "Offers great value SPA services and riverside afternoon tea"], address: "2 Thoai Ngoc Hau, Minh An, Hoi An", url: "https://www.trip.com/hotels/hoi-an-hotel-detail-2135851/little-hoi-an-boutique-hotel-and-spa/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" }
+                    ],
+                    "Budget / Hostel": [
+                        { name: "Mad Monkey Hostel Hoi An", feature: ["Famous social hostel with a wild party vibe and a huge pool", "Nightly events make it the best place to meet other travelers", "Clean and spacious dorms, a top pick for backpackers"], address: "250 Cua Dai, Cam Chau, Hoi An", url: "https://www.trip.com/hotels/hoi-an-hotel-detail-101211699/mad-monkey-hoi-an/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "SnapStay Hoi An (Anio Boutique)", feature: ["Managed by Anio Group, blending local aesthetics with modern living", "Serene environment with a high-quality co-working space", "Perfect for digital nomads and travelers seeking a quiet getaway"], address: "163 Cua Dai, Cam Chau, Hoi An", url: "https://www.trip.com/hotels/hoi-an-hotel-detail-41618776/anio-boutique-hotel-hoi-an/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" },
+                        { name: "Tribee Cotu Hostel", feature: ["Community-focused hostel hosting cooking and cultural activities", "Colorful and creative decor with a very welcoming atmosphere", "Budget-friendly prices and convenient location on the edge of town"], address: "41 Phan Dinh Phung, Cam Chau, Hoi An", url: "https://www.trip.com/hotels/hoi-an-hotel-detail-128765397/tribee-cotu-hostel/?Allianceid=7913725&SID=303242458&trip_sub1=&trip_sub3=D14727967&locale=en_xx&curr=USD" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. Initialize District Buttons
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70"></i>${hotelData[key].name}`;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. Select District
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. Render Category Buttons
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive shadow-sm`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // Default to first category
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. Select Category
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. Render Hotel List
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-blue-100 animate-fade-in">
+                    <h2 class="text-2xl font-bold text-blue-900 mr-3">
+                        <i class="fa-solid fa-location-dot mr-2 text-blue-500"></i>${districtData.name}
+                    </h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-blue-100 text-blue-800 text-sm font-bold rounded-full border border-blue-200">
+                        <i class="fa-solid fa-tag mr-1"></i>${currentCategoryName}
+                    </span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in">No recommendations available for this category.</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5">`;
+                
+                hotels.forEach((hotel, index) => {
+                    let searchUrl = hotel.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotel.name + ' Vietnam')}`;
+                    
+                    const linkTagHTML = `
+                        <a href="${searchUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 mt-3 sm:mt-0 rounded-xl text-sm font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-auto">
+                            <i class="fa-solid fa-magnifying-glass mr-1.5"></i>Best Price Deal
+                        </a>
+                    `;
+
+                    htmlContent += `
+                        <div class="bg-white border border-blue-100 p-5 md:p-6 rounded-2xl hover:shadow-lg transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 0.05}s;">
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2">
+                                <h4 class="text-xl font-bold text-blue-900 flex items-start leading-tight pt-1">
+                                    <span class="text-white bg-blue-500 rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2 flex-shrink-0">${index + 1}</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-0 sm:pl-8 space-y-3">
+                                <div class="flex items-start">
+                                    <span class="font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-star mr-1"></i>Highlights</span> 
+                                    <ul class="list-disc pl-4 m-0 text-sm text-slate-700 leading-relaxed font-medium space-y-1.5 w-full">
+                                        ${hotel.feature.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-map-pin mr-1"></i>Location</span> 
+                                    <span class="text-sm text-slate-700 leading-relaxed font-medium pt-0.5">${hotel.address}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // Horizontal scroll control
+        function scrollDistricts(direction) {
+            const container = document.getElementById('district-buttons');
+            const scrollAmount = 200;
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictKey = Object.keys(hotelData)[0];
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict(firstDistrictKey, firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

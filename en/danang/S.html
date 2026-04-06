@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Da Nang & Hoi An Trip Planner</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- React Core & Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    @media print {
+      body { background-color: white !important; }
+      .print-hidden { display: none !important; }
+      .print-break-avoid { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-blue-50 text-slate-800 font-sans">
+  
+  <div id="root"></div>
+
+  <!-- React Application Logic -->
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // --- Attractions Database (English with AID:117264 Affiliate Links) ---
+    const ATTRACTIONS = [
+      // ================= Airport & Stays =================
+      { id: 'dad_airport', city: 'city', name: "Da Nang Int'l Airport (DAD)", stay: 1, region: 10, regionName: 'Airport', type: 'Start', desc: 'Arrive in Da Nang. The airport is very close to the city. Booking fast track and private transfer in advance is highly recommended.', transport: 'Take Grab or pre-booked shuttle.', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/airport-transfers/da-nang-international-airport-dad/?aid=117264', text: 'Airport Transfer' },
+          { url: 'https://www.klook.com/en-US/activity/86297-da-nang-airport-fast-track/?aid=117264', text: 'Airport Fast Track' },
+          { url: 'https://www.klook.com/en-US/activity/16622-4g-sim-card-vietnam/?aid=117264', text: 'Vietnam 5G SIM' },
+          { url: 'https://www.klook.com/en-US/activity/113258-orchid-lounge-da-nang-international-airport-dad/?aid=117264', text: 'Airport Lounge' }
+        ] 
+      },
+      { id: 'acc_city', city: 'city', name: 'Stay: Da Nang City Center', stay: 1, region: 11, regionName: 'City', type: 'Accommodation', desc: 'Check-in near Han Market and Dragon Bridge. Most convenient area for shopping and local dining.', transport: 'Take Grab or walk.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/6266-private-car-charter-da-nang/?aid=117264', text: 'Da Nang Car Charter' }
+        ]
+      },
+      { id: 'acc_beach', city: 'beach', name: 'Stay: My Khe Beach Area', stay: 1, region: 12, regionName: 'Beach', type: 'Accommodation', desc: 'Check-in. Recommended for travelers seeking ocean views and resort vibes.', transport: 'Take Grab.' },
+
+      // ================= Da Nang City (City Center) =================
+      { id: 'pink_church', city: 'city', name: 'Da Nang Cathedral (Pink Church)', stay: 0.5, timeWindow: [8, 11.5], region: 11, regionName: 'City', type: 'Sightseeing', desc: 'The dreamy pink Gothic-style cathedral is a must-visit landmark in Da Nang.', transport: 'Located in the city center, walkable from Han Market.' },
+      { id: 'han_market', city: 'city', name: 'Han Market', stay: 1.5, timeWindow: [9, 18], region: 11, regionName: 'City', type: 'Shopping', desc: 'Great for souvenirs, custom Ao Dai (traditional dress), and rattan bags.', transport: 'Walkable from Pink Church.' },
+      { id: 'dragon_bridge_show', city: 'city', name: 'Dragon Bridge (Fire Show) & River Cruise', stay: 2, timeWindow: [19, 21.5], region: 11, regionName: 'City', type: 'Nightlife', desc: 'Watch the fire & water show at 9 PM on weekends. A river cruise offers the best view.', transport: 'Take Grab to the pier.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/28414-han-river-evening-cruise-da-nang/?aid=117264', text: 'Han River Cruise' }
+        ]
+      },
+      { id: 'herbal_spa', city: 'city', name: 'Selected Spa (City Center)', stay: 2, timeWindow: [10, 22], region: 11, regionName: 'City', type: 'Wellness', desc: 'Enjoy a traditional Vietnamese massage to relieve travel fatigue.', transport: 'Take Grab.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/13122-herbal-spa-da-nang/?aid=117264', text: 'Herbal Spa' },
+          { url: 'https://www.klook.com/en-US/activity/124120-sum-spa-massage-experience-da-nang/?aid=117264', text: 'Sum Spa & Massage' }
+        ]
+      },
+
+      // ================= Beach & Peninsula =================
+      { id: 'my_khe_beach', city: 'beach', name: 'My Khe Beach', stay: 2, timeWindow: [16, 18.5], region: 12, regionName: 'Beach', type: 'Sightseeing', desc: "One of Forbes' most beautiful beaches in the world. Perfect for an afternoon dip.", transport: 'Take Grab.' },
+      { id: 'nguon_spa', city: 'beach', name: 'Beach Area Spa', stay: 2, timeWindow: [10, 22], region: 12, regionName: 'Beach', type: 'Wellness', desc: 'High-quality massage near the beach, perfect after swimming.', transport: 'Take Grab or walk.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/119654-nguon-spa-massage-da-nang/?aid=117264', text: 'Nguon Spa' },
+          { url: 'https://www.klook.com/en-US/activity/55550-trees-spa-experience-da-nang/?aid=117264', text: 'Trees Spa' }
+        ]
+      },
+      { id: 'lady_buddha', city: 'sontra', name: 'Son Tra Peninsula (Lady Buddha)', stay: 1.5, timeWindow: [8, 18], region: 13, regionName: 'Peninsula', type: 'Sightseeing', desc: 'Home to Southeast Asia\'s tallest white marble Bodhisattva statue.', transport: 'Take Grab.' },
+
+      // ================= Outskirts =================
+      { id: 'bana_hills', city: 'outskirts', name: 'Ba Na Hills Sun World', stay: 7, timeWindow: [8, 17], region: 14, regionName: 'Theme Park', type: 'Sightseeing', desc: 'Visit the Golden Bridge, ride the world\'s longest cable car, and enjoy the Alpine Coaster.', transport: 'Shared shuttle bus is recommended.', 
+        bookingLinks: [
+          { url: 'https://affiliate.klook.com/redirect?aid=117264&aff_adid=1246760&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F13283-ba-na-hills-ticket-da-nang%2F', text: 'Ba Na Hills Ticket' },
+          { url: 'https://affiliate.klook.com/redirect?aid=117264&aff_adid=1246763&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F32080-shared-shuttle-bus-transfer-da-nang-city-ba-na-hills%2F', text: 'Shuttle Bus' },
+          { url: 'https://www.klook.com/en-US/activity/125425-sun-world-ba-na-alpine-coaster-experience/?aid=117264', text: 'Alpine Coaster' },
+          { url: 'https://www.klook.com/en-US/activity/18019-private-transfer-ba-na-hills-da-nang/?aid=117264', text: 'Private Transfer' }
+        ] 
+      },
+      { id: 'marble_mountain', city: 'outskirts', name: 'Marble Mountain + Hoi An Tour', stay: 8, timeWindow: [8.5, 18], region: 14, regionName: 'Day Tour', type: 'Classic', desc: 'Explore caves and pagodas at Marble Mountain before visiting Hoi An.', transport: 'Tour includes hotel pickup.', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/13570-marble-mountain-hoi-an-day-tour-da-nang/?aid=117264', text: 'Marble Mt + Hoi An' },
+          { url: 'https://www.klook.com/en-US/activity/147576-linh-ung-pagoda-son-tra-peninsula-marble-mountains-hoian-tour/?aid=117264', text: 'Multi-stop Day Tour' }
+        ] 
+      },
+      { id: 'my_son', city: 'outskirts', name: 'My Son Sanctuary (Half-day)', stay: 4, timeWindow: [8, 14], region: 14, regionName: 'Heritage', type: 'History', desc: 'UNESCO World Heritage site of the Champa Kingdom.', transport: 'Tour or private car.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/9371-my-son-sanctuary-tour-da-nang/?aid=117264', text: 'My Son Half-day Tour' }
+        ]
+      },
+      { id: 'nui_than_tai', city: 'outskirts', name: 'Nui Than Tai Hot Springs', stay: 5, timeWindow: [9, 17], region: 14, regionName: 'Water Park', type: 'Leisure', desc: 'Hot springs, mud baths, and water park fun in the mountains.', transport: 'Take Grab or charter car.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/16861-nui-than-tai-hot-springs-da-nang/?aid=117264', text: 'Hot Springs Ticket' }
+        ]
+      },
+
+      // ================= Hoi An =================
+      { id: 'hoian_old_town', city: 'hoian', name: 'Hoi An Ancient Town (Lanterns)', stay: 4, timeWindow: [14, 21], region: 15, regionName: 'Hoi An', type: 'Sightseeing', desc: 'Walk through yellow historic streets. Try lantern making or an Ao Dai photoshoot.', transport: 'Take LK02 Bus or Grab.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/9280-lantern-making-class-hoi-an/?aid=117264', text: 'Lantern Class' },
+          { url: 'https://www.klook.com/en-US/activity/115060-traditional-ao-dai-rental-photoshoot-hoi-an/?aid=117264', text: 'Ao Dai Photoshoot' }
+        ]
+      },
+      { id: 'coconut_boat', city: 'hoian', name: 'Coconut Forest Basket Boat', stay: 2, timeWindow: [8, 16], region: 15, regionName: 'Hoi An', type: 'Sightseeing', desc: 'Fun basket boat ride through water coconut forests with spinning shows.', transport: 'Take Grab.', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/24274-basket-boat-ticket-hoi-an-coconut-forest/?aid=117264', text: 'Basket Boat Ticket' }
+        ] 
+      },
+      { id: 'memories_show', city: 'hoian', name: 'Hoi An Memories Show', stay: 2, timeWindow: [19.5, 21.5], region: 15, regionName: 'Hoi An', type: 'Performance', desc: 'Spectacular outdoor real-scene show with 500 performers.', transport: 'Take Grab or ferry.', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/17514-hoi-an-memories-show-ticket/?aid=117264', text: 'Memories Show Ticket' }
+        ] 
+      },
+      { id: 'cham_island', city: 'hoian', name: 'Cham Island Snorkeling', stay: 8, timeWindow: [8, 16], region: 15, regionName: 'Island', type: 'Adventure', desc: 'Crystal clear water and coral reefs perfect for snorkeling.', transport: 'Includes boat transfer.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/4791-cham-islands-day-trip-hoi-an/?aid=117264', text: 'Cham Island Day Trip' }
+        ]
+      }
+    ];
+
+    const CITIES = [
+      { id: 'city', name: 'City Center', color: 'blue' },
+      { id: 'beach', name: 'Beach Area', color: 'cyan' },
+      { id: 'sontra', name: 'Peninsula', color: 'emerald' },
+      { id: 'outskirts', name: 'Parks & Tours', color: 'orange' },
+      { id: 'hoian', name: 'Hoi An', color: 'amber' }
+    ];
+
+    // --- Helper Functions ---
+    const formatTime = (h) => {
+      let hh = Math.floor(h) % 24;
+      let mm = Math.round((h - Math.floor(h)) * 60);
+      if (mm === 60) { hh++; mm = 0; }
+      return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+    };
+
+    const getCityColor = (cityId) => {
+      const colors = { city: 'blue', beach: 'cyan', sontra: 'emerald', outskirts: 'orange', hoian: 'amber' };
+      const c = colors[cityId] || 'slate';
+      return `text-${c}-600 bg-${c}-100 border-${c}-200`;
+    };
+
+    const getSmartTransit = (prev, curr) => {
+      if (curr.id === 'ret') return '✈️ 【End of Trip】Take Grab or pre-booked shuttle to Da Nang Airport (DAD).';
+
+      if (!prev || prev.id.startsWith('acc_') || prev.type === 'Start') {
+        if (curr.id === 'dad_airport') return `🛬 【Arrival】Welcome to Da Nang! Begin your journey.`;
+        return `🏨 【Depart】Heading out from hotel to ${curr.name}.`;
+      }
+
+      if (curr.id === 'bana_hills' || (prev && prev.id === 'bana_hills')) {
+          return `🚐 【Long Distance】Take pre-booked shared shuttle or private car (approx. 45-60 min).`;
+      }
+      
+      if ((prev.city !== 'hoian' && curr.city === 'hoian') || (prev.city === 'hoian' && curr.city !== 'hoian')) {
+          return `🚍 【Inter-city】Take yellow LK02 Bus or Grab (approx. 40-50 min).`;
+      }
+
+      if (prev.city !== curr.city) {
+         return `🚗 【Cross-district】Take Grab for quick cross-district travel (approx. 15-25 min).`;
+      }
+
+      return `🚶 【Short Distance】Walk or take a short Grab ride to ${curr.name}.`;
+    };
+
+    const getTTime = (isNewDay, fCity, tCity, fReg, tReg) => {
+        let extraFarTime = 0;
+        if (fCity !== tCity) {
+            if (fCity === 'outskirts' || tCity === 'outskirts') extraFarTime += 0.8;
+            if (fCity === 'hoian' || tCity === 'hoian') extraFarTime += 0.7;
+        }
+        if (isNewDay) return 0.3 + extraFarTime;
+        return 0.2 + extraFarTime;
+    };
+
+    // --- Main Component ---
+    function App() {
+      const [activeCity, setActiveCity] = useState('city');
+      const [selectedIds, setSelectedIds] = useState([]);
+      const [showPrintView, setShowPrintView] = useState(false);
+      const [tripDuration, setTripDuration] = useState(5);
+
+      const toggleAttr = (id) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+      const itineraryDays = useMemo(() => {
+        if (selectedIds.length === 0) return [];
+        let idsToSchedule = [...new Set(selectedIds)];
+
+        const getPriority = (item) => {
+            if (item.id === 'ret') return 999;
+            if (item.type === 'Start') return 10;
+            if (item.type === 'Accommodation') return 20; 
+            let win = item.timeWindow || [9.5, 21.5];
+            const isNight = (['Nightlife', 'Performance'].includes(item.type)) || item.id === 'memories_show';
+            if (isNight) return 90; 
+            if (win[1] <= 18) return 30; 
+            return 50; 
+        };
+
+        const sorted = idsToSchedule
+          .map(id => ATTRACTIONS.find(a => a.id === id))
+          .filter(a => a)
+          .sort((a, b) => {
+            const getSortKey = (item) => {
+              let sk = getPriority(item);
+              let cityGroup = CITIES.findIndex(c => c.id === item.city);
+              return cityGroup * 100000 + sk * 1000; 
+            };
+            return getSortKey(a) - getSortKey(b);
+          });
+
+        let remaining = [...sorted];
+        let days = [];
+        let curDay = { items: [], dayCity: 'city', dayType: null, currentTime: 13.0 }; 
+        let lCity = 'city', lReg = 11, prevItemObj = null; 
+
+        const checkValid = (a, isF, curTime) => {
+            let tTime = getTTime(isF, lCity, a.city, lReg, a.region);
+            let arrivalTime = curTime + tTime;
+            let isLastDay = days.length === tripDuration - 1;
+            if (!isF) {
+                if (!['Accommodation', 'Start'].includes(a.type)) {
+                    if (a.city !== lCity) {
+                        if (remaining.some(r => r.city === lCity && !['Accommodation', 'Start'].includes(r.type))) return false;
+                        if (curTime > 15) return false;
+                    }
+                }
+            }
+            let win = a.timeWindow || [9, 22]; 
+            if (['Accommodation', 'Start'].includes(a.type)) win = [0, 24];
+            let waitTime = arrivalTime < win[0] ? win[0] - arrivalTime : 0;
+            if (waitTime > 2.0 && !isF) return false;
+            let actStart = arrivalTime + waitTime;
+            let actEnd = actStart + a.stay;
+            if (actStart >= win[1] - 0.5) return false; 
+            if (isLastDay) {
+                let retTFromA = getTTime(false, a.city, 'city', a.region, 10);
+                if (actEnd > (14.0 - 2.5 - retTFromA)) return false;
+            } else if (!isF && actEnd > 23.5) return false;
+            return { valid: true, tTime, waitTime, actStart, actEnd };
+        };
+
+        while (remaining.length > 0) {
+            const isF = curDay.items.length === 0;
+            let chosenIdx = -1, chosenStats = null, validCands = [];
+            for (let i = 0; i < remaining.length; i++) {
+                let stats = checkValid(remaining[i], isF, curDay.currentTime);
+                if (stats && stats.valid) validCands.push({ a: remaining[i], idx: i, prio: getPriority(remaining[i]), stats });
+            }
+            if (validCands.length > 0) {
+                validCands.sort((ca, cb) => {
+                    let isSameCityA = ca.a.city === lCity ? 1 : 0, isSameCityB = cb.a.city === lCity ? 1 : 0;
+                    if (isSameCityA !== isSameCityB) return isSameCityB - isSameCityA;
+                    if (ca.prio !== cb.prio) return ca.prio - cb.prio;
+                    return ca.idx - cb.idx; 
+                });
+                chosenIdx = validCands[0].idx; chosenStats = validCands[0].stats;
+            }
+            if (chosenIdx === -1) {
+                days.push(curDay);
+                if (days.length >= tripDuration) break;
+                curDay = { items: [], dayCity: remaining[0].city, dayType: null, currentTime: 9.0 };
+                continue;
+            }
+            const a = remaining.splice(chosenIdx, 1)[0];
+            const { tTime, waitTime, actStart, actEnd } = chosenStats;
+            if (isF && days.length === 0) prevItemObj = { id: 'origin', city: 'city', name: 'Point of Arrival', type: 'Start' };
+            if (isF && days.length > 0) prevItemObj = { id: 'acc_city', city: a.city, name: `Hotel`, type: 'Accommodation' }; 
+            let sTime = curDay.currentTime, aTime = sTime + tTime;
+            let transitMsg = getSmartTransit(prevItemObj, a) + `\n📍 Transport: ${a.transport}`;
+            let win = a.timeWindow || [9, 22];
+            if (actStart - aTime > 0 && win[0] > 0 && !['Accommodation', 'Start'].includes(a.type)) transitMsg += `\n💡 Tip: Recommended after ${win[0]}:00. Arriving at ${formatTime(aTime)}, take a short rest.`;
+            curDay.items.push({ ...a, tTime: tTime.toFixed(1), prevName: prevItemObj.name, transitTransport: transitMsg, tStr: `${formatTime(sTime)} - ${formatTime(aTime)}`, sStr: `${formatTime(actStart)} - ${formatTime(actEnd)}`, isFirstPoint: (isF && days.length === 0), endTime: actEnd });
+            curDay.currentTime = actEnd; lCity = a.city; lReg = a.region; prevItemObj = a;
+            if (isF) curDay.dayCity = a.city;
+        }
+        if (curDay.items.length > 0 && days.length < tripDuration) days.push(curDay);
+        while (days.length < tripDuration) days.push({ items: [], dayCity: lCity, dayType: null, currentTime: 9.0 });
+        
+        let lastD = days[days.length-1];
+        if (!lastD) { lastD = { items: [], dayCity: 'city', dayType: null, currentTime: 9.0 }; days.push(lastD); }
+        while (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            if (lastItem.endTime > (14.0 - 2.5 - getTTime(false, lastItem.city, 'city', lastItem.region, 10))) lastD.items.pop();
+            else break;
+        }
+        if (lastD.items.length > 0) { let lastItem = lastD.items[lastD.items.length-1]; lastD.currentTime = lastItem.endTime; lCity = lastItem.city; lReg = lastItem.region; prevItemObj = lastItem; }
+        else { lastD.currentTime = 9.0; lReg = 11; prevItemObj = { name: 'Hotel', city: lCity }; }
+        let retT = getTTime(lastD.items.length === 0, lCity, 'city', lReg, 10), startTransit = 14.0 - 2.5 - retT;
+        lastD.items.push({ id: 'ret', city: 'city', name: 'End of Journey / Airport', stay: 2.5, region: 999, regionName: 'Airport', type: 'Start', desc: 'Packing memories and heading to the airport. Recommended to check-in 2.5 hours before flight.', transport: 'Take Grab to Airport.', tTime: retT.toFixed(1), prevName: prevItemObj.name, transitTransport: '🚐 Take Grab or pre-booked shuttle to check-in.', tStr: `${formatTime(startTransit)} - ${formatTime(14.0 - 2.5)}`, sStr: `${formatTime(14.0 - 2.5)} - 14:00`, isFirstPoint: false, endTime: 14.0 });
+        lastD.currentTime = 14.0;
+
+        return days.map((d, i) => ({ dayNum: i+1, totalH: (d.currentTime - (i === 0 ? 13.0 : 9.0) > 0 ? (d.currentTime - (i === 0 ? 13.0 : 9.0)).toFixed(1) : "0.0"), cityName: CITIES.find(c => c.id === d.dayCity)?.name || 'Da Nang', items: d.items }));
+      }, [selectedIds, tripDuration]);
+
+      if (showPrintView) {
+        return (
+          <div className="min-h-screen bg-white p-4 sm:p-8">
+            <div className="max-w-3xl mx-auto border-2 border-blue-900 p-4 sm:p-8 rounded-2xl">
+              <div className="text-center mb-10"><h1 className="text-2xl sm:text-3xl font-bold">🇻🇳 Da Nang & Hoi An Itinerary</h1><p className="mt-2 text-slate-500 text-sm">Automated scheduling with travel estimates and booking links</p></div>
+              {itineraryDays.map(d => (
+                <div key={d.dayNum} className="mb-10 print-break-avoid">
+                  <h2 className="text-xl font-bold border-b-2 border-blue-100 pb-2 mb-6">🌊 Day {d.dayNum} - 【{d.cityName}】 ({d.totalH}h)</h2>
+                  <div className="space-y-6 ml-2 sm:ml-4 border-l-2 pl-4 sm:pl-6 border-blue-200">
+                    {d.items.map((it, idx) => (
+                      <div key={`${it.id}-${idx}`} className="relative mb-8">
+                        {!it.isFirstPoint && (
+                          <div className="mb-4 bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs sm:text-sm">
+                             <div className="font-bold mb-2 text-blue-800">{it.prevName} ➔ {it.name}</div>
+                             <div className="flex gap-3 mb-2"><span className="bg-white px-2 py-1 rounded border font-mono text-blue-600"><i className="fa-regular fa-clock"></i> {it.tStr}</span><span>Travel Est: {it.tTime}h</span></div>
+                             <div className="whitespace-pre-wrap text-slate-600">{it.transitTransport}</div>
+                          </div>
+                        )}
+                        <div className="relative">
+                          <div className="absolute -left-[23px] sm:-left-[31px] top-1 w-3 h-3 bg-blue-600 rounded-full border-2 border-white"></div>
+                          <div className="font-bold text-xs sm:text-sm text-slate-500 mb-1"><i className="fa-regular fa-clock"></i> {it.sStr}</div>
+                          <h4 className="text-lg sm:text-xl font-bold text-slate-900">{it.name}</h4>
+                          <p className="text-xs sm:text-sm text-slate-600 my-2 leading-relaxed">{it.desc}</p>
+                          {it.bookingLinks && <div className="mt-3 flex gap-2 flex-wrap print:hidden">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] text-white text-xs px-2.5 py-1.5 rounded-full font-bold hover:bg-[#e05000]"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="mt-10 text-center flex flex-col sm:flex-row justify-center gap-4 print-hidden">
+                <button onClick={() => setShowPrintView(false)} className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700">Back to Edit</button>
+                <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-500">Print / Save PDF</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const grouped = ATTRACTIONS.filter(a => a.city === activeCity && !a.id.startsWith('acc_')).reduce((acc, c) => { (acc[c.type] = acc[c.type] || []).push(c); return acc; }, {});
+
+      return (
+        <div className="min-h-screen bg-blue-50 pb-10">
+          <header className="bg-white p-4 shadow-sm flex flex-wrap justify-between items-center sticky top-0 z-20 border-b gap-3">
+            <div className="flex items-center gap-4">
+              <h1 className="font-bold text-xl flex items-center gap-2"><i className="fa-solid fa-wand-magic-sparkles text-blue-600"></i>Itinerary Wizard</h1>
+              <a href="https://linkuei0425.github.io/DaNang-US/" className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-full border border-slate-200"><i className="fa-solid fa-house"></i> Home</a>
+            </div>
+            <div className="flex items-center gap-3">
+              {selectedIds.length > 0 && <button onClick={() => setSelectedIds([])} className="text-xs font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1 cursor-pointer"><i className="fa-solid fa-trash-can"></i> Clear</button>}
+              <div className="text-xs font-bold bg-blue-900 text-white px-3 py-1.5 rounded-full shadow-sm">{selectedIds.length} Spots Selected</div>
+            </div>
+          </header>
+          
+          <main className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-6 mt-2">
+            <div className="lg:w-1/2 flex flex-col gap-4">
+              <div className="bg-white p-2 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar">
+                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeCity === c.id ? 'bg-blue-600 text-white shadow-md' : 'bg-white hover:bg-blue-50 text-slate-600'}`}>{c.name}</button>)}
+              </div>
+              <div className="bg-white rounded-xl shadow-sm p-4 border border-blue-100">
+                <h2 className="text-sm font-bold flex items-center gap-2 mb-1"><i className="fa-solid fa-circle-info text-blue-500"></i>Instructions</h2>
+                <p className="text-xs text-slate-500">Select spots on the left, and a 3-7 day itinerary will be generated on the right. Includes transport times!</p>
+              </div>
+              <div className="max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+                {Object.entries(grouped).length === 0 ? <p className="text-center py-10 text-slate-400">Please select a region above to start</p> : 
+                  Object.entries(grouped).map(([type, items]) => (
+                    <div key={type} className="mb-6">
+                      <h3 className="font-bold text-slate-700 mb-3 sticky top-0 bg-blue-50/90 py-2 backdrop-blur-sm z-10 border-b border-blue-200">{type}</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {items.map(it => (
+                          <div key={it.id} onClick={() => toggleAttr(it.id)} className={`p-4 rounded-xl cursor-pointer border-2 transition-all ${selectedIds.includes(it.id) ? 'bg-blue-50 border-blue-500 scale-[1.02] shadow-md' : 'bg-white border-transparent shadow-sm hover:border-slate-300'}`}>
+                            <div className="font-bold text-slate-900 mb-2">{it.name}</div>
+                            <div className="text-[10px] flex gap-2 mb-2"><span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600"><i className="fa-regular fa-clock mr-1"></i>{it.stay}h</span><span className={`px-1.5 py-0.5 rounded border ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot"></i> {it.regionName}</span></div>
+                            <p className="text-xs text-slate-500 line-clamp-2">{it.desc}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+
+            <div className="lg:w-1/2">
+              <div className="bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden flex flex-col max-h-[85vh] sticky top-24">
+                <div className="bg-blue-900 text-white p-5 lg:p-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2"><i className="fa-regular fa-calendar-check text-blue-300"></i>Your Schedule</h2>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <select value={tripDuration} onChange={(e) => setTripDuration(Number(e.target.value))} className="flex-1 sm:flex-none bg-blue-800 text-white font-bold py-3 px-3 rounded-xl border border-blue-700"><option value={3}>3 Days</option><option value={4}>4 Days</option><option value={5}>5 Days</option><option value={6}>6 Days</option><option value={7}>7 Days</option></select>
+                    <button onClick={() => setSelectedIds([])} className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl font-bold shadow-lg transition-all ${selectedIds.length > 0 ? 'bg-red-500 text-white' : 'bg-blue-800 text-blue-400'}`}><i className="fa-solid fa-rotate-right"></i><span>Reset</span></button>
+                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="w-full sm:flex-1 bg-sky-500 py-3 px-2 rounded-xl font-bold text-white text-sm sm:text-base cursor-pointer disabled:opacity-30">Get Detailed Plan</button>
+                  </div>
+                </div>
+                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-24 flex flex-col items-center gap-4"><i className="fa-solid fa-umbrella-beach text-6xl opacity-10"></i><p>No spots selected yet. Click cards on the left!</p></div> : 
+                    itineraryDays.map(d => (
+                      <div key={d.dayNum} className="mb-10">
+                        <h3 className="font-bold text-lg mb-4 border-b-2 border-blue-100 pb-2 flex items-center gap-2 text-blue-900"><i className="fa-solid fa-sun text-yellow-500"></i> Day {d.dayNum} - 【{d.cityName}】 <span className="text-xs font-normal text-slate-400 ml-auto">Total: {d.totalH}h</span></h3>
+                        <div className="space-y-5 border-l-[3px] border-blue-100 ml-4 pl-7 relative pb-4">
+                          {d.items.map((it, idx) => (
+                            <div key={`${it.id}-${idx}`} className="relative mb-6">
+                              {!it.isFirstPoint && (
+                                <div className="mb-4 relative">
+                                  <div className="absolute -left-[40px] top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-blue-200 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[8px] text-blue-300"></i></div>
+                                  <div className={`rounded-lg p-3 text-[11px] border shadow-sm ${it.transitTransport.includes('Inter-city') || it.transitTransport.includes('Long Distance') ? 'bg-orange-50 border-orange-100' : 'bg-blue-50/70 border-blue-100'}`}>
+                                    <div className={`font-bold mb-1.5 ${it.transitTransport.includes('Inter-city') || it.transitTransport.includes('Long Distance') ? 'text-orange-800' : 'text-blue-800'}`}>{it.prevName} ➔ {it.name}</div>
+                                    <div className="flex items-center gap-3 mb-1.5"><span className={`bg-white px-2 py-0.5 rounded border font-mono shadow-sm ${it.transitTransport.includes('Inter-city') || it.transitTransport.includes('Long Distance') ? 'border-orange-200 text-orange-600' : 'border-blue-200 text-blue-600'}`}><i className="fa-regular fa-clock mr-1"></i> {it.tStr}</span><span className={`font-medium ${it.transitTransport.includes('Inter-city') || it.transitTransport.includes('Long Distance') ? 'text-orange-600' : 'text-blue-600'}`}>Travel Est: {it.tTime}h</span></div>
+                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{it.transitTransport}</div>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative hover:shadow-md transition-shadow">
+                                <div className="absolute -left-[37px] top-4 w-4.5 h-4.5 bg-blue-500 rounded-full border-[3px] border-white shadow-sm z-10"></div>
+                                <div className="text-xs font-bold text-slate-400 mb-1"><i className="fa-regular fa-clock"></i> Stay: {it.sStr}</div>
+                                <h4 className="font-bold text-base mb-1">{it.name}</h4>
+                                <p className="text-xs text-slate-500 leading-relaxed">{it.desc}</p>
+                                {it.bookingLinks && <div className="mt-3 flex gap-1.5 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[9px] px-2.5 py-1 rounded-full font-bold transition-colors shadow-sm"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da Nang Shopping Guide | Da Nang & Hoi An</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f9ff; /* light blue-50 */
+        }
+        /* Hide scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Active State for Tabs */
+        .tab-btn.active {
+            background-color: #0369a1; /* sky-700 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(3, 105, 161, 0.3);
+            border-color: #0369a1;
+        }
+        .city-btn.active {
+            background-color: #0c4a6e; /* sky-900 */
+            color: white;
+            border-color: #0c4a6e;
+        }
+        .tab-btn, .city-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button */
+        .btn-maps {
+            background-color: #0284c7; /* sky-600 */
+        }
+        .btn-maps:hover {
+            background-color: #0369a1; /* sky-700 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-sky-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-sky-700 tracking-wider"><i class="fa-solid fa-cart-shopping mr-2"></i>DA NANG SHOP</span>
+                </div>
+                <div>
+                    <!-- Back to Home -->
+                    <a href="https://linkuei0425.github.io/DaNang-US/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-sky-800 via-sky-600 to-cyan-500 py-10 lg:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm drop-shadow-md">Da Nang & Hoi An Shopping Guide</h1>
+            <p class="text-base md:text-lg text-sky-100 max-w-2xl mx-auto font-medium">Handpicked top 10 souvenirs, supermarkets, traditional markets, and creative boutiques guide.</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- District Selector -->
+        <section class="mb-6 relative">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot mr-1"></i> Select Region</h2>
+            <div id="city-container" class="flex overflow-x-auto hide-scrollbar space-x-2 pb-2 scroll-smooth px-1">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 relative" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> Select Category</h2>
+            <div id="category-container" class="flex overflow-x-auto hide-scrollbar space-x-3 pb-2 scroll-smooth px-1">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+        <!-- Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Dynamic Cards -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Da Nang & Hoi An Shopping Guide. Your best guide for Central Vietnam travel.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Da Nang & Hoi An Shopping Database
+        const db = {
+            haichau: {
+                name: "Hai Chau (City Center)",
+                cat: {
+                    souvenir: [
+                        {n:"Salted Cashews (with skin)",f:"Da Nang's top souvenir! Roasted with the skin to preserve natural oils and aroma. Crispy and savory, much more flavorful than peeled ones.",a:"Where to buy: Han Market (1st floor interior stalls)",t:"Located in the city center, 5 mins walk from the Pink Cathedral."},
+                        {n:"Trung Nguyen Drip Coffee",f:"Vietnam's national coffee. The 'Legend' series paired with an aluminum drip filter is highly recommended for an authentic taste at home.",a:"Where to buy: Trung Nguyen stores or around Han Market",t:"Multiple stores in the city; Han Market (119 Tran Phu) is the most concentrated area."},
+                        {n:"Mung Bean Cakes",f:"Made from finely ground mung beans, these cakes melt in your mouth. A classic companion for hot tea, available in various gift boxes.",a:"Where to buy: Han Market souvenir stalls",t:"Available at many stalls; compare prices and bargain for bulk buys."},
+                        {n:"Prawn & Coconut Crackers",f:"Light, crispy coconut crackers and savory prawn crackers. Affordable and lightweight, perfect for sharing at the office.",a:"Where to buy: Han Market or GO! Supermarket",t:"Han Market 1st floor has many snack-specific stalls."},
+                        {n:"Handmade Embroidery",f:"Exquisite hand-stitched handkerchiefs and pouches. Patterns reflect traditional Vietnamese charm, perfect for gifts.",a:"Where to buy: May Souvenir (near Han Market)",t:"110 Le Loi, Hai Chau District; walkable from the market."}
+                    ],
+                    mart: [
+                        {n:"Han Market (Chợ Hàn)",f:"The most famous tourist market! Beyond souvenirs, it has a vast array of local seasonings and dried foods. Best visited before noon.",a:"119 Tran Phu, Hai Chau 1, Da Nang",t:"Heart of city center, walkable to main landmarks."},
+                        {n:"Con Market (Chợ Cồn)",f:"The 'Kitchen' of the locals! Famous for its street food section, dry goods, and fresh fruits. Prices are often lower than Han Market.",a:"290 Hung Vuong, Vinh Trung, Hai Chau",t:"Main intersection; Grab drop-off at the entrance is recommended."},
+                        {n:"GO! Da Nang (Big C)",f:"The largest hypermarket with transparent pricing. Best for instant noodles, coffee, dried fruit, and local snacks.",a:"255-257 Hung Vuong, Vinh Trung, Hai Chau",t:"Opposite Con Market; approx. 5 mins Grab ride from the city center."},
+                        {n:"Lotte Mart Da Nang",f:"Spacious Korean supermarket. Features a dedicated souvenir zone, ideal for one-stop shopping of all popular items.",a:"06 Nai Nam, Hoa Cuong Bac, Hai Chau",t:"South of city center; Grab is recommended for easy transport."},
+                        {n:"WinMart (Vincom Plaza)",f:"Modern and clean chain supermarket inside the mall. Perfect for snacks or high-quality packaged goods after fashion shopping.",a:"Vincom Plaza (910A Ngo Quyen)",t:"East of Dragon Bridge; very convenient location."}
+                    ],
+                    fashion: [
+                        {n:"Vincom Plaza Da Nang",f:"The most modern mall in Da Nang. Houses international sports brands like Nike and Adidas, along with a cinema and ice rink.",a:"910A Ngo Quyen, An Hai Bac, Son Tra",t:"Between Dragon Bridge and Han River Bridge; prime location."},
+                        {n:"Indochina Riverside Mall",f:"Riverside boutique mall. Features cosmetics and casual brands like Giordano. The 2nd-floor food court has great river views.",a:"74 Bach Dang, Hai Chau 1, Hai Chau",t:"Opposite Han Market, fronting the Han River."},
+                        {n:"Vanda Tailor (Ao Dai)",f:"High-quality custom traditional dress shop. Offers premium silk fabrics with professional fitting for a unique souvenir.",a:"111-113 Nguyen Thai Hoc, Hai Chau",t:"City center; walkable and close to Han Market."}
+                    ],
+                    hobby: [
+                        {n:"Artbook Da Nang",f:"Aesthetic design and book shop. Sells vintage movie posters, quality notebooks, architecture books, and local postcards.",a:"102 Bach Dang, Hai Chau 1, Da Nang",t:"On the riverfront near Han Market; easily walkable."},
+                        {n:"Da Nang Souvenirs & Cafe",f:"Combination of a cafe and gift shop. Sells themed mugs, bags, and local design crafts with a very chill atmosphere.",a:"34 Bach Dang, Thach Thang, Hai Chau",t:"Near the Han River Bridge; perfect for a riverfront walk."}
+                    ]
+                }
+            },
+            sontra: {
+                name: "Son Tra (Beach Area)",
+                cat: {
+                    souvenir: [
+                        {n:"Dried Seafood",f:"Son Tra is by the sea. Find vacuum-packed dried squid, roasted fish, and dried shrimp. Fresh and savory flavor.",a:"Where to buy: Son Tra Night Market dried food stalls",t:"East end of Dragon Bridge; buy while enjoying the fire show."}
+                    ],
+                    mart: [
+                        {n:"Son Tra Night Market",f:"Nightly tourist market! Besides seafood, many stalls sell souvenirs, phone cases, and handmade accessories. Great for evening shopping.",a:"Ly Nam De St, Son Tra",t:"East side of Dragon Bridge; best visited after 6:00 PM."},
+                        {n:"Man Thai Fishing Village Market",f:"Pure local life experience. Early morning fish auction. Mostly fresh, but some local dry goods can be found.",a:"105 Vo Nguyen Giap, Man Thai, Son Tra",t:"North My Khe Beach; visit at 6-7 AM for the best atmosphere."},
+                        {n:"Joly Mart",f:"Upscale boutique supermarket. Stocks many international imports and high-quality fruits, a favorite for expats near the beach.",a:"31 Yen Bai, Hai Chau (Near bridge)",t:"Near Dragon Bridge west end; 3 mins across the bridge from the beach."}
+                    ],
+                    hobby: [
+                        {n:"Night Market Gift Zone",f:"The rear section of Son Tra Night Market features stalls for charms, bamboo crafts, woven bags, and local trinkets.",a:"Inside Son Tra Night Market",t:"East end of Dragon Bridge; open nightly from 6:00 PM."}
+                    ]
+                }
+            },
+            hoian: {
+                name: "Hoi An Ancient Town",
+                cat: {
+                    souvenir: [
+                        {n:"Hoi An Handmade Lanterns",f:"The town's icon! Foldable silk or paper lanterns. LED versions are recommended for easy packing and travel.",a:"Where to buy: Hoi An Night Market",t:"Across the An Hoi Bridge; the street is filled with lantern vendors."},
+                        {n:"Handmade Cinnamon Wood",f:"Specialty from the region. Find cinnamon powder or toothpick holders and coasters carved from cinnamon wood. Fragrant and unique.",a:"Where to buy: Old Town boutique gift shops",t:"Old town central district; walkable from the main streets."},
+                        {n:"Custom Leather Goods",f:"Hoi An is a world-famous leather hub. Bags, wallets, and jackets can be custom-made to your specs within 24 hours.",a:"Where to buy: Friendly Shoe Shop or Leather Street",t:"Old town center (Tran Phu Street) is the most concentrated area."},
+                        {n:"Creative Lifestyle Gifts",f:"Includes aesthetic home goods from Sunday in Hoi An and artistic ceramics by disabled artisans at Reaching Out.",a:"Where to buy: Sunday in Hoi An / Reaching Out",t:"Both in the old town center; ideal for browsing while walking."}
+                    ],
+                    mart: [
+                        {n:"Hoi An Central Market",f:"Historic market by the river. Rich in spices, teas, local snacks, and traditional crafts. High cultural charm.",a:"Tran Quy Cap St, Hoi An",t:"Riverside in the Old Town; easily accessible on foot."},
+                        {n:"Hoi An Night Market",f:"The colorful lantern street! Besides photos, many stalls sell snacks and creative accessories for evening browsing.",a:"Nguyen Hoang St, Hoi An",t:"Across the bridge from the Old Town core."}
+                    ],
+                    fashion: [
+                        {n:"Friendly Shoe Shop",f:"Hoi An's most honest shoe shop. Known for fixed prices and high quality. Custom shoes can be ready for pickup in a day.",a:"18 Tran Phu, Hoi An",t:"East entrance of the Old Town; walkable."},
+                        {n:"Metiseko (Eco-Fashion)",f:"French-designed, Vietnamese-made organic cotton and silk. Elegant prints, perfect for tropical weather.",a:"142 Tran Phu, Hoi An",t:"Located in the Old Town central district."}
+                    ],
+                    hobby: [
+                        {n:"Sunday in Hoi An",f:"Instagram-famous boutique. Pastel colors and refined woven products. Beautiful packaging, perfect for high-quality gifts.",a:"76 Tran Phu, Hoi An",t:"Old Town central area."},
+                        {n:"Reaching Out Charity Shop",f:"Meaningful shop selling ceramics and jewelry made by disabled artisans. Fine craft and artistic quality.",a:"103 Tran Phu, Hoi An",t:"Old Town center, next to Reaching Out Tea House."}
+                    ]
+                }
+            }
+        };
+
+        const catsMap = {
+            souvenir: { icon: "🛍️", name: "Souvenirs", bg: "bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border-sky-200" },
+            mart:     { icon: "🛒", name: "Markets/Marts", bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200" },
+            fashion:  { icon: "👗", name: "Fashion/Malls", bg: "bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white border-indigo-200" },
+            hobby:    { icon: "🧸", name: "Creative Gifts", bg: "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border-amber-200" }
+        };
+
+        let currentCity = "haichau"; 
+        let currentCat = "souvenir"; 
+
+        const cityContainer = document.getElementById('city-container');
+        const categoryContainer = document.getElementById('category-container');
+        const shopContainer = document.getElementById('shop-container');
+
+        function initUI() {
+            // Region Menu
+            const cities = Object.keys(db);
+            cities.forEach(cityKey => {
+                const btn = document.createElement('button');
+                btn.className = `city-btn whitespace-nowrap px-6 py-2.5 rounded-full border border-sky-200 bg-white text-sky-700 font-bold hover:bg-sky-100 hover:text-sky-900 shadow-sm ${cityKey === currentCity ? 'active' : ''}`;
+                btn.innerText = db[cityKey].name;
+                btn.onclick = () => {
+                    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCity = cityKey;
+                    renderContent();
+                };
+                cityContainer.appendChild(btn);
+            });
+
+            // Category Menu
+            Object.keys(catsMap).forEach(catKey => {
+                const c = catsMap[catKey];
+                const btn = document.createElement('button');
+                btn.className = `tab-btn whitespace-nowrap px-5 py-2.5 rounded-full border transition-all font-bold shadow-sm flex items-center ${c.bg} ${catKey === currentCat ? 'active' : ''}`;
+                btn.innerHTML = `<span class="mr-1.5 text-lg">${c.icon}</span> ${c.name}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCat = catKey;
+                    renderContent();
+                };
+                categoryContainer.appendChild(btn);
+            });
+
+            renderContent();
+        }
+
+        function renderContent() {
+            shopContainer.innerHTML = '';
+            const items = db[currentCity].cat[currentCat];
+
+            if(!items || items.length === 0) {
+                shopContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-lg font-bold">No data available for this category in this region yet.</div>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Apply Trip.com Rules if link matches (though currently using Maps)
+                let mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.n + ' ' + item.a + ' Vietnam')}`;
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-sky-50 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                ${item.n}
+                            </h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-amber-400 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-400 font-bold mb-1 uppercase tracking-wider">Highlights</p>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-medium">${item.f}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-400 font-bold mb-1 uppercase tracking-wider">Location / Address</p>
+                                    <p class="text-sm text-slate-600 font-medium">${item.a}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-motorcycle text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-400 font-bold mb-1 uppercase tracking-wider">Transport</p>
+                                    <span class="inline-block bg-sky-50 text-sky-700 text-xs px-2.5 py-1 rounded-md font-bold text-left leading-normal">${item.t}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-sky-50">
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white btn-maps focus:outline-none transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            Open in Google Maps
+                        </a>
+                    </div>
+                `;
+                shopContainer.appendChild(card);
+            });
+        }
+
+        function scrollNav(containerId, offset) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.scrollBy({ left: offset, behavior: 'smooth' });
+            }
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>
