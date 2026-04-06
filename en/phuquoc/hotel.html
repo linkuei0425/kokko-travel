@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phu Quoc Hotel Guide | Phu Quoc Hotel Recommendations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5eead4; /* teal-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2dd4bf; /* teal-400 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* District Button Styles */
+        .area-btn-active {
+            background-color: #0f766e; /* teal-700 */
+            color: white;
+            border-color: #0f766e;
+            box-shadow: 0 4px 6px -1px rgba(15, 118, 110, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #f0fdfa; /* teal-50 */
+            color: #115e59; /* teal-800 */
+            border-color: #5eead4; /* teal-300 */
+        }
+
+        /* Category Button Styles */
+        .cat-btn-active {
+            background-color: #0d9488; /* teal-600 */
+            color: white;
+            border-color: #0d9488;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #f0fdfa; /* teal-50 */
+            color: #0d9488;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#f0fdfa] min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-teal-900 tracking-wide">
+                    <i class="fa-solid fa-hotel mr-2 text-teal-600"></i>Phu Quoc Hotel Guide
+                </h1>
+                <a href="https://linkuei0425.github.io/PhuQuoc-US/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-teal-100 text-teal-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-teal-200">
+                    <i class="fa-solid fa-house mr-2"></i>
+                    Back to Home
+                </a>
+            </div>
+            <p class="text-teal-600 font-medium text-sm md:text-base">A curated selection of premium hotels across Phu Quoc's districts to make your island trip comfortable and convenient.</p>
+        </header>
+
+        <!-- Layer 1: District Buttons (Horizontal Scroll) -->
+        <div class="mb-6 overflow-hidden relative">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-bold text-teal-700 uppercase tracking-wider">Select Region</span>
+                <!-- Scroll Arrows -->
+                <div class="flex gap-2">
+                    <button onclick="scrollDistricts('left')" class="p-1.5 rounded-full bg-teal-100 text-teal-600 hover:bg-teal-200 transition-colors shadow-sm" aria-label="Scroll left">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollDistricts('right')" class="p-1.5 rounded-full bg-teal-100 text-teal-600 hover:bg-teal-200 transition-colors shadow-sm" aria-label="Scroll right">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-3 pb-2 scroll-smooth">
+                <!-- Buttons injected by JS -->
+            </div>
+        </div>
+
+        <!-- Layer 2: Category Buttons -->
+        <div id="category-buttons" class="flex flex-wrap justify-center gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-teal-100 hidden">
+            <!-- Buttons injected by JS -->
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-teal-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-teal-300 pt-20 pb-20">
+                <p class="font-bold text-lg"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading recommended hotels...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto px-4 mt-8 pb-4 text-center text-teal-700/70 text-sm">
+        <p>※ Public transport in Phu Quoc mainly relies on Grab or taxis. The climate is warm and tropical, so selecting a resort with an infinity pool or private beach is highly recommended for the best island experience.</p>
+    </footer>
+
+    <script>
+        // Phu Quoc Hotel Database
+        const hotelData = {
+            "central": {
+                name: "Central Island (Duong Dong / Long Beach)",
+                categories: {
+                    "Luxury Resorts": [
+                        { name: "Salinda Resort Phu Quoc Island", feature: ["Phu Quoc's highly acclaimed 5-star boutique resort with impeccable service", "Features a stunning salt-water pool surrounded by greenery, with direct access to a private beach", "Breakfast offers unlimited sparkling wine and features live music performances"], address: "Cửa Lấp, Dương Tơ, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-1470539/salinda-resort-phu-quoc-sparkling-wine-breakfast/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" },
+                        { name: "InterContinental Phu Quoc Long Beach Resort", feature: ["IHG group's top luxury resort, featuring INK 360, the highest sky bar in Phu Quoc", "Extremely rich facilities, including multiple spectacular infinity pools and a premium SPA", "Perfect for families and couples, offering stunning beach sunsets"], address: "Bãi Trường, Dương Tơ, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-15858542/intercontinental-phu-quoc-long-beach-resort/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" },
+                        { name: "Seashells Phu Quoc Hotel & Spa", feature: ["Shaped like a giant seashell, located in the heart of Duong Dong town", "Unbeatable location, just a 5-minute walk to Duong Dong Night Market and Dinh Cau Shrine", "Ocean-view rooms feature infinity sea views and balconies; the rooftop infinity pool is incredibly photogenic"], address: "1 Võ Thị Sáu, Dương Đông, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-10200862/seashells-phu-quoc-hotel-and-spa/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" }
+                    ],
+                    "High Value / Boutique": [
+                        { name: "Lahana Resort Phu Quoc", feature: ["An eco-resort hidden on a small hill in Duong Dong town, full of natural and primitive charm", "Features a stunning infinity forest pool, extremely high value for money", "A quiet oasis in the bustling city; a short walk down the hill takes you to the busy streets"], address: "91/1 Trần Hưng Đạo, Dương Đông, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-9585235/lahana-resort-phu-quoc/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" },
+                        { name: "M Village Phu Quoc", feature: ["A highly popular hipster-style quality accommodation among young travelers recently", "Minimalist wooden design, featuring a beautiful tropical garden and pool inside the resort", "Relaxed and comfortable overall atmosphere, affordable price, perfect for besties or couples"], address: "189 Trần Hưng Đạo, Dương Đông, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-65267468/m-village-resort-spa/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" }
+                    ],
+                    "Hostels / Budget": [
+                        { name: "Phu House Hostel", feature: ["The exterior is a traditional Chinese wooden building, while the interior is a clean and comfortable hostel", "Features a highly popular ocean-view Sky Bar on the roof, a secret base for watching sunsets", "Located on the bustling Tran Hung Dao street, making dining and entertainment very convenient"], address: "122 Trần Hưng Đạo, Dương Đông, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-6146290/phu-house/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "north": {
+                name: "North Island (Vinpearl / Grand World)",
+                categories: {
+                    "Luxury Resorts": [
+                        { name: "Crowne Plaza Phu Quoc Starbay", feature: ["IHG group's luxury base in the North Island, featuring modern and textured decor", "Boasts a massive irregularly shaped resort pool and a tranquil private beach", "Away from the hustle and bustle, perfect for travelers seeking pure relaxation and high-end facilities"], address: "Khu Du Lịch Bãi Dài, Gành Dầu, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-68490848/crowne-plaza-phu-quoc-starbay-by-ihg/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" },
+                        { name: "Vinpearl Resort & Spa Phu Quoc", feature: ["A classic 5-star resort under the Vinpearl group, its red-tiled architecture is full of rich Vietnamese charm", "Boasts the largest outdoor pool in the North Island, with direct access to a stretching white sand beach", "Offers all-inclusive packages with theme park tickets or three meals, saving you the hassle of planning"], address: "Bãi Dài, Gành Dầu, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-2113148/vinpearl-resort-and-spa-phu-quoc/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" }
+                    ],
+                    "Family / Theme Park": [
+                        { name: "VinHolidays Fiesta Phu Quoc", feature: ["Located right inside the 'Grand World' complex, step downstairs to shop and watch shows", "An affordable hotel under the Vinpearl group, featuring a massive courtyard pool", "Extremely convenient to take the free VinBus to the Safari and VinWonders"], address: "Khu Bãi Dài, Gành Dầu, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-67667557/vinholidays-1-phu-quoc/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" },
+                        { name: "Radisson Blu Resort Phu Quoc", feature: ["An international chain brand with complete facilities and extremely friendly to family travelers", "Located right next to the Corona Casino, and very close to Grand World and the theme parks", "Offers free bicycle and kayak rentals, with a spacious and fun swimming pool"], address: "Bãi Dài, Gành Dầu, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-23192360/radisson-blu-resort-phu-quoc/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" }
+                    ]
+                }
+            },
+            "south": {
+                name: "South Island (Sunset Town / Emerald Bay)",
+                categories: {
+                    "Ultra Luxury": [
+                        { name: "JW Marriott Phu Quoc Emerald Bay Resort", feature: ["A 'fantasy university' themed luxury resort crafted by master designer Bill Bensley", "Located in the breathtaking 'Emerald Bay', exclusively owning a private pink-white beach and a shell-shaped pool", "Every corner is the ultimate Instagrammable spot; hailed as the most beautiful hotel in Phu Quoc"], address: "Bãi Kem, An Thới, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-6489167/jw-marriott-phu-quoc-emerald-bay-resort-and-spa/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" },
+                        { name: "Premier Village Phu Quoc Resort", feature: ["Located at the southernmost secret peninsula of the South Island, offering both sunrise and sunset views", "All-villa accommodations, each with a private pool, providing ultimate luxury and privacy", "Features a cascading infinity mega-pool, perfect for family trips or honeymoon vacations"], address: "Mũi Ông Đội, An Thới, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-17472672/premier-village-phu-quoc-resort-managed-by-accor/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" },
+                        { name: "New World Phu Quoc Resort", feature: ["An all-villa luxury resort highlighting Vietnamese fishing village style, featuring highly distinctive thatched roofs", "Each villa has an independent, spacious private pool, offering excellent privacy", "Boasts a long and soft exclusive white sand beach, with incredibly thoughtful service"], address: "Bãi Kem, An Thới, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-73295459/new-world-phu-quoc/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" }
+                    ],
+                    "Boutique / High Value": [
+                        { name: "La Festa Phu Quoc, Curio Collection by Hilton", feature: ["A brand-new masterpiece by the Hilton group, perfectly blending into the Mediterranean-style architecture of Sunset Town", "Directly facing the 'Kiss Bridge', offering the island's best view for watching the shows", "Filled with a strong Italian Amalfi Coast vibe, extremely romantic"], address: "Sunset Town, An Thới, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-92027026/la-festa-phu-quoc-curio-collection-by-hilton/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" },
+                        { name: "Premier Residences Phu Quoc Emerald Bay", feature: ["Located in Emerald Bay in the South Island, adjacent to JW Marriott and sharing the same stunning beach", "Features a super massive, multi-level island-style pool, complete with a water slide", "Managed by Accor, with relatively affordable room rates and rich family-friendly facilities"], address: "Bãi Kem, An Thới, Phú Quốc", url: "https://www.trip.com/hotels/phu-quoc-island-hotel-detail-25873380/premier-residences-phu-quoc-emerald-bay-managed-by-accorhotels/?Allianceid=7913725&SID=303155875&trip_sub1=&trip_sub3=D14713442&locale=en_xx&curr=USD" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. Initialize District Buttons
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70"></i>${hotelData[key].name}`;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. Select District
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. Render Category Buttons
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive shadow-sm`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // Click the first category by default
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. Select Category
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. Render Hotel Data
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-teal-100 animate-fade-in">
+                    <h2 class="text-2xl font-bold text-teal-900 mr-3">
+                        <i class="fa-solid fa-location-dot mr-2 text-teal-500"></i>${districtData.name}
+                    </h2>
+                    <span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-teal-100 text-teal-800 text-sm font-bold rounded-full border border-teal-200">
+                        <i class="fa-solid fa-tag mr-1"></i>${currentCategoryName}
+                    </span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in">No recommended hotels in this category.</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5">`;
+                
+                hotels.forEach((hotel, index) => {
+                    // Uses provided URL or falls back to Google Maps search
+                    let searchUrl = hotel.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotel.name + ' Phu Quoc')}`;
+                    
+                    const linkTagHTML = `
+                        <a href="${searchUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 mt-3 sm:mt-0 rounded-xl text-sm font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-auto">
+                            <i class="fa-solid fa-magnifying-glass mr-1.5"></i>View Details
+                        </a>
+                    `;
+
+                    htmlContent += `
+                        <div class="bg-white border border-teal-100 p-5 md:p-6 rounded-2xl hover:shadow-lg transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 0.05}s;">
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2">
+                                <h4 class="text-xl font-bold text-teal-900 flex items-start leading-tight pt-1">
+                                    <span class="text-white bg-teal-500 rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2 flex-shrink-0">${index + 1}</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-0 sm:pl-8 space-y-3">
+                                <div class="flex items-start">
+                                    <span class="font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-star mr-1"></i>Highlights</span> 
+                                    <ul class="list-disc pl-4 m-0 text-sm text-slate-700 leading-relaxed font-medium space-y-1.5 w-full">
+                                        ${hotel.feature.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded mr-3 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-map-pin mr-1"></i>Location</span> 
+                                    <span class="text-sm text-slate-700 leading-relaxed font-medium pt-0.5">${hotel.address}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // Horizontal scroll control for districts
+        function scrollDistricts(direction) {
+            const container = document.getElementById('district-buttons');
+            const scrollAmount = 200; // scroll distance
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            
+            // Auto-load the first district
+            const firstDistrictKey = Object.keys(hotelData)[0];
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict(firstDistrictKey, firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phu Quoc Shopping Guide | Best Souvenirs & Spots</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Custom Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Active State for Tabs */
+        .tab-btn.active {
+            background-color: #0ea5e9; /* sky-500 for a more island/beach vibe */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
+            border-color: #0ea5e9;
+        }
+        .city-btn.active {
+            background-color: #0369a1; /* sky-700 */
+            color: white;
+            border-color: #0369a1;
+        }
+        .tab-btn, .city-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button Hover */
+        .btn-maps {
+            background-color: #0ea5e9; 
+        }
+        .btn-maps:hover {
+            background-color: #0284c7; 
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-sky-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-sky-700 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>PHU QUOC SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/PhuQuoc-US/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-sky-800 via-sky-500 to-teal-400 py-10 lg:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm drop-shadow-md">Phu Quoc Shopping Guide</h1>
+            <p class="text-base md:text-lg text-sky-50 max-w-2xl mx-auto font-medium">Handpicked shopping spots across Phu Quoc's 3 major regions! From pearl souvenirs at Duong Dong Night Market to cashews at Kingkong Mart and unique boutiques in Grand World and Sunset Town. Shop till you drop!</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- City Selector -->
+        <section class="mb-6 relative">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot mr-1"></i> Select Region</h2>
+                <!-- Scroll Arrows -->
+                <div class="flex gap-2">
+                    <button onclick="scrollNav('city-container', -250)" class="p-1.5 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors shadow-sm" aria-label="Scroll Left">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollNav('city-container', 250)" class="p-1.5 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors shadow-sm" aria-label="Scroll Right">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="city-container" class="flex overflow-x-auto hide-scrollbar space-x-2 pb-2 scroll-smooth px-1">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 relative" id="category-section">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> Select Category</h2>
+                <!-- Scroll Arrows -->
+                <div class="flex gap-2">
+                    <button onclick="scrollNav('category-container', -250)" class="p-1.5 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors shadow-sm" aria-label="Scroll Left">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button onclick="scrollNav('category-container', 250)" class="p-1.5 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors shadow-sm" aria-label="Scroll Right">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="category-container" class="flex overflow-x-auto hide-scrollbar space-x-3 pb-2 scroll-smooth px-1">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Shop Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected dynamically via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Phu Quoc Shopping Guide. Providing the best shopping and souvenir recommendations for your island trip.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Phu Quoc Shopping Database
+        const db = {
+            center: {
+                name: "Central (Duong Dong)",
+                cat: {
+                    souvenir: [
+                        {n:"Phu Quoc Night Market", f:"The liveliest night market in Phu Quoc! Must-buys include local pearl jewelry, woven bags, roasted peanuts, coconut candy, and dried seafood.", a:"54 Nguyen Trai, Zone 1, Phu Quoc", t:"🚶 Central location / 🚗 Take Grab or Tuk-Tuk"},
+                        {n:"Ngoc Hien Pearl Farm", f:"Professional pearl farming and exhibition center. Sells high-quality pearl necklaces, earrings, and accessories with certificates of authenticity. Great for gifts.", a:"Tran Hung Dao, Duong To, Phu Quoc", t:"🚗 Take Grab, located on the main coastal road south of the center"},
+                        {n:"Khu Tuong Pepper Garden", f:"Phu Quoc pepper is world-famous! Tour the farm and buy the most authentic, highly aromatic black, white, and red pepper.", a:"Cua Duong, Phu Quoc", t:"🚗 A bit far from the city center, recommend taking Grab"}
+                    ],
+                    fashion: [
+                        {n:"Duong Dong Affordable Clothing", f:"Along the main street Tran Hung Dao, many local shops sell island-style dresses, sarongs, and woven hats at affordable prices.", a:"Tran Hung Dao Street, Duong Dong", t:"🚶 Walk or take Grab"},
+                        {n:"Night Market Stalls", f:"The outer perimeter of the night market has many clothing stalls, perfect for grabbing last-minute beachwear, swimsuits, flip-flops, or light summer clothes.", a:"Night Market Area, Phu Quoc", t:"🚶 Walk to the night market"},
+                        {n:"Tailor Shops (Ao Dai)", f:"Hidden in the city are traditional tailor shops offering quick custom-made Vietnamese traditional dresses (Ao Dai) or suits.", a:"Duong Dong, Phu Quoc", t:"🚗 Recommend taking Grab to tailor shops around the city"}
+                    ],
+                    beauty: [
+                        {n:"Local Pharmacies (Nha Thuoc)", f:"Found everywhere on the streets of Duong Dong. Convenient for buying sunscreen, aloe vera gel, Tiger Balm, and green medicated oil for tropical needs.", a:"Tran Hung Dao Street, Phu Quoc", t:"🚶 Easy to find on foot"},
+                        {n:"SPA & Natural Skincare", f:"Many premium SPAs (like Phiphi SPA) in the city sell their own natural essential oils, coconut oil, and massage creams.", a:"Duong Dong Area, Phu Quoc", t:"🚶 Walk or take Grab"},
+                        {n:"Coconut Beauty Products", f:"Many souvenir shops specialize in skincare products extracted from natural coconut, including lip balms, body lotions, and highly moisturizing coconut soaps.", a:"Duong Dong Area", t:"🚶 Walk to local souvenir shops"}
+                    ],
+                    mart: [
+                        {n:"Kingkong Mart", f:"The largest and most popular souvenir supermarket in Phu Quoc! The top choice for buying skin-on cashews, G7 coffee, mung bean cakes, dried fruits, and snacks.", a:"141A Tran Hung Dao, Duong Dong", t:"🚗 Located on the main road, about 5-10 mins by Grab"},
+                        {n:"Co.opmart", f:"A large local Vietnamese supermarket chain with friendly, transparent pricing. Great for fresh fruits, instant noodles, and daily necessities.", a:"Nguyen Trung Truc Street, Duong Dong", t:"🚗 Located east of the city, take Grab"},
+                        {n:"WinMart+ Convenience Stores", f:"Ubiquitous red-signed chain convenience stores. Good for grabbing cold drinks, local Vietnamese yogurt, and snacks anytime.", a:"Central Duong Dong", t:"🚶 Branches available on all main streets"}
+                    ],
+                    hobby: [
+                        {n:"Phung Hung Fish Sauce Factory", f:"The finest specialty fish sauce in Phu Quoc! Though large bottles can't be taken on flights, you can buy exquisite small packages or just tour to understand the local culture.", a:"Nguyen Van Cu, An Thoi", t:"🚗 Located between the center and south, recommend Grab"},
+                        {n:"Handmade Postcards & Crafts", f:"Local artists set up stalls in the night market selling hand-painted Phu Quoc landscape postcards, woven items, and shell crafts.", a:"Phu Quoc Night Market", t:"🚶 Walk to the night market"},
+                        {n:"Traditional Wood Carving", f:"Sells traditional Vietnamese wooden crafts, exquisite lacquer boxes, and woven bamboo items. Perfect as premium gifts for elders.", a:"Duong Dong, Phu Quoc", t:"🚶 Walk or take Grab"}
+                    ]
+                }
+            },
+            north: {
+                name: "North (Vinpearl Area)",
+                cat: {
+                    souvenir: [
+                        {n:"Grand World Shopping Street", f:"The Venetian canal is lined with unique souvenir shops. Enjoy the beautiful scenery while picking out exquisite small gifts and souvenirs.", a:"Grand World, Ganh Dau, Phu Quoc", t:"🚌 Located in the northern core, take the free VinBus or walk"},
+                        {n:"VinWonders Souvenir Shop", f:"Theme park exclusive merchandise! Includes cute turtle mascot plushies, theme park T-shirts, unique water bottles, and children's toys.", a:"VinWonders, Ganh Dau", t:"🚶 Located at the park entrance and various themed zones"},
+                        {n:"Teddy Bear Museum Shop", f:"Located inside Grand World, this shop sells cute teddy bears in various international outfits and exclusive limited-edition merchandise.", a:"Grand World, Ganh Dau", t:"🚌 Take VinBus to Grand World"}
+                    ],
+                    fashion: [
+                        {n:"Grand World Canal Boutiques", f:"Along the canal are many imported clothing stores and boutique shops by local Vietnamese designers, perfect for finding resort-style dresses.", a:"Grand World Phu Quoc", t:"🚶 Walk around Grand World"},
+                        {n:"Vinpearl Resort Shopping Gallery", f:"The premium resorts in the north often feature shopping galleries selling high-end resort wear, golf apparel, and designer swimwear.", a:"Vinpearl Resorts", t:"🚶 Walk or take a buggy within the resort"},
+                        {n:"Water Park Gear Shops", f:"Forgot your swimsuit? Around and inside the VinWonders water park, there are many shops selling stylish swimwear, rash guards, and waterproof bags.", a:"VinWonders Water Park", t:"🚶 Located in the water park area"}
+                    ],
+                    beauty: [
+                        {n:"Grand World Pharmacies", f:"Provides basic cosmetics, skincare, high SPF sunscreen, aloe vera gel, and emergency meds to meet tourists' immediate needs in the north.", a:"Grand World Area", t:"🚶 Walk to the Grand World commercial area"},
+                        {n:"Akoya SPA Skincare", f:"The premium SPA centers inside the Vinpearl hotels offer top-tier natural essential oils and seaweed skincare products used in their treatments.", a:"Vinpearl Resorts", t:"🚶 Inside the hotels"},
+                        {n:"Natural Handmade Soap Shops", f:"Hidden in the streets of Grand World, selling purely handmade soaps shaped and scented like tropical fruits (mango, coconut) with captivating fragrances.", a:"Grand World Phu Quoc", t:"🚶 Walk around Grand World"}
+                    ],
+                    mart: [
+                        {n:"VinMart Supermarket", f:"A large supermarket around Grand World and the Vinpearl hotel area. Convenient for buying snacks, Vietnamese instant noodles, and cold drinks with clear, fair pricing.", a:"Grand World Area, Phu Quoc", t:"🚌 Walk or take VinBus"},
+                        {n:"K-Mart Korean Supermarket", f:"The north attracts many Korean tourists, so this supermarket specializes in Korean instant noodles, soju, tteokbokki, and Korean snacks.", a:"Grand World, Ganh Dau", t:"🚶 Inside Grand World commercial area"},
+                        {n:"Grand World Night Kiosks", f:"Before watching the night water show at Grand World, grab some local street food, sliced tropical fruits, and beer from these convenient kiosks.", a:"Along the Grand World Canal", t:"🚶 Easily accessible on foot"}
+                    ],
+                    hobby: [
+                        {n:"Venetian Masks & Crafts", f:"Grand World is full of Italian flair. Here you can buy exquisitely ornate Venetian masks and hand-painted European-style crafts.", a:"Grand World Phu Quoc", t:"🚶 Walk around Grand World"},
+                        {n:"Safari Souvenir Shop", f:"Exclusive to Vinpearl Safari, selling beautiful wooden carvings of giraffes, lemurs, and lions, along with adorable children's merchandise.", a:"Vinpearl Safari", t:"🚌 Take VinBus to Safari, located at the exit"},
+                        {n:"Vietnamese Bamboo & Lantern Art", f:"Sells various exquisite home decors woven from bamboo, Hoi An-style lanterns, and baskets, deeply embodying the tropical island and Vietnamese tradition.", a:"Grand World, Ganh Dau", t:"🚶 Grand World walking area"}
+                    ]
+                }
+            },
+            south: {
+                name: "South (Sunset Town)",
+                cat: {
+                    souvenir: [
+                        {n:"VuiFest Bazaar (Sunset Town)", f:"The most beautiful seaside night market in Phu Quoc! Besides food, many quality stalls sell handicrafts, customized keychains, and local specialties.", a:"Sunset Town, An Thoi, Phu Quoc", t:"🚗 Take Grab to Sunset Town, then walk"},
+                        {n:"Hon Thom Cable Car Souvenirs", f:"A large souvenir shop inside the Sun World trans-sea cable car station, selling Phu Quoc-themed mugs, unique magnets, and scenic postcards.", a:"An Thoi Station, Phu Quoc", t:"🚗 Take Grab to An Thoi Station"},
+                        {n:"Aquatopia Water Park Souvenirs", f:"After taking the cable car to Hon Thom island, the park inside sells cute souvenirs with tropical ocean and indigenous themes.", a:"Hon Thom Island", t:"🚠 Take the trans-sea cable car to Hon Thom"}
+                    ],
+                    fashion: [
+                        {n:"Mediterranean Style Boutiques", f:"Along the stairs and alleys of Sunset Town hide Instagram-worthy boutiques selling bohemian styles, woven dresses, and straw hats.", a:"Sunset Town, An Thoi", t:"🚶 Walk around Sunset Town"},
+                        {n:"Hon Thom Beachwear Shops", f:"Sells highly island-styled board shorts, bikinis, straw hats, and exquisite beach towels, getting you ready to embrace the clear sea.", a:"Sun World Hon Thom", t:"🚠 Cable car to Hon Thom, then walk"},
+                        {n:"Sun World Premium Boutiques", f:"The first-floor lobby of An Thoi Station features several imported casual and sports brand stores offering high-quality clothing options.", a:"An Thoi Station", t:"🚶 Located inside the cable car station"}
+                    ],
+                    beauty: [
+                        {n:"Modern Pharmacies in the South", f:"Newly opened modern pharmacies around Sunset Town provide very complete after-sun care, aloe gels, mosquito repellents, and first-aid kits.", a:"An Thoi Town, Phu Quoc", t:"🚶 Walk or take a short Grab ride"},
+                        {n:"Premium Resort SPA Fragrances", f:"SPA centers in top-tier hotels like JW Marriott or Premier Village sell world-class luxury fragrances and premium skincare products.", a:"Kem Beach Area", t:"🚗 Need to take Grab to the southeast beach area"},
+                        {n:"Coconut Oil & Sea Salt Skincare", f:"Specializes in natural exfoliating products and skincare creams made from pure local sea salt and fresh coconut oil from Phu Quoc.", a:"Sunset Town", t:"🚶 Walk around Sunset Town"}
+                    ],
+                    mart: [
+                        {n:"Sunset Town Mini Marts", f:"Hidden along the European-style streets are several convenience stores offering imported drinks, ice cream, beer, and snacks to satisfy your cravings.", a:"Sunset Town, Phu Quoc", t:"🚶 Walk around Sunset Town"},
+                        {n:"An Thoi Traditional Market", f:"Want the most local experience? The An Thoi traditional market in the south is where you can buy super cheap tropical fruits and dried seafood.", a:"An Thoi Market, Phu Quoc", t:"🚗 Take Grab to the southern town center"},
+                        {n:"Cable Car Snack Station", f:"Before the 20-minute trans-sea cable car ride, buy some light snacks, bottled water, and treats here to take on board.", a:"An Thoi Station", t:"🚶 Located inside the cable car station"}
+                    ],
+                    hobby: [
+                        {n:"Kiss Bridge Exclusive Shop", f:"Specializes in romantic postcards, couple accessories, mugs, and various aesthetic cultural items themed around the southern landmark 'Kiss Bridge'.", a:"Sunset Town, Phu Quoc", t:"🚶 Near the Kiss Bridge entrance"},
+                        {n:"Art Galleries & Pottery Studios", f:"The art district of Sunset Town features local artists selling hand-painted Phu Quoc landscape paintings and unique handmade pottery.", a:"Sunset Town Art District", t:"🚶 Walk around Sunset Town"},
+                        {n:"Ocean Style Home Decor", f:"Sells beautiful home decorations and wind chimes made from marine elements like shells, starfish (non-living), and driftwood.", a:"An Thoi Station Area", t:"🚶 Walk along the southern streets"}
+                    ]
+                }
+            }
+        };
+
+        const catsMap = {
+            souvenir: { icon: "🛍️", name: "Must-Buy Souvenirs", bg: "bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border-sky-200" },
+            fashion:  { icon: "👗", name: "Malls & Fashion", bg: "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-600 hover:text-white border-fuchsia-200" },
+            beauty:   { icon: "✨", name: "Beauty & Wellness", bg: "bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white border-teal-200" },
+            mart:     { icon: "🛒", name: "Supermarkets & Marts", bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200" },
+            hobby:    { icon: "🎨", name: "Crafts & Lifestyle", bg: "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border-amber-200" }
+        };
+
+        let currentCity = "center"; // Default view: Central
+        let currentCat = "souvenir"; 
+
+        const cityContainer = document.getElementById('city-container');
+        const categoryContainer = document.getElementById('category-container');
+        const shopContainer = document.getElementById('shop-container');
+
+        // Nav Arrows Scrolling
+        function scrollNav(containerId, offset) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.scrollBy({ left: offset, behavior: 'smooth' });
+            }
+        }
+
+        function initUI() {
+            // Set region order (Central, North, South)
+            const cityOrder = ['center', 'north', 'south'];
+            
+            cityOrder.forEach(cityKey => {
+                if(db[cityKey]) {
+                    const btn = document.createElement('button');
+                    btn.className = `city-btn whitespace-nowrap px-6 py-2.5 rounded-full border border-sky-200 bg-white text-sky-700 font-bold hover:bg-sky-100 hover:text-sky-900 shadow-sm ${cityKey === currentCity ? 'active' : ''}`;
+                    btn.innerText = db[cityKey].name;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        currentCity = cityKey;
+                        renderContent();
+                    };
+                    cityContainer.appendChild(btn);
+                }
+            });
+
+            // Render Categories
+            Object.keys(catsMap).forEach(catKey => {
+                const c = catsMap[catKey];
+                const btn = document.createElement('button');
+                btn.className = `tab-btn whitespace-nowrap px-5 py-2.5 rounded-full border transition-all font-bold shadow-sm flex items-center ${c.bg} ${catKey === currentCat ? 'active' : ''}`;
+                btn.innerHTML = `<span class="mr-1.5 text-lg">${c.icon}</span> ${c.name}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCat = catKey;
+                    renderContent();
+                };
+                categoryContainer.appendChild(btn);
+            });
+
+            // Load default view
+            renderContent();
+        }
+
+        function renderContent() {
+            shopContainer.innerHTML = '';
+            const items = db[currentCity].cat[currentCat];
+
+            if(!items || items.length === 0) {
+                shopContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-lg font-bold">No recommendations available in this category for this region.</div>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (Keyword: Phu Quoc Vietnam)
+                const pureAddress = item.a.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.n} Phu Quoc Vietnam ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-sky-50 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                ${item.n}
+                            </h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-amber-400 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">Highlights</p>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-medium">${item.f}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">Address</p>
+                                    <p class="text-sm text-slate-600 font-medium">${item.a}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-motorcycle text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">Transport Guide</p>
+                                    <span class="inline-block bg-sky-50 text-sky-700 text-xs px-2.5 py-1 rounded-md font-bold text-left leading-normal">${item.t}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-sky-50">
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white btn-maps focus:outline-none transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            Open in Google Maps
+                        </a>
+                    </div>
+                `;
+                shopContainer.appendChild(card);
+            });
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>

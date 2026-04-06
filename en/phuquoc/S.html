@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phu Quoc Itinerary Wizard</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- React & Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    @media print {
+      body { background-color: white !important; }
+      .print-hidden { display: none !important; }
+      .print-break-avoid { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+  
+  <div id="root"></div>
+
+  <!-- React Logic -->
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // --- Attraction Database (Phu Quoc) ---
+    const ATTRACTIONS = [
+      // ================= 機場與住宿 =================
+      { id: 'pqc_airport', city: 'central', name: 'Phu Quoc Int\'l Airport (PQC)', stay: 1.5, region: 10, regionName: 'Airport', type: 'Airport & Transport', desc: 'Trip begins! Arrive at Phu Quoc and clear immigration. We recommend having your SIM card ready and Grab APP downloaded.', transport: 'Take a Grab, private charter, or hotel shuttle to downtown.', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/airport-transfers/?aid=117232', text: 'Airport Transfer' },
+          { url: 'https://www.klook.com/en-US/activity/117294-4g-sim-card-phu-quoc-airport-pick-up-for-vietnam/?spm=SearchResult.SearchResult_LIST&clickId=88ee710a66&aid=117232', text: '4G SIM Card (Airport)' },
+          { url: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246549&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F123902-vietnam-esim-high-speed-internet-qr-code-voucher%2F', text: '5G eSIM' },
+          { url: 'https://www.klook.com/en-US/activity/96718-high-speed-ferry-rach-gia-phu-quoc/?aid=117232', text: 'Rach Gia ⇋ Phu Quoc Ferry' }
+        ] 
+      },
+      { id: 'acc_central', city: 'central', name: 'Accommodation: Central (Duong Dong)', stay: 1, region: 11, regionName: 'Central', type: 'Accommodation', desc: 'Check in and drop off your luggage. The Central Island is the most bustling area, making it very convenient to travel to various attractions or visit the night market.', transport: 'Take a Grab depending on your hotel location.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/6343-private-car-charter-phu-quoc/?aid=117232', text: '8-Hour Private Charter' },
+          { url: 'https://www.klook.com/en-US/activity/69602-phu-quoc-play-and-stay-travel-pass/?aid=117232', text: 'Phu Quoc Attraction Pass' }
+        ]
+      },
+      { id: 'acc_north', city: 'north', name: 'Accommodation: North (Grand World)', stay: 1, region: 12, regionName: 'North', type: 'Accommodation', desc: 'Check in and drop off your luggage. The North Island features a massive theme park and safari, perfect for families or theme park lovers.', transport: 'Take a Grab or the free VinBus shuttle.' },
+      { id: 'acc_south', city: 'south', name: 'Accommodation: South (Sunset Town)', stay: 1, region: 13, regionName: 'South', type: 'Accommodation', desc: 'Check in and drop off your luggage. The South Island is famous for luxury resorts and stunning beaches, perfect for those seeking quality and Instagrammable spots.', transport: 'Take a Grab depending on your hotel location.' },
+
+      // ================= 中島 (Central) =================
+      { id: 'night_market', city: 'central', name: 'Duong Dong Night Market', stay: 2.5, timeWindow: [17, 22], region: 11, regionName: 'Central', type: 'Shopping & Night Market', desc: 'The most bustling night market in Phu Quoc! Opens in the evening, filled with grilled seafood, sea urchins, peanut candy, and rolled ice cream. Full of local flavor and energy.', transport: 'Located in downtown Duong Dong. Walkable if staying nearby; otherwise, take a Grab.' },
+      { id: 'dinh_cau', city: 'central', name: 'Dinh Cau Shrine', stay: 1, timeWindow: [8, 20], region: 11, regionName: 'Central', type: 'History & Culture', desc: 'Located on a coastal rock in Duong Dong, it is a spiritual center for local fishermen and an excellent spot to watch the stunning sunset.', transport: 'Very close to Duong Dong Night Market; accessible by walking.' },
+      { id: 'sunset_sanato', city: 'central', name: 'Sunset Sanato Beach', stay: 2, timeWindow: [15, 20], region: 11, regionName: 'Central', type: 'Nature & Beaches', desc: 'The famous "Alien Beach" with surreal installations like long-legged elephants and human face statues. The trendiest sunset spot on the island.', transport: 'Not far from the airport and downtown. About a 10-15 min Grab ride. Ticket required.', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/58425-sunset-sanato-beach-admission-ticket/?aid=117232', text: 'Sunset Sanato Ticket' },
+          { url: 'https://www.klook.com/en-US/activity/155191-starfish-beach-sunset-sanato-twilight-sunset-night-fishing-tour/?aid=117232', text: 'Starfish Beach/Sanato Tour' }
+        ] 
+      },
+      { id: 'chuon_chuon', city: 'central', name: 'Chuồn Chuồn Bistro & Sky Bar', stay: 1.5, timeWindow: [9, 21], region: 11, regionName: 'Central', type: 'Photo Spot', desc: 'Located on a hill in Duong Dong, offering the best panoramic view of the island. A beautiful cafe by day and a sunset sanctuary by dusk.', transport: 'The road up the hill is very steep. Highly recommend taking a Grab.' },
+      { id: 'mud_bath', city: 'central', name: 'Soc Nau Mud Bath & Spa', stay: 2.5, timeWindow: [9, 21], region: 11, regionName: 'Central', type: 'Relaxation', desc: 'Experience Phu Quoc\'s signature mud bath and enjoy soothing spa and massage services to relieve travel fatigue.', transport: 'Take a Grab.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/36869-thoc-mud-bath-spa-experience-in-phu-quoc/?aid=117232', text: 'Mud Bath & Spa' }
+        ]
+      },
+
+      // ================= 北島 (North) =================
+      { id: 'grand_world', city: 'north', name: 'Grand World Phu Quoc', stay: 3, timeWindow: [15, 22], region: 12, regionName: 'North', type: 'Theme Park', desc: 'Known as the "Venice of Vietnam," featuring colorful European architecture and canals. The canal scenery at dusk and the evening water show are must-sees.', transport: 'Take the free VinBus shuttle or a Grab from the Central Island (approx. 40 mins).',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/56159-grand-world-phu-quoc-attraction-ticket/?aid=117232', text: 'Grand World Ticket' }
+        ]
+      },
+      { id: 'vinwonders', city: 'north', name: 'VinWonders Phu Quoc', stay: 4.5, timeWindow: [9, 19.5], region: 12, regionName: 'North', type: 'Theme Park', desc: 'Vietnam\'s largest theme park! Features a giant sea turtle aquarium, thrilling rides, and a massive water park. Perfect for a full day of fun.', transport: 'Take VinBus to Grand World and transfer to the park shuttle, or take a direct Grab.', 
+        bookingLinks: [{url: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246553&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F11989-vinwonders-phu-quoc-ticket%2F', text: 'VinWonders Ticket'}] 
+      },
+      { id: 'safari', city: 'north', name: 'Vinpearl Safari Phu Quoc', stay: 3.5, timeWindow: [9, 16.5], region: 12, regionName: 'North', type: 'Theme Park', desc: 'Asia\'s largest semi-wild safari. Take the safari bus into the predator zone and hand-feed giraffes up close.', transport: 'Closes early, so morning visits are recommended. Accessible via VinBus.', 
+        bookingLinks: [{url: 'https://www.klook.com/en-US/activity/11990-vinpearl-safari-phu-quoc-ticket/?aid=117232', text: 'Safari Ticket'}] 
+      },
+      { id: 'starfish', city: 'north', name: 'Starfish Beach', stay: 2, timeWindow: [9, 17.5], region: 12, regionName: 'North', type: 'Nature & Beaches', desc: 'A photography secret spot in northern Phu Quoc! Spot plenty of beautiful red starfish in the crystal-clear shallows. Perfect for Instagram shots.', transport: 'Road conditions are rough (partially dirt roads). Highly recommend a private charter.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/4341-nature-discovery-phu-quoc/?aid=117232', text: 'North Island Kayak/Starfish Tour' }
+        ]
+      },
+
+      // ================= 南島 (South) =================
+      { id: 'cable_car', city: 'south', name: 'Sun World Cable Car', stay: 4, timeWindow: [9, 17.5], region: 13, regionName: 'South', type: 'Theme Park', desc: 'The world\'s longest over-sea cable car! Enjoy a 20-min ride overlooking gradient waters. Hon Thom island features beautiful beaches and Aquatopia Water Park.', transport: 'About a 40-min Grab ride from the Central Island to the South Cable Car Station.', 
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/23196-island-hopping-tour-cable-car-experience-phu-quoc/?aid=117232', text: 'Cable Car & Park Ticket' },
+          { url: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246554&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F20750-sun-world-hon-thom-cable-car-ticket%2F', text: 'Hon Thom Park Ticket' }
+        ] 
+      },
+      { id: 'sunset_town', city: 'south', name: 'Sunset Town & Kiss Bridge', stay: 2.5, timeWindow: [15, 21], region: 13, regionName: 'South', type: 'Photo Spot', desc: 'A Mediterranean-style town where every corner looks like a painting. "Kiss Bridge" is most romantic at sunset, with spectacular shows at night.', transport: 'Located next to the South Cable Car Station. Recommended to visit after the cable car ride.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/81479-kiss-the-star-show-ticket/?aid=117232', text: 'Kiss of the Sea Ticket' },
+          { url: 'https://www.klook.com/en-US/activity/155428-dining-experience-at-sun-bavaria-magic-in-sunset-town-phu-quoc/?aid=117232', text: 'Sun Bavaria Dining' }
+        ]
+      },
+      { id: 'island_hopping', city: 'south', name: 'South Island Snorkeling Tour', stay: 6.5, timeWindow: [8, 17], region: 13, regionName: 'South', type: 'Nature & Beaches', desc: 'Take a speedboat to Buom, Gam Ghi, and May Rut islands to experience rich marine life and stunning coral reef snorkeling.', transport: 'Usually includes hotel pick-up in downtown or South Island.',
+        bookingLinks: [
+          { url: 'https://www.klook.com/en-US/activity/10834-fingernail-island-dam-ngang-may-rut-island-day-tour-phu-quoc/?aid=117232', text: '3 Islands Hopping Tour' },
+          { url: 'https://www.klook.com/en-US/activity/56528-phu-quoc-snorkeling-day-tour-by-speedboat/?aid=117232', text: 'Coral Mountain Snorkeling' }
+        ]
+      },
+      { id: 'sao_beach', city: 'south', name: 'Sao Beach', stay: 2, timeWindow: [9, 17.5], region: 13, regionName: 'South', type: 'Nature & Beaches', desc: 'One of Phu Quoc\'s most beautiful beaches! Famous for its powdery white sand, crystal-clear water, and the iconic ocean swing.', transport: 'Located on the east side of the South Island. Take a Grab or private charter.' },
+      { id: 'ho_quoc', city: 'south', name: 'Ho Quoc Pagoda', stay: 1, timeWindow: [8, 17.5], region: 13, regionName: 'South', type: 'History & Culture', desc: 'The largest and most peaceful Buddhist temple in Phu Quoc. Backed by mountains and facing the sea, offering unbeatable ocean views and a serene atmosphere.', transport: 'About 30 mins from downtown. Recommend a charter or asking the Grab driver to wait.' },
+      { id: 'prison', city: 'south', name: 'Phu Quoc Prison', stay: 1.5, timeWindow: [8, 17.5], region: 13, regionName: 'South', type: 'History & Culture', desc: 'Formerly known as "Coconut Tree Prison." Realistic models display the cruelty of the Vietnam War and the hardships of POWs. Highly educational.', transport: 'Located in the South, near Sao Beach. Can be visited on the same day.' }
+    ];
+
+    const CITIES = [
+      { id: 'central', name: 'Central (Duong Dong)', color: 'blue' },
+      { id: 'north', name: 'North (Grand World/Parks)', color: 'fuchsia' },
+      { id: 'south', name: 'South (Sunset Town/Cable Car)', color: 'emerald' }
+    ];
+
+    // --- Core Routing & Transit Logic ---
+    const formatTime = (h) => {
+      let hh = Math.floor(h) % 24;
+      let mm = Math.round((h - Math.floor(h)) * 60);
+      if (mm === 60) { hh++; mm = 0; }
+      return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+    };
+
+    const formatDuration = (h) => {
+      const num = Number(h);
+      if (isNaN(num) || num === 0) return "0 mins";
+      const hrs = Math.floor(num);
+      const mins = Math.round((num - hrs) * 60);
+      let res = [];
+      if (hrs > 0) res.push(`${hrs} ${hrs > 1 ? 'hrs' : 'hr'}`);
+      if (mins > 0) res.push(`${mins} mins`);
+      return res.join(' ');
+    };
+
+    const getCityColor = (cityId) => {
+      const colors = { central: 'blue', north: 'fuchsia', south: 'emerald' };
+      const c = colors[cityId] || 'slate';
+      return `text-${c}-600 bg-${c}-100 border-${c}-200`;
+    };
+
+    const getSmartTransit = (prev, curr) => {
+      if (curr.id === 'ret') return '✈️ [Departure] Take a Grab or private charter to Phu Quoc International Airport (PQC) for check-in.';
+
+      if (!prev || prev.id.startsWith('acc_') || prev.type === 'Start Point') {
+        if (curr.type === 'Airport & Transport') return `🛬 [Arrival] Take a Grab or hotel shuttle to ${curr.name}.`;
+        return `🏨 [Depart] Take a Grab or VinBus to ${curr.name}.`;
+      }
+
+      if (prev.city !== curr.city && prev.id !== 'pqc_origin') {
+         let text = '';
+         if (prev.city === 'north' || curr.city === 'north') {
+            text = 'Take a Grab or VinBus (free electric bus) for inter-regional travel (approx. 45-50 mins).';
+         } else {
+            text = 'Take a Grab or private charter for inter-regional travel (approx. 35-40 mins).';
+         }
+         if ((prev.city === 'north' && curr.city === 'south') || (prev.city === 'south' && curr.city === 'north')) {
+             text = 'Take a Grab or private charter for a long cross-island journey (approx. 70 mins). Consider adjusting the itinerary to reduce long travel times.';
+         }
+         return `🚗 [Cross-region Transit] ${text}`;
+      }
+
+      return `🚶 [Local Transit] Short distance; walk or take a short Grab ride from ${prev.name} to ${curr.name}.`;
+    };
+
+    const getTTime = (isNewDay, fCity, tCity, fReg, tReg) => {
+        if (fCity && tCity && fCity !== tCity) {
+            if ((fCity === 'north' && tCity === 'south') || (fCity === 'south' && tCity === 'north')) return 1.2; // 72 mins
+            return 0.8; // 48 mins
+        }
+        if (isNewDay) return 0.2; // morning start
+        return 0.3; // local transit
+    };
+
+    // --- Main App Component ---
+    function App() {
+      const [activeCity, setActiveCity] = useState('central');
+      const [selectedIds, setSelectedIds] = useState([]);
+      const [showPrintView, setShowPrintView] = useState(false);
+      const [tripDuration, setTripDuration] = useState(5);
+
+      const toggleAttr = (id) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+      const itineraryDays = useMemo(() => {
+        if (selectedIds.length === 0) return [];
+        let idsToSchedule = [...new Set(selectedIds)];
+
+        const getPriority = (item) => {
+            if (item.id === 'ret') return 999;
+            if (item.type === 'Start Point') return 10;
+            if (item.type === 'Airport & Transport') return 15;
+            if (item.type === 'Accommodation') return 20; 
+            let win = item.timeWindow || [9.5, 21.5];
+            const isNight = ['Shopping & Night Market'].includes(item.type) || item.id === 'grand_world' || item.id === 'sunset_town' || item.id === 'sunset_sanato';
+            if (isNight) return 90; 
+            if (win[1] <= 17.5) return 30; // closes early (e.g., Safari, Cable Car)
+            return 50; 
+        };
+
+        const sorted = idsToSchedule
+          .map(id => ATTRACTIONS.find(a => a.id === id))
+          .filter(a => a)
+          .sort((a, b) => {
+            const getSortKey = (item) => {
+              let sk = getPriority(item);
+              let cityGroup = CITIES.findIndex(c => c.id === item.city);
+              return cityGroup * 100000 + sk * 1000; 
+            };
+            return getSortKey(a) - getSortKey(b);
+          });
+
+        let remaining = [...sorted];
+        let days = [];
+        let curDay = { items: [], dayCity: 'central', dayType: null, currentTime: 13.0, startTime: 13.0 }; 
+        let lCity = 'central', lReg = 11, prevItemObj = null; 
+
+        const checkValid = (a, isF, curTime) => {
+            let tTime = getTTime(isF, lCity, a.city, lReg, a.region);
+            let arrivalTime = curTime + tTime;
+            let isLastDay = days.length === tripDuration - 1;
+            
+            if (!isF && !['Accommodation', 'Airport & Transport', 'Start Point'].includes(a.type)) {
+                if (a.city !== lCity && curTime > 17.5) return false;
+            }
+            
+            let win = a.timeWindow || [9, 21.5]; 
+            if (['Accommodation', 'Airport & Transport'].includes(a.type)) win = [0, 24];
+            let waitTime = arrivalTime < win[0] ? win[0] - arrivalTime : 0;
+            if (waitTime > 4.5 && !isF) return false;
+            
+            let actStart = arrivalTime + waitTime;
+            let actEnd = actStart + a.stay;
+            if (actStart >= win[1] - 0.5) return false; 
+            
+            if (isLastDay) {
+                let retTFromA = getTTime(false, a.city, 'central', a.region, 10);
+                if (actEnd > (14.0 - 2.5 - retTFromA)) return false;
+            } else if (!isF && actEnd > 21.5) return false; 
+            
+            return { valid: true, tTime, waitTime, actStart, actEnd };
+        };
+
+        while (remaining.length > 0) {
+            const isF = curDay.items.length === 0;
+            let chosenIdx = -1, chosenStats = null, validCands = [];
+            
+            for (let i = 0; i < remaining.length; i++) {
+                let stats = checkValid(remaining[i], isF, curDay.currentTime);
+                if (stats && stats.valid) validCands.push({ a: remaining[i], idx: i, prio: getPriority(remaining[i]), stats });
+            }
+            
+            if (validCands.length > 0) {
+                validCands.sort((ca, cb) => {
+                    let gapA = ca.stats.tTime + ca.stats.waitTime;
+                    let gapB = cb.stats.tTime + cb.stats.waitTime;
+                    
+                    if (Math.abs(gapA - gapB) > 1.0) return gapA - gapB;
+
+                    let isSameCityA = ca.a.city === lCity ? 1 : 0, isSameCityB = cb.a.city === lCity ? 1 : 0;
+                    if (isSameCityA !== isSameCityB) return isSameCityB - isSameCityA;
+                    
+                    if (ca.prio !== cb.prio) return ca.prio - cb.prio;
+                    if (ca.stats.tTime !== cb.stats.tTime) return ca.stats.tTime - cb.stats.tTime;
+                    return ca.idx - cb.idx; 
+                });
+                chosenIdx = validCands[0].idx; chosenStats = validCands[0].stats;
+            }
+            
+            if (chosenIdx === -1) {
+                days.push(curDay);
+                if (days.length >= tripDuration) break;
+                curDay = { items: [], dayCity: remaining[0].city, dayType: null, currentTime: 9.0, startTime: 9.0 };
+                continue;
+            }
+            
+            const a = remaining.splice(chosenIdx, 1)[0];
+            const { tTime, waitTime, actStart, actEnd } = chosenStats;
+            
+            if (isF && days.length === 0) prevItemObj = { id: 'pqc_origin', city: 'central', name: 'Arrive at Airport', type: 'Start Point' };
+            if (isF && days.length > 0) prevItemObj = { id: 'acc_central', city: a.city, name: `Depart from Hotel (${CITIES.find(c=>c.id===a.city)?.name || 'Central'})`, type: 'Accommodation' }; 
+            
+            let sTime = curDay.currentTime;
+            if (isF && waitTime > 0) {
+                sTime += waitTime;
+                curDay.startTime = sTime;
+            }
+            let aTime = sTime + tTime;
+
+            let transitMsg = getSmartTransit(prevItemObj, a) + `\n📍 Transport Guide: ${a.transport}`;
+            let win = a.timeWindow || [9, 21.5];
+            
+            if (actStart - aTime > 0 && win[0] > 0 && !['Accommodation', 'Airport & Transport'].includes(a.type) && !isF) {
+                transitMsg += `\n💡 Tip: Recommend starting after ${formatTime(win[0])}. Expected arrival at ${formatTime(aTime)}; you can rest a bit.`;
+            }
+
+            curDay.items.push({ ...a, tTime: tTime.toFixed(1), prevName: prevItemObj.name, transitTransport: transitMsg, tStr: `${formatTime(sTime)} - ${formatTime(aTime)}`, sStr: (days.length === 0 && isF && a.type === 'Airport & Transport') ? 'Arrival & Custom' : `${formatTime(actStart)} - ${formatTime(actEnd)}`, isFirstAirport: (days.length === 0 && isF && a.type === 'Airport & Transport'), endTime: actEnd });
+            curDay.currentTime = actEnd; lCity = a.city; lReg = a.region; prevItemObj = a;
+            if (isF) curDay.dayCity = a.city;
+        }
+        
+        if (curDay.items.length > 0 && days.length < tripDuration) days.push(curDay);
+        while (days.length < tripDuration) days.push({ items: [], dayCity: lCity, dayType: null, currentTime: 9.0, startTime: 9.0 });
+        
+        let lastD = days[days.length-1];
+        if (!lastD) { lastD = { items: [], dayCity: 'central', dayType: null, currentTime: 9.0, startTime: 9.0 }; days.push(lastD); }
+        while (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            if (lastItem.endTime > (14.0 - 2.5 - getTTime(false, lastItem.city, 'central', lastItem.region, 10))) lastD.items.pop();
+            else break;
+        }
+        if (lastD.items.length > 0) { let lastItem = lastD.items[lastD.items.length-1]; lastD.currentTime = lastItem.endTime; lCity = lastItem.city; lReg = lastItem.region; prevItemObj = lastItem; }
+        else { lastD.currentTime = 9.0; lastD.startTime = 9.0; lReg = 11; prevItemObj = { name: 'Hotel', city: lCity }; }
+        
+        let retT = getTTime(lastD.items.length === 0, lCity, 'central', lReg, 10), startTransit = 14.0 - 2.5 - retT;
+        let transitMsg = lastD.currentTime < startTransit ? `💡 Some free time before heading to the airport. Recommend departing at ${formatTime(startTransit)}.\n🚐 Book a transfer or take a Grab directly to Phu Quoc Airport.` : '🚐 Take a Grab or book a transfer to Phu Quoc International Airport (PQC) for check-in.';
+        lastD.items.push({ id: 'ret', city: 'central', name: 'End of Trip - Head to Airport', stay: 2.5, region: 999, regionName: 'Airport', type: 'Airport & Transport', desc: 'Hope you have wonderful memories of Phu Quoc! The airport can be crowded during departure; be sure to arrive early.', transport: 'Take a Grab or hotel shuttle directly to the airport.', tTime: retT.toFixed(1), prevName: prevItemObj.name, transitTransport: transitMsg, tStr: `${formatTime(startTransit)} - ${formatTime(14.0 - 2.5)}`, sStr: `${formatTime(14.0 - 2.5)} - 14:00`, isFirstAirport: false, endTime: 14.0 });
+        lastD.currentTime = 14.0;
+
+        return days.map((d, i) => ({ dayNum: i+1, totalH: (d.currentTime - d.startTime > 0 ? (d.currentTime - d.startTime).toFixed(1) : "0.0"), cityName: CITIES.find(c => c.id === d.dayCity)?.name || 'Central', items: d.items }));
+      }, [selectedIds, tripDuration]);
+
+      if (showPrintView) {
+        return (
+          <div className="min-h-screen bg-white p-4 sm:p-8">
+            <div className="max-w-3xl mx-auto border-2 border-slate-800 p-4 sm:p-8 rounded-2xl">
+              <div className="text-center mb-10"><h1 className="text-2xl sm:text-3xl font-bold">🇻🇳 Phu Quoc Exclusive Itinerary</h1><p className="mt-2 text-slate-500 text-sm">Cross-region travel times are automatically calculated, and the smart scheduling considers the best operating hours for each attraction.</p></div>
+              {itineraryDays.map(d => (
+                <div key={d.dayNum} className="mb-10 print-break-avoid">
+                  <h2 className="text-xl font-bold border-b-2 pb-2 mb-6">🌞 Day {d.dayNum} - [{d.cityName}] (Total: {formatDuration(d.totalH)})</h2>
+                  <div className="space-y-6 ml-2 sm:ml-4 border-l-2 pl-4 sm:pl-6 border-slate-300">
+                    {d.items.map((it, idx) => (
+                      <div key={`${it.id}-${idx}`} className="relative mb-8">
+                        {!it.isFirstAirport && (
+                          <div className="mb-4 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs sm:text-sm">
+                             <div className="font-bold mb-2">{it.prevName} ➔ {it.name}</div>
+                             <div className="flex gap-3 mb-2"><span className="bg-white px-2 py-1 rounded border font-mono text-blue-500"><i className="fa-regular fa-clock"></i> {it.tStr}</span><span>Est. Transit: {formatDuration(it.tTime)}</span></div>
+                             <div className="whitespace-pre-wrap text-slate-600">{it.transitTransport}</div>
+                          </div>
+                        )}
+                        <div className="relative">
+                          <div className="absolute -left-[23px] sm:-left-[31px] top-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>
+                          <div className="font-bold text-xs sm:text-sm text-slate-500 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : 'Stay: '}{it.sStr}</div>
+                          <h4 className="text-lg sm:text-xl font-bold text-slate-900">{it.name}</h4>
+                          <p className="text-xs sm:text-sm text-slate-600 my-2 leading-relaxed">{it.desc}</p>
+                          {it.bookingLinks && <div className="mt-3 flex gap-2 flex-wrap print:hidden">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] text-white text-xs px-2.5 py-1.5 rounded font-bold hover:bg-[#e05000]"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="mt-10 text-center flex flex-col sm:flex-row justify-center gap-4 print-hidden">
+                <button onClick={() => setShowPrintView(false)} className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700">Back to Edit</button>
+                <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-500">Print / Save as PDF</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const grouped = ATTRACTIONS.filter(a => a.city === activeCity && !a.id.startsWith('acc_')).reduce((acc, c) => { (acc[c.type] = acc[c.type] || []).push(c); return acc; }, {});
+
+      return (
+        <div className="min-h-screen bg-slate-50 pb-10">
+          <header className="bg-white p-4 shadow-sm flex flex-wrap justify-between items-center sticky top-0 z-20 border-b gap-3">
+            <div className="flex items-center gap-4">
+              <h1 className="font-bold text-xl flex items-center gap-2"><i className="fa-solid fa-wand-magic-sparkles text-blue-600"></i>Phu Quoc Itinerary Wizard</h1>
+              <a href="https://linkuei0425.github.io/PhuQuoc-US/" className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-full border border-slate-200"><i className="fa-solid fa-house"></i> Back to Home</a>
+            </div>
+            <div className="flex items-center gap-3">
+              {selectedIds.length > 0 && <button onClick={() => setSelectedIds([])} className="text-xs font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1 cursor-pointer"><i className="fa-solid fa-trash-can"></i> Clear</button>}
+              <div className="text-xs font-bold bg-slate-800 text-white px-3 py-1.5 rounded-full shadow-sm">Selected {selectedIds.length} items</div>
+            </div>
+          </header>
+          
+          <main className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-6 mt-2">
+            <div className="lg:w-1/2 flex flex-col gap-4">
+              <div className="bg-white p-2 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar">
+                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeCity === c.id ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}>{c.name}</button>)}
+              </div>
+              <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+                <h2 className="text-sm font-bold flex items-center gap-2 mb-1"><i className="fa-solid fa-circle-info text-blue-500"></i>Smart Scheduling Tips</h2>
+                <p className="text-xs text-slate-500">The system will intelligently arrange your schedule! If waiting too long in the same area, it will <strong className="text-orange-500">cleverly schedule attractions in different areas</strong>! The daily itinerary ends by 21:30 at the latest, and cross-region transport time is automatically calculated.</p>
+              </div>
+              <div className="max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+                {Object.entries(grouped).map(([type, items]) => (
+                  <div key={type} className="mb-6">
+                    <h3 className="font-bold text-slate-700 mb-3 sticky top-0 bg-slate-50/90 py-2 backdrop-blur-sm z-10 border-b border-slate-200">{type}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {items.map(it => (
+                        <div key={it.id} onClick={() => toggleAttr(it.id)} className={`p-4 rounded-xl cursor-pointer border-2 transition-all ${selectedIds.includes(it.id) ? 'bg-blue-50 border-blue-500 scale-[1.02] shadow-md' : 'bg-white border-transparent shadow-sm hover:border-slate-300'}`}>
+                          <div className="font-bold text-slate-900 mb-2">{it.name}</div>
+                          <div className="text-[10px] flex gap-2 mb-2"><span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600"><i className="fa-regular fa-clock mr-1"></i>{formatDuration(it.stay)}</span><span className={`px-1.5 py-0.5 rounded border ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot"></i> {it.regionName}</span></div>
+                          <p className="text-xs text-slate-500 line-clamp-2">{it.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:w-1/2">
+              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] sticky top-24">
+                <div className="bg-slate-800 text-white p-5 lg:p-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2"><i className="fa-regular fa-calendar-check text-blue-400"></i>Custom Itinerary</h2>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <select value={tripDuration} onChange={(e) => setTripDuration(Number(e.target.value))} className="flex-1 sm:flex-none bg-slate-700 text-white font-bold py-3 px-3 rounded-xl border border-slate-600">
+                      <option value={3}>3 Days</option>
+                      <option value={4}>4 Days</option>
+                      <option value={5}>5 Days</option>
+                    </select>
+                    <button onClick={() => setSelectedIds([])} className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl font-bold shadow-lg transition-all ${selectedIds.length > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'}`}><i className="fa-solid fa-rotate-right"></i><span>Reset</span></button>
+                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="w-full sm:flex-1 bg-blue-500 py-3 px-2 rounded-xl font-bold text-white text-sm sm:text-base cursor-pointer disabled:opacity-30">Generate Detailed Itinerary</button>
+                  </div>
+                </div>
+                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-24 flex flex-col items-center gap-4"><i className="fa-brands fa-fort-awesome text-6xl opacity-10"></i><p>No attractions selected yet</p></div> : 
+                    itineraryDays.map(d => (
+                      <div key={d.dayNum} className="mb-10">
+                        <h3 className="font-bold text-lg mb-4 border-b-2 border-slate-200 pb-2 flex items-center gap-2 text-slate-800"><i className="fa-solid fa-sun text-orange-500"></i> Day {d.dayNum} - [{d.cityName}] <span className="text-xs font-normal text-slate-400 ml-auto">Total: {formatDuration(d.totalH)}</span></h3>
+                        <div className="space-y-5 border-l-[3px] border-slate-200 ml-4 pl-7 relative pb-4">
+                          {d.items.map((it, idx) => (
+                            <div key={`${it.id}-${idx}`} className="relative mb-6">
+                              {!it.isFirstAirport && (
+                                <div className="mb-4 relative">
+                                  <div className="absolute -left-[40px] top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-100 rounded-full border-2 border-slate-300 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[8px] text-slate-400"></i></div>
+                                  <div className={`rounded-lg p-3 text-[11px] border shadow-sm bg-blue-50/70 border-blue-100`}>
+                                    <div className={`font-bold mb-1.5 text-blue-800`}>{it.prevName} ➔ {it.name}</div>
+                                    <div className="flex items-center gap-3 mb-1.5"><span className={`bg-white px-2 py-0.5 rounded border font-mono shadow-sm border-blue-200 text-blue-600`}><i className="fa-regular fa-clock mr-1"></i> {it.tStr}</span><span className={`font-medium text-blue-600`}>Est. Transit: {formatDuration(it.tTime)}</span></div>
+                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{it.transitTransport}</div>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative hover:shadow-md transition-shadow">
+                                <div className="absolute -left-[37px] top-4 w-4.5 h-4.5 bg-blue-500 rounded-full border-[3px] border-white shadow-sm z-10"></div>
+                                <div className="text-xs font-bold text-slate-400 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : 'Stay: '}{it.sStr}</div>
+                                <h4 className="font-bold text-base mb-1">{it.name}</h4>
+                                <p className="text-xs text-slate-500 leading-relaxed">{it.desc}</p>
+                                {it.bookingLinks && <div className="mt-3 flex gap-1.5 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[9px] px-2.5 py-1 rounded-lg font-bold transition-colors shadow-sm"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
