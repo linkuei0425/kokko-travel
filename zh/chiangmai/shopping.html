@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清邁購物精選指南 | Chiang Mai Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 自訂捲軸樣式（針對分類按鈕區塊） */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .tab-btn.active {
+            background-color: #0d9488; /* Teal-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.3);
+            border-color: #0d9488;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- 頂部導覽列 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-teal-600 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>CNX SHOPPING</span>
+                </div>
+                <div>
+                    <!-- 回到首頁連結 -->
+                    <a href="https://linkuei0425.github.io/ChiangMai/" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> 回到首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 橫幅區域 -->
+    <header class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm">清邁必買購物精選指南</h1>
+            <p class="text-lg md:text-xl text-white opacity-90 max-w-2xl mx-auto">精選 50 間清邁人氣店鋪，從文創選物、在地藥妝到草本香氛，漫步古城買遍清邁！</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 分類按鈕區 (可橫向滾動) -->
+        <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-6 md:justify-center">
+            <button onclick="filterCategory('streetwear', this)" class="tab-btn active whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-teal-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">👕</span> 文創選物
+            </button>
+            <button onclick="filterCategory('pharmacy', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-teal-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💊</span> 藥品推薦
+            </button>
+            <button onclick="filterCategory('beauty', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-teal-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">💄</span> 美妝推薦
+            </button>
+            <button onclick="filterCategory('fragrance', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-teal-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🌿</span> 香氛推薦
+            </button>
+            <button onclick="filterCategory('pet', this)" class="tab-btn whitespace-nowrap px-6 py-3 rounded-full border border-gray-200 bg-white text-gray-700 font-semibold text-sm hover:bg-teal-50 focus:outline-none flex items-center">
+                <span class="mr-2 text-lg">🐾</span> 寵物用品
+            </button>
+        </div>
+
+        <!-- 內容呈現區 -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 卡片將透過 JavaScript 動態生成 -->
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">© 2026 Chiang Mai Shopping Guide. 為你的清邁之旅提供最佳建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 店家資料庫 - 清邁版
+        const shopData = [
+            // --- 潮牌與文創選物 ---
+            { cat: 'streetwear', name: 'Playworks (玩印)', feature: '清邁最火紅原創插畫品牌，帆布袋、明信片充滿在地文青感', loc: 'Think Park / 尼曼區', transit: 'MAYA 百貨對面，步行 1 分鐘' },
+            { cat: 'streetwear', name: 'Ginger & The House Shop', feature: '色彩繽紛的波希米亞風服飾與華麗的生活家飾品', loc: 'Moonmuang Rd', transit: '古城東側，塔佩門步行 5 分鐘' },
+            { cat: 'streetwear', name: 'Cotton Farm', feature: '主打高品質的泰北手工純棉、亞麻服飾與傳統織品', loc: 'Ratchadamnoen Rd', transit: '古城區，柴迪隆寺步行 5 分鐘' },
+            { cat: 'streetwear', name: 'Studio Naenna', feature: '致力於推廣環保染料與藍染工藝的高級織品服飾', loc: 'Nimman Soi 1', transit: '尼曼路 1 巷，步行即可' },
+            { cat: 'streetwear', name: 'Nussara', feature: '將泰北傳統編織與現代時裝完美結合的質感服飾', loc: 'Tha Phae Rd', transit: '塔佩門外，步行 3 分鐘' },
+            { cat: 'streetwear', name: 'Sop Moei Arts', feature: '非營利組織支持在地部落的手工藝品與精緻提包', loc: 'Charoen Rat Rd', transit: '清邁河畔區，建議搭乘 Grab' },
+            { cat: 'streetwear', name: 'Think Park 文創市集', feature: '匯集眾多清邁在地年輕設計師的服飾與手作攤位', loc: 'Think Park 廣場', transit: '尼曼路口，MAYA 百貨對面' },
+            { cat: 'streetwear', name: 'Baan Kang Wat 藝術村', feature: '充滿手作溫度的文青聚落，提供各式手工藝品與服飾', loc: 'Soi Wat Umong', transit: '近清邁大學後山，建議搭 Grab' },
+            { cat: 'streetwear', name: 'Chuen Jai', feature: '風格清新自然的在地日系文青服飾與草編包', loc: 'Nimman Soi 13', transit: '尼曼區巷弄內' },
+            { cat: 'streetwear', name: 'MAYA 街頭潮流區 (2F)', feature: '匯集泰國本土流行男女裝、潮牌配件與鞋款', loc: 'MAYA Lifestyle Shopping Center', transit: '尼曼商圈核心，步行即達' },
+
+            // --- 藥品推薦 ---
+            { cat: 'pharmacy', name: 'Dara Pharmacy (達拉藥局)', feature: '清邁當地最大、品項最齊全且價格公道的在地藥妝店', loc: 'Kaew Nawarat Rd', transit: '近 Dara 學校，建議搭乘 Grab' },
+            { cat: 'pharmacy', name: 'Win Cosmetics (藥品部)', feature: '除了美妝，二樓也有極具價格優勢的泰國家庭常備藥', loc: 'Warorot Market (瓦洛洛市場)', transit: '塔佩門步行約 10 分鐘' },
+            { cat: 'pharmacy', name: 'Punya Pharmacy', feature: '清邁大學商圈深受學生與當地人信賴的連鎖藥局', loc: 'Suthep Rd', transit: '清大後門商圈，建議搭雙條車' },
+            { cat: 'pharmacy', name: 'Fascino', feature: '泰國本土最具規模的專業連鎖藥局，備有專業藥師', loc: '清邁市區多間分店', transit: '依各分店位置為主' },
+            { cat: 'pharmacy', name: 'Boots (MAYA店)', feature: '英國連鎖，獨家販售泰國 Sabai-Arom 草本系列', loc: 'MAYA Lifestyle Shopping Center', transit: '尼曼商圈核心' },
+            { cat: 'pharmacy', name: 'Watsons 屈臣氏', feature: '常有泰國在地保健品、維他命與防蚊液促銷', loc: 'Central Festival Chiangmai', transit: '商場內，建議搭 Grab' },
+            { cat: 'pharmacy', name: 'Chiang Mai Herbs Trading', feature: '專賣傳統泰北草藥、乾香料與按摩藥草球', loc: 'Warorot Market', transit: '瓦洛洛市場內' },
+            { cat: 'pharmacy', name: 'Big C Extra Pharmacy', feature: '適合在大採購零食時，順便補齊五塔散與青草膏', loc: 'Superhighway Rd', transit: '建議搭乘 Grab' },
+            { cat: 'pharmacy', name: 'Health Up', feature: '現代化藥局，提供高品質泰藥與國際保健食品', loc: 'Central Plaza Airport', transit: '近清邁機場，商場內' },
+            { cat: 'pharmacy', name: 'Tsuruha 鶴羽藥妝', feature: '結合日系感冒藥與泰國本土常備藥的絕佳選擇', loc: 'MAYA Lifestyle Shopping Center', transit: '尼曼商圈核心' },
+
+            // --- 美妝推薦 ---
+            { cat: 'beauty', name: 'Win Cosmetics', feature: '清邁美妝批發神店！泰國各大本土彩妝品牌最便宜都在這', loc: 'Warorot Market 總店 / 尼曼店', transit: '瓦洛洛市場商圈 / 尼曼商圈' },
+            { cat: 'beauty', name: 'EVEANDBOY', feature: '有「泰國 Sephora」之稱，本土話題彩妝最齊全', loc: 'MAYA Lifestyle Shopping Center', transit: '尼曼商圈核心，地下室' },
+            { cat: 'beauty', name: 'Herb Basics', feature: '清邁獨家天然草本保養品，護手霜與洗面皂是必買伴手禮', loc: 'Sunday Market / 清邁機場', transit: '古城內 / 清邁機場內' },
+            { cat: 'beauty', name: 'Sephora', feature: '國際大牌以及部分獨家引進的高階泰國/國際彩妝', loc: 'Central Festival Chiangmai', transit: '建議搭乘 Grab 或商場接駁車' },
+            { cat: 'beauty', name: 'Beautrium', feature: '超大型美妝通路，彩妝優惠活動非常多', loc: 'Central Festival Chiangmai', transit: '商場內，建議搭 Grab' },
+            { cat: 'beauty', name: 'KARMART', feature: '擁有 Cathy Doll 等多個平價且包裝可愛的彩妝品牌', loc: 'MAYA / Central Festival', transit: '各大百貨皆有設櫃' },
+            { cat: 'beauty', name: 'Chiangmai Direct', feature: '在地老字號的美妝日用品批發店，挖寶平價彩妝的好去處', loc: 'Mueang Chiang Mai 區', transit: '建議搭乘雙條車或 Grab' },
+            { cat: 'beauty', name: 'Beauty Buffet', feature: '暢銷全亞洲的「牛奶洗面乳、身體乳」系列', loc: 'Central Plaza Airport', transit: '近清邁機場，商場內' },
+            { cat: 'beauty', name: 'Oriental Princess', feature: '泰國國民保養品牌，主打身體乳、護髮與天然萃取', loc: 'Big C Extra / Central Airport', transit: '各大商場皆有附設' },
+            { cat: 'beauty', name: 'Mistine Beauty Shop', feature: '泰國第一彩妝品牌，防水眼線筆與羽翼粉餅必買', loc: 'Win Cosmetics 內皆有大專櫃', transit: '瓦洛洛市場商圈' },
+
+            // --- 香氛推薦 ---
+            { cat: 'fragrance', name: 'Herb Basics', feature: '清邁在地最強香氛！精油、擴香、按摩油價格極度親民', loc: 'Ratchadamnoen Rd (古城店)', transit: '塔佩門步行 8 分鐘' },
+            { cat: 'fragrance', name: 'Phutawan', feature: '平價且高品質的泰國本土香氛，擴香竹與枕頭噴霧極受歡迎', loc: 'MAYA Lifestyle Shopping Center', transit: '尼曼商圈核心' },
+            { cat: 'fragrance', name: 'Panpuri', feature: '奢華頂級有機保養與香氛，眾多五星級飯店與頂級 SPA 御用', loc: 'Central Festival Chiangmai', transit: '建議搭乘 Grab 前往' },
+            { cat: 'fragrance', name: 'Thann', feature: '國際知名泰國 SPA 品牌，紫蘇與木質東方香氣出名', loc: 'Central Festival Chiangmai', transit: '建議搭乘 Grab 前往' },
+            { cat: 'fragrance', name: 'Harnn', feature: '主打亞洲草本，天然手工皂與精緻的室內擴香非常有質感', loc: 'Central Festival Chiangmai', transit: '建議搭乘 Grab 前往' },
+            { cat: 'fragrance', name: 'Sense of Lanna', feature: '融合泰北蘭納文化的在地香氛品牌，包裝精美適合送禮', loc: 'Chiang Mai Airport', transit: '清邁機場候機室內' },
+            { cat: 'fragrance', name: 'Botanique', feature: '強調天然花果香氣，室內擴香瓶設計簡約優雅', loc: 'MAYA Lifestyle Shopping Center', transit: '尼曼商圈核心' },
+            { cat: 'fragrance', name: 'Vieng Joom On', feature: '知名茶館推出的周邊茶香香氛系列，充滿療癒的東方茶韻', loc: 'Charoen Rat Rd', transit: '清邁河畔區，建議搭 Grab' },
+            { cat: 'fragrance', name: 'BsaB', feature: '強調環保天然，使用火山石與樹枝作為獨特的擴香介質', loc: 'Central Festival Chiangmai', transit: '建議搭乘 Grab 前往' },
+            { cat: 'fragrance', name: 'Lanna Spa Products', feature: '專門提供給泰北在地 SPA 館的專業級精油與去角質海鹽', loc: 'Warorot Market 周邊', transit: '瓦洛洛市場步行探索' },
+
+            // --- 寵物用品 ---
+            { cat: 'pet', name: 'Khamthieng Market (寵物區)', feature: '清邁最大的植栽與寵物市集，能找到各種寵物服飾與用品', loc: 'Khamthieng Flower Market', transit: '古城北側，建議搭 Grab' },
+            { cat: 'pet', name: 'Pet Safari', feature: '清邁最高級的寵物生活館，進口貓狗精品與高質感牽繩', loc: 'Central Festival Chiangmai', transit: '商場地下一樓' },
+            { cat: 'pet', name: 'Pet Lovers Centre', feature: '大型跨國連鎖寵物超市，基礎寵物用品與國際主食品牌齊全', loc: 'Central Plaza Airport', transit: '近清邁機場，商場內' },
+            { cat: 'pet', name: 'Chiangmai Pet Shop', feature: '在地的大型寵物用品量販店，貓砂、飼料價格實惠', loc: 'Chang Phueak 區', transit: '建議搭乘雙條車或 Grab' },
+            { cat: 'pet', name: 'Manoon Pet Shop', feature: '泰國知名的連鎖寵物店分店，提供各式零食與平價玩具', loc: '清邁市郊多間分店', transit: '依各分店位置為主' },
+            { cat: 'pet', name: 'Pet Mart Chiang Mai', feature: '受在地人歡迎的寵物量販店，品項豐富且常有促銷活動', loc: 'Suthep Rd', transit: '近清邁大學，建議搭 Grab' },
+            { cat: 'pet', name: 'Star Pet by Lotus\'s', feature: '賣場結合的寵物區，方便在採購日常用品時一併購買寵物零食', loc: 'Lotus\'s Hang Dong', transit: '杭東區，建議搭 Grab' },
+            { cat: 'pet', name: 'Dog Country', feature: '以犬類為主的寵物選物店，能找到在地設計的牽繩與可愛衣物', loc: 'Nimman 周邊', transit: '尼曼區步行或搭雙條' },
+            { cat: 'pet', name: 'Perfect Pet', feature: '清邁在地評價極高的寵物用品專賣，老闆友善且商品多樣', loc: 'San Sai 區', transit: '距離市區較遠，需搭 Grab' },
+            { cat: 'pet', name: 'Cat Republic (Supplies)', feature: '知名貓咪咖啡廳附設的選物區，有許多高質感的貓咪周邊商品', loc: 'Nimman Soi 9', transit: '尼曼商圈，步行即達' }
+        ];
+
+        // 負責渲染卡片的函數
+        function renderCards(category) {
+            const container = document.getElementById('shop-container');
+            container.innerHTML = ''; // 清空現有內容
+
+            const filteredData = shopData.filter(item => item.cat === category);
+
+            filteredData.forEach((shop, index) => {
+                const delay = index * 50; // 簡單的進場動畫延遲
+                
+                // 產生 Google Map 搜尋網址 (加入 Chiang Mai 提高精準度)
+                const mapSearchQuery = encodeURIComponent(`${shop.name} Chiang Mai`);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
+                
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${delay}ms`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${shop.name}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-yellow-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">特色商品</p>
+                                    <p class="text-sm text-gray-700">${shop.feature}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-red-400 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">購買地點</p>
+                                    <p class="text-sm text-gray-700 font-medium">${shop.loc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-car-side text-teal-500 mt-1 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-semibold mb-1">交通方式</p>
+                                    <span class="inline-block bg-teal-50 text-teal-700 text-xs px-2 py-1 rounded-md font-medium">${shop.transit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Google Map 導航按鈕 -->
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-colors">
+                            <i class="fa-solid fa-map-location-dot mr-2"></i> 開啟 Google Map 導航
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 點擊分類按鈕的處理邏輯
+        function filterCategory(category, btnElement) {
+            // 移除所有按鈕的 active 狀態
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            // 為當前點擊的按鈕加上 active 狀態
+            btnElement.classList.add('active');
+
+            // 渲染對應的資料
+            renderCards(category);
+        }
+
+        // 新增簡單的進場動畫 CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out forwards;
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 初始載入時顯示第一類 (文創選物)
+        window.onload = () => {
+            const firstBtn = document.querySelector('.tab-btn');
+            filterCategory('streetwear', firstBtn);
+        };
+    </script>
+</body>
+</html>

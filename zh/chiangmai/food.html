@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清邁美食導航 Chiang Mai Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f4f7f6;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom map button color for Chiang Mai (Forest Green vibe) */
+        .btn-nav {
+            background-color: #059669; 
+        }
+        .btn-nav:hover {
+            background-color: #047857;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-teal-700 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Chiang Mai Pass 清邁美食地圖
+            </h1>
+            <a href="https://linkuei0425.github.io/ChiangMai/" class="flex items-center gap-1 text-sm md:text-base font-medium bg-teal-800 hover:bg-teal-900 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-teal-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                回到首頁
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇區域 (Select Region)</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <!-- Region buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇類別 (Select Category)</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2">
+                <!-- Category buttons injected by JS -->
+            </div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <!-- Cards injected by JS -->
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">請先從上方選擇您想探索的清邁區域與類別</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Chiang Mai Data Structure
+        const db = {
+            "oldcity": {
+                name: "古城區 (Old City)",
+                categories: {
+                    "michelin": [
+                        { name: "SP Chicken (SP烤雞)", feature: "米其林必比登推薦，採用在地小土雞，肚子塞滿香茅與大蒜，在店門口直火炭烤，皮脆肉嫩多汁。", address: "9/1 Samlan Rd Soi 1, Phra Sing / 帕辛寺步行 3 分鐘" },
+                        { name: "Khao Soi Khun Yai (老奶奶咖哩麵)", feature: "隱藏在古城北門邊的鐵皮屋下，湯頭濃郁帶著椰奶香甜，被許多人評為清邁最好吃的泰北咖哩麵。", address: "Sri Poom 8 Alley, Mueang Chiang Mai / 白象門(北門)步行 2 分鐘" },
+                        { name: "Huen Phen", feature: "古城內歷史悠久的泰北料理名店，白天是平價小吃，晚上化身為古董環繞的懷舊餐廳，必點泰北香腸與青辣椒醬。", address: "112 Ratchamanka Rd, Phra Sing / 柴迪隆寺步行 5 分鐘" }
+                    ],
+                    "greenbowl": [
+                        { name: "Lert Ros (東北烤魚)", feature: "古城東門旁的排隊名店，主打東北料理。整條塞滿香料的鹽烤紅明魚在炭火上烤得香氣四溢。", address: "Ratchadamnoen Rd Soi 1, Phra Sing / 塔佩門步行 2 分鐘" },
+                        { name: "Kiat Ocha (發清海南雞飯)", feature: "三王紀念碑旁的在地老字號，雞肉滑嫩配上特製的生薑黑醬油，附贈的排骨清湯清甜解膩。", address: "41-43 Intrawarorot Rd, Si Phum / 三王紀念碑步行 1 分鐘" },
+                        { name: "Saanook Boat Noodle (船麵)", feature: "道地的泰式船麵，黑褐色的湯頭充滿中藥與大骨熬製的濃郁香氣，小碗份量讓人忍不住一碗接一碗。", address: "Intrawarorot Rd, Si Phum / 古城內，建議步行或騎車" }
+                    ],
+                    "dessert": [
+                        { name: "Itim Kad Luang", feature: "古城內的人氣冰淇淋車，提供純天然的椰奶與榴槤冰淇淋，可搭配花生、糯米等傳統配料。", address: "Ratchadamnoen Rd (週日夜市路段) / 建議步行" },
+                        { name: "Coconut Shell Ice Cream", feature: "裝在半殼椰子裡的椰子冰淇淋，還附有新鮮椰肉，是逛古城寺廟時最佳的消暑甜品。", address: "Phra Pok Klao Rd / 柴迪隆寺對面" },
+                        { name: "Thapanee Mango Sticky Rice", feature: "古城周邊非常受歡迎的芒果糯米飯小攤，椰漿香濃，芒果挑選得極為鮮甜。", address: "Mun Mueang Rd / 近塔佩門" }
+                    ],
+                    "cafe": [
+                        { name: "Akha Ama Phrasingh", feature: "清邁最具代表性的在地咖啡品牌，支持泰北山區小農，店面充滿質樸的木造設計感。", address: "175 1 Rachadamnoen Rd, Phra Sing / 帕辛寺步行 2 分鐘" },
+                        { name: "My Secret Cafe In Town", feature: "隱身在古城巷弄內的粉紅色文青咖啡館，綠植環繞，提供好喝的拉花拿鐵與手作蛋糕。", address: "74/1 Rachadamnoen Rd, Phra Sing / 建議步行進入巷弄" },
+                        { name: "See You Soon Chiang Mai", feature: "結合精品選物與咖啡的複合式空間，半露天的庭院佈滿熱帶植物，充滿慵懶氛圍。", address: "97 Prapokkloa Rd, Phra Sing / 柴迪隆寺步行 3 分鐘" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Woods Bar, Rooftop", feature: "古城區少見的高空酒吧，位於12樓，設有游泳池與露天座位，可俯瞰古城全景與遠方素帖山日落。", address: "12th Floor, Prestige Hotel, 213/3 Maneenopparat Rd / 古城北門外，搭乘Grab" },
+                        { name: "THAPAAE GRILL (天台烤肉)", feature: "位於塔佩門旁的天台燒烤餐廳，可以一邊吃著大頭蝦與泰式烤肉，一邊俯瞰塔佩門廣場與護城河夜景。", address: "Ratchadamnoen Rd, Phra Sing / 塔佩門步行 1 分鐘" },
+                        { name: "Pha Khao Bar (露天酒吧)", feature: "古城內的放鬆小酒吧，雖然不是高樓，但二樓露台座位可以直接看著樓下熙來攘往的古城街道，氣氛極佳。", address: "Ratchamanka Rd / 古城內步行" }
+                    ]
+                }
+            },
+            "nimman": {
+                name: "尼曼區 (Nimman)",
+                categories: {
+                    "michelin": [
+                        { name: "Khao Soi Mae Sai (邁賽咖哩麵)", feature: "尼曼區周邊必吃的咖哩麵！除了招牌雞腿咖哩麵，他們的泰北豬血米線（Khanom Jeen Nam Ngiao）也極度道地。", address: "29/1 Ratchaphuek Alley, Chang Phueak / 尼曼商圈搭雙條車約 5 分鐘" },
+                        { name: "Cherng Doi Roast Chicken", feature: "以「脆皮烤雞」拿下米其林推薦，雞皮烤得如餅乾般薄脆，肉質保有肉汁，搭配羅望子沾醬一絕。", address: "2/8 Suk Kasame Rd, Suthep / 尼曼區巷弄內步行 5 分鐘" },
+                        { name: "Kiew Kai Ka", feature: "位於 One Nimman 商場內，裝潢如溫室叢林般華麗，提供極具水準的精緻泰中部與泰北料理。", address: "One Nimman, Nimmanhaemin Rd / One Nimman 商場內" }
+                    ],
+                    "greenbowl": [
+                        { name: "Tong Tem Toh", feature: "尼曼區永遠在排隊的泰北料理名店。門口的大烤爐烤著香腸與豬頸肉，必點泰北拼盤與炸三層肉。", address: "11 Nimmanahaeminda Road Soi 13 / 尼曼路 13 巷內" },
+                        { name: "Khun Churn (蔬食料理)", feature: "清邁知名的泰式素食/蔬食餐廳，將蔬菜與菇類料理得極度美味，推薦泰北咖哩蔬食麵。", address: "Nimmanhaemin Soi 17 / 尼曼區內步行" },
+                        { name: "Anchan Noodle (蝶豆花麵)", feature: "將蝶豆花加入麵條與米飯中，呈現夢幻的藍紫色，搭配酥脆的泰式炸豬肉與酸辣湯頭，視覺與味覺雙重享受。", address: "Sirimangkalajarn Rd Soi 9 / 尼曼區周緣步行 8 分鐘" }
+                    ],
+                    "dessert": [
+                        { name: "Cheevit Cheeva (尼曼本店)", feature: "清邁最知名的雪花冰店！招牌「鹹蛋黃湯圓冰」與「泰奶珍珠冰」，冰體如雪般綿密，是網美打卡聖地。", address: "Sirimangkalajarn Rd Soi 7 / 尼曼區巷弄步行" },
+                        { name: "Guu Fusion Roti & Tea", feature: "將泰國街頭小吃「香蕉煎餅 (Roti)」精緻化，提供多達數十種甜鹹口味的煎餅與拉茶。", address: "Nimmanhaemin Rd Soi 3 / 尼曼路 3 巷口" },
+                        { name: "Mango Tango", feature: "從曼谷紅到清邁的芒果甜點專賣店，店門口的芒果先生公仔是地標，芒果糯米飯與芒果冰淇淋極佳。", address: "Nimmanhaemin Soi 13 / 尼曼路 13 巷內" }
+                    ],
+                    "cafe": [
+                        { name: "Ristr8to Original", feature: "由世界拉花冠軍開設的咖啡神店！必點裝在骷髏頭玻璃杯裡的「撒旦拿鐵」，拉花藝術精湛無比。", address: "15/3 Nimmanhaemin Rd / 尼曼路主幹道上" },
+                        { name: "Graph One Nimman", feature: "暗黑工業風設計，專注於冷萃咖啡與創意特調（如加入竹炭或柳橙的咖啡），風味獨特。", address: "One Nimman, Nimmanhaemin Rd / One Nimman 商場內" },
+                        { name: "Baristro at Train Station", feature: "雖然名為火車站，但在尼曼也有極簡風分店，大片落地窗與純白設計，極度適合拍照。", address: "Nimman Soi 9 / 尼曼區內" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Myst Rooftop Bar", feature: "位於 MAYA 百貨頂樓的知名高空酒吧，提供分子調酒與浮誇的乾冰效果，是尼曼區夜晚最熱鬧的聚會點。", address: "Rooftop, MAYA Lifestyle Shopping Center / 尼曼路口 MAYA 百貨 6 樓" },
+                        { name: "Yayee Rooftop Bar", feature: "位於精品酒店頂層，視野可以避開喧囂，直接眺望素帖山的壯麗山景，黃昏時分造訪最為迷人。", address: "17/5 Sai Nam Phueng Rd, Suthep (Hotel Yayee) / 尼曼區巷弄內" },
+                        { name: "Andaman Seafood (吃到飽)", feature: "尼曼區外圍的高CP值海鮮吃到飽，新鮮大頭蝦、螃蟹、活魚任拿，採用泰式傳統的炭火陶鍋烤肉。", address: "100/1 Chotana Rd / 建議搭乘 Grab 前往" }
+                    ]
+                }
+            },
+            "riverside": {
+                name: "清邁河畔區 (Riverside)",
+                categories: {
+                    "michelin": [
+                        { name: "The House by Ginger", feature: "充滿殖民時期華麗風格的老宅餐廳，提供極度精緻且擺盤如藝術品般的傳統泰國菜與調酒。", address: "199 Moonmuang Rd, Si Phum / 近萍河與古城交界" },
+                        { name: "Busaba (烤豬肉串)", feature: "位於萍河畔附近，將平民小吃烤豬肉串做到極致，環境舒適且配上獨門酸辣沾醬。", address: "Charoen Rat Rd / 萍河畔東側" },
+                        { name: "Khao Soi Lamduan", feature: "超過80年歷史的咖哩麵老店，據說連泰國皇室都曾造訪。湯頭濃郁偏辣，雞肉燉得極軟。", address: "352/22 Charoen Rat Rd / 萍河畔東側，建議搭乘 Grab" }
+                    ],
+                    "greenbowl": [
+                        { name: "The Good View Bar & Restaurant", feature: "萍河畔最老字號的景觀餐廳之一，擁有絕佳的水岸座位，晚上有Live Band演出，泰式海鮮料理極佳。", address: "13 Charoen Rat Rd, Wat Ket / 萍河畔東側" },
+                        { name: "Riverside Bar & Restaurant", feature: "老外最愛的河畔木造老屋餐廳，氛圍歡樂熱鬧，甚至可以預約在遊船上用餐，享受萍河夜景。", address: "9-11 Charoen Rat Rd, Wat Ket / 萍河畔東側" },
+                        { name: "Khao Tom Yong (深夜清粥小菜)", feature: "河畔周邊的宵夜神店，大火快炒的空心菜、酥炸紅燒肉與熱騰騰的泰式清粥，撫慰深夜的胃。", address: "Charoen Prathet Rd / 萍河畔西側" }
+                    ],
+                    "dessert": [
+                        { name: "Vieng Joom On Teahouse (粉紅茶館)", feature: "整棟漆成夢幻粉紅色的河畔茶館，提供超過50種來自世界各地的茶葉與華麗的英式/泰式下午茶雙層架。", address: "53 Charoen Rat Rd, Wat Ket / 萍河畔東側" },
+                        { name: "Woo Cafe - Art Gallery", feature: "不僅是咖啡廳更是藝廊，室內擺滿了誇張的鮮花與綠植。必點紅絲絨蛋糕與胡蘿蔔蛋糕，份量巨大。", address: "80 Charoen Rat Rd, Wat Ket / 萍河畔東側" },
+                        { name: "Khao Soi Khun Yai (甜點部)", feature: "不僅賣麵，這裡的泰式椰奶冰沙與香蘭葉粉條甜湯 (Lod Chong) 也是當地人解暑的最愛。", address: "萍河畔周邊傳統市場內" }
+                    ],
+                    "cafe": [
+                        { name: "Gateway Coffee Roasters", feature: "隱身在河畔老舊建築的二樓，保留了斑駁的牆面與巨大的烘豆機，陽光從木窗灑落，氛圍極佳。", address: "Chang Moi Rd, Tambon Chang Moi / 塔佩門往萍河方向" },
+                        { name: "KITI PANIT (中葡式老宅)", feature: "擁有130年歷史的中葡式老宅改建，空間挑高充滿歷史韻味，適合點杯咖啡感受時光停滯的錯覺。", address: "19 Tha Phae Road / 塔佩路近萍河" },
+                        { name: "Fongnom", feature: "位於新興文青景點「湄卡運河 (Khlong Mae Kha)」旁，日式木屋風格，提供好喝的泰北茶飲與抹茶。", address: "Khlong Mae Kha / 湄卡運河旁步行" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "The Roof at Sala Lanna", feature: "清邁最浪漫的河畔高空酒吧！位於精品酒店頂層，直接俯瞰寬闊的萍河與古城天際線，日落絕美。", address: "49 Charoen Rat Rd, Wat Ket (Sala Lanna Hotel) / 萍河畔東側" },
+                        { name: "Deck 1", feature: "高級河畔景觀餐廳，擁有一整排臨水的木棧道座位，晚上點亮樹上的燈飾，氣氛極度奢華浪漫。", address: "1, 14 Chareonraj Rd, Wat Ket / 萍河畔東側" },
+                        { name: "Nakara Jardin", feature: "位於平納卡拉飯店後方，擁有法式修剪花園的河畔下午茶與餐廳，宛如置身歐洲水岸莊園。", address: "11 Charoen Prathet Rd / 萍河畔西側" }
+                    ]
+                }
+            },
+            "suthep": {
+                name: "素帖山與清大區",
+                categories: {
+                    "michelin": [
+                        { name: "Galae Restaurant", feature: "位於素帖山腳下的湖畔花園餐廳，一年四季都開滿了萬紫千紅的鮮花，提供傳統的泰北康托克(Khantoke)餐。", address: "65 Suthep Rd, Su Thep (清大後山) / 建議搭乘雙條車或 Grab" },
+                        { name: "Khao Soi Samer Jai", feature: "雖然距離稍遠，但這家咖哩麵與邁賽齊名，湯頭偏甜濃郁，許多人會特地包車來素帖山周邊品嚐。", address: "Charoen Rat Rd (清大周邊分店) / 建議搭 Grab" },
+                        { name: "Pha Khao Bar", feature: "結合泰北傳統與現代風味，烤豬頸肉與涼拌青木瓜沙拉酸辣夠味，深受大學生喜愛。", address: "Suthep Rd (清大後門區域) / 清大後門步行" }
+                    ],
+                    "greenbowl": [
+                        { name: "Suki Koka (壽喜燒鍋)", feature: "清邁大學後門夜市的傳奇排隊名店！大火快炒的泰式乾炒壽喜燒（冬粉配滿滿蔬菜與秘製沾醬），鑊氣十足。", address: "Suthep Rd (清大後門夜市) / 清大後門步行" },
+                        { name: "Boat Bakery", feature: "清大商圈的老字號西點麵包與簡餐店，深受在地學生歡迎，綠咖哩雞肉飯便宜又道地。", address: "Suthep Rd / 清大正門斜對面" },
+                        { name: "Steak Bar (清大夜市)", feature: "夜市內的平價牛排館，鐵板滋滋作響，黑胡椒醬汁濃郁，是體驗當地學生飲食文化的絕佳去處。", address: "Suthep Rd (清大前門夜市) / 清邁大學前門 (Malin Plaza)" }
+                    ],
+                    "dessert": [
+                        { name: "Milk Zone", feature: "清大後門學生的最愛，提供各種現打果汁、鮮奶冰沙與厚片吐司，夜晚總是擠滿年輕人。", address: "Suthep Rd (清大後門) / 步行即可" },
+                        { name: "The Volcano Toast", feature: "起司控必訪！招牌是牽絲可以拉到一公尺長的起司熱壓吐司，以及各種爆漿甜餡吐司。", address: "Suthep Rd (清大後門) / 步行即可" },
+                        { name: "Flips&Flips Home Made Donuts", feature: "位於清大後山巷弄的日系文青甜甜圈店，每日限量手工製作，口感鬆軟，經常一開店就秒殺。", address: "14 Hussadhisawee Soi 5 / 建議騎車或 Grab" }
+                    ],
+                    "cafe": [
+                        { name: "No.39 Cafe", feature: "森林系網美咖啡館！園區中央有一個碧綠的池塘，還有一座木造溜滑梯與玻璃屋，彷彿進入童話森林。", address: "39/2 Moo 10, Suthep / 近藝術村，建議搭 Grab" },
+                        { name: "Basecamp Coffee House", feature: "位於素帖山步道起點的登山客咖啡館，空間開闊，被高聳的樹林包圍，喝咖啡吸收滿滿芬多精。", address: "Suthep (近清邁大學後山) / 建議搭 Grab" },
+                        { name: "Dong Madame", feature: "由泰國知名選秀主廚開設，整間店充滿華麗的花卉佈置，甜點如法式芭菲(Parfait)極度浮誇精緻。", address: "Suthep Rd Alley / 隱身清大後山巷弄" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Nimmarn Hill (MAYA頂樓群)", feature: "雖然在尼曼邊界，但緊鄰清大商圈。MAYA百貨六樓戶外區聚集了多家景觀酒吧，可直接欣賞素帖山夜景。", address: "6th Floor, MAYA Lifestyle Shopping Center / 步行至 MAYA" },
+                        { name: "Fin Sushi / Seafood (清大店)", feature: "清大商圈受歡迎的精緻海鮮/日式料理，提供高品質的生魚片與海鮮丼飯，環境年輕活潑。", address: "Nimman Rd / 鄰近清邁大學" },
+                        { name: "Chamcha River Seafood", feature: "雖然不在高空，但提供超澎湃的「泰式海鮮大拼盤」，巨大的活魚與活蝦在炭火上烤得香氣四溢。", address: "Suthep 區域外圍 / 建議搭 Grab" }
+                    ]
+                }
+            },
+            "nightbazaar": {
+                name: "長康夜市與瓦洛洛 (Night Bazaar)",
+                categories: {
+                    "michelin": [
+                        { name: "Go Sae (清湯麵)", feature: "米其林必比登推薦的平價麵攤。招牌是清澈卻充滿大骨鮮甜的湯麵，配上軟嫩的豬肉片與手工魚丸。", address: "Chang Moi Rd / 瓦洛洛市場周邊步行" },
+                        { name: "Guay Jub Chang Moi (粿汁)", feature: "超過50年的老店，用料豐富的豬雜粿汁（捲曲的粄條），湯頭胡椒味濃郁，炸脆皮豬肉是靈魂。", address: "Chang Moi Rd / 近瓦洛洛市場" },
+                        { name: "Khao Soi Islam", feature: "隱身在清真寺旁的清真口味咖哩麵，湯頭不加豬肉，椰奶味較淡但香料味極其深沉獨特。", address: "Charoen Prathet 1 Alley / 長康夜市周邊步行 5 分鐘" }
+                    ],
+                    "greenbowl": [
+                        { name: "Damrong (瓦洛洛炸豬肉)", feature: "瓦洛洛市場內無人不知的名攤！現炸的泰北香腸（Sai Ua）與炸三層肉，買一袋配糯米飯邊走邊吃最道地。", address: "Warorot Market (Kad Luang) 一樓 / 瓦洛洛市場內" },
+                        { name: "Puttaraksa (傳統泰菜)", feature: "位於長康路夜市周圍的低調老店，提供正宗且辣度不減的泰北與中部料理，深受在地人推崇。", address: "Chang Klan Rd / 近長康夜市" },
+                        { name: "Sompong Seafood", feature: "夜市旁老字號海鮮餐廳，門口擺滿新鮮漁獲，大蒜蒸烤龍蝦與咖哩炒蟹鑊氣十足。", address: "Chang Klan Rd (Anusarn Market內) / 阿努善夜市內" }
+                    ],
+                    "dessert": [
+                        { name: "Thapanee (瓦洛洛芒果糯米)", feature: "隱藏在傳統市場裡的寶藏攤位，使用高品質的蛇皮果與芒果，糯米飯蒸得極度軟糯香甜。", address: "Warorot Market (Kad Luang) / 瓦洛洛市場內" },
+                        { name: "Rotee Pa Day (排隊香蕉煎餅)", feature: "塔佩門往瓦洛洛方向的傳奇路邊攤，米其林推薦。煎餅外皮極度酥脆不油膩，煉乳給得毫不手軟。", address: "Tha Phae Rd / 塔佩路步行" },
+                        { name: "Bua Loy Khai Wan (椰奶湯圓)", feature: "長康夜市內的熱門甜湯，五顏六色的手工湯圓浸泡在溫熱的椰奶中，加一顆水波蛋是正宗吃法。", address: "Night Bazaar 區域內 / 夜市餐車" }
+                    ],
+                    "cafe": [
+                        { name: "Thamel Coffee", feature: "隱身在服飾店二樓，充滿尼泊爾與中東異國風情的咖啡館。色彩斑斕的燈飾與窗簾，彷彿走入一千零一夜。", address: "Warorot Market 巷弄內 / 瓦洛洛市場步行 3 分鐘" },
+                        { name: "Brewginning Coffee", feature: "由傳統藤編店改造的半開放式咖啡館，坐在路邊藤椅上看著 Chang Moi 路上的雙條車來往，街頭感十足。", address: "260 Chang Moi Rd / 知名藤編街上" },
+                        { name: "Looper & Co.", feature: "白天是充滿質感的冷萃咖啡館，晚上則搖身一變成為時髦的調酒 Bar，室內設計極簡冷調。", address: "153 Ratchawong Rd / 近瓦洛洛市場" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Mungkorn Seafood (龍海鮮吃到飽)", feature: "清邁極具人氣的「流水蝦/海鮮燒烤吃到飽」！水道裡滿滿的活泰國蝦任你撈，放在炭爐上現烤現吃，CP值破表。", address: "Chang Klan Rd 延伸段 / 建議搭乘 Grab" },
+                        { name: "Boy Blues Bar", feature: "位於卡拉爾夜市 (Kalare Night Bazaar) 二樓露台，雖然不高，但能一邊喝酒一邊聽著清邁最頂級的藍調 Live 演唱。", address: "Kalare Night Bazaar, Chang Klan Rd / 長康夜市區內步行" },
+                        { name: "Ploen Ruedee Night Market", feature: "這是一個露天美食市集，四周被各種國際美食與海鮮燒烤攤車包圍，中央有草皮與舞台，氣氛宛如歐美嘉年華。", address: "Chang Klan Rd / 長康夜市主街上" }
+                    ]
+                }
+            },
+            "santitham": {
+                name: "桑蒂塔姆區 (Santitham)",
+                categories: {
+                    "michelin": [
+                        { name: "Khao Kha Moo Chang Phueak (鳳飛飛豬腳飯)", feature: "米其林推薦的神級路邊攤。老闆娘總戴著標誌性牛仔帽，豬腳滷得軟爛入味，配上一顆半熟蛋與酸菜是絕配。", address: "Chang Phueak North Gate (北門外) / 古城北門外步行 2 分鐘" },
+                        { name: "Suki Jeh Ru Din (壽喜燒)", feature: "隱藏在北門夜市的平民美食，大火爆炒的泰式乾拌壽喜燒，高麗菜清脆，特製沾醬帶有濃郁的豆腐乳與芝麻香。", address: "Chang Phueak North Gate (北門外) / 古城北門外步行 2 分鐘" },
+                        { name: "Khanom Jeen San Pa Khoi", feature: "提供超過五種不同咖哩湯頭的泰式米線（Khanom Jeen），綠咖哩雞與紅咖哩牛肉濃郁下飯。", address: "Santitham 區內市場 / 建議搭乘雙條車" }
+                    ],
+                    "greenbowl": [
+                        { name: "Somtum Der (清邁分店)", feature: "來自曼谷的米其林東北菜名店在清邁的分店。涼拌青木瓜沙拉酸辣度破表，炸雞翅極度酥脆。", address: "Santitham 區域周邊 / 建議搭 Grab" },
+                        { name: "Khao Rad Kaeng (在地自助餐)", feature: "Santitham 是當地租屋族大本營，這裡的泰式平價自助餐（打拋豬、各式咖哩）便宜又道地，最能吃出常民風味。", address: "Santitham 圓環周邊 / 步行探索" },
+                        { name: "Bamee Kiew Zabb", feature: "在地人狂推的黑胡椒雲吞麵與脆皮燒肉飯，雲吞皮薄餡多，湯頭清甜帶著濃郁胡椒香。", address: "Hussadhisawee Rd / Santitham 區內" }
+                    ],
+                    "dessert": [
+                        { name: "Santitham Roti (路邊攤)", feature: "圓環附近的人氣香蕉煎餅車，老闆娘手法俐落，煎餅邊緣煎得焦脆，內餡香蕉受熱後融化如泥。", address: "Santitham Roundabout (圓環旁) / 步行即可" },
+                        { name: "Ice Cream Phai Thong", feature: "穿梭在巷弄間的傳統冰淇淋手推車，聽到鈴鐺聲就能買到夾在麵包裡、淋上煉乳的椰子冰淇淋。", address: "Santitham 住宅區巷弄" },
+                        { name: "Bingsu (韓式雪花冰小店)", feature: "此區有許多受大學生歡迎的平價雪花冰店，滿滿的水果堆疊成山，價格卻只有商圈的一半。", address: "Santitham 圓環周邊" }
+                    ],
+                    "cafe": [
+                        { name: "Akha Ama Coffee (Santitham 本店)", feature: "這是 Akha Ama 發跡的第一家店，氣氛寧靜，有許多數位遊牧族在此工作，能喝到最純粹的泰北精品咖啡豆。", address: "9/1 Mata Apartment, Hussadhisawee Rd / 建議騎車或搭 Grab" },
+                        { name: "Omnia Cafe & Roastery", feature: "自家烘焙咖啡館，空間小巧溫馨，老闆對咖啡豆的處理法非常講究，手沖單品咖啡選擇豐富。", address: "181/272 Chotana Rd / 近 Santitham 邊界" },
+                        { name: "The Barisotel by The Baristro", feature: "極簡純白風格的網美咖啡館，同時結合了精品旅宿。每個角落的光影都經過設計，極度適合拍照。", address: "7/2 Nimmanhaemin Soi 9 (近區域交界) / 步行或 Grab" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Andaman Seafood (海鮮燒烤)", feature: "清邁最具知名度的露天海鮮吃到飽之一。現場提供數十種海鮮、肉類與熟食，在炭火爐上自己動手烤，氣氛熱烈。", address: "100/1 Chotana Rd, Chang Phueak / 建議搭乘 Grab" },
+                        { name: "Teng Nueng (燒烤火鍋)", feature: "當地人熱愛的泰式銅盤烤肉(Mu Kratha)吃到飽，肉盤與蔬菜選擇極多，沾上泰式綠色海鮮醬極度過癮。", address: "Santitham 區周邊 / 建議搭乘 Grab" },
+                        { name: "Rooftop 景觀私廚", feature: "Santitham 區多為低樓層，但部分青旅頂樓提供小型的露天酒吧，能以平視角度欣賞清邁市井的霓虹夜色。", address: "Santitham 巷弄青旅頂層" }
+                    ]
+                }
+            },
+            "maerim": {
+                name: "湄林山區 (Mae Rim)",
+                categories: {
+                    "michelin": [
+                        { name: "Pongyang Angdoi", feature: "隱身在山林間的米其林推薦餐廳。木造高腳屋被綠意包圍，必點泰北傳統的「炸香菇」與濃郁的辣炒山豬肉。", address: "Mae Rim - Samoeng Rd (山區道路) / 必須包車或自行開車" },
+                        { name: "Khao Soi Mae Rim", feature: "進入山區前必吃的人氣咖哩麵，湯頭有著炭火熬煮的獨特香氣，雞肉輕輕一撥就骨肉分離。", address: "107 Route, Mae Rim / 湄林主幹道旁" },
+                        { name: "Mon Jam (夢占山在地料理)", feature: "山頂帳篷營地區有許多當地少數民族經營的小餐館，提供用竹筒烹煮的竹筒飯與炭烤黑豬肉，極具高山風味。", address: "Mon Jam 山頂 / 必須包車或騎車上山" }
+                    ],
+                    "greenbowl": [
+                        { name: "Saiyud's Kitchen (泰國精緻宮廷菜)", feature: "雖然位於往湄林的市郊，但其猶如藝術品般的果雕與精緻的泰國傳統料理，榮獲多年綠碗公與米其林肯定。", address: "Chotana Rd Soi 12 / 建議搭乘 Grab" },
+                        { name: "Baan Mon Muan", feature: "夢占山上的景觀餐廳，提供採用皇家農場有機蔬菜製作的泰北料理，涼拌龍鬚菜清脆爽口。", address: "Mon Jam 區域 / 需包車前往" },
+                        { name: "Huay Tung Tao (國家公園湖畔餐廳)", feature: "在惠登套湖畔的竹編水上小屋裡用餐。吃著酥炸小魚、烤土雞，雙腳還能泡在湖水中，是在地人的避暑秘境。", address: "Huay Tung Tao Lake / 建議搭乘 Grab 或包車" }
+                    ],
+                    "dessert": [
+                        { name: "Zombie Café (溪水泡腳)", feature: "湄林山區最熱門的打卡咖啡廳！餐桌直接設置在清澈的淺溪中，可以一邊吃著鮮豔的蜜糖吐司，一邊讓溪水沖刷雙腳。", address: "Mae Rim - Samoeng Rd / 建議包車或騎車" },
+                        { name: "Sala Cafe", feature: "被巨大的熱帶花園包圍，提供精緻的西式甜點與現烤布朗尼，環境幽靜，彷彿世外桃源。", address: "Mae Rim 巷弄內 / 建議搭 Grab" },
+                        { name: "Strawberry Farm (採草莓)", feature: "湄林與夢占山沿路有許多草莓園，提供現打的新鮮草莓冰沙與沾著糖粉吃的微酸新鮮草莓。", address: "Mon Jam 沿線公路" }
+                    ],
+                    "cafe": [
+                        { name: "The Ironwood", feature: "隱藏在森林深處的溫室花園咖啡館，復古的歐式擺設與滿園的蕨類植物，點一杯花草茶，充滿仙氣。", address: "Mae Rim - Samoeng Rd / 隱密山徑，建議包車" },
+                        { name: "WTG (Woo Cafe 湄林店)", feature: "市區知名 Woo Cafe 在山區的旗艦店，腹地更廣，結合生活選物與藝術，蛋糕依然維持著浮誇的巨大份量。", address: "Mae Rim 主幹道旁 / 建議搭 Grab" },
+                        { name: "WTG Mae Rim", feature: "大片落地窗直接面對稻田與山景，木質調設計，提供高品質的莊園級手沖咖啡。", address: "Mae Rim 區域 / 建議包車" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Mon Jam Viewpoint (夢占山觀景台)", feature: "清邁最知名的「山景高空酒吧」！在海拔破千的山頂懸崖邊，點杯啤酒看著雲海與梯田發呆，是湄林最無敵的景觀。", address: "Mon Jam 山頂 / 必須包車或騎車上山" },
+                        { name: "Pongyang Jungle Coaster & Zipline (景觀餐廳)", feature: "玩完叢林雲霄飛車後，園區內的景觀餐廳懸空建在溪谷上方，提供絕佳的森林視野與泰式料理。", address: "Mae Rim - Samoeng Rd / 需包車前往" },
+                        { name: "Mae Rim River Seafood", feature: "雖然深處山林，但湄林主幹道旁有引進活水養殖的庭園海鮮餐廳，提供新鮮的烤大頭蝦與檸檬魚。", address: "Mae Rim Route 107 / 建議包車" }
+                    ]
+                }
+            },
+            "hangdong": {
+                name: "杭東與藝術村 (Hang Dong)",
+                categories: {
+                    "michelin": [
+                        { name: "Khaomao-Khaofang (黑森林餐廳)", feature: "連續多年米其林推薦！彷彿走入真實的熱帶雨林，餐廳內有瀑布與巨大植栽，泰北與海鮮料理水準極高，氣氛震撼。", address: "Ratchaphruek Rd, Hang Dong / 建議搭乘 Grab (約需20-30分)" },
+                        { name: "Han Tueng Chiang Mai", feature: "靠近藝術村的泰北傳統料理，以在地野菜與香料入菜，炸蔬菜拼盤與泰北咖哩濃郁道地。", address: "近 Baan Kang Wat 藝術村 / 建議搭乘 Grab" },
+                        { name: "Nics Restaurant & Playground", feature: "杭東區非常受歡迎的親子友善餐廳，提供精緻的泰式與西式融合料理，庭院裡有巨大的竹編遊樂設施。", address: "Hang Dong Rd / 建議搭乘 Grab" }
+                    ],
+                    "greenbowl": [
+                        { name: "Tuptim Grob (紅寶石甜湯)", feature: "杭東路上的老字號甜品店，其「椰奶紅寶石」荸薺極大顆且外皮Ｑ彈，配上碎冰與濃郁椰漿，是飯後完美句點。", address: "Chiang Mai-Hang Dong Rd / 建議搭乘 Grab" },
+                        { name: "Khao Soi Mae Malai", feature: "往南部的公路上在地人愛吃的咖哩麵，湯底有著濃郁的紅咖哩香氣，配料的酸菜給得很大方。", address: "往杭東主幹道旁 / 建議騎車" },
+                        { name: "Moo Kratha (杭東泰式烤肉)", feature: "杭東區有許多佔地廣大的半露天銅盤烤肉吃到飽，一兩百泰銖就能無限享用肉類與新鮮蔬菜，CP值極高。", address: "Hang Dong 區域" }
+                    ],
+                    "dessert": [
+                        { name: "Baan Kang Wat 藝術村手作甜點", feature: "藝術村內的木造高腳屋下，有多家小店販售手工磅蛋糕、布丁與冰滴咖啡，充滿濃濃的文青手作溫度。", address: "191-197 Soi Wat Umong / 建議搭乘 Grab 至 Baan Kang Wat" },
+                        { name: "Obchoei Original Homemade", feature: "藝術村內的知名烘焙坊，肉桂捲與可頌剛出爐的香氣瀰漫在木屋間，搭配一杯熱茶非常享受。", address: "Baan Kang Wat 藝術村內 / 步行探索" },
+                        { name: "Carp Cafe (錦鯉咖啡廳)", feature: "整間咖啡廳建在一個巨大的錦鯉池上！不僅有泰式甜點，還能買飼料餵食成群結隊的巨大鮮豔錦鯉，視覺衝擊強烈。", address: "118/2 Moo 1, Hang Dong / 建議搭乘 Grab" }
+                    ],
+                    "cafe": [
+                        { name: "Daddy's Antique Cafe & Restaurant", feature: "外觀像是一座歐洲古堡，內部擺滿了老闆從歐洲各地收集來的古董鐘錶與老件，提供高品質的手沖咖啡與早午餐。", address: "45/8 Moo 1, Mae Hia / 建議搭乘 Grab" },
+                        { name: "The Baristro at Ping River (杭東邊界)", feature: "知名咖啡品牌在萍河下游的分店，清水模設計搭配河畔的靜謐景色，極簡純粹的空間非常適合攝影。", address: "Wang Sing Kham Rd / 建議搭乘 Grab" },
+                        { name: "No.39 Cafe (近藝術村分店)", feature: "雖然本店在素帖，但藝術村周邊也有許多類似這種擁有池塘與木屋的森林系咖啡館，步調極慢。", address: "Wat Umong 周邊巷弄" }
+                    ],
+                    "rooftop_seafood": [
+                        { name: "Good View Village", feature: "市區知名 Good View 的杭東大型分店！雖然不是高空，但擁有巨大的景觀水池與庭園，夜晚點燈後氣氛熱鬧，海鮮料理澎湃。", address: "Mae Hia, Mueang Chiang Mai / 建議搭乘 Grab" },
+                        { name: "Chom Cafe and Restaurant", feature: "以「愛麗絲夢遊仙境」般的迷霧森林造景聞名！雖然是平地，但花園裡不斷噴灑的水霧與巨樹，能拍出絕美的精靈系美照。", address: "2/13 Moo 2, Somphot Chiang Mai 700 Pi Rd / 建議搭乘 Grab" },
+                        { name: "Pha Cho (帕丘峽谷觀景)", feature: "杭東再往南的自然奇景，被稱為清邁小大峽谷。爬上觀景台可以俯瞰奇特的紅土岩柱與整片國家公園森林。", address: "Mae Wang National Park / 距離較遠，必須包車半日遊" }
+                    ]
+                }
+            }
+        };
+
+        const categoriesMap = {
+            "michelin": { name: "🌟 米其林推薦", color: "bg-rose-100 text-rose-700 hover:bg-rose-600 hover:text-white border-rose-500" },
+            "greenbowl": { name: "🟢 綠碗公認證", color: "bg-emerald-100 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-500" },
+            "dessert": { name: "🍧 甜點飲料", color: "bg-amber-100 text-amber-700 hover:bg-amber-500 hover:text-white border-amber-500" },
+            "cafe": { name: "☕ 咖啡廳", color: "bg-orange-100 text-orange-800 hover:bg-orange-600 hover:text-white border-orange-600" },
+            "rooftop_seafood": { name: "🍸 景觀酒吧&人氣餐廳", color: "bg-indigo-100 text-indigo-700 hover:bg-indigo-600 hover:text-white border-indigo-500" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        // Elements
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        // Render Regions
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-teal-600 hover:text-white hover:border-teal-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        // Render Categories
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            // Highlight active region
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-teal-600', 'text-white', 'border-teal-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-teal-600');
+            clickedBtn.classList.add('bg-teal-600', 'text-white', 'border-teal-600');
+
+            // Show category section
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            // Auto select first category if none selected
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('michelin', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            // Highlight active category
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-teal-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-teal-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `<p class="col-span-full text-center py-8 text-gray-500">此分類目前無資料</p>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // Generate Google Maps URL (Focus query on Chiang Mai)
+                const encodedQuery = encodeURIComponent(`${item.name} Chiang Mai ${item.address.split('/')[0]}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded mr-1">特色</span>${item.feature}</p>
+                        
+                        <div class="bg-gray-50/80 p-3.5 rounded-xl flex items-start gap-3 border border-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-teal-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium">${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto">
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+
+    </script>
+</body>
+</html>

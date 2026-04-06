@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清邁住宿推薦指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自訂滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        
+        /* 區域按鈕樣式 */
+        .area-btn-active {
+            background-color: #1e40af; /* blue-800 */
+            color: white;
+            border-color: #1e40af;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #f3f4f6; /* gray-100 */
+            color: #1f2937;
+        }
+
+        /* 分類按鈕樣式 */
+        .cat-btn-active {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            border-color: #3b82f6;
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #e2e8f0; /* slate-200 */
+            color: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-wide">🇹🇭 清邁住宿推薦指南</h1>
+                <!-- 將連結改為對應的清邁首頁或維持原樣 -->
+                <a href="https://linkuei0425.github.io/CHIANGMAI/" class="inline-flex items-center px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-bold rounded-lg transition-colors shadow-sm">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    回到首頁
+                </a>
+            </div>
+            <p class="text-slate-500 text-sm md:text-base">選擇區域與住宿類型，快速探索專屬推薦清單</p>
+        </header>
+
+        <!-- 第一層：區域按鈕 -->
+        <div id="district-buttons" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <!-- 區域按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 第二層：3 個分類按鈕 -->
+        <div id="category-buttons" class="grid grid-cols-3 gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-slate-200 hidden">
+            <!-- 分類按鈕將由 JS 動態生成 -->
+        </div>
+
+        <!-- 內容顯示區 -->
+        <div id="content-area" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-slate-400 pt-20 pb-20">
+                <p>請點擊上方區域與分類以載入住宿推薦...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 依照清邁最新需求建置的資料結構
+        const hotelData = {
+            "oldcity": {
+                name: "古城區 (Old City)",
+                categories: {
+                    "五星飯店": [
+                        { name: "The Inside House", feature: "以蘭納殖民風格打造的純白建築，部分房型擁有超夢幻的私人透明泳池，是清邁網美必訪的頂級住宿。", address: "56 Samlarn Rd / 位於古城內西南方，步行 5 分鐘可達帕辛寺。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-15111541/the-inside-house/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Rachamankha Hotel", feature: "由泰國知名建築師設計，完美融合中國庭園與泰北蘭納風格，古色古香且寧靜優雅，極具隱私性。", address: "6 Rachamankha 9 / 位於古城內，緊鄰帕辛寺。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-712220/rachamankha-chiangmai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Tamarind Village (羅望子村)", feature: "入口處的竹林大道非常經典，飯店中心有一棵超過兩百年的巨大羅望子樹，充滿文化底蘊與禪意。", address: "50/1 Rajdamnoen Rd / 位於古城中心，週日夜市直接在門口擺攤。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-997884/tamarind-village/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Phra Singh Village", feature: "充滿精緻的蘭納木雕藝術，提供免費的下午茶與豐富的活動，服務細膩且溫馨。", address: "9/9 Samlarn Soi 1 / 古城西側，步行 3 分鐘抵達帕辛寺。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-24868438/phrasingh-village/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ],
+                    "平價飯店": [
+                        { name: "U Chiang Mai", feature: "知名的 U 酒店集團，主打「住滿 24 小時」政策（幾點入住就幾點退房），且早餐可隨時隨地享用。", address: "70 Rachadamnoen Rd / 位於古城正中心，週日夜市的絕佳位置。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-998300/u-chiang-mai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "BED Phrasingh", feature: "以極簡現代風為主的成人專屬飯店（不接待兒童），提供免費無限量瓶裝水、現磨咖啡與全天候水果。", address: "10/1 Rachamankha Soi 8 / 古城內帕辛寺周邊。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-2083790/bed-phrasingh-hotel-adults-only/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "De Lanna Hotel", feature: "隱藏在古城內的泰式傳統風情飯店，擁有一個美麗的鹹水游泳池，CP 值相當高。", address: "44 Intavarorot Rd / 位於古城中央偏西。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-712824/de-lanna-hotel/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ],
+                    "青年旅館": [
+                        { name: "The Common Hostel", feature: "空間明亮寬敞，交誼廳設計像一間大型咖啡館，非常乾淨，有極佳的背包客交流氛圍。", address: "54/2, 54/4 Singharat Rd / 古城內西北角。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-7694148/hostel-by-bed/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Sherloft Home & Hostel", feature: "由舊工廠改建的 Loft 工業風青旅，隱藏在寧靜的巷弄內，帶有大片草地與可愛的貓咪。", address: "16 Rachamankha Soi 7 / 古城內西側。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-7312682/sherloft-home-and-hostel/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ]
+                }
+            },
+            "nimman": {
+                name: "尼曼區 (Nimman)",
+                categories: {
+                    "五星飯店": [
+                        { name: "U Nimman Chiang Mai", feature: "位於 Maya 百貨對面，地理位置無敵，同樣享有 U 集團「住滿 24 小時」與隨時早餐的優質服務。", address: "1 Nimmana Haeminda Rd / 尼曼路與 Huay Kaew 路交叉口。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-6161066/u-nimman-chiang-mai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Art Mai Gallery Nimman Hotel", feature: "以「藝術」為主題，每一層樓都由不同的泰國知名藝術家操刀設計，充滿濃厚的文創氣息。", address: "21 Nimmana Haeminda Rd Soi 3 / 步行可達尼曼一號 (One Nimman)。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-3054292/art-mai-gallery-nimman-hotel-chiang-mai-by-compass-hospitality/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ],
+                    "平價飯店": [
+                        { name: "G Nimman Chiang Mai", feature: "2022 年開幕，全白極簡圓弧建築，中間有著非常有設計感的圓形下沉式泳池，打卡拍照極度上鏡。", address: "17 Nimmanahaeminda Road Soi 17 / 尼曼路商圈內。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-86114434/g-nimman-chiang-mai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "BED Nimman", feature: "工業風設計，同樣提供 BED 集團的招牌服務：冰箱飲料與大廳泡麵、水果全天候免費取用。", address: "20 Nimmana Haeminda Rd Soi 17 / 尼曼路商圈內。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-1337952/bed-nimman-hotel-adults-only/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Kokotel Chiang Mai Nimman", feature: "以綿羊為主題的連鎖設計旅店，大廳有溜滑梯，房間乾淨明亮，非常適合家庭或朋友出遊。", address: "21 Soi 12 Nimmana Haeminda Rd / 位於尼曼路靜巷內。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-16016181/kokotel-chiang-mai-nimman/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ],
+                    "青年旅館": [
+                        { name: "Ubaan@Nimman", feature: "這是一間偏向現代簡約風格的精緻民宿/微型青年旅館，近年在訂房網站上以「極致乾淨」和「高 CP 值」獲得極高評價。整體設計年輕、明亮且現代化，空間規劃俐落舒適。", address: "尼曼區商圈內。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-127315811/ubaannimman/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "瑟珀德飯店 (Sabaiday Guesthouse)", feature: "這是一間開業較早（約 2013 年），但維護得非常好且充滿「泰式人情味」的經典家庭式旅館。帶有悠閒的泰式風情，點綴著綠色植物，溫馨寧靜且隔音清幽。", address: "尼曼區巷弄內。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-1684579/sabai-day-guesthouse/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ]
+                }
+            },
+            "riverside": {
+                name: "湄賓河畔 (Riverside)",
+                categories: {
+                    "五星飯店": [
+                        { name: "Anantara Chiang Mai Resort", feature: "前身為英國領事館，電影《門徒》拍攝地。擁有絕美的河畔泳池與寧靜優雅的度假氛圍。", address: "123-123/1 Charoen Prathet Rd / 湄賓河畔，近長康路。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-997780/anantara-chiang-mai-resort/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Na Nirand Romantic Boutique Resort", feature: "中心有一棵巨大的百年雨樹，搭配蘭納與歐式殖民風格的木造建築，被譽為清邁最浪漫的度假村。", address: "1/1 Soi 9, Charoen Prathet Rd / 湄賓河畔。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-6118043/na-nirand-romantic-boutique-resort/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Cross Chiang Mai Riverside", feature: "充滿現代工業風格與紅磚元素的五星級設計飯店，庭院有百年老樹，河畔的透明獨木舟是一大亮點。", address: "369/1 Charoenraj Rd / 位於河畔東岸。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-7215804/cross-chiang-mai-riverside/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Raya Heritage", feature: "位於較北邊的河畔，純白極簡的自然風格，房間充滿當地職人手作的竹編與陶器，品味極高。", address: "157 Don Kaeo, Mae Rim District / 距離市區約 20 分鐘車程。", url: "https://tw.trip.com/hotels/mae-rim-hotel-detail-21865261/raya-heritage/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ],
+                    "平價飯店": [
+                        { name: "Rimping Village", feature: "河畔區最受歡迎的平價度假村之一，環境充滿綠意，服務親切，散發著慵懶的泰北鄉村氣息。", address: "13/1 Chiang Mai-Lamphun Rd / 步行至鐵橋約 10 分鐘。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-712193/rimping-village/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Sala Lanna Chiang Mai", feature: "Sala 集團的河畔精品飯店，房間享有第一排湄賓河景，頂樓與河畔的餐廳都非常有氣氛。", address: "49 Charoenraj Rd / 湄賓河東岸。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-712145/sala-lanna-chiang-mai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Kampaeng Ngam Hotel", feature: "以紅磚牆為特色的平價精品飯店，頂樓有泳池，走到河畔或夜市都不遠，CP 值很高。", address: "27 Soi 2, Charoen Prathet Rd / 近河畔與長康路。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-1550204/kampaeng-ngam-hotel/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ],
+                    "青年旅館": [
+                        { name: "Baan Heart Thai", feature: "傳統泰式柚木高腳屋改建的青旅，充滿濃濃的在地人情味，距離河區與市場都不遠。", address: "1/1 Soi 2, Charoen Prathet Rd / 近河畔區。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-11471585/baan-heart-thai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ]
+                }
+            },
+            "nightbazaar": {
+                name: "長康路夜市區 (Night Bazaar)",
+                categories: {
+                    "五星飯店": [
+                        { name: "Chiang Mai Marriott Hotel", feature: "原為清邁艾美酒店，近期翻新改名萬豪酒店，地點無敵，下樓就是長康路夜市，擁有清邁最佳市景。", address: "108 Chang Klan Rd / 位於長康路夜市正中心。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-114432674/chiang-mai-marriott-hotel/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Meliá Chiang Mai", feature: "全新開幕的西班牙美利亞酒店，頂樓設有 360 度的高空酒吧 (Mai The Sky Bar)，設施極度新穎。", address: "46, 48 Charoen Prathet Rd / 靠近夜市與河畔的交界處。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-80449803/melia-chiang-mai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Shangri-La Chiang Mai", feature: "老字號的奢華五星，擁有全清邁市區最大的戶外熱帶造型泳池，非常適合親子與家庭客入住。", address: "89/8 Chang Klan Rd / 長康路夜市南側。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-997879/shangri-la-hotel-chiang-mai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ],
+                    "平價飯店": [
+                        { name: "Night Bazaar Inn", feature: "地點絕佳的平價住宿，設施簡單但乾淨，對純粹想要逛夜市、買東西的旅客來說非常方便。", address: "89/2 Chang Klan Rd / 長康路夜市商圈內。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-1337636/night-bazaar-inn/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13587226" },
+                        { name: "H Flora Hotel", feature: "清邁花語岸酒店鬧中取靜的花園酒店，出門就是長康路夜市，逛吃超方便。房間乾淨整潔，床品舒服，泳池和庭院拍照很出片。前台熱情貼心，有求必應，全程入住體驗輕鬆愜意。性價比很高，來清邁住這裏很安心。", address: "位於長康路夜市商圈內。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-54589465/h-flora-hotel/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13587226" }
+                    ],
+                    "青年旅館": [
+                        { name: "L MINITEL at Night Bazaar Chiangmai", feature: "坐落於夜市區域的艾樂迷你飯店，會讓您在清邁擁有別樣的體驗，開展一段難忘的旅行。旅客們會發現Let's Relax水療館（清邁Pavillion店）、清邁修德善堂 （Xiude Shantang）和NN Chiangmai Travel距離飯店都不遠。", address: "位於長康路夜市區域。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-113408093/l-minitel-at-night-bazaar-chiangmai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13587226" },
+                        { name: "Loyy Hotel", feature: "坐落於夜市區域，不論您是商務出差還是休閒旅遊洛伊飯店 - 青年旅舍都是理想的下榻之處。附近很多景點，包括洛柯寺、Plunge和長空寺都離飯店不遠。", address: "位於長康路夜市區域。", url: "https://tw.trip.com/hotels/chiang-mai-hotel-detail-50402730/loyy-hotel/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13587226" }
+                    ]
+                }
+            },
+            "resorts": {
+                name: "郊區與山林度假 (Resorts)",
+                categories: {
+                    "五星飯店": [
+                        { name: "Four Seasons Resort Chiang Mai", feature: "清邁最頂級的度假村之一，隱身在湄林區的梯田與熱帶叢林中，完美詮釋極致奢華的自然避世感。", address: "502 Moo 1, Mae Rim-Samoeng Old Road / 湄林區，距市區約 40 分鐘。", url: "https://tw.trip.com/hotels/mae-rim-hotel-detail-928317/four-seasons-resort-chiang-mai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Veranda High Resort Chiang Mai", feature: "網美必拍的無邊際高空山景泳池！融合現代設計與自然山林，寧靜且極度放鬆。", address: "192 Moo 2 Ban Pong, Hang Dong / 杭東區，距市區約 30 分鐘。", url: "https://tw.trip.com/hotels/hang-dong-hotel-detail-1503518/veranda-chiang-mai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Panviman Chiang Mai Spa Resort", feature: "位於蒙真山區，整個度假村依山而建，擁有壯麗的山谷景觀與絕佳的洞穴水療 SPA。", address: "197/2 Moo 1, Mae Rim / 蒙真山區，距市區約 50 分鐘。", url: "https://tw.trip.com/hotels/mae-rim-hotel-detail-839713/panviman-chiang-mai-spa-resort-mae-rim/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ],
+                    "平價飯店": [
+                        { name: "Flora Creek Chiang Mai", feature: "以歐洲花園為主題的度假村，占地廣大且花木扶疏，房價在山林度假村中相對平易近人。", address: "90 Moo 4, Hang Dong / 杭東區，距市區約 35 分鐘。", url: "https://tw.trip.com/hotels/hang-dong-hotel-detail-5673859/flora-creek-chiang-mai/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Proud Phu Fah", feature: "小巧精緻的森林系精品度假村，房間伴隨著溪流聲，氣氛非常愜意，適合情侶或喜愛大自然的人。", address: "97/5 Moo 1, Mae Rim / 湄林區，距市區約 40 分鐘。", url: "https://tw.trip.com/hotels/mae-rim-hotel-detail-711578/proud-phu-fah-maerim-resort/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" },
+                        { name: "Mon Ing Dao (蒙真山豪華露營)", feature: "蒙真山(Mon Jam)上非常受歡迎的帳篷露營區，早晨打開帳篷就能看到雲海，體驗截然不同的住宿。", address: "Mon Jam, Mae Rim / 蒙真山頂，距市區約 1 小時。", url: "https://tw.trip.com/hotels/mae-rim-hotel-detail-21864107/mon-ing-dao/?Allianceid=7913725&SID=297503522&trip_sub1=&trip_sub3=D13585077" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        // 1. 初始化區域按鈕
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-3 rounded-lg font-bold text-sm transition-all duration-200 border area-btn-inactive`;
+                btn.innerText = hotelData[key].name;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 2. 選擇區域
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+
+            // 更新區域按鈕外觀
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+
+            // 顯示第二層的分類按鈕
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. 渲染分類按鈕 (修改為動態抓取該區分類，以實現特定區塊隱藏「青年旅館」)
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            
+            // 動態取得該區域擁有的分類標籤
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // 預設點擊該區第一個分類 (如: 五星飯店)
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. 選擇分類並渲染飯店清單
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            // 更新分類按鈕外觀
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+
+            renderHotels();
+        }
+
+        // 5. 渲染飯店資料到畫面
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex items-center mb-6 border-b pb-4 border-slate-200">
+                    <h2 class="text-2xl font-bold text-slate-800 mr-3">📍 ${districtData.name}</h2>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-bold rounded-full">${currentCategoryName}</span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center">此分類目前無推薦資料。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-4">`;
+                
+                hotels.forEach((hotel, index) => {
+                    // 根據是否有提供 URL 決定 [飯店說明] 標籤的樣式
+                    const linkTagHTML = hotel.url 
+                        ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-1 mt-1 sm:mt-0 rounded-md text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm cursor-pointer ml-0 sm:ml-3">
+                               <svg class="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                               點我看飯店說明
+                           </a>`
+                        : `<span class="inline-flex items-center px-3 py-1 mt-1 sm:mt-0 rounded-md text-xs font-bold bg-slate-200 text-slate-500 ml-0 sm:ml-3">
+                               點我看飯店說明
+                           </span>`;
+
+                    htmlContent += `
+                        <div class="bg-slate-50 border border-slate-200 p-5 rounded-lg hover:shadow-md transition-shadow duration-200 group">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-start mb-4">
+                                <h4 class="text-lg font-bold text-slate-800 flex items-center">
+                                    <span class="text-blue-500 font-mono text-base mr-2">${index + 1}.</span> 
+                                    ${hotel.name}
+                                </h4>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-6 space-y-3">
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-slate-700 bg-blue-50 px-1.5 py-0.5 rounded mr-1">特色</span> ${hotel.feature}
+                                </p>
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    <span class="font-bold text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded mr-1">地址/交通</span> ${hotel.address}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            
+            // 預設展開第一個區域 (oldcity)
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                // 將預設選擇從 siam 改為 oldcity
+                selectDistrict('oldcity', firstDistrictBtn);
+            }
+        });
+    </script>
+</body>
+</html>
