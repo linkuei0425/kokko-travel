@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蘇梅島購物精選指南 | Koh Samui Shopping Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Custom Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Active State for Tabs */
+        .tab-btn.active {
+            background-color: #0ea5e9; /* sky-500 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
+            border-color: #0ea5e9;
+        }
+        .city-btn.active {
+            background-color: #075985; /* sky-800 */
+            color: white;
+            border-color: #075985;
+        }
+        .tab-btn, .city-btn {
+            transition: all 0.3s ease;
+        }
+        /* Google Maps Button Hover */
+        .btn-maps {
+            background-color: #0ea5e9; /* sky-500 */
+        }
+        .btn-maps:hover {
+            background-color: #0284c7; /* sky-600 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-sky-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-sky-700 tracking-wider"><i class="fa-solid fa-bag-shopping mr-2"></i>SAMUI SHOPPING</span>
+                </div>
+                <div>
+                    <!-- Back to Home Link -->
+                    <a href="https://linkuei0425.github.io/KohSamui/index.html" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 focus:outline-none transition-colors">
+                        <i class="fa-solid fa-house mr-2"></i> 回到首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="bg-gradient-to-r from-sky-800 via-sky-600 to-teal-500 py-10 lg:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 shadow-sm drop-shadow-md">蘇梅島必買購物精選指南</h1>
+            <p class="text-base md:text-lg text-sky-100 max-w-2xl mx-auto font-medium">嚴選蘇梅島 4 大區域，從大型購物中心、量販超市到漁村夜市的特色工藝與泰國香氛，讓您滿載而歸！</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- City Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-map-location-dot mr-1"></i> 選擇區域 (Select Region)</h2>
+            <div id="city-container" class="flex overflow-x-auto hide-scrollbar space-x-2 pb-2">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8" id="category-section">
+            <h2 class="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider"><i class="fa-solid fa-tags mr-1"></i> 選擇類別 (Select Category)</h2>
+            <div id="category-container" class="flex overflow-x-auto hide-scrollbar space-x-3 pb-2">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- Shop Display Area -->
+        <div id="shop-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected dynamically via JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Koh Samui Shopping Guide. 為您的海島之旅提供最佳購物建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data Structure: n=Name, f=Feature, a=Address, t=Transport, cLink=CouponLink, cName=CouponName, cIcon=CouponIcon
+        const db = {
+            chaweng: {
+                name: "查汶區 (Chaweng)",
+                cat: {
+                    souvenir: [
+                        {n:"Tropicana Oil (泰國第一椰子油)",f:"海島必買特產！100%純天然冷壓椰子油，不僅可以食用，更是護膚與護髮的聖品。",a:"查汶大街 (Chaweng Beach Road) 專賣店",t:"步行或搭乘雙條車"},
+                        {n:"Blue Elephant 藍象餐廳香料包",f:"泰國頂級宮廷料理品牌！販售包裝精美的綠咖哩、冬蔭功與打拋豬香料包。",a:"Central Samui 百貨 1F 特產區",t:"雙條車直達"},
+                        {n:"Doi Kham 皇家農場 (蜂蜜/果乾)",f:"泰國皇家計畫的農產品，純天然無添加的蜂蜜與芒果乾，是超市必搶神物。",a:"查汶區 Big C 或 Tops Market",t:"步行或雙條車"},
+                        {n:"Koh-Kae 大哥大花生豆",f:"泰國最經典的國民零食，芥末與冬蔭功口味最受歡迎，罐裝適合送禮。",a:"查汶大街 7-11 或便利超市",t:"步行前往"},
+                        {n:"Chaweng Walking Street 彩繪椰殼碗",f:"將天然椰子殼打磨並在內側手工彩繪，用來裝冰沙或當果盆極具熱帶渡假風情。",a:"查汶大街夜市攤商",t:"步行前往"}
+                    ],
+                    fashion: [
+                        {n:"Central Samui (尚泰蘇梅島百貨)",f:"島上最大的半露天百貨！擁有國際品牌 Zara, Uniqlo 及多家泰國特色餐廳。",a:"209, 209/1-209/2 Moo 2, Chaweng",t:"位於查汶大街中心，雙條車可達"},
+                        {n:"Rip Curl / Quiksilver",f:"全球知名的衝浪品牌，比基尼、衝浪褲與高係數防曬衣款式極度齊全。",a:"Central Samui 購物中心 1F",t:"雙條車直達"},
+                        {n:"Jim Thompson (金湯普森)",f:"泰國最具代表性的頂級絲綢品牌，販售極度優雅的泰絲圍巾、服飾與精緻包包。",a:"Central Samui 購物中心 1F",t:"雙條車直達"},
+                        {n:"Chandra Exotic 海島渡假服飾",f:"充滿峇里島與泰式熱帶印花的亞麻襯衫、沙龍洋裝，質感輕柔飄逸。",a:"查汶大街 (Chaweng Beach Road)",t:"步行逛街"},
+                        {n:"CC Double O / CPS Chaps",f:"泰國極受歡迎的本土設計師潮牌，服飾剪裁獨特有個性，香水味是其招牌特色。",a:"Central Samui 購物中心 1F",t:"雙條車直達"}
+                    ],
+                    beauty: [
+                        {n:"Watsons 屈臣氏 (Central店)",f:"來泰國必逛！買 Mistine、4U2 等泰國超人氣平價網紅彩妝的貨源最齊全。",a:"Central Samui 購物中心內",t:"雙條車直達"},
+                        {n:"Boots 藥妝店 (查汶大街)",f:"英國老牌連鎖藥妝，買香蕉船(Banana Boat)防曬乳、No.7保養品與常備神藥都很方便。",a:"查汶大街 (Chaweng Beach Road)",t:"步行前往"},
+                        {n:"Harnn / Thann 香氛專櫃",f:"泰國皇室御用的頂級香氛保養品牌，精油、擴香與手工香皂包裝極致奢華。",a:"Central Samui 購物中心內",t:"雙條車直達"},
+                        {n:"Tiger Balm 虎標 / 臥佛牌青草膏",f:"防蚊蟲叮咬、舒緩肩頸痠痛的泰國神藥，是必買的家庭常備實用藥品。",a:"查汶區各大在地藥房",t:"步行前往"},
+                        {n:"Sabai-Arom 泰國頂級香氛",f:"使用泰國當地草本植物製成的護手霜與天然滾珠精油，茉莉花香氣最熱銷。",a:"Boots 藥妝店內專櫃",t:"步行前往"}
+                    ],
+                    mart: [
+                        {n:"Tops Market (Central B1)",f:"高品質的生鮮超市，擁有齊全的各國進口起司、酒類與包裝精美的泰國高檔零食。",a:"Central Samui 購物中心 B1",t:"雙條車直達"},
+                        {n:"Big C Supercenter",f:"泰國必逛量販店！買大包裝海苔、Pocky、泰式手標奶茶與大哥花生豆最划算。",a:"129/19 Moo 1, Bophut (靠近查汶)",t:"建議搭乘計程車或雙條車"},
+                        {n:"Lotus's 蓮花超市",f:"泰國另一大量販巨頭，自有品牌商品與大包裝泰式海鮮泡麵(MAMA麵)非常便宜。",a:"查汶區外圍主要道路上",t:"建議搭乘計程車"},
+                        {n:"Makro 萬客隆 (查汶店)",f:"批發型量販店，適合要買極大份量零食回國分送的重度採購者，價格破盤。",a:"11/7 Moo 6, Bophut",t:"建議搭乘計程車"},
+                        {n:"7-Eleven (泰國小七)",f:"泰國小七超好買！必吃現烤熱壓吐司，還有泰國限定口味的樂事洋芋片與燕窩飲。",a:"查汶區大街隨處可見",t:"步行前往"}
+                    ],
+                    hobby: [
+                        {n:"Elephant Parade (大象彩繪工藝品)",f:"全球知名的保育組織店鋪，販售各式藝術家彩繪的小型大象雕塑，精緻且具公益意義。",a:"Central Samui 購物中心 1F",t:"雙條車直達"},
+                        {n:"Karmakamet 香氛與生活編織包",f:"泰國最頂級的香氛品牌，店內的麻布編織袋與室內香氛噴霧充滿高雅質感。",a:"Central Samui 百貨周邊",t:"步行前往"},
+                        {n:"Panpuri 泰國皇室香氛蠟燭",f:"泰國頂級純淨保養與香氛品牌，以天然精油與絕美設計的室內擴香、蠟燭聞名。",a:"Central Samui 購物中心內",t:"雙條車直達"},
+                        {n:"B2S 文具與生活雜貨",f:"泰國大型文具連鎖店，販售精緻的文創小物、手帳本與設計感十足的生活雜貨。",a:"Central Samui 購物中心內",t:"雙條車直達"},
+                        {n:"Miniso 名創優品",f:"忘記帶充電線、旅行頸枕、小風扇或保養品分裝瓶，來這裡能便宜快速補齊。",a:"Central Samui 購物中心內",t:"雙條車直達"}
+                    ]
+                }
+            },
+            bophut: {
+                name: "波普/湄南 (Bophut)",
+                cat: {
+                    souvenir: [
+                        {n:"Fisherman's Village (波普漁村夜市)",f:"每週一、三、五傍晚營業，匯集了蘇梅島最精緻的手工藝品、創意伴手禮與街頭小吃。",a:"Bophut Beach Road",t:"搭乘雙條車前往"},
+                        {n:"Dreamcatcher Samui 捕夢網手作",f:"漁村內有許多文創小店，販售以天然麻繩、羽毛與貝殼手工編織的波西米亞捕夢網。",a:"波普漁村步行街",t:"步行逛街"},
+                        {n:"Magic Alambic 蘇梅島蘭姆酒莊",f:"蘇梅島在地釀造的蘭姆酒，以當地甘蔗原汁發酵，帶有椰子與熱帶水果香氣。",a:"蘇梅島南部 (名產店亦有代售)",t:"波普區名產店或酒專賣店"},
+                        {n:"Soap Carving Studio 泰式花雕皂",f:"將香皂手工雕刻成栩栩如生的蘭花與蓮花形狀，裝在彩繪木盒中，香氣迷人。",a:"波普漁村夜市攤位",t:"夜市步行"},
+                        {n:"Taste of Samui 泰式辣醬與名產",f:"小農自製的泰式甜辣醬、海鮮沾醬與新鮮熬煮的椰子糖，是送給喜愛烹飪朋友的好禮物。",a:"波普漁村傳統攤販",t:"步行前往"}
+                    ],
+                    fashion: [
+                        {n:"Paul Ropp (泰國高級亞麻服飾)",f:"充滿峇里島與海島風情的高級精品店，手染真絲與純亞麻服飾色彩極度鮮豔奪目。",a:"波普漁村步行街 (Fisherman's Village)",t:"步行逛街"},
+                        {n:"Bikinibird Samui (精品泳裝)",f:"引進歐美與澳洲剪裁的高質感比基尼、連身泳裝，設計時尚且在海灘上不易撞衫。",a:"波普漁村內獨立店面",t:"步行逛街"},
+                        {n:"Chang Thai (大象褲與泰服攤商)",f:"來泰國必穿的大象褲！布料極度輕薄涼爽，夜市裡款式與顏色選擇最多。",a:"波普漁村夜市",t:"夜市步行"},
+                        {n:"Saona Collection 真皮手工涼鞋",f:"漁村內的獨立設計師皮革店，販售純手工製作的牛皮涼鞋與流蘇編織袋。",a:"波普漁村步行街",t:"步行逛街"},
+                        {n:"Samui Tie-Dye (紮染布衣專賣)",f:"色彩繽紛的天然手工紮染 T-Shirt、罩衫與頭巾，充滿濃濃的海島嬉皮風。",a:"波普海灘周邊攤販",t:"步行前往"}
+                    ],
+                    beauty: [
+                        {n:"Bophut Spa & Aromatherapy",f:"波普區有許多高級水療中心，其附設的店舖販售頂級的天然玫瑰精油與海鹽去角質霜。",a:"波普區各大 SPA 館內",t:"步行或雙條車"},
+                        {n:"Morya Pharmacy (蘇梅連鎖藥局)",f:"海島必備！曬了一天太陽後，到當地連鎖藥局買大容量的純蘆薈膠厚敷降溫最有效。",a:"Bophut 區主要街道",t:"步行前往"},
+                        {n:"Boots (波普分店)",f:"位於波普區的 Boots 門市，方便補充英國進口的平價保養品、防曬與開架化妝品。",a:"Bophut 區主要道路",t:"步行前往"},
+                        {n:"Khaokho Talaypu (泰國草本洗髮精)",f:"使用泰國特有香草(如蝶豆花、青檸)萃取的天然洗髮產品，能有效改善頭皮出油。",a:"波普區超市或藥妝店",t:"步行逛街"},
+                        {n:"OTOP 泰國天然蠶繭潔面球",f:"泰國特產的美容聖品，套在手指上搭配洗面乳按摩，能溫和去除鼻頭粉刺。",a:"波普漁村夜市攤位",t:"夜市步行"}
+                    ],
+                    mart: [
+                        {n:"Lotus's Go Fresh (社區超市)",f:"Lotus's 旗下的便利型超市，價格親民，買大瓶飲用水、水果與宵夜零食非常方便。",a:"Bophut 區主要道路",t:"步行或雙條車"},
+                        {n:"Bophut Fresh Market 波普傳統市場",f:"體驗當地人生活的最佳去處！能買到最便宜新鮮的芒果、紅毛丹等熱帶水果。",a:"波普區主要路口",t:"雙條車可達"},
+                        {n:"FamilyMart (波普漁村店)",f:"漁村步行街內的在地超商，買泰國經典的 Chang (大象) 與 Singha (勝獅) 啤酒首選。",a:"波普漁村內",t:"步行前往"},
+                        {n:"Tops Daily (波普店)",f:"24小時營業的小型 Tops 超市，生鮮與麵包品質較高，適合買早餐或微波食品。",a:"波普區路邊",t:"步行前往"},
+                        {n:"Khanom Krok (椰漿煎餅名攤)",f:"夜市裡現做的泰國傳統甜點，外皮酥脆內裡爆漿的椰香煎餅，是泰國必吃平價美味。",a:"波普漁村夜市",t:"夜市步行"}
+                    ],
+                    hobby: [
+                        {n:"Samui Art Gallery 畫廊與手工藝",f:"販售當地畫家創作的海島風景油畫與大象水彩畫，是極具紀念價值的藝術品。",a:"波普漁村步行街",t:"步行逛街"},
+                        {n:"Macrame Samui 波西米亞掛毯",f:"用純棉繩手工編織的 Macrame 掛毯與植物吊籃，能為家中增添海島渡假感。",a:"波普漁村文創小店",t:"步行前往"},
+                        {n:"Eco Samui 竹製環保餐具",f:"提倡環保的天然竹製吸管、木湯匙與椰木杯墊，質感溫潤且實用。",a:"波普漁村攤販",t:"步行前往"},
+                        {n:"Siam Celadon (泰國傳統青瓷)",f:"繪有泰國傳統花紋的青瓷碗盤與大象造型的醬料碟，極具東南亞高雅風情。",a:"波普區藝品店",t:"步行逛街"},
+                        {n:"Fisherman's Decor 捕魚簍燈飾",f:"以傳統泰國竹編捕魚簍改良而成的造型燈罩，非常適合作為居家特色佈置。",a:"波普漁村家飾店",t:"步行前往"}
+                    ]
+                }
+            },
+            lamai: {
+                name: "拉邁區 (Lamai)",
+                cat: {
+                    souvenir: [
+                        {n:"Lamai Night Plaza 正宗泰式香料",f:"販售五顏六色的現磨香料與正宗泰國咖哩粉，辛香氣味濃郁，秤重計價。",a:"Lamai Night Plaza",t:"拉邁大街步行可達"},
+                        {n:"Hin Ta Hin Yai 阿公阿嬤石椰子糖",f:"阿公阿嬤石景區最著名的名產！純手工熬煮的椰子糖(Kalamae)，口感香醇濃郁不死甜。",a:"阿公阿嬤石景區周邊攤販",t:"步行前往"},
+                        {n:"Samui Souvenir Shop (大象鑰匙圈)",f:"便宜又具有代表性的小紀念品，刻有Koh Samui字樣的木雕，適合大量買回去送朋友。",a:"拉邁夜市攤位",t:"夜市步行"},
+                        {n:"ChaTraMue (手標泰式茶專賣)",f:"泰式奶茶的靈魂！買紅色或金色鐵罐裝的手標茶葉，回家自己沖泡正宗泰奶。",a:"拉邁區各大超市與名產店",t:"步行前往"},
+                        {n:"My Choice 泰國果乾軟糖",f:"愛吃榴槤與山竹的人絕對不能錯過的濃郁軟糖，大包裝在拉邁的批發小店買價格實在。",a:"拉邁大街特產店",t:"步行逛街"}
+                    ],
+                    fashion: [
+                        {n:"Lamai Beachwear (泳裝與海灘褲)",f:"大街上掛滿了五顏六色的比基尼與海灘褲，忘記帶泳裝來這裡隨便挑都有。",a:"Lamai Beach Road",t:"步行逛街"},
+                        {n:"Ash Tailor Samui (手工訂製西服)",f:"拉邁特有的景象，許多印度裁縫師提供極度平價且快速的西裝與亞麻襯衫訂製服務。",a:"拉邁大街兩側",t:"步行逛街"},
+                        {n:"Lamai Sunday Market (草帽與編織包)",f:"超大帽帽簷的渡假風草帽與色彩鮮豔的草編包，是拉邁週日夜市最熱銷的單品。",a:"拉邁週日夜市 (Lamai Sunday Market)",t:"步行前往"},
+                        {n:"Lamai Muay Thai Camp (泰拳周邊)",f:"拉邁有著名的泰拳館，周邊有許多專賣店販售帥氣刺繡的泰拳短褲、拳套與周邊用品。",a:"拉邁泰拳館周邊",t:"步行前往"},
+                        {n:"Havaianas / Roxy (水上配件)",f:"臨時需要高品質的防滑夾腳拖、防水袋或衝浪服飾，大街上的體育用品店隨處可見。",a:"拉邁大街",t:"步行逛街"}
+                    ],
+                    beauty: [
+                        {n:"Watsons 屈臣氏 (拉邁分店)",f:"拉邁區最大的藥妝店，有冷氣吹，方便補齊各種開架防曬乳、化妝水與平價面膜。",a:"拉邁大街中心",t:"步行前往"},
+                        {n:"Fascino Pharmacy (泰國連鎖藥局)",f:"拉邁大街上的指標性藥房，買五塔散、八仙薄荷吸鼻劑(Poy-Sian)與萬金油最安心。",a:"拉邁大街兩側",t:"步行逛街"},
+                        {n:"Tropicana 椰子油護唇膏",f:"將初榨椰子油做成管狀護唇膏，滋潤度極高且帶有淡淡椰香，包裝輕巧好攜帶。",a:"拉邁夜市與名產店",t:"步行前往"},
+                        {n:"Madame Heng 阿婆手工皂專賣",f:"泰國極具歷史的草本手工皂，以深層清潔與去背痘聞名，是泰國人家中必備洗沐聖品。",a:"拉邁區各大連鎖藥妝店",t:"步行前往"},
+                        {n:"Snake Brand 蛇牌涼感蜜粉",f:"洗完澡後撲在身上，瞬間冰涼降溫！是抵抗泰國炎熱天氣的傳統神物，有玫瑰與薰衣草味。",a:"拉邁區超市與便利店",t:"步行前往"}
+                    ],
+                    mart: [
+                        {n:"Lotus's 蓮花超市 (拉邁店)",f:"拉邁區最大的量販超市，各類泰國零食、大包裝泡麵與生活用品一應俱全。",a:"131/1 Moo 4, Lamai",t:"雙條車或租機車前往"},
+                        {n:"Makro 萬客隆 (拉邁店)",f:"倉儲式量販店，許多當地餐廳都在此進貨，大包裝的伴手禮零食(如小老闆海苔)價格極殺。",a:"拉邁區主要道路上",t:"建議搭乘計程車"},
+                        {n:"Lamai Fresh Market (拉邁生鮮市場)",f:"早起逛當地市場！可以買到無敵便宜的山竹、紅毛丹、龍宮果與各式當季水果。",a:"拉邁區中心",t:"步行前往"},
+                        {n:"7-Eleven (拉邁大街)",f:"拉邁大街上有好幾間7-11，晚上回飯店前買 NPB 燕窩飲、Meiji 牛奶與各種泰式熱食。",a:"Lamai Beach Road",t:"步行前往"},
+                        {n:"CJ More (泰國本土連鎖超市)",f:"泰國本土的連鎖超市，販售許多價格低廉的民生用品與泰國獨有的零食小品牌。",a:"拉邁區外圍",t:"雙條車可達"}
+                    ],
+                    hobby: [
+                        {n:"Lamai Pearl & Shell (珍珠貝殼飾品)",f:"以海島特有的天然貝殼、海星與淡水珍珠製作的手工項鍊、手鍊與風鈴，充滿海洋氣息。",a:"拉邁大街藝品店",t:"步行逛街"},
+                        {n:"Lamai Watersports Shop (浮潛用品)",f:"帶小孩來拉邁海灘玩水，可以在大街上買到各種便宜的玩沙工具與輕便浮潛面罩。",a:"拉邁海灘入口處",t:"步行前往"},
+                        {n:"Thai Silk Shop (泰絲大象抱枕套)",f:"以泰絲或棉麻繡上金線大象圖騰的抱枕套，輕便好折疊好攜帶，送禮自用兩相宜。",a:"拉邁夜市與大街",t:"夜市步行"},
+                        {n:"Samui Handicraft (椰樹葉編織扇)",f:"當地老奶奶用天然椰子樹葉手工編織的扇子，不僅環保實用，拿來當拍照道具也非常好看。",a:"拉邁傳統市集",t:"步行前往"},
+                        {n:"Hin Ta Hin Yai Market (木雕磁鐵)",f:"極具立體感的木製大象冰箱貼，做工精細，是收集各國旅遊磁鐵愛好者的必買物。",a:"阿公阿嬤石周邊紀念品店",t:"步行逛街"}
+                    ]
+                }
+            },
+            nathon: {
+                name: "那通鎮/西南部 (Nathon)",
+                cat: {
+                    souvenir: [
+                        {n:"Nathon Pier Market (伴手禮批發街)",f:"這裡是蘇梅島的行政中心，擁有全島最便宜的伴手禮批發店，適合買大禮包零食。",a:"那通碼頭前主要街道",t:"搭乘雙條車或包車前往"},
+                        {n:"Thai Silk Nathon (泰絲圍巾批發)",f:"那通街上的服飾老店，能以極低的批發價格買到各種顏色與圖騰的泰絲披肩。",a:"那通鎮步行街",t:"步行逛街"},
+                        {n:"Siam Pewter (泰國皇室錫器與茶具)",f:"泰國傳統的精美錫製水杯與茶具套組，雕花細緻，是極度體面的高級長輩伴手禮。",a:"那通鎮傳統藝品店",t:"步行前往"},
+                        {n:"Kunna / Greenday (熱帶水果乾大包裝)",f:"各種芒果乾、椰子脆片與芭蕉乾，在那通買大包裝通常能談到比便利商店好很多的折扣。",a:"那通碼頭周邊乾貨店",t:"步行前往"},
+                        {n:"Bo Sang Umbrella (泰國傳統彩繪紙傘)",f:"充滿民俗色彩的彩繪紙傘與竹製風箏，是極具泰國傳統工藝代表性的紀念品。",a:"那通鎮老街",t:"步行逛街"}
+                    ],
+                    fashion: [
+                        {n:"Nathon Walking Street (傳統泰服批發)",f:"保留華人老街風貌的那通，隱藏許多賣傳統泰服與沙龍的批發店，價格全島最低。",a:"那通鎮老街",t:"步行前往"},
+                        {n:"Samui T-Shirt Shop (紀念T恤專賣)",f:"各種印有蘇梅島風景與字樣的純棉 T-shirt，全家大小買一套當作海島制服。",a:"那通碼頭周邊服飾店",t:"步行前往"},
+                        {n:"Nathon Uniform Shop (泰國學生制服)",f:"近年爆紅的打卡玩法！可以在那通當地的傳統制服店買一套泰國中學生制服拍照。",a:"那通鎮在地服飾行",t:"步行尋寶"},
+                        {n:"Nathon Sunday Market (防曬與遮陽帽)",f:"準備出海跳島前，若裝備不足，可在那通的假日市場便宜購入長袖防曬外套與寬簷帽。",a:"那通碼頭周邊",t:"步行前往"},
+                        {n:"Nathon Wholesale Market (大象褲批發)",f:"如果想買10條以上大象褲帶回國送人，來那通鎮的批發市場買絕對是全島最划算的選擇。",a:"那通傳統批發市場",t:"步行逛街"}
+                    ],
+                    beauty: [
+                        {n:"Save Drug (泰國平價連鎖藥妝)",f:"沒有華麗的裝潢，但販售各種泰國在地平價彩妝 (如 Srichand 旁氏蜜粉) 與常備保養品。",a:"那通鎮主要街道",t:"步行前往"},
+                        {n:"Royal Thai Herb (皇家蛇毒藥膏專賣)",f:"長輩最愛的泰國名藥之一，具說對舒緩關節與肌肉痠痛有奇效，當地老藥房均有售。",a:"那通鎮各大老藥局",t:"步行前往"},
+                        {n:"Takabb 五蜈蚣標止咳丸",f:"包裝印有蜈蚣但成分為純中藥的止咳喉糖，入口生津，是必掃貨的傳統伴手禮。",a:"那通鎮傳統藥房",t:"步行前往"},
+                        {n:"Pha Khao Ma (傳統泰式草藥熱敷包)",f:"將多種泰國香草捆於棉布中，回家微波加熱後可用於按摩肩頸，在家也能極度放鬆。",a:"那通鎮傳統草藥行",t:"步行前往"},
+                        {n:"Wat Pho 臥佛牌青草膏批發",f:"那通的藥房能買到一整盒(半打裝)的臥佛牌或金鐘牌青草膏，買多省更多，批發價極划算。",a:"那通鎮老藥局",t:"步行前往"}
+                    ],
+                    mart: [
+                        {n:"Lotus's Nathon (那通大型量販店)",f:"位於那通外圍的超大型量販賣場，生鮮、食品與各類泰國特產零食(如 Bento 魷魚片)庫存最豐富。",a:"那通鎮外圍主要幹道",t:"包車或雙條車"},
+                        {n:"Nathon Night Food Market (那通黃昏夜市)",f:"傍晚碼頭邊的夜市！體驗最便宜在地的泰式烤肉串、香蕉煎餅與便宜現切熱帶水果。",a:"那通碼頭旁廣場",t:"步行前往"},
+                        {n:"Nathon Dried Seafood Market (海鮮乾貨批發)",f:"專賣各種魷魚乾、蝦米、乾辣椒與腰果等乾貨，充滿濃濃的在地市場生命力與香氣。",a:"那通鎮市場區",t:"步行逛街"},
+                        {n:"Samui OTOP Center (一鄉一物產直銷鋪)",f:"能買到蘇梅島周邊農民自產自銷的天然蜂蜜、冷壓椰子油與各類醃漬熱帶果乾。",a:"那通老街周邊",t:"步行前往"},
+                        {n:"Manora 瑪諾拉炸蝦片批發",f:"生大包裝的泰國傳統蝦片(Khao Krieb)，香脆微辣，是晚上回飯店配啤酒的絕佳零食。",a:"那通鎮批發乾貨店",t:"步行前往"}
+                    ],
+                    hobby: [
+                        {n:"Nathon Hainan Shrine Area (華人老街古董店)",f:"那通保有許多百年木造華人店屋，隱藏著幾家販售古董鐘錶、舊錢幣與中式瓷器的老店。",a:"那通鎮華人老街",t:"步行尋寶"},
+                        {n:"Samui Teak Wood Furniture (柚木與藤編傢俱)",f:"專賣大型實木家具與藤編吊椅，若看中大型藝品，碼頭附近有海運與空運服務可寄回國。",a:"那通鎮外圍傢俱行",t:"包車前往"},
+                        {n:"Sangkapan (傳統佛教祭祀用品店)",f:"充滿神祕色彩的店舖，販售閃亮的佛龕、金箔與各式傳統香燭，體驗在地南傳佛教信仰文化。",a:"那通鎮主要街道",t:"步行前往"},
+                        {n:"Nathon Marine Supply (五金與浮潛用具)",f:"因為是漁港，這裡有許多賣進階版浮潛器具、漁具與麻繩的五金行，充滿尋寶樂趣。",a:"那通碼頭周邊",t:"步行前往"},
+                        {n:"Thai Traditional Music Shop (泰國傳統樂器店)",f:"偶爾能發現販售泰國木琴(Ranat)、傳統長鼓的特色小店，是喜愛東南亞音樂收藏家的寶庫。",a:"那通老街內",t:"步行逛街"}
+                    ]
+                }
+            }
+        };
+
+        const catsMap = {
+            souvenir: { icon: "🛍️", name: "必買特產", bg: "bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white border-rose-200" },
+            fashion:  { icon: "👗", name: "服飾配件", bg: "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-600 hover:text-white border-fuchsia-200" },
+            beauty:   { icon: "🥥", name: "藥妝香氛", bg: "bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border-sky-200" },
+            mart:     { icon: "🛒", name: "量販超市", bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border-emerald-200" },
+            hobby:    { icon: "🐘", name: "工藝雜貨", bg: "bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border-amber-200" }
+        };
+
+        let currentCity = "chaweng";
+        let currentCat = "fashion"; // Default view testing
+
+        const cityContainer = document.getElementById('city-container');
+        const categoryContainer = document.getElementById('category-container');
+        const shopContainer = document.getElementById('shop-container');
+
+        function initUI() {
+            // Render Cities
+            Object.keys(db).forEach(cityKey => {
+                const btn = document.createElement('button');
+                btn.className = `city-btn whitespace-nowrap px-6 py-2.5 rounded-full border border-sky-200 bg-white text-sky-700 font-bold hover:bg-sky-100 hover:text-sky-900 shadow-sm ${cityKey === currentCity ? 'active' : ''}`;
+                btn.innerText = db[cityKey].name;
+                btn.onclick = () => {
+                    document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCity = cityKey;
+                    renderContent();
+                };
+                cityContainer.appendChild(btn);
+            });
+
+            // Render Categories
+            Object.keys(catsMap).forEach(catKey => {
+                const c = catsMap[catKey];
+                const btn = document.createElement('button');
+                btn.className = `tab-btn whitespace-nowrap px-5 py-2.5 rounded-full border transition-all font-bold shadow-sm flex items-center ${c.bg} ${catKey === currentCat ? 'active' : ''}`;
+                btn.innerHTML = `<span class="mr-1.5 text-lg">${c.icon}</span> ${c.name}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCat = catKey;
+                    renderContent();
+                };
+                categoryContainer.appendChild(btn);
+            });
+
+            // Load Default View
+            currentCat = "souvenir";
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            renderContent();
+        }
+
+        function renderContent() {
+            shopContainer.innerHTML = '';
+            const items = db[currentCity].cat[currentCat];
+
+            if(!items || items.length === 0) {
+                shopContainer.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-lg font-bold">此分類目前無推薦資料。</div>`;
+                return;
+            }
+
+            // 將「含有優惠券 (cLink)」的店家排序到最上方 (Index 0 起始)
+            const sortedItems = [...items].sort((a, b) => {
+                if (a.cLink && !b.cLink) return -1;
+                if (!a.cLink && b.cLink) return 1;
+                return 0; // 兩者都有或都沒有時，保持原始順序
+            });
+
+            sortedItems.forEach((item, index) => {
+                // Generate Google Maps URL (改成泰國/蘇梅島定位)
+                const pureAddress = item.a.split('<br>')[0];
+                const encodedQuery = encodeURIComponent(`${item.n} 泰國 蘇梅島 ${pureAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                // 如果該項目有專屬優惠券，生成粉色優惠券按鈕
+                const couponHtml = item.cLink ? `
+                    <a href="${item.cLink}" target="_blank" rel="noopener noreferrer" 
+                       class="w-full flex items-center justify-center gap-2 px-4 py-3 mb-3 border border-rose-300 rounded-xl shadow-sm text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-400 focus:outline-none transition-colors">
+                        <i class="${item.cIcon} text-lg"></i>
+                        免費領取：${item.cName}
+                    </a>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl shadow-sm border ${item.cLink ? 'border-rose-200' : 'border-sky-50'} p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                ${item.n}
+                                ${item.cLink ? '<span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">優惠券</span>' : ''}
+                            </h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-star text-amber-400 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">亮點特色</p>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-medium">${item.f}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">地址</p>
+                                    <p class="text-sm text-slate-600 font-medium">${item.a}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-car text-sky-500 mt-0.5 mr-3 w-4 text-center"></i>
+                                <div>
+                                    <p class="text-xs text-sky-500 font-bold mb-1 uppercase tracking-wider">交通方式</p>
+                                    <span class="inline-block bg-sky-50 text-sky-700 text-xs px-2.5 py-1 rounded-md font-bold text-left leading-normal">${item.t}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-sky-50">
+                        ${couponHtml}
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white btn-maps focus:outline-none transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                shopContainer.appendChild(card);
+            });
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蘇梅島住宿推薦指南 | Koh Samui Hotel Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #67e8f9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #22d3ee; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .area-btn-active { background-color: #0e7490; color: white; border-color: #0e7490; box-shadow: 0 4px 6px -1px rgba(14, 116, 144, 0.3); }
+        .area-btn-inactive { background-color: white; color: #4b5563; border-color: #d1d5db; }
+        .area-btn-inactive:hover { background-color: #ecfeff; color: #155e75; border-color: #67e8f9; }
+        
+        .cat-btn-active { background-color: #0891b2; color: white; border-color: #0891b2; }
+        .cat-btn-inactive { background-color: #f8fafc; color: #64748b; border-color: #cbd5e1; }
+        .cat-btn-inactive:hover { background-color: #ecfeff; color: #0891b2; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+
+        /* 導覽箭頭漸層遮罩 */
+        .nav-gradient-left {
+            background: linear-gradient(to right, #ecfeff 20%, transparent);
+        }
+        .nav-gradient-right {
+            background: linear-gradient(to left, #ecfeff 20%, transparent);
+        }
+    </style>
+</head>
+<body class="bg-[#ecfeff] min-h-screen font-sans text-gray-800 pb-12">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-cyan-900 tracking-wide">
+                    <i class="fa-solid fa-umbrella-beach mr-2 text-cyan-600"></i>蘇梅島住宿推薦指南
+                </h1>
+                <a href="https://linkuei0425.github.io/KohSamui/" class="inline-flex items-center px-4 py-2 bg-white hover:bg-cyan-100 text-cyan-700 text-sm font-bold rounded-lg transition-colors shadow-sm border border-cyan-200">
+                    <i class="fa-solid fa-house mr-2"></i>回到首頁
+                </a>
+            </div>
+            <p class="text-cyan-600 font-medium text-sm md:text-base">精選查汶、拉邁、波普及各區度假村，讓您的熱帶海島之旅完美無瑕</p>
+        </header>
+
+        <!-- 區域按鈕導覽列（含箭頭） -->
+        <div class="mb-6 relative group">
+            <!-- 左箭頭 -->
+            <div class="absolute left-0 top-0 bottom-0 w-12 z-10 flex items-center justify-start nav-gradient-left opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button onclick="scrollDistricts('left')" class="bg-white/80 hover:bg-white text-cyan-700 p-2 rounded-full shadow-md border border-cyan-100 -ml-2">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <!-- 按鈕容器 -->
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-3 pb-2 px-2 scroll-smooth">
+                <!-- 區域按鈕由 JS 動態生成 -->
+            </div>
+
+            <!-- 右箭頭 -->
+            <div class="absolute right-0 top-0 bottom-0 w-12 z-10 flex items-center justify-end nav-gradient-right opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button onclick="scrollDistricts('right')" class="bg-white/80 hover:bg-white text-cyan-700 p-2 rounded-full shadow-md border border-cyan-100 -mr-2">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="category-buttons" class="flex flex-wrap justify-center gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-cyan-100 hidden"></div>
+
+        <div id="content-area" class="bg-white rounded-2xl shadow-md border border-cyan-100 p-6 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-cyan-300 pt-20 pb-20">
+                <p class="font-bold text-lg"><i class="fa-solid fa-spinner fa-spin mr-2"></i>載入推薦住宿中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hotelData = {
+            "chaweng": {
+                name: "查汶區 (Chaweng)",
+                categories: {
+                    "頂級奢華海景": [
+                        { name: "Vana Belle, A Luxury Collection Resort (瓦納貝爾豪華精選度假酒店)", feature: "隱身於查汶海灘南端的靜謐海灣，全套房配備私人泳池，提供管家服務。", address: "9/99 Moo 3, Chaweng Noi Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-1500851/vana-belle-a-luxury-collection-resort-koh-samui/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Sala Samui Chaweng Beach Resort (薩拉蘇梅島查汶海灘度假村)", feature: "純白極簡月亮設計，網美必住！擁有絕美海景圓形泳池。", address: "100 Moo 2, Chaweng Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-686663/sala-samui-chaweng-beach-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "The Library (圖書館飯店)", feature: "設計地標，以血紅泳池與極簡風格聞名。", address: "14/1 Moo 2, Chaweng Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-686680/the-library/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Anantara Lawana Koh Samui Resort (蘇梅島安納塔拉拉瓦娜度假酒店)", feature: "融合中泰式傳統建築，提供奢華別墅與樹頂餐廳。", address: "92/1 Moo 2, Chaweng Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-998637/anantara-lawana-koh-samui-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Centara Reserve Samui (盛泰瀾蘇梅島保護區度假村)", feature: "坐擁查汶海灘最寬廣的白沙灘，設施新穎。", address: "38/2 Moo 3, Borpud, Chaweng Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-76569491/centara-reserve-samui/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ],
+                    "高CP值與便利": [
+                        { name: "OZO Chaweng Samui (蘇梅島查汶奧佐酒店)", feature: "地點極佳，直通沙灘，步行可達夜市。", address: "11/34 Moo 2, Chaweng Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-998735/ozo-chaweng-samui/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "COSI Samui Chaweng Beach (蘇梅島查汶海灘考西酒店)", feature: "設計新潮，價格親民，位於購物中心旁。", address: "146/400 Moo 2, Chaweng Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-12225387/cosi-samui-chaweng-beach/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Lub d Koh Samui Chaweng Beach (蘇梅島查汶海灘魯巴酒店)", feature: "海灘俱樂部風格，社交氛圍活躍。", address: "159/99 Moo 2, Chaweng Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-24168984/lub-d-koh-samui-chaweng-beach-beachfront-vibrant-social-vibe/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ]
+                }
+            },
+            "lamai": {
+                name: "拉邁區 (Lamai)",
+                categories: {
+                    "寧靜度假Villa": [
+                        { name: "Banyan Tree Samui (蘇梅島悅榕莊)", feature: "專屬海灣山丘，頂級SPA與海景無邊際泳池。", address: "99/9 Moo 4, Maret, Lamai Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-998603/banyan-tree-samui/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Silavadee Pool Spa Resort (思拉瓦迪泳池水療度假村)", feature: "懸崖原木設計，貼近自然。", address: "208/66 Moo 4, Maret, Lamai Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-686895/silavadee-pool-spa-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "The Lamai Samui (蘇梅島拉邁酒店)", feature: "中葡殖民風格建築，優雅寧靜。", address: "146/24 Moo 4, Lamai Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-926802/the-lamai-samui/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Renaissance Koh Samui Resort & Spa (蘇梅島萬麗度假酒店)", feature: "萬豪旗下精緻度假村，氛圍和諧。", address: "208/1 Moo 4, Lamai Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-1388907/renaissance-koh-samui-resort-and-spa/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ],
+                    "高CP值與便利": [
+                        { name: "Weekender Resort (威肯德度假酒店)", feature: "位於拉邁大街中心，生活機能極佳。", address: "124/19 Moo 3, Lamai Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-998628/weekender-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Thai House Beach Resort (泰屋海灘度假村)", feature: "泰式風格，直通沙灘，性價比高。", address: "131 Moo 4, Lamai Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-686897/thai-house-beach-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Crystal Bay Beach Resort (水晶灣海灘度假村)", feature: "坐擁銀海灘，浮潛環境絕佳。", address: "209/1 Moo 4, Lamai Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-687010/crystal-bay-beach-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ]
+                }
+            },
+            "bophut": {
+                name: "波普/漁夫村 (Bophut)",
+                categories: {
+                    "精品設計與親子": [
+                        { name: "W Koh Samui (蘇梅島W酒店)", feature: "水上蓮花座打卡點，年輕奢華派對風。", address: "4/1 Moo 1, Maenam", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-1181590/w-koh-samui/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Hansar Samui (漢莎蘇梅島度假村)", feature: "全海景房，木質溫馨，步行可至夜市。", address: "101/28 Moo 1, Bophut", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-686618/hansar-samui-resort-and-spa/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Holiday Inn Resort Samui Bophut Beach (蘇梅島波普海灘假日度假酒店)", feature: "親子遊首選，設有兒童俱樂部。", address: "124/31 Moo 1, Bophut Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-95802327/holiday-inn-resort-samui-bophut-beach-by-ihg/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Karma Resort (卡瑪度假村)", feature: "波希米亞度假風，設計感十足。", address: "182/3 Moo 1, Bophut", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-47617463/karma-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Anantara Bophut Koh Samui Resort (蘇梅島波普安納塔拉度假酒店)", feature: "熱帶水上活動與寧靜造景。", address: "99/9 Bophut Bay, Samui Island", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-998644/anantara-bophut-koh-samui-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ],
+                    "高CP值與便利": [
+                        { name: "Ibis Samui Bophut (蘇梅島波普宜必思酒店)", feature: "國際連鎖，簡約乾淨，擁有多個泳池。", address: "197 Moo 1, Bophut Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-1346412/hotel-ibis-samui-bophut/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Hacienda Fisherman's Village (漁夫村莊園飯店)", feature: "位於漁夫村核心地帶，下樓即達沙灘。", address: "73/2 Moo 1, Bophut", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-2866128/hacienda-fisherman-s-village-koh-samui/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ]
+                }
+            },
+            "choengmon": {
+                name: "曾蒙/東北角 (Choeng Mon)",
+                categories: {
+                    "極致私密與奢華": [
+                        { name: "Six Senses Samui (蘇梅島六善酒店)", feature: "環保奢華，隱身叢林，享有270度海景。", address: "9/10 Moo 5, Baan Plai Laem, Choeng Mon", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-756787/six-senses-samui/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "The Ritz-Carlton, Koh Samui (蘇梅島麗思卡爾頓酒店)", feature: "私人海灘與海水浮潛礁湖，設施豐富。", address: "9/123 Moo 5, Choeng Mon", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-12300751/the-ritz-carlton-koh-samui/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Kimpton Kitalay Samui (蘇梅島金普頓基塔萊酒店)", feature: "寵物友善，以漁村為靈感，設計時尚。", address: "10/79 Moo 5, Choeng Mon", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-80506529/kimpton-kitalay-samui-by-ihg/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Melia Koh Samui (蘇梅島美利亞酒店)", feature: "特色船屋套房與環繞河道泳池。", address: "83 Moo 5, Choeng Mon", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-686586/melia-koh-samui-beach-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ],
+                    "高CP值與便利": [
+                        { name: "PS Thana Resort (PS塔納度假村)", feature: "熱帶花園環境，平價首選。", address: "59/1 Moo 5, Choeng Mon Beach", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-1137841/ps-thana-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Sea Dance Resort (海舞度假村)", feature: "小型精品度假村，茅草屋頂設計。", address: "63/253 Moo 5, Choeng Mon", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-1522541/sea-dance-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ]
+                }
+            },
+            "westcoast": {
+                name: "西海岸/塔林甘 (West Coast)",
+                categories: {
+                    "絕美夕陽秘境": [
+                        { name: "Conrad Koh Samui (蘇梅島康萊德酒店)", feature: "懸崖地理位置，全房型夕陽景觀。", address: "49/8-9 Moo 4, Hillcrest Road, Taling Ngam", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-1007041/conrad-koh-samui/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "InterContinental Koh Samui Resort (蘇梅島洲際度假酒店)", feature: "白沙灘與懸崖景觀，極致避世感。", address: "279 Moo 3, Taling Ngam", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-1503695/intercontinental-koh-samui-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ],
+                    "高CP值與便利": [
+                        { name: "Rajapruek Samui Resort (拉查普魯克蘇梅島度假村)", feature: "位於利巴諾伊海灘，浪平沙細，夕陽迷人。", address: "124/1 Moo 2, Lipa Noi", url: "https://hk.trip.com/hotels/koh-samui-hotel-detail-687081/rajapruek-samui-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ]
+                }
+            },
+            "phangan": {
+                name: "帕岸島 (Koh Phangan)",
+                categories: {
+                    "頂級奢華海景": [
+                        { name: "Santhiya Koh Phangan Resort & Spa (帕岸島桑提亞水療度假村)", feature: "傳統泰式柚木雕刻，依山傍海。", address: "22/7 Moo 5 Bantai", url: "https://hk.trip.com/hotels/koh-phangan-hotel-detail-712154/santhiya-koh-phangan-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Anantara Rasananda Koh Phangan Villas (帕岸島安納塔拉拉沙南達別墅度假村)", feature: "帕岸島奢華指標，隱密性極高。", address: "5/5 Moo 5 Thong Nai Pan Noi", url: "https://hk.trip.com/hotels/koh-phangan-hotel-detail-711145/anantara-rasananda-koh-phangan-villas/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ],
+                    "高CP值與便利": [
+                        { name: "Explorar Koh Phangan (帕岸島探索者酒店)", feature: "成人限定，時尚海灘俱樂部風。", address: "44/133 Moo 6, Haad Rin", url: "https://hk.trip.com/hotels/koh-phangan-hotel-detail-1405275/the-coast-resort-koh-phangan/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Cocohut Beach Resort & Spa (可可小屋海灘水療度假村)", feature: "近滿月派對區域，擁有私人沙灘。", address: "130/20 Moo 6, Haad Rin Nai", url: "https://hk.trip.com/hotels/koh-phangan-hotel-detail-712054/cocohut-beach-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ]
+                }
+            },
+            "kohtao": {
+                name: "龜島 (Koh Tao)",
+                categories: {
+                    "頂級奢華海景": [
+                        { name: "Jamahkiri Resort & Spa (龜島加馬基里水療度假村)", feature: "豪華懸崖度假村，潛水客的奢華首選。", address: "21/2 Moo 3 Thian Og Bay", url: "https://hk.trip.com/hotels/koh-tao-hotel-detail-709189/jamahkiri-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Haadtien Beach Resort (哈天海灘度假村)", feature: "位於鯊魚灣，出門即可浮潛看海龜。", address: "19/9 Moo 3, Shark Bay", url: "https://hk.trip.com/hotels/koh-tao-hotel-detail-709185/haadtien-beach-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ],
+                    "高CP值與便利": [
+                        { name: "Sairee Hut Resort Koh Tao (龜島塞麗小屋度假村)", feature: "位於最熱鬧的塞麗海灘, 機能絕佳。", address: "14/45 Moo 1, Sairee Beach", url: "https://hk.trip.com/hotels/koh-tao-hotel-detail-709236/sairee-hut-resort/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" },
+                        { name: "Simple Life Resort (簡單生活度假村)", feature: "深受潛水客喜愛，CP值極高。", address: "14/11 Moo 1, Sairee Beach", url: "https://hk.trip.com/hotels/koh-tao-hotel-detail-2133803/simple-life-resort-koh-tao/?Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14573897" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
+
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70"></i>${hotelData[key].name}`;
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
+
+        // 捲動功能
+        function scrollDistricts(direction) {
+            const scrollAmount = 200;
+            if (direction === 'left') {
+                districtContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                districtContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => { btn.classList.remove('area-btn-active'); btn.classList.add('area-btn-inactive'); });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg font-bold text-sm transition-all duration-200 border cat-btn-inactive shadow-sm`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) selectCategory(currentCategories[0], firstCatBtn);
+        }
+
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => { btn.classList.remove('cat-btn-active'); btn.classList.add('cat-btn-inactive'); });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+            renderHotels();
+        }
+
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+            let htmlContent = `<div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-cyan-100 animate-fade-in"><h2 class="text-2xl font-bold text-cyan-900 mr-3"><i class="fa-solid fa-location-dot mr-2 text-cyan-500"></i>${districtData.name}</h2><span class="inline-block mt-2 sm:mt-0 px-3 py-1 bg-cyan-100 text-cyan-700 text-sm font-bold rounded-full border border-cyan-200"><i class="fa-solid fa-tag mr-1"></i>${currentCategoryName}</span></div>`;
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in">此分類目前無推薦資料。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5">`;
+                hotels.forEach((hotel, index) => {
+                    /* 使用固定寬度 sm:w-32 確保按鈕大小一致 */
+                    const linkTagHTML = hotel.url ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 mt-3 sm:mt-0 rounded-xl text-sm font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-32"><i class="fa-solid fa-magnifying-glass mr-1.5"></i>詳細說明</a>` : '';
+                    htmlContent += `<div class="bg-[#f8ffff] border border-cyan-50 p-5 md:p-6 rounded-2xl hover:shadow-md transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 0.05}s;"><div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2"><h4 class="text-xl font-bold text-cyan-900 flex items-start leading-tight pt-1"><span class="text-white bg-cyan-400 rounded-full w-6 h-6 inline-flex items-center justify-center text-sm mr-2 flex-shrink-0">${index + 1}</span>${hotel.name}</h4>${linkTagHTML}</div><div class="pl-0 sm:pl-8 space-y-3"><div class="flex items-start"><span class="font-bold text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded mr-2 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-star mr-1"></i>亮點</span><span class="text-sm text-slate-700 leading-relaxed font-medium">${hotel.feature}</span></div><div class="flex items-start"><span class="font-bold text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded mr-2 flex-shrink-0 text-xs mt-0.5"><i class="fa-solid fa-map-pin mr-1"></i>位置</span><span class="text-sm text-slate-700 leading-relaxed font-medium">${hotel.address}</span></div></div></div>`;
+                });
+                htmlContent += `</div>`;
+            }
+            contentArea.innerHTML = htmlContent;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) selectDistrict('chaweng', firstDistrictBtn);
+        });
+    </script>
+</body>
+</html>
