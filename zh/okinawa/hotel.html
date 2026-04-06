@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沖繩住宿推薦指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .area-btn-active { background-color: #0284c7; color: white; border-color: #0284c7; } /* sky-600 */
+        .area-btn-inactive { background-color: white; color: #4b5563; border-color: #d1d5db; }
+        .cat-btn-active { background-color: #38bdf8; color: white; border-color: #38bdf8; } /* sky-400 */
+        .cat-btn-inactive { background-color: #f8fafc; color: #64748b; }
+        body { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-gray-800 pb-12">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <header class="text-center mb-8 flex justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800">🏨 沖繩住宿精選</h1>
+            <a href="https://linkuei0425.github.io/Okinawa/" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-bold rounded-lg hover:bg-slate-300 transition-colors">回到首頁</a>
+        </header>
+
+        <!-- 區域選擇按鈕 (調整為 lg:grid-cols-5 以容納5個區域) -->
+        <div id="district-buttons" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6"></div>
+        <!-- 類別選擇按鈕 -->
+        <div id="category-buttons" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8 bg-white p-3 rounded-xl shadow-sm border border-slate-200 hidden"></div>
+        <!-- 內容顯示區域 -->
+        <div id="content-area" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 min-h-[300px]"></div>
+    </div>
+
+    <script>
+        // 修正：因為是接在網址斜線後，參數必須以 ? 開頭
+        const affParams = "?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13754260";
+        // 新增：如果網址已經有 ? 參數，則聯盟行銷參數必須以 & 開頭
+        const affParamsAnd = "&Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13754260";
+
+        const hotelData = {
+            "naha": {
+                name: "那霸市區 (不自駕首選)",
+                categories: {
+                    "星級/無邊際泳池": [
+                        { name: "Hewitt Resort Naha (那霸休伊特渡假村)", feature: "頂樓擁有超美的無邊際泳池，早餐非常豐盛有自製漢堡體驗，地點極佳。", address: "安里站步行3分", url: "https://hk.trip.com/hotels/naha-hotel-detail-68564677/hewitt-resort-naha/" + affParams },
+                        { name: "Hotel Collective", feature: "位於國際通正中心的高級五星飯店，2020年開幕，設施極新且附設戶外泳池。", address: "縣廳前站/美榮橋站步行7分", url: "https://hk.trip.com/hotels/naha-hotel-detail-35953012/hotel-collective/" + affParams },
+                        { name: "JR九州飯店 Blossom Naha", feature: "質感極佳的日系飯店，鬧中取靜，圖書交誼廳與大浴場設計深受旅客喜愛。", address: "美榮橋站步行5分", url: "https://hk.trip.com/hotels/naha-hotel-detail-7420938/jr-kyushu-hotel-blossom-naha/" + affParams }
+                    ],
+                    "高CP商務/家庭": [
+                        { name: "Almont Hotel Naha Kenchomae", feature: "提供免費的浴場可以泡湯，且一樓有冰棒與養樂多免費供應，CP值爆表。", address: "縣廳前站步行3分", url: "https://hk.trip.com/hotels/naha-hotel-detail-3916196/almont-hotel-naha-kenchomae/" + affParams },
+                        { name: "WBF水之都那霸酒店 (Hotel Aqua Citta Naha)", feature: "以頂樓的透明無邊際泳池聞名，早餐提供義大利麵吃到飽，非常適合年輕人與小資族。", address: "美榮橋站步行7分", url: "https://hk.trip.com/hotels/naha-hotel-detail-8067516/hotel-aqua-citta-naha-by-wbf/" + affParams }
+                    ],
+                    "民宿與青旅": [
+                        { name: "AO廚房旅舍 (Kitchen Hostel AO)", feature: "設計感十足的質感青年旅館，大廳寬敞舒適，床鋪隱私性佳，適合單人旅客與背包客。", address: "縣廳前站步行約5分", url: "https://hk.trip.com/hotels/detail/?cityEnName=Naha&cityId=92573&hotelId=7818336&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-Naz8TFJMEktYKJ4_bHS09YhRgNLCYKOZ49AwRTah08ry8usOVybXAI4JnB-GDGXeaNjFwgoVXuDjsY2U4w-ixg6pg2W_UUCyvHRlYJlkssOxmjq5WyUyuVrEx0lEoyS3JSlayUni6a97Rhz_MVrUo6SimpxclAISArMTe_NK8EyDbTs7AE8ksSKzxTwPqSE3OSS3MSS1JDKguA-s10lDKLnUuKMguCUnMzS0pSgarSEnOKU0HiQanFQJlksKCSH9CYIqhAZn4eRLshilhYYk5pKsQBQAvdUqF2GNbGPmJhio79xMLwi4WhiZWhi5VhEisrxzxrCZZdrNz-fkEWQaG6ToG6rlIKhgYGBkampkbmugaJlolmhgaWuiaWRqZmJrrGJmZGZgYaSw7Mf3bW2MhYgVFLID7EMyQ8v6gkO7moKDuptMKA8RSjlKG5maGlmYWpsaGFhYleoolpUmV5hKW3Y5ifB2MQm5GFmamxSZQNF7NXQKQgd6LptA1my-ylmEODXRTdpnxji6-QdtACyRnC5AIZwOCDfeSs8jmLlCulHZJYqzJ0PbwzDokUMDYwMnUxcgswejBGMFYAeYyrGNm5mA3MjATYNjAy7mD8DwOMrxhBlgAAzB16jRQCAAA&masterhotelid_tracelogid=100025527-0a9a6109-492564-346260&detailFilters=17%7C1%7E17%7E1*19%7C92573%7E19%7E92573*75%7CTAG_510%7E75%7E510*75%7CTAG_519%7E75%7E519*75%7CTAG_520%7E75%7E520*75%7CTAG_499%7E75%7E499*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&hotelType=normal&display=incavg&subStamp=867&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd }
+                    ]
+                }
+            },
+            "chatan": {
+                name: "北谷 / 美國村",
+                categories: {
+                    "海景度假村": [
+                        { name: "Vessel Hotel Campana Okinawa", feature: "美國村的住宿霸主！頂樓有海景展望浴場，旁邊就是落日海灘，18歲以下不佔床免費，親子極推。", address: "美國村內，落日海灘旁", url: "https://hk.trip.com/hotels/chatan-hotel-detail-705561/vessel-hotel-campana-okinawa/" + affParams },
+                        { name: "Lequ Okinawa Chatan Spa & Resort", feature: "復古摩登設計，頂樓有超美的海景無邊際泳池與天然溫泉，樓下就是熱鬧的商圈。", address: "美國村內", url: "https://hk.trip.com/hotels/chatan-hotel-detail-52769968/lequ-okinawa-chatan-spa-resort/" + affParams },
+                        { name: "Hilton Okinawa Chatan Resort (希爾頓)", feature: "國際五星水準，擁有多個超大戶外泳池，服務與餐飲品質皆屬頂尖。", address: "美國村內", url: "https://hk.trip.com/hotels/chatan-hotel-detail-1779182/hilton-okinawa-chatan-resort/" + affParams }
+                    ],
+                    "公寓式酒店": [
+                        { name: "Condominium Hotel Monpa", feature: "房間寬敞且附有小廚房與微波爐，陽台即可看海，適合多天數停留或帶小嬰兒的家庭。", address: "美國村日落海灘前", url: "https://hk.trip.com/hotels/detail/?cityEnName=Chatan&cityId=62278&hotelId=2803849&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMNDQxTNY1sTQyNTPRNTQwMTTR2HVm-bOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYjJ3NnS2do_ikmEODXRTdpnxji6-QdkhircrQ9fDOOCQCADhV2suBAAAA&masterhotelid_tracelogid=100051355-0a9a141c-492564-10414&detailFilters=17%7C1%7E17%7E1*31%7C2803849%7E31%7E2803849*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=1116&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd }
+                    ],
+                    "民宿與青旅": [
+                        { name: "AIEN Coffee & Hostel", feature: "白天是超人氣的海景咖啡廳，晚上變身溫馨青旅，充滿西海岸衝浪風情。", address: "北谷町砂邊", url: "https://hk.trip.com/hotels/detail/?cityEnName=Chatan&cityId=62278&hotelId=11006606&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMTLUwTNY1sTQyNTPRNTQ2MjHU2Dx1_bOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYLCxNLBxdovikmEODXRTdpnxji6-QdkhircrQ9fDOOCQCAHY1_5KBAAAA&masterhotelid_tracelogid=100051355-0a9ae81c-492564-13241&detailFilters=17%7C1%7E17%7E1*31%7C11006606%7E31%7E11006606*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=380&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd },
+                        { name: "Seawall Hostel", feature: "緊鄰砂邊海堤，出門就能看海與潛水，老闆熱情友善，背包客的平價好選擇。", address: "北谷町砂邊", url: "https://hk.trip.com/hotels/detail/?cityEnName=Chatan&cityId=62278&hotelId=10522761&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMTE5JM9E1sTQyNTPRNTI0sDDXWPfh4LOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYzE2MDZxdovikmEODXRTdpnxji6-QdkhircrQ9fDOOCQCAEyX3dGBAAAA&masterhotelid_tracelogid=100051355-0a9acdf4-492564-21087&detailFilters=17%7C1%7E17%7E1*31%7C10522761%7E31%7E10522761*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=1440&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd }
+                    ]
+                }
+            },
+            "onna": {
+                name: "恩納村 (西海岸度假)",
+                categories: {
+                    "頂級奢華海景": [
+                        { name: "Halekulani Okinawa (海麗客蘭尼)", feature: "夏威夷頂級奢華酒店品牌！擁有五個泳池(含絕美蘭花泳池)與私人海灘，服務無可挑剔的夢幻住宿。", address: "恩納村西海岸", url: "https://hk.trip.com/hotels/onna-hotel-detail-29755144/halekulani-okinawa/" + affParams },
+                        { name: "ANA InterContinental Manza Beach Resort", feature: "萬座毛對面的經典度假村，飯店外觀如同一艘大船，擁有全沖繩最棒的海上充氣樂園。", address: "恩納村萬座海灘", url: "https://hk.trip.com/hotels/detail/?cityEnName=Onna&cityId=35725&hotelId=1572600&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-N6yczFJMEk9YiZY8L1B39YhRiNDCQsJgs57pBrfR1oPdnBE0jtkOOa4RDAM4Pxx9_4jYzGIGBd7LCDkekE4wPGBUxbP4qfYmHlOMAswXSJ5TNTdLVSdmqlkpWJjlJJZklOqpKV0tNF85427Hm-olVJRykltTgZKARkJebml-aVANmG5nqWRkCBksQKzxSwxuTEnOTSnMSS1JDKAqABZjpKmcXOJUWZBUGpuZklJalAVWmJOcWpIPGg1GKgTDJYUMkPaEwRVCAzPw-i3RBFLCwxpzQV4gKghW6pUDsMa3UwHf5sTu_T7pkvNu3G7nAjMz0LC4TDzQfE4ca1sY9YmKJjP7Ew_GJhaGJl6GJlmMTKzPGAcRcrT6BnqKu3j66hbpSuoZS8oYGBgamhsamprkGiZaKFRWqiromlkamZia6RkaGJgcal2UeenTU2MlZg1BKID_EMCc8vKslOLirKTiqtMGA8xShlaG5maGlmYWpsaGFhopdoYppUWR5h6e0Y5ufBGMTm5mjo4mQeZcPF7BUQKWgX59HebrDMXoo5NNhFsa5nZzZnpbSDFkjOECYXyAAGH-wjYfJJrFUZuh7eGYdEChgbGJm6GLkFGD0YIxgrgDzGVYzsXMwGRoYCTBsYGXcw_ocBxleMIEsAPZjdTc0CAAA&masterhotelid_tracelogid=100051355-0a9a88ea-492564-22140&detailFilters=17%7C1%7E17%7E1*31%7C1572600%7E31%7E1572600*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=540&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd }
+                    ],
+                    "家庭渡假村": [
+                        { name: "Monterey Okinawa Spa & Resort (蒙特利)", feature: "全客房皆為面海海景房！擁有非常豐富的兒童戲水池與造浪池，親子出遊的西海岸首選。", address: "恩納村老虎海灘旁", url: "https://hk.trip.com/hotels/detail/?cityEnName=Onna&cityId=35725&hotelId=1005498&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLS0SDU2SdM1sTQyNTPRNTIxMTXRuLro5LOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYTB0tnJ3MovikmEODXRTrenZmc1ZKOySxVmXoenhnHBIBAKtFz9-BAAAA&masterhotelid_tracelogid=100051355-0a98e34f-492564-24454&detailFilters=17%7C1%7E17%7E1*31%7C1005498%7E31%7E1005498*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=900&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd },
+                        { name: "Kafuu Resort Fuchaku Condo Hotel", feature: "提供飯店式與公寓式(有廚房)兩種房型，房間坪數極大，夕陽海景非常迷人。", address: "恩納村富著", url: "https://hk.trip.com/hotels/detail/?cityEnName=Onna&cityId=35725&hotelId=993460&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMTE5JM9E1sTQyNTPRNTK1tDTRaGg7--yssZG-lkB8iGdIeH5RSXZyUVF2UmnFKUYpQ3MzQ0szC1NjQwsLE71EE9OkyvIIS2_HMD8PxiA2N2dnM0OnKD4p5tBgF8W6np3ZnJXSDkmsVRm6Ht4Zh0QAQcfAjIEAAAA&masterhotelid_tracelogid=100051355-0a9acdf4-492564-25994&detailFilters=17%7C1%7E17%7E1*31%7C993460%7E31%7E993460*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=803&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd }
+                    ],
+                    "民宿與青旅": [
+                        { name: "Mr. KINJO in Rinzu SERAGAKI", feature: "知名的平價連鎖公寓式民宿，房間內附有洗衣機與小廚房，自駕CP值極高。", address: "恩納村瀨良垣", url: "https://hk.trip.com/hotels/detail/?cityEnName=Onna&cityId=35725&hotelId=25098061&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLS0SDZMM9M1sTQyNTPRNTI3sjDTaJ1-4dlZYyN9LYH4EM-Q8PyikuzkoqLspNKKU4xShuZmhpZmFqbGhhYWJnqJJqZJleURlt6OYX4ejEFsRm6Wbi4uUXxSzKHBLop1PTuzOSulHZJYqzJ0PbwzDokAALaHl-uBAAAA&masterhotelid_tracelogid=100051355-0a98c1f6-492564-27286&detailFilters=17%7C1%7E17%7E1*31%7C25098061%7E31%7E25098061*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=1140&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd }
+                    ]
+                }
+            },
+            "nago": {
+                name: "名護 / 本部 (近水族館)",
+                categories: {
+                    "星級飯店": [
+                        { name: "Hotel Orion Motobu Resort & Spa", feature: "就在美麗海水族館旁邊！全海景房，附設侏羅紀溫泉與翡翠海灘，玩水族館最方便的五星選擇。", address: "本部町 (水族館步行7分)", url: "https://hk.trip.com/hotels/detail/?cityEnName=Motobu&cityId=50335&hotelId=1916427&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMNDIxTNU1sTQyNTPRNTEwNTHQmLr03bOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYTC1cnSyMo_ikmEODXRTrenZmc1ZKOySxVmXoenhnHBIBAAAKE6yBAAAA&masterhotelid_tracelogid=100051355-0a9a241e-492564-38770&detailFilters=17%7C1%7E17%7E1*31%7C1916427%7E31%7E1916427*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=864&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd },
+                        { name: "The Busena Terrace", feature: "曾舉辦G8高峰會的頂級度假村，充滿南國熱帶風情，擁有美麗的私人沙灘與海中展望塔。", address: "名護市喜瀨", url: "https://hk.trip.com/hotels/nago-hotel-detail-2935664/the-busena-terrace/" + affParams }
+                    ],
+                    "高CP公寓/包棟": [
+                        { name: "Ala Mahaina Condo Hotel", feature: "水族館周邊近年超火紅的公寓式酒店，樓下有星巴克與美食商場，無邊際泳池可眺望瀨底島。", address: "本部町 (近水族館)", url: "https://hk.trip.com/hotels/motobu-hotel-detail-23202638/ala-mahaina-condo-hotel/" + affParams }
+                    ],
+                    "民宿與青旅": [
+                        { name: "All Friends Guesthouse", feature: "名護市區的溫馨青年旅館，木質調設計，附近餐廳與超商林立，前往北部景點的中繼好站。", address: "名護市區", url: "https://hk.trip.com/hotels/detail/?cityEnName=Nago&cityId=35747&hotelId=6651121&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-Ni4mKQkjc0MDAwNTQ2NdU1SLRMNDIxTNU1sTQyNTPRNTEwNTHQmLr03bOzxkb6WgLxIZ4h4flFJdnJRUXZSaUVpxilDM3NDC3NLEyNDS0sTPQSTUyTKssjLL0dw_w8GIPYTC1cnSyMo_ikmEODXRTrenZmc1ZKOySxVmXoenhnHBIBAAAKE6yBAAAA&masterhotelid_tracelogid=100051355-0a9a241e-492564-40540&detailFilters=17%7C1%7E17%7E1*31%7C6651121%7E31%7E6651121*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=616&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd },
+                        { name: "Yanbaru Hostel", feature: "充滿設計感的工業風青旅！設施齊全且極具質感，一樓咖啡廳是打卡熱點。", address: "國頭郡", url: "https://hk.trip.com/hotels/detail/?cityEnName=Kunigami&cityId=50333&hotelId=42340586&checkIn=2026-03-11&checkOut=2026-03-12&adult=2&children=0&crn=1&ages=&curr=USD&barcurr=USD&hoteluniquekey=H4sIAAAAAAAA_-PazMTFJMEktYaJY-3cD9tYhRiNDLbxWzzNcuS6vrjAdludgyeY8aTBIYBnBuOrhTNENjIG7ZBrfT3Rw2EHI9MJRv8FTHMOd8ieYmHlOM0qwXKJZSdjdLVSdmqlkpWJjlJJZklOqpKV0tNF85427Hm-olVJRykltTgZKARkJebml-aVANnmeoamQH5JYoVnClhfcmJOcmlOYklqSGUBUL-ZjlJmsXNJUWZBUGpuZklJKlBVWmJOcSpIPCi1GCiTDBZU8gMaUwQVyMzPg2g3RBELS8wpTYU4AGihWyrUDsPa2EcsTNGxn1gYfrEwNLEydLEyTGJl5ZjMJsG0i5XHz9nDNchJ11A3StdQSt7QwMDA1NDY1FTXINEy0dDEMFnXxNLI1MxE18TQ0tRcY-unD8_OGhsZKzBqCcSHeIaE5xeVZCcXFWUnlVYYMJ5ilDI0NzO0NLMwNTa0sDDRSzQxTaosj7D0dgzz82AMYnM0NDAyN42y4WIODXYRrOvZmc1ZKe0gBeIpwnhazF4BkYZ2cR7t7QbL7AMZwOCDfeSFzZFfd1ZJOySxVmXoenhnHBIpYGxgZOpi5BZg9GCMYKwA8hhXMbJzMRsYGQowbWBk3MH4HwYYXzGCLAEA5bRQQxcCAAA&masterhotelid_tracelogid=100051355-0a9a141c-492564-41957&detailFilters=17%7C1%7E17%7E1*31%7C42340586%7E31%7E42340586*80%7C2%7C0%7E80%7E2*29%7C1%7E29%7E1%7C2&display=incavg&subStamp=1140&isCT=true&isFlexible=F&locale=zh-HK" + affParamsAnd }
+                    ]
+                }
+            },
+            "miyako": {
+                name: "宮古島 (跳島渡假)",
+                categories: {
+                    "頂級奢華渡假村": [
+                        { name: "宮古島東急飯店與渡假村 (Miyakojima Tokyu Hotel & Resorts)", feature: "位於東洋第一美的與那霸前濱海灘旁，設施完善，擁有極致海景，是宮古島最經典的頂級度假首選。", address: "宮古島市 (近與那霸前濱)", url: "https://tw.trip.com/hotels/miyakojima-hotel-detail-705119/miyakojima-tokyu-hotel-and-resorts/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637" },
+                        { name: "Shigira Bayside Suite Allamanda (阿拉曼達)", feature: "Shigira渡假村內的頂級奢華套房，所有客房皆為套房且擁有私人泳池房型，部分房型還能看海龜在池中游泳。", address: "宮古島南岸 Shigira渡假村", url: "https://tw.trip.com/hotels/miyakojima-hotel-detail-5528050/shigira-bayside-suite-allamanda/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637" },
+                        { name: "IRAPH SUI 沖繩宮古伊拉芙翠豪華精選酒店", feature: "萬豪集團旗下頂級品牌，位於與宮古島相連的伊良部島，享受極致靜謐與無敵夕陽海景。", address: "伊良部島", url: "https://tw.trip.com/hotels/miyakojima-hotel-detail-23217500/iraph-sui-a-luxury-collection-hotel-miyako-okinawa/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637" }
+                    ],
+                    "高CP值海景/設計旅店": [
+                        { name: "HOTEL LOCUS (洛庫斯飯店)", feature: "設計感十足的現代海景飯店，全客房面海，頂樓有泳池與休息區，交通便利CP值極高。", address: "平良港周邊", url: "https://tw.trip.com/hotels/miyakojima-hotel-detail-11536559/hotel-locus/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637" },
+                        { name: "Hotel Torifito Miyakojima Resort", feature: "鄰近宮古機場，設施新穎、價格親民且附設大型戶外泳池，非常適合家庭客與自駕遊客。", address: "宮古機場周邊", url: "https://tw.trip.com/hotels/miyakojima-hotel-detail-64802670/hoteltorifito-miyakojima-resort/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637" }
+                    ],
+                    "公寓式酒店": [
+                        { name: "宮古島棕櫚泉飯店 (Palm Springs Miyakojima Resort)", feature: "提供完善廚房與洗衣機的寬敞公寓式酒店，適合多天數停留與家族旅行，像家一樣舒適。", address: "宮古島市區周邊", url: "https://tw.trip.com/hotels/miyakojima-hotel-detail-22220137/palm-springs-miyakojima-resort/?Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637" }
+                    ]
+                }
+            }
+        };
+
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        let curDist = null, curCat = null;
+
+        function init() {
+            Object.keys(hotelData).forEach(k => {
+                let b = document.createElement('button');
+                b.className = 'px-2 py-2.5 rounded-lg font-bold text-[13px] md:text-sm border area-btn-inactive transition-colors duration-200';
+                b.innerText = hotelData[k].name;
+                b.onclick = () => selectDist(k, b);
+                districtContainer.appendChild(b);
+            });
+            selectDist('naha', districtContainer.children[0]);
+        }
+
+        function selectDist(k, b) {
+            curDist = k;
+            Array.from(districtContainer.children).forEach(btn => btn.className = 'px-2 py-2.5 rounded-lg font-bold text-[13px] md:text-sm border area-btn-inactive transition-colors duration-200');
+            b.className = 'px-2 py-2.5 rounded-lg font-bold text-[13px] md:text-sm border area-btn-active transition-colors duration-200 shadow-md';
+            categoryContainer.classList.remove('hidden');
+            renderCats();
+        }
+
+        function renderCats() {
+            categoryContainer.innerHTML = '';
+            Object.keys(hotelData[curDist].categories).forEach(c => {
+                let b = document.createElement('button');
+                b.className = 'px-2 py-2 rounded-lg font-bold text-[13px] md:text-sm border cat-btn-inactive transition-colors duration-200';
+                b.innerText = c;
+                b.onclick = () => selectCat(c, b);
+                categoryContainer.appendChild(b);
+            });
+            selectCat(Object.keys(hotelData[curDist].categories)[0], categoryContainer.children[0]);
+        }
+
+        function selectCat(c, b) {
+            curCat = c;
+            Array.from(categoryContainer.children).forEach(btn => btn.className = 'px-2 py-2 rounded-lg font-bold text-[13px] md:text-sm border cat-btn-inactive transition-colors duration-200');
+            b.className = 'px-2 py-2 rounded-lg font-bold text-[13px] md:text-sm border cat-btn-active transition-colors duration-200 shadow-sm';
+            renderHotels();
+        }
+
+        function renderHotels() {
+            let h = hotelData[curDist].categories[curCat];
+            contentArea.innerHTML = h.map((x, index) => `
+                <div class="mb-5 p-5 border border-sky-100 rounded-xl bg-slate-50 hover:shadow-md transition-shadow">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                        <h3 class="font-bold text-lg text-sky-800 flex items-start sm:items-center gap-2">
+                            <span class="bg-sky-200 text-sky-800 px-2 py-0.5 rounded-md text-sm shrink-0">${index + 1}</span>
+                            <span>${x.name}</span>
+                        </h3>
+                        <a href="${x.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white text-[13px] font-bold py-1.5 px-3 rounded-lg shadow-sm transition-colors shrink-0">
+                            看飯店說明
+                        </a>
+                    </div>
+                    <p class="text-sm text-gray-700 mt-3 leading-relaxed">
+                        <strong class="text-sky-700 bg-sky-100 px-1.5 py-0.5 rounded">住宿特色</strong> ${x.feature}
+                    </p>
+                    <p class="text-sm text-gray-600 mt-2">
+                        <strong class="text-slate-600 bg-slate-200 px-1.5 py-0.5 rounded">地理位置</strong> ${x.address}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

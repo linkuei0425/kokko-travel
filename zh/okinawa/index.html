@@ -1,1 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>沖繩通 - 琉球深度旅行助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .app-container { max-width: 414px; margin: 0 auto; background-color: #f9fafb; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow-x: hidden; }
+        
+        /* 沖繩專屬色系：海洋藍、湖水綠、陽光橘 */
+        .bg-okinawa-gradient { background: linear-gradient(135deg, #0284c7 0%, #0891b2 100%); }
+        .bg-attraction-gradient { background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%); }
+        .bg-food-gradient { background: linear-gradient(135deg, #c2410c 0%, #f97316 100%); }
+        .bg-itinerary-gradient { background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); }
+        .bg-essentials-gradient { background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%); }
+        .bg-train-gradient { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        select { -webkit-appearance: none; appearance: none; }
+        optgroup { font-weight: bold; background-color: #1f2937; color: #38bdf8; }
+        option { font-weight: normal; color: white; }
+        .dyn-tab-content { display: none; animation: fadeIn 0.3s ease-out; }
+        .dyn-tab-content.active { display: block; }
+        .carousel-track { display: flex; transition: transform 0.5s ease-out; }
+    </style>
+</head>
+<body>
 
+<div class="app-container pb-20">
+    
+    <!-- Header -->
+    <div class="bg-okinawa-gradient text-white pt-6 pb-4 px-5 rounded-b-[2rem] shadow-md relative z-20">
+        <div class="flex justify-between items-center">
+            <div>
+                <p id="datetime-display" class="text-[10px] font-medium text-cyan-100 tracking-wide opacity-90">時間載入中...</p>
+                <p id="weather-display" class="text-xs opacity-100 font-bold flex items-center gap-1"><i class="ph ph-sun-dim"></i> 讀取天氣...</p>
+                <h1 class="text-2xl font-extrabold tracking-tight mt-0.5 drop-shadow-sm">沖繩通 Okinawa</h1>
+            </div>
+            <div class="flex gap-2">
+                <!-- 語言切換按鈕 -->
+                <a href="https://linkuei0425.github.io/Okinawa-US/" target="_blank" rel="noopener noreferrer" class="w-9 h-9 bg-black/10 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform text-sm font-bold">EN</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carousel -->
+    <div class="px-5 mt-4 relative overflow-hidden">
+        <div id="carousel-track" class="carousel-track gap-3">
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5 bg-gray-200">
+                <img src="https://linkuei0425.github.io/Okinawa/1.jpeg" onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='https://linkuei0425.github.io/Okinawa/1.jpg'; } else if(this.dataset.retry==='1'){ this.dataset.retry='2'; this.src='https://linkuei0425.github.io/Okinawa/1.JPG'; } else { this.src='https://images.unsplash.com/photo-1590135899982-f54f15d9ccde?q=80&w=800&auto=format&fit=crop'; }" alt="沖繩美麗海水族館" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">沖繩美麗海水族館</span></div>
+            </div>
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5 bg-gray-200">
+                <img src="https://linkuei0425.github.io/Okinawa/2.jpeg" onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='https://linkuei0425.github.io/Okinawa/2.jpg'; } else if(this.dataset.retry==='1'){ this.dataset.retry='2'; this.src='https://linkuei0425.github.io/Okinawa/2.JPG'; } else { this.src='https://images.unsplash.com/photo-1620021307612-9b2f2113f64c?q=80&w=800&auto=format&fit=crop'; }" alt="那霸國際通商圈" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">那霸國際通商圈</span></div>
+            </div>
+            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-black/5 bg-gray-200">
+                <img src="https://linkuei0425.github.io/Okinawa/3.jpeg" onerror="if(!this.dataset.retry){ this.dataset.retry='1'; this.src='https://linkuei0425.github.io/Okinawa/3.jpg'; } else if(this.dataset.retry==='1'){ this.dataset.retry='2'; this.src='https://linkuei0425.github.io/Okinawa/3.JPG'; } else { this.src='https://images.unsplash.com/photo-1614088950155-276c1dc70104?q=80&w=800&auto=format&fit=crop'; }" alt="北谷美國村夕陽" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">北谷美國村夕陽</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Tools -->
+    <div class="px-5 mt-4">
+        <h2 class="text-sm font-bold text-gray-500 mb-4 px-1">快速導航工具</h2>
+        <div class="grid grid-cols-4 gap-y-6 gap-x-3">
+            <!-- 旅遊必備 (移至第一位並改為外連) -->
+            <button onclick="window.open('https://linkuei0425.github.io/togeter/buy.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(139,92,246,0.2)]"><i class="ph ph-suitcase text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">旅遊必備</span></button>
+
+            <button onclick="window.openModal('airportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(14,165,233,0.2)]"><i class="ph ph-airplane-tilt text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">機場攻略</span></button>
+            <button onclick="window.openModal('mapModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-cyan-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(8,145,178,0.8)]"><i class="ph ph-train text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">單軌路線</span></button>
+            <button onclick="window.openModal('boatModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(79,70,229,0.2)]"><i class="ph ph-bus text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">交通指南</span></button>
+            
+            <!-- 機票查詢按鈕 -->
+            <a href="https://tw.trip.com/flights/welcome/?to=home&Allianceid=7913725&SID=298685913&trip_sub1=&trip_sub3=D13802637" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(37,99,235,0.2)]"><i class="ph ph-airplane text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">機票查詢</span></a>
+
+            <button onclick="window.openModal('attractionModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(59,130,246,0.2)]"><i class="ph ph-camera text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">景點探索</span></button>
+            
+            <a href="https://linkuei0425.github.io/Okinawa/food.html" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(249,115,22,0.2)]"><i class="ph ph-bowl-food text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">美食推薦</span></a>
+            <a href="https://linkuei0425.github.io/Okinawa/shopping.html" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(236,72,153,0.2)]"><i class="ph ph-handbag text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">購物推薦</span></a>
+            <a href="https://linkuei0425.github.io/Okinawa/S.html" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-teal-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(20,184,166,0.2)]"><i class="ph ph-calendar-check text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">行程表</span></a>
+            <a href="https://linkuei0425.github.io/Okinawa/trip.html" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(16,185,129,0.2)]"><i class="ph ph-ticket text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">行程推薦</span></a>
+            
+            <a href="https://linkuei0425.github.io/Okinawa/hotel.html" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(2,132,199,0.2)]"><i class="ph ph-bed text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">飯店推薦</span></a>
+            
+            <!-- 全球通 (更新連結至 togeter) -->
+            <a href="https://linkuei0425.github.io/togeter/go.html" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-purple-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(168,85,247,0.2)]"><i class="ph ph-globe text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">全球通</span></a>
+            
+            <button onclick="window.openModal('aboutModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(71,85,105,0.2)]"><i class="ph ph-info text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">關於我們</span></button>
+            
+            <!-- 加入粉絲 -->
+            <button onclick="window.openModal('fanModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,63,94,0.2)]"><i class="ph ph-heart text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">加入粉絲</span></button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- 機場攻略 -->
+    <div id="airportModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-gradient-to-br from-cyan-600 to-blue-800 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
+            <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> 沖繩機場攻略</h2>
+            <button onclick="window.closeModal('airportModal')"><i class="ph ph-x text-2xl"></i></button>
+        </div>
+        <div class="bg-slate-900 px-4 pt-3 z-10">
+            <div class="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+                <button onclick="window.switchAirportTab('oka')" id="btn-airport-oka" class="flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap">那霸機場 (OKA)</button>
+            </div>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
+            <div id="airport-oka" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                <!-- 1. 地鐵 -->
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-orange-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-train text-lg"></i> (1) 沖繩單軌電車 (Yui Rail)</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">市區首選：</span> 國內線航廈 2 樓直通單軌電車站。前往【縣廳前站】(國際通) 約 12 分鐘，【歌町站】(新都心) 約 19 分鐘。</li>
+                        <li><span class="text-white font-bold">注意：</span> 國際線抵達後，跟隨指示牌步行約 5 分鐘即可抵達國內線與單軌車站連通道。</li>
+                    </ul>
+                    <div class="mt-3 pt-3 border-t border-slate-700">
+                        <a href="https://www.klook.com/zh-TW/activity/94557-okinawa-monorail-yuirail/?aid=115612" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-transform">
+                            <i class="ph-fill ph-ticket text-base"></i> 購買單軌電車一日卷
+                        </a>
+                    </div>
+                </div>
+                <!-- 2. 利木津巴士 -->
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-emerald-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-bus text-lg"></i> (2) 利木津巴士 (直達海景飯店)</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">優點：</span> 專為前往中北部（恩納村、名護）渡假飯店設計的直達巴士，免去轉車與搬運行李的麻煩。</li>
+                    </ul>
+                </div>
+                <!-- 3. 自駕/計程車 -->
+                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
+                    <h3 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-car text-lg"></i> (3) 租車自駕接駁 / 計程車</h3>
+                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">租車：</span> 大部分租車公司提供機場外的接駁巴士，乘車處位於國內線 1 樓外 11-14 號站牌。</li>
+                        <li><span class="text-white font-bold">計程車：</span> 前往國際通約 1,500 - 2,000 日圓，多人搭乘十分划算。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 地鐵路線規劃 (Okinawa Yui Rail) -->
+    <div id="mapModal" class="fixed inset-0 bg-gray-900 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto">
+        <div class="pt-10 pb-6 px-5 flex justify-between items-center border-b border-gray-800 shadow-md">
+            <div class="flex items-center gap-2"><i class="ph-fill ph-train text-2xl text-cyan-500"></i><div><h2 class="text-white font-bold text-lg leading-tight">沖繩單軌路線規劃</h2><p class="text-[10px] text-gray-400">Yui Rail</p></div></div>
+            <button onclick="window.closeModal('mapModal')" class="text-white bg-white/10 p-1.5 rounded-full"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="p-5 flex-1 overflow-y-auto bg-gray-900 no-scrollbar text-white">
+            <div class="relative bg-gray-800/50 p-4 rounded-2xl border border-gray-700">
+                <div class="absolute left-[29px] top-9 bottom-12 w-0.5 bg-gray-600 border-dashed border-l-2"></div>
+                <div class="flex items-center gap-3 mb-4 relative z-10">
+                    <div class="w-3 h-3 rounded-full bg-cyan-500 shrink-0 shadow-[0_0_8px_rgba(6,182,212,0.8)]"></div>
+                    <div class="relative w-full"><select id="mrt-origin" class="w-full bg-gray-900 text-white border border-gray-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-cyan-500 text-sm"><option value="" disabled selected>請選擇出發站...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
+                </div>
+                <div class="flex items-center gap-3 relative z-10 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-green-500 shrink-0 shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
+                    <div class="relative w-full"><select id="mrt-dest" class="w-full bg-gray-900 text-white border border-gray-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-green-500 text-sm"><option value="" disabled selected>請選擇目的站...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
+                </div>
+                <button onclick="window.calcMrt()" class="w-full bg-cyan-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-transform shadow-lg relative z-10">開始規劃路線</button>
+            </div>
+            <div id="mrt-result" class="hidden mt-6 animate-[fadeIn_0.3s]">
+                <div class="bg-gray-800 rounded-2xl p-5 border border-cyan-900/50 shadow-lg">
+                    <div class="flex justify-between items-end border-b border-gray-700 pb-3 mb-4">
+                        <div><p class="text-[10px] text-gray-400 mb-0.5">總計經過</p><div id="mrt-stops-count" class="text-xl font-bold text-cyan-400"></div></div>
+                        <div class="text-right"><p class="text-[10px] text-gray-400 mb-0.5">預估時間</p><span id="mrt-time" class="text-lg font-bold text-white mr-2"></span></div>
+                    </div>
+                    <div id="mrt-path-detail" class="text-sm text-gray-200"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 跨區交通 -->
+    <div id="boatModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-train-gradient pt-10 pb-6 px-5 flex justify-between items-center text-white shadow-md">
+            <div class="flex items-center gap-2"><i class="ph-fill ph-bus text-2xl text-indigo-200"></i><div><h2 class="font-bold text-lg leading-tight">沖繩跨區交通</h2><p class="text-[10px] text-indigo-200">自駕、高速巴士、利木津巴士</p></div></div>
+            <button onclick="window.closeModal('boatModal')" class="bg-white/20 p-1.5 rounded-full"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
+            <div class="relative bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+                <div class="absolute left-[29px] top-9 bottom-12 w-0.5 bg-slate-600 border-dashed border-l-2"></div>
+                <div class="flex items-center gap-3 mb-4 relative z-10">
+                    <div class="w-3 h-3 rounded-full bg-indigo-400 shrink-0 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
+                    <div class="relative w-full"><select id="boat-origin" class="w-full bg-slate-900 text-white border border-slate-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-indigo-400 text-sm"><option value="" disabled selected>請選擇出發區域...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div>
+                </div>
+                <div class="flex items-center gap-3 relative z-10 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-blue-500 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
+                    <div class="relative w-full"><select id="boat-dest" class="w-full bg-slate-900 text-white border border-slate-600 rounded-xl p-3 pr-8 focus:outline-none focus:border-blue-400 text-sm"><option value="" disabled selected>請選擇目的區域...</option></select><i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i></div>
+                </div>
+                <button onclick="window.calcBoat()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-transform shadow-lg relative z-10">開始規劃路線</button>
+            </div>
+            <div id="boat-result" class="hidden mt-6 bg-slate-800 rounded-2xl p-5 border border-indigo-900/50 space-y-4 shadow-lg animate-[fadeIn_0.3s]">
+                <div class="flex justify-between items-end border-b border-slate-700 pb-3">
+                    <div><p class="text-[10px] text-slate-400 mb-0.5">建議交通方式</p><span id="boat-type" class="text-lg font-bold text-indigo-400"></span></div>
+                    <div class="text-right"><p class="text-[10px] text-slate-400 mb-0.5">預估車程時間</p><span id="boat-time" class="text-lg font-bold text-white mr-2"></span></div>
+                </div>
+                <div id="boat-path-detail" class="pt-2 text-sm text-gray-200 space-y-3 relative pl-4 border-l-2 border-indigo-500/30"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 景點探索 -->
+    <div id="attractionModal" class="fixed inset-0 bg-sky-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-attraction-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">沖繩景點探索</h2><button onclick="window.closeModal('attractionModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-4 flex-1 overflow-y-auto bg-sky-950 no-scrollbar text-white relative">
+            <div id="attr-cat-grid" class="grid grid-cols-2 gap-3"></div>
+            <div id="attr-detail-view" class="hidden animate-[fadeIn_0.3s]">
+                <button onclick="window.resetAttrView()" class="mb-4 text-sky-300 flex items-center gap-1 bg-sky-900/50 px-3 py-2 rounded-lg text-sm font-medium"><i class="ph ph-arrow-left"></i> 返回類別清單</button>
+                <h3 id="current-cat-title" class="text-xl font-bold mb-3 border-b border-sky-800 pb-2"></h3>
+                <div class="relative">
+                    <select id="attraction-select" onchange="window.showAttractionDetail()" class="w-full bg-sky-900 border border-sky-700 rounded-xl p-3 pr-8 mb-4 focus:outline-none focus:border-sky-400 text-sm appearance-none"></select>
+                    <i class="ph ph-caret-down absolute right-3 top-4 text-sky-400 pointer-events-none"></i>
+                </div>
+                <div id="attr-result" class="hidden space-y-4 pb-8">
+                    <div class="bg-sky-900/50 p-5 rounded-2xl border border-sky-800 space-y-3">
+                        <h3 id="attr-name" class="font-bold text-xl text-sky-300"></h3>
+                        <p id="attr-desc" class="text-sm text-sky-100 leading-relaxed"></p>
+                        
+                        <div class="pt-3 mt-3 border-t border-sky-800/50 space-y-2">
+                            <h4 class="font-bold text-sm text-blue-400 flex items-center gap-1.5"><i class="ph-fill ph-car"></i> 推薦交通方式</h4>
+                            <p id="attr-transport" class="text-sm text-blue-300 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 關於我們 -->
+    <div id="aboutModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-slate-800 text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">關於我們</h2><button onclick="window.closeModal('aboutModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-4 text-sm no-scrollbar">
+            
+            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10 shadow-sm">
+                <h3 class="font-bold mb-2 flex items-center gap-2 text-cyan-400"><i class="ph-fill ph-quotes"></i> 品牌初衷</h3>
+                <p class="leading-relaxed text-gray-300 text-xs">我們陪伴旅人從尋找靈感的第一秒，到踏上歸途的最後一刻。我們希望能為用戶寫下專屬於他們的故事。</p>
+            </div>
+
+            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10 shadow-sm">
+                <h3 class="font-bold mb-3 flex items-center gap-2 text-cyan-400"><i class="ph-fill ph-handshake"></i> 合作模式</h3>
+                <ul class="space-y-2 text-xs text-gray-300">
+                    <li class="flex items-center gap-2"><span class="text-base">📍</span> 目的地營銷與品牌推廣</li>
+                    <li class="flex items-center gap-2"><span class="text-base">🎟️</span> 旅遊產品 API 串接與分潤</li>
+                    <li class="flex items-center gap-2"><span class="text-base">⛺</span> 在地商家與品牌贊助</li>
+                </ul>
+            </div>
+
+            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10 shadow-sm">
+                <h3 class="font-bold mb-2 flex items-center gap-2 text-cyan-400"><i class="ph-fill ph-envelope-simple"></i> 聯絡信箱</h3>
+                <a href="mailto:imimdesignstudio@yahoo.com" class="text-blue-400 text-xs font-medium hover:underline">imimdesignstudio@yahoo.com</a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 加入粉絲 Modal -->
+    <div id="fanModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
+        <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">加入粉絲</h2><button onclick="window.closeModal('fanModal')"><i class="ph ph-x text-2xl"></i></button></div>
+        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white flex flex-col items-center gap-6 no-scrollbar">
+            <img src="https://i.imgur.com/C8pWBp8.jpg" alt="粉絲專頁" class="w-full rounded-2xl shadow-lg border border-white/10 object-cover">
+            <div class="w-full space-y-3">
+                <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-instagram-logo text-xl"></i> 追蹤 Instagram</a>
+                <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-zinc-800 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform border border-zinc-700"><i class="ph-fill ph-threads-logo text-xl"></i> 關注 Threads</a>
+                <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-chat-circle text-xl"></i> 加入 LINE 官方帳號</a>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 text-center leading-relaxed">追蹤我們，獲取第一手沖繩旅遊私藏情報、<br>隱藏版美食與限時優惠！</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-5 py-3 rounded-xl shadow-2xl z-[100] transition-all duration-300 opacity-0 hidden text-sm font-bold flex items-center gap-2 whitespace-nowrap">
+        <i class="ph-fill ph-info text-cyan-400 text-lg"></i>
+        <span id="toast-msg"></span>
+    </div>
+
+</div>
+
+<script>
+window.currentAttrCatIdx = -1;
+window.openModal = id => { const el = document.getElementById(id); el.classList.remove('hidden'); setTimeout(() => el.classList.remove('opacity-0'), 10); };
+window.closeModal = id => { const el = document.getElementById(id); el.classList.add('opacity-0'); setTimeout(() => el.classList.add('hidden'), 300); };
+window.showToast = (msg) => {
+    const t = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg;
+    t.classList.remove('hidden'); void t.offsetWidth; t.classList.remove('opacity-0'); t.classList.add('translate-y-2');
+    setTimeout(() => { t.classList.add('opacity-0'); t.classList.remove('translate-y-2'); setTimeout(() => t.classList.add('hidden'), 300); }, 3000);
+};
+
+window.switchAirportTab = tab => {
+    // only one tab for Okinawa currently
+};
+
+// --- Okinawa Monorail (Yui Rail) Database ---
+const subwayDataLocal = [
+    { line: "🚝 沖繩單軌電車 (Yui Rail)", items: [
+        "[Y01] 那霸機場 (那覇空港) - 機場航廈", 
+        "[Y02] 赤嶺 (赤嶺) - 日本最南端車站", 
+        "[Y03] 小祿 (小禄) - AEON那霸、暖暮拉麵", 
+        "[Y04] 奧武山公園 (奥武山公園) - 沖繩縣立武道館", 
+        "[Y05] 壺川 (壺川) - 漫湖公園、住宅飯店區", 
+        "[Y06] 旭橋 (旭橋) - 那霸巴士總站、那霸OPA", 
+        "[Y07] 縣廳前 (県庁前) - 國際通南口、RYUBO百貨", 
+        "[Y08] 美榮橋 (美栄橋) - 國際通中段、泊港(搭船)", 
+        "[Y09] 牧志 (牧志) - 國際通北口、牧志公設市場", 
+        "[Y10] 安里 (安里) - 榮町市場(老街夜生活)", 
+        "[Y11] 歌町 (おもろまち) - 新都心商圈、免稅店T Galleria", 
+        "[Y12] 古島 (古島) - 轉乘巴士區", 
+        "[Y13] 市立醫院前 (市立病院前) - 那霸市立醫院", 
+        "[Y14] 儀保 (儀保) - 首里金城町石疊道", 
+        "[Y15] 首里 (首里) - 首里城公園", 
+        "[Y16] 石嶺 (石嶺) - 住宅區", 
+        "[Y17] 經塚 (経塚) - 住宅區", 
+        "[Y18] 浦添前田 (浦添前田) - 浦添大公園", 
+        "[Y19] Tedako浦西 (てだこ浦西) - 轉乘高速巴士"
+    ] }
+];
+
+const codeToNameLocal = {};
+subwayDataLocal.forEach(line => line.items.forEach(i => { 
+    let code = i.split(']')[0] + ']'; 
+    codeToNameLocal[code] = i; 
+}));
+
+const buildSubwayGraph = () => {
+    const edges = [];
+    const addPath = (prefix, start, end, lineName) => {
+        for(let i=start; i<end; i++) {
+            let u = `[${prefix}${i.toString().padStart(2, '0')}]`;
+            let v = `[${prefix}${(i+1).toString().padStart(2, '0')}]`;
+            edges.push({ u: u, v: v, line: lineName, type: 'travel' });
+            edges.push({ u: v, v: u, line: lineName, type: 'travel' });
+        }
+    };
+    
+    // Yui Rail is a single line
+    addPath("Y", 1, 19, "單軌電車");
+
+    const graph = {};
+    edges.forEach(e => { if(!graph[e.u]) graph[e.u]=[]; graph[e.u].push({node:e.v, line:e.line, type:e.type}); });
+    return graph;
+};
+
+const mrtGraphLocal = buildSubwayGraph();
+
+const bfsEdgeTrack = (g, s, e) => {
+    if (s === e) return { path: [s], edges: [] };
+    let q = [{ node: s, path: [s], edges: [] }], v = new Set([s]);
+    while (q.length > 0) {
+        let curr = q.shift();
+        if (curr.node === e) return curr;
+        if (g[curr.node]) {
+            for (let edge of g[curr.node]) {
+                if (!v.has(edge.node)) { v.add(edge.node); q.push({ node: edge.node, path: [...curr.path, edge.node], edges: [...curr.edges, edge] }); }
+            }
+        }
+    }
+    return null;
+};
+
+window.calcMrt = () => {
+    try {
+        const o = document.getElementById('mrt-origin').value;
+        const d = document.getElementById('mrt-dest').value;
+        if (!o || !d) { window.showToast('請選擇出發站與目的站'); return; }
+        
+        const result = bfsEdgeTrack(mrtGraphLocal, o, d);
+        if (!result) { window.showToast('無法找到路線，請確認連通性'); return; }
+
+        const res = document.getElementById('mrt-result'); 
+        res.classList.remove('hidden');
+
+        let segments = [];
+        let currentSegment = null;
+        result.edges.forEach((edge, i) => {
+            if(edge.type === 'transfer') {
+                if(currentSegment) segments.push(currentSegment);
+                segments.push({ line: '轉乘', isTransfer: true, node: edge.node });
+                currentSegment = null;
+            } else {
+                if(!currentSegment || currentSegment.line !== edge.line) {
+                    if(currentSegment) segments.push(currentSegment);
+                    currentSegment = { line: edge.line, start: result.path[i], end: edge.node, stops: 1 };
+                } else {
+                    currentSegment.end = edge.node; currentSegment.stops++;
+                }
+            }
+        });
+        if(currentSegment) segments.push(currentSegment);
+
+        const totalStops = segments.reduce((s, seg) => s + (seg.stops || 0), 0);
+        const cleanName = (code) => codeToNameLocal[code] || code;
+
+        document.getElementById('mrt-stops-count').innerHTML = `<span class="text-2xl">${totalStops}</span><span class="text-sm ml-1 text-gray-400">站</span>`;
+        document.getElementById('mrt-time').textContent = `約 ${totalStops * 2 + 2} 分`;
+        
+        let html = `<div class="relative pl-6 border-l-2 border-gray-600 ml-3 space-y-5 mt-2 pb-2">`;
+        html += `<div class="relative"><div class="absolute -left-[33px] top-1 bg-gray-900 border-[3px] border-cyan-500 w-4 h-4 rounded-full z-10"></div><p class="text-[10px] text-gray-400 font-bold mb-0.5">起點</p><p class="text-base font-bold text-white leading-none">${cleanName(o)}</p></div>`;
+        
+        segments.forEach(seg => {
+            if(seg.isTransfer) {
+                if (cleanName(seg.node) === cleanName(d)) return;
+                html += `<div class="relative"><div class="absolute -left-[33px] top-1 bg-gray-900 border-[3px] border-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.6)] w-4 h-4 rounded-full z-10"></div><p class="text-[10px] text-cyan-400 font-bold mb-0.5">轉乘</p><p class="text-sm font-bold text-white leading-none">${cleanName(seg.node)}</p></div>`;
+            } else {
+                let lineCol = "text-cyan-400";
+
+                html += `<div class="relative py-1"><div class="bg-gray-800/80 rounded-xl p-3 border border-gray-700 shadow-sm inline-block min-w-[140px]"><div class="flex items-center gap-3"><i class="ph-fill ph-train text-xl ${lineCol}"></i><div><p class="text-xs font-bold ${lineCol}">${seg.line}</p><p class="text-[10px] text-gray-400 mt-0.5">搭乘 <span class="text-white font-bold">${seg.stops}</span> 站</p></div></div></div></div>`;
+            }
+        });
+
+        html += `<div class="relative"><div class="absolute -left-[33px] top-1 bg-gray-900 border-[3px] border-green-500 w-4 h-4 rounded-full z-10"></div><p class="text-[10px] text-gray-400 font-bold mb-0.5">終點</p><p class="text-base font-bold text-white leading-none">${cleanName(d)}</p></div></div>`;
+        document.getElementById('mrt-path-detail').innerHTML = html;
+        
+    } catch (error) {
+        window.showToast("路線計算發生錯誤");
+    }
+};
+
+// --- Boat/Okinawa Bus Intercity ---
+const cities = [
+    { id: "naha", name: "那霸市區 (機場/國際通)" },
+    { id: "chatan", name: "北谷 (美國村)" },
+    { id: "onna", name: "恩納村 (西海岸渡假區)" },
+    { id: "nago", name: "名護/本部 (美麗海水族館)" },
+    { id: "nanjo", name: "南城 (南部絕景)" }
+];
+
+window.calcBoat = () => {
+    const o = document.getElementById('boat-origin').value;
+    const d = document.getElementById('boat-dest').value;
+    if (!o || !d) { window.showToast('請選擇出發與目的區域'); return; }
+    if (o === d) { window.showToast('出發站與目的站不能相同'); return; }
+
+    const res = document.getElementById('boat-result');
+    res.classList.remove('hidden');
+
+    let time = "", type = "", detailHtml = "";
+
+    if ((o === 'naha' && d === 'nago') || (o === 'nago' && d === 'naha')) {
+        time = "約 1.5 - 2 小時"; type = "自駕 / 高速巴士 (Yanbaru Express)";
+        detailHtml = `<p class="text-white">沖繩南北大動脈</p><p class="text-xs text-indigo-300 mt-2">強烈建議租車自駕行駛沖繩自動車道。若搭乘巴士，推薦由機場直達美麗海水族館的「山原急行巴士」。</p>`;
+    } else if ((o === 'naha' && d === 'chatan') || (o === 'chatan' && d === 'naha')) {
+        time = "約 40 - 50 分鐘"; type = "自駕 / 路線巴士 (120號)";
+        detailHtml = `<p class="text-white">前往美國村</p><p class="text-xs text-indigo-300 mt-2">可從那霸巴士總站搭乘 120 號公車至「桑江」站。自駕則沿著國道 58 號北上即可抵達。</p>`;
+    } else if ((o === 'naha' && d === 'onna') || (o === 'onna' && d === 'naha')) {
+        time = "約 1 小時"; type = "自駕 / 機場利木津巴士";
+        detailHtml = `<p class="text-white">前往西海岸渡假飯店</p><p class="text-xs text-indigo-300 mt-2">許多大型渡假村有「機場利木津巴士」停靠，無自駕者可於那霸機場買票直達飯店門口。</p>`;
+    } else {
+        time = "約 1 - 2 小時"; type = "自駕最推薦";
+        detailHtml = `<p class="text-white">中長途跨區移動</p><p class="text-xs text-indigo-300 mt-2">沖繩大眾運輸涵蓋有限，強烈推薦租車自駕以獲得最高的機動性與便利性。</p>`;
+    }
+
+    document.getElementById('boat-type').textContent = type;
+    document.getElementById('boat-time').textContent = time;
+    document.getElementById('boat-path-detail').innerHTML = detailHtml;
+};
+
+// --- Attractions Logic ---
+const attractionCategories = [
+    {
+        id: "culture", icon: "ph-bank", name: "琉球歷史與信仰",
+        list: [
+            { name: "首里城公園", desc: "世界文化遺產，琉球王國的政治與文化中心。雖遇祝融，但目前正以「展現復興過程」的方式開放參觀。", transport: "搭乘單軌電車至「首里」站，出站步行約 15 分鐘。" },
+            { name: "波上宮", desc: "沖繩總鎮守，建於珊瑚礁懸崖上的絕美神社，旁邊緊鄰著市區唯一的海灘「波之上海灘」。", transport: "搭乘單軌電車至「縣廳前」站或「旭橋」站，步行約 15 分鐘。" },
+            { name: "沖繩世界文化王國", desc: "體驗琉球傳統工藝與太鼓舞，並擁有歷經 30 萬年形成的壯觀地下鐘乳石洞「玉泉洞」。", transport: "從那霸巴士總站搭乘 83 號公車直達；或自駕約 40 分鐘。" }
+        ]
+    },
+    {
+        id: "modern", icon: "ph-shopping-bag", name: "繁華商圈與渡假村",
+        list: [
+            { name: "國際通", desc: "那霸市最繁華的奇蹟的 1 英里。充滿沖繩限定伴手禮、宮古牛燒肉、居酒屋與藥妝店。", transport: "搭乘單軌電車至「縣廳前」、「美榮橋」或「牧志」站，出站即達。" },
+            { name: "北谷美國村 (American Village)", desc: "濃厚美式西海岸風情的複合式商圈，五彩繽紛的建築是打卡聖地，傍晚可在日落沙灘看絕美夕陽。", transport: "那霸市區搭乘 120 號公車至「桑江」站下車；自駕沿國道 58 號北上約 40 分鐘。" },
+            { name: "瀨長島 (Umikaji Terrace)", desc: "號稱沖繩小希臘，純白梯田式建築面臨無敵海景。距離機場極近，可一邊吃幸福鬆餅一邊看飛機起降。", transport: "從單軌「赤嶺」站搭乘免費接駁車，或自駕約 15 分鐘。" },
+            { name: "PARCO CITY", desc: "沖繩最大的臨海購物中心，擁有無敵海景與超過 250 間店鋪，好逛又好拍。", transport: "從單軌「歌町」站有免費接駁巴士；自駕約 20 分鐘。" }
+        ]
+    },
+    {
+        id: "nature", icon: "ph-tree", name: "自然絕景與漸層海色",
+        list: [
+            { name: "萬座毛", desc: "位於恩納村，因海浪侵蝕而成的象鼻形狀珊瑚礁懸崖，是沖繩最具代表性的自然景觀之一。", transport: "建議自駕（行駛沖繩自動車道於石川IC下）；搭乘巴士 120 號至「恩納村役場前」步行 15 分。" },
+            { name: "古宇利島", desc: "開車跨越壯觀的古宇利大橋即可抵達這座傳說中的「戀之島」，擁有心形岩與古宇利海洋塔。", transport: "強烈建議自駕；或報名那霸出發的北部觀光巴士一日遊。" },
+            { name: "知念岬公園", desc: "位於沖繩南部，擁有 250 度零死角的開闊太平洋海景，被譽為沖繩最美的岬角公園。", transport: "建議自駕；或報名南部觀光巴士半日遊。" }
+        ]
+    },
+    {
+        id: "suburb", icon: "ph-fish-simple", name: "海洋世界與動物樂園",
+        list: [
+            { name: "美麗海水族館 (Churaumi)", desc: "沖繩必訪！在巨大的「黑潮之海」水槽前欣賞鯨鯊與鬼蝠魟，園區內還有免費海豚秀。", transport: "自駕約 1.5-2 小時；或從那霸機場搭乘 Yanbaru Express (山原急行巴士) 直達。" },
+            { name: "DMM Kariyushi 水族館", desc: "位於南部豐崎的最新影像水族館，強調空間互動體驗，可近距離觀看樹懶與企鵝。", transport: "那霸機場搭乘接駁車或路線巴士約 20 分鐘；自駕約 15 分鐘。" },
+            { name: "名護自然動植物公園", desc: "無柵欄放養的動物樂園，可以搭乘沖繩版輕便鐵道環繞園區，親自餵食紅鶴與狐猴。", transport: "建議自駕；位於名護市區附近。" }
+        ]
+    }
+];
+
+const renderAttrCategories = () => {
+    const grid = document.getElementById('attr-cat-grid');
+    grid.innerHTML = attractionCategories.map((cat, idx) => `
+        <button onclick="window.openAttrCategory(${idx})" class="bg-sky-900/40 hover:bg-sky-800/60 border border-sky-700/50 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all active:scale-95">
+            <i class="ph ${cat.icon} text-4xl text-cyan-400"></i>
+            <span class="text-sm font-bold text-sky-100">${cat.name}</span>
+        </button>
+    `).join('');
+};
+
+window.openAttrCategory = (idx) => {
+    let currentCat = attractionCategories[idx];
+    document.getElementById('attr-cat-grid').classList.add('hidden');
+    document.getElementById('attr-detail-view').classList.remove('hidden');
+    document.getElementById('current-cat-title').textContent = currentCat.name;
+    
+    const select = document.getElementById('attraction-select');
+    select.innerHTML = `<option value="" disabled selected>請選擇景點...</option>` + 
+        currentCat.list.map((item, i) => `<option value="${i}">${item.name}</option>`).join('');
+    
+    document.getElementById('attr-result').classList.add('hidden');
+    
+    // override global selected logic inside the select event
+    select.onchange = function() {
+        const item = currentCat.list[this.value];
+        document.getElementById('attr-name').textContent = item.name;
+        document.getElementById('attr-desc').textContent = item.desc;
+        document.getElementById('attr-transport').textContent = item.transport;
+        document.getElementById('attr-result').classList.remove('hidden');
+    };
+};
+
+window.resetAttrView = () => {
+    document.getElementById('attr-cat-grid').classList.remove('hidden');
+    document.getElementById('attr-detail-view').classList.add('hidden');
+};
+
+// --- Initialization ---
+document.addEventListener('DOMContentLoaded', () => {
+    const mo = document.getElementById('mrt-origin'), md = document.getElementById('mrt-dest');
+    subwayDataLocal.forEach(g => { 
+        let opt = `<optgroup label="${g.line}">${g.items.map(i => {
+            let code = i.split(']')[0] + ']'; 
+            return `<option value="${code}">${i}</option>`;
+        }).join('')}</optgroup>`; 
+        mo.innerHTML += opt; 
+        md.innerHTML += opt; 
+    });
+    
+    const bo = document.getElementById('boat-origin'), bd = document.getElementById('boat-dest');
+    let cityOptions = cities.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    bo.innerHTML += cityOptions; bd.innerHTML += cityOptions;
+
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('datetime-display').textContent = now.toLocaleString('zh-TW', { timeZone: 'Asia/Tokyo', hour12: false }) + " (日本時間)";
+    }, 1000);
+    
+    setTimeout(() => { document.getElementById('weather-display').innerHTML = '<i class="ph-fill ph-sun text-yellow-400 text-sm"></i> 晴天 28°C'; }, 1500);
+    
+    const track = document.getElementById('carousel-track'); let slide = 0;
+    setInterval(() => { slide = (slide + 1) % 3; track.style.transform = `translateX(-${slide * 93}%)`; }, 3000);
+
+    renderAttrCategories();
+});
+</script>
+</body>
+</html>

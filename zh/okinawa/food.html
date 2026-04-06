@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沖繩美食導航 Okinawa Food Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f9ff; /* 淺藍色背景，搭配沖繩海洋感 */
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 沖繩專屬按鈕配色 (Ocean Blue) */
+        .btn-nav { background-color: #0284c7; /* sky-600 */ }
+        .btn-nav:hover { background-color: #0369a1; /* sky-700 */ }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-sky-600 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                </svg>
+                Okinawa Pass 沖繩美食地圖
+            </h1>
+            <a href="https://linkuei0425.github.io/Okinawa/" class="flex items-center gap-1 text-sm md:text-base font-medium bg-sky-700 hover:bg-sky-800 px-3 py-1.5 rounded-lg transition-colors shadow-sm border border-sky-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                回到首頁
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- Region Selector -->
+        <section class="mb-6">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇區域 (Select Region)</h2>
+            <div id="region-buttons" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide"></div>
+        </section>
+
+        <!-- Category Selector -->
+        <section class="mb-8 hidden" id="category-section">
+            <h2 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">選擇類別 (Select Category)</h2>
+            <div id="category-buttons" class="flex flex-wrap gap-2"></div>
+        </section>
+
+        <!-- Content Area -->
+        <section id="content-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <p class="text-lg">請先從上方選擇您想探索的沖繩區域與美食</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const db = {
+            "naha": {
+                name: "那霸市區 (單軌沿線)",
+                categories: {
+                    "soba": [
+                        { name: "暖暮拉麵 (那霸牧志店)", feature: "雖然是九州拉麵，但在沖繩極度受歡迎！湯頭濃郁，營業到凌晨，是逛完國際通的宵夜首選。", address: "那霸市牧志2-16-10 / 自由行：搭乘單軌電車至「美榮橋站」步行5分" },
+                        { name: "首里そば (首里沖繩麵)", feature: "沖繩麵的排隊名店！手打麵條非常有嚼勁，湯頭清澈帶有柴魚香氣，豬肉入口即化，每日限量賣完為止。", address: "那霸市首里赤田町1-7 / 自由行：搭乘單軌電車至「首里站」步行5分" }
+                    ],
+                    "meat": [
+                        { name: "琉球の牛 (那霸國際通店)", feature: "頂級沖繩縣產和牛燒肉！油花分布均勻，入口即化，雖然價格較高但絕對值得一試。", address: "那霸市牧志3-2-3 / 自由行：搭乘單軌電車至「牧志站」步行5分" },
+                        { name: "傑克牛排館 (Jack's Steak House)", feature: "充滿濃厚美式復古風情的沖繩在地老牌牛排館，深受當地人喜愛，CP值超高。", address: "那霸市西1-7-3 / 自由行：搭乘單軌電車至「旭橋站」步行8分" }
+                    ],
+                    "izakaya": [
+                        { name: "目利きの銀次 (新都心本舖)", feature: "超浮誇木桶外觀的居酒屋！提供產地直送的新鮮海鮮與超高CP值的生魚片拼盤，強烈建議預約。", address: "那霸市天久1-9-19 / 自由行：搭乘單軌電車至「歌町站」步行15分，或轉乘計程車" },
+                        { name: "國際通屋台村", feature: "匯集了20多家各具特色的沖繩路邊攤居酒屋，氣氛熱鬧，適合喝杯Orion生啤酒配串燒。", address: "那霸市牧志3-11-16 / 自由行：搭乘單軌電車至「牧志站」步行4分" }
+                    ],
+                    "cafe": [
+                        { name: "幸福鬆餅 (瀨長島店)", feature: "號稱吃一口就會幸福的舒芙蕾鬆餅！搭配瀨長島的無敵海景與看著飛機起降，視覺味覺雙重享受。", address: "瀨長島 Umikaji Terrace 內 / 自由行：從單軌「赤嶺站」搭乘瀨長島接駁巴士(Umikaji Liner)直達" },
+                        { name: "Pork Tamago Onigiri (豬肉蛋飯糰)", feature: "那霸機場與國際通都有店，沖繩最經典的靈魂小吃，現點現做，厚切午餐肉配上厚煎蛋超滿足。", address: "那霸市松尾2-8-35 (牧志市場總店) / 自由行：搭乘單軌電車至「牧志站」步行10分" }
+                    ]
+                }
+            },
+            "chatan": {
+                name: "北谷 / 美國村",
+                categories: {
+                    "meat": [
+                        { name: "敘敘苑 (沖繩浦添PARCO CITY店)", feature: "日本頂級燒肉名店！這間分店擁有絕佳的無敵海景，可以一邊吃著高級和牛一邊看海。", address: "浦添市西洲3-1-1 (PARCO CITY 3F) / 自由行：從那霸巴士總站搭乘路線巴士至「PARCO CITY前」下車" },
+                        { name: "Blue Ocean Steak", feature: "位於美國村的質感牛排館，主打琉球和牛與海鮮，裝潢時尚且能欣賞迷人的美國村夕陽。", address: "北谷町美濱51-2 / 自由行：搭乘路線巴士至「桑江站」步行15分" }
+                    ],
+                    "taco": [
+                        { name: "Taco Rice Cafe Kijimuna", feature: "沖繩特色美食「塔可飯」的名店！招牌是上面鋪滿滑嫩歐姆蛋的「歐姆塔可飯」，微辣肉醬非常下飯。", address: "北谷町美濱9-1 (美國村 Depot Island 內) / 自由行：搭乘路線巴士至「桑江站」步行10分" },
+                        { name: "A&W 漢堡 (北谷店)", feature: "沖繩限定的美式速食店！必喝有獨特中藥味的「麥根沙士 (Root Beer)」，而且內用沙士可以免費續杯。", address: "北谷町美濱2-5-5 / 自由行：搭乘路線巴士至「桑江站」步行10分" }
+                    ],
+                    "cafe": [
+                        { name: "ZHYVAGO COFFEE WORKS", feature: "充滿西海岸工業風的海景咖啡廳！咖啡品質極佳，買杯拿鐵坐在戶外堤防看海是美國村的標配。", address: "北谷町美濱9-46 (美國村海傍) / 自由行：搭乘路線巴士至「桑江站」步行12分" },
+                        { name: "Seaside Cafe hanon", feature: "純白希臘風的夢幻鬆餅店！主打各式精緻的甜/鹹鬆餅，擁有美國村最棒的戶外看海露臺。", address: "北谷町美濱9-39 / 自由行：搭乘路線巴士至「桑江站」步行12分" }
+                    ]
+                }
+            },
+            "onna": {
+                name: "恩納村 / 西海岸",
+                categories: {
+                    "meat": [
+                        { name: "琉球の牛 (恩納本店)", feature: "西海岸最難訂的頂級燒肉！潛水完來這裡犒賞自己吃頂級和牛是許多旅客的夢想清單。", address: "恩納村前兼久909-2 / 自由行：搭乘機場利木津巴士或路線巴士120號至「前兼久站」步行3分" },
+                        { name: "阿古豬隱家 (あぐーの隠れ家)", feature: "專賣沖繩特產「阿古豬(Agu豬)」的涮涮鍋與燒肉，肉質極度鮮甜且沒有豬腥味，油脂豐富。", address: "恩納村冨着1-1 / 自由行：搭乘機場利木津巴士或路線巴士120號至「冨著站」步行2分" }
+                    ],
+                    "cafe": [
+                        { name: "星野集團 Banta Cafe", feature: "日本最大級的海景咖啡廳！建在懸崖上，提供多種不同視角的座位區(海灘、岩石、露臺)，景色震撼。", address: "讀谷村儀間560 / 無大眾運輸，需自行開車到達" },
+                        { name: "Hawaiian Pancakes House Paanilani", feature: "恩納村超人氣的夏威夷鬆餅早餐店！早上7點就營業，招牌「堅果醬鬆餅」濃郁香甜。", address: "恩納村瀨良垣698 / 自由行：搭乘路線巴士120號至「瀨良垣站」步行1分" }
+                    ],
+                    "soba": [
+                        { name: "番所亭 (Bansho-tei)", feature: "讀谷村的在地名店。使用自家製麵，推薦點帶有豐富膠質的軟骨沖繩麵，紅薑可以解膩。", address: "讀谷村喜名473 / 自由行：搭乘路線巴士至「喜名站」步行2分" }
+                    ]
+                }
+            },
+            "nago": {
+                name: "名護 / 北部 / 古宇利島",
+                categories: {
+                    "soba": [
+                        { name: "岸本食堂 (きしもと食堂)", feature: "擁有百年歷史的沖繩麵始祖級老店！使用柴灰製作傳統麵條，麵條帶有特殊香氣，手工雜炊飯也是必點。", address: "本部町渡久地5 / 自由行：搭乘山原急行巴士至「本部博物館前」步行約5分" },
+                        { name: "百年古家 大家 (Ufuya)", feature: "在擁有百年歷史的傳統琉球古民家內用餐！主打阿古豬沖繩麵與定食，旁邊還有小瀑布，氣氛絕佳。", address: "名護市中山90 / 無大眾運輸，需自行開車到達" }
+                    ],
+                    "cafe": [
+                        { name: "KOURI SHRIMP (古宇利蝦蝦飯)", feature: "古宇利島必吃！充滿夏威夷風情的蒜香奶油蝦蝦飯，香氣撲鼻，配上絕美海景與啤酒堪稱完美。", address: "古宇利島內 / 無大眾運輸，需自行開車到達" },
+                        { name: "Pizza in the Sky (花人逢)", feature: "位於半山腰的景觀披薩店，在傳統木造老屋的走廊上品嚐起司濃郁的披薩，可俯瞰整片無敵海景。", address: "本部町山里1153-2 / 位於半山腰無大眾運輸，需自行開車到達" }
+                    ]
+                }
+            }
+        };
+
+        const categoriesMap = {
+            "soba": { name: "🍜 沖繩麵 (Soba)", color: "bg-amber-100 text-amber-800 hover:bg-amber-600 hover:text-white border-amber-400" },
+            "meat": { name: "🥩 頂級和牛與阿古豬", color: "bg-rose-100 text-rose-800 hover:bg-rose-600 hover:text-white border-rose-400" },
+            "taco": { name: "🌮 塔可飯與異國速食", color: "bg-green-100 text-green-800 hover:bg-green-600 hover:text-white border-green-400" },
+            "izakaya": { name: "🍻 居酒屋與海鮮", color: "bg-indigo-100 text-indigo-800 hover:bg-indigo-600 hover:text-white border-indigo-400" },
+            "cafe": { name: "☕ 絕美海景咖啡與甜點", color: "bg-sky-100 text-sky-800 hover:bg-sky-600 hover:text-white border-sky-400" }
+        };
+
+        let currentRegion = "";
+        let currentCategory = "";
+
+        const regionContainer = document.getElementById('region-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const categorySection = document.getElementById('category-section');
+        const contentArea = document.getElementById('content-area');
+
+        function initRegions() {
+            Object.keys(db).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = "whitespace-nowrap px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 font-medium hover:bg-sky-600 hover:text-white hover:border-sky-600 transition-colors shadow-sm";
+                btn.innerText = db[key].name;
+                btn.onclick = () => selectRegion(key, btn);
+                regionContainer.appendChild(btn);
+            });
+        }
+
+        function initCategories() {
+            Object.keys(categoriesMap).forEach(key => {
+                const config = categoriesMap[key];
+                const btn = document.createElement('button');
+                btn.className = `whitespace-nowrap px-4 py-2 rounded-full border transition-all font-medium ${config.color}`;
+                btn.innerText = config.name;
+                btn.onclick = () => selectCategory(key, btn);
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function selectRegion(regionKey, clickedBtn) {
+            currentRegion = regionKey;
+            
+            Array.from(regionContainer.children).forEach(btn => {
+                btn.classList.remove('bg-sky-600', 'text-white', 'border-sky-600');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            clickedBtn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-sky-600');
+            clickedBtn.classList.add('bg-sky-600', 'text-white', 'border-sky-600');
+
+            categorySection.classList.remove('hidden');
+            categorySection.classList.add('fade-in');
+            
+            if(!currentCategory) {
+                const firstCatBtn = categoryContainer.children[0];
+                selectCategory('soba', firstCatBtn);
+            } else {
+                renderContent();
+            }
+        }
+
+        function selectCategory(catKey, clickedBtn) {
+            currentCategory = catKey;
+
+            Array.from(categoryContainer.children).forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-sky-500', 'shadow-md', 'scale-105');
+                btn.style.opacity = "0.6";
+            });
+            clickedBtn.classList.add('ring-2', 'ring-offset-2', 'ring-sky-500', 'shadow-md', 'scale-105');
+            clickedBtn.style.opacity = "1";
+
+            renderContent();
+        }
+
+        function renderContent() {
+            contentArea.innerHTML = '';
+            const items = db[currentRegion].categories[currentCategory];
+
+            if(!items || items.length === 0) {
+                contentArea.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-400 fade-in">
+                        <p class="text-lg">此區域目前無此類別的推薦資料，請探索其他美食！</p>
+                    </div>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                const encodedQuery = encodeURIComponent(`${item.name} Okinawa`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-sky-100 overflow-hidden flex flex-col fade-in hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1";
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.name}</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-5 leading-relaxed tracking-wide"><span class="font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded mr-1">必吃</span>${item.feature}</p>
+                        
+                        <div class="bg-slate-50 p-3.5 rounded-xl flex items-start gap-3 border border-slate-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600 leading-tight font-medium"><span class="font-bold text-sky-800">地址與交通：</span><br>${item.address}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 pb-6 mt-auto">
+                        <a href="${mapsUrl}" target="_blank" class="w-full flex items-center justify-center gap-2 btn-nav text-white py-3 rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+                            </svg>
+                            開啟 Google Maps 導航
+                        </a>
+                    </div>
+                `;
+                contentArea.appendChild(card);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initRegions();
+            initCategories();
+        });
+    </script>
+</body>
+</html>

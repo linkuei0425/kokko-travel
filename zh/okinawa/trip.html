@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沖繩旅遊行程指南 | Okinawa Trip Guide</title>
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM (CDN) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel for JSX (CDN) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* 隱藏橫向捲軸但保持滑動功能 */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- SVG Icon Components ---
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const Waves = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+
+        // Categories
+        const CATEGORIES = [
+            { id: '景點門票', icon: Ticket },
+            { id: '一日遊', icon: Sun },
+            { id: '水上活動', icon: Waves },
+            { id: '交通與網卡', icon: TrainFront }
+        ];
+
+        // Regions in Okinawa
+        const REGIONS = ['沖繩本島', '慶良間', '宮古島'];
+
+        // Dynamic categories per region
+        const getAvailableCategoryIds = (region) => {
+            if (region === '慶良間') return ['水上活動'];
+            if (region === '宮古島') return ['一日遊', '水上活動', '交通與網卡'];
+            return ['景點門票', '一日遊', '交通與網卡']; // 沖繩本島 (水上活動已刪除)
+        };
+
+        // Itinerary Data (每個類別精準配置真實搜尋出來的 Klook 項目與分潤碼)
+        const itineraryData = {
+            '沖繩本島': {
+                '景點門票': [
+                    {
+                        title: '沖繩美麗海水族館門票',
+                        description: '來沖繩必訪！在巨大的「黑潮之海」水槽前欣賞超震撼的鯨鯊與鬼蝠魟，園區內還有免費的海豚劇場表演。',
+                        link: 'https://www.klook.com/zh-TW/activity/1421-churaumi-aquarium-okinawa/?spm=SearchResult.SearchResult_LIST&clickId=fc977ca12c&aid=115612'
+                    },
+                    {
+                        title: '沖繩世界文化王國 & 玉泉洞門票',
+                        description: '探索歷經 30 萬年形成的壯觀鐘乳石洞「玉泉洞」，並在園區內體驗琉球傳統服飾、欣賞超熱血的太鼓群舞表演。',
+                        link: 'https://www.klook.com/zh-TW/activity/37791-okinawa-world-ticket/?spm=SearchResult.SearchResult_LIST&clickId=f77dc42285&aid=115612'
+                    },
+                    {
+                        title: 'DMM Kariyushi 水族館門票',
+                        description: '位於豐崎的最新水族館！結合影像技術與空間設計，能與樹懶、企鵝近距離互動，非常適合親子。',
+                        link: 'https://www.klook.com/zh-TW/activity/55241-dmm-kariyushi-aquarium-ticket-okinawa/?spm=SearchResult.SearchResult_LIST&clickId=1c5675a884&aid=115612'
+                    },
+                    {
+                        title: '東南植物樂園門票',
+                        description: '充滿南國風情的植物樂園！除了欣賞奇花異草，還能與水豚、松鼠猴等可愛動物近距離互動，冬季更有浪漫夜間點燈。',
+                        link: 'https://www.klook.com/zh-TW/activity/13582-southeast-botanical-gardens-e-ticket-okinawa/?spm=Activity.SearchSuggest_LIST&clickId=39db559cd8&aid=115612'
+                    },
+                    {
+                        title: '古宇利海洋塔門票',
+                        description: '搭乘自動語音導覽車登上塔頂，將絕美的「古宇利藍」漸層海色與壯觀的古宇利大橋盡收眼底。',
+                        link: 'https://www.klook.com/zh-TW/activity/29033-kouri-ocean-tower-observation-deck-ticket-okinawa/?spm=Activity.SearchSuggest_LIST&clickId=d2b83acc13&aid=115612'
+                    }
+                ],
+                '一日遊': [
+                    {
+                        title: '沖繩 Hip Hop Bus 觀光巴士之旅',
+                        description: '不開車也能玩透北部！搭乘舒適巴士一網打盡萬座毛、古宇利島、美麗海水族館等熱門景點，含多國語音導覽。',
+                        link: 'https://www.klook.com/zh-TW/activity/828-okinawa-churaumi-aquarium-bus-tour-okinawa/?aid=115612'
+                    },
+                    {
+                        title: '沖繩南部觀光巴士半日遊',
+                        description: '輕鬆走訪南部名勝：視野遼闊的知念岬公園、充滿靈氣的新原海灘，以及有小希臘之稱的瀨長島，適合下午出發。',
+                        link: 'https://www.klook.com/zh-TW/activity/28223-okinawa-masahiro-brewery-tamagusuku-maekawa-half-day-trip/?spm=SearchResult.SearchResult_LIST&clickId=a89c6f0167&aid=115612'
+                    },
+                    {
+                        title: '沖繩浴衣＆和服租借',
+                        description: '換上美麗的日式傳統和服或夏日浴衣，漫步於那霸市內的波上宮與周邊海灘，留下最動人的沖繩回憶。',
+                        link: 'https://www.klook.com/zh-TW/activity/6336-chura-sakura-kimono-okinawa/?spm=SearchResult.SearchResult_LIST&clickId=bb29595926&aid=115612'
+                    }
+                ],
+                '交通與網卡': [
+                    {
+                        title: '日本 4G/5G 高速 eSIM',
+                        description: '免換實體卡，掃描 QR Code 落地即連網！網路穩定，導航、找美食、發動態零延遲。',
+                        link: 'https://www.klook.com/zh-TW/activity/109393-japan-esim-high-speed-internet-qr-code-voucher/?aid=115612'
+                    },
+                    {
+                        title: '沖繩都市單軌電車 (Yui Rail) 一日券',
+                        description: '不開車暢遊那霸市區必備！24小時內無限次搭乘，輕鬆前往首里城、國際通、新都心與機場。',
+                        link: 'https://www.klook.com/zh-TW/activity/94557-okinawa-monorail-yuirail/?spm=SearchResult.SearchResult_LIST&clickId=c5566e5807&aid=115612'
+                    }
+                ]
+            },
+            '慶良間': {
+                '水上活動': [
+                    {
+                        title: '慶良間諸島半日浮潛體驗',
+                        description: '從那霸搭船出發，前往被譽為「慶良間藍」的海域。30分鐘直達絕美浮潛點，包含飯店接送非常方便。',
+                        link: 'https://www.klook.com/zh-TW/activity/149209-okinawa-kerama-islands-snorkeling-from-naha-with-free-transfer/?aid=115612'
+                    },
+                    {
+                        title: '慶良間群島潛水體驗 (SEASIR)',
+                        description: '搭乘沖繩最快的潛水船，在專業認證導潛帶領下，享受水肺潛水並與壯麗的珊瑚礁與魚群共游。',
+                        link: 'https://www.klook.com/zh-TW/activity/279-island-diving-okinawa/?aid=115612'
+                    },
+                    {
+                        title: '日本沖繩慶良間渡嘉敷島浮潛',
+                        description: '搭船前往渡嘉敷島，在著名的阿波連海灘享受美好夏日戲水時光，並由教練帶領尋找野生海龜。',
+                        link: 'https://www.klook.com/zh-TW/activity/12454-kerama-tokashiki-island-swimming-and-snorkeling-experience-in-okinawa/?aid=115612'
+                    },
+                    {
+                        title: '慶良間諸島渡嘉敷島一日遊',
+                        description: '包含往返船票與接駁！享受無人島般的靜謐與純白沙灘，適合想要放鬆發呆、玩水拍照的旅客。',
+                        link: 'https://www.klook.com/zh-TW/activity/47789-join-tokashiki-island-day-tour-lunch-naha/?aid=115612'
+                    },
+                    {
+                        title: '慶良間群島浮潛及潛水體驗',
+                        description: '無潛水經驗也可參加！專業教練陪同，高機率與海龜一同暢遊，並在船上享用悠閒午餐。',
+                        link: 'https://www.klook.com/zh-TW/activity/13407-snorkeling-diving-fun-diving-experience-with-sea-turtle-in-kerama-okinawa/?aid=115612'
+                    }
+                ]
+            },
+            '宮古島': {
+                '一日遊': [
+                    {
+                        title: '宮古島觀光巴士一日遊',
+                        description: '不自駕也能玩宮古島！人氣景點全收錄：砂山海灘、雪鹽博物館、東平安名崎與絕美的池間大橋。',
+                        link: 'https://www.klook.com/zh-TW/activity/196969-okinawa-miyakojima-bus-day-trip/?aid=115612'
+                    },
+                    {
+                        title: '宮古島半日私人秘境之旅',
+                        description: '跟隨導遊走訪宮古島17END絕景海灘、三角點懸崖與狹間濱秘境海灘，將宮古島最美風景一次收集。',
+                        link: 'https://www.klook.com/zh-TW/activity/196527-miyakojima-half-day-private-hidden-gems-tour/?aid=115612'
+                    },
+                    {
+                        title: '宮古島客製化包車一日遊',
+                        description: '日語司機+中文在線客服，自由定製專車直達秘境沙灘、網紅景點，是花一天時間遊覽宮古島的舒適選擇。',
+                        link: 'https://www.klook.com/zh-TW/activity/166371-miyako-island-private-customizable-one-day-charter-tour/?aid=115612'
+                    },
+                    {
+                        title: 'LeaLea 宮古島巴士一日遊',
+                        description: '跨越宮古島的 3 座主橋，從南到北遊覽 5 個島嶼，並在絕佳的海景餐廳享用當地特色午餐。',
+                        link: 'https://www.klook.com/zh-TW/activity/76994-lealea-one-day-bus-tour-in-miyakojima/?aid=115612'
+                    },
+                    {
+                        title: '宮古島包車 - 砂山海灘＆伊良部大橋',
+                        description: '專為熱門路線設計的彈性包車服務，確保有足夠的時間參觀和拍照，輕鬆跨越伊良部大橋。',
+                        link: 'https://www.klook.com/zh-TW/activity/192540-miyako-car-rental-with-driver-to-sunayama-beach-irabu-bridge/?aid=115612'
+                    }
+                ],
+                '水上活動': [
+                    {
+                        title: '宮古島海龜浮潛半日體驗',
+                        description: '在被稱為「宮古藍」的海水中體驗與海龜一同浮潛！資深導遊帶路，保證讓您高機率與海龜邂逅。',
+                        link: 'https://www.klook.com/zh-TW/activity/120302-miyakojima-sea-turtle-snorkeling-half-day-experience-okinawa/?aid=115612'
+                    },
+                    {
+                        title: '宮古島海龜浮潛＆海灘 SUP 立槳',
+                        description: '一日/半日超值套裝！在宮古藍海洋中享受 SUP 水上漫步，再下水尋找野生海龜，並免費贈送高畫質照片。',
+                        link: 'https://www.klook.com/zh-TW/activity/120769-miyakojima-sea-turtle-snorkeling-beach-sup-or-canoeing-1-day-half/?aid=115612'
+                    },
+                    {
+                        title: '宮古島珊瑚浮潛體驗',
+                        description: '安全無虞的潛水點，讓初學者及孩童也能輕鬆在淺海中觀賞當地繽紛的熱帶魚與美麗的珊瑚群。',
+                        link: 'https://www.klook.com/zh-TW/activity/46718-coral-snorkeling-miyako-island/?aid=115612'
+                    }
+                ],
+                '交通與網卡': [
+                    {
+                        title: '日本 4G/5G 高速 eSIM',
+                        description: '免換實體卡，掃描 QR Code 落地即連網！在離島依然能保持順暢網路，方便導航找路。',
+                        link: 'https://www.klook.com/zh-TW/activity/109393-japan-esim-high-speed-internet-qr-code-voucher/?aid=115612'
+                    }
+                ]
+            }
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState('沖繩本島');
+            const [selectedCategory, setSelectedCategory] = useState('景點門票');
+
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen font-sans text-slate-800 flex flex-col">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-slate-200">
+                        <div className="max-w-5xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="text-blue-600 w-6 h-6 md:w-8 md:h-8" />
+                                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-400">
+                                    沖繩必玩行程指南
+                                    </h1>
+                                </div>
+                                <div className="hidden md:block">
+                                    <a
+                                        href="https://linkuei0425.github.io/Okinawa/"
+                                        className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                                    >
+                                        <Home className="w-4 h-4" />
+                                        回到首頁
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            {/* Region Selection */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide items-center">
+                                <a
+                                    href="https://linkuei0425.github.io/Okinawa/"
+                                    className="md:hidden flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 shadow-sm shrink-0"
+                                >
+                                    <Home className="w-4 h-4" />
+                                    首頁
+                                </a>
+
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            const allowed = getAvailableCategoryIds(region);
+                                            if (!allowed.includes(selectedCategory)) {
+                                                setSelectedCategory(allowed[0]);
+                                            }
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                                            selectedRegion === region
+                                            ? 'bg-slate-800 text-white shadow-md'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
+                        {/* Categories */}
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                            {CATEGORIES.filter(cat => getAvailableCategoryIds(selectedRegion).includes(cat.id)).map(({ id, icon: Icon }) => (
+                                <button
+                                    key={id}
+                                    onClick={() => setSelectedCategory(id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                        selectedCategory === id
+                                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {id}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Results Heading */}
+                        <div className="mb-6">
+                            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 border-l-4 border-teal-400 pl-3">
+                                精選推薦：{selectedRegion} - {selectedCategory}
+                            </h2>
+                        </div>
+
+                        {/* Item List */}
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                {currentData.map((item, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300"
+                                    >
+                                        <div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight">
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="mt-auto pt-4 border-t border-slate-100 flex justify-end">
+                                            <a
+                                                href={item.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-sm w-full sm:w-auto"
+                                            >
+                                                <Info className="w-4 h-4" />
+                                                <span>點我看說明</span>
+                                                <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
+                                <div className="bg-slate-50 p-4 rounded-full mb-4">
+                                    <Sparkles className="w-8 h-8 text-slate-400" />
+                                </div>
+                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                                    目前在 {selectedRegion} 尚未收錄 {selectedCategory} 的推薦。
+                                </h3>
+                                <p className="text-slate-500">
+                                    我們會持續更新精選清單，敬請期待！
+                                </p>
+                            </div>
+                        )}
+
+                        {/* CTA Button */}
+                        <div className="mt-12 flex justify-center pb-8">
+                            <a 
+                                href="https://www.klook.com/zh-TW/search/result/?query=%E6%B2%96%E7%B9%A9&aid=115612" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3.5 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                <Sparkles className="w-5 h-5" />
+                                <span className="tracking-wide">在 Klook 探索更多沖繩活動</span>
+                                <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
+                            </a>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
