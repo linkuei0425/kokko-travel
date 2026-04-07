@@ -1,294 +1,515 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>關西賞景名所導覽</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    /* 隱藏卷軸但保留滑動功能 */
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .hide-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-  </style>
-</head>
-<body id="app-body" class="min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800">
-
-  <!-- Header -->
-  <header id="app-header" class="bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     
-    <!-- 回到首頁按鈕 -->
-    <div class="max-w-6xl mx-auto px-4 pt-4">
-      <a href="https://linkuei0425.github.io/Osaka/index.html" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 bg-white/60 hover:bg-white hover:text-gray-900 rounded-full border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-x-1">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-        回到首頁
-      </a>
-    </div>
-
-    <div class="max-w-6xl mx-auto px-4 pb-6 pt-2">
-      <div class="flex items-center justify-center space-x-3 mb-2">
-        <div id="title-icon-left" class="animate-pulse"></div>
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 transition-colors duration-500">
-          關西賞景名所導覽
-        </h1>
-        <div id="title-icon-right" class="animate-pulse"></div>
-      </div>
-      <p class="text-center text-gray-500 text-sm md:text-base">
-        精選大阪、京都、奈良、神戶、宇治、姬路絕美<span id="season-text">賞櫻</span>勝地
-      </p>
-    </div>
-
-    <!-- Season Toggle -->
-    <div class="flex justify-center mb-4">
-      <div class="bg-gray-100/80 backdrop-blur-sm p-1.5 rounded-full inline-flex border border-gray-200 shadow-inner">
-        <button id="btn-sakura" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M12 5a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 8 6.17 6A3 3 0 1 1 12 5z"/><path d="M12 22v-9"/><path d="M12 13a3 3 0 1 0-5.83-1c0-2 3-3 5.83-3s5.83 1 5.83 3A3 3 0 1 0 12 13z"/><path d="M12 13a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 16 6.17 14A3 3 0 1 1 12 13z"/></svg>
-          春季賞櫻
-        </button>
-        <button id="btn-momiji" class="flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-          秋季賞楓
-        </button>
-      </div>
-    </div>
+    <!-- SEO, AEO, GEO, AAO 頂級全方位優化標籤 -->
+    <title>關西住宿推薦指南 | Kansai Hotel Guide | 大阪・京都・神戶・奈良</title>
+    <meta name="description" content="2026最新關西住宿推薦指南！為您精選大阪、京都、奈良、神戶、宇治、美山及姬路等地的優質飯店與傳統日式旅館，包含五星奢華、高CP值商旅與特色民宿，提供最完整的訂房攻略。">
+    <meta name="keywords" content="關西住宿, 大阪飯店, 京都旅館, 神戶住宿, 奈良飯店, 關西自由行, 日本旅遊, 住宿推薦, 星野集團, 溫泉旅館">
+    <meta name="author" content="Kokko Travel / Im+ Life">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://kokko-travel.com/zh/osaka/">
     
-    <!-- Navigation Tabs -->
-    <div class="max-w-4xl mx-auto px-4 pb-4">
-      <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar space-x-2 md:justify-center py-2">
-        <!-- Tabs injected by JS -->
-      </div>
-    </div>
-  </header>
+    <!-- 針對 AEO 與 GEO 強化 (Answer & Generative Engine Optimization) -->
+    <meta name="subject" content="Japan Kansai Region Hotel & Accommodation Guide">
+    <meta name="rating" content="General">
+    
+    <!-- Open Graph / Facebook / LINE -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kokko-travel.com/zh/osaka/">
+    <meta property="og:title" content="關西住宿推薦指南 | Kansai Hotel Guide | 大阪・京都・神戶・奈良">
+    <meta property="og:description" content="精選關西各地優質飯店、傳統日式旅館及高CP值住宿，提供最完整的關西自由行住宿攻略。">
+    <meta property="og:site_name" content="Kokko Travel">
+    <meta property="og:locale" content="zh_TW">
 
-  <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 mt-8">
-    <div class="mb-6 flex items-center space-x-2 transition-colors duration-500" id="section-title-container">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-      <h2 id="section-title" class="text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500">
-        大阪 精選景點
-      </h2>
-    </div>
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://kokko-travel.com/zh/osaka/">
+    <meta name="twitter:title" content="關西住宿推薦指南 | Kansai Hotel Guide | 大阪・京都・神戶・奈良">
+    <meta name="twitter:description" content="精選關西各地優質飯店、傳統日式旅館及高CP值住宿，提供最完整的關西自由行住宿攻略。">
 
-    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Cards injected by JS -->
-    </div>
-  </main>
-  
-  <!-- Footer -->
-  <footer class="max-w-6xl mx-auto px-4 mt-16 text-center text-gray-400 text-sm">
-    <p id="footer-text">※ 櫻花開花狀況受氣候影響，建議出發前查詢日本氣象廳或各大預測網站的最新資訊。</p>
-  </footer>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
 
-  <script>
-    const sakuraData = {
-      '大阪': [
-        { name: '大阪城公園', feature: '以宏偉的大阪城天守閣為背景，園內種植約 3000 棵櫻花樹。特別是「西之丸庭園」的夜櫻點燈，櫻花與打上燈光的天守閣交織出的畫面極具代表性，是關西最經典的賞櫻勝地。', transport: '搭乘 JR 大阪環狀線至「大阪城公園站」或「森之宮站」；或搭乘地下鐵谷町線至「谷町四丁目站」，出站步行約 5-10 分鐘即可抵達。' },
-        { name: '造幣局櫻花通道 (櫻花隧道)', feature: '每年僅在 4 月中旬開放短短 7 天。這裡以種植高達百種、約 300 棵的「八重櫻」聞名，花瓣繁複且顏色多樣（粉、白、黃綠等），是大阪春季最受歡迎的期間限定景點。', transport: '搭乘地下鐵谷町線或京阪本線至「天滿橋站」，從 2 號出口步行約 15 分鐘；或搭乘 JR 東西線至「大阪天滿宮站」步行約 15 分鐘。' },
-        { name: '萬博紀念公園', feature: '園內擁有約 5500 棵櫻花樹，規模宏大。以地標「太陽之塔」為中心，廣大的草皮非常適合家庭野餐。櫻花祭期間也會舉辦夜間點燈及各種熱鬧的市集攤位。', transport: '搭乘大阪單軌電車（Osaka Monorail）至「萬博紀念公園站」或「公園東口站」，出站後即可抵達。' }
-      ],
-      '京都': [
-        { name: '清水寺', feature: '世界文化遺產，春季時約 1500 棵吉野櫻與山櫻綻放。從著名的「清水舞台」向下眺望，彷彿被粉色雲海包圍。夜間特別拜觀的點燈活動更是神秘且令人驚嘆。', transport: '於 JR「京都站」搭乘京都市營巴士 206 路或 100 路，至「五条坂」或「清水道」站下車，沿坡道步行約 10-15 分鐘。' },
-        { name: '哲學之道', feature: '沿著琵琶湖疏水溝渠，長約 2 公里的散步小徑。兩旁種滿了約 500 棵的關雪櫻，花瓣飄落在水面上形成浪漫的「櫻花絨毯」，是極具詩意與靜謐氛圍的散步首選。', transport: '搭乘京都市營巴士至「銀閣寺道」或「銀閣寺前」站下車，步行約 3 分鐘即可到達步道起點。' },
-        { name: '嵐山 (渡月橋與周邊)', feature: '以桂川上的「渡月橋」與後方滿山粉白櫻花的嵐山為絕景。可搭乘嵯峨野浪漫小火車穿梭於山林櫻花之間，或在河畔享受悠閒的春日風情。', transport: '搭乘 JR 嵯峨野線至「嵯峨嵐山站」；或搭乘阪急電鐵京都線至「嵐山站」；或搭乘嵐電至「嵐山站」，出站後皆為徒步圈內。' }
-      ],
-      '奈良': [
-        { name: '奈良公園', feature: '佔地廣闊，可以拍到「櫻花與野生小鹿」同框的夢幻療癒畫面。園內的浮見堂在櫻花點綴下更顯古典之美，這裡也種植了特殊的「奈良八重櫻」。', transport: '搭乘近鐵奈良線至「近鐵奈良站」步行約 5 分鐘；或搭乘 JR 大和路線至「奈良站」步行約 20 分鐘（也可轉乘市區巴士）。' },
-        { name: '吉野山', feature: '日本最著名的賞櫻名所，被譽為「一目千本」。全山種有約 3 萬棵白山櫻，由山麓到山頂分為下千本、中千本、上千本、奧千本，花期可長達近一個月，滿山粉色極度壯觀。', transport: '搭乘近鐵吉野線至終點「吉野站」，轉搭吉野山纜車至「吉野山站」，或搭乘賞櫻期臨時接駁巴士上山。' },
-        { name: '冰室神社', feature: '位於奈良公園周邊，以樹齡超過 400 年的巨大「枝垂櫻」（垂櫻）聞名。是奈良地區最早開花的賞櫻名所之一，垂下的櫻花瀑布非常壯觀且充滿魄力。', transport: '從「近鐵奈良站」或 JR「奈良站」搭乘市內循環巴士，於「冰室神社・國立博物館前」站下車即達。' }
-      ],
-      '神戶': [
-        { name: '夙川公園', feature: '名列日本櫻花百選，沿著夙川長達 2.8 公里的河岸兩側，種植了近 1700 棵櫻花樹與松樹。粉紅櫻花與常綠松樹交織的「松櫻對比」是這裡最大的特色。', transport: '搭乘阪急電鐵神戶線至「夙川站」；或搭乘 JR 神戶線至「櫻花夙川站」（さくら夙川駅），出站後即是公園。' },
-        { name: '須磨浦山上遊園', feature: '搭乘纜車登上鉢伏山，園區內有約 3200 棵櫻花樹。這裡最大的特色是可以同時俯瞰大阪灣、明石海峽大橋的無敵海景與滿山櫻花，視野極佳。', transport: '搭乘山陽電車至「須磨浦公園站」，出站後直接轉乘「須磨浦纜車」上山。' },
-        { name: '生田川公園', feature: '位於新神戶站南側的帶狀公園，被當地人稱為「布引櫻花」。河岸兩側約有 400 棵櫻花樹形成櫻花隧道，夜間會點上燈籠，是神戶市民喜愛的賞櫻私房景點。', transport: '搭乘新幹線或神戶市營地下鐵至「新神戶站」步行約 5 分鐘；或從各線「三宮站」向東步行約 15 分鐘。' }
-      ],
-      '宇治': [
-        { name: '宇治川沿岸 / 宇治橋', feature: '宇治川兩岸種植了約 2000 棵櫻花樹，搭配朱紅色的朝霧橋與古老的宇治橋，充滿平安時代的風情。春季還可搭乘屋形船，在水面上愜意賞櫻。', transport: '搭乘 JR 奈良線至「宇治站」步行約 10 分鐘；或搭乘京阪電車宇治線至「宇治站」，出站即達河岸。' },
-        { name: '平等院', feature: '印在日幣 10 圓硬幣上的世界遺產「鳳凰堂」，在春季時會有阿字池畔的櫻花作為點綴。雖然櫻花數量不多，但紅柱白壁的古剎與粉櫻的倒影交織出極高的藝術美感。', transport: '搭乘 JR 奈良線至「宇治站」步行約 10 分鐘；或搭乘京阪電車宇治線至「宇治站」步行約 10 分鐘。' },
-        { name: '宇治市植物公園', feature: '園內有一棵著名的巨大「夜櫻（枝垂櫻）」，姿態優美，夜間點燈時猶如粉紅色的瀑布流瀉而下。園內其他區域也有多種櫻花，避開了市區的擁擠人潮。', transport: '從 JR「宇治站」或京阪「宇治站」搭乘京都京阪巴士（往太陽之丘方向），於「植物公園站」下車即達。' }
-      ],
-      '姬路': [
-        { name: '姬路城', feature: '日本第一名城、世界文化遺產，擁有「白鷺城」的美名。潔白的城牆與約 1000 棵粉色染井吉野櫻、枝垂櫻相互輝映，是日本極具代表性的明信片級賞櫻絕景。', transport: '搭乘 JR 姬新線/神戶線/山陽新幹線 至「姬路站」，或搭乘山陽電車至「山陽姬路站」，出站沿大手前通直行步行約 15-20 分鐘，或搭乘市區巴士 5 分鐘。' },
-        { name: '好古園', feature: '位於姬路城旁的池泉迴遊式日本庭園。春季時，古典的庭園建築、瀑布流水與盛開的枝垂櫻完美融合，展現出靜謐雅致的江戶時代風情。', transport: '交通方式與姬路城相同，位於姬路城西御屋敷跡（姬路城入口旁步行的距離內）。' },
-        { name: '手柄山中央公園', feature: '位於姬路市區的小山丘上，種植了約 400 棵櫻花。公園內不僅能賞花，還能從山丘上的展望台遠眺姬路城與姬路市區全景，是在地家庭週末休閒的熱門去處。', transport: '搭乘山陽電車至「手柄站」，下車後步行約 10 分鐘即可抵達公園入口。' }
-      ]
-    };
+    <!-- 外國旅客自動導向腳本 (AEO/AAO 國際化支援) -->
+    <script>
+      (function() {
+        try {
+          var userLang = navigator.language || navigator.userLanguage;
+          // 若使用者的瀏覽器語言不是以 'zh' (中文) 開頭，則自動導向英文版
+          if (userLang && !userLang.toLowerCase().startsWith('zh')) {
+            // 將 /zh/ 替換為 /en/ 進行導向
+            var targetUrl = 'https://kokko-travel.com/en/osaka/';
+            window.location.replace(targetUrl);
+          }
+        } catch (e) {
+          console.error('Language detection/redirect failed:', e);
+        }
+      })();
+    </script>
 
-    const momijiData = {
-      '大阪': [
-        { name: '箕面公園 (箕面瀑布)', feature: '大阪最著名的賞楓勝地，被選為日本百大瀑布之一。沿著溪谷的散步道長約 3 公里，秋季時滿山楓紅與氣勢磅礴的瀑布交織，還能品嚐當地特色小吃「炸楓葉」。', transport: '搭乘阪急電鐵至「石橋阪大前站」轉乘箕面線至終點「箕面站」，出站後沿著散步道步行約 40 分鐘可達瀑布。' },
-        { name: '勝尾寺', feature: '以祈求「勝運」聞名的寺廟，境內擺滿了信徒奉納的祈願「達摩不倒翁」。秋季時廣大的腹地被紅葉染紅，達摩與紅葉同框的景色極具特色，夜間也會舉辦點燈活動。', transport: '從北大阪急行電鐵「千里中央站」或阪急電鐵「北千里站」搭乘阪急巴士至「勝尾寺」站下車。' },
-        { name: '萬博紀念公園 (紅葉谷)', feature: '除了春櫻，秋季的萬博公園也極具看頭。園內的「自然文化園」與「日本庭園」種植了約 1 萬棵紅葉樹，包含楓樹與銀杏。紅葉瀑布與紅葉谷的景觀令人心曠神怡。', transport: '搭乘大阪單軌電車（Osaka Monorail）至「萬博紀念公園站」或「公園東口站」，出站後即可抵達。' }
-      ],
-      '京都': [
-        { name: '東福寺', feature: '京都首屈一指的紅葉名所。從木造的「通天橋」望出去，名為「洗玉澗」的溪谷被約 2000 棵的楓葉染成如火般的艷紅，彷彿紅葉之海，視覺極度震撼。', transport: '搭乘 JR 奈良線或京阪本線至「東福寺站」，步行約 10 分鐘即可抵達。' },
-        { name: '嵐山 (天龍寺與渡月橋)', feature: '秋季的嵐山以桂川、渡月橋為中心，背景的群山被紅葉層層渲染。除了漫步河畔，也推薦搭乘「嵯峨野浪漫小火車」或參拜世界遺產「天龍寺」的曹源池庭園欣賞秋景。', transport: '搭乘 JR 嵯峨野線至「嵯峨嵐山站」；或搭乘阪急電鐵京都線至「嵐山站」；或搭乘嵐電至「嵐山站」。' },
-        { name: '清水寺', feature: '春櫻秋楓皆是絕景。秋季時清水舞台下方會被茂密的紅葉包圍，從本堂遠眺奧之院的景色更是經典。秋季限定的夜間特別拜觀，燈光打在紅葉上的夢幻景象不容錯過。', transport: '搭乘京都市營巴士 206 路或 100 路，至「五条坂」或「清水道」站下車，步行約 10-15 分鐘。' }
-      ],
-      '奈良': [
-        { name: '奈良公園', feature: '廣闊的公園內不僅有常綠樹，還有紅色的楓葉與金黃色的銀杏交錯。看著野生的奈良鹿在落葉絨毯上漫步，或是以東大寺、春日大社為背景拍下秋日美照，非常療癒。', transport: '搭乘近鐵奈良線至「近鐵奈良站」步行約 5 分鐘；或搭乘 JR 大和路線至「奈良站」步行約 20 分鐘。' },
-        { name: '談山神社', feature: '被譽為「關西的日光」，境內擁有世界唯一的木造「十三層塔」。秋季時約 3000 棵的楓樹將整座神社包圍，古老的建築與鮮豔的紅葉相映成趣，極具歷史氛圍。', transport: '搭乘近鐵大阪線或 JR 櫻井線至「櫻井站」，轉搭奈良交通巴士（往多武峯、談山神社方向）於終點站下車。' },
-        { name: '長谷寺', feature: '以牡丹聞名的長谷寺也是賞楓秘境。擁有 399 階的迴廊「登廊」兩側秋色滿佈，從國寶「本堂」的舞台向外眺望，能將滿山的紅葉與五重塔盡收眼底。', transport: '搭乘近鐵大阪線至「長谷寺站」，下車後步行約 15-20 分鐘即可抵達。' }
-      ],
-      '神戶': [
-        { name: '有馬溫泉 (瑞寶寺公園)', feature: '位於日本三大名湯之一的有馬溫泉區內，曾讓豐臣秀吉讚嘆「百看不厭」而有「日暮之庭」的美稱。擁有約 2000 棵楓樹，泡湯後穿著浴衣散步賞楓是一大享受。', transport: '搭乘神戶電鐵有馬線至「有馬溫泉站」步行約 15 分鐘；或搭乘巴士至有馬溫泉區後徒步前往。' },
-        { name: '神戶市立森林植物園', feature: '佔地廣大，擁有豐富多樣的樹種。秋季時這裡的「水杉林」會轉為耀眼的金磚色，楓樹區則有一片火紅。園區內也會舉辦「森林紅葉散步」及夜間點燈活動。', transport: '從神戶電鐵「北鈴蘭台站」搭乘免費接駁巴士約 10 分鐘即可抵達。' },
-        { name: '布引香草園', feature: '日本最大的香草園。最推薦的賞楓方式是搭乘「神戶布引纜車」上山，在空中俯瞰滿山秋色與神戶市區、大阪灣的壯麗全景。園區內的歐風建築與秋景也相當好拍。', transport: '搭乘新幹線或市營地下鐵至「新神戶站」，步行約 5 分鐘至纜車站，搭乘纜車上山。' }
-      ],
-      '宇治': [
-        { name: '興聖寺 (琴坂)', feature: '前往寺廟參道的坡道被稱為「琴坂」，兩旁種滿了茂密的楓樹，秋季時會形成一條長達 200 公尺的絕美「紅葉隧道」，是宇治地區最具代表性的賞楓名所。', transport: '搭乘京阪電車宇治線至「宇治站」步行約 15 分鐘；或搭乘 JR 奈良線至「宇治站」步行約 20 分鐘。' },
-        { name: '平等院', feature: '世界遺產的鳳凰堂在秋季也有獨特的美。雖然紅葉數量不像其他專門名所那麼密集，但在阿字池畔的楓紅點綴下，與朱紅色的殿宇、水中倒影構成了一幅完美的極樂淨土圖。', transport: '搭乘 JR 奈良線至「宇治站」步行約 10 分鐘；或搭乘京阪電車宇治線至「宇治站」步行約 10 分鐘。' },
-        { name: '三室戶寺', feature: '素有「花之寺」美稱，除了初夏的紫陽花，秋季的紅葉也十分迷人。近年寺方整理了紅葉庭園，秋季特別公開時，可以欣賞到層次豐富的紅、黃、橘秋景。', transport: '搭乘京阪電車宇治線至「三室戶站」，下車步行約 15 分鐘。' }
-      ],
-      '姬路': [
-        { name: '好古園', feature: '緊鄰姬路城的廣大日式池泉迴遊式庭園。秋季時園內的紅葉與古典的日式建築、鯉魚池、流水完美結合，11 月中下旬還會舉辦浪漫的夜間點燈「紅葉會」。', transport: '搭乘 JR 或山陽電車至「姬路站」，步行約 15 分鐘或搭乘巴士於「姬路城大手門前」下車。' },
-        { name: '書寫山 圓教寺', feature: '擁有千年歷史的天台宗古剎，也是電影《末代武士》的拍攝地。搭乘纜車上山，在莊嚴的木造古建築與幽靜的山林中欣賞參天紅葉，氛圍特別神聖寧靜。', transport: '從「姬路站」搭乘神姬巴士至終點「書寫纜車站」，轉搭書寫山纜車上山。' },
-        { name: '姬路城 (紅葉山)', feature: '在姬路城西側的「紅葉山」周邊，秋季時可以拍到雪白的城牆天守閣與火紅楓葉同框的絕美畫面。城內三之丸廣場的巨大銀杏樹轉黃時也是不可錯過的焦點。', transport: '搭乘 JR 或山陽電車至「姬路站」，沿大手前通直行步行約 15-20 分鐘即可抵達。' }
-      ]
-    };
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 自訂滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fca5a5; /* rose-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fb7185; /* rose-400 */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* 區域按鈕樣式 - 玫瑰紅主題 */
+        .area-btn-active {
+            background-color: #be123c; /* rose-700 */
+            color: white;
+            border-color: #be123c;
+            box-shadow: 0 4px 6px -1px rgba(190, 18, 60, 0.3);
+        }
+        .area-btn-inactive {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .area-btn-inactive:hover {
+            background-color: #fff1f2; /* rose-50 */
+            color: #9f1239; /* rose-800 */
+            border-color: #fda4af; /* rose-300 */
+        }
 
-    // 狀態
-    let activeSeason = 'sakura';
-    let activeTab = '大阪';
+        /* 分類按鈕樣式 */
+        .cat-btn-active {
+            background-color: #e11d48; /* rose-600 */
+            color: white;
+            border-color: #e11d48;
+            box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.3);
+        }
+        .cat-btn-inactive {
+            background-color: #f8fafc; /* slate-50 */
+            color: #64748b; /* slate-500 */
+            border-color: #cbd5e1; /* slate-300 */
+        }
+        .cat-btn-inactive:hover {
+            background-color: #fff1f2; /* rose-50 */
+            color: #e11d48;
+        }
 
-    // SVG 圖示
-    const svgFlower = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 8 6.17 6A3 3 0 1 1 12 5z"/><path d="M12 22v-9"/><path d="M12 13a3 3 0 1 0-5.83-1c0-2 3-3 5.83-3s5.83 1 5.83 3A3 3 0 1 0 12 13z"/><path d="M12 13a3 3 0 1 1 5.83 1c0 2-3 3-5.83 3S6.17 16 6.17 14A3 3 0 1 1 12 13z"/></svg>`;
-    const svgLeaf = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`;
-    const svgSparkles = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400 mr-2 flex-shrink-0 mt-0.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`;
-    const svgTrain = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 mr-2 flex-shrink-0 mt-0.5"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><path d="M8 15h0"/><path d="M16 15h0"/></svg>`;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
 
-    const themeConfig = {
-      sakura: {
-        bg: 'bg-pink-50', selection: 'selection:bg-pink-300', textMain: 'text-pink-500',
-        borderMain: 'border-pink-100', tabActive: 'bg-pink-500 text-white shadow-md transform scale-105',
-        tabHover: 'bg-white text-gray-600 hover:bg-pink-100 hover:text-pink-600', iconH2: 'text-pink-600', borderH2: 'border-pink-200',
-        cardGradient: 'from-pink-300 via-pink-400 to-pink-300 group-hover:from-pink-400 group-hover:to-pink-500',
-        numberBg: 'bg-pink-100 text-pink-600', transportBg: 'bg-pink-50',
-        btnActive: 'bg-white text-pink-500 shadow-sm transform scale-105',
-        btnInactive: 'text-gray-500 hover:text-pink-400 hover:bg-white/50'
-      },
-      momiji: {
-        bg: 'bg-orange-50', selection: 'selection:bg-orange-300', textMain: 'text-orange-500',
-        borderMain: 'border-orange-100', tabActive: 'bg-orange-500 text-white shadow-md transform scale-105',
-        tabHover: 'bg-white text-gray-600 hover:bg-orange-100 hover:text-orange-600', iconH2: 'text-orange-600', borderH2: 'border-orange-200',
-        cardGradient: 'from-orange-300 via-orange-400 to-orange-300 group-hover:from-orange-400 group-hover:to-orange-500',
-        numberBg: 'bg-orange-100 text-orange-600', transportBg: 'bg-orange-50',
-        btnActive: 'bg-white text-orange-500 shadow-sm transform scale-105',
-        btnInactive: 'text-gray-500 hover:text-orange-400 hover:bg-white/50'
+        /* 增強移動端點擊體驗 */
+        button, a {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+
+    <!-- AAO & GEO: 頁面主要結構宣告供 AI 代理人讀取 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "mainEntity": {
+        "@type": "Article",
+        "headline": "關西住宿推薦指南 Kansai Hotel Guide",
+        "author": {
+          "@type": "Organization",
+          "name": "Kokko Travel / Im+ Life"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Kokko Travel"
+        }
       }
-    };
-
-    function updateTheme() {
-      const t = themeConfig[activeSeason];
-      
-      // Body & Header
-      document.getElementById('app-body').className = `min-h-screen font-sans pb-12 transition-colors duration-500 text-gray-800 ${t.bg} ${t.selection} selection:text-white`;
-      document.getElementById('app-header').className = `bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b transition-colors duration-500 ${t.borderMain}`;
-      
-      // Icons & Text
-      const iconSvg = activeSeason === 'sakura' ? svgFlower : svgLeaf;
-      document.getElementById('title-icon-left').innerHTML = iconSvg;
-      document.getElementById('title-icon-right').innerHTML = iconSvg;
-      document.getElementById('title-icon-left').className = `animate-pulse ${t.textMain}`;
-      document.getElementById('title-icon-right').className = `animate-pulse ${t.textMain}`;
-      
-      document.getElementById('season-text').innerText = activeSeason === 'sakura' ? '賞櫻' : '賞楓';
-      document.getElementById('footer-text').innerText = `※ ${activeSeason === 'sakura' ? '櫻花開花' : '紅葉變色'}狀況受氣候影響，建議出發前查詢日本氣象廳或各大預測網站的最新資訊。`;
-
-      // Section Title
-      document.getElementById('section-title-container').className = `mb-6 flex items-center space-x-2 transition-colors duration-500 ${t.iconH2}`;
-      document.getElementById('section-title').className = `text-2xl font-bold border-b-2 pb-1 pr-4 inline-block transition-colors duration-500 ${t.borderH2}`;
-
-      // Toggle Buttons
-      document.getElementById('btn-sakura').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeSeason === 'sakura' ? t.btnActive : t.btnInactive}`;
-      document.getElementById('btn-momiji').className = `flex items-center px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeSeason === 'momiji' ? t.btnActive : t.btnInactive}`;
     }
+    </script>
+</head>
+<body class="bg-[#fff1f2] min-h-screen font-sans text-gray-800 pb-12 antialiased selection:bg-rose-300 selection:text-white">
 
-    function renderTabs() {
-      const t = themeConfig[activeSeason];
-      const data = activeSeason === 'sakura' ? sakuraData : momijiData;
-      const cities = Object.keys(data);
-      const container = document.getElementById('tabs-container');
-      
-      container.innerHTML = cities.map(city => `
-        <button
-          onclick="setTab('${city}')"
-          class="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-in-out ${activeTab === city ? t.tabActive : t.tabHover}"
-        >
-          ${city}
-        </button>
-      `).join('');
-    }
+    <div class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
+        <!-- Header -->
+        <header role="banner" class="text-center mb-8 sm:mb-10">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 sm:gap-5 mb-4">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-rose-900 tracking-wide flex items-center">
+                    <i class="fa-solid fa-hotel mr-2 sm:mr-3 text-rose-600" aria-hidden="true"></i>關西住宿推薦指南
+                </h1>
+                <a href="https://kokko-travel.com/zh/osaka/" aria-label="返回 Kokko Travel 首頁" data-nosnippet class="inline-flex items-center justify-center min-h-[44px] px-5 py-2 bg-white hover:bg-rose-100 text-rose-700 text-sm sm:text-base font-bold rounded-lg transition-colors shadow-sm border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-400">
+                    <i class="fa-solid fa-house mr-2" aria-hidden="true"></i>
+                    回到首頁
+                </a>
+            </div>
+            <p class="text-rose-600 font-medium text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                精選大阪、京都與關西近郊優質飯店，讓您的日本之旅住得舒心又便利
+            </p>
+        </header>
 
-    function renderCards() {
-      const t = themeConfig[activeSeason];
-      const data = activeSeason === 'sakura' ? sakuraData : momijiData;
-      const spots = data[activeTab];
-      
-      document.getElementById('section-title').innerText = `${activeTab} 精選景點`;
+        <!-- 第一層：區域按鈕 (橫向滾動) -->
+        <nav aria-label="選擇城市區域" class="mb-6 sm:mb-8 overflow-hidden">
+            <div id="district-buttons" class="flex overflow-x-auto scrollbar-hide gap-2 sm:gap-3 pb-2 snap-x snap-mandatory overscroll-x-contain md:flex-wrap md:justify-center" role="tablist">
+                <!-- 區域按鈕將由 JS 動態生成 -->
+            </div>
+        </nav>
 
-      const container = document.getElementById('cards-container');
-      container.innerHTML = spots.map((spot, index) => `
-        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-50 flex flex-col h-full group">
-          <div class="h-2 w-full bg-gradient-to-r transition-colors duration-500 ${t.cardGradient}"></div>
-          <div class="p-6 flex-grow flex flex-col">
-            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-start">
-              <span class="rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5 transition-colors duration-500 ${t.numberBg}">
-                ${index + 1}
-              </span>
-              ${spot.name}
-            </h3>
+        <!-- 第二層：分類按鈕 -->
+        <nav aria-label="選擇住宿分類" id="category-buttons" class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10 bg-white/80 backdrop-blur-sm p-3 sm:p-4 rounded-xl shadow-sm border border-rose-100 hidden">
+            <!-- 分類按鈕將由 JS 動態生成 -->
+        </nav>
+
+        <!-- 內容顯示區 -->
+        <main role="main" id="content-area" aria-live="polite" class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-md border border-rose-100 p-5 sm:p-6 md:p-8 min-h-[400px]">
+            <div class="flex h-full items-center justify-center text-rose-300 pt-20 pb-20">
+                <p class="font-bold text-lg flex items-center"><i class="fa-solid fa-spinner fa-spin mr-3 text-2xl"></i>載入推薦住宿中...</p>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer role="contentinfo" class="mt-12 sm:mt-16 text-center">
+            <!-- 版權宣告區塊優化 -->
+            <div class="border-t border-rose-200/80 pt-8 pb-6 text-xs sm:text-sm text-slate-500 space-y-1.5 font-medium">
+                <p class="font-bold text-slate-600 text-sm sm:text-base">Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+                <p>版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+                <p>本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 依照關西熱門區域建置的資料結構 (每個分類各5間，包含分潤 Allianceid=299526438)
+        const hotelData = {
+            "osaka": {
+                name: "大阪 (Osaka)",
+                categories: {
+                    "五星奢華飯店": [
+                        { name: "Conrad Osaka (大阪康萊德酒店)", feature: "位於中之島，被稱為「天空中的地址」，擁有無敵的大阪全景落地窗與極致奢華的藝術空間設計。", address: "大阪市北區中之島 3-2-4 / 渡邊橋站直結", url: "https://hk.trip.com/hotels/osaka-hotel-detail-8033133/conrad-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Swissotel Nankai Osaka (大阪南海輝盛庭國際公寓)", feature: "難波車站正上方！交通與購物無可挑剔，搭乘南海電鐵去機場最方便的頂級五星選擇。", address: "大阪市中央區難波 5-1-60 / 南海難波站直結", url: "https://hk.trip.com/hotels/osaka-hotel-detail-976800/swissotel-nankai-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "InterContinental Osaka (大阪洲際酒店)", feature: "坐落於梅田 Grand Front Osaka 內，交通樞紐的靜謐綠洲，客房寬敞且享有大阪無死角美景。", address: "大阪市北區大深町 3-60 / JR大阪站步行5分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-1836788/intercontinental-hotel-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "The Ritz-Carlton Osaka (大阪麗思卡爾頓酒店)", feature: "濃厚古典歐洲莊園風格，提供極致尊榮的英式管家服務與米其林星級餐廳，氣派非凡。", address: "大阪市北區梅田 2-5-25 / JR大阪站步行7分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-1280987/the-ritz-carlton-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "St. Regis Osaka (大阪瑞吉酒店)", feature: "位於御堂筋的精華地段，全房型皆配備標誌性管家服務，完美詮釋日本款待精神與法式優雅。", address: "大阪市中央區本町 3-6-12 / 本町站直結", url: "https://hk.trip.com/hotels/osaka-hotel-detail-992466/st-regis-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ],
+                    "平價高CP值": [
+                        { name: "Hotel Hankyu RESPIRE OSAKA (大阪阪急呼吸飯店)", feature: "梅田站旁的大型新穎飯店，與Yodobashi商場直結。交通極度便利，房間乾淨且衛浴分離。", address: "大阪市北區大深町 1-1 / JR大阪站步行3分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-37082416/hotel-hankyu-respire-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Sotetsu Grand Fresa Osaka-Namba (相鐵 Grand Fresa 大阪難波)", feature: "距離道頓堀僅一步之遙！逛街吃宵夜超方便，CP值爆表，是自由行旅客的最愛。", address: "大阪市中央區日本橋 1-1-13 / 日本橋站步行2分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-4064224/hotel-sunroute-osaka-namba/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Hotel Keihan Namba Grande (京阪難波格蘭德飯店)", feature: "近年新開幕！位於難波Parks旁，設計感極佳，部分房型適合多人入住，性價比極高。", address: "大阪市浪速區難波中 2-11-13 / 難波站步行6分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-99513876/hotel-keihan-namba-grande/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "VIA INN PRIME Shinsaibashi (心齋橋四橋維亞高級酒店)", feature: "位於心齋橋與四橋之間，逛街無敵方便。設有舒適的頂樓大浴場，逛一天後能徹底放鬆。", address: "大阪市西區新町 1-4-12 / 四橋站步行1分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-37193125/via-inn-prime-shinsaibashi-yotsubashi-jr-west-group/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ],
+                    "設計風/公寓式": [
+                        { name: "Kamon Hotel Namba (難波嘉門飯店)", feature: "濃濃和風與現代設計結合的精品旅館，氣氛溫馨，提供多樣的日式早餐與免費腳踏車租借。", address: "大阪市中央區千日前 2-3-33 / 日本橋站步行3分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-9135244/kamon-hotel-namba/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "MIMARU Osaka Namba Station (美滿如大阪難波站)", feature: "超受家庭歡迎的連鎖公寓式酒店，房內附有小廚房與餐桌，空間寬敞，適合多人或親子入住。", address: "大阪市浪速區日本橋 3-6-24 / 難波站步行5分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-94176886/mimaru-osaka-namba-station/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "OMO7 Osaka by Hoshino Resorts (星野集團 OMO7 大阪)", feature: "星野集團旗下主打都市觀光的品牌！擁有大片草坪廣場與免費在地導覽，新今宮站旁超吸睛地標。", address: "大阪市浪速區惠美須西 3-16-30 / 新今宮站步行1分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-84903681/7-da-ban-by-xing-ye-ji-tuan/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Zentis Osaka (大阪臻庭酒店)", feature: "位於堂島，由著名設計師操刀的設計酒店。風格溫暖高雅，英式復古風的公共空間極具質感。", address: "大阪市北區堂島濱 1-4-26 / 渡邊橋站步行4分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-63006776/zentis-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Citadines Namba Osaka (大阪難波馨樂庭公寓酒店)", feature: "將擁有歷史的百貨建築翻新而成的法式公寓酒店，挑高大廳與精美的廚房房型深受長住客喜愛。", address: "大阪市浪速區日本橋 3-5-25 / 日本橋站步行6分鐘", url: "https://hk.trip.com/hotels/osaka-hotel-detail-52647143/citadines-namba-osaka/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ]
+                }
+            },
+            "kyoto": {
+                name: "京都 (Kyoto)",
+                categories: {
+                    "頂級奢華飯店": [
+                        { name: "THE THOUSAND KYOTO (京都千飯店)", feature: "京都車站旁的綠洲，融合極簡美學與京都禪意，一踏入大廳便能感受令人驚豔的光影與靜謐。", address: "京都市下京區東鹽小路町 570 / JR京都站步行2分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-25658991/the-thousand-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Park Hyatt Kyoto (京都柏悅酒店)", feature: "位於二年坂旁，無與倫比的地段。完美融合傳統日式庭園與現代奢華，能近距離欣賞八坂塔夕陽。", address: "京都市東山區高台寺桝屋町 360 / 位於清水寺周邊", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-42370779/park-hyatt-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Aman Kyoto (京都安縵)", feature: "隱身於洛北森林的頂級避世之所，融合天然溫泉與絕美青苔庭園，是金字塔頂端客群的最愛。", address: "京都市北區大北山鷲峯町 1 / 金閣寺周邊", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-58048525/aman-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "The Ritz-Carlton Kyoto (京都麗思卡爾頓酒店)", feature: "坐落於鴨川畔，將京都的歷史底蘊與現代頂級服務完美結合，從房間即可眺望鴨川或東山美景。", address: "京都市中京區鉾田町 543 / 京都市役所前站步行3分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-1848311/the-ritz-carlton-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Four Seasons Hotel Kyoto (京都四季酒店)", feature: "擁有一座擁有800年歷史的「積翠園」，在都市中營造出寧靜的高級度假村氛圍，服務無微不至。", address: "京都市東山區妙法院前側町 445-3 / 位於七条周邊", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-5708589/four-seasons-hotel-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ],
+                    "傳統日式旅館": [
+                        { name: "Kyoto Nanzenji Ryokan Yachiyo (南禪寺 八千代)", feature: "位於南禪寺旁的百年老字號旅館，擁有絕美的池泉庭園，並提供精緻美味的傳統京懷石料理。", address: "京都市左京區南禪寺福地町 34 / 蹴上站步行5分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-706415/kyoto-nanzenji-ryokan-yachiyo-established-in-1915/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Hoshinoya Kyoto (星野集團 虹夕諾雅 京都)", feature: "需乘船才能抵達的頂級渡假旅館！位於嵐山保津川畔，遠離塵囂，享受最極致的京都貴族體驗。", address: "京都市西京區嵐山元錄山町 11-2 / 嵐山站乘船抵達", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-2137357/hoshinoya-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Seikoro Ryokan (晴鴨樓)", feature: "超過180年歷史的日式旅館，被登錄為國家有形文化財。大正浪漫風情的裝潢與高野槙木風呂是其特色。", address: "京都市東山區問屋町通五条下ル / 清水五条站步行2分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-706191/seikoro-ryokan/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Hiiragiya Ryokan (柊家旅館)", feature: "京都三大百年御三家旅館之一。歷代文人雅士與皇室的愛店，提供最高級別的「一期一會」日式款待。", address: "京都市中京區中白山町 277 / 京都市役所前站步行3分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-1636227/zhong-jia-ri-shi-lv-guan/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ],
+                    "質感高CP值": [
+                        { name: "Sakura Terrace The Gallery", feature: "深受外國遊客喜愛！擁有充滿度假風情的開放式火爐大廳、免費迎賓飲料與大浴場，氣氛極佳。", address: "京都市南區東九条上殿田町 39 / JR京都站八條口步行3分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-2074622/sakura-terrace-the-gallery/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Cross Hotel Kyoto (京都十字飯店)", feature: "位於河原町與三条商圈交界，逛街吃美食絕佳位置。內部裝潢現代且帶有京都木質元素。", address: "京都市中京區大黑町 71-1 / 京阪三条站步行4分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-21869296/cross-hotel-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Hotel Resol Trinity Kyoto (京都御池 蕾索爾翠怡飯店)", feature: "日系和風質感極佳的連鎖旅館。大廳充滿古雅氣息，頂樓設有景觀大浴場，價格十分合理。", address: "京都市中京區上白山町 249 / 京都市役所前站步行2分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-21831414/hotel-resol-trinity-kyoto-oikefuyacho/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Richmond Hotel Premier Kyoto Shijo (京都四条里士滿尊貴飯店)", feature: "服務評價極高的連鎖品牌。房間寬敞、早餐豐盛，並提供免費迎賓點心與專屬休息室。", address: "京都市下京區四条通油小路東入傘鉾町 50 / 四条站步行5分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-86134094/richmond-hotel-kyoto-shijo/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "sequence KYOTO GOJO (京都五條 序列飯店)", feature: "主打年輕人與文青的潮流飯店。無紙化入住、房間設計極簡舒適，地下室還設有時尚的蒸氣浴設施。", address: "京都市下京區五条烏丸町 409 / 五条站步行3分鐘", url: "https://hk.trip.com/hotels/kyoto-hotel-detail-56695314/sequence-kyoto-gojo/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ]
+                }
+            },
+            "miyama": {
+                name: "美山 (Miyama)",
+                categories: {
+                    "特色茅葺民宿": [
+                        { name: "Miyama Nature Culture Village (美山自然文化村 河鹿莊)", feature: "位於美山川畔，結合自然與傳統的住宿體驗。提供大浴場，晚餐能享用道地的山豬肉牡丹鍋或地雞料理。", address: "南丹市美山町中下向 56 / 需搭乘南丹市營巴士前往", url: "https://hk.trip.com/hotels/nantan-hotel-detail-6257197/miyama-nature-and-culture-village-kajikaso/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Miyama Kaya Villas (美山茅葺別墅)", feature: "提供整棟租借的茅草屋別墅，內部翻新得非常現代舒適，適合家庭或一群朋友一同體驗日本鄉村的靜謐。", address: "南丹市美山町島英 / 建議租車自駕", url: "https://hk.trip.com/hotels/nantan-hotel-detail-3464034/miyama-kaya-villa/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Ryokan Kigusuriya (料理旅館 きぐすりや)", feature: "大正時代創立的老字號料理旅館，原為藥局。現在以極其美味的當季山產、溪魚與農村料理聞名。", address: "南丹市美山町鶴ケ岡 / 需搭乘巴士或自駕", url: "https://hk.trip.com/hotels/nantan-hotel-detail-3160862/ryokan-kigusuriya/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Chinsenro (料理旅館 枕川樓)", feature: "雖然位於美山邊緣，但這裡的天然溫泉與絕美的由良川溪流景觀，是探索美山後極佳的落腳處。", address: "南丹市美山町周邊 / 建議租車自駕", url: "https://hk.trip.com/hotels/nantan-hotel-detail-7833610/ryokan-chinsen-rou-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ]
+                }
+            },
+            "nara": {
+                name: "奈良 (Nara)",
+                categories: {
+                    "經典奢華飯店": [
+                        { name: "Nara Hotel (奈良飯店)", feature: "創立於1909年的「關西迎賓館」，愛因斯坦與奧黛麗赫本都曾入住。充滿明治時代的古典洋風與歷史韻味。", address: "奈良市高畑町 1096 / 近鐵奈良站步行15分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-705006/nara-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "JW Marriott Hotel Nara (奈良 JW 萬豪酒店)", feature: "奈良首家國際奢華品牌酒店。將奈良的自然元素(如小鹿圖騰)巧妙融入現代設計，服務無微不至。", address: "奈良市三條大路 1-1-1 / 新大宮站步行10分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-53088204/jw-marriott-hotel-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Shisui, a Luxury Collection Hotel (紫翠 豪華精選酒店)", feature: "位於奈良公園腹地內，融合日式傳統庭園與現代奢華。部分客房設有私人露天溫泉，尊榮感極高。", address: "奈良市登大路町 62 / 近鐵奈良站步行12分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-107946295/shisui-a-luxury-collection-hotel-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Fufu Nara (馥翠 奈良)", feature: "高級度假旅館品牌「馥翠」。全房型皆為附設私人天然溫泉的套房，並提供奈良當地食材製作的頂級懷石料理。", address: "奈良市高畑町 1184-1 / 奈良公園周邊", url: "https://hk.trip.com/hotels/nara-hotel-detail-60062327/fufu-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Noborioji Hotel Nara (登大路飯店)", feature: "獲得米其林指南高度評價的小型精品酒店。隱私性極高，以其精緻的法式料理與無可挑剔的服務聞名。", address: "奈良市登大路町 40-1 / 近鐵奈良站步行3分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-2487886/noborioji-hotel/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ],
+                    "溫泉與高CP值": [
+                        { name: "Onyado Nono Nara Natural Hot Spring (天然溫泉 吉野櫻之湯 御宿野乃)", feature: "Dormy Inn 旗下的高級和風商旅。全館鋪設榻榻米，擁有極佳的天然溫泉大浴場與免費宵夜拉麵。", address: "奈良市大宮町 1-1-6 / JR奈良站步行1分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-9788198/onyado-nono-nara-natural-hot-spring/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Piazza Hotel Nara (奈良廣場飯店)", feature: "位於JR車站旁，交通無敵。房間寬敞舒適，高樓層房型可眺望若草山與奈良市區景緻。", address: "奈良市三條本町 11-20 / JR奈良站步行2分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-9028312/piazza-hotel-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Daiwa Roynet Hotel Nara (奈良大和魯內酒店)", feature: "緊鄰JR奈良站，設有天然溫泉大浴場。房間明亮寬敞，是商務與觀光客的高CP值首選。", address: "奈良市三條本町 11-20 / JR奈良站步行3分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-39457895/daiwaroyalhotel-d-premium-nara/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Centurion Hotel Classic Nara (奈良百夫長經典飯店)", feature: "價格親民且裝潢帶有現代古典風格。步行前往近鐵車站或商店街都非常方便，CP值極佳。", address: "奈良市油阪地方町 1-1 / JR奈良站步行5分鐘", url: "https://hk.trip.com/hotels/nara-hotel-detail-11221547/centurion-hotel-classic-nara-station/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ]
+                }
+            },
+            "uji": {
+                name: "宇治 (Uji)",
+                categories: {
+                    "景觀與便利商旅": [
+                        { name: "Hanayashiki Ukifune-en (花屋敷浮舟園)", feature: "位於宇治川畔的絕美景觀旅館。所有客房皆面朝河流，提供頂級的京懷石料理與靜謐的茶鄉住宿體驗。", address: "宇治市宇治塔川 20 / JR宇治站步行15分鐘", url: "https://hk.trip.com/hotels/uji-hotel-detail-704709/hanayashiki-ukifune-en-kyoto/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" },
+                        { name: "Hotel Trend JR Uji Station (JR宇治站前觀光潮流飯店)", feature: "就位在車站前，是遊覽宇治最方便、CP值最高的商務型旅館。步行至平等院與各茶舖都非常近。", address: "宇治市宇治宇文字 15-2 / JR宇治站步行2分鐘", url: "https://hk.trip.com/hotels/uji-hotel-detail-62446121/hotel-trend-jr-uji-ekimae/?Allianceid=7913725&SID=301540016&trip_sub1=&trip_sub3=D14300267" }
+                    ]
+                }
+            },
+            "kobe": {
+                name: "神戶 (Kobe)",
+                categories: {
+                    "港灣夜景飯店": [
+                        { name: "Kobe Meriken Park Oriental Hotel (神戶美利堅公園東方酒店)", feature: "外觀宛如白色波浪，矗立於神戶港灣上。房間陽台能獨享被譽為價值千萬的海港璀璨夜景。", address: "神戶市中央區波止場町 5-6 / 元町站步行15分鐘(有接駁車)", url: "https://tw.trip.com/hotels/list/?keyword=Kobe%20Meriken%20Park%20Oriental%20Hotel&Allianceid=299526438" },
+                        { name: "Hotel Okura Kobe (神戶大倉酒店)", feature: "日系頂級飯店的代名詞，比鄰神戶港塔，服務細膩到位，早餐的法式吐司極為著名。", address: "神戶市中央區波止場町 2-1 / 元町站步行10分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Hotel%20Okura%20Kobe&Allianceid=299526438" },
+                        { name: "Kobe Portopia Hotel (神戶波多比亞飯店)", feature: "位於人工島上，擁有大型水療中心與絕佳的海景視野。飯店腹地廣大，充滿濃厚的度假氛圍。", address: "神戶市中央區港島中町 6-10-1 / 市民廣場站直結", url: "https://tw.trip.com/hotels/list/?keyword=Kobe%20Portopia%20Hotel&Allianceid=299526438" },
+                        { name: "Hotel La Suite Kobe Harborland (神戶臨海樂園套房酒店)", feature: "全館皆為附設按摩浴缸與海景露台的大坪數套房！提供最高級的南法度假體驗與神戶牛料理。", address: "神戶市中央區波止場町 7-2 / 美紀公園站步行4分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Hotel%20La%20Suite%20Kobe&Allianceid=299526438" },
+                        { name: "Oriental Hotel (神戶東方酒店)", feature: "位於舊居留地，歷史悠久的傳奇酒店。內部裝潢低調奢華，完美展現神戶融合東西方文化的迷人魅力。", address: "神戶市中央區京町 25 / 元町站步行7分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Oriental%20Hotel%20Kobe&Allianceid=299526438" }
+                    ],
+                    "有馬溫泉名宿": [
+                        { name: "Arima Onsen Taketoritei Maruyama (有馬溫泉 竹取亭圓山)", feature: "以竹取物語為主題的高級溫泉旅館，提供金泉與銀泉的私人包場露天風呂，極具私密性與情調。", address: "神戶市北區有馬町 1364-1 / 有馬溫泉站提供接駁服務", url: "https://tw.trip.com/hotels/list/?keyword=Arima%20Onsen%20Taketoritei%20Maruyama&Allianceid=299526438" },
+                        { name: "Gekkoen Yugetsusanso (月光園 游月山莊)", feature: "依山傍水，擁有極富詩意的溪流露天溫泉。建築本身保留了傳統的數寄屋造風格，古色古香。", address: "神戶市北區有馬町 318 / 有馬溫泉站提供接駁服務", url: "https://tw.trip.com/hotels/list/?keyword=Gekkoen%20Yugetsusanso&Allianceid=299526438" },
+                        { name: "Arima Grand Hotel (有馬大飯店)", feature: "有馬溫泉區規模最大、設施最完善的豪華飯店。頂樓的展望露天大浴場能將有馬的山嵐美景一覽無遺。", address: "神戶市北區有馬町 1304-1 / 有馬溫泉站提供接駁服務", url: "https://tw.trip.com/hotels/list/?keyword=Arima%20Grand%20Hotel&Allianceid=299526438" },
+                        { name: "Arima Onsen Gekkoen Korokan (月光園 鴻朧館)", feature: "游月山莊的姐妹館，走現代高雅路線。擁有絕佳的視野，並提供頂級的神戶牛與季節懷石料理。", address: "神戶市北區有馬町 318 / 有馬溫泉站提供接駁服務", url: "https://tw.trip.com/hotels/list/?keyword=Arima%20Onsen%20Gekkoen%20Korokan&Allianceid=299526438" },
+                        { name: "Tocen Goshoboh (陶泉 御所坊)", feature: "有馬溫泉最古老的旅館！曾是谷崎潤一郎等文豪的愛店，其半混浴設計的金泉大浴場非常具有歷史特色。", address: "神戶市北區有馬町 858 / 有馬溫泉站步行5分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Tocen%20Goshoboh&Allianceid=299526438" }
+                    ],
+                    "市區高CP值": [
+                        { name: "Remm Plus Kobe Sannomiya (雷姆 Plus 神戶三宮)", feature: "與三宮車站直結的質感商旅！以「好眠」為宗旨，全房配備高規格床墊與按摩椅，消除旅途疲憊。", address: "神戶市中央區加納町 4-2-1 / 阪急三宮站直結", url: "https://tw.trip.com/hotels/list/?keyword=Remm%20Plus%20Kobe%20Sannomiya&Allianceid=299526438" },
+                        { name: "Daiwa Roynet Hotel Kobe Sannomiya (神戶三宮大和魯內酒店)", feature: "深受好評的連鎖品牌。距離繁華的三宮商店街極近，房間明亮整潔，是商務與觀光購物的理想據點。", address: "神戶市中央區御幸通 5-1-6 / JR三宮站步行7分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Daiwa%20Roynet%20Hotel%20Kobe%20Sannomiya&Allianceid=299526438" },
+                        { name: "Candeo Hotels Kobe Tor Road (神戶托亞之路光芒飯店)", feature: "充滿現代設計感。最大的賣點是頂樓的「天空大浴場」，可以一邊泡湯一邊欣賞神戶市區迷人的夜景。", address: "神戶市中央區三宮町 3-8-8 / JR元町站步行3分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Candeo%20Hotels%20Kobe%20Tor%20Road&Allianceid=299526438" },
+                        { name: "Brenza Hotel (布倫扎飯店)", feature: "神戶極具風格的精品旅館。磚牆外觀與工業風客房設計非常吸引年輕人，交通與周邊餐飲機能極佳。", address: "神戶市中央區雲井通 6-1-1 / JR三宮站步行3分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Brenza%20Hotel&Allianceid=299526438" },
+                        { name: "Hotel Monte Hermana Kobe Amalie (神戶阿瑪麗埃蒙特埃馬納酒店)", feature: "外觀與內裝洋溢著神戶特有的歐洲復古風情。價格親民且氣氛溫馨，距離生田神社與商店街都不遠。", address: "神戶市中央區中山手通 2-2-28 / JR三宮站步行7分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Hotel%20Monte%20Hermana%20Kobe&Allianceid=299526438" }
+                    ]
+                }
+            },
+            "himeji": {
+                name: "姬路 (Himeji)",
+                categories: {
+                    "城景與便利高CP": [
+                        { name: "Hotel Monterey Himeji (姬路蒙特利酒店)", feature: "就在姬路車站旁，完美融合古典歐風設計。部分房型與大浴場可直接遠眺純白的姬路城。", address: "姬路市駅前町 60 / JR姬路站步行1分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Hotel%20Monterey%20Himeji&Allianceid=299526438" },
+                        { name: "Daiwa Roynet Hotel Himeji (姬路大和魯內酒店)", feature: "日本知名連鎖商務飯店，房間寬敞明亮，乾濕分離衛浴。距離車站與商店街極近，性價比極高。", address: "姬路市駅前町 353 / JR姬路站步行4分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Daiwa%20Roynet%20Hotel%20Himeji&Allianceid=299526438" },
+                        { name: "Dormy Inn Himeji (天然溫泉 白鷺之湯)", feature: "溫泉控首選！頂樓設有天然溫泉大浴場與露天風呂，泡湯後還有免費冰棒與著名的宵夜醬油拉麵。", address: "姬路市豐澤町 160 / JR姬路站南口步行3分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Dormy%20Inn%20Himeji&Allianceid=299526438" },
+                        { name: "Richmond Hotel Himeji (姬路里士滿飯店)", feature: "日本常勝軍商務旅館品牌！服務細膩、房內設施齊全且床鋪舒適，非常適合在意住宿品質的旅客。", address: "姬路市南畝町 2-7 / JR姬路站步行6分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Richmond%20Hotel%20Himeji&Allianceid=299526438" },
+                        { name: "Hotel Nikko Himeji (姬路日航酒店)", feature: "JR姬路站南口正前方的高級飯店。擁有舒適寬敞的客房與高樓層餐廳，是姬路市內最具代表性的星級飯店。", address: "姬路市南駅前町 100 / JR姬路站步行1分鐘", url: "https://tw.trip.com/hotels/list/?keyword=Hotel%20Nikko%20Himeji&Allianceid=299526438" }
+                    ]
+                }
+            }
+        };
+
+        // AAO & GEO: 動態生成 Knowledge Graph (JSON-LD) 供 AI 代理人與搜尋引擎讀取全站結構
+        function injectStructuredData() {
+            const schema = {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "itemListElement": []
+            };
+            let position = 1;
             
-            <div class="mb-6 flex-grow">
-              <div class="flex items-start text-gray-600 mb-1">
-                ${svgSparkles}
-                <span class="font-semibold text-gray-700">景點特色</span>
-              </div>
-              <p class="text-gray-600 leading-relaxed pl-7 text-sm">
-                ${spot.feature}
-              </p>
-            </div>
+            for (const [regionKey, regionData] of Object.entries(hotelData)) {
+                for (const [catKey, hotels] of Object.entries(regionData.categories)) {
+                    hotels.forEach(hotel => {
+                        schema.itemListElement.push({
+                            "@type": "ListItem",
+                            "position": position++,
+                            "item": {
+                                "@type": "LodgingBusiness",
+                                "name": `${regionData.name} - ${hotel.name}`,
+                                "description": hotel.feature,
+                                "address": {
+                                    "@type": "PostalAddress",
+                                    "streetAddress": hotel.address,
+                                    "addressRegion": regionData.name,
+                                    "addressCountry": "JP"
+                                }
+                            }
+                        });
+                    });
+                }
+            }
 
-            <div class="rounded-xl p-4 mt-auto transition-colors duration-500 ${t.transportBg}">
-              <div class="flex items-start text-gray-700 mb-1">
-                ${svgTrain}
-                <span class="font-semibold">交通方式</span>
-              </div>
-              <p class="text-gray-600 text-sm pl-7 leading-relaxed">
-                ${spot.transport}
-              </p>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.text = JSON.stringify(schema);
+            document.head.appendChild(script);
+        }
+        injectStructuredData();
 
-    // 事件與更新邏輯
-    function setSeason(season) {
-      if (activeSeason === season) return;
-      activeSeason = season;
-      updateTheme();
-      renderTabs();
-      renderCards();
-    }
+        const districtContainer = document.getElementById('district-buttons');
+        const categoryContainer = document.getElementById('category-buttons');
+        const contentArea = document.getElementById('content-area');
+        
+        let currentDistrictKey = null;
+        let currentCategoryName = null;
 
-    function setTab(tab) {
-      if (activeTab === tab) return;
-      activeTab = tab;
-      renderTabs();
-      renderCards();
-    }
+        // 1. 初始化區域按鈕
+        function initDistrictButtons() {
+            Object.keys(hotelData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = `snap-center whitespace-nowrap min-h-[44px] px-5 sm:px-6 py-2.5 rounded-full font-bold text-sm sm:text-base transition-all duration-200 border area-btn-inactive shadow-sm flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-rose-400`;
+                btn.innerHTML = `<i class="fa-solid fa-map-pin mr-1.5 opacity-70" aria-hidden="true"></i>${hotelData[key].name}`;
+                btn.setAttribute("role", "tab");
+                btn.onclick = () => selectDistrict(key, btn);
+                districtContainer.appendChild(btn);
+            });
+        }
 
-    document.getElementById('btn-sakura').addEventListener('click', () => setSeason('sakura'));
-    document.getElementById('btn-momiji').addEventListener('click', () => setSeason('momiji'));
+        // 2. 選擇區域
+        function selectDistrict(key, activeBtn) {
+            currentDistrictKey = key;
 
-    // 初始化
-    updateTheme();
-    renderTabs();
-    renderCards();
-  </script>
+            const allBtns = districtContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('area-btn-active');
+                btn.classList.add('area-btn-inactive');
+                btn.setAttribute("aria-selected", "false");
+            });
+            activeBtn.classList.remove('area-btn-inactive');
+            activeBtn.classList.add('area-btn-active');
+            activeBtn.setAttribute("aria-selected", "true");
+
+            categoryContainer.classList.remove('hidden');
+            renderCategoryButtons();
+        }
+
+        // 3. 渲染分類按鈕
+        function renderCategoryButtons() {
+            categoryContainer.innerHTML = '';
+            const currentCategories = Object.keys(hotelData[currentDistrictKey].categories);
+            
+            currentCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `min-h-[44px] px-4 sm:px-5 py-2 rounded-lg font-bold text-sm sm:text-base transition-all duration-200 border cat-btn-inactive shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-rose-400`;
+                btn.innerText = cat;
+                btn.setAttribute("aria-pressed", "false");
+                btn.onclick = () => selectCategory(cat, btn);
+                categoryContainer.appendChild(btn);
+            });
+
+            // 預設點擊第一個分類
+            const firstCatBtn = categoryContainer.querySelector('button');
+            if(firstCatBtn) {
+                selectCategory(currentCategories[0], firstCatBtn);
+            }
+        }
+
+        // 4. 選擇分類
+        function selectCategory(categoryName, activeBtn) {
+            currentCategoryName = categoryName;
+
+            const allBtns = categoryContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.classList.remove('cat-btn-active');
+                btn.classList.add('cat-btn-inactive');
+                btn.setAttribute("aria-pressed", "false");
+            });
+            activeBtn.classList.remove('cat-btn-inactive');
+            activeBtn.classList.add('cat-btn-active');
+            activeBtn.setAttribute("aria-pressed", "true");
+
+            renderHotels();
+        }
+
+        // 5. 渲染飯店資料
+        function renderHotels() {
+            const districtData = hotelData[currentDistrictKey];
+            const hotels = districtData.categories[currentCategoryName] || [];
+
+            let htmlContent = `
+                <div class="flex flex-col sm:flex-row sm:items-center mb-6 border-b pb-4 border-rose-100 animate-fade-in">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-rose-900 mr-4 tracking-tight flex items-center">
+                        <i class="fa-solid fa-location-dot mr-2.5 text-rose-500" aria-hidden="true"></i>${districtData.name}
+                    </h2>
+                    <span class="inline-flex mt-3 sm:mt-0 px-3 py-1.5 bg-rose-100 text-rose-800 text-sm sm:text-base font-bold rounded-full border border-rose-200 shadow-sm items-center w-max">
+                        <i class="fa-solid fa-tag mr-1.5" aria-hidden="true"></i>${currentCategoryName}
+                    </span>
+                </div>
+            `;
+
+            if (hotels.length === 0) {
+                htmlContent += `<p class="text-slate-500 py-10 text-center animate-fade-in text-base sm:text-lg font-medium">此分類目前無推薦資料。</p>`;
+            } else {
+                htmlContent += `<div class="space-y-5 sm:space-y-6">`;
+                
+                hotels.forEach((hotel, index) => {
+                    const linkTagHTML = hotel.url 
+                        ? `<a href="${hotel.url}" target="_blank" rel="noopener noreferrer" aria-label="查看 ${hotel.name} 詳細說明" class="inline-flex items-center justify-center min-h-[44px] px-5 sm:px-6 py-2.5 mt-4 sm:mt-0 rounded-xl text-sm sm:text-base font-bold bg-[#ff5b00] text-white hover:bg-[#e05000] transition-colors shadow-sm cursor-pointer sm:ml-auto w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-[#ff5b00] focus:ring-offset-2">
+                               <i class="fa-solid fa-magnifying-glass mr-2" aria-hidden="true"></i>詳細說明
+                           </a>`
+                        : '';
+
+                    htmlContent += `
+                        <article aria-labelledby="hotel-title-${index}" class="bg-[#fff9f9] border border-rose-50 p-5 md:p-7 rounded-2xl hover:shadow-lg transition-all duration-300 animate-fade-in transform hover:-translate-y-1" style="animation-delay: ${index * 0.05}s;">
+                            <div class="flex flex-col sm:flex-row sm:items-start justify-between mb-4 sm:mb-5 gap-2 sm:gap-4">
+                                <h3 id="hotel-title-${index}" class="text-xl sm:text-2xl font-bold text-rose-900 flex items-start leading-tight pt-1">
+                                    <span class="text-white bg-rose-400 rounded-full w-6 h-6 sm:w-7 sm:h-7 inline-flex items-center justify-center text-sm sm:text-base mr-2.5 sm:mr-3 flex-shrink-0 font-bold shadow-sm" aria-hidden="true">${index + 1}</span> 
+                                    ${hotel.name}
+                                </h3>
+                                ${linkTagHTML}
+                            </div>
+                            <div class="pl-0 sm:pl-10 space-y-3 sm:space-y-4">
+                                <div class="flex items-start">
+                                    <span class="font-bold text-rose-800 bg-rose-100 px-2.5 py-0.5 rounded mr-2.5 flex-shrink-0 text-xs sm:text-sm mt-0.5 shadow-sm"><i class="fa-solid fa-star mr-1.5" aria-hidden="true"></i>亮點</span> 
+                                    <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-medium">${hotel.feature}</p>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="font-bold text-rose-800 bg-rose-100 px-2.5 py-0.5 rounded mr-2.5 flex-shrink-0 text-xs sm:text-sm mt-0.5 shadow-sm"><i class="fa-solid fa-map-pin mr-1.5" aria-hidden="true"></i>位置</span> 
+                                    <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-medium">${hotel.address}</p>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+
+            contentArea.innerHTML = htmlContent;
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initDistrictButtons();
+            const firstDistrictBtn = districtContainer.querySelector('button');
+            if(firstDistrictBtn) {
+                selectDistrict('osaka', firstDistrictBtn);
+            }
+        });
+    </script>
 </body>
 </html>
