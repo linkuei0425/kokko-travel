@@ -1,10 +1,88 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新加坡行程推薦指南 | Singapore Trip Guide</title>
+    <!-- 14. 適合手機/平板/電腦的響應式 Viewport 設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
+    <!-- 11. SEO / AEO / GEO / AAO 最頂級全方位優化 (開始) -->
+    <title>新加坡行程推薦指南 | Kokko Travel</title>
+    <meta name="description" content="2026最新新加坡行程推薦指南。彙整新加坡市區景點(濱海灣花園、星耀樟宜)、聖淘沙環球影城、萬禮動物園，以及周邊跨國(新山、民丹島)的門票與一日遊最佳方案，提供AI代理及旅客最完整的票券選擇。">
+    <meta name="keywords" content="新加坡行程推薦, 新加坡門票, 環球影城門票, 濱海灣花園, 聖淘沙一日遊, 跨國遊, Kokko Travel, Im+ Life">
+    <meta name="author" content="Kokko Travel / Im+ Life">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- Open Graph / 社群分享優化 -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kokko-travel.com/zh/singapore/">
+    <meta property="og:title" content="新加坡行程推薦指南 | Kokko Travel">
+    <meta property="og:description" content="2026最新新加坡行程推薦指南。彙整市區、聖淘沙及跨國的熱門門票與一日遊方案。">
+    
+    <!-- Twitter Card 優化 -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://kokko-travel.com/zh/singapore/">
+    <meta name="twitter:title" content="新加坡行程推薦指南 | Kokko Travel">
+    <meta name="twitter:description" content="2026最新新加坡行程推薦指南。彙整市區、聖淘沙及跨國的熱門門票與一日遊方案。">
+    
+    <!-- 標準網址 (Canonical URL) -->
+    <link rel="canonical" href="https://kokko-travel.com/zh/singapore/">
+
+    <!-- AEO / GEO 結構化資料 (JSON-LD) - 讓 AI 與爬蟲精準理解行程票券內容 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "headline": "新加坡行程推薦指南",
+          "description": "2026最新新加坡行程推薦，涵蓋新加坡市區、聖淘沙與周邊跨國一日遊及必買門票。",
+          "author": {
+            "@type": "Organization",
+            "name": "Kokko Travel / Im+ Life",
+            "url": "https://kokko-travel.com/"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "去新加坡玩可以安排哪些行程或購買什麼門票？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "推薦預訂濱海灣花園、夜間野生動物園、星耀樟宜等市區精華，以及聖淘沙環球影城的門票。若天數充裕，還可以搭配馬來西亞樂高樂園或印尼巴淡島的一日遊行程。"
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+    <!-- 11. SEO / AEO / GEO / AAO 優化 (結束) -->
+
+    <!-- 13. 外國人自動導向英文版腳本 -->
+    <script>
+        (function() {
+            try {
+                var userLang = navigator.language || navigator.userLanguage;
+                if (!userLang.toLowerCase().startsWith('zh')) {
+                    window.location.replace('https://kokko-travel.com/en/singapore/');
+                }
+            } catch (e) {
+                console.error("Language detection failed", e);
+            }
+        })();
+    </script>
+
+    <!-- 10. Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
     <!-- 引入 Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -16,6 +94,11 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0fdf4;
+            -webkit-font-smoothing: antialiased;
+        }
         /* 隱藏水平捲軸但保留滾動功能 */
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
@@ -23,6 +106,17 @@
         .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+        /* 提升手機版點擊體驗 */
+        button, a {
+            -webkit-tap-highlight-color: transparent;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
         }
     </style>
 </head>
@@ -271,25 +365,28 @@
             const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
 
             return (
-                <div className="min-h-screen bg-[#f0fdf4] font-sans text-slate-800 pb-12">
+                <div className="min-h-screen flex flex-col font-sans text-slate-800">
                     {/* 頂部導覽列 */}
-                    <header className="bg-white shadow-sm sticky top-0 z-10">
+                    <header className="bg-white shadow-sm sticky top-0 z-50" role="banner">
                         <div className="max-w-5xl mx-auto px-4 py-4 md:py-6">
                             <div className="flex items-center gap-2 mb-4">
                                 <MapPin className="text-emerald-600 w-6 h-6 md:w-8 md:h-8" />
-                                <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">
-                                新加坡行程探索指南
+                                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500 tracking-tight">
+                                    新加坡行程探索指南
                                 </h1>
                             </div>
                             
                             {/* 地區選擇 */}
-                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                            <nav className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide" aria-label="地區選擇選單">
+                                {/* 15. 回到首頁按鈕 */}
                                 <a
-                                    href="https://linkuei0425.github.io/Singapore/index.html"
-                                    className="flex items-center gap-1.5 whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
+                                    href="https://kokko-travel.com/zh/singapore/"
+                                    className="flex items-center gap-1.5 whitespace-nowrap px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 active:scale-95"
+                                    aria-label="回到 Kokko Travel 首頁"
                                 >
                                     <Home className="w-4 h-4" />
-                                    回到首頁
+                                    <span className="hidden sm:inline">回到首頁</span>
+                                    <span className="sm:hidden">首頁</span>
                                 </a>
 
                                 {REGIONS.map((region) => (
@@ -302,7 +399,8 @@
                                                 setSelectedCategory(allowed[0]);
                                             }
                                         }}
-                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                                        aria-pressed={selectedRegion === region}
+                                        className={`whitespace-nowrap px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 active:scale-95 ${
                                             selectedRegion === region
                                             ? 'bg-emerald-600 text-white shadow-md'
                                             : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
@@ -311,18 +409,19 @@
                                         {region}
                                     </button>
                                 ))}
-                            </div>
+                            </nav>
                         </div>
                     </header>
 
-                    <main className="max-w-5xl mx-auto px-4 py-6">
+                    <main className="flex-grow max-w-5xl w-full mx-auto px-4 py-6 sm:py-8" role="main">
                         {/* 分類標籤 */}
-                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                        <nav className="flex flex-wrap gap-2 md:gap-3 mb-6 sm:mb-8" aria-label="分類標籤選單">
                             {CATEGORIES.filter(cat => getAvailableCategoryIds(selectedRegion).includes(cat.id)).map(({ id, icon: Icon }) => (
                                 <button
                                     key={id}
                                     onClick={() => setSelectedCategory(id)}
-                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                    aria-pressed={selectedCategory === id}
+                                    className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl border text-xs sm:text-sm font-bold transition-all active:scale-95 ${
                                         selectedCategory === id
                                         ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm'
                                         : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
@@ -332,69 +431,81 @@
                                     {id}
                                 </button>
                             ))}
-                        </div>
+                        </nav>
 
                         {/* 內容區標題 */}
                         <div className="mb-6">
-                            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <h2 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
                                 {selectedRegion} - {selectedCategory} 精選推薦
                             </h2>
                         </div>
 
                         {/* 卡片列表 */}
-                        {currentData.length > 0 ? (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                                {currentData.map((item, index) => (
-                                    <div 
-                                        key={index} 
-                                        className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 md:p-6 flex flex-col justify-between hover:shadow-md transition-shadow"
-                                    >
-                                        <div>
-                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight">
-                                                {item.title}
-                                            </h3>
-                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">
-                                                {item.description}
-                                            </p>
-                                        </div>
-                                        
-                                        <div className="mt-auto pt-4 border-t border-slate-50 flex justify-end">
-                                            <a
-                                                href={item.link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-5 rounded-lg transition-colors w-full sm:w-auto"
-                                            >
-                                                <Info className="w-4 h-4" />
-                                                <span>詳細說明與預訂</span>
-                                                <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
-                                            </a>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
-                                <h3 className="text-lg font-medium text-slate-700 mb-2">
-                                    此區域目前無對應項目的資料
-                                </h3>
-                                <p className="text-slate-500">請嘗試選擇其他分類或分頁。</p>
-                            </div>
-                        )}
+                        <section aria-live="polite">
+                            {currentData.length > 0 ? (
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                    {currentData.map((item, index) => (
+                                        <article 
+                                            key={index} 
+                                            className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6 flex flex-col justify-between hover:shadow-lg transition-shadow animate-fade-in"
+                                        >
+                                            <div>
+                                                <h3 className="text-base sm:text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight">
+                                                    {item.title}
+                                                </h3>
+                                                <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed font-medium">
+                                                    {item.description}
+                                                </p>
+                                            </div>
+                                            
+                                            <div className="mt-auto pt-5 border-t border-slate-50 flex justify-end">
+                                                <a
+                                                    href={item.link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 sm:py-2.5 px-5 rounded-xl transition-transform active:scale-95 w-full sm:w-auto text-sm sm:text-base"
+                                                    aria-label={`查看 ${item.title} 詳細說明與預訂`}
+                                                >
+                                                    <Info className="w-4 h-4" />
+                                                    <span>詳細說明與預訂</span>
+                                                    <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
+                                                </a>
+                                            </div>
+                                        </article>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-10 sm:p-12 text-center flex flex-col items-center justify-center">
+                                    <h3 className="text-base sm:text-lg font-bold text-slate-700 mb-2">
+                                        此區域目前無對應項目的資料
+                                    </h3>
+                                    <p className="text-sm sm:text-base text-slate-500 font-medium">請嘗試選擇其他分類或分頁。</p>
+                                </div>
+                            )}
+                        </section>
 
                         {/* Klook 全局探索按鈕 */}
-                        <div className="mt-10 flex justify-center">
+                        <div className="mt-10 sm:mt-12 flex justify-center">
                             <a 
                                 href="https://www.klook.com/zh-TW/search/result/?query=%E6%96%B0%E5%8A%A0%E5%9D%A1&aid=115830" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3.5 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3.5 px-8 rounded-full shadow-lg transition-transform active:scale-95 text-sm sm:text-base w-full sm:w-auto"
                             >
                                 <span className="tracking-wide">前往 Klook 探索更多新加坡行程</span>
                                 <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
                             </a>
                         </div>
                     </main>
+
+                    {/* 12. 版權宣告 Footer (完全遵照要求內容) */}
+                    <footer className="bg-slate-900 text-slate-400 text-xs sm:text-sm py-8 sm:py-10 mt-auto border-t border-slate-800" role="contentinfo">
+                        <div className="max-w-5xl mx-auto px-6 text-center flex flex-col gap-1.5 leading-relaxed">
+                            <p>Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+                            <p>版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+                            <p>本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+                        </div>
+                    </footer>
                 </div>
             );
         }
