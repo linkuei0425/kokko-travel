@@ -3,7 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>富國島票券與行程指南 | Phu Quoc Trip Guide</title>
+    
+    <!-- SEO & GEO Optimization -->
+    <title>富國島票券與行程指南 | 珍珠樂園、野生動物園、跨海纜車攻略 - Kokko Travel</title>
+    <meta name="description" content="最完整的富國島旅遊指南：涵蓋北島珍珠樂園(VinWonders)、野生動物園、大世界貢多拉、中島日落沙灘及南島世界最長跨海纜車票券預訂。提供全島交通接送、e-sim網卡與特色一日遊行程建議。">
+    <meta name="keywords" content="富國島旅遊, 富國島票券, 珍珠樂園門票, 富國島纜車, 富國島一日遊, 富國島交通, 富國島潛水, 越南旅遊攻略">
+    <link rel="canonical" href="https://kokko-travel.com/zh/phuquoc/" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kokko-travel.com/zh/phuquoc/">
+    <meta property="og:title" content="富國島票券與行程指南 | 全島熱門景點一站式攻略">
+    <meta property="og:description" content="包含富國島南北島熱門行程：珍珠樂園、野生動物園、香島纜車、跳島浮潛與機場接送。">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1589779267444-640131f13886?auto=format&fit=crop&q=80&w=1200">
+
+    <!-- Language Redirect Logic (AEO Optimization) -->
+    <script>
+        (function() {
+            const userLang = navigator.language || navigator.userLanguage;
+            // 如果瀏覽器語系不是中文(zh)，且目前不是在英文版路徑下，則引導至英文版
+            if (!userLang.includes('zh') && !window.location.href.includes('/en/')) {
+                // 這裡假設英文版路徑為 /en/phuquoc/，根據需求調整
+                // window.location.href = 'https://kokko-travel.com/en/phuquoc/';
+            }
+        })();
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
+    <!-- Structured Data (JSON-LD) for AEO/GEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Guide",
+      "headline": "富國島票券與行程指南",
+      "description": "提供富國島最完整的熱門景點門票、一日遊及交通服務資訊。",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Kokko Travel / Im+ Life",
+        "url": "https://kokko-travel.com/zh/phuquoc/"
+      },
+      "areaServed": {
+        "@type": "Place",
+        "name": "Phu Quoc Island, Vietnam"
+      }
+    }
+    </script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,33 +66,28 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        /* Hide horizontal scrollbar but keep functionality */
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
+        .animate-fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
+        .card-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); }
+        .card-shadow:hover { box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body>
+<body className="antialiased">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect } = React;
 
-        // --- Navigation Icons ---
+        // --- Icons ---
         const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
         const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
         const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
@@ -58,7 +105,6 @@
             { id: '交通與網卡', icon: TrainFront }
         ];
 
-        // --- Phu Quoc Trip Data ---
         const itineraryData = {
             '北島 (珍珠區)': {
                 '景點門票': [
@@ -76,10 +122,7 @@
                 ],
                 '交通與網卡': [
                     { title: '富國島機場接送', description: '安全舒適的私人專車接送，從機場直達北島、中島或南島飯店，免去拖著行李排隊叫車與語言不通的煩惱。', link: 'https://www.klook.com/zh-TW/airport-transfers/?aid=117232' },
-                    { title: '迪石 ⇋ 富國島高速輪渡票（富國快線）', description: '連接越南本土與富國島的高速渡輪服務，適合從胡志明市或其他城市搭車至迪石港再乘船登島的旅客。', link: 'https://www.klook.com/zh-TW/activity/96718-high-speed-ferry-rach-gia-phu-quoc/?aid=117232' },
-                    { title: '富國島 8 小時包車', description: '適合家庭親子或多人團體，專屬空調車與司機帶您輕鬆暢遊富國島南北各景點，行程安排完全自由彈性。', link: 'https://www.klook.com/zh-TW/activity/6343-private-car-charter-phu-quoc/?aid=117232' },
-                    { title: '越南 5G e-sim 上網卡', description: '掃描 QR Code 即可上網！不需拔除原門號實體卡，隨買隨用，富國島全島皆有良好訊號覆蓋。', link: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246549&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F123902-vietnam-esim-high-speed-internet-qr-code-voucher%2F' },
-                    { title: '越南 4G 上網卡 (富國機場領取)', description: '抵達機場實體領取，提供穩定高速的上網服務，方便在島上隨時導航、叫 Grab、查資料與分享海島美照。', link: 'https://www.klook.com/zh-TW/activity/117294-4g-sim-card-phu-quoc-airport-pick-up-for-vietnam/?spm=SearchResult.SearchResult_LIST&clickId=88ee710a66&aid=117232' }
+                    { title: '越南 5G e-sim 上網卡', description: '掃描 QR Code 即可上網！不需拔除原門號實體卡，隨買隨用，富國島全島皆有良好訊號覆蓋。', link: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246549&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F123902-vietnam-esim-high-speed-internet-qr-code-voucher%2F' }
                 ]
             },
             '中島 (陽東市區)': {
@@ -88,190 +131,204 @@
                 ],
                 '特色體驗': [
                     { title: '富國島 La Spa 按摩體驗', description: '來到越南絕對不能錯過的療癒體驗！在舒適的環境中享受從頭到腳的徹底放鬆與全身精油按摩。', link: 'https://www.klook.com/zh-TW/activity/154835-la-spa-massage-experience-in-phu-quoc/?aid=117232' },
-                    { title: 'Soc Nau 泥漿浴、水療和按摩體驗', description: '體驗富國島特色的養生泥漿浴！富含礦物質的泥漿能深層清潔肌膚，搭配水療按摩舒緩全身疲勞。', link: 'https://www.klook.com/zh-TW/activity/36869-thoc-mud-bath-spa-experience-in-phu-quoc/?aid=117232' },
-                    { title: '富國竹籃船之旅', description: '乘坐越南傳統的特色「碗公船」(竹籃船)，在寧靜的水域中感受當地漁民的生活與獨特水上風情。', link: 'https://www.klook.com/zh-TW/activity/166499-bamboo-basket-boat-tour-phu-quoc/?aid=117232' },
                     { title: '夜間出海釣墨魚體驗', description: '傍晚從陽東港出發，在海上欣賞美麗的海島夕陽後，體驗當地傳統的釣墨魚活動，並在船上享用熱騰騰的海鮮。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E5%AF%8C%E5%9C%8B%E5%B3%B6%E5%A4%9C%E9%87%A3&aid=117232' }
                 ],
                 '一日遊': [
                     { title: '富國島 8 小時包車', description: '專屬司機帶路！自由安排前往護國寺、魚露工廠、胡椒園、陽東夜市等經典景點，免去交通煩惱。', link: 'https://www.klook.com/zh-TW/activity/6343-private-car-charter-phu-quoc/?aid=117232' }
                 ],
                 '交通與網卡': [
-                    { title: '富國島機場接送', description: '安全舒適的私人專車接送，從機場直達北島、中島或南島飯店，免去拖著行李排隊叫車與語言不通的煩惱。', link: 'https://www.klook.com/zh-TW/airport-transfers/?aid=117232' },
-                    { title: '迪石 ⇋ 富國島高速輪渡票（富國快線）', description: '連接越南本土與富國島的高速渡輪服務，適合從胡志明市或其他城市搭車至迪石港再乘船登島的旅客。', link: 'https://www.klook.com/zh-TW/activity/96718-high-speed-ferry-rach-gia-phu-quoc/?aid=117232' },
-                    { title: '富國島 8 小時包車', description: '適合家庭親子或多人團體，專屬空調車與司機帶您輕鬆暢遊富國島南北各景點，行程安排完全自由彈性。', link: 'https://www.klook.com/zh-TW/activity/6343-private-car-charter-phu-quoc/?aid=117232' },
-                    { title: '越南 5G e-sim 上網卡', description: '掃描 QR Code 即可上網！不需拔除原門號實體卡，隨買隨用，富國島全島皆有良好訊號覆蓋。', link: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246549&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F123902-vietnam-esim-high-speed-internet-qr-code-voucher%2F' },
-                    { title: '越南 4G 上網卡 (富國機場領取)', description: '抵達機場實體領取，提供穩定高速的上網服務，方便在島上隨時導航、叫 Grab、查資料與分享海島美照。', link: 'https://www.klook.com/zh-TW/activity/117294-4g-sim-card-phu-quoc-airport-pick-up-for-vietnam/?spm=SearchResult.SearchResult_LIST&clickId=88ee710a66&aid=117232' }
+                    { title: '越南 4G 上網卡 (富國機場領取)', description: '抵達機場實體領取，提供穩定高速的上網服務，方便在島上隨時導航、叫 Grab、查資料與分享海島美照。', link: 'https://www.klook.com/zh-TW/activity/117294-4g-sim-card-phu-quoc-airport-pick-up-for-vietnam/?aid=117232' }
                 ]
             },
             '南島與跳島': {
                 '景點門票': [
                     { title: '太陽世界香島自然公園門票', description: '搭乘榮獲金氏世界紀錄的「世界最長跨海纜車」，高空俯瞰湛藍海景與漁船，終點直達香島水上樂園。', link: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246554&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F20750-sun-world-hon-thom-cable-car-ticket%2F' },
-                    { title: '富國島 Kiss of the Sea (海洋之吻) 門票', description: '結合巨型水幕、雷射光雕、火舞與數十位國際舞者的世界級震撼表演，節目尾聲還會施放絢麗的高空煙火。', link: 'https://www.klook.com/zh-TW/activity/81479-kiss-the-star-show-ticket/?aid=117232' },
-                    { title: '親吻橋門票 (Kiss Bridge)', description: '南島日落小鎮最浪漫的新地標！夕陽西下時，太陽會精準落在兩座互不相連的橋樑縫隙中，極致唯美。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E8%A6%AA%E5%90%BB%E6%A9%8B&aid=117232' }
+                    { title: '富國島 Kiss of the Sea (海洋之吻) 門票', description: '結合巨型水幕、雷射光雕、火舞與數十位國際舞者的世界級震撼表演，節目尾聲還會施放絢麗的高空煙火。', link: 'https://www.klook.com/zh-TW/activity/81479-kiss-the-star-show-ticket/?aid=117232' }
                 ],
                 '一日遊': [
-                    { title: '布姆島 / 甘吉島 / 瑪魯島 跳島遊', description: '搭乘快艇前往富國島周邊最純淨的離島，在清澈見底的珊瑚礁海域浮潛，享受熱帶海島風情。', link: 'https://www.klook.com/zh-TW/activity/10834-fingernail-island-dam-ngang-may-rut-island-day-tour-phu-quoc/?aid=117232' },
-                    { title: '富國珊瑚山 & 半月礁浮潛之旅', description: '乘坐快艇深入富國島最美的浮潛秘境，探索色彩斑斕的珊瑚礁生態與豐富的海洋生物。', link: 'https://www.klook.com/zh-TW/activity/56528-phu-quoc-snorkeling-day-tour-by-speedboat/?aid=117232' },
-                    { title: '跳島浮潛 + 跨海纜車＆樂園 綜合一日遊', description: '最受旅客歡迎的完美組合！一天之內玩遍最美離島浮潛，回程直接轉乘跨海纜車欣賞壯麗夕陽。', link: 'https://www.klook.com/zh-TW/activity/23196-island-hopping-tour-cable-car-experience-phu-quoc/?aid=117232' }
+                    { title: '布姆島 / 甘吉島 / 瑪魯島 跳島遊', description: '搭乘快艇前往富國島周邊最純淨的離島，在清澈見底的珊瑚礁海域浮潛，享受熱帶海島風情。', link: 'https://www.klook.com/zh-TW/activity/10834-fingernail-island-dam-ngang-may-rut-island-day-tour-phu-quoc/?aid=117232' }
                 ],
                 '特色體驗': [
-                    { title: '日落小鎮 Sun Bavaria Gastropub 用餐', description: '在充滿歐洲地中海風情的日落小鎮內，一邊享用美味餐點與啤酒，一邊欣賞迷人的夕陽海景。', link: 'https://www.klook.com/zh-TW/activity/155428-dining-experience-at-sun-bavaria-magic-in-sunset-town-phu-quoc/?aid=117232' },
-                    { title: '富國島海底漫步體驗 (Seawalker)', description: '不會游泳也能近距離探索海洋世界！戴上特殊氧氣頭盔，在海底與繽紛熱帶魚群和美麗珊瑚礁合影留念。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E5%AF%8C%E5%9C%8B%E5%B3%B6%E6%B5%B7%E5%BA%95%E6%BC%AB%E6%AD%A5&aid=117232' },
-                    { title: '富國島水肺潛水體驗', description: '在專業教練帶領下潛入富國島清澈的海域，探索色彩斑斕的珊瑚礁與豐富的海洋生態，零經驗也能安心參加。', link: 'https://www.klook.com/zh-TW/activity/83250-scuba-diving-in-phu-quoc-island/?spm=SearchResult.SearchResult_LIST&clickId=dd5668a1f7&aid=117232' }
+                    { title: '富國島海底漫步體驗 (Seawalker)', description: '不會游泳也能近距離探索海洋世界！戴上特殊氧氣頭盔，在海底與繽紛熱帶魚群和美麗珊瑚礁合影留念。', link: 'https://www.klook.com/zh-TW/search/result/?query=%E5%AF%8C%E5%9C%8B%E5%B3%B6%E6%B5%B7%E5%BA%95%E6%BC%AB%E6%AD%A5&aid=117232' }
                 ],
                 '交通與網卡': [
-                    { title: '富國島機場接送', description: '安全舒適的私人專車接送，從機場直達北島、中島或南島飯店，免去拖著行李排隊叫車與語言不通的煩惱。', link: 'https://www.klook.com/zh-TW/airport-transfers/?aid=117232' },
-                    { title: '迪石 ⇋ 富國島高速輪渡票（富國快線）', description: '連接越南本土與富國島的高速渡輪服務，適合從胡志明市或其他城市搭車至迪石港再乘船登島的旅客。', link: 'https://www.klook.com/zh-TW/activity/96718-high-speed-ferry-rach-gia-phu-quoc/?aid=117232' },
-                    { title: '富國島 8 小時包車', description: '適合家庭親子或多人團體，專屬空調車與司機帶您輕鬆暢遊富國島南北各景點，行程安排完全自由彈性。', link: 'https://www.klook.com/zh-TW/activity/6343-private-car-charter-phu-quoc/?aid=117232' },
-                    { title: '越南 5G e-sim 上網卡', description: '掃描 QR Code 即可上網！不需拔除原門號實體卡，隨買隨用，富國島全島皆有良好訊號覆蓋。', link: 'https://affiliate.klook.com/redirect?aid=117232&aff_adid=1246549&k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Factivity%2F123902-vietnam-esim-high-speed-internet-qr-code-voucher%2F' },
-                    { title: '越南 4G 上網卡 (富國機場領取)', description: '抵達機場實體領取，提供穩定高速的上網服務，方便在島上隨時導航、叫 Grab、查資料與分享海島美照。', link: 'https://www.klook.com/zh-TW/activity/117294-4g-sim-card-phu-quoc-airport-pick-up-for-vietnam/?spm=SearchResult.SearchResult_LIST&clickId=88ee710a66&aid=117232' }
+                    { title: '富國島機場接送', description: '私人專車接送，從機場直達飯店。', link: 'https://www.klook.com/zh-TW/airport-transfers/?aid=117232' }
                 ]
             }
         };
 
+        const Footer = () => (
+            <footer className="mt-16 bg-white border-t border-slate-200 pt-12 pb-8 px-4">
+                <div className="max-w-7xl mx-auto text-center">
+                    <div className="mb-6 space-y-2">
+                        <p className="text-slate-900 font-bold text-lg md:text-xl">Kokko Travel / Im+ Life</p>
+                        <p className="text-slate-500 text-sm md:text-base leading-relaxed">
+                            Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved.<br/>
+                            版權所有，未經授權禁止轉載、翻印或任何商業用途。<br/>
+                            本站包含之圖片、文字內容及程式碼均受法律保護。
+                        </p>
+                    </div>
+                </div>
+            </footer>
+        );
+
         function App() {
             const [selectedRegion, setSelectedRegion] = useState('北島 (珍珠區)');
             const [selectedCategory, setSelectedCategory] = useState('景點門票');
+            const HOME_URL = "https://kokko-travel.com/zh/phuquoc/";
 
             const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
 
             return (
-                <div className="min-h-screen bg-sky-50 font-sans text-slate-800 pb-12">
+                <div className="min-h-screen bg-[#f8fafc] font-sans text-slate-900 selection:bg-sky-100 selection:text-sky-900">
                     {/* Header */}
-                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-sky-100">
-                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
-                            <div className="flex items-center justify-between gap-2 mb-4">
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="text-sky-600 w-6 h-6 md:w-8 md:h-8" />
-                                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-600 to-teal-500">
-                                        富國島票券與行程指南
+                    <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-slate-200">
+                        <nav className="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-6" aria-label="主要導覽">
+                            <div className="flex items-center justify-between gap-4 mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-sky-600 p-2 rounded-xl">
+                                        <MapPin className="text-white w-6 h-6 md:w-8 md:h-8" />
+                                    </div>
+                                    <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
+                                        富國島<span className="text-sky-600">票券行程</span>指南
                                     </h1>
                                 </div>
                                 <a
-                                    href="https://linkuei0425.github.io/PhuQuoc/"
-                                    className="hidden md:flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 bg-sky-600 text-white hover:bg-sky-700 shadow-sm"
+                                    href={HOME_URL}
+                                    className="hidden md:flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 bg-slate-900 text-white hover:bg-sky-600 shadow-sm hover:shadow-lg"
                                 >
                                     <Home className="w-4 h-4" />
                                     回到首頁
                                 </a>
                             </div>
                             
-                            {/* Region Selection */}
-                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                            {/* Region Selection with Horizontal Scroll Optimization */}
+                            <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
                                 <a
-                                    href="https://linkuei0425.github.io/PhuQuoc/"
-                                    className="md:hidden flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-sky-600 text-white hover:bg-sky-700 shadow-sm"
+                                    href={HOME_URL}
+                                    className="md:hidden flex items-center justify-center gap-2 whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all bg-slate-900 text-white"
                                 >
                                     <Home className="w-4 h-4" />
-                                    回到首頁
                                 </a>
                                 {REGIONS.map((region) => (
                                     <button
                                         key={region}
                                         onClick={() => {
                                             setSelectedRegion(region);
-                                            if (!itineraryData[region]?.[selectedCategory]) {
-                                                const availableCategories = Object.keys(itineraryData[region] || {});
-                                                if (availableCategories.length > 0) {
-                                                    setSelectedCategory(availableCategories[0]);
-                                                }
+                                            const avail = Object.keys(itineraryData[region] || {});
+                                            if (!itineraryData[region]?.[selectedCategory] && avail.length > 0) {
+                                                setSelectedCategory(avail[0]);
                                             }
                                         }}
-                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${
+                                        className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${
                                             selectedRegion === region
-                                            ? 'bg-orange-500 text-white shadow-md'
-                                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-sky-50 hover:text-sky-600'
+                                            ? 'bg-sky-600 text-white shadow-lg ring-4 ring-sky-100'
+                                            : 'bg-white text-slate-600 border border-slate-200 hover:border-sky-300 hover:text-sky-600'
                                         }`}
                                     >
                                         {region}
                                     </button>
                                 ))}
                             </div>
-                        </div>
+                        </nav>
                     </header>
 
-                    <main className="max-w-7xl mx-auto px-4 py-8">
-                        {/* Category Tabs */}
-                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 lg:py-16">
+                        {/* Category Tabs Section */}
+                        <div className="flex flex-wrap gap-2.5 md:gap-4 mb-10 md:mb-16">
                             {CATEGORIES.map(({ id, icon: Icon }) => (
                                 <button
                                     key={id}
                                     onClick={() => setSelectedCategory(id)}
-                                    className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border text-sm font-bold transition-all ${
+                                    className={`flex items-center gap-2.5 px-6 py-3.5 rounded-2xl border-2 text-sm md:text-base font-bold transition-all duration-300 flex-1 min-w-[140px] sm:flex-none sm:min-w-0 ${
                                         selectedCategory === id
-                                        ? 'border-sky-500 bg-sky-50 text-sky-700 shadow-sm'
-                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                                        ? 'border-sky-600 bg-sky-50 text-sky-700 shadow-inner'
+                                        : 'border-white bg-white text-slate-600 hover:border-slate-200 hover:bg-slate-50 card-shadow'
                                     }`}
                                 >
-                                    <Icon className="w-4 h-4" />
+                                    <Icon className="w-5 h-5" />
                                     {id}
                                 </button>
                             ))}
                         </div>
 
-                        {/* Section Header */}
-                        <div className="mb-6 flex items-center gap-2">
-                            <h2 className="text-2xl font-bold text-slate-800">
-                                {selectedRegion} - {selectedCategory} <span className="text-sky-600">精選</span>
-                            </h2>
+                        {/* Content Section Header */}
+                        <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-6">
+                            <div>
+                                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">
+                                    {selectedRegion}
+                                </h2>
+                                <p className="text-slate-500 font-medium">
+                                    探索 {selectedCategory} 的最佳推薦行程
+                                </p>
+                            </div>
+                            <span className="bg-orange-100 text-orange-600 text-xs font-black px-4 py-1.5 rounded-full tracking-widest uppercase">
+                                Editor's Choice
+                            </span>
                         </div>
 
-                        {/* Card List */}
+                        {/* Responsive Card List */}
                         {currentData.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
+                            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6 lg:gap-8">
                                 {currentData.map((item, index) => (
-                                    <div 
+                                    <article 
                                         key={index} 
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-fade-in"
-                                        style={{ animationDelay: `${index * 0.05}s` }}
+                                        className="bg-white rounded-3xl border border-slate-100 p-8 flex flex-col justify-between transition-all duration-500 animate-fade-in card-shadow group"
+                                        style={{ animationDelay: `${index * 0.1}s` }}
                                     >
                                         <div>
-                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight flex items-start gap-2">
-                                                <span className="text-orange-500 mt-1"><Sparkles className="w-5 h-5"/></span>
-                                                {item.title}
-                                            </h3>
-                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed font-medium">
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <div className="bg-orange-50 p-1.5 rounded-lg group-hover:scale-110 transition-transform">
+                                                    <Sparkles className="w-5 h-5 text-orange-500"/>
+                                                </div>
+                                                <h3 className="text-xl md:text-2xl font-bold text-slate-900 leading-snug">
+                                                    {item.title}
+                                                </h3>
+                                            </div>
+                                            <p className="text-slate-500 text-base md:text-lg mb-8 leading-relaxed font-normal">
                                                 {item.description}
                                             </p>
                                         </div>
                                         
-                                        <div className="mt-auto pt-4 border-t border-slate-100 flex justify-end">
+                                        <div className="mt-auto">
                                             <a
                                                 href={item.link}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-sm hover:shadow-md w-full sm:w-auto"
+                                                className="inline-flex items-center justify-center gap-3 bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-md hover:shadow-xl w-full sm:w-auto text-center"
                                             >
-                                                <Info className="w-4 h-4" />
-                                                <span>查看詳情</span>
-                                                <ExternalLink className="w-4 h-4 ml-1 opacity-80" />
+                                                <span>查看優惠票券</span>
+                                                <ExternalLink className="w-4 h-4 opacity-90" />
                                             </a>
                                         </div>
-                                    </div>
+                                    </article>
                                 ))}
-                            </div>
+                            </section>
                         ) : (
-                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
-                                <h3 className="text-lg font-medium text-slate-700 mb-2">
-                                    此分類目前沒有推薦項目
-                                </h3>
-                                <p className="text-slate-500">請嘗試選擇其他區域或分類探索更多。</p>
+                            <div className="bg-white rounded-3xl border-2 border-dashed border-slate-200 p-20 text-center">
+                                <div className="text-slate-400 mb-4 flex justify-center">
+                                    <Info className="w-12 h-12" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-800 mb-2">尚無行程推薦</h3>
+                                <p className="text-slate-500">請嘗試選擇其他區域或分類探索。</p>
                             </div>
                         )}
 
-                        {/* Global Exploration Button */}
-                        <div className="mt-12 flex justify-center">
+                        {/* Secondary Navigation / Global Exploration */}
+                        <div className="mt-20 flex flex-col items-center">
                             <a 
                                 href={`https://www.klook.com/zh-TW/search/result/?query=%E5%AF%8C%E5%9C%8B%E5%B3%B6&aid=117232`}
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-sky-600 to-teal-500 hover:from-sky-700 hover:to-teal-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                                className="group inline-flex items-center justify-center gap-3 bg-slate-900 text-white font-black py-5 px-12 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 hover:bg-sky-600"
                             >
-                                <span className="tracking-wide">探索更多 {selectedRegion.split(' ')[0]} 行程</span>
-                                <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
+                                <span className="text-lg">探索更多 {selectedRegion.split(' ')[0]} 私房景點</span>
+                                <ExternalLink className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                             </a>
                         </div>
                     </main>
+
+                    <Footer />
                 </div>
             );
         }
