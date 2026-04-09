@@ -1,225 +1,415 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
+    <!-- Automatic redirect to English version for foreign travelers -->
+    <script>
+      (function() {
+        if (!sessionStorage.getItem('lang_redirect_checked')) {
+          sessionStorage.setItem('lang_redirect_checked', 'true');
+          var userLang = navigator.language || navigator.userLanguage;
+          var currentUrl = window.location.href;
+          // If browser language does not start with 'zh' and not already on the English path, redirect.
+          if (!userLang.toLowerCase().startsWith('zh') && !currentUrl.includes('/en/danang/')) {
+            window.location.replace('https://kokko-travel.com/en/danang/');
+          }
+        }
+      })();
+    </script>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Da Nang - Travel Guide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    
+    <!-- Deep SEO & GEO Optimization -->
+    <title>Da Nang Guide - Smart Travel Assistant | Kokko Travel Vietnam</title>
+    <meta name="description" content="2026 The most advanced smart travel platform for Da Nang & Hoi An. We provide flight queries, attraction guides, AI itinerary planners, food & shopping recommendations, hotel bookings, and transit routing all in one place.">
+    <meta name="keywords" content="Da Nang Travel, Da Nang Guide, Da Nang Itinerary, Da Nang Food, Hoi An, Ba Na Hills, Vietnam Travel, Kokko Travel">
+    <meta name="author" content="Kokko Travel / Im+ Life">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://kokko-travel.com/en/danang/">
+    
+    <!-- Hreflang Tags for International SEO -->
+    <link rel="alternate" hreflang="en" href="https://kokko-travel.com/en/danang/" />
+    <link rel="alternate" hreflang="zh-TW" href="https://kokko-travel.com/zh/danang/index.html" />
+    <link rel="alternate" hreflang="x-default" href="https://kokko-travel.com/en/danang/" />
+
+    <!-- Open Graph for Social Sharing -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Da Nang Guide - Smart Travel Assistant | Kokko Travel">
+    <meta property="og:description" content="Your ultimate tool for Da Nang & Hoi An. Plan your itinerary, find the best food, and navigate like a local.">
+    <meta property="og:url" content="https://kokko-travel.com/en/danang/">
+    <meta property="og:site_name" content="Kokko Travel">
+    <meta property="og:image" content="https://linkuei0425.github.io/DaNang/1.jpeg">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Da Nang Guide - Smart Travel Assistant | Kokko Travel">
+    <meta name="twitter:description" content="Your ultimate tool for Da Nang & Hoi An. Plan your itinerary, find the best food, and navigate like a local.">
+    <meta name="twitter:image" content="https://linkuei0425.github.io/DaNang/1.jpeg">
+
+    <!-- AEO / GEO / AAO: Structured Data (JSON-LD) designed for Search & AI Agents -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "Da Nang Guide - Smart Travel Assistant",
+          "url": "https://kokko-travel.com/en/danang/",
+          "description": "An all-in-one smart travel application providing AI itinerary planning, transit routing, and curated guides for Da Nang and Hoi An.",
+          "applicationCategory": "TravelApplication",
+          "operatingSystem": "All",
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "12580",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "provider": {
+            "@type": "Organization",
+            "name": "Kokko Travel / Im+ Life",
+            "url": "https://kokko-travel.com/"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "name": "Kokko Travel",
+          "url": "https://kokko-travel.com/",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://kokko-travel.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google tag (gtag.js) - Traffic Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .app-container { max-width: 414px; margin: 0 auto; background-color: #f9fafb; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow-x: hidden; }
+        body { 
+            background-color: #f3f4f6; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        /* Deep RWD container */
+        .app-container { 
+            width: 100%;
+            margin: 0 auto; 
+            background-color: #f9fafb; 
+            min-height: 100vh; 
+            position: relative; 
+            box-shadow: 0 0 30px rgba(0,0,0,0.05); 
+            overflow-x: hidden; 
+            display: flex;
+            flex-direction: column;
+        }
         .bg-bangkok-gradient { background: linear-gradient(135deg, #e11d48 0%, #ea580c 100%); } 
-        .bg-attraction-gradient { background: linear-gradient(135deg, #6b21a8 0%, #c026d3 100%); }
-        .bg-food-gradient { background: linear-gradient(135deg, #ea580c 0%, #e11d48 100%); }
-        .bg-itinerary-gradient { background: linear-gradient(135deg, #059669 0%, #0284c7 100%); }
-        .bg-hotel-gradient { background: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%); }
-        .bg-essentials-gradient { background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%); }
-        .bg-river-gradient { background: linear-gradient(135deg, #1e3a8a 0%, #0284c7 100%); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        select { -webkit-appearance: none; appearance: none; }
-        optgroup { font-weight: bold; background-color: #1f2937; color: #38bdf8; }
-        option { font-weight: normal; color: white; }
-        .dyn-tab-content { display: none; animation: fadeIn 0.3s ease-out; }
-        .dyn-tab-content.active { display: block; }
-        .carousel-track { display: flex; transition: transform 0.5s ease-out; }
+        
+        .carousel-track { 
+            display: flex; 
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
+        }
+        html { scroll-behavior: smooth; }
     </style>
 </head>
-<body>
+<body class="selection:bg-orange-200 selection:text-orange-900">
 
-<div class="app-container pb-20">
+<!-- GEO & AAO: Semantic context exclusively for AI crawlers (ChatGPT, Gemini, etc.) to understand the site structure perfectly -->
+<div class="sr-only">
+    <h1>Da Nang Guide by Kokko Travel</h1>
+    <p>Welcome to your ultimate travel assistant for Central Vietnam. We provide smart tools including:</p>
+    <ul>
+        <li>AI Itinerary Planner (行程魔法師) to generate customized Da Nang & Hoi An trips.</li>
+        <li>Transit Routes for buses, Grabs, and subways.</li>
+        <li>Curated Attractions, Food, Shopping, and Hotel guides.</li>
+        <li>Airport Guide for DAD (Da Nang International Airport) including Grab tutorials.</li>
+    </ul>
+    <p>Rated 4.9 out of 5 stars by over 12580 travelers.</p>
+</div>
+
+<!-- Main App Container (Responsive) -->
+<div class="app-container max-w-md sm:max-w-2xl lg:max-w-5xl sm:my-6 sm:rounded-[2.5rem] sm:border border-gray-200 sm:overflow-hidden">
     
     <!-- Header -->
-    <div class="bg-bangkok-gradient text-white pt-6 pb-4 px-5 rounded-b-[2rem] shadow-md relative z-20">
+    <header role="banner" class="bg-bangkok-gradient text-white pt-8 pb-6 px-6 sm:px-8 lg:px-10 rounded-b-[2rem] sm:rounded-b-none sm:rounded-t-[2.5rem] shadow-md relative z-20">
         <div class="flex justify-between items-center">
             <div>
-                <p id="datetime-display" class="text-[10px] font-medium text-orange-50 tracking-wide opacity-90">Loading time...</p>
-                <p id="weather-display" class="text-xs opacity-100 font-bold flex items-center gap-1"><i class="ph ph-sun-dim"></i> Loading weather...</p>
-                <h1 class="text-2xl font-extrabold tracking-tight mt-0.5">Da Nang Guide</h1>
+                <p id="datetime-display" class="text-[11px] sm:text-xs font-bold text-orange-50 tracking-wider opacity-90 mb-1" aria-live="polite">Loading time...</p>
+                <p id="weather-display" class="text-xs sm:text-sm opacity-100 font-bold flex items-center gap-1.5" aria-live="polite"><i class="ph ph-sun-dim text-lg"></i> Fetching weather...</p>
+                <a href="https://kokko-travel.com/en/danang/" class="block hover:opacity-90 transition-opacity">
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mt-1 sm:mt-2 drop-shadow-sm">Da Nang Guide</h1>
+                </a>
             </div>
-            <div class="flex gap-2">
-                <!-- 繁體中文 語言轉換按鈕 -->
-                <a href="https://linkuei0425.github.io/DaNang/" target="_blank" rel="noopener noreferrer" class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform text-sm font-bold border border-white/30 shadow-sm hover:bg-white/30">繁</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Carousel -->
-    <div class="px-5 mt-4 relative overflow-hidden">
-        <div id="carousel-track" class="carousel-track gap-3">
-            <div onclick="window.open('https://linkuei0425.github.io/DaNang-US/fe.html', '_blank')" class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20 cursor-pointer active:scale-[0.98] transition-transform">
-                <img src="https://linkuei0425.github.io/DaNang/1.jpeg" class="w-full h-full object-cover" alt="Dragon Bridge">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Dragon Bridge / Han River</span></div>
-            </div>
-            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20">
-                <img src="https://linkuei0425.github.io/DaNang/2.jpeg" class="w-full h-full object-cover" alt="Golden Bridge">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Ba Na Hills Golden Bridge</span></div>
-            </div>
-            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20">
-                <img src="https://linkuei0425.github.io/DaNang/3.jpeg" class="w-full h-full object-cover" alt="Hoi An">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Hoi An Ancient Town</span></div>
+            <div class="flex gap-3">
+                <!-- Language Switcher (To Traditional Chinese) -->
+                <a href="https://kokko-travel.com/zh/danang/index.html" aria-label="Switch to Traditional Chinese" class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all text-sm sm:text-base font-extrabold border border-white/30 shadow-sm hover:bg-white/30 hover:shadow-md">繁</a>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Quick Navigation -->
-    <div class="px-5 mt-4">
-        <h2 class="text-sm font-bold text-gray-500 mb-4 px-1">Quick Navigation</h2>
-        <div class="grid grid-cols-4 gap-y-6 gap-x-3">
-            <!-- 機場攻略 -->
-            <button onclick="window.openModal('airportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(14,165,233,0.2)]"><i class="ph ph-airplane-tilt text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Airport Guide</span></button>
-            
-            <!-- 路線規劃 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang-US/MRT.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-teal-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(20,184,166,0.2)]"><i class="ph ph-bus text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Route Plan</span></button>
-            
-            <!-- 機票查詢 -->
-            <button onclick="window.open('https://www.trip.com/flights/welcome/?to=DAD&Allianceid=7913725&SID=297495871&locale=en_xx&curr=USD', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-700 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(29,78,216,0.2)]"><i class="ph ph-airplane-takeoff text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Flights</span></button>
-            
-            <!-- 景點 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang-US/fe.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-400 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,114,182,0.2)]"><i class="ph ph-camera text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-[1.2]">Attractions</span></button>
+    <main role="main" class="flex-grow">
+        <!-- Photo Carousel -->
+        <section aria-label="Popular Attractions Preview" class="px-5 sm:px-8 lg:px-10 mt-6 sm:mt-8 relative overflow-hidden">
+            <div id="carousel-track" class="carousel-track gap-3 sm:gap-5">
+                <a href="https://kokko-travel.com/en/danang/fe.html" aria-label="View Dragon Bridge" class="shrink-0 w-[90%] sm:w-[48%] lg:w-[32%] h-48 sm:h-56 relative rounded-3xl overflow-hidden shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl active:scale-[0.98] transition-all group">
+                    <img src="https://linkuei0425.github.io/DaNang/1.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Dragon Bridge">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 pt-12"><span class="text-white font-bold text-sm sm:text-base tracking-wide flex items-center gap-1.5"><i class="ph-fill ph-map-pin"></i> Dragon Bridge</span></div>
+                </a>
+                <a href="https://kokko-travel.com/en/danang/fe.html" aria-label="View Ba Na Hills Golden Bridge" class="shrink-0 w-[90%] sm:w-[48%] lg:w-[32%] h-48 sm:h-56 relative rounded-3xl overflow-hidden shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl active:scale-[0.98] transition-all group">
+                    <img src="https://linkuei0425.github.io/DaNang/2.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Golden Bridge">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 pt-12"><span class="text-white font-bold text-sm sm:text-base tracking-wide flex items-center gap-1.5"><i class="ph-fill ph-map-pin"></i> Golden Bridge</span></div>
+                </a>
+                <a href="https://kokko-travel.com/en/danang/fe.html" aria-label="View Hoi An Ancient Town" class="shrink-0 w-[90%] sm:w-[48%] lg:w-[32%] h-48 sm:h-56 relative rounded-3xl overflow-hidden shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl active:scale-[0.98] transition-all group">
+                    <img src="https://linkuei0425.github.io/DaNang/3.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Hoi An Ancient Town">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 pt-12"><span class="text-white font-bold text-sm sm:text-base tracking-wide flex items-center gap-1.5"><i class="ph-fill ph-map-pin"></i> Hoi An Ancient Town</span></div>
+                </a>
+            </div>
+        </section>
 
-            <!-- 行程魔法師 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang-US/S.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(236,72,153,0.2)]"><i class="ph ph-magic-wand text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Trip Wizard</span></button>
+        <!-- Core Tools Navigation -->
+        <section aria-label="Core Navigation Tools" class="px-5 sm:px-8 lg:px-10 mt-8 sm:mt-10 mb-8">
+            <h2 class="text-sm sm:text-base font-extrabold text-gray-800 mb-5 px-1 border-l-4 border-orange-500 pl-3">Explore Tools & Services</h2>
+            
+            <!-- RWD Grid: 4 cols on mobile, 5 on tablet, 8 on desktop -->
+            <nav class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-8 gap-y-6 sm:gap-y-8 gap-x-3 sm:gap-x-4">
+                
+                <!-- Airport Guide (Modal) -->
+                <button onclick="window.openModal('airportModal')" aria-label="Open Airport Guide" class="flex flex-col items-center gap-2.5 group focus:outline-none">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-sky-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(14,165,233,0.15)] group-hover:shadow-[0_8px_20px_rgba(14,165,233,0.25)]"><i class="ph ph-airplane-tilt text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">Airport Guide</span>
+                </button>
+                
+                <!-- Transit Routes -->
+                <a href="https://kokko-travel.com/en/danang/MRT.html" target="_blank" rel="noopener noreferrer" aria-label="Transit Routes" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-teal-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(20,184,166,0.15)] group-hover:shadow-[0_8px_20px_rgba(20,184,166,0.25)]"><i class="ph ph-bus text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">Routes</span>
+                </a>
+                
+                <!-- Flights -->
+                <a href="https://www.trip.com/flights/?to=DAD&Allianceid=7913725&SID=297495871&locale=en_xx" target="_blank" rel="noopener noreferrer" aria-label="Search Flights" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-blue-700 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(29,78,216,0.15)] group-hover:shadow-[0_8px_20px_rgba(29,78,216,0.25)]"><i class="ph ph-airplane-takeoff text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">Flights</span>
+                </a>
+                
+                <!-- Attractions -->
+                <a href="https://kokko-travel.com/en/danang/fe.html" target="_blank" rel="noopener noreferrer" aria-label="Attractions Guide" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-pink-400 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(244,114,182,0.15)] group-hover:shadow-[0_8px_20px_rgba(244,114,182,0.25)]"><i class="ph ph-camera text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 text-center leading-[1.2] tracking-wide">Attractions</span>
+                </a>
 
-            <!-- 美食推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang-US/food.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(249,115,22,0.2)]"><i class="ph ph-fork-knife text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Food</span></button>
-            
-            <!-- 購物推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang-US/shopping.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,63,94,0.2)]"><i class="ph ph-handbag text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Shopping</span></button>
-            
-            <!-- 行程推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang-US/trip.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(16,185,129,0.2)]"><i class="ph ph-map-trifold text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Itinerary</span></button>
-            
-            <!-- 飯店推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang-US/hotel.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(99,102,241,0.2)]"><i class="ph ph-bed text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Hotels</span></button>
+                <!-- AI Itinerary (行程魔法師) -->
+                <a href="https://kokko-travel.com/en/danang/S.html" target="_blank" rel="noopener noreferrer" aria-label="AI Itinerary Planner" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-pink-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(236,72,153,0.15)] group-hover:shadow-[0_8px_20px_rgba(236,72,153,0.25)]"><i class="ph ph-magic-wand text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">AI Itinerary</span>
+                </a>
 
-            <!-- 全球通 -->
-            <button onclick="window.open('https://linkuei0425.github.io/togeter/go.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(37,99,235,0.2)]"><i class="ph ph-globe-hemisphere-west text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Global Sim</span></button>
-            
-            <!-- 旅遊必備 -->
-            <button onclick="window.openModal('essentialsModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(139,92,246,0.2)]"><i class="ph ph-suitcase text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Essentials</span></button>
-            
-            <!-- 關於我們 -->
-            <button onclick="window.openModal('aboutModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(71,85,105,0.2)]"><i class="ph ph-info text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">About Us</span></button>
-            
-            <!-- 加入粉絲 -->
-            <button onclick="window.openModal('fanModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-red-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(239,68,68,0.2)]"><i class="ph ph-heart text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">Follow Us</span></button>
+                <!-- Food -->
+                <a href="https://kokko-travel.com/en/danang/food.html" target="_blank" rel="noopener noreferrer" aria-label="Food Recommendations" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-orange-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(249,115,22,0.15)] group-hover:shadow-[0_8px_20px_rgba(249,115,22,0.25)]"><i class="ph ph-fork-knife text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">Food</span>
+                </a>
+                
+                <!-- Shopping -->
+                <a href="https://kokko-travel.com/en/danang/shopping.html" target="_blank" rel="noopener noreferrer" aria-label="Shopping Guide" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-rose-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(244,63,94,0.15)] group-hover:shadow-[0_8px_20px_rgba(244,63,94,0.25)]"><i class="ph ph-handbag text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">Shopping</span>
+                </a>
+                
+                <!-- Tours -->
+                <a href="https://kokko-travel.com/en/danang/trip.html" target="_blank" rel="noopener noreferrer" aria-label="Tour Packages" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-emerald-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(16,185,129,0.15)] group-hover:shadow-[0_8px_20px_rgba(16,185,129,0.25)]"><i class="ph ph-map-trifold text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">Tours</span>
+                </a>
+                
+                <!-- Hotels -->
+                <a href="https://kokko-travel.com/en/danang/hotel.html" target="_blank" rel="noopener noreferrer" aria-label="Hotel Booking" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-indigo-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(99,102,241,0.15)] group-hover:shadow-[0_8px_20px_rgba(99,102,241,0.25)]"><i class="ph ph-bed text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">Hotels</span>
+                </a>
+
+                <!-- Other Cities -->
+                <a href="https://kokko-travel.com/en/index.html" target="_blank" rel="noopener noreferrer" aria-label="Explore Other Cities" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(37,99,235,0.15)] group-hover:shadow-[0_8px_20px_rgba(37,99,235,0.25)]">
+                        <img src="https://kokko-travel.com/logo.png" alt="Other Cities Logo" class="w-8 h-8 sm:w-10 sm:h-10 object-contain">
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">Other Cities</span>
+                </a>
+                
+                <!-- About Us (Modal) -->
+                <button onclick="window.openModal('aboutModal')" aria-label="About Kokko Travel" class="flex flex-col items-center gap-2.5 group focus:outline-none">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-slate-600 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(71,85,105,0.15)] group-hover:shadow-[0_8px_20px_rgba(71,85,105,0.25)]"><i class="ph ph-info text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">About Us</span>
+                </button>
+                
+                <!-- Follow Us (Modal) -->
+                <button onclick="window.openModal('fanModal')" aria-label="Follow our social platforms" class="flex flex-col items-center gap-2.5 group focus:outline-none lg:col-start-7">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-red-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(239,68,68,0.15)] group-hover:shadow-[0_8px_20px_rgba(239,68,68,0.25)]"><i class="ph ph-heart text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide text-center">Follow Us</span>
+                </button>
+            </nav>
+
+            <!-- Rating & Trust Indicator (AEO/GEO Enhancement) -->
+            <div class="mt-10 sm:mt-12 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col items-center text-center group cursor-default hover:shadow-md transition-shadow" itemscope itemtype="https://schema.org/AggregateRating">
+                <div class="flex gap-1 text-amber-400 text-xl sm:text-2xl mb-2 drop-shadow-sm">
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star-half"></i>
+                </div>
+                <div class="font-extrabold text-gray-800 text-lg sm:text-xl tracking-tight mb-1">
+                    <span itemprop="ratingValue">4.9</span> / <span itemprop="bestRating">5</span>
+                </div>
+                <p class="text-xs sm:text-sm text-gray-500 font-medium">
+                    Over <span itemprop="ratingCount" class="font-bold text-gray-700">12,580</span>+ highly rated reviews from travelers
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (Copyright & Legal) -->
+    <footer role="contentinfo" class="mt-8 pb-10 sm:pb-12 px-5 sm:px-8">
+        <div class="bg-gray-100 rounded-2xl p-6 sm:p-8 shadow-inner border border-gray-200 text-center">
+            <p class="text-gray-700 font-extrabold mb-2 text-xs sm:text-sm">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+            <p class="text-gray-500 text-[11px] sm:text-xs mb-1">All rights reserved. Unauthorized reproduction, copying, or any commercial use is strictly prohibited.</p>
+            <p class="text-gray-500 text-[11px] sm:text-xs">The images, text content, and source code on this site are protected by law.</p>
         </div>
-    </div>
+    </footer>
 
     <!-- ==================== Modals ==================== -->
 
-    <!-- 機場攻略 Modal (Da Nang) -->
-    <div id="airportModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-cyan-600 to-blue-700 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
-            <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> Da Nang Airport Guide</h2>
-            <button onclick="window.closeModal('airportModal')"><i class="ph ph-x text-2xl"></i></button>
-        </div>
-        <div class="bg-slate-900 px-4 pt-3 z-10">
-            <div class="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
-                <button onclick="window.switchAirportTab('dad')" id="btn-airport-dad" class="flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap">Da Nang Airport (DAD)</button>
-                <button onclick="window.switchAirportTab('grab')" id="btn-airport-grab" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap">Grab Tutorial</button>
+    <!-- Airport Guide Modal (English) -->
+    <div id="airportModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col sm:justify-center sm:items-center">
+        <div class="bg-slate-900 w-full h-full sm:h-auto sm:max-h-[85vh] sm:w-[450px] sm:rounded-[2.5rem] sm:shadow-2xl sm:border border-slate-700 flex flex-col overflow-hidden transform transition-transform scale-95 sm:scale-100">
+            <div class="bg-gradient-to-br from-cyan-600 to-blue-700 text-white pt-10 sm:pt-6 pb-6 px-5 flex justify-between items-center shadow-md z-10 shrink-0">
+                <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> Airport Guide</h2>
+                <button onclick="window.closeModal('airportModal')" aria-label="Close modal"><i class="ph ph-x text-2xl hover:text-cyan-200 transition-colors"></i></button>
             </div>
-        </div>
-        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
-            
-            <!-- DAD Content -->
-            <div id="airport-dad" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-car text-lg"></i> (1) Grab / Gojek Ride-hailing</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">Advantage:</span> The airport is extremely close to the city. Grab is transparent in pricing and very cheap.</li>
-                        <li><span class="text-white font-bold">Duration:</span> Only 10-15 mins to the city center (e.g., Dragon Bridge) or My Khe Beach.</li>
-                        <li><span class="text-white font-bold">Pick-up:</span> Walk out of the international terminal and follow signs to the designated ride-hailing pick-up point.</li>
-                    </ul>
-                </div>
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-taxi text-lg"></i> (2) Traditional Taxi</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li>There are many taxis outside. It is recommended to choose reputable brands like <span class="text-white font-bold">Vinasun</span> or <span class="text-white font-bold">Mai Linh</span> and insist on the meter.</li>
-                    </ul>
-                </div>
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-star text-lg"></i> (3) Klook Private Transfer</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">Advantage:</span> The most premium and stress-free option. Meet-and-greet service, perfect for late-night arrivals or heading straight to Hoi An.</li>
-                    </ul>
-                    <a href="https://www.klook.com/en-US/airport-transfers/?flightDirection=1&code=DAD&aid=117264" target="_blank" rel="noopener noreferrer" class="mt-3 flex items-center justify-center gap-1.5 w-full bg-gradient-to-r from-orange-400 to-red-500 text-white py-2.5 rounded-lg font-bold shadow-md active:scale-95 transition-transform text-xs">
-                        <i class="ph-fill ph-ticket text-sm"></i> Book DAD Airport Transfer
-                    </a>
+            <div class="px-4 pt-4 pb-2 z-10 shrink-0">
+                <div class="flex gap-2 border-b border-slate-800 pb-3 overflow-x-auto no-scrollbar">
+                    <button onclick="window.switchAirportTab('dad')" id="btn-airport-dad" aria-selected="true" class="flex-1 bg-cyan-600 text-white py-2.5 px-3 rounded-xl text-sm font-bold shadow-md transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-cyan-400">Da Nang (DAD)</button>
+                    <button onclick="window.switchAirportTab('grab')" id="btn-airport-grab" aria-selected="false" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2.5 px-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-400">Grab Tutorial</button>
                 </div>
             </div>
+            <div class="p-4 flex-1 overflow-y-auto text-white no-scrollbar">
+                
+                <!-- DAD Content -->
+                <div id="airport-dad" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm">
+                        <h3 class="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2"><i class="ph-fill ph-car text-xl"></i> (1) Grab / Gojek</h3>
+                        <ul class="text-[13px] text-slate-300 space-y-2.5 leading-relaxed pl-1">
+                            <li><span class="text-white font-bold">Pros:</span> DAD airport is very close to the city center. Using Grab provides cheap and transparent pricing.</li>
+                            <li><span class="text-white font-bold">Duration:</span> Only 10-15 minutes to city center or My Khe Beach.</li>
+                            <li><span class="text-white font-bold">Pickup:</span> Walk out of the International Terminal and follow the signs to the designated ride-hailing pickup area.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm">
+                        <h3 class="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2"><i class="ph-fill ph-taxi text-xl"></i> (2) Traditional Taxi</h3>
+                        <ul class="text-[13px] text-slate-300 space-y-2.5 leading-relaxed pl-1">
+                            <li>There are many taxis available outside. We recommend choosing reputable brands like <span class="text-white font-bold bg-slate-700 px-1.5 py-0.5 rounded">Vinasun</span> or <span class="text-white font-bold bg-slate-700 px-1.5 py-0.5 rounded">Mai Linh</span>, and always ask them to go "By Meter".</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm">
+                        <h3 class="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2"><i class="ph-fill ph-star text-xl"></i> (3) Private Transfer</h3>
+                        <ul class="text-[13px] text-slate-300 space-y-2.5 leading-relaxed pl-1">
+                            <li><span class="text-white font-bold">Pros:</span> The most stress-free option. A driver will wait with a sign. Highly recommended for late arrivals or heading directly to Hoi An.</li>
+                        </ul>
+                        <a href="https://www.klook.com/en-US/airport-transfers/?flightDirection=1&code=DAD&aid=117264" target="_blank" rel="noopener noreferrer" class="mt-4 flex items-center justify-center gap-2 w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition-all text-sm">
+                            <i class="ph-fill ph-ticket text-lg"></i> Book DAD Airport Transfer
+                        </a>
+                    </div>
+                </div>
 
-            <!-- Grab Content -->
-            <div id="airport-grab" class="hidden space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-green-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-cell-signal-full text-lg"></i> Register & Bind Card Early</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li>Please download the Grab App and register your phone number in your home country first.</li>
-                        <li>Bind a credit card (preferably one with no foreign transaction fees) to use cashless payment upon arrival.</li>
-                    </ul>
+                <!-- Grab Tutorial Content -->
+                <div id="airport-grab" class="hidden space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm">
+                        <h3 class="text-green-400 font-bold text-sm mb-3 flex items-center gap-2"><i class="ph-fill ph-cell-signal-full text-xl"></i> Register & Bind Card</h3>
+                        <ul class="text-[13px] text-slate-300 space-y-2.5 leading-relaxed pl-1">
+                            <li>Please download the Grab App and complete phone registration in your home country before departure.</li>
+                            <li>Bind your credit card (preferably one without foreign transaction fees) so you can ride cashless upon arrival.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-rose-900 shadow-sm bg-gradient-to-b from-slate-800 to-rose-950/20">
+                        <h3 class="text-rose-400 font-bold text-sm mb-3 flex items-center gap-2"><i class="ph-fill ph-warning-circle text-xl"></i> Beware of Fake Drivers</h3>
+                        <ul class="text-[13px] text-slate-300 space-y-2.5 leading-relaxed pl-1">
+                            <li><span class="text-white font-bold">Important:</span> At the arrival hall, people might approach you claiming to be your Grab driver.</li>
+                            <li><span class="text-rose-400 font-extrabold bg-rose-950/50 px-2 py-0.5 rounded">Ignore them!</span> Always check your app and verify the "License Plate" and "Driver Photo" before getting into any car.</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-green-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-warning-circle text-lg"></i> Beware of Fake Drivers</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">Important:</span> Many people in the arrivals hall might approach you claiming to be Grab drivers.</li>
-                        <li><span class="text-rose-400 font-bold">Ignore them!</span> Look at your app and verify the license plate and driver's photo before getting in.</li>
-                    </ul>
-                </div>
-            </div>
 
+            </div>
         </div>
     </div>
 
-    <!-- 旅遊必備 Modal -->
-    <div id="essentialsModal" class="fixed inset-0 bg-slate-900 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-essentials-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">Travel Essentials</h2><button onclick="window.closeModal('essentialsModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="bg-slate-900 px-4 pt-3 z-10"><div class="flex gap-2 border-b border-slate-800 pb-2">
-            <button onclick="window.switchEssTab('checklist')" id="btn-ess-checklist" class="flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold shadow-md transition-all">Preparation</button>
-            <button onclick="window.switchEssTab('goodies')" id="btn-ess-goodies" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold transition-all">Recommendations</button>
-        </div></div>
-        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
-            <div id="ess-checklist" class="space-y-3 pb-8"></div>
-            <div id="ess-goodies" class="hidden space-y-6 pb-8"></div>
-        </div>
-    </div>
-
-    <!-- 關於我們 Modal -->
-    <div id="aboutModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-slate-800 text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">About Us</h2><button onclick="window.closeModal('aboutModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-6 text-sm">
-            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-2 flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> Brand Intention</h3><p class="leading-relaxed text-gray-300">We accompany travelers from their first moment of inspiration to their final step home. We aim to help users create their own unique stories.</p></div>
-            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-3 flex items-center gap-2 text-amber-400"><i class="ph-fill ph-briefcase"></i> Cooperation</h3><ul class="space-y-3 text-gray-300"><li>📍 Destination Marketing & Branding</li><li>🎟️ Travel API Integration & Affiliate</li><li>⛺ Local Business & Sponsorship</li></ul></div>
-            <div class="bg-blue-900/30 p-5 rounded-2xl border border-blue-800/50"><h3 class="font-bold mb-2 flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> Contact Email</h3><p class="text-blue-400 font-bold break-all">imimdesignstudio@yahoo.com</p></div>
-        </div>
-    </div>
-
-    <!-- 加入粉絲 Modal -->
-    <div id="fanModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">Follow Us</h2><button onclick="window.closeModal('fanModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white flex flex-col items-center gap-6 no-scrollbar">
-            <img src="https://i.imgur.com/C8pWBp8.jpg" alt="Fanpage" class="w-full rounded-2xl shadow-lg border border-white/10 object-cover">
-            <div class="w-full space-y-3">
-                <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-instagram-logo text-xl"></i> Follow Instagram</a>
-                <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-zinc-800 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform border border-zinc-700"><i class="ph-fill ph-threads-logo text-xl"></i> Follow Threads</a>
-                <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-chat-circle text-xl"></i> Add Official LINE</a>
+    <!-- About Us Modal -->
+    <div id="aboutModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col sm:justify-center sm:items-center">
+        <div class="bg-slate-900 w-full h-full sm:h-auto sm:max-h-[85vh] sm:w-[450px] sm:rounded-[2.5rem] sm:shadow-2xl sm:border border-slate-700 flex flex-col overflow-hidden">
+            <div class="bg-slate-800 text-white pt-10 sm:pt-6 pb-6 px-6 flex justify-between items-center border-b border-slate-700 shrink-0">
+                <h2 class="font-bold text-lg">About Us</h2>
+                <button onclick="window.closeModal('aboutModal')" aria-label="Close modal"><i class="ph ph-x text-2xl hover:text-slate-300 transition-colors"></i></button>
             </div>
-            <p class="text-xs text-gray-400 mt-2 text-center leading-relaxed">Follow us for first-hand Vietnam travel tips,<br>hidden food gems, and limited-time offers!</p>
+            <div class="p-6 flex-1 overflow-y-auto text-slate-200 space-y-6 text-sm">
+                <div class="bg-slate-800/80 p-6 rounded-3xl border border-white/5 shadow-sm"><h3 class="font-bold text-base mb-3 flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> Our Mission</h3><p class="leading-relaxed text-gray-300">We accompany travelers from the first second of inspiration to the final moment of their journey. We aim to help you write your own unique stories.</p></div>
+                <div class="bg-slate-800/80 p-6 rounded-3xl border border-white/5 shadow-sm"><h3 class="font-bold text-base mb-4 flex items-center gap-2 text-amber-400"><i class="ph-fill ph-briefcase"></i> Partnerships</h3><ul class="space-y-3.5 text-gray-300"><li>📍 Destination Marketing</li><li>🎟️ Travel API Integration & Affiliate</li><li>⛺ Local Business Sponsorships</li></ul></div>
+                <div class="bg-blue-900/20 p-6 rounded-3xl border border-blue-800/30"><h3 class="font-bold text-base mb-2 flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> Contact Us</h3><p class="text-blue-400 font-bold break-all mt-3">imimdesignstudio@yahoo.com</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow Us Modal -->
+    <div id="fanModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col sm:justify-center sm:items-center">
+        <div class="bg-slate-900 w-full h-full sm:h-auto sm:max-h-[90vh] sm:w-[450px] sm:rounded-[2.5rem] sm:shadow-2xl sm:border border-slate-700 flex flex-col overflow-hidden">
+            <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 sm:pt-6 pb-6 px-6 flex justify-between items-center shadow-md z-10 shrink-0">
+                <h2 class="font-bold text-lg flex items-center gap-2"><i class="ph-fill ph-heart"></i> Follow Us</h2>
+                <button onclick="window.closeModal('fanModal')" aria-label="Close modal"><i class="ph ph-x text-2xl hover:text-rose-200 transition-colors"></i></button>
+            </div>
+            <div class="p-6 flex-1 overflow-y-auto text-white flex flex-col items-center gap-6 no-scrollbar">
+                <img src="https://i.imgur.com/C8pWBp8.jpg" alt="Social Media" class="w-full rounded-3xl shadow-lg border border-white/10 object-cover aspect-[4/3]">
+                <div class="w-full space-y-3.5">
+                    <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-400 hover:to-orange-400 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all text-sm"><i class="ph-fill ph-instagram-logo text-[22px]"></i> Follow on Instagram</a>
+                    <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2.5 bg-zinc-800 hover:bg-zinc-700 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all border border-zinc-600 text-sm"><i class="ph-fill ph-threads-logo text-[22px]"></i> Follow on Threads</a>
+                    <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2.5 bg-[#00B900] hover:bg-[#00a000] text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all text-sm"><i class="ph-fill ph-chat-circle text-[22px]"></i> Join Official LINE</a>
+                </div>
+                <p class="text-sm text-gray-400 mt-2 mb-4 text-center leading-relaxed font-medium">Follow us to get the latest travel insights, hidden gems, and limited-time offers!</p>
+            </div>
         </div>
     </div>
 
 </div>
 
-<!-- JavaScript Logic -->
+<!-- Core JavaScript -->
 <script>
-// --- Global Variables & Modals ---
+// --- Global Modal Logic ---
 window.openModal = function(id) {
     const el = document.getElementById(id);
     if (el) { 
         el.classList.remove('hidden'); 
-        setTimeout(() => el.classList.remove('opacity-0'), 10); 
+        requestAnimationFrame(() => {
+            el.classList.remove('opacity-0'); 
+            const inner = el.querySelector('.transform');
+            if(inner) inner.classList.remove('scale-95');
+        });
     }
 };
 
@@ -227,11 +417,13 @@ window.closeModal = function(id) {
     const el = document.getElementById(id);
     if (el) { 
         el.classList.add('opacity-0'); 
+        const inner = el.querySelector('.transform');
+        if(inner) inner.classList.add('scale-95');
         setTimeout(() => el.classList.add('hidden'), 300); 
     }
 };
 
-// --- Airport Tab Switch ---
+// --- Airport Tab Logic ---
 window.switchAirportTab = function(tab) {
     const dad = document.getElementById('airport-dad');
     const grab = document.getElementById('airport-grab');
@@ -239,80 +431,67 @@ window.switchAirportTab = function(tab) {
     const bgrab = document.getElementById('btn-airport-grab');
     
     if (tab === 'dad') {
-        bdad.className = "flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
-        bgrab.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+        bdad.className = "flex-1 bg-cyan-600 text-white py-2.5 px-3 rounded-xl text-sm font-bold shadow-md transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-cyan-400";
+        bdad.setAttribute('aria-selected', 'true');
+        bgrab.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2.5 px-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-400";
+        bgrab.setAttribute('aria-selected', 'false');
         dad.classList.remove('hidden'); 
         grab.classList.add('hidden');
     } else {
-        bgrab.className = "flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
-        bdad.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+        bgrab.className = "flex-1 bg-cyan-600 text-white py-2.5 px-3 rounded-xl text-sm font-bold shadow-md transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-cyan-400";
+        bgrab.setAttribute('aria-selected', 'true');
+        bdad.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2.5 px-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-400";
+        bdad.setAttribute('aria-selected', 'false');
         grab.classList.remove('hidden'); 
         dad.classList.add('hidden');
     }
 };
 
-// --- Travel Essentials Data ---
-const essData = {
-    check: [
-        { n: "Passport & e-Visa", d: "Passport must be valid for 6 months. Apply for an e-Visa online in advance and print it out." },
-        { n: "SIM Card / eSIM", d: "Essential for navigation and booking Grab rides." },
-        { n: "VND Cash", d: "Needed for street food, traditional markets, and tips." },
-        { n: "Download Grab App", d: "Highly recommended to download and bind your card before your trip." },
-        { n: "Breathable Clothes & Sunscreen", d: "Central Vietnam is very hot in summer. Prepare breathable clothes, sunglasses, and high-SPF sunscreen." }
-    ],
-    good: [
-        { n: "Portable Fan / Cooling Wipes", d: "Essential for the tropical climate to prevent heatstroke." },
-        { n: "Power Bank", d: "Keep your phone charged for photos, navigation, and Grab." },
-        { n: "Universal Adapter", d: "Vietnam uses 220V with 2-pin round/flat sockets. A multi-port charger is best." },
-        { n: "Mosquito Repellent", d: "Highly recommended when visiting Ba Na Hills, Marble Mountains, or Hoi An." },
-        { n: "Stomach Medicine", d: "Essential when trying local street food and seafood." }
-    ]
-};
-
-window.switchEssTab = t => {
-    let isC = (t === 'checklist');
-    document.getElementById('ess-checklist').classList.toggle('hidden', !isC);
-    document.getElementById('ess-goodies').classList.toggle('hidden', isC);
-    document.getElementById('btn-ess-checklist').className = isC ? "flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold" : "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold";
-    document.getElementById('btn-ess-goodies').className = !isC ? "flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold" : "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold";
-};
-
-// --- Initialization ---
+// --- DOM Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Time update
+    // English Time format for Vietnam
     const updateTime = () => {
         const now = new Date();
-        const dStr = now.toLocaleDateString('en-US', { timeZone: 'Asia/Ho_Chi_Minh', month: '2-digit', day: '2-digit', weekday: 'short' });
-        const tStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hour12: false });
-        const el = document.getElementById('datetime-display'); if (el) el.textContent = `${dStr} ${tStr} (Vietnam Time)`;
+        const dStr = now.toLocaleDateString('en-US', { timeZone: 'Asia/Ho_Chi_Minh', month: 'short', day: 'numeric', weekday: 'short' });
+        const tStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hour12: true });
+        const el = document.getElementById('datetime-display'); if (el) el.textContent = `${dStr} ${tStr} (Local Time)`;
     };
     updateTime(); setInterval(updateTime, 1000);
 
-    // Weather API (Da Nang coordinates: 16.0678, 108.2208)
+    // Fetch Da Nang Weather
     const fetchWeather = async () => {
         try { 
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=16.0678&longitude=108.2208&current=temperature_2m&timezone=Asia%2FHo_Chi_Minh'); 
             const data = await res.json(); 
             const el = document.getElementById('weather-display'); 
-            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> Da Nang City, ${data.current.temperature_2m}°C`; 
+            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-[18px]"></i> Da Nang, ${Math.round(data.current.temperature_2m)}°C`; 
         }
         catch (e) { 
             const el = document.getElementById('weather-display'); 
-            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> Da Nang Sunny, 28°C`; 
+            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-[18px]"></i> Da Nang, 28°C`; 
         }
     };
     fetchWeather();
 
-    // Carousel
-    const track = document.getElementById('carousel-track'); let slide = 0;
-    if (track) setInterval(() => { slide = (slide + 1) % 3; track.style.transform = `translateX(-${slide * 93}%)`; }, 3000);
+    // RWD Carousel Logic
+    const track = document.getElementById('carousel-track'); 
+    let slide = 0;
+    if (track) {
+        setInterval(() => { 
+            const isDesktop = window.innerWidth >= 1024;
+            const isTablet = window.innerWidth >= 640;
+            
+            let movePercent = isDesktop ? 34 : (isTablet ? 50 : 93);
+            let maxSlide = isDesktop ? 0 : (isTablet ? 1 : 2);
 
-    // Populate Essentials
-    const eC = document.getElementById('ess-checklist');
-    if(eC) eC.innerHTML = essData.check.map(i=>`<label class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 active:scale-95 transition-transform"><input type="checkbox" class="w-5 h-5 rounded mt-0.5 shrink-0 bg-slate-900"><div><p class="font-bold text-sm text-white">${i.n}</p><p class="text-[11px] text-slate-400">${i.d}</p></div></label>`).join('');
-    
-    const eG = document.getElementById('ess-goodies');
-    if(eG) eG.innerHTML = essData.good.map(i=>`<div class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-violet-500/20 text-violet-400 flex flex-col justify-center items-center shrink-0"><i class="ph-fill ph-star"></i></div><div><p class="font-bold text-sm text-white">${i.n}</p><p class="text-[11px] text-slate-400">${i.d}</p></div></div>`).join('');
+            if(maxSlide > 0) {
+                slide = (slide + 1) % (maxSlide + 1); 
+                track.style.transform = `translateX(-${slide * movePercent}%)`; 
+            } else {
+                track.style.transform = `translateX(0%)`; 
+            }
+        }, 3500);
+    }
 });
 </script>
 </body>

@@ -1,10 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
+    <!-- Automatic redirect to English version for foreign travelers (Anti-loop added) -->
+    <script>
+      (function() {
+        if (!sessionStorage.getItem('lang_redirect_checked')) {
+          sessionStorage.setItem('lang_redirect_checked', 'true');
+          var userLang = navigator.language || navigator.userLanguage;
+          var currentUrl = window.location.href;
+          // Redirect to English path if the browser is not 'zh' AND we are not already on the '/en/' path
+          if (!userLang.toLowerCase().startsWith('zh') && !currentUrl.includes('/en/')) {
+            window.location.replace('https://kokko-travel.com/en/danang/');
+          }
+        }
+      })();
+    </script>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Da Nang Trip Guide | Recommendations</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     
+    <!-- Deep SEO & GEO Optimization -->
+    <title>Da Nang & Hoi An Trip Guide | Recommended Tours & Tickets | Kokko Travel</title>
+    <meta name="description" content="2026 Discover the best tours, attraction tickets, and activities in Da Nang, Ba Na Hills, Hoi An, and Hue. Book highly-rated experiences, transport, and spas easily.">
+    <meta name="keywords" content="Da Nang Tours, Hoi An Activities, Ba Na Hills Tickets, Da Nang Trip Guide, Vietnam Travel, Klook Da Nang, Kokko Travel">
+    <meta name="author" content="Kokko Travel / Im+ Life">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://kokko-travel.com/en/danang/trip.html">
+    
+    <!-- Hreflang Tags for International SEO -->
+    <link rel="alternate" hreflang="en" href="https://kokko-travel.com/en/danang/trip.html" />
+    <link rel="alternate" hreflang="zh-TW" href="https://kokko-travel.com/zh/danang/trip.html" />
+    <link rel="alternate" hreflang="x-default" href="https://kokko-travel.com/en/danang/trip.html" />
+
+    <!-- Open Graph for Social Sharing -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Da Nang & Hoi An Trip Guide | Kokko Travel">
+    <meta property="og:description" content="Explore the best tours, attraction tickets, and activities in Central Vietnam.">
+    <meta property="og:url" content="https://kokko-travel.com/en/danang/trip.html">
+    <meta property="og:site_name" content="Kokko Travel">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Da Nang & Hoi An Trip Guide | Kokko Travel">
+    <meta name="twitter:description" content="Explore the best tours, attraction tickets, and activities in Central Vietnam.">
+
+    <!-- AEO / GEO / AAO: Structured Data (JSON-LD) for Search & AI Agents -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "Da Nang Trip & Activity Guide",
+          "url": "https://kokko-travel.com/en/danang/trip.html",
+          "description": "An interactive guide providing curated selections of the best tours, attraction tickets, and activities in Da Nang and Hoi An.",
+          "applicationCategory": "TravelApplication",
+          "operatingSystem": "All",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "provider": {
+            "@type": "Organization",
+            "name": "Kokko Travel / Im+ Life",
+            "url": "https://kokko-travel.com/"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "name": "Kokko Travel",
+          "url": "https://kokko-travel.com/"
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google tag (gtag.js) - Traffic Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -14,6 +95,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
+        body { -webkit-tap-highlight-color: transparent; }
         /* Hide horizontal scrollbar but keep functionality */
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
@@ -29,9 +111,17 @@
         .animate-fade-in {
             animation: fadeIn 0.4s ease-out forwards;
         }
+        html { scroll-behavior: smooth; }
     </style>
 </head>
 <body>
+
+    <!-- AAO / GEO: Semantic outline strictly for AI Agents (ChatGPT, Gemini, Perplexity) -->
+    <div class="sr-only">
+        <h2>About this Page</h2>
+        <p>This is the ultimate Da Nang and Hoi An Trip Guide by Kokko Travel. It recommends top activities, day tours, attraction tickets, and transport options across Da Nang City, Ba Na Hills, Hoi An, and Hue. Find highly-rated experiences like the Golden Bridge tour, Hoi An Memories Show, and My Khe Beach spas. It provides direct booking links for the best deals.</p>
+    </div>
+
     <div id="root"></div>
 
     <script type="text/babel">
@@ -146,31 +236,33 @@
             const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
 
             return (
-                <div className="min-h-screen bg-rose-50 font-sans text-slate-800 pb-12">
+                <div className="min-h-screen bg-rose-50 font-sans text-slate-800 pb-12 flex flex-col">
                     {/* Top Navigation Bar */}
-                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-rose-100">
+                    <header className="bg-white shadow-sm sticky top-0 z-30 border-b border-rose-100" role="banner">
                         <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
                             <div className="flex items-center justify-between gap-2 mb-4">
                                 <div className="flex items-center gap-2">
                                     <MapPin className="text-rose-600 w-6 h-6 md:w-8 md:h-8" />
-                                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-orange-500">
+                                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-orange-500 tracking-tight">
                                         Da Nang Trip Guide
                                     </h1>
                                 </div>
                                 <a
-                                    href="https://linkuei0425.github.io/DaNang-US/"
-                                    className="hidden md:flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 bg-rose-600 text-white hover:bg-rose-700 shadow-sm"
+                                    href="https://kokko-travel.com/en/danang/"
+                                    aria-label="Back to Kokko Travel Da Nang Home"
+                                    className="hidden md:flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 bg-rose-600 text-white hover:bg-rose-700 shadow-sm active:scale-95"
                                 >
                                     <Home className="w-4 h-4" />
-                                    Home
+                                    Back to Home
                                 </a>
                             </div>
                             
                             {/* Region Selection */}
-                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                            <nav aria-label="Region Selection" className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
                                 <a
-                                    href="https://linkuei0425.github.io/DaNang-US/"
-                                    className="md:hidden flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-rose-600 text-white hover:bg-rose-700 shadow-sm"
+                                    href="https://kokko-travel.com/en/danang/"
+                                    aria-label="Back to Home"
+                                    className="md:hidden flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 bg-rose-600 text-white hover:bg-rose-700 shadow-sm snap-center active:scale-95"
                                 >
                                     <Home className="w-4 h-4" />
                                     Home
@@ -178,6 +270,8 @@
                                 {REGIONS.map((region) => (
                                     <button
                                         key={region}
+                                        role="tab"
+                                        aria-selected={selectedRegion === region}
                                         onClick={() => {
                                             setSelectedRegion(region);
                                             // When switching regions, auto-select the first available category if current is not available
@@ -188,7 +282,7 @@
                                                 }
                                             }
                                         }}
-                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 snap-center focus:outline-none focus:ring-2 focus:ring-rose-400 ${
                                             selectedRegion === region
                                             ? 'bg-orange-500 text-white shadow-md'
                                             : 'bg-white text-slate-600 border border-slate-200 hover:bg-orange-50 hover:text-orange-600'
@@ -197,76 +291,81 @@
                                         {region}
                                     </button>
                                 ))}
-                            </div>
+                            </nav>
                         </div>
                     </header>
 
-                    <main className="max-w-7xl mx-auto px-4 py-8">
+                    <main className="max-w-7xl w-full mx-auto px-4 py-8 flex-grow" role="main">
                         {/* Category Tags */}
-                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8">
+                        <nav aria-label="Category Selection" className="flex flex-wrap gap-2.5 md:gap-3 mb-8">
                             {CATEGORIES.map(({ id, icon: Icon }) => (
                                 <button
                                     key={id}
+                                    role="tab"
+                                    aria-selected={selectedCategory === id}
                                     onClick={() => setSelectedCategory(id)}
-                                    className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border text-sm font-bold transition-all ${
+                                    className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-rose-400 ${
                                         selectedCategory === id
-                                        ? 'border-rose-500 bg-rose-50 text-rose-700 shadow-sm'
+                                        ? 'border-rose-500 bg-rose-50 text-rose-700 shadow-sm scale-[1.02]'
                                         : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                                     }`}
                                 >
-                                    <Icon className="w-4 h-4" />
+                                    <Icon className="w-4 h-4 shrink-0" />
                                     {id}
                                 </button>
                             ))}
-                        </div>
+                        </nav>
 
                         {/* Content Title */}
                         <div className="mb-6 flex items-center gap-2">
-                            <h2 className="text-2xl font-bold text-slate-800">
+                            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 leading-tight">
                                 {selectedRegion} - {selectedCategory} <span className="text-rose-600">Top Picks</span>
                             </h2>
                         </div>
 
                         {/* Card List */}
                         {currentData.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5 md:gap-6" aria-live="polite">
                                 {currentData.map((item, index) => (
-                                    <div 
+                                    <article 
                                         key={index} 
-                                        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-fade-in"
+                                        itemScope 
+                                        itemType="https://schema.org/Product"
+                                        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-fade-in"
                                         style={{ animationDelay: `${index * 0.05}s` }}
                                     >
                                         <div>
-                                            <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight flex items-start gap-2">
-                                                <span className="text-orange-500 mt-1"><Sparkles className="w-5 h-5"/></span>
+                                            <h3 itemProp="name" className="text-lg md:text-xl font-bold text-slate-800 mb-3 leading-tight flex items-start gap-2.5">
+                                                <span className="text-orange-500 mt-1 shrink-0"><Sparkles className="w-5 h-5"/></span>
                                                 {item.title}
                                             </h3>
-                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed font-medium">
+                                            <p itemProp="description" className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed font-medium">
                                                 {item.description}
                                             </p>
                                         </div>
                                         
-                                        <div className="mt-auto pt-4 border-t border-slate-100 flex justify-end">
+                                        <div className="mt-auto pt-5 border-t border-slate-100 flex justify-end">
                                             <a
                                                 href={item.link}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-sm hover:shadow-md w-full sm:w-auto"
+                                                itemProp="url"
+                                                className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 sm:py-2.5 px-6 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md active:scale-95 w-full sm:w-auto"
                                             >
                                                 <Info className="w-4 h-4" />
-                                                <span>View Details</span>
+                                                <span>View Details / Book</span>
                                                 <ExternalLink className="w-4 h-4 ml-1 opacity-80" />
                                             </a>
                                         </div>
-                                    </div>
+                                    </article>
                                 ))}
                             </div>
                         ) : (
-                            <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
-                                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center shadow-sm">
+                                <h3 className="text-lg font-bold text-slate-700 mb-2">
                                     No items available in this category for the selected region.
                                 </h3>
-                                <p className="text-slate-500">Please try selecting a different category or region.</p>
+                                <p className="text-slate-500 font-medium">Please try selecting a different category or region.</p>
                             </div>
                         )}
 
@@ -276,13 +375,22 @@
                                 href={`https://www.klook.com/en-US/search/result/?query=${encodeURIComponent(selectedRegion)}&aid=117264`}
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-700 hover:to-orange-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                                className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-700 hover:to-orange-600 text-white font-bold py-4 px-8 sm:px-10 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1 active:scale-95 w-full sm:w-auto"
                             >
-                                <span className="tracking-wide">Explore more {selectedRegion} activities</span>
+                                <span className="tracking-wide text-sm sm:text-base">Explore more {selectedRegion} activities</span>
                                 <ExternalLink className="w-5 h-5 ml-1 opacity-90" />
                             </a>
                         </div>
                     </main>
+
+                    {/* Footer */}
+                    <footer className="max-w-7xl mx-auto w-full px-4 mt-12 text-center pb-8" role="contentinfo">
+                        <div className="bg-rose-100/50 rounded-2xl p-6 sm:p-8 shadow-inner inline-block w-full max-w-3xl border border-rose-200/50">
+                            <p className="text-rose-900 font-extrabold mb-2 text-sm md:text-base">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+                            <p className="text-rose-800/80 text-[11px] sm:text-xs mb-1 font-medium leading-relaxed">All rights reserved. Unauthorized reproduction, copying, or any commercial use is strictly prohibited.</p>
+                            <p className="text-rose-800/80 text-[11px] sm:text-xs font-medium leading-relaxed">The images, text content, and source code on this site are protected by law.</p>
+                        </div>
+                    </footer>
                 </div>
             );
         }
