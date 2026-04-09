@@ -1,10 +1,73 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>河內市自由行 行程魔法師</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   
+  <!-- 頂級 SEO & AAO / GEO 基礎標籤 -->
+  <title>北越自由行 行程規劃魔法師 | 河內、下龍灣、沙壩排行程工具 - Kokko Travel</title>
+  <meta name="description" content="專為越南自由行打造的智慧排程工具！一鍵規劃河內市區、下龍灣、沙壩的專屬行程，自動計算跨區交通時間、景點營業時間與停留時長，輕鬆產出客製化旅遊指南。">
+  <meta name="keywords" content="河內行程安排, 下龍灣行程, 沙壩行程, 越南自由行規劃, 自動排行程, Kokko Travel">
+  <meta name="author" content="Kokko Travel / Im+ Life">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://kokko-travel.com/zh/hanoi/">
+
+  <!-- Open Graph / 臉書 & LINE 分享優化 -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="北越自由行 行程規劃魔法師 | 河內、下龍灣、沙壩排行程工具">
+  <meta property="og:description" content="點選想去的河內、下龍灣或沙壩景點，AI 智慧排程系統自動為您計算交通與營業時間，一鍵產出完美行程表！">
+  <meta property="og:url" content="https://kokko-travel.com/zh/hanoi/">
+  <meta property="og:site_name" content="Kokko Travel">
+  <meta property="article:publisher" content="https://kokko-travel.com/">
+
+  <!-- Twitter Card 優化 -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="北越自由行 行程魔法師 | 智慧排程工具">
+  <meta name="twitter:description" content="自動計算越南跨城交通與景點營業時間的完美排程助手。">
+
+  <!-- AEO/GEO/AAO: 頂級 AI 結構化資料 (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "北越自由行智慧行程魔法師",
+    "url": "https://kokko-travel.com/zh/hanoi/",
+    "description": "提供旅客勾選越南河內市、下龍市、沙壩等熱門景點，系統會依據景點營業時間、跨區與跨城交通時長(如河內至沙壩的6小時臥鋪)、建議停留時間，自動運算並生成最順暢的多日遊行程表。",
+    "applicationCategory": "TravelApplication",
+    "operatingSystem": "All",
+    "author": {
+      "@type": "Organization",
+      "name": "Kokko Travel / Im+ Life",
+      "url": "https://kokko-travel.com/"
+    },
+    "featureList": [
+      "河內市區景點智慧排程",
+      "跨城交通(下龍灣、沙壩)自動時間計算",
+      "營業時間防呆機制",
+      "客製化PDF行程表列印"
+    ]
+  }
+  </script>
+
+  <!-- 外國人自動因應外國旅客自動導向英文版 -->
+  <script>
+    (function() {
+      var userLang = navigator.language || navigator.userLanguage;
+      if (!userLang.toLowerCase().startsWith('zh')) {
+        window.location.replace('https://kokko-travel.com/en/hanoi/');
+      }
+    })();
+  </script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-W9KZ1CQ9XM');
+  </script>
+
   <!-- 載入 Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -21,6 +84,10 @@
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    /* 強化行動端觸控體驗 */
+    @media (max-width: 768px) {
+      .touch-target { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    }
     @media print {
       body { background-color: white !important; }
       .print-hidden { display: none !important; }
@@ -28,7 +95,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
   
   <div id="root"></div>
 
@@ -36,60 +103,69 @@
   <script type="text/babel">
     const { useState, useMemo } = React;
 
-    // --- 景點資料庫 (河內市) ---
+    // --- 景點資料庫 (整合河內市、下龍灣、沙壩、寧平) ---
     const ATTRACTIONS = [
       // ================= 機場與住宿 =================
-      { id: 'han_airport', city: 'hoan_kiem', name: '內排國際機場 (HAN)', stay: 1.5, region: 10, regionName: '機場', type: '機場', desc: '行程開始！抵達河內辦理入境與落地簽。建議出發前先準備好網卡與 Grab APP。', transport: '搭乘 Grab 或 86 號機場巴士進入市區。', 
+      { id: 'han_airport', city: 'hanoi', name: '內排國際機場 (HAN)', stay: 1.5, region: 10, regionName: '機場', type: '機場', desc: '行程開始！抵達河內辦理入境與落地簽。建議出發前先準備好網卡與 Grab APP。', transport: '搭乘 Grab 或 86 號機場巴士進入市區。', 
         bookingLinks: [
           { url: 'https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=HAN&aid=117191', text: '內排機場接送' },
           { url: 'https://www.klook.com/zh-TW/activity/84066-3g-4g-sim-card-vietnam-noi-bai-airport/?spm=Mobility_Aggregate.SearchSuggest_LIST&clickId=209c995c02&aid=117191', text: '越南 4G 上網 SIM 卡' },
           { url: 'https://www.klook.com/zh-TW/activity/123902-vietnam-esim-high-speed-internet-qr-code-voucher/?aid=117191', text: '5G eSIM 吃到飽' }
         ] 
       },
-      { id: 'acc_hoan_kiem', city: 'hoan_kiem', name: '住宿: 還劍郡 (老城區)', stay: 1, region: 11, regionName: '市區', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李。還劍郡為觀光與美食最便利的住宿首選。', transport: '依據飯店位置搭乘 Grab、計程車或機場巴士前往。' },
-      { id: 'acc_tay_ho', city: 'tay_ho', name: '住宿: 西湖郡 (湖畔區)', stay: 1, region: 12, regionName: '西湖區', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李。感受充滿歐美外派人士的悠閒度假風情。', transport: '依據飯店位置搭乘 Grab 或計程車前往。' },
+      { id: 'acc_hoan_kiem', city: 'hanoi', name: '住宿: 還劍郡 (老城區)', stay: 1, region: 11, regionName: '還劍郡', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李。還劍郡為觀光與美食最便利的住宿首選。', transport: '依據飯店位置搭乘 Grab、計程車或機場巴士前往。' },
+      { id: 'acc_tay_ho', city: 'hanoi', name: '住宿: 西湖郡 (湖畔區)', stay: 1, region: 13, regionName: '西湖郡', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李。感受充滿歐美外派人士的悠閒度假風情。', transport: '依據飯店位置搭乘 Grab 或計程車前往。' },
 
-      // ================= 還劍郡 (Hoan Kiem / 老城區) =================
-      { id: 'st_joseph', city: 'hoan_kiem', name: '聖若瑟主教座堂', stay: 1, timeWindow: [8, 20], region: 11, regionName: '還劍郡', type: '歷史人文', desc: '河內最古老的教堂，哥德式建築外觀斑駁充滿歷史感。周邊有許多咖啡廳，適合坐下欣賞建築之美。', transport: '位於老城區周邊，步行或搭乘 Grab 即可抵達。' },
-      { id: 'hoa_lo', city: 'hoan_kiem', name: '火爐監獄', stay: 1.5, timeWindow: [8, 17], region: 11, regionName: '還劍郡', type: '歷史人文', desc: '法國殖民時期關押政治犯，越戰時關押美軍戰俘 (河內希爾頓)。內部展示豐富，能深刻感受歷史的沉重。', transport: '距離還劍湖約 10-15 分鐘步行路程。' },
-      { id: 'hoan_kiem_lake', city: 'hoan_kiem', name: '還劍湖 & 龜塔', stay: 1, timeWindow: [6, 22], region: 11, regionName: '還劍郡', type: '打卡景點', desc: '河內市區的地標與靈魂。每到週末周邊會封街成為大型行人徒步區，氣氛非常歡樂熱鬧。', transport: '位於市中心樞紐，步行即可輕鬆抵達。' },
-      { id: 'old_quarter', city: 'hoan_kiem', name: '三十六古街 (Old Quarter)', stay: 2.5, timeWindow: [9, 22], region: 11, regionName: '還劍郡', type: '商圈', desc: '河內最具活力的靈魂地帶！迷宮般的巷弄中充滿尋寶樂趣，是道地小吃、文創小店與咖啡廳的聚集地。', transport: '強烈建議全程步行探索，體驗在地生活。' },
-      { id: 'dong_xuan', city: 'hoan_kiem', name: '同春市場', stay: 1.5, timeWindow: [8, 18], region: 11, regionName: '還劍郡', type: '商圈', desc: '河內最大的室內傳統市場，擁有百年歷史。一樓主要販售乾貨、伴手禮與各類批發商品。', transport: '位於三十六古街北側，步行約 10 分鐘。' },
-      { id: 'train_street', city: 'hoan_kiem', name: '河內火車街', stay: 1.5, timeWindow: [15, 22], region: 11, regionName: '還劍郡', type: '打卡景點', desc: '民宅緊貼鐵軌的奇特景觀！火車近距離呼嘯而過非常震撼。目前須由當地咖啡廳店家帶領方可進入。', transport: '從老城區步行約 15 分鐘可達，建議搭乘 Grab。' },
-      { id: 'water_puppet', city: 'hoan_kiem', name: '昇龍水上木偶劇院', stay: 1.5, timeWindow: [15, 21], region: 11, regionName: '還劍郡', type: '歷史人文', desc: '越南國寶級傳統藝術！在水池上操控木偶，搭配傳統樂器演奏，是了解越南農村文化的絕佳途徑。', transport: '位於還劍湖北側，步行可達。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/35653-thang-long-water-puppet-show-ticket-hanoi/?spm=Activity.SearchSuggest_LIST&clickId=d679a5e359&aid=117191', text: '水上木偶劇門票'}] },
-      { id: 'ta_hien', city: 'hoan_kiem', name: '塔現啤酒街 (Ta Hien)', stay: 2.5, timeWindow: [19, 24], region: 11, regionName: '還劍郡', type: '商圈', desc: '老城區的夜生活核心！路邊擺滿塑膠小板凳，各國背包客擠在路邊喝 Bia Hơi (生啤酒) 吃烤肉，氣氛超嗨。', transport: '夜晚全線管制車輛，必須步行進入。' },
+      // ================= 河內市 (Hanoi - 含還劍、巴亭、西湖、棟多) =================
+      { id: 'st_joseph', city: 'hanoi', name: '聖若瑟主教座堂', stay: 1, timeWindow: [8, 20], region: 11, regionName: '還劍郡', type: '歷史人文', desc: '河內最古老的教堂，哥德式建築外觀斑駁充滿歷史感。周邊有許多咖啡廳，適合坐下欣賞建築之美。', transport: '位於老城區周邊，步行或搭乘 Grab 即可抵達。' },
+      { id: 'hoa_lo', city: 'hanoi', name: '火爐監獄', stay: 1.5, timeWindow: [8, 17], region: 11, regionName: '還劍郡', type: '歷史人文', desc: '法國殖民時期關押政治犯，越戰時關押美軍戰俘 (河內希爾頓)。內部展示豐富，能深刻感受歷史的沉重。', transport: '距離還劍湖約 10-15 分鐘步行路程。' },
+      { id: 'opera_house', city: 'hanoi', name: '河內大劇院', stay: 1, timeWindow: [8, 22], region: 11, regionName: '還劍郡', type: '歷史人文', desc: '仿照巴黎歌劇院建造的華麗法式建築。晚上打燈後非常浪漫，周邊有許多高級餐廳與咖啡館。', transport: '位於還劍湖東南方，步行約15分鐘或搭乘短程Grab。' },
+      { id: 'hoan_kiem_lake', city: 'hanoi', name: '還劍湖 & 龜塔', stay: 1, timeWindow: [6, 22], region: 11, regionName: '還劍郡', type: '打卡景點', desc: '河內市區的地標與靈魂。每到週末周邊會封街成為大型行人徒步區，氣氛非常歡樂熱鬧。', transport: '位於市中心樞紐，步行即可輕鬆抵達。' },
+      { id: 'long_bien_bridge', city: 'hanoi', name: '龍編橋', stay: 1, timeWindow: [6, 18], region: 11, regionName: '還劍郡', type: '打卡景點', desc: '由巴黎鐵塔設計師參與設計的百年鐵橋。充滿工業風與歷史滄桑感，是攝影愛好者的最愛。', transport: '距離老城區不遠，建議搭乘 Grab 前往橋頭。' },
+      { id: 'old_quarter', city: 'hanoi', name: '三十六古街 (Old Quarter)', stay: 2.5, timeWindow: [9, 22], region: 11, regionName: '還劍郡', type: '商圈', desc: '河內最具活力的靈魂地帶！迷宮般的巷弄中充滿尋寶樂趣，是道地小吃、文創小店與咖啡廳的聚集地。', transport: '強烈建議全程步行探索，體驗在地生活。' },
+      { id: 'dong_xuan', city: 'hanoi', name: '同春市場', stay: 1.5, timeWindow: [8, 18], region: 11, regionName: '還劍郡', type: '商圈', desc: '河內最大的室內傳統市場，擁有百年歷史。一樓主要販售乾貨、伴手禮與各類批發商品。', transport: '位於三十六古街北側，步行約 10 分鐘。' },
+      { id: 'night_market', city: 'hanoi', name: '河內週末夜市', stay: 2, timeWindow: [18, 23], region: 11, regionName: '還劍郡', type: '商圈', desc: '僅在週五至週日晚間營業！從同春市場一路延伸到還劍湖，販售各種服飾、紀念品與街頭小吃。', transport: '位於老城區內，週末封街僅能步行進入。' },
+      { id: 'train_street', city: 'hanoi', name: '河內火車街', stay: 1.5, timeWindow: [15, 22], region: 11, regionName: '還劍郡', type: '打卡景點', desc: '民宅緊貼鐵軌的奇特景觀！火車近距離呼嘯而過非常震撼。目前須由當地咖啡廳店家帶領方可進入。', transport: '從老城區步行約 15 分鐘可達，建議搭乘 Grab。' },
+      { id: 'water_puppet', city: 'hanoi', name: '昇龍水上木偶劇院', stay: 1.5, timeWindow: [15, 21], region: 11, regionName: '還劍郡', type: '歷史人文', desc: '越南國寶級傳統藝術！在水池上操控木偶，搭配傳統樂器演奏，是了解越南農村文化的絕佳途徑。', transport: '位於還劍湖北側，步行可達。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/35653-thang-long-water-puppet-show-ticket-hanoi/?spm=Activity.SearchSuggest_LIST&clickId=d679a5e359&aid=117191', text: '水上木偶劇門票'}] },
+      { id: 'ta_hien', city: 'hanoi', name: '塔現啤酒街 (Ta Hien)', stay: 2.5, timeWindow: [19, 24], region: 11, regionName: '還劍郡', type: '商圈', desc: '老城區的夜生活核心！路邊擺滿塑膠小板凳，各國背包客擠在路邊喝 Bia Hơi (生啤酒) 吃烤肉，氣氛超嗨。', transport: '夜晚全線管制車輛，必須步行進入。' },
 
-      // ================= 巴亭郡 (Ba Dinh) =================
-      { id: 'ho_chi_minh_mausoleum', city: 'ba_dinh', name: '胡志明陵寢 & 巴亭廣場', stay: 2, timeWindow: [8, 11.5], region: 12, regionName: '巴亭郡', type: '歷史人文', desc: '越南精神領袖胡志明的長眠之地，氣氛莊嚴。請注意服裝儀容規範，陵寢內部僅上午開放參觀。', transport: '周邊常有交通管制，建議搭 Grab 至附近後步行進入。' },
-      { id: 'citadel', city: 'ba_dinh', name: '昇龍皇城', stay: 1.5, timeWindow: [8, 17], region: 12, regionName: '巴亭郡', type: '歷史人文', desc: '聯合國教科文組織世界遺產，見證越南多個歷史朝代的更迭。巨大的石造城門與出土遺跡非常壯觀。', transport: '從胡志明陵寢步行約 10-15 分鐘可達。' },
-      { id: 'lotte_center', city: 'ba_dinh', name: '樂天觀景台 (Lotte Center)', stay: 1.5, timeWindow: [16, 22], region: 12, regionName: '巴亭郡', type: '打卡景點', desc: '位於 65 樓，可以 360 度俯瞰整個河內市區與西湖。底層透明的「天空步道」能拍出驚險打卡照。', transport: '搭乘 Grab 直接前往樂天中心。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/22529-lotte-observation-deck-ticket-hanoi/?spm=SearchResult.SearchResult_LIST&clickId=f8658be8f4&aid=117191', text: '樂天觀景台門票'}] },
+      { id: 'ho_chi_minh_mausoleum', city: 'hanoi', name: '胡志明陵寢 & 巴亭廣場', stay: 2, timeWindow: [8, 11.5], region: 12, regionName: '巴亭郡', type: '歷史人文', desc: '越南精神領袖胡志明的長眠之地，氣氛莊嚴。請注意服裝儀容規範，陵寢內部僅上午開放參觀。', transport: '周邊常有交通管制，建議搭 Grab 至附近後步行進入。' },
+      { id: 'one_pillar', city: 'hanoi', name: '一柱寺 (延祐寺)', stay: 0.5, timeWindow: [8, 17], region: 12, regionName: '巴亭郡', type: '歷史人文', desc: '建於靈沼池中一根大石柱上的獨特佛寺，造型宛如出水蓮花，是河內最具代表性的古蹟之一。', transport: '緊鄰胡志明陵寢與巴亭廣場，可順道步行參觀。' },
+      { id: 'citadel', city: 'hanoi', name: '昇龍皇城', stay: 1.5, timeWindow: [8, 17], region: 12, regionName: '巴亭郡', type: '歷史人文', desc: '聯合國教科文組織世界遺產，見證越南多個歷史朝代的更迭。巨大的石造城門與出土遺跡非常壯觀。', transport: '從胡志明陵寢步行約 10-15 分鐘可達。' },
+      { id: 'lotte_center', city: 'hanoi', name: '樂天觀景台 (Lotte Center)', stay: 1.5, timeWindow: [16, 22], region: 12, regionName: '巴亭郡', type: '打卡景點', desc: '位於 65 樓，可以 360 度俯瞰整個河內市區與西湖。底層透明的「天空步道」能拍出驚險打卡照。', transport: '搭乘 Grab 直接前往樂天中心。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/22529-lotte-observation-deck-ticket-hanoi/?spm=SearchResult.SearchResult_LIST&clickId=f8658be8f4&aid=117191', text: '樂天觀景台門票'}] },
 
-      // ================= 西湖郡 (Tay Ho) =================
-      { id: 'tran_quoc', city: 'tay_ho', name: '鎮國寺', stay: 1, timeWindow: [8, 17], region: 13, regionName: '西湖郡', type: '歷史人文', desc: '河內最古老的佛寺，歷史超過千年。位於風景秀麗的西湖半島上，高聳的紅色佛塔在夕陽下尤其迷人。', transport: '搭乘 Grab 前往西湖的青年路 (Thanh Nien)。' },
-      { id: 'west_lake_cafe', city: 'tay_ho', name: '西湖畔景觀咖啡街', stay: 1.5, timeWindow: [15, 20], region: 13, regionName: '西湖郡', type: '打卡景點', desc: '充滿法式風情與歐美外派人士的區域。坐在湖畔喝椰子咖啡欣賞西湖夕陽，是超人氣的放鬆行程。', transport: '西湖面積廣大，建議搭乘 Grab 前往特定咖啡廳。' },
-      { id: 'lotte_mall_west_lake', city: 'tay_ho', name: '西湖樂天購物中心', stay: 2.5, timeWindow: [10, 21], region: 13, regionName: '西湖郡', type: '商圈', desc: '河內最新、規模最大的複合式商場！結合室內購物、超市與絕美的水族館，是躲避酷暑的完美選擇。', transport: '位於西湖區外圍，強烈建議直接搭乘 Grab 前往。' },
+      { id: 'tran_quoc', city: 'hanoi', name: '鎮國寺', stay: 1, timeWindow: [8, 17], region: 13, regionName: '西湖郡', type: '歷史人文', desc: '河內最古老的佛寺，歷史超過千年。位於風景秀麗的西湖半島上，高聳的紅色佛塔在夕陽下尤其迷人。', transport: '搭乘 Grab 前往西湖的青年路 (Thanh Nien)。' },
+      { id: 'west_lake_cafe', city: 'hanoi', name: '西湖畔景觀咖啡街', stay: 1.5, timeWindow: [15, 20], region: 13, regionName: '西湖郡', type: '打卡景點', desc: '充滿法式風情與歐美外派人士的區域。坐在湖畔喝椰子咖啡欣賞西湖夕陽，是超人氣的放鬆行程。', transport: '西湖面積廣大，建議搭乘 Grab 前往特定咖啡廳。' },
+      { id: 'lotte_mall_west_lake', city: 'hanoi', name: '西湖樂天購物中心', stay: 2.5, timeWindow: [10, 21], region: 13, regionName: '西湖郡', type: '商圈', desc: '河內最新、規模最大的複合式商場！結合室內購物、超市與絕美的水族館，是躲避酷暑的完美選擇。', transport: '位於西湖區外圍，強烈建議直接搭乘 Grab 前往。' },
 
-      // ================= 棟多郡 (Dong Da) =================
-      { id: 'temple_of_literature', city: 'dong_da', name: '文廟 - 國子監', stay: 1.5, timeWindow: [8, 17], region: 14, regionName: '棟多郡', type: '歷史人文', desc: '越南第一所最高學府，主要供奉孔子。保存完好的傳統越南風格建築，是當地學生祈求學業順利的聖地。', transport: '可搭乘捷運 2A 線至「吉靈站」後步行，或搭 Grab。' },
+      { id: 'temple_of_literature', city: 'hanoi', name: '文廟 - 國子監', stay: 1.5, timeWindow: [8, 17], region: 14, regionName: '棟多郡', type: '歷史人文', desc: '越南第一所最高學府，主要供奉孔子。保存完好的傳統越南風格建築，是當地學生祈求學業順利的聖地。', transport: '可搭乘捷運 2A 線至「吉靈站」後步行，或搭 Grab。' },
 
-      // ================= 周邊城市與近郊 (Outskirts) =================
-      { id: 'ha_long_bay', city: 'ha_long', name: '下龍灣 (一日/多日遊)', stay: 9, timeWindow: [8, 20], region: 20, regionName: '下龍灣', type: '歷史人文', desc: '世界自然遺產！乘船穿梭於數千座壯麗的石灰岩島嶼之間，探訪鐘乳石洞與海上奇景。', transport: '距離河內約 2.5 小時車程，強烈建議參加一日遊或兩日遊行程。', bookingLinks: [
+      // ================= 下龍灣 (Halong) =================
+      { id: 'ha_long_bay', city: 'ha_long', name: '下龍灣 (遊船體驗)', stay: 9, timeWindow: [8, 20], region: 20, regionName: '下龍灣', type: '歷史人文', desc: '世界自然遺產！乘船穿梭於數千座壯麗的石灰岩島嶼之間，探訪鐘乳石洞與海上奇景。', transport: '距離河內約 2.5 小時車程，強烈建議參加一日遊或兩日遊行程。', bookingLinks: [
         {url: 'https://www.klook.com/zh-TW/search/result/?query=%E4%B8%8B%E9%BE%8D%E7%81%A3&aid=117191', text: '下龍灣豪華遊船一日遊'},
         {url: 'https://www.klook.com/zh-TW/search/result/?query=%E4%B8%8B%E9%BE%8D%E7%81%A32%E5%A4%A91%E5%A4%9C&needQueryIdentification=true&spm=SearchResult.SearchSuggest_LIST&clickId=9fef9306ed&aid=117191', text: '下龍灣豪華遊船2天1夜遊'},
         {url: 'https://www.klook.com/zh-TW/search/result/?query=%E4%B8%8B%E9%BE%8D%E7%81%A33%E5%A4%A92%E5%A4%9C&aid=117191', text: '下龍灣豪華遊船3天2夜遊'}
       ] },
-      { id: 'ninh_binh', city: 'ninh_binh', name: '寧平 陸龍灣 (一日遊)', stay: 8, timeWindow: [8, 19], region: 21, regionName: '寧平', type: '歷史人文', desc: '有「陸上下龍灣」之稱。乘坐手搖小船穿梭於長安或三谷的奇特喀斯特地形與水上石灰岩洞穴中。', transport: '距離河內約 2 小時車程，建議參加當地一日遊行程。', bookingLinks: [
+      { id: 'sun_world_halong', city: 'ha_long', name: '太陽世界樂園 & 跨海纜車', stay: 4, timeWindow: [9, 21], region: 20, regionName: '下龍灣', type: '打卡景點', desc: '搭乘世界最大雙層跨海纜車，前往太陽之眼摩天輪俯瞰下龍市絕美夜景與海灣風光。', transport: '位於下龍市拜雀區，市區內搭乘 Grab 即可抵達。' },
+
+      // ================= 沙壩 (Sapa) =================
+      { id: 'sp_fansipan', city: 'sapa', name: '番西邦峰 (Fansipan)', stay: 4, timeWindow: [8, 17], region: 30, regionName: '沙壩', type: '打卡景點', desc: '搭乘絕美登山纜車與小火車登頂中南半島最高峰，雲海與壯麗山景令人驚嘆，是沙壩必去行程。', transport: '從沙壩市區太陽廣場搭乘芒花登山列車至纜車站。' },
+      { id: 'sp_cat_cat', city: 'sapa', name: '貓貓村 (Cat Cat Village)', stay: 3, timeWindow: [8, 18], region: 30, regionName: '沙壩', type: '歷史人文', desc: '距離市區最近的黑苗族部落，沿著山谷階梯漫步，欣賞梯田、瀑布與傳統水車，感受少數民族風情。', transport: '從沙壩市區步行 (下坡段) 或搭乘計程車前往。' },
+      { id: 'sp_square', city: 'sapa', name: '沙壩廣場 & 石教堂', stay: 1, timeWindow: [6, 22], region: 30, regionName: '沙壩', type: '歷史人文', desc: '沙壩市區的核心地標，週末夜晚常有少數民族的愛情市場聚會，周邊餐館與咖啡廳林立。', transport: '位於沙壩市中心，步行即可輕鬆抵達。' },
+      { id: 'sp_ta_van', city: 'sapa', name: '踏梅村 & 左彎村健行', stay: 4, timeWindow: [8, 17], region: 31, regionName: '沙壩近郊', type: '歷史人文', desc: '深入芒花山谷的梯田秘境，遠離喧囂，體驗最道地的少數民族村落風光與深度健行樂趣。', transport: '建議包車或參加當地健行導覽團前往。' },
+
+      // ================= 寧平 (Ninh Binh) =================
+      { id: 'ninh_binh', city: 'ninh_binh', name: '寧平 陸龍灣 (長安/三谷)', stay: 8, timeWindow: [8, 19], region: 21, regionName: '寧平', type: '歷史人文', desc: '有「陸上下龍灣」之稱。乘坐手搖小船穿梭於奇特喀斯特地形與水上石灰岩洞穴中。', transport: '距離河內約 2 小時車程，建議參加當地一日遊行程。', bookingLinks: [
         {url: 'https://www.klook.com/zh-TW/activity/39366-ninh-binh-sightseeing-day-tour-local-experiences-hanoi/?aid=117191', text: '華閭＆長安名勝群一日遊'}
       ] }
     ];
 
+    // 更新城市主選單 (標示更明確的「河內市區景點」)
     const CITIES = [
-      { id: 'hoan_kiem', name: '還劍郡 (老城區)', color: 'blue' },
-      { id: 'ba_dinh', name: '巴亭郡 (歷史區)', color: 'fuchsia' },
-      { id: 'tay_ho', name: '西湖郡 (湖畔)', color: 'emerald' },
-      { id: 'dong_da', name: '棟多郡 (文廟)', color: 'amber' },
-      { id: 'ninh_binh', name: '寧平 (陸龍灣)', color: 'orange' },
-      { id: 'ha_long', name: '下龍灣 (世界遺產)', color: 'cyan' }
+      { id: 'hanoi', name: '📍 河內市區景點', color: 'blue' },
+      { id: 'ha_long', name: '下龍灣 (世界遺產)', color: 'cyan' },
+      { id: 'sapa', name: '沙壩 (山城梯田)', color: 'purple' },
+      { id: 'ninh_binh', name: '寧平 (陸龍灣)', color: 'orange' }
     ];
 
     // --- 核心交通與排程邏輯區 ---
@@ -100,9 +176,21 @@
       return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
     };
 
-    const getCityColor = (cityId) => {
-      const colors = { hoan_kiem: 'blue', ba_dinh: 'fuchsia', tay_ho: 'emerald', dong_da: 'amber', ha_long: 'cyan', ninh_binh: 'orange' };
-      const c = colors[cityId] || 'slate';
+    // 根據標籤名稱(regionName) 給予專屬顏色，讓河內市各區標籤具有辨識度
+    const getTagColor = (cityId, regionName) => {
+      const colorMap = {
+        '還劍郡': 'blue',
+        '巴亭郡': 'fuchsia',
+        '西湖郡': 'emerald',
+        '棟多郡': 'amber',
+        '機場': 'slate',
+        '下龍灣': 'cyan',
+        '沙壩': 'purple',
+        '沙壩近郊': 'purple',
+        '寧平': 'orange'
+      };
+      
+      const c = colorMap[regionName] || (cityId === 'hanoi' ? 'blue' : 'slate');
       return `text-${c}-600 bg-${c}-100 border-${c}-200`;
     };
 
@@ -114,22 +202,32 @@
         return `🏨 【出發前往】搭乘 Grab 叫車或步行前往 ${curr.name}。`;
       }
 
+      // 沙壩跨城
+      if (curr.city === 'sapa' || (prev && prev.city === 'sapa')) {
+          if (prev && prev.city === curr.city) return `🚗 【市內移動】在沙壩山城內步行或搭計程車前往 ${curr.name}。`;
+          return `🚐 【跨城移動】搭乘臥鋪火車或直達臥鋪巴士往返沙壩 (單程約 5.5 - 7 小時車程)。`;
+      }
+
+      // 下龍灣跨城
       if (curr.city === 'ha_long' || (prev && prev.city === 'ha_long')) {
           if (prev && prev.city === curr.city) return `🚗 【市內移動】在下龍市區內搭乘 Grab 前往 ${curr.name}。`;
           return `🚐 【跨城移動】搭乘豪華巴士或旅行社專車往返下龍灣 (單程約 2.5 小時車程)。`;
       }
       
+      // 寧平跨城
       if (curr.city === 'ninh_binh' || (prev && prev.city === 'ninh_binh')) {
           if (prev && prev.city === curr.city) return `🚗 【市內移動】在寧平市區內搭乘 Grab 前往 ${curr.name}。`;
           return `🚐 【跨城移動】搭乘巴士或旅行社專車往返寧平陸龍灣 (單程約 2 小時車程)。`;
       }
 
+      // 河內跨區移動 (同為 hanoi 但不同行政區)
+      if (prev.city === 'hanoi' && curr.city === 'hanoi' && prev.regionName !== curr.regionName && !prev.id.startsWith('acc_') && prev.id !== 'hcmc_origin') {
+          return `🚗 【跨區移動】搭乘 Grab 叫車或計程車從 ${prev.regionName} 前往 ${curr.regionName} (約 10-15 分)。`;
+      }
+
+      // 其他一般跨城防呆
       if (prev.city !== curr.city && prev.id !== 'hcmc_origin') {
-         let text = '';
-         const route = `${prev.city}-${curr.city}`;
-         if ((route.includes('dong_da') && route.includes('ba_dinh'))) text = '搭乘捷運 2A 線、3 號線或 Grab 進行跨區移動 (約 10-15 分)。';
-         else text = `搭乘 Grab 叫車或計程車進行跨區移動 (約 15-20 分)。`;
-         return `🚗 【跨區移動】${text}`;
+         return `🚗 【跨城移動】搭乘長途客運或專車進行跨城移動。`;
       }
 
       return `🚶 【市內移動】從 ${prev.name} 步行，或搭乘短程 Grab 前往 ${curr.name}。`;
@@ -137,27 +235,48 @@
 
     const getTTime = (isNewDay, fCity, tCity, fReg, tReg) => {
         let extraFarTime = 0;
-        if ((fCity === 'ha_long' && tCity !== 'ha_long') || (tCity === 'ha_long' && fCity !== 'ha_long')) {
+        
+        // 前往機場時間較長
+        if (fReg === 10 || tReg === 10 || fReg === 999 || tReg === 999) return 0.8; 
+
+        // 處理跨城的巨大交通時間差異
+        if ((fCity === 'sapa' && tCity !== 'sapa') || (tCity === 'sapa' && fCity !== 'sapa')) {
+            extraFarTime += 6.0; 
+        } else if ((fCity === 'ha_long' && tCity !== 'ha_long') || (tCity === 'ha_long' && fCity !== 'ha_long')) {
             extraFarTime += 2.5; 
         } else if ((fCity === 'ninh_binh' && tCity !== 'ninh_binh') || (tCity === 'ninh_binh' && fCity !== 'ninh_binh')) {
             extraFarTime += 2.0;
         }
+        
         if (fCity && tCity && fCity !== tCity) {
-            if (fCity === 'ha_long' || tCity === 'ha_long' || fCity === 'ninh_binh' || tCity === 'ninh_binh') return 0.5 + extraFarTime;
+            // 如果牽涉到跨城，基礎時間略加一些緩衝
+            if (fCity === 'ha_long' || tCity === 'ha_long' || fCity === 'sapa' || tCity === 'sapa' || fCity === 'ninh_binh' || tCity === 'ninh_binh') return 0.5 + extraFarTime;
             return 0.4 + extraFarTime;
         }
+        
+        // 同城市但不同區域 (例如 河內市內的 還劍郡 到 巴亭郡)
+        if (fCity === tCity && fReg !== tReg) {
+            return 0.3 + extraFarTime;
+        }
+        
         if (isNewDay) return 0.3 + extraFarTime;
         return 0.2 + extraFarTime;
     };
 
     // --- 主應用程式 ---
     function App() {
-      const [activeCity, setActiveCity] = useState('hoan_kiem');
+      const [activeCity, setActiveCity] = useState('hanoi'); // 預設河內市
       const [selectedIds, setSelectedIds] = useState([]);
       const [showPrintView, setShowPrintView] = useState(false);
       const [tripDuration, setTripDuration] = useState(5);
 
       const toggleAttr = (id) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+      // 判斷是否選擇了沙壩景點
+      const hasSapaSelected = selectedIds.some(id => {
+          const attr = ATTRACTIONS.find(a => a.id === id);
+          return attr && attr.city === 'sapa';
+      });
 
       const itineraryDays = useMemo(() => {
         if (selectedIds.length === 0) return [];
@@ -169,7 +288,7 @@
             if (item.type === '機場') return 15;
             if (item.type === '住宿區域') return 20; 
             let win = item.timeWindow || [9.5, 21.5];
-            const isNight = (['商圈'].includes(item.type) && win[1] >= 22) || item.id === 'ta_hien' || item.id === 'lotte_center' || item.id === 'hoan_kiem_lake';
+            const isNight = (['商圈'].includes(item.type) && win[1] >= 22) || item.id === 'ta_hien' || item.id === 'lotte_center' || item.id === 'hoan_kiem_lake' || item.id === 'night_market';
             if (isNight) return 90; 
             if (win[1] <= 17.5) return 30; 
             return 50; 
@@ -189,8 +308,8 @@
 
         let remaining = [...sorted];
         let days = [];
-        let curDay = { items: [], dayCity: 'hoan_kiem', dayType: null, currentTime: 13.0 }; 
-        let lCity = 'hoan_kiem', lReg = 11, prevItemObj = null; 
+        let curDay = { items: [], dayCity: 'hanoi', dayType: null, currentTime: 13.0 }; 
+        let lCity = 'hanoi', lReg = 11, prevItemObj = null; 
 
         const checkValid = (a, isF, curTime) => {
             let tTime = getTTime(isF, lCity, a.city, lReg, a.region);
@@ -212,7 +331,7 @@
             let actEnd = actStart + a.stay;
             if (actStart >= win[1] - 0.5) return false; 
             if (isLastDay) {
-                let retTFromA = getTTime(false, a.city, 'hoan_kiem', a.region, 10);
+                let retTFromA = getTTime(false, a.city, 'hanoi', a.region, 10);
                 if (actEnd > (14.0 - 2.5 - retTFromA)) return false;
             } else if (!isF && actEnd > 23.5) return false;
             return { valid: true, tTime, waitTime, actStart, actEnd };
@@ -243,8 +362,8 @@
             }
             const a = remaining.splice(chosenIdx, 1)[0];
             const { tTime, waitTime, actStart, actEnd } = chosenStats;
-            if (isF && days.length === 0) prevItemObj = { id: 'hcmc_origin', city: 'hoan_kiem', name: '機場/抵達點', type: '起點' };
-            if (isF && days.length > 0) prevItemObj = { id: 'acc_hoan_kiem', city: a.city, name: `住宿地 (${CITIES.find(c=>c.id===a.city)?.name || '還劍郡'})`, type: '住宿區域' }; 
+            if (isF && days.length === 0) prevItemObj = { id: 'hcmc_origin', city: 'hanoi', name: '機場/抵達點', type: '起點' };
+            if (isF && days.length > 0) prevItemObj = { id: 'acc_hanoi', city: a.city, name: `住宿地 (${CITIES.find(c=>c.id===a.city)?.name || '市區'})`, type: '住宿區域' }; 
             let sTime = curDay.currentTime, aTime = sTime + tTime;
             let transitMsg = getSmartTransit(prevItemObj, a) + `\n📍 路線指南：${a.transport}`;
             let win = a.timeWindow || [9, 22];
@@ -257,27 +376,48 @@
         while (days.length < tripDuration) days.push({ items: [], dayCity: lCity, dayType: null, currentTime: 9.0 });
         
         let lastD = days[days.length-1];
-        if (!lastD) { lastD = { items: [], dayCity: 'hoan_kiem', dayType: null, currentTime: 9.0 }; days.push(lastD); }
+        if (!lastD) { lastD = { items: [], dayCity: 'hanoi', dayType: null, currentTime: 9.0 }; days.push(lastD); }
         while (lastD.items.length > 0) {
             let lastItem = lastD.items[lastD.items.length-1];
-            if (lastItem.endTime > (14.0 - 2.5 - getTTime(false, lastItem.city, 'hoan_kiem', lastItem.region, 10))) lastD.items.pop();
+            if (lastItem.endTime > (14.0 - 2.5 - getTTime(false, lastItem.city, 'hanoi', lastItem.region, 10))) lastD.items.pop();
             else break;
         }
         if (lastD.items.length > 0) { let lastItem = lastD.items[lastD.items.length-1]; lastD.currentTime = lastItem.endTime; lCity = lastItem.city; lReg = lastItem.region; prevItemObj = lastItem; }
         else { lastD.currentTime = 9.0; lReg = 11; prevItemObj = { name: '住宿地', city: lCity }; }
-        let retT = getTTime(lastD.items.length === 0, lCity, 'hoan_kiem', lReg, 10), startTransit = 14.0 - 2.5 - retT;
+        let retT = getTTime(lastD.items.length === 0, lCity, 'hanoi', lReg, 10), startTransit = 14.0 - 2.5 - retT;
         let transitMsg = lastD.currentTime < startTransit ? `💡 距離前往機場還有空檔時間，建議於 ${formatTime(startTransit)} 準備出發。\n🚐 搭乘 Grab 前往機場。` : '🚐 搭乘 Grab 或 86 號機場巴士 前往內排機場 (HAN) 報到。';
-        lastD.items.push({ id: 'ret', city: 'hoan_kiem', name: '結束旅程前往機場回國', stay: 2.5, region: 999, regionName: '機場', type: '機場', desc: '祝您有趟完美的越南回憶！河內機場出境人潮眾多，請務必提早報到。', transport: '搭乘 Grab 直達機場。', tTime: retT.toFixed(1), prevName: prevItemObj.name, transitTransport: transitMsg, tStr: `${formatTime(startTransit)} - ${formatTime(14.0 - 2.5)}`, sStr: `${formatTime(14.0 - 2.5)} - 14:00`, isFirstAirport: false, endTime: 14.0 });
+        lastD.items.push({ id: 'ret', city: 'hanoi', name: '結束旅程前往機場回國', stay: 2.5, region: 999, regionName: '機場', type: '機場', desc: '祝您有趟完美的越南回憶！河內機場出境人潮眾多，請務必提早報到。', transport: '搭乘 Grab 直達機場。', tTime: retT.toFixed(1), prevName: prevItemObj.name, transitTransport: transitMsg, tStr: `${formatTime(startTransit)} - ${formatTime(14.0 - 2.5)}`, sStr: `${formatTime(14.0 - 2.5)} - 14:00`, isFirstAirport: false, endTime: 14.0 });
         lastD.currentTime = 14.0;
 
-        return days.map((d, i) => ({ dayNum: i+1, totalH: (d.currentTime - (i === 0 ? 13.0 : 9.0) > 0 ? (d.currentTime - (i === 0 ? 13.0 : 9.0)).toFixed(1) : "0.0"), cityName: CITIES.find(c => c.id === d.dayCity)?.name || '還劍郡', items: d.items }));
+        return days.map((d, i) => ({ dayNum: i+1, totalH: (d.currentTime - (i === 0 ? 13.0 : 9.0) > 0 ? (d.currentTime - (i === 0 ? 13.0 : 9.0)).toFixed(1) : "0.0"), cityName: CITIES.find(c => c.id === d.dayCity)?.name.replace('📍 ','') || '河內市', items: d.items }));
       }, [selectedIds, tripDuration]);
 
       if (showPrintView) {
         return (
           <div className="min-h-screen bg-white p-4 sm:p-8">
             <div className="max-w-3xl mx-auto border-2 border-slate-800 p-4 sm:p-8 rounded-2xl">
-              <div className="text-center mb-10"><h1 className="text-2xl sm:text-3xl font-bold">🇻🇳 專屬河內市自由行 行程表</h1><p className="mt-2 text-slate-500 text-sm">智慧排程系統自動為您計算跨區交通與景點營業時間</p></div>
+              <div className="text-center mb-10"><h1 className="text-2xl sm:text-3xl font-bold">🇻🇳 專屬北越自由行 行程表</h1><p className="mt-2 text-slate-500 text-sm">智慧排程系統自動為您計算跨區交通與景點營業時間</p></div>
+              
+              {hasSapaSelected && (
+                <div className="mb-8 bg-purple-50 border border-purple-200 p-4 sm:p-5 rounded-xl print-break-avoid">
+                  <h4 className="font-bold text-purple-800 text-sm sm:text-base mb-3 flex items-center gap-2">
+                    <i className="fa-solid fa-bus"></i> 💡 溫馨提示：您已安排沙壩行程，建議提早預訂長途交通
+                  </h4>
+                  <div className="flex flex-col sm:flex-row gap-3 print-hidden">
+                    <a href="https://www.klook.com/zh-TW/activity/133909-hanoi-sapa-sleeper-bus-by-hk-buslines/?spm=SearchResult.SearchResult_LIST&clickId=48e013a366&aid=117191" target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-xs sm:text-sm px-3 py-2.5 rounded-lg font-bold transition-colors shadow-sm flex items-center justify-center gap-2 flex-1">
+                      <i className="fa-solid fa-ticket"></i> 河內 - 沙壩 HK Buslines 臥鋪巴士
+                    </a>
+                    <a href="https://www.klook.com/zh-TW/activity/22928-viet-nam-rail-deluxe-train-sapa-hanoi/?spm=SearchResult.SearchResult_LIST&clickId=1217ceaafc&aid=117191" target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-xs sm:text-sm px-3 py-2.5 rounded-lg font-bold transition-colors shadow-sm flex items-center justify-center gap-2 flex-1">
+                      <i className="fa-solid fa-ticket"></i> 越南河內 - 沙壩臥鋪火車票
+                    </a>
+                  </div>
+                  <div className="hidden print:block text-xs text-slate-600 space-y-1">
+                    <p>• 河內 - 沙壩 HK Buslines 臥鋪巴士 (請至 Klook 搜尋)</p>
+                    <p>• 越南河內 - 沙壩臥鋪火車票 (請至 Klook 搜尋)</p>
+                  </div>
+                </div>
+              )}
+
               {itineraryDays.map(d => (
                 <div key={d.dayNum} className="mb-10 print-break-avoid">
                   <h2 className="text-xl font-bold border-b-2 pb-2 mb-6">🌞 第 {d.dayNum} 天 - 【{d.cityName} 區域】 ({d.totalH}h)</h2>
@@ -315,90 +455,130 @@
       const grouped = ATTRACTIONS.filter(a => a.city === activeCity && !a.id.startsWith('acc_')).reduce((acc, c) => { (acc[c.type] = acc[c.type] || []).push(c); return acc; }, {});
 
       return (
-        <div className="min-h-screen bg-slate-50 pb-10">
-          <header className="bg-white p-4 shadow-sm flex flex-wrap justify-between items-center sticky top-0 z-20 border-b gap-3">
+        <div className="min-h-screen bg-slate-50 pb-10 flex flex-col">
+          <header role="banner" className="bg-white p-4 shadow-sm flex flex-wrap justify-between items-center sticky top-0 z-30 border-b gap-3">
             <div className="flex items-center gap-4">
-              <h1 className="font-bold text-xl flex items-center gap-2"><i className="fa-solid fa-wand-magic-sparkles text-blue-600"></i>河內市行程魔法師</h1>
-              <a href="https://linkuei0425.github.io/Hanoi/" className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-full border border-slate-200"><i className="fa-solid fa-house"></i> 回到首頁</a>
+              <h1 className="font-bold text-lg md:text-xl flex items-center gap-2"><i className="fa-solid fa-wand-magic-sparkles text-blue-600"></i>北越自由行魔法師</h1>
+              <a href="https://kokko-travel.com/zh/hanoi/" aria-label="回到首頁" className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-full border border-slate-200 transition-colors"><i className="fa-solid fa-house"></i> 回到首頁</a>
             </div>
-            <div className="flex items-center gap-3">
-              {selectedIds.length > 0 && <button onClick={() => setSelectedIds([])} className="text-xs font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1 cursor-pointer"><i className="fa-solid fa-trash-can"></i> 清空</button>}
+            <div className="flex items-center gap-2 md:gap-3">
+              <a href="https://kokko-travel.com/zh/hanoi/" aria-label="回到首頁" className="sm:hidden flex items-center justify-center text-slate-500 hover:text-blue-600 bg-slate-100 w-8 h-8 rounded-full border border-slate-200"><i className="fa-solid fa-house text-sm"></i></a>
+              {selectedIds.length > 0 && <button onClick={() => setSelectedIds([])} className="text-xs font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1 cursor-pointer transition-colors"><i className="fa-solid fa-trash-can"></i> 清空</button>}
               <div className="text-xs font-bold bg-slate-800 text-white px-3 py-1.5 rounded-full shadow-sm">已選 {selectedIds.length} 站</div>
             </div>
           </header>
           
-          <main className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-6 mt-2">
-            <div className="lg:w-1/2 flex flex-col gap-4">
-              <div className="bg-white p-2 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar">
-                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeCity === c.id ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}>{c.name}</button>)}
+          <main role="main" className="flex-grow max-w-7xl mx-auto w-full p-4 flex flex-col lg:flex-row gap-6 mt-2">
+            
+            {/* 左側：景點選擇區 */}
+            <section aria-label="景點選擇" className="lg:w-1/2 flex flex-col gap-4">
+              <div className="bg-white p-2 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar scroll-smooth snap-x">
+                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`touch-target px-5 py-2 md:py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all snap-center ${activeCity === c.id ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}>{c.name}</button>)}
               </div>
-              <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-                <h2 className="text-sm font-bold flex items-center gap-2 mb-1"><i className="fa-solid fa-circle-info text-blue-500"></i>智慧排程提示</h2>
-                <p className="text-xs text-slate-500">系統自動將<strong className="text-orange-500">歷史古蹟</strong>排白天，<strong className="text-indigo-500">啤酒街/夜景</strong>排晚上。跨區移動自動計算 Grab 或巴士時間！</p>
-              </div>
-              <div className="max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+              
+              <article aria-label="排程提示" className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+                <h2 className="text-sm font-bold flex items-center gap-2 mb-1.5"><i className="fa-solid fa-circle-info text-blue-500"></i>智慧排程提示</h2>
+                <p className="text-xs md:text-sm text-slate-500 leading-relaxed">系統會自動將<strong className="text-orange-500">歷史古蹟</strong>排白天，<strong className="text-indigo-500">夜景商圈</strong>排晚上。跨越下龍灣、沙壩等跨城移動將自動計算長途交通時間 (如沙壩 6H)！</p>
+              </article>
+
+              <div className="max-h-[50vh] lg:max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
                 {Object.entries(grouped).map(([type, items]) => (
                   <div key={type} className="mb-6">
-                    <h3 className="font-bold text-slate-700 mb-3 sticky top-0 bg-slate-50/90 py-2 backdrop-blur-sm z-10 border-b border-slate-200">{type}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <h3 className="font-bold text-slate-700 mb-3 sticky top-0 bg-slate-50/95 py-2 backdrop-blur-sm z-10 border-b border-slate-200">{type}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                       {items.map(it => (
-                        <div key={it.id} onClick={() => toggleAttr(it.id)} className={`p-4 rounded-xl cursor-pointer border-2 transition-all ${selectedIds.includes(it.id) ? 'bg-blue-50 border-blue-500 scale-[1.02] shadow-md' : 'bg-white border-transparent shadow-sm hover:border-slate-300'}`}>
-                          <div className="font-bold text-slate-900 mb-2">{it.name}</div>
-                          <div className="text-[10px] flex gap-2 mb-2"><span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600"><i className="fa-regular fa-clock mr-1"></i>{it.stay}h</span><span className={`px-1.5 py-0.5 rounded border ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot"></i> {it.regionName}</span></div>
-                          <p className="text-xs text-slate-500 line-clamp-2">{it.desc}</p>
+                        <div key={it.id} onClick={() => toggleAttr(it.id)} className={`p-4 md:p-5 rounded-xl cursor-pointer border-2 transition-all ${selectedIds.includes(it.id) ? 'bg-blue-50 border-blue-500 scale-[1.02] shadow-md' : 'bg-white border-transparent shadow-sm hover:border-slate-300'}`}>
+                          <div className="font-bold text-slate-900 mb-2 md:text-lg">{it.name}</div>
+                          <div className="text-[10px] md:text-xs flex flex-wrap gap-2 mb-2">
+                            <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium"><i className="fa-regular fa-clock mr-1"></i>{it.stay}h</span>
+                            <span className={`px-1.5 py-0.5 rounded border font-medium ${getTagColor(it.city, it.regionName)}`}><i className="fa-solid fa-location-dot mr-1"></i>{it.regionName}</span>
+                          </div>
+                          <p className="text-xs md:text-sm text-slate-500 line-clamp-2 leading-relaxed">{it.desc}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
 
-            <div className="lg:w-1/2">
-              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] sticky top-24">
-                <div className="bg-slate-800 text-white p-5 lg:p-6">
-                  <h2 className="text-xl font-bold flex items-center gap-2"><i className="fa-regular fa-calendar-check text-blue-400"></i>您的行程表</h2>
+            {/* 右側：行程結果區 */}
+            <section aria-label="生成的行程表" className="lg:w-1/2">
+              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[75vh] lg:max-h-[85vh] lg:sticky lg:top-24">
+                <div className="bg-slate-800 text-white p-5 md:p-6 z-20">
+                  <h2 className="text-xl font-bold flex items-center gap-2"><i className="fa-regular fa-calendar-check text-blue-400"></i>您的專屬行程表</h2>
                   <div className="flex flex-wrap gap-2 mt-4">
-                    <select value={tripDuration} onChange={(e) => setTripDuration(Number(e.target.value))} className="flex-1 sm:flex-none bg-slate-700 text-white font-bold py-3 px-3 rounded-xl border border-slate-600"><option value={3}>3 日</option><option value={4}>4 日</option><option value={5}>5 日</option><option value={6}>6 日</option><option value={7}>7 日</option></select>
-                    <button onClick={() => setSelectedIds([])} className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl font-bold shadow-lg transition-all ${selectedIds.length > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'}`}><i className="fa-solid fa-rotate-right"></i><span>重設</span></button>
-                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="w-full sm:flex-1 bg-blue-500 py-3 px-2 rounded-xl font-bold text-white text-sm sm:text-base cursor-pointer disabled:opacity-30">產出詳細行程</button>
+                    <select aria-label="選擇旅遊天數" value={tripDuration} onChange={(e) => setTripDuration(Number(e.target.value))} className="flex-1 sm:flex-none bg-slate-700 text-white font-bold py-3 px-3 rounded-xl border border-slate-600 focus:ring-2 focus:ring-blue-500 outline-none">
+                      <option value={3}>3 日遊</option><option value={4}>4 日遊</option><option value={5}>5 日遊</option><option value={6}>6 日遊</option><option value={7}>7 日遊</option>
+                    </select>
+                    <button onClick={() => setSelectedIds([])} className={`touch-target flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl font-bold shadow-sm transition-colors ${selectedIds.length > 0 ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-slate-600 text-slate-400 cursor-not-allowed'}`} disabled={selectedIds.length === 0}><i className="fa-solid fa-rotate-right"></i><span>重設</span></button>
+                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="touch-target w-full sm:flex-1 bg-blue-600 hover:bg-blue-500 py-3 px-2 rounded-xl font-bold text-white text-sm sm:text-base cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-md">產出詳細行程 & PDF</button>
                   </div>
                 </div>
-                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
-                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-24 flex flex-col items-center gap-4"><i className="fa-brands fa-fort-awesome text-6xl opacity-10"></i><p>尚未選擇任何景點</p></div> : 
+                <div className="p-5 md:p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                  
+                  {hasSapaSelected && (
+                    <div className="mb-6 bg-purple-50 border border-purple-200 p-4 rounded-xl shadow-sm">
+                      <h4 className="font-bold text-purple-800 text-sm md:text-base mb-3 flex items-center gap-2">
+                        <i className="fa-solid fa-bus"></i> 💡 沙壩長途交通預訂推薦
+                      </h4>
+                      <div className="flex flex-col gap-2.5">
+                        <a href="https://www.klook.com/zh-TW/activity/133909-hanoi-sapa-sleeper-bus-by-hk-buslines/?spm=SearchResult.SearchResult_LIST&clickId=48e013a366&aid=117191" target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-xs md:text-sm px-3.5 py-2.5 rounded-lg font-bold transition-colors shadow-sm flex items-center gap-2">
+                          <i className="fa-solid fa-ticket"></i> 河內 (Hanoi) - 沙壩 (Sapa) HK Buslines 臥鋪巴士
+                        </a>
+                        <a href="https://www.klook.com/zh-TW/activity/22928-viet-nam-rail-deluxe-train-sapa-hanoi/?spm=SearchResult.SearchResult_LIST&clickId=1217ceaafc&aid=117191" target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-xs md:text-sm px-3.5 py-2.5 rounded-lg font-bold transition-colors shadow-sm flex items-center gap-2">
+                          <i className="fa-solid fa-ticket"></i> 越南河內 - 沙壩臥鋪火車票
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-20 flex flex-col items-center gap-4"><i className="fa-brands fa-fort-awesome text-6xl opacity-10"></i><p className="font-medium text-lg">請從左側點選您感興趣的景點</p></div> : 
                     itineraryDays.map(d => (
-                      <div key={d.dayNum} className="mb-10">
-                        <h3 className="font-bold text-lg mb-4 border-b-2 border-slate-200 pb-2 flex items-center gap-2 text-slate-800"><i className="fa-solid fa-sun text-orange-500"></i> 第 {d.dayNum} 天 - 【{d.cityName}】 <span className="text-xs font-normal text-slate-400 ml-auto">總計: {d.totalH}h</span></h3>
-                        <div className="space-y-5 border-l-[3px] border-slate-200 ml-4 pl-7 relative pb-4">
+                      <article key={d.dayNum} className="mb-10">
+                        <h3 className="font-bold text-lg md:text-xl mb-5 border-b-2 border-slate-200 pb-2 flex items-center gap-2 text-slate-800"><i className="fa-solid fa-sun text-orange-500"></i> 第 {d.dayNum} 天 - 【{d.cityName}】 <span className="text-xs font-normal text-slate-400 ml-auto bg-white px-2 py-1 rounded shadow-sm">總計: {d.totalH}h</span></h3>
+                        <div className="space-y-6 border-l-[3px] border-slate-200 ml-4 pl-6 md:pl-8 relative pb-4">
                           {d.items.map((it, idx) => (
                             <div key={`${it.id}-${idx}`} className="relative mb-6">
                               {!it.isFirstAirport && (
                                 <div className="mb-4 relative">
-                                  <div className="absolute -left-[40px] top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-100 rounded-full border-2 border-slate-300 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[8px] text-slate-400"></i></div>
-                                  <div className={`rounded-lg p-3 text-[11px] border shadow-sm ${it.transitTransport.includes('跨') || it.transitTransport.includes('近郊') ? 'bg-red-50/70 border-red-100' : 'bg-blue-50/70 border-blue-100'}`}>
-                                    <div className={`font-bold mb-1.5 ${it.transitTransport.includes('跨') || it.transitTransport.includes('近郊') ? 'text-red-800' : 'text-blue-800'}`}>{it.prevName} ➔ {it.name}</div>
-                                    <div className="flex items-center gap-3 mb-1.5"><span className={`bg-white px-2 py-0.5 rounded border font-mono shadow-sm ${it.transitTransport.includes('跨') || it.transitTransport.includes('近郊') ? 'border-red-200 text-red-600' : 'border-blue-200 text-blue-600'}`}><i className="fa-regular fa-clock mr-1"></i> {it.tStr}</span><span className={`font-medium ${it.transitTransport.includes('跨') || it.transitTransport.includes('近郊') ? 'text-red-600' : 'text-blue-600'}`}>車程 {it.tTime}h</span></div>
-                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{it.transitTransport}</div>
+                                  <div className="absolute -left-[35px] md:-left-[43px] top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 bg-slate-100 rounded-full border-2 border-slate-300 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[8px] md:text-[10px] text-slate-400"></i></div>
+                                  <div className={`rounded-xl p-3.5 md:p-4 text-xs md:text-sm border shadow-sm ${it.transitTransport.includes('跨城') || it.transitTransport.includes('近郊') || it.transitTransport.includes('跨區') ? 'bg-red-50/80 border-red-100' : 'bg-blue-50/80 border-blue-100'}`}>
+                                    <div className={`font-bold mb-2 md:text-base ${it.transitTransport.includes('跨城') || it.transitTransport.includes('近郊') || it.transitTransport.includes('跨區') ? 'text-red-800' : 'text-blue-800'}`}>{it.prevName} ➔ {it.name}</div>
+                                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                                      <span className={`bg-white px-2 py-0.5 rounded border font-mono shadow-sm ${it.transitTransport.includes('跨城') || it.transitTransport.includes('近郊') || it.transitTransport.includes('跨區') ? 'border-red-200 text-red-600' : 'border-blue-200 text-blue-600'}`}><i className="fa-regular fa-clock mr-1"></i> {it.tStr}</span>
+                                      <span className={`font-medium bg-white px-2 py-0.5 rounded shadow-sm ${it.transitTransport.includes('跨城') || it.transitTransport.includes('近郊') || it.transitTransport.includes('跨區') ? 'text-red-600' : 'text-blue-600'}`}>車程 {it.tTime}h</span>
+                                    </div>
+                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed mt-1.5">{it.transitTransport}</div>
                                   </div>
                                 </div>
                               )}
-                              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative hover:shadow-md transition-shadow">
-                                <div className="absolute -left-[37px] top-4 w-4.5 h-4.5 bg-blue-500 rounded-full border-[3px] border-white shadow-sm z-10"></div>
-                                <div className="text-xs font-bold text-slate-400 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留: '}{it.sStr}</div>
-                                <h4 className="font-bold text-base mb-1">{it.name}</h4>
-                                <p className="text-xs text-slate-500 leading-relaxed">{it.desc}</p>
-                                {it.bookingLinks && <div className="mt-3 flex gap-1.5 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[9px] px-2.5 py-1 rounded-lg font-bold transition-colors shadow-sm"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                              <div className="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm relative hover:shadow-md transition-shadow">
+                                <div className="absolute -left-[33px] md:-left-[41px] top-4 md:top-5 w-4 h-4 md:w-5 md:h-5 bg-blue-500 rounded-full border-[3px] border-white shadow-sm z-10"></div>
+                                <div className="text-xs md:text-sm font-bold text-slate-400 mb-1.5"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留: '}{it.sStr}</div>
+                                <h4 className="font-bold text-base md:text-lg mb-1.5 text-slate-800">{it.name}</h4>
+                                <p className="text-xs md:text-sm text-slate-500 leading-relaxed">{it.desc}</p>
+                                {it.bookingLinks && <div className="mt-3.5 flex gap-2 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[10px] md:text-xs px-2.5 py-1.5 rounded-lg font-bold transition-colors shadow-sm"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
                               </div>
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </article>
                     ))
                   }
                 </div>
               </div>
-            </div>
+            </section>
           </main>
+          
+          {/* Footer 版權宣告 */}
+          <footer role="contentinfo" className="w-full mt-10 pt-8 pb-12 border-t border-slate-200 text-center px-4">
+            <div className="max-w-4xl mx-auto text-xs sm:text-sm text-slate-400 space-y-2 leading-relaxed">
+              <p className="font-bold text-slate-500 text-sm sm:text-base mb-3">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+              <p>版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+              <p>本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+            </div>
+          </footer>
         </div>
       );
     }

@@ -1,9 +1,73 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>河內市交通 (捷運/機場巴士) 路線與景點查詢</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    
+    <!-- 頂級 SEO & AAO / GEO 基礎標籤 -->
+    <title>河內與下龍灣、沙壩交通導航 | 下龍灣、沙壩長途路線與機場巴士查詢 - Kokko Travel</title>
+    <meta name="description" content="最強越南自由行交通指南！提供河內捷運 2A、3號線、86號內排機場巴士，以及前往下龍市、沙壩的長途臥鋪火車/臥鋪巴士路線查詢、景點與自動轉乘時間計算。">
+    <meta name="keywords" content="河內捷運, 河內交通, 機場巴士 86, 下龍灣交通, 沙壩臥鋪火車, 沙壩巴士, 河內自由行, Kokko Travel">
+    <meta name="author" content="Kokko Travel / Im+ Life">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://kokko-travel.com/zh/hanoi/index.html">
+
+    <!-- Open Graph / 臉書 & LINE 分享優化 -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="河內與下龍灣、沙壩交通導航 | 下龍灣、沙壩路線與機場巴士查詢">
+    <meta property="og:description" content="輸入起終點，自動計算河內市區捷運、機場巴士與前往下龍灣、沙壩長途交通的最佳轉乘路線！">
+    <meta property="og:url" content="https://kokko-travel.com/zh/hanoi/mrt/">
+    <meta property="og:site_name" content="Kokko Travel">
+    <meta property="article:publisher" content="https://kokko-travel.com/">
+
+    <!-- Twitter Card 優化 -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="河內與下龍灣、沙壩交通導航 | 路線轉乘查詢">
+    <meta name="twitter:description" content="自動計算河內捷運、機場巴士與前往下龍灣、沙壩長途交通的最佳轉乘路線。">
+
+    <!-- AEO/GEO/AAO: 頂級 AI 結構化資料 (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "河內與北越交通轉乘導航系統",
+      "url": "https://kokko-travel.com/zh/hanoi/mrt/",
+      "description": "計算越南河內市內捷運 (2A、3號線)、機場巴士 (86線)，以及跨城前往下龍市與沙壩的最佳交通路線與預估時間。",
+      "applicationCategory": "TravelApplication",
+      "operatingSystem": "All",
+      "author": {
+        "@type": "Organization",
+        "name": "Kokko Travel / Im+ Life",
+        "url": "https://kokko-travel.com/"
+      },
+      "featureList": [
+        "河內捷運路線查詢",
+        "內排機場巴士轉乘計算",
+        "河內至下龍灣巴士路線查詢",
+        "河內至沙壩臥鋪火車/巴士轉乘計算"
+      ]
+    }
+    </script>
+
+    <!-- 自動語言導向 (GEO/AAO 友善：將非中文訪客導向英文版) -->
+    <script>
+      (function() {
+        var userLang = navigator.language || navigator.userLanguage;
+        if (!userLang.toLowerCase().startsWith('zh')) {
+          window.location.replace('https://kokko-travel.com/en/hanoi/');
+        }
+      })();
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- React & ReactDOM -->
@@ -14,24 +78,31 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f8fafc; }
+        body { 
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+            background-color: #f8fafc; 
+        }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+        /* 優化 Select 在 iOS 上的樣式 */
+        @media screen and (-webkit-min-device-pixel-ratio:0) { 
+            select, textarea, input { font-size: 16px; }
+        }
     </style>
 </head>
-<body>
+<body class="antialiased text-slate-800">
     <div id="root"></div>
 
     <script type="text/babel">
-        // --- 1. 資料庫建置 (河內市) ---
+        // --- 1. 資料庫建置 (河內市 + 北越長途) ---
         const mrtData = {
-            L2A: [ // 河內捷運 2A 線 (吉靈-河東)
+            L2A: [ // 河內捷運 2A 線
                 { c: "2A-01", n: "吉靈", e: "Cát Linh", a: "文廟 (步行可達)、轉乘捷運 3 號線" },
                 { c: "2A-02", n: "羅城", e: "La Thành", a: "" },
                 { c: "2A-03", n: "泰河", e: "Thái Hà", a: "" },
                 { c: "2A-04", n: "廊", e: "Láng", a: "" },
-                { c: "2A-05", n: "上亭", e: "Thượng Đình", a: "Vincom Mega Mall Royal City 商場" },
+                { c: "2A-05", n: "上亭", e: "Thượng Đình", a: "Vincom Mega Mall Royal City" },
                 { c: "2A-06", n: "三環", e: "Vành Đai 3", a: "" },
                 { c: "2A-07", n: "馮珖", e: "Phùng Khoang", a: "" },
                 { c: "2A-08", n: "文館", e: "Văn Quán", a: "" },
@@ -39,7 +110,7 @@
                 { c: "2A-10", n: "羅溪", e: "La Khê", a: "" },
                 { c: "2A-11", n: "安義", e: "Yên Nghĩa", a: "安義客運總站 (長途巴士樞紐)" }
             ],
-            L3: [ // 河內捷運 3 號線 (呠-河內火車站)
+            L3: [ // 河內捷運 3 號線
                 { c: "3-01", n: "呠", e: "Nhổn", a: "" },
                 { c: "3-02", n: "明開", e: "Minh Khai", a: "" },
                 { c: "3-03", n: "富演", e: "Phú Diễn", a: "" },
@@ -48,7 +119,7 @@
                 { c: "3-06", n: "國家大學", e: "Đại Học Quốc Gia", a: "越南國家大學" },
                 { c: "3-07", n: "河寺", e: "Chùa Hà", a: "" },
                 { c: "3-08", n: "紙橋", e: "Cầu Giấy", a: "紙橋公園" },
-                { c: "3-09", n: "金馬", e: "Kim Mã", a: "樂天中心 (Lotte Center)、巴亭廣場周邊" },
+                { c: "3-09", n: "金馬", e: "Kim Mã", a: "樂天中心 (Lotte Center)、巴亭廣場" },
                 { c: "3-10", n: "吉靈", e: "Cát Linh", a: "轉乘捷運 2A 線" },
                 { c: "3-11", n: "文廟", e: "Văn Miếu", a: "文廟-國子監" },
                 { c: "3-12", n: "河內火車站", e: "Ga Hà Nội", a: "河內火車站、轉乘機場巴士 86 線" }
@@ -59,17 +130,37 @@
                 { c: "B86-03", n: "龍編", e: "Long Biên", a: "龍編橋、同春市場" },
                 { c: "B86-04", n: "內排機場 T1", e: "Nội Bài T1", a: "國內航廈" },
                 { c: "B86-05", n: "內排機場 T2", e: "Nội Bài T2", a: "國際航廈" }
+            ],
+            IC_HL: [ // 長途：河內 - 下龍市
+                { c: "HL-01", n: "河內老城區 (接駁)", e: "Hanoi Old Quarter", a: "各大飯店接送出發" },
+                { c: "HL-02", n: "下龍市 (拜雀/巡洲島)", e: "Halong (Bai Chay/Tuan Chau)", a: "下龍灣遊船碼頭、太陽世界樂園" }
+            ],
+            IC_SP_T: [ // 長途：河內 - 沙壩 (火車)
+                { c: "SPT-01", n: "河內火車站", e: "Ga Hà Nội", a: "搭乘夜間臥鋪觀光火車" },
+                { c: "SPT-02", n: "老街火車站", e: "Ga Lào Cai", a: "出站轉乘中型巴士上山" },
+                { c: "SPT-03", n: "沙壩市區", e: "Sapa Town", a: "沙壩廣場、洋人街" }
+            ],
+            IC_SP_B: [ // 長途：河內 - 沙壩 (巴士)
+                { c: "SPB-01", n: "安義客運站", e: "Bến Xe Yên Nghĩa", a: "轉乘直達臥鋪巴士" },
+                { c: "SPB-02", n: "沙壩市區", e: "Sapa Town", a: "沙壩廣場、洋人街" }
             ]
         };
 
         const lineColors = {
             L2A: { bg: 'bg-green-600', border: 'border-green-600', text: 'text-green-700', name: '🚇 捷運 2A 線' },
             L3: { bg: 'bg-red-600', border: 'border-red-600', text: 'text-red-700', name: '🚇 捷運 3 號線' },
-            B86: { bg: 'bg-orange-500', border: 'border-orange-500', text: 'text-orange-600', name: '🚌 機場巴士 86 線' }
+            B86: { bg: 'bg-orange-500', border: 'border-orange-500', text: 'text-orange-600', name: '✈️ 機場巴士 86 線' },
+            IC_HL: { bg: 'bg-cyan-600', border: 'border-cyan-600', text: 'text-cyan-700', name: '🚌 長途巴士 (下龍市)' },
+            IC_SP_T: { bg: 'bg-indigo-600', border: 'border-indigo-600', text: 'text-indigo-700', name: '🚆 臥鋪火車 (沙壩)' },
+            IC_SP_B: { bg: 'bg-violet-600', border: 'border-violet-600', text: 'text-violet-700', name: '🚌 臥鋪巴士 (沙壩)' }
         };
 
-        // 解決同站不同名的問題，建立轉乘節點 (此處站名相同，直接留空或保留備用)
-        const aliasMap = {};
+        // 解決同站不同名/地理位置相近的跨線轉乘綁定
+        const aliasMap = {
+            "河內老城區 (接駁)": "還劍湖/郵政總局", // 讓下龍市接駁與機場巴士的老城區站綁定
+            "安義客運站": "安義" // 讓沙壩臥鋪巴士起點與捷運2A線的安義站綁定
+            // "河內火車站" 及 "沙壩市區" 因站名完全相同，系統會自動歸類綁定
+        };
 
         // 扁平化所有站點，建立 graph 與選單資料
         let allStationsMap = {};
@@ -81,7 +172,6 @@
                 allStationsMap[st.c] = { ...st, line: lineKey };
                 allStationsList.push(allStationsMap[st.c]);
 
-                // 若有群組對應，使用主站名作為底層的 ID 進行節點綁定
                 let baseName = aliasMap[st.n] || st.n;
 
                 if (!uniquePhysicalStations[baseName]) {
@@ -96,7 +186,7 @@
 
         // 建立圖 (Graph)
         const graph = {};
-        const RIDE_TIME = 4; // 河內市搭乘一站約抓4分鐘 (含巴士)
+        const RIDE_TIME = 4; // 市區搭乘一站約抓4分鐘
         const TRANSFER_TIME = 8; // 站外/站內步行轉乘時間
 
         function addEdge(u, v, weight, type, line) {
@@ -104,16 +194,22 @@
             graph[u].push({ node: v, weight, type, line });
         }
 
-        // 1. 同線相鄰站連線
+        // 1. 同線相鄰站連線 (加入長途時間設定)
         Object.keys(mrtData).forEach(lineKey => {
             const lineArr = mrtData[lineKey];
             for (let i = 0; i < lineArr.length - 1; i++) {
-                addEdge(lineArr[i].c, lineArr[i+1].c, RIDE_TIME, 'ride', lineKey);
-                addEdge(lineArr[i+1].c, lineArr[i].c, RIDE_TIME, 'ride', lineKey);
+                let weight = RIDE_TIME;
+                // 設定長途交通預估時間 (分鐘)
+                if (lineKey === 'IC_HL') weight = 150; // 河內-下龍約 2.5 小時
+                else if (lineKey === 'IC_SP_T') weight = (i === 0) ? 480 : 60; // 河內-老街火車 8 小時，老街-沙壩巴士 1 小時
+                else if (lineKey === 'IC_SP_B') weight = 360; // 河內-沙壩巴士約 6 小時
+
+                addEdge(lineArr[i].c, lineArr[i+1].c, weight, 'ride', lineKey);
+                addEdge(lineArr[i+1].c, lineArr[i].c, weight, 'ride', lineKey);
             }
         });
 
-        // 2. 轉乘站連線 (包含被 aliasMap 同化進同一群組的車站，或是站名相同的節點)
+        // 2. 轉乘站連線 (合併站點間建立互通邊)
         Object.values(uniquePhysicalStations).forEach(station => {
             if (station.codes.length > 1) {
                 for (let i = 0; i < station.codes.length; i++) {
@@ -220,11 +316,11 @@
         const { useState, useEffect } = React;
 
         const App = () => {
+            // 預設為尋找機場到沙壩的深度旅遊路線
             const [startStation, setStartStation] = useState("內排機場 T2");
-            const [endStation, setEndStation] = useState("還劍湖/郵政總局");
+            const [endStation, setEndStation] = useState("沙壩市區");
             const [route, setRoute] = useState(null);
 
-            // 確保 React 每次渲染完畢後，強制繪製圖示 (解決圖示消失的問題)
             useEffect(() => {
                 lucide.createIcons();
             });
@@ -245,31 +341,33 @@
             };
 
             return (
-                <div className="min-h-screen pb-12">
-                    {/* Header */}
-                    <header className="bg-teal-900 text-white shadow-md pt-12 pb-8 px-6 text-center">
-                        <div className="flex items-center justify-center gap-4 mb-3">
-                            <a href="https://linkuei0425.github.io/Hanoi/" title="回到首頁" className="inline-flex items-center justify-center text-teal-100 hover:text-white bg-teal-800 hover:bg-teal-700 p-2.5 rounded-full transition-colors shadow-sm">
-                                <i data-lucide="home" className="w-5 h-5"></i>
+                <div className="min-h-screen pb-12 flex flex-col font-sans">
+                    {/* Header: Semantic Tag */}
+                    <header role="banner" className="bg-teal-900 text-white shadow-md pt-10 pb-8 px-4 sm:px-6 text-center">
+                        <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 mb-3">
+                            <a href="https://kokko-travel.com/zh/hanoi/" aria-label="回到首頁" title="回到首頁" className="inline-flex items-center justify-center text-teal-100 hover:text-white bg-teal-800 hover:bg-teal-700 p-2 md:p-2.5 rounded-full transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400">
+                                <i data-lucide="home" className="w-5 h-5 md:w-6 md:h-6"></i>
                             </a>
-                            <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-                                <i data-lucide="train" className="w-7 h-7 text-yellow-400"></i>
-                                河內市交通指南
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
+                                <i data-lucide="map" className="w-6 h-6 md:w-8 md:h-8 text-yellow-400 shrink-0"></i>
+                                河內與北越交通導航
                             </h1>
                         </div>
-                        <p className="text-teal-200 text-sm">捷運 2A 線、3 號線與機場巴士路線查詢</p>
+                        <p className="text-teal-200 text-xs sm:text-sm max-w-lg mx-auto">涵蓋河內市區捷運、機場巴士，及前往下龍市、沙壩長途路線查詢</p>
                     </header>
 
-                    <main className="max-w-2xl mx-auto px-4 -mt-6">
+                    <main role="main" className="flex-grow max-w-3xl md:max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 -mt-6">
                         {/* Search Box */}
-                        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 relative">
-                            <div className="flex flex-col gap-4">
+                        <section aria-label="搜尋路線" className="bg-white rounded-2xl shadow-xl p-5 md:p-7 mb-8 relative">
+                            <div className="flex flex-col gap-5">
                                 <div className="relative">
-                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">出發站 (Start)</label>
+                                    <label htmlFor="start-station" className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">出發站 (Start)</label>
                                     <select 
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-teal-500 focus:border-teal-500 block p-3.5 pr-8 truncate font-medium appearance-none"
+                                        id="start-station"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base md:text-lg rounded-xl focus:ring-teal-500 focus:border-teal-500 block p-3.5 md:p-4 pr-10 truncate font-medium appearance-none cursor-pointer transition-colors hover:bg-slate-100"
                                         value={startStation}
                                         onChange={(e) => setStartStation(e.target.value)}
+                                        aria-label="選擇出發站點"
                                     >
                                         {Object.keys(mrtData).map(lineKey => (
                                             <optgroup key={`start-group-${lineKey}`} label={lineColors[lineKey].name}>
@@ -277,34 +375,37 @@
                                                     const baseName = aliasMap[st.n] || st.n;
                                                     return (
                                                         <option key={`start-${st.c}`} value={baseName}>
-                                                            [{st.c}] {st.n} ({st.e}){st.a ? ` 📍 ${st.a.split('、')[0]}` : ''}
+                                                            [{st.c}] {st.n} ({st.e})
                                                         </option>
                                                     );
                                                 })}
                                             </optgroup>
                                         ))}
                                     </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 bottom-0 top-7 flex items-center px-4 text-slate-400">
                                         <i data-lucide="chevron-down" className="w-5 h-5"></i>
                                     </div>
                                 </div>
 
-                                <div className="relative flex justify-center -my-3 z-10">
+                                <div className="relative flex justify-center -my-4 z-10">
                                     <button 
                                         onClick={handleSwap}
-                                        className="bg-teal-600 hover:bg-teal-700 text-white p-2.5 rounded-full shadow-md transition-transform hover:scale-105"
-                                        title="反轉路線"
+                                        className="bg-teal-600 hover:bg-teal-700 text-white p-3 md:p-3.5 rounded-full shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-teal-200"
+                                        aria-label="反轉起終點路線"
+                                        title="反轉起終點路線"
                                     >
-                                        <i data-lucide="arrow-down-up" className="w-5 h-5"></i>
+                                        <i data-lucide="arrow-down-up" className="w-5 h-5 md:w-6 md:h-6"></i>
                                     </button>
                                 </div>
 
                                 <div className="relative">
-                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">抵達站 (Destination)</label>
+                                    <label htmlFor="end-station" className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">抵達站 (Destination)</label>
                                     <select 
-                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-teal-500 focus:border-teal-500 block p-3.5 pr-8 truncate font-medium appearance-none"
+                                        id="end-station"
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base md:text-lg rounded-xl focus:ring-teal-500 focus:border-teal-500 block p-3.5 md:p-4 pr-10 truncate font-medium appearance-none cursor-pointer transition-colors hover:bg-slate-100"
                                         value={endStation}
                                         onChange={(e) => setEndStation(e.target.value)}
+                                        aria-label="選擇抵達站點"
                                     >
                                         {Object.keys(mrtData).map(lineKey => (
                                             <optgroup key={`end-group-${lineKey}`} label={lineColors[lineKey].name}>
@@ -312,33 +413,56 @@
                                                     const baseName = aliasMap[st.n] || st.n;
                                                     return (
                                                         <option key={`end-${st.c}`} value={baseName}>
-                                                            [{st.c}] {st.n} ({st.e}){st.a ? ` 📍 ${st.a.split('、')[0]}` : ''}
+                                                            [{st.c}] {st.n} ({st.e})
                                                         </option>
                                                     );
                                                 })}
                                             </optgroup>
                                         ))}
                                     </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 bottom-0 top-7 flex items-center px-4 text-slate-400">
                                         <i data-lucide="chevron-down" className="w-5 h-5"></i>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
 
                         {/* Route Results */}
-                        {startStation === endStation ? (
-                            <div className="bg-yellow-50 text-yellow-800 p-4 rounded-xl text-center shadow-sm">
-                                📍 起點與終點位於同一個站點/轉乘區唷！
-                            </div>
-                        ) : route ? (
-                            <RouteTimeline legs={route} destName={endStation} />
-                        ) : (
-                            <div className="text-center text-slate-500 py-8">
-                                正在計算路線...
-                            </div>
-                        )}
+                        <section aria-live="polite">
+                            {startStation === endStation ? (
+                                <div className="bg-yellow-50 text-yellow-800 p-5 rounded-2xl text-center shadow-sm border border-yellow-200 font-medium md:text-lg">
+                                    📍 起點與終點位於同一個站點或轉乘區唷！
+                                </div>
+                            ) : route ? (
+                                <RouteTimeline legs={route} destName={endStation} />
+                            ) : (
+                                <div className="text-center text-slate-500 py-10 flex flex-col items-center">
+                                    <i data-lucide="loader" className="w-8 h-8 animate-spin text-teal-500 mb-3"></i>
+                                    <span className="font-medium text-lg">正在計算最佳路線...</span>
+                                </div>
+                            )}
+                        </section>
+                        
+                        {/* AEO / GEO Context block - Helps AI understand the tool */}
+                        <section className="mt-10 bg-white p-5 md:p-7 rounded-2xl shadow-sm text-slate-600 text-sm leading-relaxed border border-slate-100" aria-labelledby="seo-desc">
+                            <h2 id="seo-desc" className="font-bold text-base md:text-lg text-slate-800 mb-3 flex items-center gap-2">
+                                <i data-lucide="info" className="w-5 h-5 text-teal-600"></i>
+                                關於河內與北越交通導航系統
+                            </h2>
+                            <p className="mb-2">本系統專為越南自由行旅客設計，提供河內市區捷運 (Metro 2A 吉靈-河東線、Metro 3 呠-河內火車站線)、內排機場巴士 (86號) 的路線查詢與自動轉乘計算。</p>
+                            <p><strong>2026年全新升級：</strong>新增北越長途交通導航，完美涵蓋從河內出發至<strong>下龍市 (Halong Bay)</strong> 的豪華客運接駁，以及前往<strong>沙壩 (Sapa)</strong> 的夜間臥鋪火車與直達臥鋪巴士路線。透過本工具，您可以輕鬆規劃從機場到市區，再延伸至各大知名景點的無縫旅程。</p>
+                        </section>
+
                     </main>
+
+                    {/* Footer */}
+                    <footer role="contentinfo" className="w-full mt-12 md:mt-16 pt-8 pb-12 border-t border-slate-200 text-center px-4">
+                        <div className="max-w-4xl mx-auto text-xs sm:text-sm text-slate-400 space-y-2 leading-relaxed">
+                            <p className="font-bold text-slate-500 text-sm sm:text-base mb-3">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+                            <p>版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+                            <p>本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+                        </div>
+                    </footer>
                 </div>
             );
         };
@@ -346,46 +470,56 @@
         const RouteTimeline = ({ legs, destName }) => {
             const totalTime = legs.reduce((acc, leg) => acc + leg.time, 0);
             const totalTransfers = legs.filter(l => l.type === 'transfer').length;
-            
             const destInfo = uniquePhysicalStations[destName];
+            
+            // Format time helper (convert mins to hours and mins)
+            const formatTime = (mins) => {
+                if (mins < 60) return `${mins} 分鐘`;
+                const h = Math.floor(mins / 60);
+                const m = mins % 60;
+                return m > 0 ? `${h} 小時 ${m} 分鐘` : `${h} 小時`;
+            };
 
             return (
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <div className="bg-slate-50 border-b border-slate-100 p-5 flex justify-between items-center">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+                    <div className="bg-slate-50 border-b border-slate-200 p-5 md:p-6 flex justify-between items-center">
                         <div>
-                            <p className="text-sm font-semibold text-slate-500 mb-1">預估時間</p>
-                            <p className="text-3xl font-bold text-slate-800">
-                                {totalTime} <span className="text-base font-normal text-slate-500">分鐘</span>
+                            <p className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">預估總時間</p>
+                            <p className="text-2xl md:text-3xl font-extrabold text-teal-800">
+                                {formatTime(totalTime)}
                             </p>
                         </div>
-                        <div className="text-right">
-                            <p className="text-sm font-semibold text-slate-500 mb-1">轉乘次數</p>
-                            <p className="text-lg font-bold text-slate-700">
-                                {totalTransfers} <span className="text-sm font-normal text-slate-500">次</span>
+                        <div className="text-right border-l border-slate-200 pl-4 md:pl-6">
+                            <p className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">轉乘次數</p>
+                            <p className="text-xl md:text-2xl font-bold text-slate-700">
+                                {totalTransfers} <span className="text-base font-medium text-slate-500">次</span>
                             </p>
                         </div>
                     </div>
 
-                    <div className="p-6">
-                        <div className="ml-4">
+                    <div className="p-5 md:p-8">
+                        <div className="ml-3 md:ml-5">
                             {legs.map((leg, idx) => (
-                                <LegItem key={idx} leg={leg} isLast={idx === legs.length - 1} destName={destName} />
+                                <LegItem key={idx} leg={leg} isLast={idx === legs.length - 1} destName={destName} formatTime={formatTime} />
                             ))}
                         </div>
                         
                         {/* Destination Marker */}
-                        <div className="relative pl-8 border-l-4 border-transparent">
-                            <div className="absolute left-[-10px] top-1 w-4 h-4 bg-slate-800 rounded-full border-4 border-white shadow-sm z-10"></div>
-                            <div className="absolute left-[-16px] top-[-5px] w-7 h-7 bg-slate-200 rounded-full opacity-50 z-0 animate-pulse"></div>
-                            <h3 className="text-lg font-bold text-slate-800">{destInfo.name} <span className="text-sm font-normal text-slate-500 ml-1">{destInfo.en}</span></h3>
-                            <p className="text-sm text-slate-500 mb-2">抵達目的地 (Arrive)</p>
+                        <div className="relative pl-8 md:pl-10 border-l-4 border-transparent">
+                            <div className="absolute left-[-12px] md:left-[-12px] top-1 w-5 h-5 bg-slate-800 rounded-full border-4 border-white shadow-sm z-10"></div>
+                            <div className="absolute left-[-18px] md:left-[-18px] top-[-5px] w-8 h-8 bg-slate-200 rounded-full opacity-50 z-0 animate-pulse"></div>
+                            <h3 className="text-lg md:text-xl font-extrabold text-slate-800 flex items-center flex-wrap gap-x-2">
+                                {destInfo.name} 
+                                <span className="text-sm md:text-base font-normal text-slate-500">{destInfo.en}</span>
+                            </h3>
+                            <p className="text-sm font-medium text-teal-600 mt-1 mb-2 tracking-wide">🏁 抵達目的地 (Arrival)</p>
                             
                             {destInfo.attractions && (
-                                <div className="mt-2 bg-teal-50 border border-teal-100 rounded-lg p-3 text-sm flex gap-2">
-                                    <i data-lucide="map-pin" className="w-5 h-5 text-teal-600 shrink-0"></i>
+                                <div className="mt-3 bg-teal-50 border border-teal-100 rounded-xl p-3 md:p-4 text-sm md:text-base flex gap-3 shadow-sm">
+                                    <i data-lucide="map-pin" className="w-5 h-5 md:w-6 md:h-6 text-teal-600 shrink-0 mt-0.5"></i>
                                     <div>
-                                        <span className="font-semibold text-teal-900 block mb-0.5">周邊景點：</span>
-                                        <span className="text-teal-800">{destInfo.attractions}</span>
+                                        <span className="font-bold text-teal-900 block mb-1">地標與景點推薦：</span>
+                                        <span className="text-teal-800 leading-relaxed block">{destInfo.attractions}</span>
                                     </div>
                                 </div>
                             )}
@@ -395,7 +529,7 @@
             );
         };
 
-        const LegItem = ({ leg, isLast, destName }) => {
+        const LegItem = ({ leg, isLast, destName, formatTime }) => {
             const startNodeCode = leg.nodes[0];
             const endNodeCode = leg.nodes[leg.nodes.length - 1];
             const startStation = allStationsMap[startNodeCode];
@@ -403,16 +537,16 @@
 
             if (leg.type === 'transfer') {
                 return (
-                    <div className="relative pl-8 pb-8 border-l-4 border-dashed border-slate-300">
-                        <div className="absolute left-[-14px] top-1 w-6 h-6 bg-white rounded-full border-2 border-slate-300 z-10 flex items-center justify-center">
-                            <i data-lucide="footprints" className="w-3.5 h-3.5 text-slate-500"></i>
+                    <div className="relative pl-8 md:pl-10 pb-8 md:pb-10 border-l-4 border-dashed border-slate-300">
+                        <div className="absolute left-[-16px] md:left-[-16px] top-1 w-7 h-7 bg-white rounded-full border-2 border-slate-300 z-10 flex items-center justify-center shadow-sm">
+                            <i data-lucide="footprints" className="w-4 h-4 text-slate-500"></i>
                         </div>
-                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 inline-block">
-                            <p className="text-sm font-semibold text-slate-700">
-                                於 <span className="text-slate-900">{aliasMap[startStation.n] || startStation.n}</span> 步行轉乘
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 md:p-4 inline-block shadow-sm">
+                            <p className="text-sm md:text-base font-bold text-slate-700">
+                                於 <span className="text-slate-900 mx-1">{aliasMap[startStation.n] || startStation.n}</span> 步行轉乘
                             </p>
-                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                <i data-lucide="clock" className="w-3 h-3"></i> 步行約 {leg.time} 分鐘
+                            <p className="text-xs md:text-sm text-slate-500 mt-1.5 flex items-center gap-1.5 font-medium">
+                                <i data-lucide="clock" className="w-3.5 h-3.5 md:w-4 md:h-4"></i> 步行約 {formatTime(leg.time)}
                             </p>
                         </div>
                     </div>
@@ -423,44 +557,49 @@
             const lineTheme = lineColors[leg.line] || { bg: 'bg-slate-500', border: 'border-slate-500', text: 'text-slate-600', name: leg.line };
             
             return (
-                <div className={`relative pl-8 pb-8 border-l-4 ${lineTheme.border}`}>
+                <div className={`relative pl-8 md:pl-10 pb-8 md:pb-10 border-l-4 ${lineTheme.border}`}>
                     {/* Circle Node */}
-                    <div className={`absolute left-[-10px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm z-10 ${lineTheme.bg}`}></div>
+                    <div className={`absolute left-[-12px] md:left-[-12px] top-1 w-5 h-5 rounded-full border-4 border-white shadow-sm z-10 ${lineTheme.bg}`}></div>
                     
                     {/* Leg Start Info */}
-                    <div className="mb-2">
-                        <h3 className="text-base font-bold text-slate-800">
-                            {startStation.n} <span className="text-sm font-normal text-slate-500 ml-1">{startStation.e}</span>
+                    <div className="mb-3">
+                        <h3 className="text-base md:text-lg font-bold text-slate-800 flex items-center flex-wrap gap-x-2">
+                            {startStation.n} 
+                            <span className="text-sm font-normal text-slate-500">{startStation.e}</span>
                         </h3>
                         
                         {startStation.a && (
-                            <p className="text-xs text-teal-600 mt-1 flex items-start gap-1">
-                                <i data-lucide="star" className="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
-                                <span>{startStation.a}</span>
+                            <p className="text-xs md:text-sm text-teal-600 mt-1.5 flex items-start gap-1.5 bg-teal-50/50 inline-block px-2 py-1 rounded-md border border-teal-100 font-medium">
+                                <i data-lucide="star" className="w-3.5 h-3.5 mt-0.5 shrink-0 inline"></i>
+                                <span className="inline">{startStation.a}</span>
                             </p>
                         )}
                     </div>
 
                     {/* Line Details Card */}
-                    <div className={`mt-3 border-l-4 rounded-r-lg p-4 bg-white shadow-sm border-y border-r border-slate-100 ${lineTheme.border}`}>
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className={`${lineTheme.bg} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider`}>
+                    <div className={`mt-4 md:mt-5 border-l-4 rounded-r-xl p-4 md:p-5 bg-white shadow-md border-y border-r border-slate-100 transition-transform hover:-translate-y-0.5 ${lineTheme.border}`}>
+                        <div className="flex flex-wrap items-center gap-2.5 mb-2">
+                            <span className={`${lineTheme.bg} text-white text-[10px] md:text-xs font-bold px-2 md:px-2.5 py-1 rounded md:rounded-md uppercase tracking-wider shadow-sm`}>
                                 {startNodeCode}
                             </span>
-                            <span className={`text-sm font-semibold ${lineTheme.text}`}>搭乘 {lineTheme.name}</span>
+                            <span className={`text-sm md:text-base font-bold ${lineTheme.text}`}>搭乘 {lineTheme.name}</span>
                         </div>
-                        <p className="text-xs text-slate-500 flex items-center gap-2 mt-2">
-                            <span>前往 <strong>{endStation.n}</strong></span>
-                            <span className="text-slate-300">|</span>
-                            <span>{leg.stops} 站</span>
-                            <span className="text-slate-300">|</span>
-                            <span>約 {leg.time} 分鐘</span>
-                        </p>
+                        <div className="text-sm md:text-base text-slate-600 flex flex-wrap items-center gap-2 md:gap-3 mt-3 font-medium bg-slate-50 p-2 md:p-3 rounded-lg border border-slate-100">
+                            <span>前往 <strong className="text-slate-800 text-base md:text-lg mx-1">{endStation.n}</strong></span>
+                            <span className="text-slate-300 hidden sm:inline">|</span>
+                            <span className="bg-white px-2 py-0.5 rounded shadow-sm border border-slate-200 text-xs md:text-sm">{leg.stops} 站</span>
+                            <span className="text-slate-300 hidden sm:inline">|</span>
+                            <span className="text-slate-500 flex items-center gap-1">
+                                <i data-lucide="clock" className="w-3.5 h-3.5"></i>約 {formatTime(leg.time)}
+                            </span>
+                        </div>
                         
                         {/* Pass through stations */}
-                        <div className="mt-2 text-xs text-slate-400">
-                            途經: {leg.nodes.slice(1, -1).map(c => allStationsMap[c].n).join(' ➔ ') || '無中途站'}
-                        </div>
+                        {leg.nodes.length > 2 && (
+                            <div className="mt-3 text-xs md:text-sm text-slate-400 leading-relaxed px-1">
+                                途經: {leg.nodes.slice(1, -1).map(c => allStationsMap[c].n).join(' ➔ ')}
+                            </div>
+                        )}
                     </div>
                 </div>
             );
@@ -469,9 +608,6 @@
         // Render App
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
-
-        // Initialize Icons
-        lucide.createIcons();
     </script>
 </body>
 </html>

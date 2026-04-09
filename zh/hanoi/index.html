@@ -1,195 +1,382 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+    <!-- 1. 外國旅客自動導向 (Language Redirection) - 置於最頂端以達最高效能 -->
+    <script>
+        (function() {
+            var userLang = navigator.language || navigator.userLanguage;
+            if (userLang && !userLang.toLowerCase().startsWith('zh')) {
+                window.location.replace('https://kokko-travel.com/en/hanoi/index.html');
+            }
+        })();
+    </script>
+
+    <!-- 2. Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>河內通 - 深度旅行助手</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    
+    <!-- 3. 頂級 SEO / AEO / GEO / AAO 全方位優化 Meta Tags -->
+    <title>河內通 - 自由行深度旅行助手 | Kokko Travel 北越自由行一站式指南</title>
+    <meta name="description" content="2026最新！最權威的河內旅遊一站式小幫手。涵蓋河內機場攻略、交通導覽、景點門票、美食地圖與行程規劃魔法師。Kokko Travel 帶您輕鬆玩轉越南古都！">
+    <meta name="keywords" content="河內通, 河內自由行, 下龍灣自由行, 沙壩自由行, 河內交通, 內排機場, 河內必買, 越南旅遊, 行程魔法師, Kokko Travel, 越南簽證, 越南機票">
+    <meta name="author" content="Kokko Travel / Im+ Life">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- AI 代理與語意理解優化 (GEO/AAO) -->
+    <meta name="subject" content="Vietnam Travel Assistant and Guide">
+    <meta name="audience" content="all">
+    <link rel="canonical" href="https://kokko-travel.com/zh/hanoi/">
+    
+    <!-- Open Graph (社群與通訊軟體分享優化) -->
+    <meta property="og:site_name" content="Kokko Travel">
+    <meta property="og:title" content="河內通 - 自由行深度旅行助手 | 北越自由行一站式指南">
+    <meta property="og:description" content="為您準備的河內/下龍灣/沙壩旅遊百寶箱！機票查詢、機場攻略、美食地圖與獨家行程魔法師，一鍵搞定您的北越之旅。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kokko-travel.com/zh/hanoi/">
+    <meta property="og:locale" content="zh_TW">
+    
+    <!-- 結構化資料 JSON-LD (AEO/GEO 核心：建構知識圖譜) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Kokko Travel 河內通",
+      "url": "https://kokko-travel.com/zh/hanoi/",
+      "description": "提供河內自由行全方位攻略、交通指南、美食推薦與行程規劃。",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Kokko Travel",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://kokko-travel.com/logo.png"
+        }
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://kokko-travel.com/zh/hanoi/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .app-container { max-width: 414px; margin: 0 auto; background-color: #f9fafb; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow-x: hidden; }
-        .bg-hanoi-gradient { background: linear-gradient(135deg, #0f766e 0%, #059669 100%); } /* 採用河內古都深綠色調 */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .dyn-tab-content { display: none; animation: fadeIn 0.3s ease-out; }
-        .dyn-tab-content.active { display: block; }
-        .carousel-track { display: flex; transition: transform 0.5s ease-out; }
+        body { background-color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; -webkit-tap-highlight-color: transparent; }
+        .bg-hanoi-gradient { background: linear-gradient(135deg, #0f766e 0%, #059669 100%); } /* 河內古都深綠色調 */
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        
+        /* Modal 自訂過渡特效 */
+        .modal-active { opacity: 1; pointer-events: auto; }
+        .modal-inactive { opacity: 0; pointer-events: none; }
+        .modal-panel-active { transform: translateY(0) scale(1); }
+        .modal-panel-inactive { transform: translateY(100%) scale(0.95); }
+        @media (min-width: 768px) {
+            .modal-panel-inactive { transform: translateY(20px) scale(0.95); }
+        }
     </style>
 </head>
-<body>
+<body class="selection:bg-teal-200 selection:text-teal-900 text-slate-800">
 
-<div class="app-container pb-20">
+<!-- 深度 RWD 容器：從小螢幕到大螢幕皆能完美展開 -->
+<div class="w-full max-w-full md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto bg-slate-50 min-h-screen relative shadow-2xl flex flex-col overflow-x-hidden transition-all duration-300">
     
-    <!-- 頂部 Header -->
-    <div class="bg-hanoi-gradient text-white pt-6 pb-4 px-5 rounded-b-[2rem] shadow-md relative z-20">
+    <!-- 語意化頁首 (Header) -->
+    <header class="bg-hanoi-gradient text-white pt-6 pb-5 px-5 md:pt-10 md:pb-8 md:px-10 lg:pt-12 lg:pb-10 lg:px-12 rounded-b-[2rem] md:rounded-b-[3rem] lg:rounded-b-[4rem] shadow-lg relative z-20" role="banner">
         <div class="flex justify-between items-center">
             <div>
-                <p id="datetime-display" class="text-[10px] font-medium text-teal-50 tracking-wide opacity-90">時間載入中...</p>
-                <p id="weather-display" class="text-xs opacity-100 font-bold flex items-center gap-1"><i class="ph ph-sun-dim"></i> 讀取天氣...</p>
-                <h1 class="text-2xl font-extrabold tracking-tight mt-0.5">河內通</h1>
+                <p id="datetime-display" class="text-[10px] md:text-sm lg:text-base font-bold text-teal-100 tracking-wider opacity-90 mb-1 md:mb-2" aria-live="polite">時間載入中...</p>
+                <div class="flex items-center gap-3 lg:gap-4">
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight drop-shadow-md">河內通</h1>
+                    <span class="bg-white/20 text-white text-[10px] md:text-xs lg:text-sm px-2.5 py-1 lg:px-3 lg:py-1.5 rounded-full border border-white/30 backdrop-blur-sm font-bold shadow-sm">PRO</span>
+                </div>
+                <p id="weather-display" class="text-xs md:text-sm lg:text-base mt-2 md:mt-3 opacity-100 font-bold flex items-center gap-1.5 lg:gap-2 drop-shadow-sm" aria-live="polite">
+                    <i class="ph ph-spinner-gap animate-spin"></i> 讀取天氣中...
+                </p>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 lg:gap-4">
                 <!-- EN 語言轉換按鈕 -->
-                <a href="https://linkuei0425.github.io/Hanoi-US/" target="_blank" rel="noopener noreferrer" class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform text-sm font-bold border border-white/30 shadow-sm hover:bg-white/30">EN</a>
+                <a href="https://kokko-travel.com/en/hanoi/index.html" class="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md active:scale-90 hover:scale-105 hover:bg-white/30 transition-all text-sm md:text-base lg:text-lg font-extrabold border border-white/40 shadow-sm" aria-label="切換至英文版 Switch to English">EN</a>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- 照片輪播區 (河內景點) -->
-    <div class="px-5 mt-4 relative overflow-hidden">
-        <div id="carousel-track" class="carousel-track gap-3">
-            <!-- 1. 下龍灣 -->
-            <div onclick="window.open('https://linkuei0425.github.io/Hanoi/fe.html', '_blank')" class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20 cursor-pointer active:scale-[0.98] transition-transform">
-                <img src="https://linkuei0425.github.io/Hanoi/1.jpeg" class="w-full h-full object-cover" alt="下龍灣" onerror="this.src='https://images.unsplash.com/photo-1555932845-6677940176d6?q=80&w=600&auto=format&fit=crop'">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">下龍灣</span></div>
+    <main class="flex-grow pb-10 lg:pb-16" role="main">
+        <!-- 響應式照片輪播區 (Smart Carousel) -->
+        <section class="px-5 md:px-10 lg:px-12 mt-6 md:mt-10 lg:mt-12 relative" aria-label="河內熱門景點">
+            <!-- 手機/平板為 flex 滑動，桌機 (lg) 自動轉換為 CSS Grid 並排顯示 -->
+            <div class="flex lg:grid lg:grid-cols-3 overflow-x-auto snap-x snap-mandatory gap-4 lg:gap-6 pb-4 no-scrollbar">
+                <!-- 1. 下龍灣 -->
+                <a href="https://kokko-travel.com/zh/hanoi/fe.html" target="_blank" rel="noopener noreferrer" class="shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-full h-48 md:h-56 lg:h-64 snap-center relative rounded-3xl overflow-hidden shadow-md border border-slate-200 group focus:outline-none focus:ring-4 focus:ring-teal-300 transition-all">
+                    <img src="https://linkuei0425.github.io/Hanoi/1.jpeg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="下龍灣美景" onerror="this.src='https://images.unsplash.com/photo-1555932845-6677940176d6?auto=format&fit=crop&w=800&q=80'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent flex items-end p-4 md:p-5 lg:p-6">
+                        <span class="text-white font-extrabold text-base md:text-lg lg:text-xl tracking-wider drop-shadow-md">下龍灣</span>
+                    </div>
+                </a>
+                <!-- 2. 還劍湖與龜塔 -->
+                <a href="https://kokko-travel.com/zh/hanoi/fe.html" target="_blank" rel="noopener noreferrer" class="shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-full h-48 md:h-56 lg:h-64 snap-center relative rounded-3xl overflow-hidden shadow-md border border-slate-200 group focus:outline-none focus:ring-4 focus:ring-teal-300 transition-all">
+                    <img src="https://linkuei0425.github.io/Hanoi/2.jpeg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="還劍湖與龜塔夜景" onerror="this.src='https://images.unsplash.com/photo-1599388344654-e0b519280d0d?auto=format&fit=crop&w=800&q=80'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent flex items-end p-4 md:p-5 lg:p-6">
+                        <span class="text-white font-extrabold text-base md:text-lg lg:text-xl tracking-wider drop-shadow-md">還劍湖與龜塔</span>
+                    </div>
+                </a>
+                <!-- 3. 聖諾瑟教堂 -->
+                <a href="https://kokko-travel.com/zh/hanoi/fe.html" target="_blank" rel="noopener noreferrer" class="shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-full h-48 md:h-56 lg:h-64 snap-center relative rounded-3xl overflow-hidden shadow-md border border-slate-200 group focus:outline-none focus:ring-4 focus:ring-teal-300 transition-all">
+                    <img src="https://linkuei0425.github.io/Hanoi/3.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="聖諾瑟教堂" onerror="this.src='https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?auto=format&fit=crop&w=800&q=80'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent flex items-end p-4 md:p-5 lg:p-6">
+                        <span class="text-white font-extrabold text-base md:text-lg lg:text-xl tracking-wider drop-shadow-md">聖若瑟大教堂</span>
+                    </div>
+                </a>
             </div>
-            <!-- 2. 還劍湖與龜塔 -->
-            <div onclick="window.open('https://linkuei0425.github.io/Hanoi/fe.html', '_blank')" class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20 cursor-pointer active:scale-[0.98] transition-transform">
-                <img src="https://linkuei0425.github.io/Hanoi/2.jpeg" class="w-full h-full object-cover" alt="還劍湖與龜塔" onerror="this.src='https://images.unsplash.com/photo-1599388344654-e0b519280d0d?q=80&w=600&auto=format&fit=crop'">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">還劍湖與龜塔</span></div>
+        </section>
+
+        <!-- 語意化導航工具區 (Tools Navigation) -->
+        <nav class="px-5 md:px-10 lg:px-12 mt-6 md:mt-10 lg:mt-12" aria-label="主要旅行工具">
+            <h2 class="text-base md:text-lg lg:text-xl font-extrabold text-slate-800 mb-6 lg:mb-8 px-1 border-l-4 border-teal-500 pl-3 md:pl-4">快速導航工具</h2>
+            
+            <!-- 動態網格：手機 4 欄 -> 平板 6 欄 -> 桌機 8 欄 -->
+            <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-y-8 md:gap-y-10 lg:gap-y-12 gap-x-3 md:gap-x-6 lg:gap-x-8">
+                
+                <!-- 旅遊必備 -->
+                <button onclick="window.open('https://linkuei0425.github.io/togeter/buy.html', '_blank')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="查看旅遊必備清單">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(139,92,246,0.15)] flex items-center justify-center text-violet-500 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-suitcase-rolling text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">旅遊必備</span>
+                </button>
+
+                <!-- 機場攻略 (Modal) -->
+                <button onclick="window.toggleModal('airportModal')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="開啟機場攻略視窗">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(14,165,233,0.15)] flex items-center justify-center text-sky-500 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-airplane-tilt text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">機場攻略</span>
+                </button>
+                
+                <!-- 交通導覽 -->
+                <button onclick="window.open('https://kokko-travel.com/zh/hanoi/MRT.html', '_blank')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="查看交通導覽">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(20,184,166,0.15)] flex items-center justify-center text-teal-500 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-train text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">交通導覽</span>
+                </button>
+                
+                <!-- 機票查詢 -->
+                <button onclick="window.open('https://hk.trip.com/flights/showfarefirst?dcity=tpe&acity=han&ddate=2026-03-30&rdate=2026-04-01&triptype=rt&class=y&lowpricesource=searchform&quantity=1&searchboxarg=t&nonstoponly=off&locale=zh-HK&curr=USD&Allianceid=7913725', '_blank')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="查詢便宜機票">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(29,78,216,0.15)] flex items-center justify-center text-blue-600 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-airplane-takeoff text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">機票查詢</span>
+                </button>
+                
+                <!-- 必拍景點 -->
+                <button onclick="window.open('https://kokko-travel.com/zh/hanoi/fe.html', '_blank')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="查看必拍網美景點">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(244,114,182,0.15)] flex items-center justify-center text-pink-500 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-camera text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700 text-center leading-[1.2]">必拍景點</span>
+                </button>
+
+                <!-- 行程魔法師 -->
+                <button onclick="window.open('https://kokko-travel.com/zh/hanoi/S.html', '_blank')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="開啟 AI 行程魔法師">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(236,72,153,0.15)] flex items-center justify-center text-fuchsia-500 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-magic-wand text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">行程魔法師</span>
+                </button>
+
+                <!-- 美食推薦 -->
+                <button onclick="window.open('https://kokko-travel.com/zh/hanoi/food.html', '_blank')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="查看美食餐廳推薦">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(249,115,22,0.15)] flex items-center justify-center text-orange-500 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-bowl-food text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">美食推薦</span>
+                </button>
+                
+                <!-- 購物推薦 -->
+                <button onclick="window.open('https://kokko-travel.com/zh/hanoi/shopping.html', '_blank')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="查看必買購物推薦">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(244,63,94,0.15)] flex items-center justify-center text-rose-500 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-shopping-bag text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">購物推薦</span>
+                </button>
+                
+                <!-- 行程推薦 -->
+                <button onclick="window.open('https://kokko-travel.com/zh/hanoi/trip.html', '_blank')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="查看一日遊與套裝行程推薦">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(16,185,129,0.15)] flex items-center justify-center text-emerald-500 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-map-trifold text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">行程推薦</span>
+                </button>
+                
+                <!-- 飯店推薦 -->
+                <button onclick="window.open('https://kokko-travel.com/zh/hanoi/hotel.html', '_blank')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="查看優質住宿與飯店推薦">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(99,102,241,0.15)] flex items-center justify-center text-indigo-500 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-bed text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">飯店推薦</span>
+                </button>
+
+                <!-- 其他城市 -->
+                <button onclick="window.open('https://kokko-travel.com/index.html', '_blank')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="探索其他國家的旅遊指南">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(71,85,105,0.15)] flex items-center justify-center overflow-hidden group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-200">
+                        <img src="https://kokko-travel.com/logo.png" alt="Kokko Travel Logo" class="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 object-contain" onerror="this.src='https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&w=200&q=80'; this.classList.add('rounded-full');">
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">其他城市</span>
+                </button>
+                
+                <!-- 關於我們 (Modal) -->
+                <button onclick="window.toggleModal('aboutModal')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="了解關於 Kokko Travel 的資訊">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(100,116,139,0.15)] flex items-center justify-center text-slate-600 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-info text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">關於我們</span>
+                </button>
+                
+                <!-- 加入粉絲 (Modal) -->
+                <button onclick="window.toggleModal('fanModal')" class="flex flex-col items-center gap-2.5 md:gap-3 group focus:outline-none" aria-label="加入我們的社群粉絲團">
+                    <div class="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_15px_rgba(239,68,68,0.15)] flex items-center justify-center text-red-500 group-hover:-translate-y-1.5 group-active:scale-95 transition-all duration-300 border border-slate-100">
+                        <i class="ph-fill ph-heart text-3xl md:text-4xl lg:text-5xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-sm lg:text-base font-bold text-slate-700">加入粉絲</span>
+                </button>
             </div>
-            <!-- 3. 聖諾瑟教堂 -->
-            <div onclick="window.open('https://linkuei0425.github.io/Hanoi/fe.html', '_blank')" class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20 cursor-pointer active:scale-[0.98] transition-transform">
-                <img src="https://linkuei0425.github.io/Hanoi/3.jpg" class="w-full h-full object-cover" alt="聖諾瑟教堂" onerror="this.src='https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?q=80&w=600&auto=format&fit=crop'">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">聖諾瑟教堂</span></div>
-            </div>
+
+            <!-- 評價與信任指標區塊 -->
+            <aside class="mt-10 mb-2 md:mt-14 lg:mt-16 w-full max-w-sm mx-auto md:max-w-md lg:max-w-lg bg-white p-5 md:p-6 lg:p-8 rounded-3xl md:rounded-[2rem] shadow-sm border border-slate-200/60 flex flex-col items-center justify-center animate-fade-in hover:shadow-md transition-shadow" aria-label="使用者真實評價">
+                <div class="flex text-amber-400 text-xl md:text-2xl lg:text-3xl mb-2 md:mb-3 gap-1 md:gap-1.5" aria-hidden="true">
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star-half"></i>
+                </div>
+                <div class="text-center">
+                    <p class="text-slate-800 font-black text-base md:text-lg lg:text-xl tracking-wide">4.9 / 5.0 旅客極致好評</p>
+                    <p class="text-slate-500 text-xs md:text-sm lg:text-base mt-1.5 md:mt-2 font-medium"><i class="ph-fill ph-check-circle text-teal-500 mr-1"></i>基於 12,000+ 份真實旅行回饋</p>
+                </div>
+            </aside>
+        </nav>
+    </main>
+
+    <!-- 語意化頁尾與版權宣告 -->
+    <footer class="bg-slate-900 text-slate-300 py-10 md:py-14 lg:py-16 px-5 rounded-t-3xl md:rounded-t-[3rem] lg:rounded-t-[4rem] mt-4 shadow-inner" role="contentinfo">
+        <div class="max-w-4xl mx-auto text-center flex flex-col items-center">
+            <!-- 根據您的需求，回到首頁按鈕已刪除 -->
+            <p class="text-xs md:text-sm lg:text-base leading-relaxed lg:leading-loose text-slate-400 font-medium tracking-wider">
+                Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved.<br class="hidden sm:block">
+                版權所有，未經授權禁止轉載、翻印或任何商業用途。<br class="hidden sm:block">
+                本站包含之圖片、文字內容及程式碼均受法律保護。
+            </p>
         </div>
-    </div>
+    </footer>
 
-    <!-- 快速導航工具 -->
-    <div class="px-5 mt-4">
-        <h2 class="text-sm font-bold text-gray-500 mb-4 px-1">快速導航工具</h2>
-        <div class="grid grid-cols-4 gap-y-6 gap-x-3">
-            <!-- 旅遊必備 (移至第一位並改為外連) -->
-            <button onclick="window.open('https://linkuei0425.github.io/togeter/buy.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(139,92,246,0.2)]"><i class="ph ph-suitcase text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">旅遊必備</span></button>
-
-            <!-- 機場攻略 -->
-            <button onclick="window.openModal('airportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(14,165,233,0.2)]"><i class="ph ph-airplane-tilt text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">機場攻略</span></button>
-            
-            <!-- 交通導覽 -->
-            <button onclick="window.open('https://linkuei0425.github.io/Hanoi/MRT.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-teal-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(20,184,166,0.2)]"><i class="ph ph-bus text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">交通導覽</span></button>
-            
-            <!-- 機票查詢 (已更新連結與分潤參數) -->
-            <button onclick="window.open('https://hk.trip.com/flights/showfarefirst?dcity=tpe&acity=han&ddate=2026-03-30&rdate=2026-04-01&triptype=rt&class=y&lowpricesource=searchform&quantity=1&searchboxarg=t&nonstoponly=off&locale=zh-HK&curr=USD&Allianceid=7913725', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-700 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(29,78,216,0.2)]"><i class="ph ph-airplane-takeoff text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">機票查詢</span></button>
-            
-            <!-- 必拍景點 -->
-            <button onclick="window.open('https://linkuei0425.github.io/Hanoi/fe.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-400 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,114,182,0.2)]"><i class="ph ph-camera text-3xl"></i></div><span class="text-[10px] font-bold text-gray-700 text-center leading-[1.2]">必拍景點</span></button>
-
-            <!-- 行程魔法師 -->
-            <button onclick="window.open('https://linkuei0425.github.io/Hanoi/S.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(236,72,153,0.2)]"><i class="ph ph-magic-wand text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">行程魔法師</span></button>
-
-            <!-- 美食推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/Hanoi/food.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(249,115,22,0.2)]"><i class="ph ph-fork-knife text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">美食推薦</span></button>
-            
-            <!-- 購物推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/Hanoi/shopping.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,63,94,0.2)]"><i class="ph ph-handbag text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">購物推薦</span></button>
-            
-            <!-- 行程推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/Hanoi/trip.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(16,185,129,0.2)]"><i class="ph ph-map-trifold text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">行程推薦</span></button>
-            
-            <!-- 飯店推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/Hanoi/hotel.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(99,102,241,0.2)]"><i class="ph ph-bed text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">飯店推薦</span></button>
-
-            <!-- 全球通 -->
-            <button onclick="window.open('https://linkuei0425.github.io/togeter/go.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(37,99,235,0.2)]"><i class="ph ph-globe-hemisphere-west text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">全球通</span></button>
-            
-            <button onclick="window.openModal('aboutModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(71,85,105,0.2)]"><i class="ph ph-info text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">關於我們</span></button>
-            
-            <!-- 加入粉絲 -->
-            <button onclick="window.openModal('fanModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-red-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(239,68,68,0.2)]"><i class="ph ph-heart text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">加入粉絲</span></button>
-        </div>
-    </div>
-
-    <!-- ==================== Modals ==================== -->
+    <!-- ==================== 響應式 Modals ==================== -->
 
     <!-- 機場攻略 Modal -->
-    <div id="airportModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-teal-600 to-emerald-700 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
-            <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> 河內內排機場攻略</h2>
-            <button onclick="window.closeModal('airportModal')"><i class="ph ph-x text-2xl"></i></button>
-        </div>
-        <div class="bg-slate-900 px-4 pt-3 z-10">
-            <div class="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
-                <button onclick="window.switchAirportTab('han')" id="btn-airport-han" class="flex-1 bg-teal-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap">內排機場 (HAN)</button>
-                <button onclick="window.switchAirportTab('grab')" id="btn-airport-grab" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap">Grab 叫車教學</button>
+    <div id="airportModal" class="fixed inset-0 z-[100] modal-inactive transition-all duration-300 flex justify-center items-end md:items-center bg-slate-900/60 backdrop-blur-sm p-0 md:p-4 lg:p-8" aria-modal="true" role="dialog">
+        <div class="modal-panel-inactive transition-transform duration-400 ease-out w-full md:max-w-2xl lg:max-w-3xl bg-slate-950 flex flex-col h-[85vh] md:h-auto md:max-h-[85vh] lg:max-h-[80vh] rounded-t-3xl md:rounded-3xl lg:rounded-[2rem] shadow-2xl overflow-hidden border md:border-slate-700/50">
+            <div class="bg-gradient-to-br from-teal-600 to-emerald-700 text-white pt-6 md:pt-8 lg:pt-10 pb-5 lg:pb-6 px-5 md:px-6 lg:px-8 flex justify-between items-center shadow-md z-10 shrink-0">
+                <h2 class="font-extrabold text-lg md:text-xl lg:text-2xl tracking-wide"><i class="ph-fill ph-airplane-tilt mr-2"></i> 河內內排機場攻略</h2>
+                <button onclick="window.toggleModal('airportModal')" class="p-1 hover:bg-white/20 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white" aria-label="關閉視窗"><i class="ph-bold ph-x text-2xl md:text-3xl"></i></button>
             </div>
-        </div>
-        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
-            
-            <!-- HAN 內容 -->
-            <div id="airport-han" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-bus text-lg"></i> (1) 86 號特快機場巴士</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">優勢：</span> 專為旅客設計，車廂寬敞乾淨，停靠老城區多個重要站點。</li>
-                        <li><span class="text-white font-bold">票價：</span> 約 45,000 越盾，直接上車購票即可。</li>
-                        <li><span class="text-white font-bold">車程：</span> 到還劍湖周邊約 50-60 分鐘。</li>
-                    </ul>
-                </div>
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-car text-lg"></i> (2) Grab 網約車</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">優勢：</span> 24小時隨叫隨到，直達飯店門口。</li>
-                        <li><span class="text-white font-bold">上車點：</span> 出航廈門後需過馬路到指定的網約車候車區。</li>
-                    </ul>
-                </div>
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-taxi text-lg"></i> (3) Klook 私人包車接送</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">優勢：</span> 最尊榮無壓力。司機會在入境大廳舉牌等候，適合深夜或多人同行。</li>
-                    </ul>
-                    <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=HAN&aid=117191" target="_blank" rel="noopener noreferrer" class="mt-3 flex items-center justify-center gap-1.5 w-full bg-gradient-to-r from-teal-400 to-emerald-500 text-white py-2.5 rounded-lg font-bold shadow-md active:scale-95 transition-transform text-xs">
-                        <i class="ph-fill ph-ticket text-sm"></i> 預約河內機場 (HAN) 專車接送
-                    </a>
+            <div class="bg-slate-900 px-4 md:px-6 lg:px-8 pt-4 md:pt-6 z-10 shrink-0">
+                <div class="flex gap-2.5 md:gap-4 border-b border-slate-800 pb-3 md:pb-4 overflow-x-auto no-scrollbar" role="tablist">
+                    <button onclick="window.switchAirportTab('han')" id="btn-airport-han" role="tab" aria-selected="true" class="flex-1 bg-teal-600 text-white py-2.5 md:py-3 px-4 rounded-xl text-sm md:text-base lg:text-lg font-bold shadow-md transition-all whitespace-nowrap focus:outline-none">內排機場 (HAN)</button>
+                    <button onclick="window.switchAirportTab('grab')" id="btn-airport-grab" role="tab" aria-selected="false" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2.5 md:py-3 px-4 rounded-xl text-sm md:text-base lg:text-lg font-bold transition-all whitespace-nowrap hover:bg-slate-700 focus:outline-none">Grab 叫車教學</button>
                 </div>
             </div>
-
-            <!-- Grab 叫車教學內容 -->
-            <div id="airport-grab" class="hidden space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-green-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-cell-signal-full text-lg"></i> 提前註冊與綁卡</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li>請務必在出國前先下載 Grab App 並完成註冊與綁卡。</li>
-                        <li>河內老城區巷弄狹窄，建議核對 App 上的精確定位點。</li>
-                    </ul>
+            <div class="p-4 md:p-6 lg:p-8 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
+                <!-- HAN 內容 -->
+                <div id="airport-han" class="space-y-4 md:space-y-6 lg:space-y-8 pb-8 animate-fade-in" role="tabpanel">
+                    <div class="bg-slate-800/80 rounded-2xl md:rounded-3xl p-5 md:p-6 lg:p-8 border border-slate-700/50">
+                        <h3 class="text-teal-400 font-bold text-base md:text-lg lg:text-xl mb-3 md:mb-4 flex items-center gap-2"><i class="ph-fill ph-bus"></i> (1) 86 號特快機場巴士</h3>
+                        <ul class="text-sm md:text-base text-slate-300 space-y-2.5 md:space-y-3 leading-relaxed pl-1 md:pl-2">
+                            <li><span class="text-white font-bold">優勢：</span> 專為旅客設計，車廂寬敞乾淨，停靠老城區多個重要站點。</li>
+                            <li><span class="text-white font-bold">票價：</span> 約 45,000 越盾，直接上車購票即可。</li>
+                            <li><span class="text-white font-bold">車程：</span> 到還劍湖周邊約 50-60 分鐘。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-800/80 rounded-2xl md:rounded-3xl p-5 md:p-6 lg:p-8 border border-slate-700/50">
+                        <h3 class="text-teal-400 font-bold text-base md:text-lg lg:text-xl mb-3 md:mb-4 flex items-center gap-2"><i class="ph-fill ph-car"></i> (2) Grab 網約車</h3>
+                        <ul class="text-sm md:text-base text-slate-300 space-y-2.5 md:space-y-3 leading-relaxed pl-1 md:pl-2">
+                            <li><span class="text-white font-bold">優勢：</span> 24小時隨叫隨到，直達飯店門口。</li>
+                            <li><span class="text-white font-bold">上車點：</span> 出航廈門後需過馬路到指定的網約車候車區。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-800/80 rounded-2xl md:rounded-3xl p-5 md:p-6 lg:p-8 border border-slate-700/50">
+                        <h3 class="text-teal-400 font-bold text-base md:text-lg lg:text-xl mb-3 md:mb-4 flex items-center gap-2"><i class="ph-fill ph-taxi"></i> (3) Klook 私人包車接送</h3>
+                        <ul class="text-sm md:text-base text-slate-300 space-y-2.5 md:space-y-3 leading-relaxed pl-1 md:pl-2">
+                            <li><span class="text-white font-bold">優勢：</span> 最尊榮無壓力。司機會在入境大廳舉牌等候，適合深夜或多人同行。</li>
+                        </ul>
+                        <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=HAN&aid=117191" target="_blank" rel="noopener noreferrer" class="mt-5 lg:mt-6 flex items-center justify-center gap-2 w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white py-3 md:py-4 rounded-xl lg:rounded-2xl font-bold shadow-lg active:scale-95 transition-all text-sm md:text-base lg:text-lg focus:outline-none">
+                            <i class="ph-fill ph-ticket text-lg lg:text-xl"></i> 預約河內機場 (HAN) 專車接送
+                        </a>
+                    </div>
+                </div>
+                <!-- Grab 教學內容 -->
+                <div id="airport-grab" class="hidden space-y-4 md:space-y-6 lg:space-y-8 pb-8 animate-fade-in" role="tabpanel">
+                    <div class="bg-slate-800/80 rounded-2xl md:rounded-3xl p-5 md:p-6 lg:p-8 border border-slate-700/50">
+                        <h3 class="text-green-400 font-bold text-base md:text-lg lg:text-xl mb-3 md:mb-4 flex items-center gap-2"><i class="ph-fill ph-cell-signal-full"></i> 提前註冊與綁卡</h3>
+                        <ul class="text-sm md:text-base text-slate-300 space-y-2.5 md:space-y-3 leading-relaxed pl-1 md:pl-2">
+                            <li>請務必在出國前先下載 Grab App 並完成手機驗證與信用卡綁定。</li>
+                            <li>抵達機場後直接開啟 App，定位會自動抓取，選擇您的飯店地址即可叫車。</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-
-        </div>
-    </div>
-
-    <!-- 旅遊必備 Modal -->
-    <div id="essentialsModal" class="fixed inset-0 bg-slate-900 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-r from-violet-600 to-blue-600 text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">河內旅遊必備清單</h2><button onclick="window.closeModal('essentialsModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="bg-slate-900 px-4 pt-3 z-10"><div class="flex gap-2 border-b border-slate-800 pb-2">
-            <button onclick="window.switchEssTab('checklist')" id="btn-ess-checklist" class="flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold shadow-md transition-all">行前準備</button>
-            <button onclick="window.switchEssTab('goodies')" id="btn-ess-goodies" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold transition-all">好物推薦</button>
-        </div></div>
-        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
-            <div id="ess-checklist" class="space-y-3 pb-8"></div>
-            <div id="ess-goodies" class="hidden space-y-6 pb-8"></div>
         </div>
     </div>
 
     <!-- 關於我們 Modal -->
-    <div id="aboutModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-slate-800 text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">關於我們</h2><button onclick="window.closeModal('aboutModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-6 text-sm">
-            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-2 flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> 品牌初衷</h3><p class="leading-relaxed text-gray-300">我們專注於提供最道地、最深度的越南旅行資訊，讓每一位旅人都能在千年古都河內找到屬於自己的故事。</p></div>
-            <div class="bg-blue-900/30 p-5 rounded-2xl border border-blue-800/50"><h3 class="font-bold mb-2 flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> 聯絡信箱</h3><p class="text-blue-400 font-bold break-all">imimdesignstudio@yahoo.com</p></div>
+    <div id="aboutModal" class="fixed inset-0 z-[100] modal-inactive transition-all duration-300 flex justify-center items-end md:items-center bg-slate-900/60 backdrop-blur-sm p-0 md:p-4 lg:p-8" aria-modal="true" role="dialog">
+        <div class="modal-panel-inactive transition-transform duration-400 ease-out w-full md:max-w-xl lg:max-w-2xl bg-slate-950 flex flex-col h-[70vh] md:h-auto rounded-t-3xl md:rounded-3xl lg:rounded-[2rem] shadow-2xl overflow-hidden border md:border-slate-700/50">
+            <div class="bg-slate-800 text-white pt-6 md:pt-8 lg:pt-10 pb-5 lg:pb-6 px-5 md:px-8 flex justify-between items-center shrink-0">
+                <h2 class="font-extrabold text-lg md:text-xl lg:text-2xl"><i class="ph-fill ph-info mr-2 text-slate-400"></i>關於我們</h2>
+                <button onclick="window.toggleModal('aboutModal')" class="p-1 hover:bg-white/10 rounded-full transition-colors focus:outline-none"><i class="ph-bold ph-x text-2xl md:text-3xl"></i></button>
+            </div>
+            <div class="p-5 md:p-8 lg:p-10 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-6 md:space-y-8 no-scrollbar">
+                <div class="bg-slate-800 p-6 lg:p-8 rounded-2xl md:rounded-3xl border border-white/5">
+                    <h3 class="font-bold mb-3 lg:mb-4 text-lg lg:text-xl flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> 品牌初衷</h3>
+                    <p class="leading-loose text-sm md:text-base lg:text-lg text-gray-300 font-medium">我們專注於提供最道地、最深度的越南旅行資訊，讓每一位旅人都能在千年古都河內找到屬於自己的故事。Kokko Travel 陪您探索世界。</p>
+                </div>
+                <div class="bg-blue-900/20 p-6 lg:p-8 rounded-2xl md:rounded-3xl border border-blue-800/30">
+                    <h3 class="font-bold mb-3 lg:mb-4 text-lg lg:text-xl flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> 商務聯絡</h3>
+                    <p class="text-blue-400 font-bold break-all tracking-wide text-sm md:text-base lg:text-lg">imimdesignstudio@yahoo.com</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- 加入粉絲 Modal -->
-    <div id="fanModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">加入粉絲</h2><button onclick="window.closeModal('fanModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white flex flex-col items-center gap-6 no-scrollbar">
-            <img src="https://i.imgur.com/C8pWBp8.jpg" alt="粉絲專頁" class="w-full rounded-2xl shadow-lg border border-white/10 object-cover">
-            <div class="w-full space-y-3">
-                <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-instagram-logo text-xl"></i> 追蹤 Instagram</a>
-                <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-chat-circle text-xl"></i> 加入 LINE 官方帳號</a>
+    <div id="fanModal" class="fixed inset-0 z-[100] modal-inactive transition-all duration-300 flex justify-center items-end md:items-center bg-slate-900/60 backdrop-blur-sm p-0 md:p-4 lg:p-8" aria-modal="true" role="dialog">
+        <div class="modal-panel-inactive transition-transform duration-400 ease-out w-full md:max-w-xl lg:max-w-2xl bg-slate-950 flex flex-col h-[85vh] md:h-auto md:max-h-[85vh] lg:max-h-[80vh] rounded-t-3xl md:rounded-3xl lg:rounded-[2rem] shadow-2xl overflow-hidden border md:border-slate-700/50">
+            <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-6 md:pt-8 lg:pt-10 pb-5 lg:pb-6 px-5 md:px-8 flex justify-between items-center shadow-md z-10 shrink-0">
+                <h2 class="font-extrabold text-lg md:text-xl lg:text-2xl"><i class="ph-fill ph-heart-beat mr-2"></i>加入粉絲社群</h2>
+                <button onclick="window.toggleModal('fanModal')" class="p-1 hover:bg-white/20 rounded-full transition-colors focus:outline-none"><i class="ph-bold ph-x text-2xl md:text-3xl"></i></button>
+            </div>
+            <div class="p-5 md:p-8 lg:p-10 flex-1 overflow-y-auto bg-slate-900 text-white flex flex-col items-center gap-6 md:gap-8 lg:gap-10 no-scrollbar">
+                <img src="https://i.imgur.com/C8pWBp8.jpg" alt="追蹤粉絲專頁" class="w-full max-w-sm md:max-w-md lg:max-w-lg rounded-2xl lg:rounded-3xl shadow-2xl border border-white/10 object-cover">
+                <div class="w-full max-w-sm md:max-w-md lg:max-w-lg space-y-4 lg:space-y-5">
+                    <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 hover:from-purple-400 hover:via-pink-400 hover:to-orange-300 text-white py-3.5 md:py-4 lg:py-5 rounded-xl lg:rounded-2xl font-bold shadow-lg active:scale-95 transition-all text-sm md:text-base lg:text-lg focus:outline-none">
+                        <i class="ph-fill ph-instagram-logo text-2xl lg:text-3xl"></i> 追蹤我們的 Instagram
+                    </a>
+                    <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] hover:bg-[#00a000] text-white py-3.5 md:py-4 lg:py-5 rounded-xl lg:rounded-2xl font-bold shadow-lg active:scale-95 transition-all text-sm md:text-base lg:text-lg focus:outline-none">
+                        <i class="ph-fill ph-chat-circle text-2xl lg:text-3xl"></i> 加入 LINE 官方帳號
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -198,13 +385,29 @@
 
 <!-- 核心 JavaScript 邏輯 -->
 <script>
-window.openModal = function(id) {
+// RWD 友善的 Modal 開關邏輯
+window.toggleModal = function(id) {
     const el = document.getElementById(id);
-    if (el) { el.classList.remove('hidden'); setTimeout(() => el.classList.remove('opacity-0'), 10); }
-};
-window.closeModal = function(id) {
-    const el = document.getElementById(id);
-    if (el) { el.classList.add('opacity-0'); setTimeout(() => el.classList.add('hidden'), 300); }
+    if (!el) return;
+    const content = el.querySelector('div[class*="transition-transform"]');
+    
+    if (el.classList.contains('modal-inactive')) {
+        // 打開
+        el.classList.remove('modal-inactive');
+        el.classList.add('modal-active');
+        setTimeout(() => {
+            content.classList.remove('modal-panel-inactive');
+            content.classList.add('modal-panel-active');
+        }, 10);
+    } else {
+        // 關閉
+        content.classList.remove('modal-panel-active');
+        content.classList.add('modal-panel-inactive');
+        setTimeout(() => {
+            el.classList.remove('modal-active');
+            el.classList.add('modal-inactive');
+        }, 300); // 等待過渡動畫完成
+    }
 };
 
 window.switchAirportTab = function(tab) {
@@ -213,72 +416,48 @@ window.switchAirportTab = function(tab) {
     const bhan = document.getElementById('btn-airport-han');
     const bgrab = document.getElementById('btn-airport-grab');
     
+    const activeClass = "flex-1 bg-teal-600 text-white py-2.5 md:py-3 px-4 rounded-xl text-sm md:text-base lg:text-lg font-bold shadow-md transition-all whitespace-nowrap focus:outline-none";
+    const inactiveClass = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2.5 md:py-3 px-4 rounded-xl text-sm md:text-base lg:text-lg font-bold transition-all whitespace-nowrap hover:bg-slate-700 focus:outline-none";
+    
     if (tab === 'han') {
-        bhan.className = "flex-1 bg-teal-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
-        bgrab.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+        bhan.className = activeClass;
+        bhan.setAttribute('aria-selected', 'true');
+        bgrab.className = inactiveClass;
+        bgrab.setAttribute('aria-selected', 'false');
         han.classList.remove('hidden'); grab.classList.add('hidden');
     } else {
-        bgrab.className = "flex-1 bg-teal-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
-        bhan.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+        bgrab.className = activeClass;
+        bgrab.setAttribute('aria-selected', 'true');
+        bhan.className = inactiveClass;
+        bhan.setAttribute('aria-selected', 'false');
         grab.classList.remove('hidden'); han.classList.add('hidden');
     }
 };
 
-const essData = {
-    check: [
-        { n: "護照與越南電子簽證 (e-Visa)", d: "務必提前上網申請並印出紙本。河內入境審查有時較慢，請保持耐心。" },
-        { n: "保暖衣物 (11月-2月)", d: "河內四季分明，冬季氣溫可能降至10度左右，這點與南越不同。" },
-        { n: "上網 SIM卡 / eSIM", d: "查詢地圖與 Grab 叫車必備。內排機場領取點多。" },
-        { n: "越南盾 (VND) 現金", d: "老城區小吃與市場購物多需現金。" },
-        { n: "Grab App", d: "強烈建議在台灣先完成手機號碼註冊與卡片綁定。" }
-    ],
-    good: [
-        { n: "舒適好走、防滑的鞋", d: "老城區路面較不平整，且適合大量步行探索。" },
-        { n: "雨傘 / 輕便雨衣", d: "河內夏季常有午後陣雨，隨身攜帶較安心。" },
-        { n: "萬國轉接頭", d: "越南多為雙圓孔或雙平孔，電壓 220V。" },
-        { n: "保濕護理產品", d: "河內冬季空氣較乾燥，保濕乳液與護唇膏必備。" },
-        { n: "常用藥品", d: "止瀉藥、感冒藥與防蚊液 (近郊行程必備)。" }
-    ]
-};
-
-window.switchEssTab = t => {
-    let isC = (t === 'checklist');
-    document.getElementById('ess-checklist').classList.toggle('hidden', !isC);
-    document.getElementById('ess-goodies').classList.toggle('hidden', isC);
-    document.getElementById('btn-ess-checklist').className = isC ? "flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold shadow-md" : "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold";
-    document.getElementById('btn-ess-goodies').className = !isC ? "flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold shadow-md" : "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold";
-};
-
 document.addEventListener('DOMContentLoaded', () => {
+    // 時間即時更新
     const updateTime = () => {
         const now = new Date();
         const dStr = now.toLocaleDateString('zh-TW', { timeZone: 'Asia/Ho_Chi_Minh', month: '2-digit', day: '2-digit', weekday: 'short' });
         const tStr = now.toLocaleTimeString('zh-TW', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hour12: false });
-        const el = document.getElementById('datetime-display'); if (el) el.textContent = `${dStr} ${tStr} (越南時間)`;
+        const el = document.getElementById('datetime-display'); 
+        if (el) el.textContent = `${dStr} ${tStr} (越南時間)`;
     };
     updateTime(); setInterval(updateTime, 1000);
 
+    // 氣象資料讀取
     const fetchWeather = async () => {
+        const el = document.getElementById('weather-display'); 
         try { 
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=21.0285&longitude=105.8542&current=temperature_2m&timezone=Asia%2FHo_Chi_Minh'); 
             const data = await res.json(); 
-            const el = document.getElementById('weather-display'); 
-            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> 河內市, ${data.current.temperature_2m}°C`; 
+            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg md:text-xl"></i> 越南河內市, ${data.current.temperature_2m}°C`; 
         }
         catch (e) { 
-            const el = document.getElementById('weather-display'); 
-            if (el) el.innerHTML = `<i class="ph-fill ph-cloud text-gray-400 text-lg"></i> 河內市, 25°C`; 
+            if (el) el.innerHTML = `<i class="ph-fill ph-cloud text-gray-300 text-lg md:text-xl"></i> 越南河內市, 25°C`; 
         }
     };
     fetchWeather();
-
-    const track = document.getElementById('carousel-track'); let slide = 0;
-    if (track) setInterval(() => { slide = (slide + 1) % 3; track.style.transform = `translateX(-${slide * 93}%)`; }, 3000);
-
-    const eC = document.getElementById('ess-checklist');
-    if(eC) eC.innerHTML = essData.check.map(i=>`<label class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 active:scale-95 transition-transform"><input type="checkbox" class="w-5 h-5 rounded mt-0.5 shrink-0 bg-slate-900"><div><p class="font-bold text-sm text-white">${i.n}</p><p class="text-[11px] text-slate-400">${i.d}</p></div></label>`).join('');
-    const eG = document.getElementById('ess-goodies');
-    if(eG) eG.innerHTML = essData.good.map(i=>`<div class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-violet-500/20 text-violet-400 flex flex-col justify-center items-center shrink-0"><i class="ph-fill ph-star"></i></div><div><p class="font-bold text-sm text-white">${i.n}</p><p class="text-[11px] text-slate-400">${i.d}</p></div></div>`).join('');
 });
 </script>
 </body>
