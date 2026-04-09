@@ -1,76 +1,177 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" dir="ltr">
 <head>
+  <!-- 外國旅客自動導向英文版腳本 (優先執行以避免畫面閃爍) -->
+  <script>
+    (function() {
+      if (!sessionStorage.getItem('lang_redirect_checked')) {
+        sessionStorage.setItem('lang_redirect_checked', 'true');
+        var userLang = navigator.language || navigator.userLanguage;
+        // 如果瀏覽器語言不是以 zh 開頭 (如 zh-TW, zh-CN)，則導向英文版
+        if (!userLang.toLowerCase().startsWith('zh')) {
+          window.location.replace('https://kokko-travel.com/en/danang/');
+        }
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>峴港與會安景點指南</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  
+  <!-- SEO: 基礎優化 -->
+  <title>東方夏威夷：峴港與會安景點全攻略 | Kokko Travel</title>
+  <meta name="description" content="2026最新峴港與會安深度旅遊指南。精選峴港市區、山茶半島、巴拿山與會安古鎮必訪景點，提供最詳盡的大眾運輸(Danabus)、Grab自由行交通攻略與購物市集推薦。">
+  <meta name="keywords" content="峴港, 會安, 越南旅遊, 巴拿山, 山茶半島, 峴港景點, 會安古鎮, 自由行, Danabus, Grab, Kokko Travel">
+  <meta name="author" content="Kokko Travel / Im+ Life">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <link rel="canonical" href="https://kokko-travel.com/zh/danang/">
+  
+  <!-- SEO: 多語系 Hreflang 標籤 -->
+  <link rel="alternate" hreflang="zh-TW" href="https://kokko-travel.com/zh/danang/" />
+  <link rel="alternate" hreflang="en" href="https://kokko-travel.com/en/danang/" />
+  <link rel="alternate" hreflang="x-default" href="https://kokko-travel.com/en/danang/" />
+
+  <!-- SEO / 社群分享: Open Graph (Facebook, Line) -->
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="東方夏威夷：峴港會安指南 | Kokko Travel">
+  <meta property="og:description" content="探索中越風情，精選各區域必訪景點與詳細交通攻略，你的越南自由行最佳解答。">
+  <meta property="og:url" content="https://kokko-travel.com/zh/danang/">
+  <meta property="og:site_name" content="Kokko Travel">
+
+  <!-- SEO / 社群分享: Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="東方夏威夷：峴港會安指南 | Kokko Travel">
+  <meta name="twitter:description" content="探索中越風情，精選各區域必訪景點與詳細交通攻略，你的越南自由行最佳解答。">
+
+  <!-- AEO / GEO / AAO: 結構化資料 (JSON-LD) 幫助 AI 引擎與搜尋引擎理解內容 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TouristDestination",
+        "name": "峴港 (Da Nang) 與 會安 (Hoi An)",
+        "description": "位於越南中部的熱門旅遊勝地，包含美麗的美溪沙灘、巴拿山法國村與世界遺產會安古鎮。",
+        "url": "https://kokko-travel.com/zh/danang/",
+        "touristType": ["自由行", "親子旅遊", "文化體驗", "海島度假"]
+      },
+      {
+        "@type": "Article",
+        "headline": "東方夏威夷：峴港與會安景點指南",
+        "author": {
+          "@type": "Organization",
+          "name": "Kokko Travel / Im+ Life",
+          "url": "https://kokko-travel.com/"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Kokko Travel",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://kokko-travel.com/logo.png"
+          }
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://kokko-travel.com/zh/danang/"
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Google tag (gtag.js) - 流量分析 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-W9KZ1CQ9XM');
+  </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 隱藏滾動條但保留功能 */
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .hide-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    /* 隱藏滾動條但保留功能，針對手機橫向滑動優化 */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* 平滑滾動 */
+    html { scroll-behavior: smooth; }
   </style>
 </head>
-<body id="app-body" class="min-h-screen font-sans pb-12 bg-slate-50 text-gray-800">
+<body id="app-body" class="min-h-screen font-sans pb-12 bg-slate-50 text-gray-800 selection:bg-blue-200 selection:text-blue-900">
+
+  <!-- AAO: 提供給 AI 代理與語音朗讀器的隱藏網頁大綱 -->
+  <div class="sr-only">
+    此網頁是 Kokko Travel 提供的峴港與會安旅遊指南。包含峴港市區、山茶半島、巴拿山、會安古鎮的熱門景點、購物市集與交通指南。
+  </div>
 
   <!-- Header -->
-  <header id="app-header" class="bg-white/80 backdrop-blur-md sticky top-0 z-10 shadow-sm border-b border-slate-200">
+  <header id="app-header" class="bg-white/90 backdrop-blur-md sticky top-0 z-20 shadow-sm border-b border-slate-200" role="banner">
     
     <!-- 回到首頁按鈕 -->
-    <div class="max-w-6xl mx-auto px-4 pt-4">
-      <a href="https://linkuei0425.github.io/DaNang/" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 bg-white/60 hover:bg-white hover:text-gray-900 rounded-full border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-x-1">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+      <!-- 已更新回到首頁網址 -->
+      <a href="https://kokko-travel.com/zh/danang/" aria-label="回到 Kokko Travel 峴港旅遊首頁" class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base font-medium text-gray-600 bg-white/60 hover:bg-white hover:text-gray-900 rounded-full border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-x-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1 sm:mr-2" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
         回到首頁
       </a>
     </div>
 
-    <div class="max-w-6xl mx-auto px-4 pb-6 pt-2">
-      <div class="flex items-center justify-center space-x-3 mb-2">
-        <div id="title-icon-left" class="text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+    <!-- 標題區塊 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 pt-2">
+      <div class="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-3 mb-2 sm:mb-3">
+        <div id="title-icon-left" class="hidden sm:block text-blue-600" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-800 tracking-tight text-center">
           東方夏威夷：峴港會安指南
         </h1>
-        <div id="title-icon-right" class="text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div id="title-icon-right" class="hidden sm:block text-blue-600" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>
       </div>
-      <p class="text-center text-gray-500 text-sm md:text-base">
+      <p class="text-center text-gray-500 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
         探索中越風情，精選各區域必訪景點與詳細交通攻略。
       </p>
     </div>
 
-    <!-- 導覽分頁 (Tabs) -->
-    <div class="max-w-4xl mx-auto px-4 pb-4">
-      <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar space-x-2 md:justify-center py-2">
+    <!-- 導覽分頁 (Tabs) 語意化改進為 nav -->
+    <nav aria-label="景點區域導覽" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+      <div id="tabs-container" role="tablist" class="flex overflow-x-auto hide-scrollbar space-x-2 sm:space-x-4 md:justify-center py-2 -mx-4 px-4 md:mx-0 md:px-0">
         <!-- JS 動態生成 -->
       </div>
-    </div>
+    </nav>
   </header>
 
   <!-- 主要內容區 -->
-  <main class="max-w-6xl mx-auto px-4 mt-8">
-    <div class="mb-6 flex items-center space-x-2 text-blue-600" id="section-title-container">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-      <h2 id="section-title" class="text-2xl font-bold border-b-2 border-blue-200 pb-1 pr-4 inline-block text-gray-800">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-12" role="main">
+    <div class="mb-6 sm:mb-8 flex items-center space-x-2 text-blue-600" id="section-title-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6 sm:w-8 sm:h-8"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <h2 id="section-title" class="text-2xl sm:text-3xl font-bold border-b-2 border-blue-200 pb-1 sm:pb-2 pr-4 inline-block text-gray-800">
         區域精選景點
       </h2>
     </div>
 
-    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- 深度 RWD 網格：手機 1 欄、平板 2 欄、電腦 3 欄、超大螢幕 4 欄 -->
+    <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
       <!-- JS 動態生成 -->
     </div>
   </main>
   
   <!-- Footer -->
-  <footer class="max-w-6xl mx-auto px-4 mt-16 text-center text-gray-400 text-sm">
-    <p id="footer-text">※ 峴港與會安大眾運輸主要依賴 Grab、公車與旅遊接駁車。市區內推薦下載 <strong>Danabus App</strong> 查詢市區公車；往返峴港會安可搭乘 <strong>LK02 路線公車</strong> 或使用 Klook/KKday 預訂共乘巴士。夏日炎熱，請多注意防曬與補充水分。</p>
+  <footer role="contentinfo" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24 text-center border-t border-gray-200 pt-8">
+    <div class="max-w-3xl mx-auto text-gray-500 text-sm sm:text-base leading-relaxed mb-8">
+      <p id="footer-text">※ 峴港與會安大眾運輸主要依賴 Grab、公車與旅遊接駁車。市區內推薦下載 <strong>Danabus App</strong> 查詢市區公車；往返峴港會安可搭乘 <strong>LK02 路線公車</strong> 或使用 Klook/KKday 預訂共乘巴士。夏日炎熱，請多注意防曬與補充水分。</p>
+    </div>
+    
+    <!-- 版權聲明：新增指定字樣 -->
+    <div class="bg-gray-100 rounded-xl p-6 shadow-inner inline-block w-full">
+      <p class="text-gray-600 font-semibold mb-2">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+      <p class="text-gray-500 text-sm mb-1">版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+      <p class="text-gray-500 text-sm">本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+    </div>
   </footer>
 
   <script>
-    // 景點總資料 (每個區域精選10項，加入 shopping 購物市集分類)
+    // 景點總資料 (保留原有資料)
     const regionsData = {
       '峴港市區': [
         { name: '峴港大教堂 (粉紅教堂)', feature: '建於法國殖民時期的哥德式建築，以夢幻的粉紅色外觀成為峴港市區最具代表性的地標，頂端還有一隻風向雞，又稱「雞教堂」。', transport: '🚌 【市區公車】 搭乘 Danabus 01、06 或 TMF1 路線，於「155 Trần Phú」站下車步行1分鐘。<br>🚶 【步行】 位於市中心，從著名的「韓市場」步行僅需 3-5 分鐘即可抵達。', type: 'popular', typeLabel: '熱門打卡' },
@@ -125,7 +226,7 @@
     // 狀態管理
     let activeTab = '峴港市區';
 
-    // 標籤樣式設定 (新增 shopping 琥珀色)
+    // 標籤樣式設定
     const typeStyles = {
       popular: 'bg-rose-100 text-rose-700 border border-rose-200',
       secret: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
@@ -134,17 +235,20 @@
     };
 
     // 卡片內用圖示
-    const svgSparkles = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 flex-shrink-0 mt-0.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`;
-    const svgMapPin = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 flex-shrink-0 mt-0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
+    const svgSparkles = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 flex-shrink-0 mt-0.5" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>`;
+    const svgMapPin = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 flex-shrink-0 mt-0.5" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
 
     function renderTabs() {
       const regions = Object.keys(regionsData);
       const container = document.getElementById('tabs-container');
 
+      // AAO/SEO：在 Tab 加入 role="tab" 及 aria-selected，幫助無障礙工具與 AI 了解分頁結構
       container.innerHTML = regions.map(region => `
         <button
+          role="tab"
+          aria-selected="${activeTab === region}"
           onclick="setTab('${region}')"
-          class="flex-shrink-0 px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-in-out ${activeTab === region ? 'bg-blue-600 text-white shadow-md transform scale-105' : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 border border-transparent hover:border-blue-100'}"
+          class="flex-shrink-0 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ease-in-out ${activeTab === region ? 'bg-blue-600 text-white shadow-md transform scale-105' : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 border border-transparent hover:border-blue-100'}"
         >
           ${region}
         </button>
@@ -156,45 +260,48 @@
       document.getElementById('section-title').innerText = `${activeTab} 精選景點`;
 
       const container = document.getElementById('cards-container');
+      
+      // AEO / GEO 深度優化：使用 itemscope 與 itemtype (Microdata) 賦予 HTML 爬蟲可讀的結構化語意
       container.innerHTML = spots.map((spot, index) => {
         const badgeClass = typeStyles[spot.type];
         return `
-        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 flex flex-col h-full group">
-          <div class="h-2 w-full bg-gradient-to-r from-blue-300 via-blue-400 to-blue-300 group-hover:from-blue-400 group-hover:to-blue-500 transition-colors duration-500"></div>
-          <div class="p-6 flex-grow flex flex-col">
+        <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full group hover:-translate-y-1">
+          <div class="h-2 w-full bg-gradient-to-r from-blue-300 via-blue-400 to-blue-300 group-hover:from-blue-400 group-hover:to-blue-500 transition-colors duration-500" aria-hidden="true"></div>
+          <div class="p-5 sm:p-6 flex-grow flex flex-col">
             <div class="flex justify-between items-start mb-4 gap-2">
-              <h3 class="text-xl font-bold text-gray-800 flex items-start leading-tight">
-                <span class="rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5 bg-blue-100 text-blue-700">
+              <h3 itemprop="name" class="text-lg sm:text-xl font-extrabold text-gray-800 flex items-start leading-tight">
+                <span class="rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-xs sm:text-sm mr-2 flex-shrink-0 mt-0.5 bg-blue-100 text-blue-700 font-black">
                   ${index + 1}
                 </span>
                 ${spot.name}
               </h3>
-              <span class="flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${badgeClass}">
+              <span itemprop="additionalType" class="flex-shrink-0 text-xs sm:text-sm font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${badgeClass}">
                 ${spot.typeLabel}
               </span>
             </div>
             
-            <div class="mb-6 flex-grow">
+            <div class="mb-5 sm:mb-6 flex-grow">
               <div class="flex items-start text-gray-600 mb-2">
                 <div class="text-blue-500">${svgSparkles}</div>
-                <span class="font-semibold text-gray-700">景點特色</span>
+                <span class="font-bold text-gray-700">景點特色</span>
               </div>
-              <p class="text-gray-600 leading-relaxed pl-7 text-sm">
+              <p itemprop="description" class="text-gray-600 leading-relaxed pl-7 text-sm sm:text-base">
                 ${spot.feature}
               </p>
             </div>
 
-            <div class="rounded-xl p-4 mt-auto bg-slate-50 border border-slate-100">
+            <div class="rounded-xl p-4 mt-auto bg-slate-50 border border-slate-100 transition-colors group-hover:bg-blue-50/50">
               <div class="flex items-start text-gray-700 mb-2">
                 <div class="text-blue-600">${svgMapPin}</div>
-                <span class="font-semibold">交通指南 (自由行)</span>
+                <span class="font-bold">交通指南 (自由行)</span>
               </div>
-              <p class="text-gray-600 text-sm pl-7 leading-relaxed space-y-1">
+              <!-- itemprop="publicAccess" 標示交通相關屬性提供 AI 讀取 -->
+              <div itemprop="publicAccess" class="text-gray-600 text-sm pl-7 leading-relaxed space-y-1">
                 ${spot.transport}
-              </p>
+              </div>
             </div>
           </div>
-        </div>
+        </article>
       `}).join('');
     }
 

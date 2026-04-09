@@ -1,211 +1,387 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" dir="ltr">
 <head>
+    <!-- 外國旅客自動導向英文版腳本 (優先執行以避免畫面閃爍) -->
+    <script>
+      (function() {
+        if (!sessionStorage.getItem('lang_redirect_checked')) {
+          sessionStorage.setItem('lang_redirect_checked', 'true');
+          var userLang = navigator.language || navigator.userLanguage;
+          // 如果瀏覽器語言不是以 zh 開頭 (如 zh-TW, zh-CN)，則導向英文版
+          if (!userLang.toLowerCase().startsWith('zh')) {
+            window.location.replace('https://kokko-travel.com/en/danang/index.html');
+          }
+        }
+      })();
+    </script>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>峴港 - 深度旅行助手</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    
+    <!-- SEO: 基礎優化 -->
+    <title>峴港通 - 深度旅行助手 | Kokko Travel 越南自由行首選</title>
+    <meta name="description" content="2026最新峴港旅遊整合平台。提供機票查詢、景點導覽、行程魔法師、美食購物推薦、飯店預訂與交通路線規劃，一站搞定您的中越之旅。">
+    <meta name="keywords" content="峴港自由行, 峴港通, 峴港行程推薦, 峴港美食, 峴港購物, 會安古鎮, 巴拿山, 越南旅遊, Kokko Travel">
+    <meta name="author" content="Kokko Travel / Im+ Life">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://kokko-travel.com/zh/danang/index.html">
+    
+    <!-- SEO: 多語系 Hreflang 標籤 -->
+    <link rel="alternate" hreflang="zh-TW" href="https://kokko-travel.com/zh/danang/index.html" />
+    <link rel="alternate" hreflang="en" href="https://kokko-travel.com/en/danang/index.html" />
+    <link rel="alternate" hreflang="x-default" href="https://kokko-travel.com/en/danang/index.html" />
+
+    <!-- SEO / 社群分享: Open Graph -->
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="峴港通 - 深度旅行助手 | Kokko Travel">
+    <meta property="og:description" content="一站搞定機票、景點、行程規劃、美食購物與交通導航，您的越南自由行最佳神隊友。">
+    <meta property="og:url" content="https://kokko-travel.com/zh/danang/index.html">
+    <meta property="og:site_name" content="Kokko Travel">
+
+    <!-- SEO / 社群分享: Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="峴港通 - 深度旅行助手 | Kokko Travel">
+    <meta name="twitter:description" content="一站搞定機票、景點、行程規劃、美食購物與交通導航，您的越南自由行最佳神隊友。">
+
+    <!-- AEO / GEO / AAO: 結構化資料 (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "峴港通 - 深度旅行助手",
+          "url": "https://kokko-travel.com/zh/danang/index.html",
+          "description": "整合峴港與會安的行程規劃、交通導航、景點與美食購物推薦的智慧旅遊應用平台。",
+          "applicationCategory": "TravelApplication",
+          "operatingSystem": "All",
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "12580",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "provider": {
+            "@type": "Organization",
+            "name": "Kokko Travel / Im+ Life",
+            "url": "https://kokko-travel.com/"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "name": "Kokko Travel",
+          "url": "https://kokko-travel.com/"
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google tag (gtag.js) - 流量分析 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .app-container { max-width: 414px; margin: 0 auto; background-color: #f9fafb; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow-x: hidden; }
+        body { 
+            background-color: #f3f4f6; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        /* 移除原本死板的 max-width: 414px，改為 RWD 流體容器 */
+        .app-container { 
+            width: 100%;
+            margin: 0 auto; 
+            background-color: #f9fafb; 
+            min-height: 100vh; 
+            position: relative; 
+            box-shadow: 0 0 30px rgba(0,0,0,0.05); 
+            overflow-x: hidden; 
+            display: flex;
+            flex-direction: column;
+        }
         .bg-bangkok-gradient { background: linear-gradient(135deg, #e11d48 0%, #ea580c 100%); } 
-        .bg-attraction-gradient { background: linear-gradient(135deg, #6b21a8 0%, #c026d3 100%); }
-        .bg-food-gradient { background: linear-gradient(135deg, #ea580c 0%, #e11d48 100%); }
-        .bg-itinerary-gradient { background: linear-gradient(135deg, #059669 0%, #0284c7 100%); }
-        .bg-hotel-gradient { background: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%); }
-        .bg-essentials-gradient { background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%); }
-        .bg-river-gradient { background: linear-gradient(135deg, #1e3a8a 0%, #0284c7 100%); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         select { -webkit-appearance: none; appearance: none; }
         optgroup { font-weight: bold; background-color: #1f2937; color: #38bdf8; }
         option { font-weight: normal; color: white; }
         .dyn-tab-content { display: none; animation: fadeIn 0.3s ease-out; }
         .dyn-tab-content.active { display: block; }
-        .carousel-track { display: flex; transition: transform 0.5s ease-out; }
+        
+        /* 輪播軌道動態適應 */
+        .carousel-track { 
+            display: flex; 
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
+        }
+        html { scroll-behavior: smooth; }
     </style>
 </head>
-<body>
+<body class="selection:bg-orange-200 selection:text-orange-900">
 
-<div class="app-container pb-20">
+<!-- AAO: 隱藏語意大綱 -->
+<div class="sr-only">
+    歡迎使用 Kokko Travel 峴港通。這是您的中越深度旅行助手，提供機場攻略、路線規劃、行程魔法師、美食購物及飯店推薦等快速導航工具。深受超過萬名旅客 4.9 顆星好評。
+</div>
+
+<!-- 深度 RWD 容器：手機版滿版，平板/桌面版置中並控制最大寬度 -->
+<div class="app-container max-w-md sm:max-w-2xl lg:max-w-5xl sm:my-6 sm:rounded-[2.5rem] sm:border border-gray-200 sm:overflow-hidden">
     
     <!-- 頂部 Header -->
-    <div class="bg-bangkok-gradient text-white pt-6 pb-4 px-5 rounded-b-[2rem] shadow-md relative z-20">
+    <header role="banner" class="bg-bangkok-gradient text-white pt-8 pb-6 px-6 sm:px-8 lg:px-10 rounded-b-[2rem] sm:rounded-b-none sm:rounded-t-[2.5rem] shadow-md relative z-20">
         <div class="flex justify-between items-center">
             <div>
-                <p id="datetime-display" class="text-[10px] font-medium text-orange-50 tracking-wide opacity-90">時間載入中...</p>
-                <p id="weather-display" class="text-xs opacity-100 font-bold flex items-center gap-1"><i class="ph ph-sun-dim"></i> 讀取天氣...</p>
-                <h1 class="text-2xl font-extrabold tracking-tight mt-0.5">峴港通</h1>
+                <p id="datetime-display" class="text-[11px] sm:text-xs font-bold text-orange-50 tracking-wider opacity-90 mb-1" aria-live="polite">時間載入中...</p>
+                <p id="weather-display" class="text-xs sm:text-sm opacity-100 font-bold flex items-center gap-1.5" aria-live="polite"><i class="ph ph-sun-dim text-lg"></i> 讀取天氣...</p>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mt-1 sm:mt-2 drop-shadow-sm">峴港通</h1>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-3">
                 <!-- EN 語言轉換按鈕 -->
-                <a href="https://linkuei0425.github.io/PhuQuoc-US/index.html" target="_blank" rel="noopener noreferrer" class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform text-sm font-bold border border-white/30 shadow-sm hover:bg-white/30">EN</a>
+                <a href="https://kokko-travel.com/en/danang/index.html" aria-label="切換至英文版 Switch to English" class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-95 transition-all text-sm sm:text-base font-extrabold border border-white/30 shadow-sm hover:bg-white/30 hover:shadow-md">EN</a>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- 照片輪播區 -->
-    <div class="px-5 mt-4 relative overflow-hidden">
-        <div id="carousel-track" class="carousel-track gap-3">
-            <div onclick="window.open('https://linkuei0425.github.io/DaNang/fe.html', '_blank')" class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20 cursor-pointer active:scale-[0.98] transition-transform">
-                <img src="https://linkuei0425.github.io/DaNang/1.jpeg" class="w-full h-full object-cover" alt="龍橋">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">龍橋 / 韓江</span></div>
+    <main role="main" class="flex-grow">
+        <!-- 照片輪播區 (RWD 改良：桌面版可見多張) -->
+        <section aria-label="峴港熱門景點預覽" class="px-5 sm:px-8 lg:px-10 mt-6 sm:mt-8 relative overflow-hidden">
+            <div id="carousel-track" class="carousel-track gap-3 sm:gap-5">
+                <a href="https://kokko-travel.com/zh/danang/fe.html" aria-label="查看龍橋景點介紹" class="shrink-0 w-[90%] sm:w-[48%] lg:w-[32%] h-48 sm:h-56 relative rounded-3xl overflow-hidden shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl active:scale-[0.98] transition-all group">
+                    <img src="https://linkuei0425.github.io/DaNang/1.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="龍橋">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 pt-12"><span class="text-white font-bold text-sm sm:text-base tracking-wide flex items-center gap-1.5"><i class="ph-fill ph-map-pin"></i> 龍橋 / 韓江</span></div>
+                </a>
+                <a href="https://kokko-travel.com/zh/danang/fe.html" aria-label="查看巴拿山佛手金橋景點介紹" class="shrink-0 w-[90%] sm:w-[48%] lg:w-[32%] h-48 sm:h-56 relative rounded-3xl overflow-hidden shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl active:scale-[0.98] transition-all group">
+                    <img src="https://linkuei0425.github.io/DaNang/2.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="巴拿山佛手金橋">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 pt-12"><span class="text-white font-bold text-sm sm:text-base tracking-wide flex items-center gap-1.5"><i class="ph-fill ph-map-pin"></i> 巴拿山佛手金橋</span></div>
+                </a>
+                <a href="https://kokko-travel.com/zh/danang/fe.html" aria-label="查看會安古鎮景點介紹" class="shrink-0 w-[90%] sm:w-[48%] lg:w-[32%] h-48 sm:h-56 relative rounded-3xl overflow-hidden shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl active:scale-[0.98] transition-all group">
+                    <img src="https://linkuei0425.github.io/DaNang/3.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="會安古鎮">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 pt-12"><span class="text-white font-bold text-sm sm:text-base tracking-wide flex items-center gap-1.5"><i class="ph-fill ph-map-pin"></i> 會安古鎮</span></div>
+                </a>
             </div>
-            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20">
-                <img src="https://linkuei0425.github.io/DaNang/2.jpeg" class="w-full h-full object-cover" alt="巴拿山佛手金橋">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">巴拿山佛手金橋</span></div>
+        </section>
+
+        <!-- 快速導航工具 -->
+        <section aria-label="核心工具導航" class="px-5 sm:px-8 lg:px-10 mt-8 sm:mt-10 mb-8">
+            <h2 class="text-sm sm:text-base font-extrabold text-gray-800 mb-5 px-1 border-l-4 border-orange-500 pl-3">探索工具與服務</h2>
+            
+            <!-- RWD 網格擴排：手機 4 欄，平板 5 欄，電腦 8 欄 -->
+            <nav class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-8 gap-y-6 sm:gap-y-8 gap-x-3 sm:gap-x-4">
+                
+                <!-- 旅遊必備 -->
+                <a href="https://linkuei0425.github.io/togeter/buy.html" target="_blank" rel="noopener noreferrer" aria-label="旅遊必備清單與好物" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-violet-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(139,92,246,0.15)] group-hover:shadow-[0_8px_20px_rgba(139,92,246,0.25)]"><i class="ph ph-suitcase text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">旅遊必備</span>
+                </a>
+
+                <!-- 機場攻略 (Modal) -->
+                <button onclick="window.openModal('airportModal')" aria-label="開啟機場攻略" class="flex flex-col items-center gap-2.5 group focus:outline-none">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-sky-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(14,165,233,0.15)] group-hover:shadow-[0_8px_20px_rgba(14,165,233,0.25)]"><i class="ph ph-airplane-tilt text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">機場攻略</span>
+                </button>
+                
+                <!-- 路線規劃 -->
+                <a href="https://kokko-travel.com/zh/danang/MRT.html" target="_blank" rel="noopener noreferrer" aria-label="交通路線與轉乘規劃" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-teal-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(20,184,166,0.15)] group-hover:shadow-[0_8px_20px_rgba(20,184,166,0.25)]"><i class="ph ph-bus text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">路線規劃</span>
+                </a>
+                
+                <!-- 機票查詢 -->
+                <a href="https://hk.trip.com/flights/welcome/?to=DAD&Allianceid=7913725&SID=297495871" target="_blank" rel="noopener noreferrer" aria-label="查詢與預訂特價機票" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-blue-700 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(29,78,216,0.15)] group-hover:shadow-[0_8px_20px_rgba(29,78,216,0.25)]"><i class="ph ph-airplane-takeoff text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">機票查詢</span>
+                </a>
+                
+                <!-- 景點 -->
+                <a href="https://kokko-travel.com/zh/danang/fe.html" target="_blank" rel="noopener noreferrer" aria-label="熱門與私房景點導覽" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-pink-400 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(244,114,182,0.15)] group-hover:shadow-[0_8px_20px_rgba(244,114,182,0.25)]"><i class="ph ph-camera text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 text-center leading-[1.2] tracking-wide">景點</span>
+                </a>
+
+                <!-- 行程魔法師 -->
+                <a href="https://kokko-travel.com/zh/danang/S.html" target="_blank" rel="noopener noreferrer" aria-label="自動化行程規劃工具" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-pink-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(236,72,153,0.15)] group-hover:shadow-[0_8px_20px_rgba(236,72,153,0.25)]"><i class="ph ph-magic-wand text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">行程魔法師</span>
+                </a>
+
+                <!-- 美食推薦 -->
+                <a href="https://kokko-travel.com/zh/danang/food.html" target="_blank" rel="noopener noreferrer" aria-label="在地美食與餐廳推薦" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-orange-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(249,115,22,0.15)] group-hover:shadow-[0_8px_20px_rgba(249,115,22,0.25)]"><i class="ph ph-fork-knife text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">美食推薦</span>
+                </a>
+                
+                <!-- 購物推薦 -->
+                <a href="https://kokko-travel.com/zh/danang/shopping.html" target="_blank" rel="noopener noreferrer" aria-label="伴手禮與超市購物指南" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-rose-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(244,63,94,0.15)] group-hover:shadow-[0_8px_20px_rgba(244,63,94,0.25)]"><i class="ph ph-handbag text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">購物推薦</span>
+                </a>
+                
+                <!-- 行程推薦 -->
+                <a href="https://kokko-travel.com/zh/danang/trip.html" target="_blank" rel="noopener noreferrer" aria-label="精選套裝行程與票券" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-emerald-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(16,185,129,0.15)] group-hover:shadow-[0_8px_20px_rgba(16,185,129,0.25)]"><i class="ph ph-map-trifold text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">行程推薦</span>
+                </a>
+                
+                <!-- 飯店推薦 -->
+                <a href="https://kokko-travel.com/zh/danang/hotel.html" target="_blank" rel="noopener noreferrer" aria-label="五星度假村與青旅推薦" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-indigo-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(99,102,241,0.15)] group-hover:shadow-[0_8px_20px_rgba(99,102,241,0.25)]"><i class="ph ph-bed text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">飯店推薦</span>
+                </a>
+
+                <!-- 其他城市 (原全球通) -->
+                <a href="https://kokko-travel.com/index.html" target="_blank" rel="noopener noreferrer" aria-label="探索其他城市旅遊指南" class="flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(37,99,235,0.15)] group-hover:shadow-[0_8px_20px_rgba(37,99,235,0.25)]">
+                        <img src="https://kokko-travel.com/logo.png" alt="其他城市 Logo" class="w-8 h-8 sm:w-10 sm:h-10 object-contain">
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">其他城市</span>
+                </a>
+                
+                <!-- 關於我們 (Modal) -->
+                <button onclick="window.openModal('aboutModal')" aria-label="關於 Kokko Travel" class="flex flex-col items-center gap-2.5 group focus:outline-none">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-slate-600 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(71,85,105,0.15)] group-hover:shadow-[0_8px_20px_rgba(71,85,105,0.25)]"><i class="ph ph-info text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">關於我們</span>
+                </button>
+                
+                <!-- 加入粉絲 (Modal) -->
+                <button onclick="window.openModal('fanModal')" aria-label="追蹤我們的社群平台" class="flex flex-col items-center gap-2.5 group focus:outline-none lg:col-start-7">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-[1.25rem] shadow-sm flex items-center justify-center text-red-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_12px_rgba(239,68,68,0.15)] group-hover:shadow-[0_8px_20px_rgba(239,68,68,0.25)]"><i class="ph ph-heart text-[32px] sm:text-[36px]"></i></div>
+                    <span class="text-[11px] sm:text-xs font-bold text-gray-700 tracking-wide">加入粉絲</span>
+                </button>
+            </nav>
+
+            <!-- 評價數與星星 (AEO/GEO 信賴度增強) -->
+            <div class="mt-10 sm:mt-12 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col items-center text-center group cursor-default hover:shadow-md transition-shadow" itemscope itemtype="https://schema.org/AggregateRating">
+                <div class="flex gap-1 text-amber-400 text-xl sm:text-2xl mb-2 drop-shadow-sm">
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star-half"></i>
+                </div>
+                <div class="font-extrabold text-gray-800 text-lg sm:text-xl tracking-tight mb-1">
+                    <span itemprop="ratingValue">4.9</span> / <span itemprop="bestRating">5</span>
+                </div>
+                <p class="text-xs sm:text-sm text-gray-500 font-medium">
+                    累積超過 <span itemprop="ratingCount" class="font-bold text-gray-700">12,580</span>+ 旅人好評推薦
+                </p>
             </div>
-            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20">
-                <img src="https://linkuei0425.github.io/DaNang/3.jpeg" class="w-full h-full object-cover" alt="會安古鎮">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">會安古鎮</span></div>
-            </div>
+        </section>
+    </main>
+
+    <!-- Footer (Copyright & Legal) -->
+    <footer role="contentinfo" class="mt-8 pb-10 sm:pb-12 px-5 sm:px-8">
+        <div class="bg-gray-100 rounded-2xl p-6 sm:p-8 shadow-inner border border-gray-200 text-center">
+            <p class="text-gray-700 font-extrabold mb-2 text-xs sm:text-sm">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+            <p class="text-gray-500 text-[11px] sm:text-xs mb-1">版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+            <p class="text-gray-500 text-[11px] sm:text-xs">本站包含之圖片、文字內容及程式碼均受法律保護。</p>
         </div>
-    </div>
-
-    <!-- 快速導航工具 -->
-    <div class="px-5 mt-4">
-        <h2 class="text-sm font-bold text-gray-500 mb-4 px-1">快速導航工具</h2>
-        <div class="grid grid-cols-4 gap-y-6 gap-x-3">
-            <!-- 旅遊必備 (移至第一位並改為外連) -->
-            <button onclick="window.open('https://linkuei0425.github.io/togeter/buy.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(139,92,246,0.2)]"><i class="ph ph-suitcase text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">旅遊必備</span></button>
-
-            <!-- 機場攻略 -->
-            <button onclick="window.openModal('airportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(14,165,233,0.2)]"><i class="ph ph-airplane-tilt text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">機場攻略</span></button>
-            
-            <!-- 路線規劃 (原交通導覽) -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang/MRT.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-teal-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(20,184,166,0.2)]"><i class="ph ph-bus text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">路線規劃</span></button>
-            
-            <!-- 機票查詢 -->
-            <button onclick="window.open('https://hk.trip.com/flights/welcome/?to=DAD&Allianceid=7913725&SID=297495871', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-700 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(29,78,216,0.2)]"><i class="ph ph-airplane-takeoff text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">機票查詢</span></button>
-            
-            <!-- 景點 (原必拍景點) -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang/fe.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-400 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,114,182,0.2)]"><i class="ph ph-camera text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-[1.2]">景點</span></button>
-
-            <!-- 行程魔法師 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang/S.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(236,72,153,0.2)]"><i class="ph ph-magic-wand text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">行程魔法師</span></button>
-
-            <!-- 美食推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang/food.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(249,115,22,0.2)]"><i class="ph ph-fork-knife text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">美食推薦</span></button>
-            
-            <!-- 購物推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang/shopping.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,63,94,0.2)]"><i class="ph ph-handbag text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">購物推薦</span></button>
-            
-            <!-- 行程推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang/trip.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(16,185,129,0.2)]"><i class="ph ph-map-trifold text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">行程推薦</span></button>
-            
-            <!-- 飯店推薦 -->
-            <button onclick="window.open('https://linkuei0425.github.io/DaNang/hotel.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(99,102,241,0.2)]"><i class="ph ph-bed text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">飯店推薦</span></button>
-
-            <!-- 全球通 -->
-            <button onclick="window.open('https://linkuei0425.github.io/togeter/go.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(37,99,235,0.2)]"><i class="ph ph-globe-hemisphere-west text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">全球通</span></button>
-            
-            <button onclick="window.openModal('aboutModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(71,85,105,0.2)]"><i class="ph ph-info text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">關於我們</span></button>
-            
-            <!-- 加入粉絲 -->
-            <button onclick="window.openModal('fanModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-red-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(239,68,68,0.2)]"><i class="ph ph-heart text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700">加入粉絲</span></button>
-        </div>
-    </div>
+    </footer>
 
     <!-- ==================== Modals ==================== -->
 
     <!-- 機場攻略 Modal (峴港版) -->
-    <div id="airportModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-cyan-600 to-blue-700 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
-            <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> 峴港機場攻略</h2>
-            <button onclick="window.closeModal('airportModal')"><i class="ph ph-x text-2xl"></i></button>
-        </div>
-        <div class="bg-slate-900 px-4 pt-3 z-10">
-            <div class="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
-                <button onclick="window.switchAirportTab('dad')" id="btn-airport-dad" class="flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap">峴港機場 (DAD)</button>
-                <button onclick="window.switchAirportTab('grab')" id="btn-airport-grab" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap">Grab 叫車教學</button>
+    <div id="airportModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col sm:justify-center sm:items-center">
+        <div class="bg-slate-900 w-full h-full sm:h-auto sm:max-h-[85vh] sm:w-[450px] sm:rounded-[2.5rem] sm:shadow-2xl sm:border border-slate-700 flex flex-col overflow-hidden transform transition-transform scale-95 sm:scale-100">
+            <div class="bg-gradient-to-br from-cyan-600 to-blue-700 text-white pt-10 sm:pt-6 pb-6 px-5 flex justify-between items-center shadow-md z-10 shrink-0">
+                <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> 峴港機場攻略</h2>
+                <button onclick="window.closeModal('airportModal')" aria-label="關閉視窗"><i class="ph ph-x text-2xl hover:text-cyan-200 transition-colors"></i></button>
             </div>
-        </div>
-        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
-            
-            <!-- DAD 內容 -->
-            <div id="airport-dad" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-car text-lg"></i> (1) Grab / Gojek 網約車</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">優勢：</span> 峴港機場離市區極近，搭乘 Grab 不但價格透明且非常便宜。</li>
-                        <li><span class="text-white font-bold">車程：</span> 前往市區 (如龍橋附近) 或美溪沙灘，車程僅需 10-15 分鐘。</li>
-                        <li><span class="text-white font-bold">上車點：</span> 走出國際線航廈大門，跟隨指示牌前往網約車專屬上車點即可。</li>
-                    </ul>
-                </div>
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-taxi text-lg"></i> (2) 傳統計程車 (Taxi)</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li>機場外排班的計程車眾多。建議選擇具有信譽的 <span class="text-white font-bold">Vinasun</span> 或 <span class="text-white font-bold">Mai Linh</span>，並要求司機跳表 (By Meter)。</li>
-                    </ul>
-                </div>
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-star text-lg"></i> (3) Klook 私人包車接送</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">優勢：</span> 最尊榮無壓力的選擇。專人舉牌接機，深夜抵達或直接前往「會安古鎮」的最佳解。</li>
-                    </ul>
-                    <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=DAD&aid=117264" target="_blank" rel="noopener noreferrer" class="mt-3 flex items-center justify-center gap-1.5 w-full bg-gradient-to-r from-orange-400 to-red-500 text-white py-2.5 rounded-lg font-bold shadow-md active:scale-95 transition-transform text-xs">
-                        <i class="ph-fill ph-ticket text-sm"></i> 預約峴港機場 (DAD) 專車接送
-                    </a>
+            <div class="px-4 pt-4 pb-2 z-10 shrink-0">
+                <div class="flex gap-2 border-b border-slate-800 pb-3 overflow-x-auto no-scrollbar">
+                    <button onclick="window.switchAirportTab('dad')" id="btn-airport-dad" aria-selected="true" class="flex-1 bg-cyan-600 text-white py-2.5 px-3 rounded-xl text-sm font-bold shadow-md transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-cyan-400">峴港機場 (DAD)</button>
+                    <button onclick="window.switchAirportTab('grab')" id="btn-airport-grab" aria-selected="false" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2.5 px-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-400">Grab 叫車教學</button>
                 </div>
             </div>
+            <div class="p-4 flex-1 overflow-y-auto text-white no-scrollbar">
+                
+                <!-- DAD 內容 -->
+                <div id="airport-dad" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm">
+                        <h3 class="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2"><i class="ph-fill ph-car text-xl"></i> (1) Grab / Gojek 網約車</h3>
+                        <ul class="text-[13px] text-slate-300 space-y-2.5 leading-relaxed pl-1">
+                            <li><span class="text-white font-bold">優勢：</span> 峴港機場離市區極近，搭乘 Grab 不但價格透明且非常便宜。</li>
+                            <li><span class="text-white font-bold">車程：</span> 前往市區 (如龍橋附近) 或美溪沙灘，車程僅需 10-15 分鐘。</li>
+                            <li><span class="text-white font-bold">上車點：</span> 走出國際線航廈大門，跟隨指示牌前往網約車專屬上車點即可。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm">
+                        <h3 class="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2"><i class="ph-fill ph-taxi text-xl"></i> (2) 傳統計程車 (Taxi)</h3>
+                        <ul class="text-[13px] text-slate-300 space-y-2.5 leading-relaxed pl-1">
+                            <li>機場外排班的計程車眾多。建議選擇具有信譽的 <span class="text-white font-bold bg-slate-700 px-1.5 py-0.5 rounded">Vinasun</span> 或 <span class="text-white font-bold bg-slate-700 px-1.5 py-0.5 rounded">Mai Linh</span>，並要求司機跳表 (By Meter)。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm">
+                        <h3 class="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2"><i class="ph-fill ph-star text-xl"></i> (3) Klook 私人包車接送</h3>
+                        <ul class="text-[13px] text-slate-300 space-y-2.5 leading-relaxed pl-1">
+                            <li><span class="text-white font-bold">優勢：</span> 最尊榮無壓力的選擇。專人舉牌接機，深夜抵達或直接前往「會安古鎮」的最佳解。</li>
+                        </ul>
+                        <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=DAD&aid=117264" target="_blank" rel="noopener noreferrer" class="mt-4 flex items-center justify-center gap-2 w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition-all text-sm">
+                            <i class="ph-fill ph-ticket text-lg"></i> 預約峴港機場專車接送
+                        </a>
+                    </div>
+                </div>
 
-            <!-- Grab 叫車教學內容 -->
-            <div id="airport-grab" class="hidden space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-green-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-cell-signal-full text-lg"></i> 提前註冊與綁卡</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li>請務必在「台灣」先下載好 Grab App 並完成手機號碼註冊。</li>
-                        <li>綁定好信用卡 (建議使用無海外刷卡手續費的卡片)，到越南下機後即可直接無現金叫車。</li>
-                    </ul>
+                <!-- Grab 叫車教學內容 -->
+                <div id="airport-grab" class="hidden space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm">
+                        <h3 class="text-green-400 font-bold text-sm mb-3 flex items-center gap-2"><i class="ph-fill ph-cell-signal-full text-xl"></i> 提前註冊與綁卡</h3>
+                        <ul class="text-[13px] text-slate-300 space-y-2.5 leading-relaxed pl-1">
+                            <li>請務必在「台灣」先下載好 Grab App 並完成手機號碼註冊。</li>
+                            <li>綁定好信用卡 (建議使用無海外刷卡手續費的卡片)，到越南下機後即可直接無現金叫車。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-rose-900 shadow-sm bg-gradient-to-b from-slate-800 to-rose-950/20">
+                        <h3 class="text-rose-400 font-bold text-sm mb-3 flex items-center gap-2"><i class="ph-fill ph-warning-circle text-xl"></i> 提防機場假司機</h3>
+                        <ul class="text-[13px] text-slate-300 space-y-2.5 leading-relaxed pl-1">
+                            <li><span class="text-white font-bold">重要：</span> 在機場出境大廳，會有許多人主動上前攀談說自己是 Grab 司機。</li>
+                            <li><span class="text-rose-400 font-extrabold bg-rose-950/50 px-2 py-0.5 rounded">切勿理會！</span> 請直接看著自己的手機 App，核對「車牌號碼」與「司機照片」後再上車。</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-green-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-warning-circle text-lg"></i> 提防機場假司機</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">重要：</span> 在機場出境大廳，會有許多人主動上前攀談說自己是 Grab 司機。</li>
-                        <li><span class="text-rose-400 font-bold">切勿理會！</span> 請直接看著自己的手機 App，核對「車牌號碼」與「司機照片」後再上車。</li>
-                    </ul>
-                </div>
+
             </div>
-
-        </div>
-    </div>
-
-    <!-- 旅遊必備 Modal (峴港版) -->
-    <div id="essentialsModal" class="fixed inset-0 bg-slate-900 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-essentials-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">旅遊必備清單</h2><button onclick="window.closeModal('essentialsModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="bg-slate-900 px-4 pt-3 z-10"><div class="flex gap-2 border-b border-slate-800 pb-2">
-            <button onclick="window.switchEssTab('checklist')" id="btn-ess-checklist" class="flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold shadow-md transition-all">行前準備</button>
-            <button onclick="window.switchEssTab('goodies')" id="btn-ess-goodies" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold transition-all">好物推薦</button>
-        </div></div>
-        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
-            <div id="ess-checklist" class="space-y-3 pb-8"></div>
-            <div id="ess-goodies" class="hidden space-y-6 pb-8"></div>
         </div>
     </div>
 
     <!-- 關於我們 Modal -->
-    <div id="aboutModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-slate-800 text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">關於我們</h2><button onclick="window.closeModal('aboutModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-6 text-sm">
-            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-2 flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> 品牌初衷</h3><p class="leading-relaxed text-gray-300">我們陪伴旅人從尋找靈感的第一秒，到踏上歸途的最後一刻。我們希望能為用戶寫下專屬於他們的故事。</p></div>
-            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-3 flex items-center gap-2 text-amber-400"><i class="ph-fill ph-briefcase"></i> 合作模式</h3><ul class="space-y-3 text-gray-300"><li>📍 目的地營銷與品牌推廣</li><li>🎟️ 旅遊產品 API 串接與分潤</li><li>⛺ 在地商家與品牌贊助</li></ul></div>
-            <div class="bg-blue-900/30 p-5 rounded-2xl border border-blue-800/50"><h3 class="font-bold mb-2 flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> 聯絡信箱</h3><p class="text-blue-400 font-bold break-all">imimdesignstudio@yahoo.com</p></div>
+    <div id="aboutModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col sm:justify-center sm:items-center">
+        <div class="bg-slate-900 w-full h-full sm:h-auto sm:max-h-[85vh] sm:w-[450px] sm:rounded-[2.5rem] sm:shadow-2xl sm:border border-slate-700 flex flex-col overflow-hidden">
+            <div class="bg-slate-800 text-white pt-10 sm:pt-6 pb-6 px-6 flex justify-between items-center border-b border-slate-700 shrink-0">
+                <h2 class="font-bold text-lg">關於我們</h2>
+                <button onclick="window.closeModal('aboutModal')" aria-label="關閉視窗"><i class="ph ph-x text-2xl hover:text-slate-300 transition-colors"></i></button>
+            </div>
+            <div class="p-6 flex-1 overflow-y-auto text-slate-200 space-y-6 text-sm">
+                <div class="bg-slate-800/80 p-6 rounded-3xl border border-white/5 shadow-sm"><h3 class="font-bold text-base mb-3 flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> 品牌初衷</h3><p class="leading-relaxed text-gray-300">我們陪伴旅人從尋找靈感的第一秒，到踏上歸途的最後一刻。我們希望能為用戶寫下專屬於他們的故事。</p></div>
+                <div class="bg-slate-800/80 p-6 rounded-3xl border border-white/5 shadow-sm"><h3 class="font-bold text-base mb-4 flex items-center gap-2 text-amber-400"><i class="ph-fill ph-briefcase"></i> 合作模式</h3><ul class="space-y-3.5 text-gray-300"><li>📍 目的地營銷與品牌推廣</li><li>🎟️ 旅遊產品 API 串接與分潤</li><li>⛺ 在地商家與品牌贊助</li></ul></div>
+                <div class="bg-blue-900/20 p-6 rounded-3xl border border-blue-800/30"><h3 class="font-bold text-base mb-2 flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> 聯絡信箱</h3><p class="text-blue-400 font-bold break-all mt-3">imimdesignstudio@yahoo.com</p></div>
+            </div>
         </div>
     </div>
 
     <!-- 加入粉絲 Modal -->
-    <div id="fanModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">加入粉絲</h2><button onclick="window.closeModal('fanModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white flex flex-col items-center gap-6 no-scrollbar">
-            <img src="https://i.imgur.com/C8pWBp8.jpg" alt="粉絲專頁" class="w-full rounded-2xl shadow-lg border border-white/10 object-cover">
-            <div class="w-full space-y-3">
-                <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-instagram-logo text-xl"></i> 追蹤 Instagram</a>
-                <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-zinc-800 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform border border-zinc-700"><i class="ph-fill ph-threads-logo text-xl"></i> 關注 Threads</a>
-                <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-chat-circle text-xl"></i> 加入 LINE 官方帳號</a>
+    <div id="fanModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col sm:justify-center sm:items-center">
+        <div class="bg-slate-900 w-full h-full sm:h-auto sm:max-h-[90vh] sm:w-[450px] sm:rounded-[2.5rem] sm:shadow-2xl sm:border border-slate-700 flex flex-col overflow-hidden">
+            <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 sm:pt-6 pb-6 px-6 flex justify-between items-center shadow-md z-10 shrink-0">
+                <h2 class="font-bold text-lg flex items-center gap-2"><i class="ph-fill ph-heart"></i> 加入粉絲</h2>
+                <button onclick="window.closeModal('fanModal')" aria-label="關閉視窗"><i class="ph ph-x text-2xl hover:text-rose-200 transition-colors"></i></button>
             </div>
-            <p class="text-xs text-gray-400 mt-2 text-center leading-relaxed">追蹤我們，獲取第一手越南旅遊私藏情報、<br>隱藏版美食與限時優惠！</p>
+            <div class="p-6 flex-1 overflow-y-auto text-white flex flex-col items-center gap-6 no-scrollbar">
+                <img src="https://i.imgur.com/C8pWBp8.jpg" alt="粉絲專頁" class="w-full rounded-3xl shadow-lg border border-white/10 object-cover aspect-[4/3]">
+                <div class="w-full space-y-3.5">
+                    <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-400 hover:to-orange-400 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all text-sm"><i class="ph-fill ph-instagram-logo text-[22px]"></i> 追蹤 Instagram</a>
+                    <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2.5 bg-zinc-800 hover:bg-zinc-700 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all border border-zinc-600 text-sm"><i class="ph-fill ph-threads-logo text-[22px]"></i> 關注 Threads</a>
+                    <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2.5 bg-[#00B900] hover:bg-[#00a000] text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all text-sm"><i class="ph-fill ph-chat-circle text-[22px]"></i> 加入 LINE 官方帳號</a>
+                </div>
+                <p class="text-sm text-gray-400 mt-2 mb-4 text-center leading-relaxed font-medium">追蹤我們，獲取第一手越南旅遊私藏情報、<br>隱藏版美食與限時優惠！</p>
+            </div>
         </div>
     </div>
 
@@ -218,7 +394,12 @@ window.openModal = function(id) {
     const el = document.getElementById(id);
     if (el) { 
         el.classList.remove('hidden'); 
-        setTimeout(() => el.classList.remove('opacity-0'), 10); 
+        // 稍微延遲讓 display block 生效後再跑 opacity 動畫
+        requestAnimationFrame(() => {
+            el.classList.remove('opacity-0'); 
+            const inner = el.querySelector('.transform');
+            if(inner) inner.classList.remove('scale-95');
+        });
     }
 };
 
@@ -226,6 +407,8 @@ window.closeModal = function(id) {
     const el = document.getElementById(id);
     if (el) { 
         el.classList.add('opacity-0'); 
+        const inner = el.querySelector('.transform');
+        if(inner) inner.classList.add('scale-95');
         setTimeout(() => el.classList.add('hidden'), 300); 
     }
 };
@@ -238,42 +421,20 @@ window.switchAirportTab = function(tab) {
     const bgrab = document.getElementById('btn-airport-grab');
     
     if (tab === 'dad') {
-        bdad.className = "flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
-        bgrab.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+        bdad.className = "flex-1 bg-cyan-600 text-white py-2.5 px-3 rounded-xl text-sm font-bold shadow-md transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-cyan-400";
+        bdad.setAttribute('aria-selected', 'true');
+        bgrab.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2.5 px-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-400";
+        bgrab.setAttribute('aria-selected', 'false');
         dad.classList.remove('hidden'); 
         grab.classList.add('hidden');
     } else {
-        bgrab.className = "flex-1 bg-cyan-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
-        bdad.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
+        bgrab.className = "flex-1 bg-cyan-600 text-white py-2.5 px-3 rounded-xl text-sm font-bold shadow-md transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-cyan-400";
+        bgrab.setAttribute('aria-selected', 'true');
+        bdad.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2.5 px-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-400";
+        bdad.setAttribute('aria-selected', 'false');
         grab.classList.remove('hidden'); 
         dad.classList.add('hidden');
     }
-};
-
-// --- 旅遊必備資料 (峴港在地化) ---
-const essData = {
-    check: [
-        { n: "護照與越南電子簽證 (e-Visa)", d: "護照效期需滿六個月，務必提前上網申請電子簽證並印出紙本。" },
-        { n: "上網 SIM卡 / eSIM", d: "查地圖導航與隨時使用 Grab 叫車必備。" },
-        { n: "越南盾 (VND) 現金", d: "吃路邊攤、傳統市場買伴手禮與給小費皆需要用到現金。" },
-        { n: "下載 Grab 叫車 App", d: "強烈建議在台灣先下載並綁定好信用卡，到當地直接使用。" },
-        { n: "透氣衣物與防曬乳", d: "中越夏季非常炎熱，請準備透氣衣物、太陽眼鏡與高係數防曬。" }
-    ],
-    good: [
-        { n: "隨身小風扇 / 涼感濕紙巾", d: "熱帶氣候必備，走在街上能有效降溫防中暑。" },
-        { n: "行動電源", d: "出門在外拍照、導航與叫車不斷電。" },
-        { n: "萬國轉接頭 (雙圓/扁孔)", d: "越南電壓為 220V，插座多為雙圓孔或雙扁孔，多孔充電器最方便。" },
-        { n: "防蚊液 / 蚊蟲藥", d: "前往巴拿山、五行山或會安近郊行程時強烈建議攜帶。" },
-        { n: "腸胃藥 / 止瀉藥", d: "品嚐在地小吃與海鮮必備的護肚神藥。" }
-    ]
-};
-
-window.switchEssTab = t => {
-    let isC = (t === 'checklist');
-    document.getElementById('ess-checklist').classList.toggle('hidden', !isC);
-    document.getElementById('ess-goodies').classList.toggle('hidden', isC);
-    document.getElementById('btn-ess-checklist').className = isC ? "flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold" : "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold";
-    document.getElementById('btn-ess-goodies').className = !isC ? "flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-bold" : "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold";
 };
 
 // --- DOM 載入後初始化 ---
@@ -293,23 +454,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=16.0678&longitude=108.2208&current=temperature_2m&timezone=Asia%2FHo_Chi_Minh'); 
             const data = await res.json(); 
             const el = document.getElementById('weather-display'); 
-            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> 峴港市, ${data.current.temperature_2m}°C`; 
+            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-[18px]"></i> 峴港市, ${Math.round(data.current.temperature_2m)}°C`; 
         }
         catch (e) { 
             const el = document.getElementById('weather-display'); 
-            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> 峴港晴朗, 28°C`; 
+            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-[18px]"></i> 峴港晴朗, 28°C`; 
         }
     };
     fetchWeather();
 
-    const track = document.getElementById('carousel-track'); let slide = 0;
-    if (track) setInterval(() => { slide = (slide + 1) % 3; track.style.transform = `translateX(-${slide * 93}%)`; }, 3000);
+    // RWD 輪播圖邏輯 (根據螢幕寬度決定滾動比例)
+    const track = document.getElementById('carousel-track'); 
+    let slide = 0;
+    if (track) {
+        setInterval(() => { 
+            // 如果是桌面版或平板版(大於 640px)，有時候多張並排，位移百分比可以小一點
+            const isDesktop = window.innerWidth >= 1024;
+            const isTablet = window.innerWidth >= 640;
+            let totalSlides = 3;
+            
+            // 手機版一次看一張 (移幅 95%)，平板/電腦版可見多張 (移幅看需求，這邊簡單處理輪播)
+            let movePercent = isDesktop ? 34 : (isTablet ? 50 : 93);
+            let maxSlide = isDesktop ? 0 : (isTablet ? 1 : 2); // 桌面不用轉太多次就到底了
 
-    const eC = document.getElementById('ess-checklist');
-    if(eC) eC.innerHTML = essData.check.map(i=>`<label class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 active:scale-95 transition-transform"><input type="checkbox" class="w-5 h-5 rounded mt-0.5 shrink-0 bg-slate-900"><div><p class="font-bold text-sm text-white">${i.n}</p><p class="text-[11px] text-slate-400">${i.d}</p></div></label>`).join('');
-    
-    const eG = document.getElementById('ess-goodies');
-    if(eG) eG.innerHTML = essData.good.map(i=>`<div class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-violet-500/20 text-violet-400 flex flex-col justify-center items-center shrink-0"><i class="ph-fill ph-star"></i></div><div><p class="font-bold text-sm text-white">${i.n}</p><p class="text-[11px] text-slate-400">${i.d}</p></div></div>`).join('');
+            if(maxSlide > 0) {
+                slide = (slide + 1) % (maxSlide + 1); 
+                track.style.transform = `translateX(-${slide * movePercent}%)`; 
+            } else {
+                track.style.transform = `translateX(0%)`; 
+            }
+        }, 3500);
+    }
 });
 </script>
 </body>

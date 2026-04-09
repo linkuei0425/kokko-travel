@@ -1,10 +1,94 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" dir="ltr">
 <head>
+  <!-- 外國旅客自動導向英文版腳本 (優先執行以避免畫面閃爍) -->
+  <script>
+    (function() {
+      if (!sessionStorage.getItem('lang_redirect_checked')) {
+        sessionStorage.setItem('lang_redirect_checked', 'true');
+        var userLang = navigator.language || navigator.userLanguage;
+        // 如果瀏覽器語言不是以 zh 開頭 (如 zh-TW, zh-CN)，則導向英文版
+        if (!userLang.toLowerCase().startsWith('zh')) {
+          window.location.replace('https://kokko-travel.com/en/danang/');
+        }
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>峴港與會安自由行 行程魔法師</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   
+  <!-- SEO: 基礎優化 -->
+  <title>峴港與會安自由行 行程魔法師：自動規劃越南旅遊路線 | Kokko Travel</title>
+  <meta name="description" content="2026最新峴港與會安自由行自動排程工具。選擇想去的景點，系統將自動為您計算交通時間、安排順路行程，並提供詳細的旅遊路線與交通指南。">
+  <meta name="keywords" content="峴港自由行, 會安行程, 峴港行程規劃, 越南旅遊, 峴港景點, 巴拿山, 行程魔法師, Kokko Travel">
+  <meta name="author" content="Kokko Travel / Im+ Life">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <link rel="canonical" href="https://kokko-travel.com/zh/danang/">
+  
+  <!-- SEO: 多語系 Hreflang 標籤 -->
+  <link rel="alternate" hreflang="zh-TW" href="https://kokko-travel.com/zh/danang/" />
+  <link rel="alternate" hreflang="en" href="https://kokko-travel.com/en/danang/" />
+  <link rel="alternate" hreflang="x-default" href="https://kokko-travel.com/en/danang/" />
+
+  <!-- SEO / 社群分享: Open Graph -->
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="峴港與會安自由行 行程魔法師 | Kokko Travel">
+  <meta property="og:description" content="選擇喜歡的景點，為您一鍵自動排程，精算交通與遊玩時間，輕鬆搞定越南自由行。">
+  <meta property="og:url" content="https://kokko-travel.com/zh/danang/">
+  <meta property="og:site_name" content="Kokko Travel">
+
+  <!-- SEO / 社群分享: Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="峴港與會安自由行 行程魔法師 | Kokko Travel">
+  <meta name="twitter:description" content="選擇喜歡的景點，為您一鍵自動排程，精算交通與遊玩時間，輕鬆搞定越南自由行。">
+
+  <!-- AEO / GEO / AAO: 結構化資料 (JSON-LD) 幫助 AI 理解此頁面為旅遊規劃軟體 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "峴港與會安自由行 行程魔法師",
+        "url": "https://kokko-travel.com/zh/danang/",
+        "description": "自動規劃峴港與會安自由行行程，智能計算交通時間、安排順路景點，並提供分潤訂票連結的強大旅遊工具。",
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "All",
+        "provider": {
+          "@type": "Organization",
+          "name": "Kokko Travel / Im+ Life",
+          "url": "https://kokko-travel.com/"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "TWD"
+        }
+      },
+      {
+        "@type": "Article",
+        "headline": "峴港與會安自由行 行程魔法師",
+        "description": "輕鬆規劃您的中越之旅，自動排程不再煩惱。",
+        "author": {
+          "@type": "Organization",
+          "name": "Kokko Travel"
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Google tag (gtag.js) - 流量分析 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-W9KZ1CQ9XM');
+  </script>
+
   <!-- 載入 Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -21,6 +105,7 @@
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    html { scroll-behavior: smooth; }
     @media print {
       body { background-color: white !important; }
       .print-hidden { display: none !important; }
@@ -28,9 +113,14 @@
     }
   </style>
 </head>
-<body class="bg-blue-50 text-slate-800 font-sans">
+<body class="bg-blue-50 text-slate-800 font-sans selection:bg-blue-200 selection:text-blue-900">
   
-  <div id="root"></div>
+  <!-- AAO: 提供給 AI 代理與語音朗讀器的隱藏網頁大綱 -->
+  <div class="sr-only">
+    此網頁是 Kokko Travel 提供的峴港與會安行程規劃工具。使用者可以選擇天數與喜愛的景點，系統將自動為您安排最順路的旅遊行程、計算交通時間，並提供相對應的線上票券預訂連結。
+  </div>
+
+  <div id="root" class="flex flex-col min-h-screen"></div>
 
   <!-- React 應用程式邏輯 -->
   <script type="text/babel">
@@ -306,15 +396,18 @@
 
       if (showPrintView) {
         return (
-          <div className="min-h-screen bg-white p-4 sm:p-8">
-            <div className="max-w-3xl mx-auto border-2 border-blue-900 p-4 sm:p-8 rounded-2xl">
-              <div className="text-center mb-10"><h1 className="text-2xl sm:text-3xl font-bold">🇻🇳 峴港與會安自由行 行程表</h1><p className="mt-2 text-slate-500 text-sm">智慧排程系統自動為您計算交通與分潤票券連結</p></div>
+          <div className="min-h-screen bg-white p-4 sm:p-8 flex flex-col">
+            <div className="max-w-3xl mx-auto border-2 border-blue-900 p-4 sm:p-8 rounded-2xl flex-grow">
+              <div className="text-center mb-10">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-blue-900">🇻🇳 峴港與會安自由行 行程表</h1>
+                <p className="mt-2 text-slate-500 text-sm">智慧排程系統自動為您計算交通與分潤票券連結</p>
+              </div>
               {itineraryDays.map(d => (
-                <div key={d.dayNum} className="mb-10 print-break-avoid">
-                  <h2 className="text-xl font-bold border-b-2 border-blue-100 pb-2 mb-6">🌊 第 {d.dayNum} 天 - 【{d.cityName}】 ({d.totalH}h)</h2>
+                <div key={d.dayNum} className="mb-10 print-break-avoid" itemScope itemType="https://schema.org/Itinerary">
+                  <h2 className="text-xl font-bold border-b-2 border-blue-100 pb-2 mb-6 text-blue-800" itemProp="name">🌊 第 {d.dayNum} 天 - 【{d.cityName}】 ({d.totalH}h)</h2>
                   <div className="space-y-6 ml-2 sm:ml-4 border-l-2 pl-4 sm:pl-6 border-blue-200">
                     {d.items.map((it, idx) => (
-                      <div key={`${it.id}-${idx}`} className="relative mb-8">
+                      <div key={`${it.id}-${idx}`} className="relative mb-8" itemScope itemProp="subTour" itemType="https://schema.org/TouristAttraction">
                         {!it.isFirstPoint && (
                           <div className="mb-4 bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs sm:text-sm">
                              <div className="font-bold mb-2 text-blue-800">{it.prevName} ➔ {it.name}</div>
@@ -325,9 +418,9 @@
                         <div className="relative">
                           <div className="absolute -left-[23px] sm:-left-[31px] top-1 w-3 h-3 bg-blue-600 rounded-full border-2 border-white"></div>
                           <div className="font-bold text-xs sm:text-sm text-slate-500 mb-1"><i className="fa-regular fa-clock"></i> {it.sStr}</div>
-                          <h4 className="text-lg sm:text-xl font-bold text-slate-900">{it.name}</h4>
-                          <p className="text-xs sm:text-sm text-slate-600 my-2 leading-relaxed">{it.desc}</p>
-                          {it.bookingLinks && <div className="mt-3 flex gap-2 flex-wrap print:hidden">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] text-white text-xs px-2.5 py-1.5 rounded-full font-bold hover:bg-[#e05000]"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                          <h4 className="text-lg sm:text-xl font-bold text-slate-900" itemProp="name">{it.name}</h4>
+                          <p className="text-xs sm:text-sm text-slate-600 my-2 leading-relaxed" itemProp="description">{it.desc}</p>
+                          {it.bookingLinks && <div className="mt-3 flex gap-2 flex-wrap print:hidden">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" rel="noopener noreferrer" className="bg-[#ff5b00] text-white text-xs px-2.5 py-1.5 rounded-full font-bold hover:bg-[#e05000] transition-colors"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
                         </div>
                       </div>
                     ))}
@@ -335,10 +428,19 @@
                 </div>
               ))}
               <div className="mt-10 text-center flex flex-col sm:flex-row justify-center gap-4 print-hidden">
-                <button onClick={() => setShowPrintView(false)} className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700">返回編輯</button>
-                <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-500">列印行程 / 儲存 PDF</button>
+                <button onClick={() => setShowPrintView(false)} className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700 transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none">返回編輯</button>
+                <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-500 transition-colors focus:ring-2 focus:ring-blue-400 focus:outline-none">列印行程 / 儲存 PDF</button>
               </div>
             </div>
+            
+            {/* Footer 位於列印畫面底部 */}
+            <footer role="contentinfo" className="mt-12 text-center print-hidden w-full max-w-3xl mx-auto">
+              <div className="bg-slate-50 rounded-2xl p-6 shadow-sm border border-slate-100">
+                <p className="text-slate-700 font-bold mb-2 text-sm">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+                <p className="text-slate-500 text-xs mb-1">版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+                <p className="text-slate-500 text-xs">本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+              </div>
+            </footer>
           </div>
         );
       }
@@ -346,38 +448,71 @@
       const grouped = ATTRACTIONS.filter(a => a.city === activeCity && !a.id.startsWith('acc_')).reduce((acc, c) => { (acc[c.type] = acc[c.type] || []).push(c); return acc; }, {});
 
       return (
-        <div className="min-h-screen bg-blue-50 pb-10">
-          <header className="bg-white p-4 shadow-sm flex flex-wrap justify-between items-center sticky top-0 z-20 border-b gap-3">
-            <div className="flex items-center gap-4">
-              <h1 className="font-bold text-xl flex items-center gap-2"><i className="fa-solid fa-wand-magic-sparkles text-blue-600"></i>峴港行程魔法師</h1>
-              <a href="https://linkuei0425.github.io/DaNang/" className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-full border border-slate-200"><i className="fa-solid fa-house"></i> 回到首頁</a>
+        <div className="min-h-screen bg-blue-50 flex flex-col">
+          <header role="banner" className="bg-white p-4 shadow-sm flex flex-col sm:flex-row justify-between items-center sticky top-0 z-30 border-b gap-3 sm:gap-4 transition-all">
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
+              <h1 className="font-extrabold text-xl sm:text-2xl flex items-center gap-2 text-slate-800">
+                <i className="fa-solid fa-wand-magic-sparkles text-blue-600" aria-hidden="true"></i>峴港行程魔法師
+              </h1>
+              <a href="https://kokko-travel.com/zh/danang/" aria-label="回到 Kokko Travel 峴港旅遊首頁" className="flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold text-slate-600 hover:text-blue-700 bg-slate-100 hover:bg-blue-100 px-4 py-2 rounded-full border border-slate-200 transition-colors w-full sm:w-auto group">
+                <i className="fa-solid fa-house group-hover:-translate-y-0.5 transition-transform" aria-hidden="true"></i>回到首頁
+              </a>
             </div>
-            <div className="flex items-center gap-3">
-              {selectedIds.length > 0 && <button onClick={() => setSelectedIds([])} className="text-xs font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1 cursor-pointer"><i className="fa-solid fa-trash-can"></i> 清空</button>}
-              <div className="text-xs font-bold bg-blue-900 text-white px-3 py-1.5 rounded-full shadow-sm">已選 {selectedIds.length} 站</div>
+            <div className="flex items-center justify-center sm:justify-end gap-3 w-full sm:w-auto">
+              {selectedIds.length > 0 && (
+                <button onClick={() => setSelectedIds([])} aria-label="清空已選景點" className="text-xs sm:text-sm font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 transition-colors focus:ring-2 focus:ring-red-400 focus:outline-none">
+                  <i className="fa-solid fa-trash-can" aria-hidden="true"></i> 清空
+                </button>
+              )}
+              <div className="text-xs sm:text-sm font-bold bg-blue-900 text-white px-4 py-2 rounded-full shadow-sm" aria-live="polite">
+                已選 {selectedIds.length} 站
+              </div>
             </div>
           </header>
           
-          <main className="max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-6 mt-2">
-            <div className="lg:w-1/2 flex flex-col gap-4">
-              <div className="bg-white p-2 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar">
-                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeCity === c.id ? 'bg-blue-600 text-white shadow-md' : 'bg-white hover:bg-blue-50 text-slate-600'}`}>{c.name}</button>)}
+          <main role="main" className="max-w-7xl mx-auto p-4 sm:p-6 flex flex-col lg:flex-row gap-6 mt-2 w-full flex-grow">
+            {/* 左側選單區 */}
+            <div className="lg:w-1/2 flex flex-col gap-4 sm:gap-5" aria-label="景點選擇區">
+              <nav role="tablist" aria-label="選擇城市區域" className="bg-white p-2 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar -mx-4 px-4 sm:mx-0 sm:px-2">
+                {CITIES.map(c => (
+                  <button 
+                    key={c.id} 
+                    role="tab"
+                    aria-selected={activeCity === c.id}
+                    onClick={() => setActiveCity(c.id)} 
+                    className={`px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 ${activeCity === c.id ? 'bg-blue-600 text-white shadow-md transform scale-105' : 'bg-white hover:bg-blue-50 text-slate-600 border border-transparent hover:border-blue-100'}`}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </nav>
+              <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-blue-100">
+                <h2 className="text-sm sm:text-base font-bold flex items-center gap-2 mb-1.5 text-blue-900"><i className="fa-solid fa-circle-info text-blue-500" aria-hidden="true"></i>排程說明</h2>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">點選下方景點，右側將自動產出最順路的 3-7 日行程，並精算交通時間。</p>
               </div>
-              <div className="bg-white rounded-xl shadow-sm p-4 border border-blue-100">
-                <h2 className="text-sm font-bold flex items-center gap-2 mb-1"><i className="fa-solid fa-circle-info text-blue-500"></i>排程說明</h2>
-                <p className="text-xs text-slate-500">點選左側景點，右側將自動產出 3-7 日行程。已為您整合 AID:117264 分潤連結！</p>
-              </div>
-              <div className="max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
-                {Object.entries(grouped).length === 0 ? <p className="text-center py-10 text-slate-400">請點選上方區域開始</p> : 
+              <div className="max-h-[60vh] lg:max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar" aria-live="polite">
+                {Object.entries(grouped).length === 0 ? <p className="text-center py-10 text-slate-400 font-bold">請點選上方區域開始</p> : 
                   Object.entries(grouped).map(([type, items]) => (
                     <div key={type} className="mb-6">
-                      <h3 className="font-bold text-slate-700 mb-3 sticky top-0 bg-blue-50/90 py-2 backdrop-blur-sm z-10 border-b border-blue-200">{type}</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <h3 className="font-extrabold text-slate-700 mb-3 sticky top-0 bg-blue-50/95 py-2 backdrop-blur-sm z-10 border-b border-blue-200">{type}</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         {items.map(it => (
-                          <div key={it.id} onClick={() => toggleAttr(it.id)} className={`p-4 rounded-xl cursor-pointer border-2 transition-all ${selectedIds.includes(it.id) ? 'bg-blue-50 border-blue-500 scale-[1.02] shadow-md' : 'bg-white border-transparent shadow-sm hover:border-slate-300'}`}>
-                            <div className="font-bold text-slate-900 mb-2">{it.name}</div>
-                            <div className="text-[10px] flex gap-2 mb-2"><span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600"><i className="fa-regular fa-clock mr-1"></i>{it.stay}h</span><span className={`px-1.5 py-0.5 rounded border ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot"></i> {it.regionName}</span></div>
-                            <p className="text-xs text-slate-500 line-clamp-2">{it.desc}</p>
+                          <div 
+                            itemScope itemType="https://schema.org/TouristAttraction" 
+                            key={it.id} 
+                            onClick={() => toggleAttr(it.id)} 
+                            role="button"
+                            aria-pressed={selectedIds.includes(it.id)}
+                            tabIndex="0"
+                            onKeyPress={(e) => {if(e.key === 'Enter') toggleAttr(it.id)}}
+                            className={`p-4 sm:p-5 rounded-xl cursor-pointer border-2 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 ${selectedIds.includes(it.id) ? 'bg-blue-50 border-blue-500 scale-[1.02] shadow-md' : 'bg-white border-transparent shadow-sm hover:border-slate-300'}`}
+                          >
+                            <div className="font-extrabold text-slate-900 mb-2.5 text-base" itemProp="name">{it.name}</div>
+                            <div className="text-[11px] flex flex-wrap gap-2 mb-2.5">
+                              <span className="bg-slate-100 px-2 py-1 rounded-md text-slate-600 font-medium shadow-sm"><i className="fa-regular fa-clock mr-1" aria-hidden="true"></i>{it.stay}h</span>
+                              <span className={`px-2 py-1 rounded-md border font-medium shadow-sm ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot mr-1" aria-hidden="true"></i>{it.regionName}</span>
+                            </div>
+                            <p className="text-xs sm:text-sm text-slate-500 line-clamp-2 leading-relaxed" itemProp="description">{it.desc}</p>
                           </div>
                         ))}
                       </div>
@@ -387,40 +522,75 @@
               </div>
             </div>
 
-            <div className="lg:w-1/2">
-              <div className="bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden flex flex-col max-h-[85vh] sticky top-24">
-                <div className="bg-blue-900 text-white p-5 lg:p-6">
-                  <h2 className="text-xl font-bold flex items-center gap-2"><i className="fa-regular fa-calendar-check text-blue-300"></i>您的排程表</h2>
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    <select value={tripDuration} onChange={(e) => setTripDuration(Number(e.target.value))} className="flex-1 sm:flex-none bg-blue-800 text-white font-bold py-3 px-3 rounded-xl border border-blue-700"><option value={3}>3 日</option><option value={4}>4 日</option><option value={5}>5 日</option><option value={6}>6 日</option><option value={7}>7 日</option></select>
-                    <button onClick={() => setSelectedIds([])} className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl font-bold shadow-lg transition-all ${selectedIds.length > 0 ? 'bg-red-500 text-white' : 'bg-blue-800 text-blue-400'}`}><i className="fa-solid fa-rotate-right"></i><span>重設</span></button>
-                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="w-full sm:flex-1 bg-sky-500 py-3 px-2 rounded-xl font-bold text-white text-sm sm:text-base cursor-pointer disabled:opacity-30">產生詳細行程</button>
+            {/* 右側排程區 */}
+            <div className="lg:w-1/2 w-full mt-6 lg:mt-0" aria-label="自動排程結果區">
+              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-blue-100 overflow-hidden flex flex-col h-full lg:max-h-[85vh] lg:sticky lg:top-24">
+                <div className="bg-blue-900 text-white p-5 sm:p-6 lg:p-8 shrink-0">
+                  <h2 className="text-xl sm:text-2xl font-extrabold flex items-center gap-2.5"><i className="fa-regular fa-calendar-check text-blue-300" aria-hidden="true"></i>您的專屬排程表</h2>
+                  <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3 mt-4 sm:mt-5">
+                    <select aria-label="選擇旅遊天數" value={tripDuration} onChange={(e) => setTripDuration(Number(e.target.value))} className="w-full sm:w-1/3 bg-blue-800 hover:bg-blue-700 text-white font-bold py-3 sm:py-3.5 px-4 rounded-xl border border-blue-600 transition-colors cursor-pointer focus:ring-2 focus:ring-white focus:outline-none appearance-none">
+                      <option value={3}>3 日遊</option>
+                      <option value={4}>4 日遊</option>
+                      <option value={5}>5 日遊</option>
+                      <option value={6}>6 日遊</option>
+                      <option value={7}>7 日遊</option>
+                    </select>
+                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="w-full sm:w-2/3 bg-sky-500 hover:bg-sky-400 py-3 sm:py-3.5 px-4 rounded-xl font-bold text-white text-sm sm:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm focus:ring-2 focus:ring-white focus:outline-none">
+                      <i className="fa-solid fa-print mr-2" aria-hidden="true"></i>產生詳細行程與列印
+                    </button>
                   </div>
                 </div>
-                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
-                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-24 flex flex-col items-center gap-4"><i className="fa-solid fa-umbrella-beach text-6xl opacity-10"></i><p>尚未選擇任何景點，請點選左側卡片</p></div> : 
+                
+                {/* AAO: aria-live="polite" 讓動態生成的行程能回報給使用者 */}
+                <div className="p-5 sm:p-6 lg:p-8 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50" aria-live="polite">
+                  {itineraryDays.length === 0 ? (
+                    <div className="text-center text-slate-400 py-20 sm:py-24 flex flex-col items-center gap-4">
+                      <i className="fa-solid fa-umbrella-beach text-6xl sm:text-7xl opacity-10" aria-hidden="true"></i>
+                      <p className="font-bold text-sm sm:text-base">尚未選擇任何景點，請點選左側卡片開始規劃</p>
+                    </div>
+                  ) : 
                     itineraryDays.map(d => (
-                      <div key={d.dayNum} className="mb-10">
-                        <h3 className="font-bold text-lg mb-4 border-b-2 border-blue-100 pb-2 flex items-center gap-2 text-blue-900"><i className="fa-solid fa-sun text-yellow-500"></i> 第 {d.dayNum} 天 - 【{d.cityName}】 <span className="text-xs font-normal text-slate-400 ml-auto">累計: {d.totalH}h</span></h3>
-                        <div className="space-y-5 border-l-[3px] border-blue-100 ml-4 pl-7 relative pb-4">
+                      <div key={d.dayNum} className="mb-10 sm:mb-12" itemScope itemType="https://schema.org/Itinerary">
+                        <h3 className="font-extrabold text-lg sm:text-xl mb-4 sm:mb-5 border-b-2 border-blue-100 pb-2 sm:pb-3 flex items-center gap-2 text-blue-900" itemProp="name">
+                          <i className="fa-solid fa-sun text-yellow-500" aria-hidden="true"></i> 第 {d.dayNum} 天 - 【{d.cityName}】 
+                          <span className="text-xs sm:text-sm font-medium text-slate-400 ml-auto bg-white px-2 py-1 rounded-md border border-slate-100 shadow-sm">累計: {d.totalH}h</span>
+                        </h3>
+                        <div className="space-y-6 sm:space-y-8 border-l-[3px] border-blue-100 ml-4 sm:ml-5 pl-6 sm:pl-8 relative pb-4">
                           {d.items.map((it, idx) => (
-                            <div key={`${it.id}-${idx}`} className="relative mb-6">
+                            <div key={`${it.id}-${idx}`} className="relative" itemScope itemProp="subTour" itemType="https://schema.org/TouristAttraction">
                               {!it.isFirstPoint && (
-                                <div className="mb-4 relative">
-                                  <div className="absolute -left-[40px] top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-blue-200 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[8px] text-blue-300"></i></div>
-                                  <div className={`rounded-lg p-3 text-[11px] border shadow-sm ${it.transitTransport.includes('跨城') || it.transitTransport.includes('巴拿山') ? 'bg-orange-50 border-orange-100' : 'bg-blue-50/70 border-blue-100'}`}>
-                                    <div className={`font-bold mb-1.5 ${it.transitTransport.includes('跨城') || it.transitTransport.includes('巴拿山') ? 'text-orange-800' : 'text-blue-800'}`}>{it.prevName} ➔ {it.name}</div>
-                                    <div className="flex items-center gap-3 mb-1.5"><span className={`bg-white px-2 py-0.5 rounded border font-mono shadow-sm ${it.transitTransport.includes('跨城') || it.transitTransport.includes('巴拿山') ? 'border-orange-200 text-orange-600' : 'border-blue-200 text-blue-600'}`}><i className="fa-regular fa-clock mr-1"></i> {it.tStr}</span><span className={`font-medium ${it.transitTransport.includes('跨城') || it.transitTransport.includes('巴拿山') ? 'text-orange-600' : 'text-blue-600'}`}>交通約 {it.tTime}h</span></div>
-                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{it.transitTransport}</div>
+                                <div className="mb-5 sm:mb-6 relative">
+                                  <div className="absolute -left-[38px] sm:-left-[46px] top-1/2 -translate-y-1/2 w-4.5 h-4.5 bg-white rounded-full border-[2px] sm:border-[3px] border-blue-200 flex items-center justify-center shadow-sm z-10" aria-hidden="true">
+                                    <i className="fa-solid fa-arrow-down text-[8px] sm:text-[10px] text-blue-400"></i>
+                                  </div>
+                                  <div className={`rounded-xl p-3 sm:p-4 text-xs sm:text-sm border shadow-sm transition-colors ${it.transitTransport.includes('跨城') || it.transitTransport.includes('巴拿山') ? 'bg-orange-50/80 border-orange-100 hover:bg-orange-50' : 'bg-blue-50/70 border-blue-100 hover:bg-blue-50'}`}>
+                                    <div className={`font-extrabold mb-2 text-sm ${it.transitTransport.includes('跨城') || it.transitTransport.includes('巴拿山') ? 'text-orange-800' : 'text-blue-800'}`}>{it.prevName} ➔ {it.name}</div>
+                                    <div className="flex flex-wrap items-center gap-3 mb-2">
+                                      <span className={`bg-white px-2.5 py-1 rounded-md border font-mono font-bold shadow-sm ${it.transitTransport.includes('跨城') || it.transitTransport.includes('巴拿山') ? 'border-orange-200 text-orange-600' : 'border-blue-200 text-blue-600'}`}>
+                                        <i className="fa-regular fa-clock mr-1.5" aria-hidden="true"></i>{it.tStr}
+                                      </span>
+                                      <span className={`font-bold ${it.transitTransport.includes('跨城') || it.transitTransport.includes('巴拿山') ? 'text-orange-600' : 'text-blue-600'}`}>交通約 {it.tTime}h</span>
+                                    </div>
+                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed font-medium">{it.transitTransport}</div>
                                   </div>
                                 </div>
                               )}
-                              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative hover:shadow-md transition-shadow">
-                                <div className="absolute -left-[37px] top-4 w-4.5 h-4.5 bg-blue-500 rounded-full border-[3px] border-white shadow-sm z-10"></div>
-                                <div className="text-xs font-bold text-slate-400 mb-1"><i className="fa-regular fa-clock"></i> 停留: {it.sStr}</div>
-                                <h4 className="font-bold text-base mb-1">{it.name}</h4>
-                                <p className="text-xs text-slate-500 leading-relaxed">{it.desc}</p>
-                                {it.bookingLinks && <div className="mt-3 flex gap-1.5 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[9px] px-2.5 py-1 rounded-full font-bold transition-colors shadow-sm"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                              <div className="bg-white p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm relative hover:shadow-lg transition-all duration-300 group">
+                                <div className="absolute -left-[35px] sm:-left-[43px] top-5 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full border-[3px] sm:border-[4px] border-white shadow-md z-10 group-hover:scale-110 transition-transform" aria-hidden="true"></div>
+                                <div className="text-xs sm:text-sm font-extrabold text-blue-500 mb-1.5 bg-blue-50 inline-block px-2.5 py-1 rounded-md">
+                                  <i className="fa-regular fa-clock mr-1.5" aria-hidden="true"></i>停留: {it.sStr}
+                                </div>
+                                <h4 className="font-extrabold text-base sm:text-lg mb-2 text-slate-800 group-hover:text-blue-600 transition-colors" itemProp="name">{it.name}</h4>
+                                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium mb-3" itemProp="description">{it.desc}</p>
+                                {it.bookingLinks && (
+                                  <div className="mt-3 flex gap-2 flex-wrap pt-3 border-t border-slate-100">
+                                    {it.bookingLinks.map((l, i) => (
+                                      <a key={i} href={l.url} target="_blank" rel="noopener noreferrer" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[10px] sm:text-xs px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-lg font-bold transition-colors shadow-sm flex items-center group/btn">
+                                        <i className="fa-solid fa-ticket mr-1.5 group-hover/btn:scale-110 transition-transform" aria-hidden="true"></i>{l.text}
+                                      </a>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -432,6 +602,17 @@
               </div>
             </div>
           </main>
+
+          {/* Footer (Copyright & Legal) */}
+          <footer role="contentinfo" className="border-t border-blue-200/50 mt-10 sm:mt-12 bg-blue-50 w-full pb-8">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10 text-center">
+              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-blue-100 inline-block w-full text-center">
+                <p className="text-slate-700 font-bold mb-2 text-sm sm:text-base">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+                <p className="text-slate-500 text-xs sm:text-sm mb-1">版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+                <p className="text-slate-500 text-xs sm:text-sm">本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+              </div>
+            </div>
+          </footer>
         </div>
       );
     }

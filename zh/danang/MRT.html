@@ -1,9 +1,89 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" dir="ltr">
 <head>
+    <!-- 外國旅客自動導向英文版腳本 (優先執行以避免畫面閃爍) -->
+    <script>
+      (function() {
+        if (!sessionStorage.getItem('lang_redirect_checked')) {
+          sessionStorage.setItem('lang_redirect_checked', 'true');
+          var userLang = navigator.language || navigator.userLanguage;
+          // 如果瀏覽器語言不是以 zh 開頭 (如 zh-TW, zh-CN)，則導向英文版
+          if (!userLang.toLowerCase().startsWith('zh')) {
+            window.location.replace('https://kokko-travel.com/en/danang/');
+          }
+        }
+      })();
+    </script>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>峴港交通 (公車/會安巴士/巴拿山接駁) 路線與景點查詢</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    
+    <!-- SEO: 基礎優化 -->
+    <title>峴港交通轉乘指南：公車、會安巴士與巴拿山接駁路線查詢 | Kokko Travel</title>
+    <meta name="description" content="2026最新峴港與會安大眾交通工具指南。提供市區公車(Danabus)、會安跨省巴士與巴拿山接駁車路線查詢，一鍵自動規劃最短轉乘路線、時間與周邊景點資訊。">
+    <meta name="keywords" content="峴港交通, 會安巴士, 巴拿山接駁, 峴港公車, 峴港自由行交通, 越南旅遊, Danabus, LK02, 峴港機場交通, Kokko Travel">
+    <meta name="author" content="Kokko Travel / Im+ Life">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://kokko-travel.com/zh/danang/">
+    
+    <!-- SEO: 多語系 Hreflang 標籤 -->
+    <link rel="alternate" hreflang="zh-TW" href="https://kokko-travel.com/zh/danang/" />
+    <link rel="alternate" hreflang="en" href="https://kokko-travel.com/en/danang/" />
+    <link rel="alternate" hreflang="x-default" href="https://kokko-travel.com/en/danang/" />
+
+    <!-- SEO / 社群分享: Open Graph -->
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="峴港交通路線與景點自動查詢系統 | Kokko Travel">
+    <meta property="og:description" content="提供市區公車、會安跨省巴士與巴拿山接駁車查詢，一鍵為您規劃最短旅遊路徑。">
+    <meta property="og:url" content="https://kokko-travel.com/zh/danang/">
+    <meta property="og:site_name" content="Kokko Travel">
+
+    <!-- SEO / 社群分享: Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="峴港交通路線與景點自動查詢系統 | Kokko Travel">
+    <meta name="twitter:description" content="提供市區公車、會安跨省巴士與巴拿山接駁車查詢，一鍵為您規劃最短旅遊路徑。">
+
+    <!-- AEO / GEO / AAO: 結構化資料 (JSON-LD) 幫助 AI 理解此頁面為交通應用程式 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "峴港與會安交通路線查詢系統",
+          "url": "https://kokko-travel.com/zh/danang/",
+          "description": "提供峴港市區、會安與巴拿山大眾運輸(公車、接駁車)的最短路徑與轉乘規劃服務。",
+          "applicationCategory": "TravelApplication",
+          "operatingSystem": "All",
+          "provider": {
+            "@type": "Organization",
+            "name": "Kokko Travel / Im+ Life",
+            "url": "https://kokko-travel.com/"
+          }
+        },
+        {
+          "@type": "Article",
+          "headline": "峴港交通 (公車/會安巴士/巴拿山接駁) 路線與景點查詢",
+          "description": "自動規劃峴港與會安之間的大眾運輸轉乘路線與景點。",
+          "author": {
+            "@type": "Organization",
+            "name": "Kokko Travel"
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google tag (gtag.js) - 流量分析 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- React & ReactDOM -->
@@ -13,15 +93,33 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f0f9ff; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+            background-color: #f0f9ff; 
+        }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+        /* 優化 Select 外觀 */
+        select { 
+            -webkit-appearance: none; 
+            -moz-appearance: none; 
+            appearance: none; 
+            cursor: pointer;
+        }
+        html { scroll-behavior: smooth; }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="selection:bg-blue-200 selection:text-blue-900 flex flex-col min-h-screen">
+
+    <!-- AAO: 提供給 AI 代理與語音朗讀器的隱藏網頁大綱 -->
+    <div class="sr-only">
+        此網頁是 Kokko Travel 提供的峴港與會安交通路線查詢系統。您可以選擇出發點與目的地，系統將自動為您規劃包含 Danabus 公車、會安 LK02 巴士、機場接駁與巴拿山專車的最短轉乘路徑與耗時。
+    </div>
+
+    <!-- React 渲染容器 -->
+    <div id="root" class="flex-grow flex flex-col w-full"></div>
 
     <script type="text/babel">
         // --- 1. 資料庫建置 (峴港、會安及巴拿山交通系統) ---
@@ -206,86 +304,116 @@
             };
 
             return (
-                <div className="min-h-screen pb-12">
-                    <header className="bg-blue-800 text-white shadow-md pt-12 pb-8 px-6 text-center">
-                        <div className="flex items-center justify-center gap-4 mb-3">
-                            <a href="https://linkuei0425.github.io/DaNang/" title="回到首頁" className="inline-flex items-center justify-center text-blue-100 hover:text-white bg-blue-700 hover:bg-blue-600 p-2.5 rounded-full transition-colors shadow-sm">
-                                <i data-lucide="home" className="w-5 h-5"></i>
-                            </a>
-                            <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-                                <i data-lucide="map" className="w-7 h-7 text-yellow-300"></i>
-                                峴港 & 會安 & 巴拿山交通指南
-                            </h1>
+                <div className="flex flex-col min-h-screen">
+                    <header role="banner" className="bg-blue-800 text-white shadow-md pt-8 sm:pt-12 pb-8 sm:pb-10 px-4 sm:px-6 text-center">
+                        <div className="max-w-4xl mx-auto">
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-3 sm:mb-4">
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight flex items-center justify-center gap-2 sm:gap-3 order-2 sm:order-1">
+                                    <i data-lucide="map" className="w-7 h-7 sm:w-8 sm:h-8 text-yellow-300" aria-hidden="true"></i>
+                                    峴港交通路線指南
+                                </h1>
+                                <a href="https://kokko-travel.com/zh/danang/" aria-label="回到 Kokko Travel 峴港旅遊首頁" className="inline-flex items-center justify-center px-4 py-2 sm:px-5 sm:py-2.5 text-sm sm:text-base font-bold text-blue-800 bg-white hover:bg-blue-50 rounded-lg sm:rounded-xl transition-all shadow-sm hover:shadow-md order-1 sm:order-2 group">
+                                    <i data-lucide="home" className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 group-hover:-translate-y-0.5 transition-transform" aria-hidden="true"></i>
+                                    回到首頁
+                                </a>
+                            </div>
+                            <p className="text-blue-100/90 text-sm sm:text-base">峴港公車、會安巴士與巴拿山旅遊接駁路線自動查詢</p>
                         </div>
-                        <p className="text-blue-100 text-sm">峴港公車、會安巴士與巴拿山旅遊接駁路線</p>
                     </header>
 
-                    <main className="max-w-2xl mx-auto px-4 -mt-6">
-                        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 relative">
-                            <div className="flex flex-col gap-4">
-                                <div className="relative">
-                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">出發點 (From)</label>
-                                    <select className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 pr-8 font-medium appearance-none" value={startStation} onChange={(e) => setStartStation(e.target.value)}>
-                                        {Object.keys(transportData).map(lineKey => (
-                                            <optgroup key={`start-group-${lineKey}`} label={lineColors[lineKey].name}>
-                                                {transportData[lineKey].map(st => {
-                                                    const baseName = aliasMap[st.n] || st.n;
-                                                    return <option key={`start-${st.c}`} value={baseName}>[{st.c}] {st.n} ({st.e})</option>;
-                                                })}
-                                            </optgroup>
-                                        ))}
-                                    </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
-                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                    <main role="main" className="flex-grow w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-8">
+                        {/* 深度 RWD 響應式表單設計 */}
+                        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-5 sm:p-6 md:p-8 mb-8 relative border border-blue-50" aria-label="交通路線搜尋表單">
+                            <div className="flex flex-col md:flex-row gap-4 sm:gap-5 md:items-center">
+                                {/* 出發點 */}
+                                <div className="relative w-full flex-1">
+                                    <label htmlFor="start-station" className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-blue-500 shadow-sm"></span> 出發點 (From)
+                                    </label>
+                                    <div className="relative group">
+                                        <select id="start-station" aria-label="選擇出發站點" className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm sm:text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-3.5 pr-10 font-bold transition-all group-hover:bg-slate-100 appearance-none" value={startStation} onChange={(e) => setStartStation(e.target.value)}>
+                                            {Object.keys(transportData).map(lineKey => (
+                                                <optgroup key={`start-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                    {transportData[lineKey].map(st => {
+                                                        const baseName = aliasMap[st.n] || st.n;
+                                                        return <option key={`start-${st.c}`} value={baseName}>[{st.c}] {st.n} ({st.e})</option>;
+                                                    })}
+                                                </optgroup>
+                                            ))}
+                                        </select>
+                                        <div className="pointer-events-none absolute inset-y-0 right-0 top-0 flex items-center px-4 text-slate-500">
+                                            <i data-lucide="chevron-down" className="w-4 h-4 sm:w-5 sm:h-5"></i>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="relative flex justify-center -my-3 z-10">
-                                    <button onClick={handleSwap} className="bg-yellow-500 hover:bg-yellow-600 text-white p-2.5 rounded-full shadow-md transition-transform hover:scale-105">
-                                        <i data-lucide="arrow-down-up" className="w-5 h-5"></i>
+                                {/* 交換按鈕 (手機版直向，電腦版橫向) */}
+                                <div className="relative flex justify-center z-10 shrink-0 md:mt-7 -my-2 md:my-0">
+                                    <button onClick={handleSwap} aria-label="對調出發與目的站點" className="bg-yellow-500 hover:bg-yellow-600 text-white p-2.5 sm:p-3 rounded-full shadow-md transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 border-2 border-white md:border-none">
+                                        <i data-lucide="arrow-down-up" className="w-5 h-5 md:hidden" aria-hidden="true"></i>
+                                        <i data-lucide="arrow-right-left" className="w-5 h-5 hidden md:block" aria-hidden="true"></i>
                                     </button>
                                 </div>
 
-                                <div className="relative">
-                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">目的地 (To)</label>
-                                    <select className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3.5 pr-8 font-medium appearance-none" value={endStation} onChange={(e) => setEndStation(e.target.value)}>
-                                        {Object.keys(transportData).map(lineKey => (
-                                            <optgroup key={`end-group-${lineKey}`} label={lineColors[lineKey].name}>
-                                                {transportData[lineKey].map(st => {
-                                                    const baseName = aliasMap[st.n] || st.n;
-                                                    return <option key={`end-${st.c}`} value={baseName}>[{st.c}] {st.n} ({st.e})</option>;
-                                                })}
-                                            </optgroup>
-                                        ))}
-                                    </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-500">
-                                        <i data-lucide="chevron-down" className="w-5 h-5"></i>
+                                {/* 目的地 */}
+                                <div className="relative w-full flex-1">
+                                    <label htmlFor="end-station" className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-yellow-500 shadow-sm"></span> 目的地 (To)
+                                    </label>
+                                    <div className="relative group">
+                                        <select id="end-station" aria-label="選擇目的站點" className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm sm:text-base rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-3.5 pr-10 font-bold transition-all group-hover:bg-slate-100 appearance-none" value={endStation} onChange={(e) => setEndStation(e.target.value)}>
+                                            {Object.keys(transportData).map(lineKey => (
+                                                <optgroup key={`end-group-${lineKey}`} label={lineColors[lineKey].name}>
+                                                    {transportData[lineKey].map(st => {
+                                                        const baseName = aliasMap[st.n] || st.n;
+                                                        return <option key={`end-${st.c}`} value={baseName}>[{st.c}] {st.n} ({st.e})</option>;
+                                                    })}
+                                                </optgroup>
+                                            ))}
+                                        </select>
+                                        <div className="pointer-events-none absolute inset-y-0 right-0 top-0 flex items-center px-4 text-slate-500">
+                                            <i data-lucide="chevron-down" className="w-4 h-4 sm:w-5 sm:h-5"></i>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {startStation === endStation ? (
-                            <div className="bg-blue-50 text-blue-800 p-4 rounded-xl text-center shadow-sm">
-                                📍 您已在目的地附近囉！
-                            </div>
-                        ) : route ? (
-                            <RouteTimeline legs={route} destName={endStation} />
-                        ) : (
-                            <div className="text-center text-slate-500 py-8 italic">
-                                抱歉，目前這兩站之間尚無直接公車連網...
-                            </div>
-                        )}
+                        {/* AAO: aria-live="polite" 確保動態更動會被語音閱讀器唸出 */}
+                        <div aria-live="polite">
+                            {startStation === endStation ? (
+                                <div className="bg-blue-50 border border-blue-100 text-blue-800 p-5 rounded-2xl text-center shadow-sm font-bold text-base sm:text-lg animate-fade-in">
+                                    📍 您已經在目的地附近囉！
+                                </div>
+                            ) : route ? (
+                                <RouteTimeline legs={route} destName={endStation} />
+                            ) : (
+                                <div className="text-center text-slate-500 py-12 bg-white rounded-2xl shadow-sm border border-slate-100 font-medium">
+                                    抱歉，目前這兩站之間尚無直接公車連網...
+                                </div>
+                            )}
+                        </div>
                         
-                        <div className="mt-8 bg-blue-100/50 rounded-xl p-4 text-xs text-blue-800 space-y-2 border border-blue-200">
-                            <p className="font-bold flex items-center gap-1"><i data-lucide="info" className="w-3.5 h-3.5"></i> 自由行攻略建議：</p>
-                            <ul className="list-disc pl-4 space-y-1">
+                        <div className="mt-8 sm:mt-10 bg-blue-50/80 rounded-2xl p-5 sm:p-6 text-sm text-blue-800 space-y-3 border border-blue-100 shadow-sm">
+                            <p className="font-extrabold flex items-center gap-2 text-base"><i data-lucide="info" className="w-5 h-5 text-blue-600"></i> 自由行攻略建議：</p>
+                            <ul className="list-disc pl-5 space-y-2 font-medium leading-relaxed">
                                 <li><strong>市中心樞紐 (龍橋西側)：</strong> 此點位於占婆博物館與漢江畔，是前往巴拿山或會安巴士的關鍵轉乘地，步行 5-10 分鐘可達粉紅教堂與韓市場。</li>
                                 <li><strong>巴拿山交通：</strong> 建議提前預訂共享接駁車；多人同行則可選擇 <strong>Grab 包車</strong> (含司機等候)。</li>
                                 <li><strong>會安觀光電車：</strong> 從峴港搭 LK02 巴士抵達會安車站後，可轉乘當地綠色電車進入古鎮。</li>
                             </ul>
                         </div>
                     </main>
+                    
+                    {/* Footer (Copyright & Legal) */}
+                    <footer role="contentinfo" className="border-t border-blue-200/50 mt-12 sm:mt-16 bg-blue-50/50 w-full">
+                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 text-center">
+                            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-blue-100 inline-block w-full text-center">
+                                <p className="text-slate-700 font-bold mb-2 text-sm sm:text-base">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+                                <p className="text-slate-500 text-xs sm:text-sm mb-1">版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+                                <p className="text-slate-500 text-xs sm:text-sm">本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+                            </div>
+                        </div>
+                    </footer>
                 </div>
             );
         };
@@ -296,26 +424,37 @@
             const destInfo = uniquePhysicalStations[destName];
 
             return (
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <div className="bg-slate-50 border-b border-slate-100 p-5 flex justify-between items-center">
-                        <div><p className="text-sm font-semibold text-slate-500 mb-1">預估總耗時</p><p className="text-3xl font-bold text-slate-800">{totalTime} <span className="text-base font-normal text-slate-500">分鐘</span></p></div>
-                        <div className="text-right"><p className="text-sm font-semibold text-slate-500 mb-1">轉乘次數</p><p className="text-lg font-bold text-slate-700">{totalTransfers} <span className="text-sm font-normal text-slate-500">次</span></p></div>
+                <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden border border-slate-50 animate-fade-in" itemScope itemType="https://schema.org/Trip">
+                    <meta itemProp="name" content={`從出發地至${destName}的交通路徑`} />
+                    <div className="bg-slate-50 border-b border-slate-100 p-5 sm:p-6 flex justify-between items-center">
+                        <div>
+                            <p className="text-xs sm:text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">預估總耗時</p>
+                            <p className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">{totalTime} <span className="text-base sm:text-lg font-bold text-slate-500">分鐘</span></p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-xs sm:text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">轉乘次數</p>
+                            <p className="text-xl sm:text-2xl font-black text-slate-700">{totalTransfers} <span className="text-sm sm:text-base font-bold text-slate-500">次</span></p>
+                        </div>
                     </div>
 
-                    <div className="p-6">
-                        <div className="ml-4">
+                    <div className="p-5 sm:p-8">
+                        <div className="ml-4 sm:ml-6">
                             {legs.map((leg, idx) => (
                                 <LegItem key={idx} leg={leg} isLast={idx === legs.length - 1} destName={destName} />
                             ))}
                         </div>
-                        <div className="relative pl-8 border-l-4 border-transparent">
-                            <div className="absolute left-[-10px] top-1 w-4 h-4 bg-slate-800 rounded-full border-4 border-white shadow-sm z-10"></div>
-                            <h3 className="text-lg font-bold text-slate-800">{destInfo.name} <span className="text-sm font-normal text-slate-500 ml-1">{destInfo.en}</span></h3>
-                            <p className="text-sm text-slate-500 mb-2">抵達目的地 (Arrive)</p>
+                        {/* 終點站 */}
+                        <div className="relative pl-8 sm:pl-10 border-l-4 border-transparent" itemScope itemProp="itinerary" itemType="https://schema.org/Place">
+                            <div className="absolute left-[-10px] top-1 w-4 h-4 bg-slate-800 rounded-full border-4 border-white shadow-sm z-10" aria-hidden="true"></div>
+                            <h3 className="text-lg sm:text-xl font-extrabold text-slate-800" itemProp="name">{destInfo.name} <span className="text-sm font-semibold text-slate-500 ml-1.5">{destInfo.en}</span></h3>
+                            <p className="text-sm font-bold text-slate-500 mb-2 mt-0.5">📍 抵達目的地 (Arrive)</p>
                             {destInfo.attractions && (
-                                <div className="mt-2 bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm flex gap-2">
-                                    <i data-lucide="map-pin" className="w-5 h-5 text-blue-600 shrink-0"></i>
-                                    <div><span className="font-semibold text-blue-900 block mb-0.5">周邊地標：</span><span className="text-blue-800">{destInfo.attractions}</span></div>
+                                <div className="mt-3 bg-blue-50 border border-blue-100 rounded-xl p-3 sm:p-4 text-sm flex gap-3 shadow-sm">
+                                    <i data-lucide="map-pin" className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 shrink-0 mt-0.5" aria-hidden="true"></i>
+                                    <div>
+                                        <span className="font-extrabold text-blue-900 block mb-1 text-sm sm:text-base">周邊地標與景點：</span>
+                                        <span className="text-blue-800 font-medium leading-relaxed" itemProp="description">{destInfo.attractions}</span>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -332,13 +471,13 @@
 
             if (leg.type === 'transfer') {
                 return (
-                    <div className="relative pl-8 pb-8 border-l-4 border-dashed border-slate-300">
-                        <div className="absolute left-[-14px] top-1 w-6 h-6 bg-white rounded-full border-2 border-slate-300 z-10 flex items-center justify-center">
-                            <i data-lucide="footprints" className="w-3.5 h-3.5 text-slate-500"></i>
+                    <div className="relative pl-8 sm:pl-10 pb-8 sm:pb-10 border-l-4 border-dashed border-slate-300">
+                        <div className="absolute left-[-14px] top-1 w-6 h-6 bg-white rounded-full border-2 border-slate-400 z-10 flex items-center justify-center shadow-sm" aria-hidden="true">
+                            <i data-lucide="footprints" className="w-3.5 h-3.5 text-slate-600"></i>
                         </div>
-                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 inline-block">
-                            <p className="text-sm font-semibold text-slate-700">於 <span className="text-slate-900">{aliasMap[startStation.n] || startStation.n}</span> 轉乘車輛</p>
-                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><i data-lucide="clock" className="w-3 h-3"></i> 步行或等待約 {leg.time} 分鐘</p>
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 inline-block shadow-sm">
+                            <p className="text-sm sm:text-base font-bold text-slate-600">於 <span className="text-slate-900 font-extrabold">{aliasMap[startStation.n] || startStation.n}</span> 轉乘車輛</p>
+                            <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1.5 flex items-center gap-1.5"><i data-lucide="clock" className="w-3.5 h-3.5"></i> 步行或等待約 {leg.time} 分鐘</p>
                         </div>
                     </div>
                 );
@@ -346,21 +485,25 @@
 
             const lineTheme = lineColors[leg.line] || { bg: 'bg-slate-500', border: 'border-slate-500', text: 'text-slate-600', name: leg.line };
             return (
-                <div className={`relative pl-8 pb-8 border-l-4 ${lineTheme.border}`}>
-                    <div className={`absolute left-[-10px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm z-10 ${lineTheme.bg}`}></div>
-                    <div className="mb-2">
-                        <h3 className="text-base font-bold text-slate-800">{startStation.n} <span className="text-sm font-normal text-slate-500 ml-1">{startStation.en}</span></h3>
+                <div className={`relative pl-8 sm:pl-10 pb-8 sm:pb-10 border-l-4 ${lineTheme.border}`}>
+                    <div className={`absolute left-[-10px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm z-10 ${lineTheme.bg}`} aria-hidden="true"></div>
+                    <div className="mb-3">
+                        <h3 className="text-base sm:text-lg font-extrabold text-slate-800">{startStation.n} <span className="text-xs sm:text-sm font-semibold text-slate-500 ml-1.5">{startStation.en}</span></h3>
                         {startStation.a && (
-                            <p className="text-xs text-blue-600 mt-1 flex items-start gap-1"><i data-lucide="star" className="w-3.5 h-3.5 mt-0.5 shrink-0"></i><span>{startStation.a}</span></p>
+                            <p className="text-xs sm:text-sm font-semibold text-blue-600 mt-1.5 flex items-start gap-1.5"><i data-lucide="star" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mt-0.5 shrink-0" aria-hidden="true"></i><span>{startStation.a}</span></p>
                         )}
                     </div>
-                    <div className={`mt-3 border-l-4 rounded-r-lg p-4 bg-white shadow-sm border-y border-r border-slate-100 ${lineTheme.border}`}>
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className={`${lineTheme.bg} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider`}>{startNodeCode}</span>
-                            <span className={`text-sm font-semibold ${lineTheme.text}`}>搭乘 {lineTheme.name}</span>
+                    <div className={`mt-3 sm:mt-4 border-l-4 rounded-r-xl sm:rounded-r-2xl p-4 sm:p-5 bg-white shadow-sm border-y border-r border-slate-100 group transition-all hover:shadow-md ${lineTheme.border}`}>
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <span className={`${lineTheme.bg} text-white text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider shadow-sm`}>{startNodeCode}</span>
+                            <span className={`text-sm sm:text-base font-extrabold ${lineTheme.text}`}>搭乘 {lineTheme.name}</span>
                         </div>
-                        <p className="text-xs text-slate-500 flex items-center gap-2 mt-2">
-                            <span>前往 <strong>{endStation.n}</strong></span><span className="text-slate-300">|</span><span>{leg.stops} 站</span><span className="text-slate-300">|</span><span>約 {leg.time} 分鐘</span>
+                        <p className="text-xs sm:text-sm font-medium text-slate-500 flex flex-wrap items-center gap-2 mt-2.5">
+                            <span className="bg-slate-100 px-2 py-1 rounded text-slate-700 font-bold">前往 {endStation.n}</span>
+                            <span className="text-slate-300">|</span>
+                            <span>{leg.stops} 站</span>
+                            <span className="text-slate-300">|</span>
+                            <span>約 {leg.time} 分鐘</span>
                         </p>
                     </div>
                 </div>
@@ -369,7 +512,9 @@
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
-        lucide.createIcons();
+        
+        // 確保 Lucide Icons 初始載入渲染
+        setTimeout(() => { lucide.createIcons(); }, 100);
     </script>
 </body>
 </html>
