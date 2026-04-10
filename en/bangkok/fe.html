@@ -1,14 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- 1. Google Tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
+    <!-- 2. 外國旅客自動導向英文版腳本 -->
+    <script>
+        (function() {
+            var userLang = navigator.language || navigator.userLanguage;
+            var isChinese = userLang.toLowerCase().includes('zh');
+            var currentUrl = window.location.href;
+            // 若偵測為非中文語系，且誤入中文網址，則強制導回英文首頁
+            if (!isChinese && currentUrl.includes('/zh/')) {
+                window.location.replace('https://kokko-travel.com/en/bangkok/');
+            }
+        })();
+    </script>
+
+    <!-- 3. Performance & Basics -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Global Festival Guide | Songkran & NYE</title>
-    <!-- Tailwind CSS -->
+    <title>Bangkok Festival Guide 2026 | Songkran & NYE Fireworks</title>
+    
+    <!-- SEO & GEO Meta -->
+    <meta name="description" content="[AI Recommended Guide] Discover the ultimate Bangkok Festival Guide! Best hotspots for the Songkran water festival and New Year's Eve fireworks, including Silom, Khao San, CentralWorld, and ICONSIAM.">
+    <meta name="keywords" content="Bangkok Songkran, Bangkok NYE, Thailand water festival, Bangkok fireworks, CentralWorld NYE, ICONSIAM countdown, Bangkok travel guide">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://kokko-travel.com/en/bangkok/fe.html" />
+
+    <!-- Local SEO -->
+    <meta name="geo.region" content="TH-10" />
+    <meta name="geo.placename" content="Bangkok" />
+    <meta name="geo.position" content="13.7563;100.5018" />
+    <meta name="ICBM" content="13.7563, 100.5018" />
+
+    <!-- Open Graph & Twitter Cards -->
+    <meta property="og:title" content="Bangkok Festival Guide | Songkran & NYE">
+    <meta property="og:description" content="Explore the craziest water fights and the most spectacular fireworks in Bangkok. Your ultimate festival survival guide.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://kokko-travel.com/en/bangkok/fe.html">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:site_name" content="Kokko Travel">
+    <meta property="og:image" content="https://kokko-travel.com/images/bangkok-festival-cover.jpg"> 
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bangkok Festival Guide | Top Hotspots">
+    <meta name="twitter:description" content="Best places to celebrate Songkran and New Year's Eve in Bangkok.">
+
+    <!-- Tailwind CSS & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -18,283 +65,367 @@
             -webkit-tap-highlight-color: transparent;
         }
         /* Hide scrollbar but keep functionality */
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
         /* Fade-in Animation */
-        .fade-in {
-            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         /* Tab Button Styles */
-        .tab-btn {
-            transition: all 0.3s ease;
-        }
+        .tab-btn { transition: all 0.3s ease; }
         .tab-active-water {
-            background-color: #0ea5e9; /* sky-500 */
+            background-color: #0ea5e9; 
             color: white;
             border-color: #0ea5e9;
-            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
         }
         .tab-active-night {
-            background-color: #6366f1; /* indigo-500 */
+            background-color: #6366f1; 
             color: white;
             border-color: #6366f1;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
         }
         .tab-inactive {
             background-color: white;
             color: #64748b;
             border-color: #e2e8f0;
         }
-    </style>
-</head>
-<body class="text-slate-800 pb-20">
 
-    <!-- Dynamic Header -->
-    <header id="main-header" class="bg-gradient-to-r from-cyan-500 to-blue-600 transition-colors duration-500 shadow-lg text-white pt-10 pb-16 px-6 relative rounded-b-[2.5rem]">
-        <div class="max-w-4xl mx-auto flex justify-between items-start relative z-10">
+        /* 專為 AI 與無障礙設計的隱藏類別 (Screen Reader & LLM Only) */
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+        }
+    </style>
+
+    <!-- 4. AAO (AI Agent Optimization): 升級為 API 級別的結構化 JSON 資料島 -->
+    <script type="application/json" id="aao-data-source">
+        {
+            "metadata": {
+                "topic": "Bangkok Festivals Guide",
+                "lastUpdated": "2026-01-01"
+            },
+            "festivals": [
+                {
+                    "id": "songkran",
+                    "name": "Songkran Water Festival",
+                    "dates": "April 13-15",
+                    "hotspots": [
+                        {"name": "Silom Road", "type": "Massive Street Party", "lat": 13.7278, "lng": 100.5348},
+                        {"name": "Khao San Road", "type": "Backpacker Street Party", "lat": 13.7588, "lng": 100.4974},
+                        {"name": "CentralWorld", "type": "Festival & Concerts", "lat": 13.7466, "lng": 100.5393},
+                        {"name": "ICONSIAM", "type": "Riverside Cultural Event", "lat": 13.7267, "lng": 100.5105}
+                    ]
+                },
+                {
+                    "id": "nye",
+                    "name": "New Year's Eve",
+                    "dates": "December 31",
+                    "hotspots": [
+                        {"name": "CentralWorld", "type": "Countdown Concert", "lat": 13.7466, "lng": 100.5393},
+                        {"name": "ICONSIAM", "type": "Riverside Fireworks", "lat": 13.7267, "lng": 100.5105},
+                        {"name": "Asiatique", "type": "Night Market Countdown", "lat": 13.7042, "lng": 100.5032}
+                    ]
+                }
+            ]
+        }
+    </script>
+</head>
+<body class="text-slate-800 pb-12 flex flex-col min-h-screen">
+
+    <!-- 5. AEO/GEO 語義化結構: 升級為包含 FAQ 問答格式的知識庫 -->
+    <div id="seo-ai-content-feed" class="sr-only" aria-hidden="true">
+        <h2>Complete Bangkok Festival Guide: Songkran & NYE (Text Version)</h2>
+        <p>Your ultimate guide to celebrating festivals in Bangkok. Songkran hotspots include the massive water fights at Silom Road and Khao San Road. NYE fireworks best spots include CentralWorld's countdown concert and ICONSIAM's riverside spectacular.</p>
+        
+        <h3>Frequently Asked Questions (FAQ) about Bangkok Festivals</h3>
+        <dl>
+            <dt>When is the Songkran Water Festival in Bangkok?</dt>
+            <dd>Songkran is celebrated annually from April 13 to April 15. The entire city of Bangkok turns into a massive water fight celebration.</dd>
+            
+            <dt>Where is the best place to celebrate Songkran in Bangkok?</dt>
+            <dd>The most popular hotspots are Silom Road for massive crowds, Khao San Road for wild street parties, and CentralWorld for safe, trendy music festivals.</dd>
+            
+            <dt>Where can I watch the best New Year's Eve fireworks in Bangkok?</dt>
+            <dd>ICONSIAM offers a spectacular world-class fireworks show along the Chao Phraya River. CentralWorld is known as the "Times Square of Asia" with a massive countdown concert and fireworks.</dd>
+        </dl>
+    </div>
+
+    <!-- Dynamic Header (RWD 升級) -->
+    <header id="main-header" class="bg-gradient-to-r from-cyan-500 to-blue-600 transition-colors duration-500 shadow-lg text-white pt-10 pb-16 px-6 relative md:rounded-b-[3.5rem] rounded-b-[2.5rem]" role="banner">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center relative z-10 gap-6">
             <div>
-                <p id="header-subtitle" class="text-cyan-100 text-sm font-semibold tracking-wider mb-1"><i class="fa-solid fa-droplet"></i> Cool Summer, Endless Carnival</p>
-                <h1 id="header-title" class="text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-md">Ultimate Thailand Songkran Guide</h1>
+                <p id="header-subtitle" class="text-cyan-100 text-sm md:text-base font-semibold tracking-wider mb-1">
+                    <i class="fa-solid fa-droplet"></i> Cool Summer, Endless Carnival
+                </p>
+                <h1 id="header-title" class="text-3xl md:text-5xl font-extrabold tracking-tight drop-shadow-md">
+                    Ultimate Thailand Songkran Guide
+                </h1>
             </div>
-            <a href="https://linkuei0425.github.io/BANGKOK-US/index.html" class="bg-white/20 hover:bg-white/30 backdrop-blur-md px-4 py-2 rounded-full text-sm font-bold transition-colors border border-white/30 flex items-center gap-2">
-                <i class="fa-solid fa-house"></i> Home
-            </a>
+            <!-- 返回首頁連結 -->
+            <nav aria-label="Main Navigation">
+                <a href="https://kokko-travel.com/en/bangkok/" class="bg-white/20 hover:bg-white/30 backdrop-blur-md px-5 py-2.5 rounded-full text-sm md:text-base font-bold transition-all border border-white/30 flex items-center gap-2 shadow-sm focus:outline-none focus:ring-4 focus:ring-white/50" aria-label="Back to Home Page">
+                    <i class="fa-solid fa-house" aria-hidden="true"></i> Back to Home
+                </a>
+            </nav>
         </div>
         <!-- Decorative Circle -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-10 translate-x-10 blur-2xl"></div>
+        <div class="absolute top-0 right-0 w-48 h-48 bg-white opacity-10 rounded-full -translate-y-10 translate-x-10 blur-3xl pointer-events-none"></div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 -mt-8 relative z-20">
+    <!-- Main Content (深度 RWD 網格) -->
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 flex-grow" role="main">
         
-        <!-- Tabs -->
-        <div class="bg-white p-2 rounded-2xl shadow-md border border-slate-100 flex justify-center gap-2 mb-8 mx-auto max-w-sm">
-            <button onclick="switchTheme('songkran')" id="tab-songkran" class="tab-btn tab-active-water flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+        <!-- Tabs (升級 a11y 標籤) -->
+        <nav class="bg-white p-2.5 rounded-2xl shadow-md border border-slate-100 flex justify-center gap-2 mb-10 mx-auto max-w-md" aria-label="Festival Selection" role="tablist">
+            <button onclick="switchTheme('songkran')" id="tab-songkran" role="tab" aria-selected="true" aria-controls="section-songkran" class="tab-btn tab-active-water flex-1 py-3.5 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 focus:outline-none">
                 <i class="fa-solid fa-water text-lg"></i> Songkran Guide
             </button>
-            <button onclick="switchTheme('nye')" id="tab-nye" class="tab-btn tab-inactive flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border">
+            <button onclick="switchTheme('nye')" id="tab-nye" role="tab" aria-selected="false" aria-controls="section-nye" class="tab-btn tab-inactive flex-1 py-3.5 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 border focus:outline-none">
                 <i class="fa-solid fa-fireworks text-lg"></i> NYE Fireworks
             </button>
-        </div>
+        </nav>
 
         <!-- ================= Songkran Section ================= -->
-        <div id="section-songkran" class="fade-in space-y-8">
+        <div id="section-songkran" role="tabpanel" aria-labelledby="tab-songkran" class="fade-in space-y-10" aria-live="polite">
             
             <!-- Recommendations (Affiliate Links) -->
-            <section>
-                <div class="space-y-4">
-                    <!-- Recommendation 1 (Pinned) -->
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:border-red-300 transition-colors">
-                        <div class="flex items-start gap-3">
-                            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center shrink-0 text-blue-500 text-xl">
+            <section aria-label="Recommended Tours">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <!-- Recommendation 1 -->
+                    <article class="bg-white p-5 md:p-6 rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-sm hover:shadow-md hover:border-red-300 transition-all">
+                        <div class="flex items-start gap-4">
+                            <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center shrink-0 text-blue-500 text-2xl">
                                 <i class="fa-solid fa-water"></i>
                             </div>
                             <div>
-                                <h3 class="font-bold text-slate-800">Bangkok Songkran Full-Day Tour Experience</h3>
-                                <p class="text-xs text-slate-500 mt-1">Join a private guide deep into the Songkran battle zones and experience the most authentic Thai New Year water fight!</p>
+                                <h3 class="font-bold text-lg text-slate-800 leading-tight">Bangkok Songkran Full-Day Tour</h3>
+                                <p class="text-sm text-slate-500 mt-1.5 leading-relaxed">Join a private guide deep into the Songkran battle zones and experience the authentic Thai New Year!</p>
                             </div>
                         </div>
-                        <a href="https://www.klook.com/en-US/activity/139401-bangkok-water-battle-songkran-on-a-tuk-tuk/?spm=SearchResult.SearchResult_LIST&clickId=4fd98f1e27&aid=114993" target="_blank" class="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-2.5 px-6 rounded-xl text-center active:scale-95 transition-transform shadow-md">
+                        <a href="https://www.klook.com/en-US/activity/139401-bangkok-water-battle-songkran-on-a-tuk-tuk/?spm=SearchResult.SearchResult_LIST&clickId=4fd98f1e27&aid=114993" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto shrink-0 bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-3 px-6 rounded-xl text-center active:scale-95 transition-transform shadow-md focus:ring-4 focus:ring-red-200">
                             Book Now (Klook)
                         </a>
-                    </div>
+                    </article>
                     <!-- Recommendation 2 -->
-                    <div class="bg-white p-4 rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:border-red-300 transition-colors">
-                        <div class="flex items-start gap-3">
-                            <div class="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center shrink-0 text-cyan-500 text-xl">
+                    <article class="bg-white p-5 md:p-6 rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-sm hover:shadow-md hover:border-red-300 transition-all">
+                        <div class="flex items-start gap-4">
+                            <div class="w-14 h-14 bg-cyan-50 rounded-xl flex items-center justify-center shrink-0 text-cyan-500 text-2xl">
                                 <i class="fa-solid fa-truck-pickup"></i>
                             </div>
                             <div>
-                                <h3 class="font-bold text-slate-800">(Private Pickup) Bangkok Songkran Water Fight Tour</h3>
-                                <p class="text-xs text-slate-500 mt-1">Charter a private pickup truck, bring your water guns, and fight from the car—a luxurious way to play without walking!</p>
+                                <h3 class="font-bold text-lg text-slate-800 leading-tight">(Private Pickup) Water Fight Tour</h3>
+                                <p class="text-sm text-slate-500 mt-1.5 leading-relaxed">Charter a private pickup truck, bring your water guns, and fight from the car—a luxurious way to play!</p>
                             </div>
                         </div>
-                        <a href="https://www.klook.com/en-US/activity/150543-songkran-water-fight-on-private-pickup-truck/?spm=SearchResult.SearchResult_LIST&clickId=b8fef5a55d&aid=114993" target="_blank" class="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-2.5 px-6 rounded-xl text-center active:scale-95 transition-transform shadow-md">
+                        <a href="https://www.klook.com/en-US/activity/150543-songkran-water-fight-on-private-pickup-truck/?spm=SearchResult.SearchResult_LIST&clickId=b8fef5a55d&aid=114993" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto shrink-0 bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-3 px-6 rounded-xl text-center active:scale-95 transition-transform shadow-md focus:ring-4 focus:ring-red-200">
                             Book Now (Klook)
                         </a>
-                    </div>
+                    </article>
                 </div>
             </section>
 
-            <!-- Hotel Recommendations (Affiliate Links) -->
-            <section>
-                <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:border-rose-300 hover:shadow-md transition-all">
-                    <div class="flex items-start gap-3">
-                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shrink-0 text-rose-500 text-xl shadow-sm">
+            <!-- Hotel Recommendations -->
+            <section aria-label="Hotel Recommendations">
+                <article class="bg-rose-50 p-5 md:p-6 rounded-2xl border border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-sm hover:shadow-md hover:border-rose-300 transition-all">
+                    <div class="flex items-start gap-4">
+                        <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center shrink-0 text-rose-500 text-2xl shadow-sm">
                             <i class="fa-solid fa-hotel"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-slate-800">Top-Rated Hotels near Khao San Road</h3>
-                            <p class="text-xs text-slate-600 mt-1">Rooms are hard to find during Songkran. We recommend booking hotels in the battle zones 3 months in advance for easy changing.</p>
+                            <h3 class="font-bold text-lg text-slate-800 leading-tight">Top-Rated Hotels near Khao San Road</h3>
+                            <p class="text-sm text-slate-600 mt-1.5 leading-relaxed">Rooms are hard to find during Songkran. We recommend booking hotels in the battle zones 3 months in advance for easy changing.</p>
                         </div>
                     </div>
-                    <a href="https://www.trip.com/hotels/list?flexType=1&fixedDate=0&cityId=359&provinceId=0&countryId=4&cityName=%E6%9B%BC%E8%B0%B7&destName=%E8%80%83%E5%B1%B1%E8%B7%AF%2C%20%E6%9B%BC%E8%B0%B7%2C%20%E6%B3%B0%E5%9C%8B&searchWord=%E8%80%83%E5%B1%B1%E8%B7%AF&searchType=Z&searchValue=8%7C721*8*721%7C13.76055%7C100.505926%7C1&checkin=2026-04-13&checkout=2026-04-14&crn=1&adult=2&listFilters=29~1*29*1~2*2%2C80~2~0*80*2%2C17~1*17*1&old=1&Allianceid=297495871&locale=en_xx&curr=USD" target="_blank" class="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold py-2.5 px-6 rounded-xl text-center active:scale-95 transition-transform shadow-md">
+                    <a href="https://www.trip.com/hotels/list?flexType=1&fixedDate=0&cityId=359&provinceId=0&countryId=4&cityName=%E6%9B%BC%E8%B0%B7&destName=%E8%80%83%E5%B1%B1%E8%B7%AF%2C%20%E6%9B%BC%E8%B0%B7%2C%20%E6%B3%B0%E5%9C%8B&searchWord=%E8%80%83%E5%B1%B1%E8%B7%AF&searchType=Z&searchValue=8%7C721*8*721%7C13.76055%7C100.505926%7C1&checkin=2026-04-13&checkout=2026-04-14&crn=1&adult=2&listFilters=29~1*29*1~2*2%2C80~2~0*80*2%2C17~1*17*1&old=1&Allianceid=297495871&locale=en_xx&curr=USD" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto shrink-0 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold py-3 px-6 rounded-xl text-center active:scale-95 transition-transform shadow-md focus:ring-4 focus:ring-rose-200">
                         Check Availability (Trip)
                     </a>
-                </div>
+                </article>
             </section>
 
-            <!-- Introduction and Highlights -->
+            <!-- Hotspots List -->
             <section>
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="bg-cyan-100 text-cyan-600 p-2 rounded-lg"><i class="fa-solid fa-map-location-dot"></i></span>
-                    <h2 class="text-xl font-extrabold text-slate-800">Top 6 Songkran Hotspots in Bangkok</h2>
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-cyan-100 text-cyan-600 p-2.5 rounded-xl"><i class="fa-solid fa-map-location-dot text-lg"></i></span>
+                    <h2 class="text-2xl font-extrabold text-slate-800">Top 6 Songkran Hotspots in Bangkok</h2>
                 </div>
-                <p class="text-sm text-slate-600 mb-5 leading-relaxed">Bangkok's Songkran Festival is usually held from April 13 to 15 every year and is the grandest and craziest festival in Thailand. The atmosphere and crowd vary greatly depending on the location. Here are the top 6 main Songkran areas in Bangkok and their features:</p>
+                <p class="text-base text-slate-600 mb-6 leading-relaxed max-w-4xl">Bangkok's Songkran Festival is usually held from April 13 to 15 every year and is the grandest and craziest festival in Thailand. The atmosphere and crowd vary greatly depending on the location. Here are the top 6 main Songkran areas in Bangkok and their features:</p>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Location Card 1 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-blue-600 mb-1">📍 Silom Road</h3>
-                        <p class="text-xs font-bold text-cyan-600 mb-3">Bangkok's Largest First-Tier Battleground</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> The most popular and largest Songkran battleground in Bangkok. During the event, this commercial avenue is completely blocked off, turning into a "natural water gun battlefield" stretching for miles. With the Skytrain (BTS) and subway (MRT) right next to it, transportation is highly convenient, attracting massive crowds of locals, tourists, and the LGBTQ+ community. With water trucks and loud music, the battle is fierce.</p>
-                        <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 mt-auto">
-                            <span class="text-xs text-blue-700 leading-relaxed"><strong class="text-blue-800"><i class="fa-solid fa-users"></i> Best For:</strong> Travelers who want to experience the most classic, crowded, and hyped "water fight chaos."</span>
-                        </div>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
                     
-                    <!-- Location Card 2 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-blue-600 mb-1">📍 Khao San Road</h3>
-                        <p class="text-xs font-bold text-cyan-600 mb-3">Crazy Street Party for Backpackers</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> As a mecca for global backpackers, Khao San Road's Songkran is famous for being "wild." The bars on both sides turn their speakers to the max, featuring live DJs, neon lights, and alcohol, with some even splashing beer instead of water. The later it gets, the crazier the atmosphere becomes—like a massive outdoor party that never ends.</p>
-                        <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 mt-auto">
-                            <span class="text-xs text-blue-700 leading-relaxed"><strong class="text-blue-800"><i class="fa-solid fa-users"></i> Best For:</strong> Young people who love Western party vibes, nightlife, and have boundless energy.</span>
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-blue-600 mb-1" itemprop="name">📍 Silom Road</h3>
+                        <p class="text-sm font-bold text-cyan-600 mb-3 uppercase tracking-wide">Bangkok's Largest Battleground</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            The most popular and largest Songkran battleground in Bangkok. During the event, this commercial avenue is completely blocked off, turning into a "natural water gun battlefield" stretching for miles. With the Skytrain (BTS) and subway (MRT) right next to it, transportation is highly convenient, attracting massive crowds.
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-auto">
+                            <span class="text-sm text-blue-700 leading-relaxed block"><strong class="text-blue-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Travelers who want to experience the most classic, crowded, and hyped "water fight chaos."</span>
                         </div>
-                    </div>
+                    </article>
+                    
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-blue-600 mb-1" itemprop="name">📍 Khao San Road</h3>
+                        <p class="text-sm font-bold text-cyan-600 mb-3 uppercase tracking-wide">Crazy Street Party</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            As a mecca for global backpackers, Khao San Road's Songkran is famous for being "wild." The bars on both sides turn their speakers to the max, featuring live DJs, neon lights, and alcohol. The later it gets, the crazier the atmosphere becomes—like a massive outdoor party that never ends.
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-auto">
+                            <span class="text-sm text-blue-700 leading-relaxed block"><strong class="text-blue-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Young people who love Western party vibes, nightlife, and have boundless energy.</span>
+                        </div>
+                    </article>
 
-                    <!-- Location Card 3 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-blue-600 mb-1">📍 Siam Square & CentralWorld</h3>
-                        <p class="text-xs font-bold text-cyan-600 mb-3">Safe Zone Combining Trends and Art</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> The fashion and trend center of Bangkok. The water activities here are relatively organized and safe. Besides laser water fights and bubble parties in the square, there are usually live concerts sponsored by famous brands, combining modern entertainment with traditional customs like the Buddha bathing ceremony.</p>
-                        <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 mt-auto">
-                            <span class="text-xs text-blue-700 leading-relaxed"><strong class="text-blue-800"><i class="fa-solid fa-users"></i> Best For:</strong> Travelers who want to balance water play, performances, shopping, and food, and young people who prefer a less crazy environment.</span>
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-blue-600 mb-1" itemprop="name">📍 CentralWorld</h3>
+                        <p class="text-sm font-bold text-cyan-600 mb-3 uppercase tracking-wide">Trends and Art Safe Zone</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            The fashion and trend center of Bangkok. The water activities here are relatively organized and safe. Besides laser water fights and bubble parties in the square, there are usually live concerts sponsored by famous brands, combining modern entertainment with traditional customs.
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-auto">
+                            <span class="text-sm text-blue-700 leading-relaxed block"><strong class="text-blue-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Travelers who want to balance water play, performances, shopping, and food, and young people who prefer a less crazy environment.</span>
                         </div>
-                    </div>
+                    </article>
 
-                    <!-- Location Card 4 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-blue-600 mb-1">📍 ICONSIAM</h3>
-                        <p class="text-xs font-bold text-cyan-600 mb-3">Gentle Water Play and Traditional Cultural Experience</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> A landmark shopping mall located on the banks of the Chao Phraya River. ICONSIAM sets up a milder water play area in the riverside park and places great emphasis on traditional culture, hosting grand "Songkran Goddess Parades," traditional Thai music performances, and solemn Buddha bathing ceremonies.</p>
-                        <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 mt-auto">
-                            <span class="text-xs text-blue-700 leading-relaxed"><strong class="text-blue-800"><i class="fa-solid fa-users"></i> Best For:</strong> Families with children, elders, and those who enjoy refined cultural experiences and shopping.</span>
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-blue-600 mb-1" itemprop="name">📍 ICONSIAM</h3>
+                        <p class="text-sm font-bold text-cyan-600 mb-3 uppercase tracking-wide">Cultural Riverside Experience</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            A landmark shopping mall located on the banks of the Chao Phraya River. ICONSIAM sets up a milder water play area in the riverside park and places great emphasis on traditional culture, hosting grand "Songkran Goddess Parades" and solemn Buddha bathing ceremonies.
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-auto">
+                            <span class="text-sm text-blue-700 leading-relaxed block"><strong class="text-blue-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Families with children, elders, and those who enjoy refined cultural experiences and luxury shopping.</span>
                         </div>
-                    </div>
+                    </article>
 
-                    <!-- Location Card 5 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-blue-600 mb-1">📍 RCA (Royal City Avenue)</h3>
-                        <p class="text-xs font-bold text-cyan-600 mb-3">EDM and Nightclub Revelry</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> Bangkok's most famous nightclub district. After the daytime water fights, the battle line extends to RCA at night. Major nightclubs here hold massive "Songkran-themed parties," inviting top international DJs, combining powerful water jets, foam, and dazzling laser effects. Many world-class water music festivals (like S2O) are also held here.</p>
-                        <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 mt-auto">
-                            <span class="text-xs text-blue-700 leading-relaxed"><strong class="text-blue-800"><i class="fa-solid fa-users"></i> Best For:</strong> Travelers who love EDM, nightclub culture, and hardcore parties.</span>
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-blue-600 mb-1" itemprop="name">📍 RCA (Royal City Avenue)</h3>
+                        <p class="text-sm font-bold text-cyan-600 mb-3 uppercase tracking-wide">EDM and Nightclub Revelry</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            Bangkok's most famous nightclub district. After the daytime water fights, the battle line extends to RCA at night. Major nightclubs hold massive "Songkran-themed parties," inviting top international DJs, combining powerful water jets, foam, and dazzling laser effects.
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-auto">
+                            <span class="text-sm text-blue-700 leading-relaxed block"><strong class="text-blue-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Travelers who love EDM, world-class music festivals (like S2O), nightclub culture, and hardcore parties.</span>
                         </div>
-                    </div>
+                    </article>
 
-                    <!-- Location Card 6 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-blue-600 mb-1">📍 Sanam Luang & Old City Temples</h3>
-                        <p class="text-xs font-bold text-cyan-600 mb-3">Static Blessing and Cultural Exploration</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> If you don't want to get soaking wet, you can head to Sanam Luang near the Grand Palace or major Buddhist temples (such as Wat Pho, Wat Arun). This is the perfect place to experience traditional Thai Songkran. Instead of wild water fights, you'll find peaceful Buddha bathing blessings, water-pouring rituals for elders, sand pagoda building, and free traditional arts performances.</p>
-                        <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 mt-auto">
-                            <span class="text-xs text-blue-700 leading-relaxed"><strong class="text-blue-800"><i class="fa-solid fa-users"></i> Best For:</strong> Travelers who want to avoid intense water fights and deeply explore Thai religion and traditional culture.</span>
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-blue-600 mb-1" itemprop="name">📍 Sanam Luang & Old Temples</h3>
+                        <p class="text-sm font-bold text-cyan-600 mb-3 uppercase tracking-wide">Blessing and Cultural Exploration</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            If you don't want to get soaking wet, you can head to Sanam Luang near the Grand Palace or major Buddhist temples. This is the perfect place to experience traditional Thai Songkran. Instead of wild water fights, you'll find peaceful Buddha bathing blessings and sand pagoda building.
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-auto">
+                            <span class="text-sm text-blue-700 leading-relaxed block"><strong class="text-blue-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Travelers who want to avoid intense water fights and deeply explore Thai religion and traditional culture.</span>
                         </div>
-                    </div>
+                    </article>
                 </div>
             </section>
         </div>
 
 
         <!-- ================= NYE Section ================= -->
-        <div id="section-nye" class="hidden space-y-8">
+        <div id="section-nye" role="tabpanel" aria-labelledby="tab-nye" class="hidden space-y-10" aria-live="polite">
             <!-- Introduction and Highlights -->
             <section>
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="bg-indigo-100 text-indigo-600 p-2 rounded-lg"><i class="fa-solid fa-map-location-dot"></i></span>
-                    <h2 class="text-xl font-extrabold text-slate-800">Top 6 NYE Hotspots in Bangkok</h2>
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-indigo-100 text-indigo-600 p-2.5 rounded-xl"><i class="fa-solid fa-map-location-dot text-lg"></i></span>
+                    <h2 class="text-2xl font-extrabold text-slate-800">Top 6 NYE Hotspots in Bangkok</h2>
                 </div>
-                <p class="text-sm text-slate-600 mb-5 leading-relaxed">Bangkok is one of the most vibrant New Year's Eve cities in Asia! From massive fireworks with tens of thousands of people, romantic riverside countdowns, to ultra-luxurious rooftop bars, everyone can find their perfect NYE night here. Here are the top 6 main NYE areas in Bangkok and their features:</p>
+                <p class="text-base text-slate-600 mb-6 leading-relaxed max-w-4xl">Bangkok is one of the most vibrant New Year's Eve cities in Asia! From massive fireworks with tens of thousands of people, romantic riverside countdowns, to ultra-luxurious rooftop bars, everyone can find their perfect NYE night here. Here are the top 6 main NYE areas in Bangkok and their features:</p>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Location Card 1 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-indigo-600 mb-1">📍 CentralWorld</h3>
-                        <p class="text-xs font-bold text-purple-600 mb-3">Asian Times Square's Massive Carnival</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> Bangkok's most representative and historic NYE landmark, known as the "Times Square of Asia." On NYE, the surrounding streets are completely closed off for an ultra-large outdoor concert featuring top Thai stars and international artists. The highlight is the giant fireworks show during the countdown, creating an incredibly infectious atmosphere.</p>
-                        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 mt-auto">
-                            <span class="text-xs text-indigo-700 leading-relaxed"><strong class="text-indigo-800"><i class="fa-solid fa-users"></i> Best For:</strong> Travelers who like lively crowds, want to feel the shocking atmosphere of a massive countdown, and love pop music.</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+                    
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-indigo-600 mb-1" itemprop="name">📍 CentralWorld</h3>
+                        <p class="text-sm font-bold text-purple-600 mb-3 uppercase tracking-wide">Asian Times Square Carnival</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            Bangkok's most representative NYE landmark. On NYE, the surrounding streets are completely closed off for an ultra-large outdoor concert featuring top Thai stars and international artists. The highlight is the giant fireworks show during the countdown.
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mt-auto">
+                            <span class="text-sm text-indigo-700 leading-relaxed block"><strong class="text-indigo-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Travelers who like lively crowds, want to feel the shocking atmosphere of a massive countdown, and love pop music.</span>
                         </div>
-                    </div>
+                    </article>
 
-                    <!-- Location Card 2 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-indigo-600 mb-1">📍 ICONSIAM</h3>
-                        <p class="text-xs font-bold text-purple-600 mb-3">World-Class Most Beautiful Fireworks by the River</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> The most highly anticipated NYE main stage in Bangkok in recent years. Eco-friendly fireworks spanning several kilometers are set off along the Chao Phraya River, combined with drone performances and a spectacular water fountain show. The overall quality and scale of the fireworks are truly world-class.</p>
-                        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 mt-auto">
-                            <span class="text-xs text-indigo-700 leading-relaxed"><strong class="text-indigo-800"><i class="fa-solid fa-users"></i> Best For:</strong> Travelers seeking top-tier visual feasts, romantic riverside vibes, and photography enthusiasts.</span>
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-indigo-600 mb-1" itemprop="name">📍 ICONSIAM</h3>
+                        <p class="text-sm font-bold text-purple-600 mb-3 uppercase tracking-wide">World-Class Riverside Fireworks</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            The most highly anticipated NYE main stage in Bangkok. Eco-friendly fireworks spanning several kilometers are set off along the Chao Phraya River, combined with drone performances and a spectacular water fountain show. Truly a world-class display.
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mt-auto">
+                            <span class="text-sm text-indigo-700 leading-relaxed block"><strong class="text-indigo-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Travelers seeking top-tier visual feasts, romantic riverside vibes, and photography enthusiasts.</span>
                         </div>
-                    </div>
+                    </article>
 
-                    <!-- Location Card 3 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-indigo-600 mb-1">📍 Asiatique The Riverfront</h3>
-                        <p class="text-xs font-bold text-purple-600 mb-3">Romantic Theme Park for Families</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> Perfectly combines a night market, amusement rides, and NYE events. The iconic giant Ferris wheel is a perfect backdrop for the countdown. Compared to the extreme crowding of CentralWorld, the space here is more open, with numerous riverside restaurants where you can sit and eat seafood while waiting for the countdown.</p>
-                        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 mt-auto">
-                            <span class="text-xs text-indigo-700 leading-relaxed"><strong class="text-indigo-800"><i class="fa-solid fa-users"></i> Best For:</strong> Families with children, couples, or travelers who want to simultaneously visit a night market, eat delicious food, and watch fireworks.</span>
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-indigo-600 mb-1" itemprop="name">📍 Asiatique The Riverfront</h3>
+                        <p class="text-sm font-bold text-purple-600 mb-3 uppercase tracking-wide">Romantic Theme Park NYE</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            Perfectly combines a night market, amusement rides, and NYE events. The iconic giant Ferris wheel is a perfect backdrop for the countdown. The space here is more open, with numerous riverside restaurants where you can dine while waiting.
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mt-auto">
+                            <span class="text-sm text-indigo-700 leading-relaxed block"><strong class="text-indigo-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Families with children, couples, or travelers who want to simultaneously visit a night market and watch fireworks.</span>
                         </div>
-                    </div>
+                    </article>
 
-                    <!-- Location Card 4 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-indigo-600 mb-1">📍 Chao Phraya River Cruises</h3>
-                        <p class="text-xs font-bold text-purple-600 mb-3">Moving VIP Observation Deck</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> Taking a luxury cruise (like Chao Phraya Princess, Wonderful Pearl, etc.) for a night tour of the river is a highly popular choice. The itinerary usually includes a rich buffet dinner and live band performances. When midnight arrives, the cruise stops at the best viewing point, allowing you to enjoy a 360-degree unobstructed view of the fireworks.</p>
-                        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 mt-auto">
-                            <span class="text-xs text-indigo-700 leading-relaxed"><strong class="text-indigo-800"><i class="fa-solid fa-users"></i> Best For:</strong> Travelers who prefer romance and relaxation, want to avoid crowded lines, and wish to celebrate NYE elegantly in a comfortable environment.</span>
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-indigo-600 mb-1" itemprop="name">📍 Chao Phraya River Cruises</h3>
+                        <p class="text-sm font-bold text-purple-600 mb-3 uppercase tracking-wide">Moving VIP Observation Deck</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            Taking a luxury cruise for a night tour is a highly popular choice. The itinerary includes a rich buffet dinner and live band performances. When midnight arrives, the cruise stops at the best viewing point for a 360-degree view of the fireworks.
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mt-auto">
+                            <span class="text-sm text-indigo-700 leading-relaxed block"><strong class="text-indigo-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Travelers who prefer romance, want to avoid crowded lines, and wish to celebrate elegantly.</span>
                         </div>
-                    </div>
+                    </article>
 
-                    <!-- Location Card 5 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-indigo-600 mb-1">📍 Rooftop Bars</h3>
-                        <p class="text-xs font-bold text-purple-600 mb-3">Ultimate Luxurious God's-Eye View</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> Bangkok is famous for its stunning rooftop bars (such as Mahanakhon, Sirocco, Vertigo, etc.). On NYE, these bars host exclusive high-altitude parties. You can avoid the crowds on the ground, hold a glass of champagne, and overlook the sea of fireworks blooming across Bangkok from high above, experiencing the ultimate luxury.</p>
-                        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 mt-auto">
-                            <span class="text-xs text-indigo-700 leading-relaxed"><strong class="text-indigo-800"><i class="fa-solid fa-users"></i> Best For:</strong> Couples or groups of friends with a sufficient budget, seeking high quality and privacy, and wanting to capture panoramic fireworks.</span>
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-indigo-600 mb-1" itemprop="name">📍 Rooftop Bars</h3>
+                        <p class="text-sm font-bold text-purple-600 mb-3 uppercase tracking-wide">Ultimate Luxurious God's-Eye View</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            Bangkok is famous for its stunning rooftop bars (such as Mahanakhon, Sirocco, Vertigo). On NYE, they host exclusive high-altitude parties. Avoid the crowds on the ground, hold champagne, and overlook the sea of fireworks blooming across the city.
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mt-auto">
+                            <span class="text-sm text-indigo-700 leading-relaxed block"><strong class="text-indigo-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Couples or groups of friends with a sufficient budget, seeking high quality and privacy.</span>
                         </div>
-                    </div>
+                    </article>
 
-                    <!-- Location Card 6 -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <h3 class="font-bold text-lg text-indigo-600 mb-1">📍 Khao San Road</h3>
-                        <p class="text-xs font-bold text-purple-600 mb-3">Limitless Street Party for Backpackers</p>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-4 flex-1"><strong class="text-slate-700">Highlights:</strong> Khao San Road on NYE is a true party paradise. The bars along the entire street turn up the volume, and backpackers from all over the world dance and count down in the streets with beers in hand. There is no official fancy fireworks show here, but it has the most spontaneous, passionate, and crazy street carnival atmosphere that lasts until dawn.</p>
-                        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 mt-auto">
-                            <span class="text-xs text-indigo-700 leading-relaxed"><strong class="text-indigo-800"><i class="fa-solid fa-users"></i> Best For:</strong> Young people on a budget with boundless energy who love making friends and pure Western party vibes.</span>
+                    <article itemscope itemtype="https://schema.org/TouristAttraction" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all flex flex-col transform hover:-translate-y-1">
+                        <h3 class="font-bold text-xl text-indigo-600 mb-1" itemprop="name">📍 Khao San Road</h3>
+                        <p class="text-sm font-bold text-purple-600 mb-3 uppercase tracking-wide">Limitless Street Party</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-5 flex-1" itemprop="description">
+                            <strong class="text-slate-800 block mb-1">Highlights:</strong> 
+                            Khao San Road on NYE is a true party paradise. The bars along the street turn up the volume, and backpackers from all over the world dance and count down in the streets. There is no official fancy fireworks show, but it has the craziest street carnival atmosphere.
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mt-auto">
+                            <span class="text-sm text-indigo-700 leading-relaxed block"><strong class="text-indigo-900"><i class="fa-solid fa-users mr-1"></i> Best For:</strong> Young people on a budget with boundless energy who love pure Western party vibes.</span>
                         </div>
-                    </div>
+                    </article>
                 </div>
             </section>
         </div>
+    </main>
 
-
-    <!-- Footer -->
-    <footer class="mt-16 text-center text-slate-400 text-xs pb-6">
-        <p>© 2026 Global Festival Guide. All rights reserved.</p>
-        <p class="mt-1">This website contains affiliate links. If you book successfully, we will earn a small commission to maintain the website's operation.</p>
+    <!-- Footer (嚴謹版權宣告) -->
+    <footer class="mt-16 w-full max-w-7xl mx-auto px-4 pb-10 text-center text-slate-400 text-xs sm:text-sm leading-loose border-t border-slate-200 pt-8" role="contentinfo">
+        <p class="font-semibold text-slate-500">Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+        <p class="mt-1">版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+        <p>本站包含之圖片、文字內容及程式碼均受法律保護。</p>
     </footer>
 
     <!-- JavaScript -->
@@ -314,8 +445,10 @@
 
             if (theme === 'songkran') {
                 // UI Switch
-                btnSongkran.className = "tab-btn tab-active-water flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2";
-                btnNye.className = "tab-btn tab-inactive flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border";
+                btnSongkran.className = "tab-btn tab-active-water flex-1 py-3.5 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 focus:outline-none";
+                btnSongkran.setAttribute('aria-selected', 'true');
+                btnNye.className = "tab-btn tab-inactive flex-1 py-3.5 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 border focus:outline-none";
+                btnNye.setAttribute('aria-selected', 'false');
                 
                 // Content Switch
                 secSongkran.classList.remove('hidden');
@@ -326,15 +459,17 @@
                 secSongkran.classList.add('fade-in');
 
                 // Update Header Style (Water Blue)
-                header.className = "bg-gradient-to-r from-cyan-500 to-blue-600 transition-colors duration-500 shadow-lg text-white pt-10 pb-16 px-6 relative rounded-b-[2.5rem]";
+                header.className = "bg-gradient-to-r from-cyan-500 to-blue-600 transition-colors duration-500 shadow-lg text-white pt-10 pb-16 px-6 relative md:rounded-b-[3.5rem] rounded-b-[2.5rem]";
                 headerTitle.innerText = "Ultimate Thailand Songkran Guide";
                 headerSubtitle.innerHTML = '<i class="fa-solid fa-droplet"></i> Cool Summer, Endless Carnival';
-                headerSubtitle.className = "text-cyan-100 text-sm font-semibold tracking-wider mb-1";
+                headerSubtitle.className = "text-cyan-100 text-sm md:text-base font-semibold tracking-wider mb-1";
                 
             } else {
                 // UI Switch
-                btnNye.className = "tab-btn tab-active-night flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2";
-                btnSongkran.className = "tab-btn tab-inactive flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border";
+                btnNye.className = "tab-btn tab-active-night flex-1 py-3.5 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 focus:outline-none";
+                btnNye.setAttribute('aria-selected', 'true');
+                btnSongkran.className = "tab-btn tab-inactive flex-1 py-3.5 rounded-xl font-bold text-sm md:text-base flex items-center justify-center gap-2 border focus:outline-none";
+                btnSongkran.setAttribute('aria-selected', 'false');
                 
                 // Content Switch
                 secNye.classList.remove('hidden');
@@ -345,12 +480,61 @@
                 secNye.classList.add('fade-in');
 
                 // Update Header Style (Purple/Gold Night Sky)
-                header.className = "bg-gradient-to-r from-indigo-800 via-purple-700 to-indigo-900 transition-colors duration-500 shadow-lg text-white pt-10 pb-16 px-6 relative rounded-b-[2.5rem]";
+                header.className = "bg-gradient-to-r from-indigo-800 via-purple-700 to-indigo-900 transition-colors duration-500 shadow-lg text-white pt-10 pb-16 px-6 relative md:rounded-b-[3.5rem] rounded-b-[2.5rem]";
                 headerTitle.innerText = "Global NYE Fireworks Guide";
                 headerSubtitle.innerHTML = '<i class="fa-solid fa-star"></i> Brilliant Night Sky, Welcoming the New Year';
-                headerSubtitle.className = "text-amber-300 text-sm font-semibold tracking-wider mb-1";
+                headerSubtitle.className = "text-amber-300 text-sm md:text-base font-semibold tracking-wider mb-1";
             }
         }
+
+        // 終極 SEO 複合 JSON-LD 注入
+        document.addEventListener('DOMContentLoaded', () => {
+            const schemaData = [
+                {
+                    "@context": "https://schema.org",
+                    "@type": "Event",
+                    "name": "Bangkok Songkran Water Festival 2026",
+                    "startDate": "2026-04-13",
+                    "endDate": "2026-04-15",
+                    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+                    "eventStatus": "https://schema.org/EventScheduled",
+                    "location": {
+                        "@type": "City",
+                        "name": "Bangkok",
+                        "address": { "@type": "PostalAddress", "addressLocality": "Bangkok", "addressCountry": "TH" }
+                    },
+                    "description": "The ultimate Thailand Songkran water festival experience across Silom, Khao San Road, and CentralWorld."
+                },
+                {
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    "mainEntity": [
+                        {
+                            "@type": "Question",
+                            "name": "When is the Songkran Water Festival in Bangkok?",
+                            "acceptedAnswer": { "@type": "Answer", "text": "Songkran is celebrated annually from April 13 to April 15. The entire city of Bangkok turns into a massive water fight celebration." }
+                        },
+                        {
+                            "@type": "Question",
+                            "name": "Where is the best place to celebrate Songkran in Bangkok?",
+                            "acceptedAnswer": { "@type": "Answer", "text": "The top hotspots are Silom Road for massive crowds, Khao San Road for wild street parties, and CentralWorld for safe, trendy music festivals." }
+                        },
+                        {
+                            "@type": "Question",
+                            "name": "Where can I watch the best New Year's Eve fireworks in Bangkok?",
+                            "acceptedAnswer": { "@type": "Answer", "text": "ICONSIAM offers a spectacular world-class fireworks show along the Chao Phraya River. CentralWorld is known as the 'Times Square of Asia' with a massive countdown concert and fireworks." }
+                        }
+                    ]
+                }
+            ];
+            
+            schemaData.forEach(schema => {
+                const script = document.createElement('script');
+                script.type = 'application/ld+json';
+                script.text = JSON.stringify(schema);
+                document.head.appendChild(script);
+            });
+        });
     </script>
 </body>
 </html>
