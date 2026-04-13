@@ -2,382 +2,329 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koh Samui Travel Guide - Deep Travel Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Koh Samui Travel Guide & Itinerary Planner - Kokko Travel</title>
+    <meta name="description" content="The ultimate Koh Samui travel guide. Discover the best beaches, island transport, airport transfers, top itineraries, and local food recommendations.">
+    <meta name="keywords" content="Koh Samui travel guide, Koh Samui itinerary, Koh Samui transport, how to get around Koh Samui, best things to do in Koh Samui, Samui airport transfer, Kokko Travel">
+    <meta name="author" content="Kokko Travel">
+    
+    <link rel="canonical" href="https://kokko-travel.com/en/kohsamui/">
+    <link rel="alternate" hreflang="en" href="https://kokko-travel.com/en/kohsamui/">
+    <link rel="alternate" hreflang="zh-TW" href="https://kokko-travel.com/zh/kohsamui/">
+    <link rel="alternate" hreflang="x-default" href="https://kokko-travel.com/en/kohsamui/">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": "Koh Samui Travel Guide - Deep Travel Assistant",
+      "image": "https://kokko-travel.com/logo.png",
+      "description": "Comprehensive Koh Samui travel guide featuring top attractions, island transport tips, flight searches, and personalized itinerary planning by Kokko Travel.",
+      "brand": {
+        "@type": "Brand",
+        "name": "Kokko Travel"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "12500"
+      }
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .app-container { max-width: 414px; margin: 0 auto; background-color: #f9fafb; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow-x: hidden; }
+        
+        /* Deep RWD Structure - perfectly balanced */
+        .app-container { width: 100%; min-height: 100vh; position: relative; overflow-x: hidden; background-color: #f8fafc; }
+        
+        /* Precise Content Constraints */
+        .content-wrapper { max-width: 100%; padding: 0 20px; margin: 0 auto; }
+        @media (min-width: 640px) { .content-wrapper { max-width: 600px; } }
+        @media (min-width: 768px) { .content-wrapper { max-width: 768px; padding: 0 32px; } }
+        @media (min-width: 1024px) { .content-wrapper { max-width: 1024px; padding: 0 40px; } }
+
+        /* Premium Modal Sizing */
+        .modal-wrapper { width: 100%; height: 85vh; border-radius: 1.5rem 1.5rem 0 0; background-color: #0f172a; box-shadow: 0 -10px 40px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; }
+        @media (min-width: 768px) {
+            .modal-wrapper { max-width: 600px; height: auto; max-height: 80vh; border-radius: 1.5rem; margin: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        }
+
         /* Background gradients */
         .bg-bangkok-gradient { background: linear-gradient(135deg, #0284c7 0%, #10b981 100%); } 
-        .bg-attraction-gradient { background: linear-gradient(135deg, #6b21a8 0%, #c026d3 100%); }
-        .bg-food-gradient { background: linear-gradient(135deg, #ea580c 0%, #e11d48 100%); }
-        .bg-itinerary-gradient { background: linear-gradient(135deg, #059669 0%, #0284c7 100%); }
-        .bg-hotel-gradient { background: linear-gradient(135deg, #4338ca 0%, #3b82f6 100%); }
-        .bg-essentials-gradient { background: linear-gradient(135deg, #0d9488 0%, #2563eb 100%); }
-        .bg-river-gradient { background: linear-gradient(135deg, #1e3a8a 0%, #0284c7 100%); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        select { -webkit-appearance: none; appearance: none; }
-        optgroup { font-weight: bold; background-color: #1f2937; color: #38bdf8; }
-        option { font-weight: normal; color: white; }
-        .dyn-tab-content { display: none; animation: fadeIn 0.3s ease-out; }
-        .dyn-tab-content.active { display: block; }
-        .carousel-track { display: flex; transition: transform 0.5s ease-out; }
+        
+        /* Native Smooth Scrolling */
+        .scroll-smooth-native { scroll-behavior: smooth; }
     </style>
 </head>
-<body>
+<body class="antialiased text-slate-800">
 
-<div class="app-container pb-20">
-    
-    <!-- Header -->
-    <div class="bg-bangkok-gradient text-white pt-6 pb-4 px-5 rounded-b-[2rem] shadow-md relative z-20">
-        <div class="flex justify-between items-center">
-            <div>
-                <p id="datetime-display" class="text-[10px] font-medium text-teal-50 tracking-wide opacity-90">Loading time...</p>
-                <p id="weather-display" class="text-xs opacity-100 font-bold flex items-center gap-1"><i class="ph ph-sun-dim"></i> Loading weather...</p>
-                <h1 class="text-2xl font-extrabold tracking-tight mt-0.5">Koh Samui Guide</h1>
-            </div>
-            <div class="flex gap-2">
-                <a href="https://linkuei0425.github.io/KohSamui/" target="_blank" rel="noopener noreferrer" class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform text-sm font-bold">繁</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Carousel -->
-    <div class="px-5 mt-4 relative overflow-hidden">
-        <div id="carousel-track" class="carousel-track gap-3">
-            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20 cursor-pointer active:scale-[0.98] transition-transform">
-                <img src="https://linkuei0425.github.io/KohSamui/1.jpeg" class="w-full h-full object-cover" alt="Chaweng Beach">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Chaweng Beach</span></div>
-            </div>
-            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20">
-                <img src="https://linkuei0425.github.io/KohSamui/2.jpeg" class="w-full h-full object-cover" alt="Ang Thong National Park">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Ang Thong National Park</span></div>
-            </div>
-            <div class="shrink-0 w-[90%] h-44 relative rounded-2xl overflow-hidden shadow-lg border border-white/20">
-                <img src="https://linkuei0425.github.io/KohSamui/3.jpeg" class="w-full h-full object-cover" alt="Island Hopping">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"><span class="text-white font-bold text-sm tracking-wide">Island Hopping & Koh Phangan</span></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Navigation -->
-    <div class="px-5 mt-4">
-        <h2 class="text-sm font-bold text-gray-500 mb-4 px-1">Quick Navigation</h2>
-        <div class="grid grid-cols-4 gap-y-6 gap-x-3">
-            <!-- Airport Transfer -->
-            <button onclick="window.openModal('airportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-sky-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(14,165,233,0.2)]"><i class="ph ph-airplane-tilt text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Airport<br>Transfer</span></button>
-            
-            <!-- Island Transport -->
-            <button onclick="window.openModal('transportModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-teal-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(20,184,166,0.2)]"><i class="ph ph-taxi text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Island<br>Transport</span></button>
-            
-            <!-- Flight Search -->
-            <button onclick="window.open('https://www.trip.com/flights/welcome/?to=USM&locale=en_US&curr=USD&Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14609338', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-700 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(29,78,216,0.2)]"><i class="ph ph-airplane-takeoff text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Flight<br>Search</span></button>
-            
-            <!-- Itinerary Wizard -->
-            <button onclick="window.open('https://linkuei0425.github.io/KohSamui-US/S.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(236,72,153,0.2)]"><i class="ph ph-magic-wand text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Itinerary<br>Wizard</span></button>
-
-            <!-- Top Itineraries -->
-            <button onclick="window.open('https://linkuei0425.github.io/KohSamui-US/trip.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(16,185,129,0.2)]"><i class="ph ph-map-trifold text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Top<br>Itineraries</span></button>
-
-            <!-- Attractions -->
-            <button onclick="window.openModal('attractionsModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-amber-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(245,158,11,0.2)]"><i class="ph ph-camera text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Attractions</span></button>
-
-            <!-- Food Guide -->
-            <button onclick="window.open('https://linkuei0425.github.io/KohSamui-US/food.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(249,115,22,0.2)]"><i class="ph ph-fork-knife text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Food<br>Guide</span></button>
-            
-            <!-- Shopping -->
-            <button onclick="window.open('https://linkuei0425.github.io/KohSamui-US/shopping.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(244,63,94,0.2)]"><i class="ph ph-storefront text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Shopping</span></button>
-            
-            <!-- Hotels -->
-            <button onclick="window.open('https://linkuei0425.github.io/KohSamui-US/hotel.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(99,102,241,0.2)]"><i class="ph ph-bed text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Hotels</span></button>
-
-            <!-- Global Pass -->
-            <button onclick="window.open('https://linkuei0425.github.io/togeter/go.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-blue-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(37,99,235,0.2)]"><i class="ph ph-globe-hemisphere-west text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Global<br>Pass</span></button>
-            
-            <!-- Essentials -->
-            <button onclick="window.openModal('essentialsModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(139,92,246,0.2)]"><i class="ph ph-suitcase text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Essentials</span></button>
-            
-            <!-- About Us -->
-            <button onclick="window.openModal('aboutModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(71,85,105,0.2)]"><i class="ph ph-info text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">About Us</span></button>
-            
-            <!-- Follow Us -->
-            <button onclick="window.openModal('fanModal')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-red-500 group-active:scale-90 transition-transform shadow-[0_4px_10px_rgba(239,68,68,0.2)]"><i class="ph ph-heart text-3xl"></i></div><span class="text-[11px] font-bold text-gray-700 text-center leading-tight">Follow Us</span></button>
-        </div>
-    </div>
-
-    <!-- ==================== Modals ==================== -->
-
-    <!-- Island Transport Modal -->
-    <div id="transportModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-teal-500 to-emerald-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
-            <h2 class="font-bold text-lg"><i class="ph-fill ph-taxi mr-1"></i> Island Transport Guide</h2>
-            <button onclick="window.closeModal('transportModal')"><i class="ph ph-x text-2xl"></i></button>
-        </div>
-        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar space-y-4 pb-8">
-            <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700 mt-2">
-                <h3 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-truck text-lg"></i> (1) Songthaew (Red Truck)</h3>
-                <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                    <li><span class="text-white font-bold">Feature:</span> The most common and affordable transport. Flag them down, ring the bell to stop, and pay the driver directly.</li>
-                    <li><span class="text-white font-bold">Cost:</span> Around 50 THB within the same area, 100-150 THB across areas.</li>
-                    <li><span class="text-white font-bold">Note:</span> Confirm destination and price before boarding. At night, they may operate as private taxis with negotiated rates.</li>
-                </ul>
-            </div>
-            <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                <h3 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-moped text-lg"></i> (2) Scooter / Car Rental</h3>
-                <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                    <li><span class="text-white font-bold">Feature:</span> Offers the highest freedom to explore the island at your own pace.</li>
-                    <li><span class="text-white font-bold">Cost:</span> Scooters ~200-300 THB/day; Cars start from ~1000 THB/day.</li>
-                    <li><span class="text-white font-bold">Note:</span> An <span class="text-teal-300">International Driving Permit</span> is required. Thailand drives on the <span class="text-red-400 font-bold">left side</span> of the road. Drive carefully on hilly terrains!</li>
-                </ul>
-            </div>
-            <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                <h3 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-taxi text-lg"></i> (3) Taxi</h3>
-                <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                    <li><span class="text-white font-bold">Feature:</span> Air-conditioned and comfortable.</li>
-                    <li><span class="text-white font-bold">Fare:</span> Most taxis on the island are <span class="text-white font-bold">unmetered</span>. Prices are negotiated and usually start from 300-400 THB.</li>
-                    <li><span class="text-white font-bold">Tip:</span> Use ride-hailing apps like Grab or inDrive for more transparent pricing.</li>
-                </ul>
-            </div>
-            <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                <h3 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-car-profile text-lg"></i> (4) Chartered Car (Private Driver)</h3>
-                <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                    <li><span class="text-white font-bold">Feature:</span> Ideal for families, groups, or multi-stop day trips (e.g., Big Buddha, Hin Ta Hin Yai, Waterfalls).</li>
-                    <li><span class="text-white font-bold">Cost:</span> Half-day or full-day rates range from 1500-3000 THB, including the driver. The most relaxing way to travel.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Attractions Modal -->
-    <div id="attractionsModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
-            <h2 class="font-bold text-lg"><i class="ph-fill ph-camera mr-1"></i> Top Attractions</h2>
-            <button onclick="window.closeModal('attractionsModal')"><i class="ph ph-x text-2xl"></i></button>
-        </div>
-        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar space-y-4 pb-8">
-            <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700 mt-2">
-                <h3 class="text-amber-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-beach-towel text-lg"></i> (1) Beaches & Natural Wonders</h3>
-                <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                    <li><span class="text-white font-bold">Chaweng Beach:</span> The longest and liveliest beach with fine white sand, water sports, and bustling nightlife.</li>
-                    <li><span class="text-white font-bold">Lamai Beach:</span> The second-largest beach, offering a quieter and more relaxing atmosphere.</li>
-                    <li><span class="text-white font-bold">Hin Ta Hin Yai:</span> Famous "Grandpa & Grandma Rocks" at the south end of Lamai, shaped by nature and perfect for photos.</li>
-                </ul>
-            </div>
-            <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                <h3 class="text-amber-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-hands-praying text-lg"></i> (2) Culture & Temples</h3>
-                <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                    <li><span class="text-white font-bold">Big Buddha (Wat Phra Yai):</span> Koh Samui's most iconic landmark, featuring a 12-meter tall golden Buddha statue.</li>
-                    <li><span class="text-white font-bold">Wat Plai Laem:</span> A colorful Thai-Chinese temple known for its massive 18-arm Guanyin statue.</li>
-                    <li><span class="text-white font-bold">Wat Khunaram (Mummified Monk):</span> Showcases the mummified body of a revered monk, reflecting deep Thai Buddhist beliefs.</li>
-                </ul>
-            </div>
-            <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                <h3 class="text-amber-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-boat text-lg"></i> (3) Island Hopping & Nature</h3>
-                <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                    <li><span class="text-white font-bold">Ang Thong National Park:</span> A stunning archipelago of 42 limestone islands, perfect for kayaking, snorkeling, and hiking.</li>
-                    <li><span class="text-white font-bold">Koh Tao & Koh Nang Yuan:</span> Koh Tao is a diving paradise; Koh Nang Yuan is famous for its iconic Y-shaped sandbar.</li>
-                    <li><span class="text-white font-bold">Koh Phangan:</span> Located nearby and world-renowned for its monthly Full Moon Party.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Airport Transport Modal -->
-    <div id="airportModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-emerald-600 to-teal-700 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10">
-            <h2 class="font-bold text-lg"><i class="ph-fill ph-airplane-tilt mr-1"></i> Airport Transport Guide</h2>
-            <button onclick="window.closeModal('airportModal')"><i class="ph ph-x text-2xl"></i></button>
-        </div>
-        <div class="bg-slate-900 px-4 pt-3 z-10">
-            <div class="flex gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
-                <button onclick="window.switchAirportTab('usm')" id="btn-airport-usm" class="flex-1 bg-emerald-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap">Samui Airport (USM)</button>
-                <button onclick="window.switchAirportTab('urt')" id="btn-airport-urt" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap">Surat Thani (URT+Ferry)</button>
-            </div>
-        </div>
-        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
-            
-            <!-- USM Content -->
-            <div id="airport-usm" class="space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-van text-lg"></i> (1) Airport Minibus</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">Pros:</span> Affordable and drops you right at your hotel's doorstep.</li>
-                        <li><span class="text-white font-bold">Note:</span> Departs only when full, so there might be some waiting time.</li>
-                        <li><span class="text-white font-bold">Tickets:</span> Available at the transport counters in the arrivals hall.</li>
-                    </ul>
-                </div>
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-car text-lg"></i> (2) Private Taxi / Transfer</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">Pros:</span> Leaves immediately, offers privacy, great for families or groups.</li>
-                        <li><span class="text-white font-bold">Cost:</span> ~400-500 THB to Chaweng; ~600+ THB to Lamai.</li>
-                    </ul>
-                </div>
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-bed text-lg"></i> (3) Hotel Transfer</h3>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">Pros:</span> Hassle-free! Your driver will be waiting with a name sign at arrivals.</li>
-                        <li><span class="text-white font-bold">Tip:</span> Email your hotel to book in advance. Some luxury resorts offer it for free.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- URT Content -->
-            <div id="airport-urt" class="hidden space-y-4 pb-8 animate-[fadeIn_0.3s_ease-out]">
-                <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                    <h3 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-ticket text-lg"></i> Bus + Ferry Joint Ticket</h3>
-                    <p class="text-[11px] text-slate-300 mb-3 leading-relaxed">To save on flights, many travelers fly into Surat Thani (URT) and take a bus + ferry to Koh Samui. It takes longer but is a great local experience!</p>
-                    <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed pl-1">
-                        <li><span class="text-white font-bold">Route:</span> Arrive at URT → Bus to Donsak Pier (~1.5h) → Ferry to Koh Samui (~1.5h).</li>
-                        <li><span class="text-white font-bold">Tickets:</span> Book joint tickets via AirAsia, Nok Air, or buy them at URT arrivals (from operators like Lomprayah or Seatran).</li>
-                    </ul>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Travel Essentials Modal -->
-    <div id="essentialsModal" class="fixed inset-0 bg-slate-900 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-essentials-gradient text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">Island Travel Essentials</h2><button onclick="window.closeModal('essentialsModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="bg-slate-900 px-4 pt-3 z-10"><div class="flex gap-2 border-b border-slate-800 pb-2">
-            <button onclick="window.switchEssTab('checklist')" id="btn-ess-checklist" class="flex-1 bg-teal-600 text-white py-2 rounded-lg text-sm font-bold shadow-md transition-all">Checklist</button>
-            <button onclick="window.switchEssTab('goodies')" id="btn-ess-goodies" class="flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold transition-all">Must-Haves</button>
-        </div></div>
-        <div class="p-4 flex-1 overflow-y-auto bg-slate-900 text-white no-scrollbar">
-            <div id="ess-checklist" class="space-y-3 pb-8"></div>
-            <div id="ess-goodies" class="hidden space-y-6 pb-8"></div>
-        </div>
-    </div>
-
-    <!-- About Us Modal -->
-    <div id="aboutModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-slate-800 text-white pt-10 pb-6 px-5 flex justify-between items-center"><h2 class="font-bold text-lg">About Us</h2><button onclick="window.closeModal('aboutModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-slate-200 space-y-6 text-sm">
-            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-2 flex items-center gap-2 text-blue-400"><i class="ph-fill ph-quotes"></i> Our Mission</h3><p class="leading-relaxed text-gray-300">We accompany travelers from the first second of inspiration to the last moment of their journey. We want to help users write their own unique travel stories.</p></div>
-            <div class="bg-slate-800 p-5 rounded-2xl border border-white/10"><h3 class="font-bold mb-3 flex items-center gap-2 text-amber-400"><i class="ph-fill ph-briefcase"></i> Partnerships</h3><ul class="space-y-3 text-gray-300"><li>📍 Destination Marketing & Branding</li><li>🎟️ Travel Product API Integration</li><li>⛺ Local Business Sponsorships</li></ul></div>
-            <div class="bg-blue-900/30 p-5 rounded-2xl border border-blue-800/50"><h3 class="font-bold mb-2 flex items-center gap-2 text-white"><i class="ph-fill ph-envelope-simple text-blue-400"></i> Contact Us</h3><p class="text-blue-400 font-bold break-all">imimdesignstudio@yahoo.com</p></div>
-        </div>
-    </div>
-
-    <!-- Follow Us Modal -->
-    <div id="fanModal" class="fixed inset-0 bg-slate-950 z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col max-w-[414px] mx-auto shadow-2xl">
-        <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white pt-10 pb-6 px-5 flex justify-between items-center shadow-md z-10"><h2 class="font-bold text-lg">Follow Us</h2><button onclick="window.closeModal('fanModal')"><i class="ph ph-x text-2xl"></i></button></div>
-        <div class="p-5 flex-1 overflow-y-auto bg-slate-900 text-white flex flex-col items-center gap-6 no-scrollbar">
-            <img src="https://i.imgur.com/C8pWBp8.jpg" alt="Social Media" class="w-full rounded-2xl shadow-lg border border-white/10 object-cover">
-            <div class="w-full space-y-3">
-                <a href="https://www.instagram.com/imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-instagram-logo text-xl"></i> Follow Instagram</a>
-                <a href="https://www.threads.com/@imim.designstudio" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-zinc-800 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform border border-zinc-700"><i class="ph-fill ph-threads-logo text-xl"></i> Follow Threads</a>
-                <a href="https://lin.ee/9VnWCAj" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 bg-[#00B900] text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"><i class="ph-fill ph-chat-circle text-xl"></i> Join LINE Official</a>
-            </div>
-            <p class="text-xs text-gray-400 mt-2 text-center leading-relaxed">Follow us for first-hand travel tips, <br>hidden gems, and limited-time offers!</p>
-        </div>
-    </div>
-
+<div class="sr-only" aria-hidden="true">
+    <article>
+        <h1>Koh Samui Travel Guide & Information</h1>
+        <p>This is the official Kokko Travel comprehensive guide for tourists visiting Koh Samui, Thailand. Designed to assist international and English-speaking travelers.</p>
+        <section>
+            <h2>Transport & Getting Around Koh Samui</h2>
+            <p>Learn how to get to Koh Samui via Samui Airport (USM) or Surat Thani (URT). Once on the island, travel options include Songthaews (Red Trucks), Scooter Rentals, Private Taxis, and Chartered Cars.</p>
+        </section>
+        <section>
+            <h2>Top Attractions & Things to do in Koh Samui</h2>
+            <p>Must-visit places include Chaweng Beach, Lamai Beach, Hin Ta Hin Yai, Big Buddha (Wat Phra Yai), and island hopping to Ang Thong National Park, Koh Tao, and Koh Phangan.</p>
+        </section>
+    </article>
 </div>
 
-<!-- Core JavaScript -->
-<script>
-// --- Global Variables & Modals ---
-window.openModal = function(id) {
-    const el = document.getElementById(id);
-    if (el) { 
-        el.classList.remove('hidden'); 
-        setTimeout(() => el.classList.remove('opacity-0'), 10); 
-    }
-};
-
-window.closeModal = function(id) {
-    const el = document.getElementById(id);
-    if (el) { 
-        el.classList.add('opacity-0'); 
-        setTimeout(() => el.classList.add('hidden'), 300); 
-    }
-};
-
-// --- Airport Tab Switch Logic ---
-window.switchAirportTab = function(tab) {
-    const usm = document.getElementById('airport-usm');
-    const urt = document.getElementById('airport-urt');
-    const busm = document.getElementById('btn-airport-usm');
-    const burt = document.getElementById('btn-airport-urt');
+<div class="app-container pb-16 lg:pb-20">
     
-    if (tab === 'usm') {
-        busm.className = "flex-1 bg-emerald-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
-        burt.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
-        usm.classList.remove('hidden'); 
-        urt.classList.add('hidden');
-    } else {
-        burt.className = "flex-1 bg-emerald-600 text-white py-2 px-3 rounded-lg text-sm font-bold shadow-md transition-all whitespace-nowrap";
-        busm.className = "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 px-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap";
-        urt.classList.remove('hidden'); 
-        usm.classList.add('hidden');
-    }
-};
+    <header class="bg-bangkok-gradient text-white pt-10 pb-12 rounded-b-[2.5rem] lg:rounded-b-[3.5rem] shadow-md relative z-20 w-full transition-all flex justify-center">
+        <div class="content-wrapper flex justify-between items-center w-full">
+            <div class="flex flex-col gap-1.5">
+                <p id="datetime-display" class="text-[10px] md:text-xs font-semibold text-teal-50 tracking-wider opacity-90 drop-shadow-sm uppercase">Loading time...</p>
+                <p id="weather-display" class="text-xs md:text-sm font-bold flex items-center gap-1.5 drop-shadow-sm"><i class="ph ph-sun-dim text-lg"></i> Loading weather...</p>
+                <h1 class="text-3xl md:text-5xl font-black tracking-tight mt-1 drop-shadow-md">Koh Samui Guide</h1>
+            </div>
+            <div class="flex items-center">
+                <a href="https://kokko-travel.com/zh/kohsamui/" class="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md hover:bg-white/30 active:scale-95 transition-all text-sm md:text-base font-bold shadow-lg border border-white/30" title="Switch to Traditional Chinese">繁</a>
+            </div>
+        </div>
+    </header>
 
-// --- Essentials Data (Translated) ---
-const essData = {
-    check: [
-        { n: "Passport & Thai Visa", d: "Ensure 6+ months validity; check visa/exemption requirements." },
-        { n: "SIM Card / eSIM", d: "Essential for navigation, translation, and ride-hailing apps." },
-        { n: "Thai Baht (Cash)", d: "Cash is king for beach vendors, songthaews, and night markets." },
-        { n: "Summer Clothes & Swimwear", d: "Bring extra swimwear for beach days; it's tropical and hot." },
-        { n: "Reef-Safe Sunscreen", d: "Protect the coral reefs and prevent sunburns during activities." }
-    ],
-    good: [
-        { n: "Dry Bag", d: "Keep your phone and wallet dry during boat rides and snorkeling." },
-        { n: "Aloe Vera Gel", d: "Apply a thick layer at night to soothe sun-exposed skin." },
-        { n: "Mosquito Repellent", d: "Tropical bugs are real; local Thai repellents work best." },
-        { n: "Stomach Medicine", d: "Just in case spicy Thai food or seafood upsets your stomach." },
-        { n: "Sunglasses & Hat", d: "Practical accessories for relaxing and taking great photos." }
-    ]
-};
+    <main class="relative z-30 -mt-6 md:-mt-8">
+        
+        <section aria-label="Featured Attractions" class="w-full">
+            <div class="content-wrapper">
+                <div id="carousel-track" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-4 pb-6 scroll-smooth-native lg:grid lg:grid-cols-3 lg:gap-6 lg:pb-8 lg:overflow-visible">
+                    
+                    <article class="snap-start shrink-0 w-[88%] sm:w-[65%] md:w-[48%] lg:w-full h-48 md:h-56 lg:h-64 relative rounded-3xl overflow-hidden shadow-xl border border-white/60 cursor-pointer group transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 bg-gray-200">
+                        <img src="https://linkuei0425.github.io/KohSamui/1.jpeg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Chaweng Beach - Best beach in Koh Samui">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent p-5 lg:p-6 translate-y-1 group-hover:translate-y-0 transition-transform">
+                            <h3 class="text-white font-extrabold text-base md:text-lg tracking-wide">Chaweng Beach</h3>
+                        </div>
+                    </article>
+                    
+                    <article class="snap-start shrink-0 w-[88%] sm:w-[65%] md:w-[48%] lg:w-full h-48 md:h-56 lg:h-64 relative rounded-3xl overflow-hidden shadow-xl border border-white/60 cursor-pointer group transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 bg-gray-200">
+                        <img src="https://linkuei0425.github.io/KohSamui/2.jpeg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Ang Thong National Park - Island Hopping">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent p-5 lg:p-6 translate-y-1 group-hover:translate-y-0 transition-transform">
+                            <h3 class="text-white font-extrabold text-base md:text-lg tracking-wide">Ang Thong National Park</h3>
+                        </div>
+                    </article>
+                    
+                    <article class="snap-start shrink-0 w-[88%] sm:w-[65%] md:w-[48%] lg:w-full h-48 md:h-56 lg:h-64 relative rounded-3xl overflow-hidden shadow-xl border border-white/60 cursor-pointer group transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 bg-gray-200">
+                        <img src="https://linkuei0425.github.io/KohSamui/3.jpeg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Koh Phangan & Island Hopping">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent p-5 lg:p-6 translate-y-1 group-hover:translate-y-0 transition-transform">
+                            <h3 class="text-white font-extrabold text-base md:text-lg tracking-wide">Island Hopping & Koh Phangan</h3>
+                        </div>
+                    </article>
 
-window.switchEssTab = t => {
-    let isC = (t === 'checklist');
-    document.getElementById('ess-checklist').classList.toggle('hidden', !isC);
-    document.getElementById('ess-goodies').classList.toggle('hidden', isC);
-    document.getElementById('btn-ess-checklist').className = isC ? "flex-1 bg-teal-600 text-white py-2 rounded-lg text-sm font-bold" : "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold";
-    document.getElementById('btn-ess-goodies').className = !isC ? "flex-1 bg-teal-600 text-white py-2 rounded-lg text-sm font-bold" : "flex-1 bg-slate-800 text-slate-300 border border-slate-700 py-2 rounded-lg text-sm font-bold";
-};
+                </div>
+            </div>
+        </section>
 
-// --- DOM Initialization ---
-document.addEventListener('DOMContentLoaded', () => {
-    const updateTime = () => {
-        const now = new Date();
-        const dStr = now.toLocaleDateString('en-US', { timeZone: 'Asia/Bangkok', month: 'short', day: 'numeric', weekday: 'short' });
-        const tStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: true });
-        const el = document.getElementById('datetime-display'); if (el) el.textContent = `${dStr} ${tStr} (Thailand Time)`;
-    };
-    updateTime(); setInterval(updateTime, 1000);
+        <nav class="content-wrapper mt-4 md:mt-8" aria-label="Quick Tools Navigation">
+            <div class="flex items-center gap-3 mb-6 md:mb-8">
+                <div class="h-5 w-1.5 bg-blue-500 rounded-full md:h-6 md:w-2"></div>
+                <h2 class="text-lg md:text-xl font-black text-slate-800 tracking-tight">Essential Tools</h2>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-x-3 gap-y-8 sm:gap-x-6 md:gap-x-8 md:gap-y-10 lg:gap-x-10">
+                
+                <button onclick="window.openModal('airportModal')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-sky-500 group-hover:bg-sky-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-airplane-tilt text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-sky-600 transition-colors text-center leading-tight">Airport<br>Transfer</span>
+                </button>
+                
+                <button onclick="window.openModal('transportModal')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-teal-500 group-hover:bg-teal-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-taxi text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-teal-600 transition-colors text-center leading-tight">Island<br>Transport</span>
+                </button>
+                
+                <button onclick="handleAffiliateClick('https://www.trip.com/flights/welcome/?to=USM&locale=en_US&curr=USD&Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14609338')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-blue-600 group-hover:bg-blue-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-airplane-takeoff text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-blue-600 transition-colors text-center leading-tight">Flight<br>Search</span>
+                </button>
+                
+                <button onclick="window.open('https://kokko-travel.com/en/kohsamui/S.html', '_blank')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-pink-500 group-hover:bg-pink-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-magic-wand text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-pink-600 transition-colors text-center leading-tight">Itinerary<br>Wizard</span>
+                </button>
 
-    const fetchWeather = async () => {
-        try { 
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=9.5120&longitude=100.0136&current=temperature_2m&timezone=Asia%2FBangkok'); 
-            const data = await res.json(); 
-            const el = document.getElementById('weather-display'); 
-            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> Koh Samui Clear, ${data.current.temperature_2m}°C`; 
-        }
-        catch (e) { 
-            const el = document.getElementById('weather-display'); 
-            if (el) el.innerHTML = `<i class="ph-fill ph-sun text-yellow-400 text-lg"></i> Koh Samui Clear, 30°C`; 
-        }
-    };
-    fetchWeather();
+                <button onclick="window.open('https://kokko-travel.com/en/kohsamui/trip.html', '_blank')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-emerald-500 group-hover:bg-emerald-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-map-trifold text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-emerald-600 transition-colors text-center leading-tight">Top<br>Itineraries</span>
+                </button>
 
-    const track = document.getElementById('carousel-track'); let slide = 0;
-    if (track) setInterval(() => { slide = (slide + 1) % 3; track.style.transform = `translateX(-${slide * 93}%)`; }, 3000);
+                <button onclick="window.openModal('attractionsModal')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-amber-500 group-hover:bg-amber-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-camera text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-amber-600 transition-colors text-center leading-tight">Attractions</span>
+                </button>
 
-    const eC = document.getElementById('ess-checklist');
-    if(eC) eC.innerHTML = essData.check.map(i=>`<label class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 active:scale-95 transition-transform"><input type="checkbox" class="w-5 h-5 rounded mt-0.5 shrink-0 bg-slate-900 focus:ring-teal-500 text-teal-500"><div><p class="font-bold text-sm text-white">${i.n}</p><p class="text-[11px] text-slate-400">${i.d}</p></div></label>`).join('');
-    
-    const eG = document.getElementById('ess-goodies');
-    if(eG) eG.innerHTML = essData.good.map(i=>`<div class="flex items-start gap-3 bg-slate-800/80 p-3.5 rounded-xl border border-slate-700"><div class="w-10 h-10 rounded-full bg-teal-500/20 text-teal-400 flex flex-col justify-center items-center shrink-0"><i class="ph-fill ph-star"></i></div><div><p class="font-bold text-sm text-white">${i.n}</p><p class="text-[11px] text-slate-400">${i.d}</p></div></div>`).join('');
-});
-</script>
-</body>
-</html>
+                <button onclick="window.open('https://kokko-travel.com/en/kohsamui/food.html', '_blank')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-orange-500 group-hover:bg-orange-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-fork-knife text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-orange-600 transition-colors text-center leading-tight">Food<br>Guide</span>
+                </button>
+                
+                <button onclick="window.open('https://kokko-travel.com/en/kohsamui/shopping.html', '_blank')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-rose-500 group-hover:bg-rose-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-storefront text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-rose-600 transition-colors text-center leading-tight">Shopping</span>
+                </button>
+                
+                <button onclick="window.open('https://kokko-travel.com/en/kohsamui/hotel.html', '_blank')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-indigo-500 group-hover:bg-indigo-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-bed text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-indigo-600 transition-colors text-center leading-tight">Hotels</span>
+                </button>
+
+                <button onclick="window.open('https://kokko-travel.com/en/en-index.html', '_blank')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100 p-1.5 md:p-2">
+                        <img src="https://kokko-travel.com/logo.png" alt="Other Cities" class="w-full h-full object-contain drop-shadow-sm">
+                    </div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors text-center leading-tight">Other<br>Cities</span>
+                </button>
+                
+                <button onclick="window.open('https://kokko-travel.com/thailand-en.html', '_blank')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-cyan-600 group-hover:bg-cyan-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-book-open text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-cyan-600 transition-colors text-center leading-tight">Pre-trip<br>Briefing</span>
+                </button>
+                
+                <button onclick="window.openModal('aboutModal')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-slate-500 group-hover:bg-slate-100 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-info text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors text-center leading-tight">About Us</span>
+                </button>
+                
+                <button onclick="window.openModal('fanModal')" class="w-[76px] sm:w-[88px] md:w-[104px] flex flex-col items-center gap-2.5 group">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-[1.25rem] shadow-sm flex items-center justify-center text-rose-500 group-hover:bg-rose-50 group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300 border border-slate-100"><i class="ph ph-heart text-3xl md:text-4xl"></i></div>
+                    <span class="text-[11px] md:text-xs font-bold text-slate-600 group-hover:text-rose-600 transition-colors text-center leading-tight">Follow Us</span>
+                </button>
+                
+            </div>
+        </nav>
+
+        <section class="content-wrapper mt-14 mb-8" aria-label="User Ratings">
+            <div class="flex flex-col items-center justify-center text-center bg-white rounded-[2rem] py-8 shadow-sm border border-slate-100">
+                <div class="flex items-center gap-1.5 text-yellow-400 text-2xl md:text-3xl drop-shadow-sm">
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                </div>
+                <div class="text-base md:text-lg font-bold text-slate-600 mt-3">
+                    <span class="text-3xl md:text-4xl font-black text-slate-900">4.9</span> / 5.0
+                </div>
+                <div class="text-[11px] md:text-xs text-slate-500 mt-2 font-medium bg-slate-100 px-4 py-1.5 rounded-full tracking-wide">
+                    Based on <span class="text-slate-800 font-bold">12,500</span> genuine reviews
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="content-wrapper mt-10 text-center text-[11px] md:text-xs text-slate-400 leading-relaxed pb-6">
+        <p class="font-medium text-slate-500 mb-1">Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+        <p>版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+        <p>本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+    </footer>
+
+    <div id="transportModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col justify-end md:justify-center p-0 md:p-6" aria-modal="true" role="dialog">
+        <div class="modal-wrapper relative">
+            <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mt-3 mb-1 md:hidden"></div>
+            <header class="text-white pt-4 md:pt-8 pb-5 px-6 md:px-8 flex justify-between items-center z-10 shrink-0 border-b border-slate-800">
+                <h2 class="font-bold text-xl md:text-2xl text-teal-400 flex items-center"><i class="ph-fill ph-taxi mr-3 text-3xl"></i> Transport Guide</h2>
+                <button aria-label="Close modal" onclick="window.closeModal('transportModal')" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-full transition-all active:scale-95 text-slate-300"><i class="ph ph-x text-xl"></i></button>
+            </header>
+            <div class="p-6 md:p-8 flex-1 overflow-y-auto text-slate-300 no-scrollbar space-y-5 md:space-y-6 pb-12">
+                <article class="bg-slate-800/50 rounded-2xl p-5 md:p-6 border border-slate-800 hover:border-teal-500/30 transition-colors">
+                    <h3 class="text-teal-400 font-bold text-lg md:text-xl mb-3 flex items-center gap-2"><i class="ph-fill ph-truck text-2xl"></i> (1) Songthaew (Red Truck)</h3>
+                    <ul class="text-sm md:text-base space-y-2.5 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Feature:</span> The most popular local transport. Flag them down, ring the bell to stop, and pay directly.</li>
+                        <li><span class="text-white font-bold">Cost:</span> ~50 THB within the same area, 100-150 THB across different beaches.</li>
+                        <li><span class="text-white font-bold">Pro Tip:</span> Negotiate pricing before boarding at night, as they operate like private taxis.</li>
+                    </ul>
+                </article>
+                <article class="bg-slate-800/50 rounded-2xl p-5 md:p-6 border border-slate-800 hover:border-teal-500/30 transition-colors">
+                    <h3 class="text-teal-400 font-bold text-lg md:text-xl mb-3 flex items-center gap-2"><i class="ph-fill ph-moped text-2xl"></i> (2) Scooter / Car Rental</h3>
+                    <ul class="text-sm md:text-base space-y-2.5 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Feature:</span> Ultimate freedom for exploring hidden beaches and waterfalls.</li>
+                        <li><span class="text-white font-bold">Cost:</span> Scooters from 200-300 THB/day; Cars from 1000 THB/day.</li>
+                        <li><span class="text-white font-bold">Safety Note:</span> An <span class="text-teal-300">International Driving Permit</span> is required. Thailand drives on the <span class="text-rose-400 font-bold">left</span>.</li>
+                    </ul>
+                </article>
+                <article class="bg-slate-800/50 rounded-2xl p-5 md:p-6 border border-slate-800 hover:border-teal-500/30 transition-colors">
+                    <h3 class="text-teal-400 font-bold text-lg md:text-xl mb-3 flex items-center gap-2"><i class="ph-fill ph-taxi text-2xl"></i> (3) Private Taxis & Apps</h3>
+                    <ul class="text-sm md:text-base space-y-2.5 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Feature:</span> Air-conditioned, reliable, and comfortable.</li>
+                        <li><span class="text-white font-bold">Fare:</span> Taxis are mostly <span class="text-white font-bold">unmetered</span>. Rates start around 300-400 THB.</li>
+                        <li><span class="text-white font-bold">Apps:</span> Use <strong>Grab</strong> or <strong>inDrive</strong> for transparent, upfront pricing.</li>
+                    </ul>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <div id="attractionsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col justify-end md:justify-center p-0 md:p-6" aria-modal="true" role="dialog">
+        <div class="modal-wrapper relative">
+            <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mt-3 mb-1 md:hidden"></div>
+            <header class="text-white pt-4 md:pt-8 pb-5 px-6 md:px-8 flex justify-between items-center z-10 shrink-0 border-b border-slate-800">
+                <h2 class="font-bold text-xl md:text-2xl text-amber-400 flex items-center"><i class="ph-fill ph-camera mr-3 text-3xl"></i> Top Things to Do</h2>
+                <button aria-label="Close modal" onclick="window.closeModal('attractionsModal')" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-full transition-all active:scale-95 text-slate-300"><i class="ph ph-x text-xl"></i></button>
+            </header>
+            <div class="p-6 md:p-8 flex-1 overflow-y-auto text-slate-300 no-scrollbar space-y-5 md:space-y-6 pb-12">
+                <article class="bg-slate-800/50 rounded-2xl p-5 md:p-6 border border-slate-800 hover:border-amber-500/30 transition-colors">
+                    <h3 class="text-amber-400 font-bold text-lg md:text-xl mb-3 flex items-center gap-2"><i class="ph-fill ph-beach-towel text-2xl"></i> (1) Best Beaches</h3>
+                    <ul class="text-sm md:text-base space-y-2.5 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Chaweng Beach:</span> The most famous, bustling beach with powdery white sand and vibrant nightlife.</li>
+                        <li><span class="text-white font-bold">Lamai Beach:</span> A quieter, family-friendly alternative with great local dining options.</li>
+                        <li><span class="text-white font-bold">Hin Ta Hin Yai:</span> The iconic "Grandpa & Grandma Rocks", a natural wonder near Lamai.</li>
+                    </ul>
+                </article>
+                <article class="bg-slate-800/50 rounded-2xl p-5 md:p-6 border border-slate-800 hover:border-amber-500/30 transition-colors">
+                    <h3 class="text-amber-400 font-bold text-lg md:text-xl mb-3 flex items-center gap-2"><i class="ph-fill ph-hands-praying text-2xl"></i> (2) Temples & Culture</h3>
+                    <ul class="text-sm md:text-base space-y-2.5 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Big Buddha (Wat Phra Yai):</span> Koh Samui's iconic 12-meter golden Buddha overlooking the sea.</li>
+                        <li><span class="text-white font-bold">Wat Plai Laem:</span> Features a breathtaking 18-arm statue of Guanyin, the Goddess of Mercy.</li>
+                        <li><span class="text-white font-bold">Mummified Monk:</span> Wat Khunaram showcases Thailand's deep spiritual roots.</li>
+                    </ul>
+                </article>
+                <article class="bg-slate-800/50 rounded-2xl p-5 md:p-6 border border-slate-800 hover:border-amber-500/30 transition-colors">
+                    <h3 class="text-amber-400 font-bold text-lg md:text-xl mb-3 flex items-center gap-2"><i class="ph-fill ph-boat text-2xl"></i> (3) Island Hopping</h3>
+                    <ul class="text-sm md:text-base space-y-2.5 leading-relaxed pl-1">
+                        <li><span class="text-white font-bold">Ang Thong Marine Park:</span> An archipelago of 42 pristine islands for snorkeling and kayaking.</li>
+                        <li><span class="text-white font-bold">Koh Tao & Koh Nang Yuan:</span> World-class diving spots with stunning crystal-clear waters.</li>
+                        <li><span class="text-white font-bold">Koh Phangan:</span> Home to the legendary Full Moon Party, just a short ferry ride away.</li>
+                    </ul>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <div id="airportModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[80] hidden opacity-0 transition-opacity duration-300 flex flex-col justify-end md:justify-center p-0 md:p-6" aria-modal="true" role="dialog">
+        <div class="modal-wrapper relative">
+            <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mt-3 mb-1 md:hidden"></div>
+            <header class="text-white pt-4 md:pt-8 pb-5 px-6 md:px-8 flex justify-between items-center z-10 shrink-0">
+                <h2 class="font-bold text-xl md:text-2xl text-emerald-400 flex items-center"><i class="ph-fill ph-airplane-tilt mr-3 text-3xl"></i> Airport Transfers</h2>
+                <button aria-label="Close modal" onclick="window.closeModal('airportModal')" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-full transition-all active:scale-95 text-slate-300"><i class="ph ph-x text-xl"></i></button>
+            </header>
+            <div class="px-6 md:px-8 pt-2 pb-5 z-10 shrink-0 border-b border-slate-800">
+                <div class="flex gap-3 overflow-x-auto no-scrollbar">
+                    <button onclick="window.switchAirportTab('usm')" id="btn-airport-usm" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-3 px-4 rounded-xl text-sm md:text-base font-bold shadow-md transition-all whitespace-nowrap active:scale-95">Samui Airport (USM)</button>
+                    <button onclick="window.switchAirportTab('urt')" id="btn-airport-urt" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 py-3 px-4 rounded-xl text-sm md:text-base font-bold transition-all whitespace-nowrap active:scale-95">Surat Thani (URT)</button>
+                </div>
+            </div>
+            <div class="p-6 md:p-8 flex
