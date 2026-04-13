@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <!-- 13. 外國人自動因應導向英文版 (優先執行) -->
+  <script>
+    (function() {
+      try {
+        var userLang = navigator.language || navigator.userLanguage;
+        if (userLang && !userLang.toLowerCase().startsWith('zh')) {
+          window.location.replace('https://kokko-travel.com/en/kohsamui/');
+        }
+      } catch (e) {
+        console.warn("Language detection skipped", e);
+      }
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+  <!-- 14. 深度 RWD 優化：確保在各種設備上縮放比例正確 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  
+  <!-- ========================================== -->
+  <!-- 11. SEO / AEO / GEO / AAO 全方位深度優化 -->
+  <!-- ========================================== -->
+  
+  <!-- 基礎 SEO (Search Engine Optimization) -->
+  <title>2026 蘇梅島行程魔法師 Samui Itinerary Wizard｜AI 智能排程工具 - Kokko Travel</title>
+  <meta name="description" content="最聰明的蘇梅島(Koh Samui)自由行排程工具！自動為您計算海島交通、景點營業時間與跳島路線，一鍵生成專屬蘇梅島旅遊行程表，Kokko Travel 帶您輕鬆玩泰國。">
+  <meta name="keywords" content="蘇梅島行程, 蘇美島自由行, 蘇梅島排程工具, 行程規劃, 泰國海島, 查汶海灘, 滿月派對, 蘇梅島交通, Kokko Travel, Im+ Life">
+  <meta name="author" content="Kokko Travel / Im+ Life">
+  
+  <!-- 多語系與標準網址 (Canonical URL) -->
+  <link rel="canonical" href="https://kokko-travel.com/zh/kohsamui/">
+  <link rel="alternate" hreflang="zh-Hant" href="https://kokko-travel.com/zh/kohsamui/" />
+  <link rel="alternate" hreflang="en" href="https://kokko-travel.com/en/kohsamui/" />
+  <link rel="alternate" hreflang="x-default" href="https://kokko-travel.com/en/kohsamui/" />
+
+  <!-- Open Graph (FB, Line 分享優化) -->
+  <meta property="og:site_name" content="Kokko Travel">
+  <meta property="og:title" content="2026 蘇梅島行程魔法師｜一鍵生成專屬海島行程">
+  <meta property="og:description" content="自動計算交通與營業時間，輕鬆規劃查汶、拉邁與跳島完美行程。">
+  <meta property="og:url" content="https://kokko-travel.com/zh/kohsamui/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://kokko-travel.com/images/og-kohsamui-wizard.jpg">
+  <meta property="og:locale" content="zh_TW">
+
+  <!-- Twitter Card 優化 -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="蘇梅島行程魔法師 - Kokko Travel">
+  <meta name="twitter:description" content="全自動排程工具，一秒為您客製化完美的蘇梅島度假計畫。">
+  <meta name="twitter:image" content="https://kokko-travel.com/images/og-kohsamui-wizard.jpg">
+
+  <!-- AAO / GEO 優化: Schema.org JSON-LD (標示這是一個網頁應用工具) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "蘇梅島行程魔法師 Samui Itinerary Wizard",
+    "url": "https://kokko-travel.com/zh/kohsamui/",
+    "description": "自動為旅客計算交通、景點營業時間，一鍵生成專屬的蘇梅島旅遊行程表。",
+    "applicationCategory": "TravelApplication",
+    "operatingSystem": "All",
+    "author": {
+      "@type": "Organization",
+      "name": "Kokko Travel / Im+ Life",
+      "url": "https://kokko-travel.com/"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "TWD"
+    }
+  }
+  </script>
+
+  <!-- ========================================== -->
+  <!-- 10. Google tag (gtag.js) GA4 追蹤碼          -->
+  <!-- ========================================== -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-W9KZ1CQ9XM');
+  </script>
+
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 載入 FontAwesome 圖示庫 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- 載入 React 核心庫與 Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    @media print {
+      body { background-color: white !important; }
+      .print-hidden { display: none !important; }
+      .print-break-avoid { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans selection:bg-teal-300 selection:text-teal-900">
+  
+  <div id="root"></div>
+
+  <!-- React 應用程式邏輯 -->
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // --- 景點資料庫 (蘇梅島專屬) ---
+    const ATTRACTIONS = [
+      // ================= 機場與住宿 (必須的邏輯節點) =================
+      { id: 'usm_airport', city: 'chaweng', name: '蘇梅國際機場 (USM)', stay: 1.5, region: 10, regionName: '機場', type: '機場', desc: '充滿熱帶花園風情的精品機場！抵達後準備開啟海島度假之旅。', transport: '可搭乘機場 Minibus 小巴、計程車或預約飯店接駁前往下榻處。', 
+        bookingLinks: [
+          { url: 'https://hk.trip.com/flights/welcome/?to=home&Allianceid=7913725&SID=303108709&trip_sub1=&trip_sub3=D14577558', text: '機票比價' },
+          { url: 'https://www.klook.com/zh-TW/search/result/?query=%E8%98%87%E6%A2%85%E5%B3%B6%E6%A9%9F%E5%A0%B4%E6%8E%A5%E9%80%81%E9%A0%90%E7%B4%84&aid=117067', text: '機場接送預約' },
+          { url: 'https://www.klook.com/zh-TW/activity/110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher/?spm=SearchResult.SearchResult_LIST&clickId=e708aaab33&aid=117067', text: '泰國 eSIM 上網' },
+          { url: 'https://www.klook.com/zh-TW/activity/74427-truemoveh-thailand-tourist-sim-card/?spm=SearchResult.SearchResult_LIST&clickId=0413be6e53&aid=117067', text: '泰國實體SIM上網' }
+        ] 
+      },
+      { id: 'acc_chaweng', city: 'chaweng', name: '住宿: 查汶海灘周邊', stay: 1, region: 11, regionName: '查汶區', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李，準備換上輕便夏裝！', transport: '依據飯店位置搭車前往。' },
+      { id: 'acc_bophut', city: 'bophut', name: '住宿: 波普/湄南周邊', stay: 1, region: 12, regionName: '波普區', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李。', transport: '依據飯店位置搭車前往。' },
+      { id: 'acc_lamai', city: 'lamai', name: '住宿: 拉邁海灘周邊', stay: 1, region: 13, regionName: '拉邁區', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李。', transport: '依據飯店位置搭車前往。' },
+
+      // ================= 查汶區 (Chaweng) - 最熱鬧 =================
+      { id: 'chaweng_beach', city: 'chaweng', name: '查汶海灘 (Chaweng Beach)', stay: 3, timeWindow: [8, 18], region: 11, regionName: '查汶區', type: '觀光景點', desc: '蘇梅島最長、最熱鬧的海灘。沙質細白如粉，非常適合日光浴、游泳及體驗水上摩托車等設施。', transport: '搭乘雙條車至查汶大街，步行穿過飯店即可抵達沙灘。' },
+      { id: 'central_samui', city: 'chaweng', name: '尚泰蘇梅島購物中心 (Central Samui)', stay: 2.5, timeWindow: [11, 22], region: 11, regionName: '查汶區', type: '商圈', desc: '島上最大、最具規模的半露天購物中心。匯集了國際品牌、特色餐廳與 Tops 超市，適合躲避豔陽。', transport: '位於查汶大街中心位置，非常顯眼。' },
+      { id: 'chaweng_night_market', city: 'chaweng', name: '查汶夜市 (Chaweng Night Market)', stay: 2, timeWindow: [17, 23], region: 11, regionName: '查汶區', type: '商圈', desc: '越夜越熱鬧！這裡有各式平價泰式小吃、海鮮燒烤、香蕉煎餅，是解決晚餐的好去處。', transport: '沿著查汶大街步行或搭乘雙條車前往。' },
+      { id: 'ark_bar', city: 'chaweng', name: 'Ark Bar 海灘俱樂部', stay: 3, timeWindow: [18, 24], region: 11, regionName: '查汶區', type: '夜生活', desc: '蘇梅島最具指標性的沙灘派對場地！晚上有精彩的火舞表演、DJ 音樂，氣氛非常嗨。', transport: '位於查汶海灘上，晚上順著音樂聲走即可抵達。' },
+      { id: 'elephant_sanctuary', city: 'chaweng', name: '大象保護區體驗', stay: 3, timeWindow: [9, 16], region: 11, regionName: '查汶區', type: '私房景點', desc: '提倡不騎乘大象的友善體驗。你可以親手製作象食、餵食大象，並與牠們在泥漿中互動。', transport: '通常包含飯店來回接送服務。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/28103-elephant-jungle-sanctuary-experience-koh-samui/?spm=Activity.SearchSuggest_LIST&clickId=96f44b6e86&aid=117067', text: '大象保護區半日遊'}] },
+
+      // ================= 波普 / 湄南 (Bophut / Maenam) - 文青與文化 =================
+      { id: 'big_buddha', city: 'bophut', name: '大佛寺 (Big Buddha)', stay: 1.5, timeWindow: [8, 18], region: 12, regionName: '波普區', type: '觀光景點', desc: '蘇梅島最具代表性的地標！12公尺高的金色大佛坐落於帕安島(Koh Phan)上，非常莊嚴。', transport: '搭乘計程車或租機車前往，靠近機場北邊。' },
+      { id: 'wat_plai_laem', city: 'bophut', name: '帕雅寺 / 千手觀音廟', stay: 1.5, timeWindow: [8, 18], region: 12, regionName: '波普區', type: '觀光景點', desc: '色彩斑斕的寺廟群，建於湖面之上。最醒目的是巨大的18臂千手觀音像及彌勒佛像。', transport: '距離大佛寺不遠，建議可包車或騎車一併順遊。' },
+      { id: 'fishermans_village', city: 'bophut', name: '波普漁村步行街', stay: 2.5, timeWindow: [17, 23], region: 12, regionName: '波普區', type: '商圈', desc: '充滿文青氣息與老式木造建築的街道。每週一、三、五晚上的夜市非常熱鬧，必逛！', transport: '搭乘雙條車前往 Bophut Beach。' },
+      { id: 'coco_tams', city: 'bophut', name: 'Coco Tam\'s 海灘酒吧', stay: 2.5, timeWindow: [17, 24], region: 12, regionName: '波普區', type: '夜生活', desc: '網美必訪！坐在沙灘上的懶骨頭看夕陽，晚上有全島最華麗、震撼的火舞秀表演。', transport: '位於波普漁村步行街的盡頭沙灘上。' },
+      { id: 'maenam_beach', city: 'bophut', name: '湄南海灘 (Maenam Beach)', stay: 2, timeWindow: [9, 18], region: 12, regionName: '波普區', type: '觀光景點', desc: '相較查汶與拉邁，這裡更加靜謐原始，海水清澈，是西方遊客喜愛的隱居地。', transport: '位於蘇梅島北岸，可租車或搭雙條車前往。' },
+
+      // ================= 拉邁 (Lamai) - 自然與奇岩 =================
+      { id: 'lamai_beach', city: 'lamai', name: '拉邁海灘 (Lamai Beach)', stay: 2.5, timeWindow: [8, 18], region: 13, regionName: '拉邁區', type: '觀光景點', desc: '蘇梅島第二大海灘，氛圍比查汶悠閒，海水較深，適合游泳與進行水上活動。', transport: '搭乘雙條車前往拉邁區域。' },
+      { id: 'hin_ta_hin_yai', city: 'lamai', name: '阿公阿嬤石', stay: 1.5, timeWindow: [8, 18], region: 13, regionName: '拉邁區', type: '觀光景點', desc: '大自然鬼斧神工雕琢出的奇特礁岩，形似男女生殖器，是拉邁最著名的打卡熱點。', transport: '位於拉邁海灘南端，步行或騎車可達。' },
+      { id: 'silver_beach', city: 'lamai', name: '銀海灘 (Silver Beach / Crystal Bay)', stay: 2, timeWindow: [8, 18], region: 13, regionName: '拉邁區', type: '私房景點', desc: '隱藏在查汶與拉邁之間的海灣。沙質極細，兩側有巨大花崗岩，被譽為蘇梅島最美秘境沙灘。', transport: '入口較隱蔽，通常需穿越渡假村進入。' },
+      { id: 'overlap_stone', city: 'lamai', name: '重疊石 (Overlap Stone)', stay: 1.5, timeWindow: [8, 17], region: 13, regionName: '拉邁區', type: '私房景點', desc: '位於山頂的巨石秘境，需要爬一段陡峭的山路，但登頂後能俯瞰無敵海景，非常震撼。', transport: '建議租機車前往山腳下，再步行上山（需付小額私人過路費）。' },
+      { id: 'jungle_club', city: 'lamai', name: 'The Jungle Club 景觀餐廳', stay: 2.5, timeWindow: [11, 21], region: 13, regionName: '拉邁區', type: '私房景點', desc: '建在半山腰的度假村餐廳。擁有絕佳的無邊際海景視野，建議傍晚來喝杯調酒看夕陽。', transport: '山路極陡，必須預約餐廳專屬的 4WD 吉普車接駁上山。' },
+
+      // ================= 西部與南部 (West & South) - 瀑布與夕陽 =================
+      { id: 'na_muang', city: 'west_south', name: '納芒瀑布 (Na Muang)', stay: 2, timeWindow: [9, 17], region: 14, regionName: '西部/南部', type: '觀光景點', desc: '蘇梅島最著名的瀑布，分為1號與2號。可以在清涼的天然水池中游泳消暑。', transport: '位於島嶼中部偏南，建議包車或參加環島一日遊前往。' },
+      { id: 'magic_garden', city: 'west_south', name: '秘密佛園 (Tarnim Magic Garden)', stay: 1.5, timeWindow: [9, 17], region: 14, regionName: '西部/南部', type: '私房景點', desc: '隱藏在叢林深處的神秘花園，散佈著許多由當地農夫雕刻的石雕神像與動物，充滿神話色彩。', transport: '位於高山上，路況較差，強烈建議參加吉普車越野團前往。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/2733-4wd-jungle-safari-tour-koh-samui/?aid=117067', text: '叢林越野吉普車一日遊'}] },
+      { id: 'nathon_pier', city: 'west_south', name: '那通鎮與碼頭 (Nathon)', stay: 2, timeWindow: [15, 20], region: 14, regionName: '西部/南部', type: '觀光景點', desc: '蘇梅島的行政中心及主要渡輪碼頭。這裡保有許多老舊的木造華人店屋，更是賞夕陽的最佳地點。', transport: '位於島嶼西側，搭乘雙條車或包車前往。' },
+
+      // ================= 周邊跳島 (Islands) =================
+      { id: 'ang_thong', city: 'islands', name: '安通國家海洋公園一日遊', stay: 8, timeWindow: [8, 17], region: 20, regionName: '周邊跳島', type: '觀光景點', desc: '由42個石灰岩小島組成。行程包含獨木舟穿梭洞穴、浮潛，以及登上山頂俯瞰絕美群島海景（需體力）。', transport: '需參加當地 Local Tour，包含飯店接送與快艇/大船。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/1301-ang-thong-national-marine-park-full-day-tour-koh-samui/?aid=117067', text: '安通國家公園快艇遊'}] },
+      { id: 'koh_tao', city: 'islands', name: '龜島 & 南園島一日遊', stay: 8, timeWindow: [8, 17], region: 20, regionName: '周邊跳島', type: '觀光景點', desc: '世界級潛水勝地！龜島海水清澈見底；南園島則以標誌性的「人字型沙灘」聞名全球。', transport: '距離較遠，需參加快艇一日遊行程。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/1283-koh-tao-koh-nangyuan-full-day-tour-koh-samui/?aid=117067', text: '龜島&南園島浮潛遊'}] },
+      { id: 'pig_island', city: 'islands', name: '丹島 & 豬島 (Koh Madsum)', stay: 5, timeWindow: [9, 15], region: 20, regionName: '周邊跳島', type: '私房景點', desc: '近年爆紅的秘境！可以跟沙灘上可愛的野生小豬近距離互動拍照，並在周邊浮潛。', transport: '需至島嶼南部碼頭搭乘長尾船或參加半日遊。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/41223-koh-matsum-koh-tan-half-day-tour-from-koh-samui/?aid=117067', text: '豬島&丹島長尾船半日遊'}] },
+      { id: 'koh_phangan', city: 'islands', name: '帕岸島 - 滿月派對 (Full Moon Party)', stay: 6, timeWindow: [18, 24], region: 20, regionName: '周邊跳島', type: '夜生活', desc: '世界三大狂歡派對之一！每個月圓之夜，數萬人聚集在沙灘上螢光彩繪、飲酒狂歡。', transport: '從蘇梅島各碼頭搭乘快艇 (約30分鐘)，派對期間有通宵接駁船。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/22818-full-moon-party-ticket-transfer-koh-samui-phangan/?aid=117067', text: '滿月派對快艇接駁'}] }
+    ];
+
+    const CITIES = [
+      { id: 'chaweng', name: '查汶區', color: 'blue' },
+      { id: 'bophut', name: '波普/湄南', color: 'teal' },
+      { id: 'lamai', name: '拉邁區', color: 'amber' },
+      { id: 'west_south', name: '西/南部', color: 'rose' },
+      { id: 'islands', name: '周邊跳島', color: 'emerald' }
+    ];
+
+    // --- 核心交通與排程邏輯區 ---
+    const formatTime = (h) => {
+      let hh = Math.floor(h) % 24;
+      let mm = Math.round((h - Math.floor(h)) * 60);
+      if (mm === 60) { hh++; mm = 0; }
+      return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+    };
+
+    const getCityColor = (cityId) => {
+      const colors = { chaweng: 'blue', bophut: 'teal', lamai: 'amber', west_south: 'rose', islands: 'emerald' };
+      const c = colors[cityId] || 'slate';
+      return `text-${c}-600 bg-${c}-100 border-${c}-200`;
+    };
+
+    const getSmartTransit = (prev, curr) => {
+      if (curr.id === 'ret') return '✈️ 【準備返航】搭乘計程車、小巴或預約專車前往蘇梅國際機場 (USM) 報到。';
+
+      if (curr.region === 20) return `🚤 【出海跳島】搭乘快艇或長尾船前往離島，船程約需 30分鐘 ~ 1.5小時不等。\n💡 建議：容易暈船者請提前半小時服用暈船藥。`;
+      if (prev && prev.region === 20) return `🚤 【返回本島】結束跳島行程，搭乘快艇返回蘇梅島碼頭，接送回飯店。`;
+
+      if (!prev || prev.id.startsWith('acc_') || prev.type === '起點') {
+        if (curr.type === '機場') return `🛬 【抵達蘇梅】搭乘小巴或飯店接駁前往 ${curr.name}。`;
+        return `🏨 【出發前往】搭乘雙條車或計程車前往 ${curr.name}。`;
+      }
+
+      if (prev.city !== curr.city && prev.id !== 'osaka_origin') {
+         return `🛺 【跨區移動】搭乘雙條車 (Songthaew) 或使用 App 叫車 (Grab/inDrive) 前往。\n💡 雙條車隨招隨停，上車前請先與司機確認價格。`;
+      }
+
+      return `🛺 【周邊移動】從 ${prev.name} 步行、騎機車或搭乘雙條車前往 ${curr.name}。`;
+    };
+
+    // --- 主應用程式 ---
+    function App() {
+      // 預設選擇查汶區
+      const [activeCity, setActiveCity] = useState('chaweng');
+      const [selectedIds, setSelectedIds] = useState([]);
+      const [showPrintView, setShowPrintView] = useState(false);
+      const [tripDuration, setTripDuration] = useState(5);
+
+      const toggleAttr = (id) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+      const itineraryDays = useMemo(() => {
+        if (selectedIds.length === 0) return [];
+
+        let idsToSchedule = [...selectedIds];
+        idsToSchedule = [...new Set(idsToSchedule)];
+
+        // 排序權重定義 (確保城市分群與時間合理性)
+        const getPriority = (item) => {
+            if (item.id === 'ret') return 999;
+            if (item.type === '起點') return 10;
+            if (item.type === '機場') return 15;
+            if (item.type === '住宿區域') return 20; 
+            
+            let win = item.timeWindow || [9.5, 21.5];
+
+            // 晚上才去的行程排後面 (夜市、火舞、滿月派對)
+            const isNight = ['夜生活', '商圈'].includes(item.type) && win[0] >= 16;
+            if (isNight) return 90; 
+            
+            // 跳島行程通常佔用一整天白天
+            if (item.region === 20 && item.stay >= 5) return 25;
+
+            // 一般白天景點
+            if (win[1] <= 18) return 30; 
+            
+            return 50; 
+        };
+
+        const sorted = idsToSchedule
+          .map(id => ATTRACTIONS.find(a => a.id === id))
+          .filter(a => a)
+          .sort((a, b) => {
+            const getSortKey = (item) => {
+              let sk = getPriority(item);
+              // 強制將同區域的資料分群
+              let cityGroup = CITIES.findIndex(c => c.id === item.city);
+              return cityGroup * 100000 + sk * 1000; 
+            };
+            return getSortKey(a) - getSortKey(b);
+          });
+
+        let remaining = [...sorted];
+        let days = [];
+        
+        // ★ 第一天從 13:00 開始 (假設過午抵達或放完行李)
+        let curDay = { items: [], dayCity: 'chaweng', dayType: null, currentTime: 13.0 }; 
+        let lCity = 'chaweng', lReg = 11;
+        let prevItemObj = null; 
+
+        // 交通時間計算 (針對蘇梅島)
+        const getTTime = (isNewDay, fCity, tCity, fReg, tReg) => {
+            // 跳島來回時間
+            if (fReg === 20 && tReg !== 20) return 1.5; 
+            if (tReg === 20 && fReg !== 20) return 1.5;
+            
+            if (isNewDay) return 0.5; 
+
+            // 跨區域移動 (如查汶到拉邁、波普到那通)
+            if (fCity && tCity && fCity !== tCity) {
+                return 0.6; // 蘇梅島不大，跨區約 30-45 分鐘
+            }
+            // 同區域移動
+            return 0.3; 
+        };
+
+        const checkValid = (a, isF, curTime) => {
+            let tTime = getTTime(isF, lCity, a.city, lReg, a.region);
+            let arrivalTime = curTime + tTime;
+            let isLastDay = days.length === tripDuration - 1;
+            
+            if (!isF) {
+                let isBasic = ['住宿區域', '機場', '起點'].includes(a.type);
+                if (!isBasic) {
+                    // 同區域景點排同一天：強制鎖定同區域
+                    if (a.city !== lCity) {
+                        // 如果還有同區域景點尚未安排，不允許換區
+                        let hasSameCityLeft = remaining.some(r => r.city === lCity && !['住宿區域', '機場', '起點'].includes(r.type));
+                        if (hasSameCityLeft) return false; 
+                        
+                        // 如果時間已經過中午後，寧願換天也不要跨區奔波 (除非是去夜市)
+                        if (curTime > 15 && a.type !== '商圈' && a.type !== '夜生活') return false;
+                    }
+                }
+            }
+
+            let win = a.timeWindow || [8, 22]; 
+            if (['住宿區域', '機場'].includes(a.type)) win = [0, 24];
+
+            let waitTime = 0;
+            if (arrivalTime < win[0]) {
+                waitTime = win[0] - arrivalTime;
+                if (waitTime > 2.0 && !isF) return false; // 等太久跳過
+            }
+
+            let actStart = arrivalTime + waitTime;
+            let actEnd = actStart + a.stay;
+
+            // 抵達時已過營業時間
+            if (actStart >= win[1] - 0.5) return false; 
+            
+            // 跳島行程不能排在抵達的下午
+            if (a.region === 20 && a.stay >= 5 && actStart > 10) return false;
+
+            // 最後一天的時間鎖死 (接 14:00 去機場)
+            if (isLastDay) {
+                let retTFromA = getTTime(false, a.city, 'chaweng', a.region, 10);
+                let maxEndTime = 14.0 - 2.5 - retTFromA; 
+                if (actEnd > maxEndTime) return false;
+            } else {
+                if (!isF && actEnd > 24.0) return false; 
+            }
+
+            return { valid: true, tTime, waitTime, actStart, actEnd };
+        };
+
+        while (remaining.length > 0) {
+            const isF = curDay.items.length === 0;
+            let chosenIdx = -1;
+            let chosenStats = null;
+
+            // 尋找最適合的行程
+            let validCands = [];
+            for (let i = 0; i < remaining.length; i++) {
+                let stats = checkValid(remaining[i], isF, curDay.currentTime);
+                if (stats && stats.valid) {
+                    validCands.push({ a: remaining[i], idx: i, prio: getPriority(remaining[i]), stats });
+                }
+            }
+
+            if (validCands.length > 0) {
+                // 排序: 1.同區優先 2.優先權 3.車程 4.營業結束時間早的先去 5.原始區域分群順序
+                validCands.sort((ca, cb) => {
+                    let isSameCityA = ca.a.city === lCity ? 1 : 0;
+                    let isSameCityB = cb.a.city === lCity ? 1 : 0;
+                    if (isSameCityA !== isSameCityB) return isSameCityB - isSameCityA;
+
+                    if (ca.prio !== cb.prio) return ca.prio - cb.prio;
+                    if (ca.stats.tTime !== cb.stats.tTime) return ca.stats.tTime - cb.stats.tTime;
+                    let winA = ca.a.timeWindow || [8, 22];
+                    let winB = cb.a.timeWindow || [8, 22];
+                    if (winA[1] !== winB[1]) return winA[1] - winB[1];
+                    
+                    return ca.idx - cb.idx;
+                });
+                chosenIdx = validCands[0].idx;
+                chosenStats = validCands[0].stats;
+            }
+
+            // 本日塞不下了，強制換天
+            if (chosenIdx === -1) {
+                days.push(curDay);
+                if (days.length >= tripDuration) break; // 天數已滿
+                
+                curDay = { items: [], dayCity: remaining[0].city, dayType: null, currentTime: 9.0 };
+                continue;
+            }
+
+            const a = remaining.splice(chosenIdx, 1)[0];
+            const { tTime, waitTime, actStart, actEnd } = chosenStats;
+
+            if (isF && days.length === 0) prevItemObj = { id: 'origin', city: 'chaweng', name: '機場/抵達點', type: '起點' };
+            if (isF && days.length > 0) prevItemObj = { id: 'acc_hotel', city: a.city, name: `住宿地 (${CITIES.find(c=>c.id===a.city)?.name || '查汶'})`, type: '住宿區域' }; 
+
+            let sTime = curDay.currentTime;
+            let aTime = sTime + tTime;
+            let finalWaitTime = actStart - aTime; 
+
+            let transitMsg = getSmartTransit(prevItemObj, a);
+            if(a.transport) transitMsg += `\n📍 路線指南：${a.transport}`;
+            
+            let win = a.timeWindow || [8, 22];
+            if (finalWaitTime > 0 && win[0] > 0 && !['住宿區域', '機場'].includes(a.type)) {
+                transitMsg += `\n💡 建議：此景點建議 ${win[0]}:00 後開始，預計 ${formatTime(aTime)} 抵達，可於周邊稍作休息。`;
+            }
+
+            let isFirstAirport = (days.length === 0 && isF && a.type === '機場');
+
+            curDay.items.push({
+                ...a, tTime: tTime.toFixed(1), prevName: prevItemObj.name, transitTransport: transitMsg,
+                tStr: `${formatTime(sTime)} - ${formatTime(aTime)}`,
+                sStr: isFirstAirport ? '抵達通關' : `${formatTime(actStart)} - ${formatTime(actEnd)}`,
+                isFirstAirport,
+                endTime: actEnd
+            });
+
+            curDay.currentTime = actEnd;
+            lCity = a.city; lReg = a.region; prevItemObj = a;
+            if (isF) curDay.dayCity = a.city;
+        }
+        
+        if (curDay.items.length > 0 && days.length < tripDuration) {
+            days.push(curDay);
+        }
+        while (days.length < tripDuration) {
+            days.push({ items: [], dayCity: lCity, dayType: null, currentTime: 9.0 });
+        }
+
+        // ================= ★ 壓軸機場 (強制定死在最後一天 14:00) =================
+        let lastD = days[days.length-1];
+        if (!lastD) {
+            lastD = { items: [], dayCity: 'chaweng', dayType: null, currentTime: 9.0 };
+            days.push(lastD);
+        }
+        
+        let retT = getTTime(lastD.items.length === 0, lCity, 'chaweng', lReg, 10);
+
+        // 如果最後一天加上前往機場的時間超過了 14:00，把超過限制的行程吐掉
+        while (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            let testRetT = getTTime(false, lastItem.city, 'chaweng', lastItem.region, 10);
+            if (lastItem.endTime > (14.0 - 2.5 - testRetT)) {
+                lastD.items.pop();
+            } else {
+                break;
+            }
+        }
+
+        if (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            lastD.currentTime = lastItem.endTime;
+            lCity = lastItem.city;
+            lReg = lastItem.region;
+            prevItemObj = lastItem;
+        } else {
+            lastD.currentTime = 9.0;
+            lReg = 11;
+            prevItemObj = { name: '住宿地', city: lCity };
+        }
+        
+        retT = getTTime(lastD.items.length === 0, lCity, 'chaweng', lReg, 10);
+        let startTransit = 14.0 - 2.5 - retT;
+        let transitMsg = '🚐 搭乘小巴、計程車或飯店專車前往蘇梅國際機場 (USM) 報到。';
+        
+        if (lastD.currentTime < startTransit) {
+            transitMsg = `💡 距離前往機場還有空檔時間，建議於 ${formatTime(startTransit)} 準備出發。\n🚐 搭乘車輛前往機場。`;
+        }
+        
+        let retPrev = prevItemObj || {name: '住宿地', city: 'chaweng'};
+        lastD.items.push({
+            id: 'ret', city: 'chaweng', name: '結束旅程前往機場', stay: 2.5, region: 999, regionName: '機場', type: '機場',
+            desc: '帶著滿滿的海島回憶準備返家！蘇梅機場非常漂亮，可以提早報到在露天候機室喝飲料休息。', transport: '於最後行程地點搭車前往蘇梅機場。',
+            tTime: retT.toFixed(1), prevName: retPrev.name, transitTransport: transitMsg,
+            tStr: `${formatTime(startTransit)} - ${formatTime(14.0 - 2.5)}`,
+            sStr: `${formatTime(14.0 - 2.5)} - 14:00`,
+            isFirstAirport: false,
+            endTime: 14.0
+        });
+        
+        lastD.currentTime = 14.0;
+
+        return days.map((d, i) => {
+          const base = (i === 0 && d.items[0]?.isFirstAirport ? 13.0 : (i === 0 ? 13.0 : 9.0));
+          const end = d.currentTime;
+          return { dayNum: i+1, totalH: (end - base > 0 ? (end - base).toFixed(1) : "0.0"), cityName: CITIES.find(c => c.id === d.dayCity)?.name || '查汶', items: d.items };
+        });
+      }, [selectedIds, tripDuration]);
+
+      if (showPrintView) {
+        return (
+          <div className="min-h-screen bg-white p-4 sm:p-8">
+            <div className="max-w-3xl mx-auto border-2 border-slate-800 p-4 sm:p-8 rounded-2xl">
+              <div className="text-center mb-10"><h1 className="text-2xl sm:text-3xl font-bold">🌴 專屬蘇梅島度假 行程表</h1><p className="mt-2 text-slate-500 text-sm">智慧排程系統自動為您計算海島交通與建議時段</p></div>
+              {itineraryDays.map(d => (
+                <div key={d.dayNum} className="mb-10 print-break-avoid">
+                  <h2 className="text-xl font-bold border-b-2 pb-2 mb-6">🌞 第 {d.dayNum} 天 - 【{d.cityName} 區域】 ({d.totalH}h)</h2>
+                  <div className="space-y-6 ml-2 sm:ml-4 border-l-2 pl-4 sm:pl-6 border-slate-300">
+                    {d.items.map((it, idx) => (
+                      <div key={`${it.id}-${idx}`} className="relative mb-8">
+                        {!it.isFirstAirport && (
+                          <div className="mb-4 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs sm:text-sm">
+                             <div className="font-bold mb-2">{it.prevName} ➔ {it.name}</div>
+                             <div className="flex gap-3 mb-2"><span className="bg-white px-2 py-1 rounded border font-mono text-teal-500"><i className="fa-regular fa-clock"></i> {it.tStr}</span><span>車程/船程估計：{it.tTime}h</span></div>
+                             <div className="whitespace-pre-wrap text-slate-600">{it.transitTransport}</div>
+                          </div>
+                        )}
+                        <div className="relative">
+                          <div className="absolute -left-[23px] sm:-left-[31px] top-1 w-3 h-3 bg-teal-500 rounded-full border-2 border-white"></div>
+                          <div className="font-bold text-xs sm:text-sm text-slate-500 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留：'}{it.sStr}</div>
+                          <h4 className="text-lg sm:text-xl font-bold text-slate-900">{it.name}</h4>
+                          <p className="text-xs sm:text-sm text-slate-600 my-2 leading-relaxed">{it.desc}</p>
+                          {it.bookingLinks && <div className="mt-3 flex gap-2 flex-wrap print-hidden">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] text-white text-xs px-2.5 py-1.5 rounded font-bold hover:bg-[#e05000]"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="mt-10 text-center flex flex-col sm:flex-row justify-center gap-4 print-hidden">
+                <button onClick={() => setShowPrintView(false)} className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700">返回編輯</button>
+                <button onClick={() => window.print()} className="bg-teal-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-teal-500">列印行程 / 儲存 PDF</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const grouped = ATTRACTIONS.filter(a => a.city === activeCity && !a.id.startsWith('acc_')).reduce((acc, c) => { (acc[c.type] = acc[c.type] || []).push(c); return acc; }, {});
+
+      return (
+        <div className="min-h-screen bg-slate-50 pb-10 flex flex-col">
+          <header className="bg-white/90 backdrop-blur-md p-4 sm:px-6 shadow-sm flex flex-wrap justify-between items-center sticky top-0 z-20 border-b gap-3">
+            <div className="flex items-center gap-4">
+              <h1 className="font-bold text-xl flex items-center gap-2"><i className="fa-solid fa-umbrella-beach text-teal-500"></i>蘇梅行程魔法師</h1>
+              {/* 15. 回到首頁連結更新 */}
+              <a 
+                href="https://kokko-travel.com/zh/kohsamui/" 
+                className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-teal-600 bg-slate-100 hover:bg-teal-50 px-4 py-2 rounded-full transition-all border border-slate-200 hover:shadow-sm"
+              >
+                <i className="fa-solid fa-house"></i> 回到首頁
+              </a>
+            </div>
+            <div className="flex items-center gap-3">
+              {selectedIds.length > 0 && (
+                <button 
+                  onClick={() => setSelectedIds([])} 
+                  className="text-xs font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-4 py-2 rounded-full shadow-sm transition-colors flex items-center gap-1 cursor-pointer"
+                  title="清空所有已選景點"
+                >
+                  <i className="fa-solid fa-trash-can"></i> 清空
+                </button>
+              )}
+              <div className="text-xs font-bold bg-slate-800 text-white px-4 py-2 rounded-full shadow-sm tracking-wide">已選 {selectedIds.length} 站</div>
+            </div>
+          </header>
+          
+          <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col lg:flex-row gap-6 lg:gap-8 mt-2">
+            
+            {/* 左側：景點選擇 */}
+            <div className="lg:w-1/2 flex flex-col gap-4">
+              <nav aria-label="分區選擇" className="bg-white p-2 sm:p-2.5 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar snap-x">
+                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`snap-center px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 ${activeCity === c.id ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}>{c.name}</button>)}
+              </nav>
+              
+              <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-slate-200/60">
+                <h2 className="text-sm font-bold flex items-center gap-2 mb-2 tracking-wide text-slate-700">
+                  <i className="fa-solid fa-circle-info text-teal-500 text-lg"></i>
+                  智慧排程提示
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                  系統會自動將<strong className="text-orange-500">需搭船的跳島行程</strong>排在白天，並將<strong className="text-indigo-500">海灘俱樂部/夜市</strong>排在晚上。<br className="hidden sm:block"/>跨區域會自動計算雙條車與計程車的合理交通時間！
+                </p>
+              </div>
+
+              <div className="max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar pb-10">
+                {Object.entries(grouped).map(([type, items]) => (
+                  <section key={type} className="mb-6">
+                    <h3 className="font-extrabold text-slate-800 mb-4 sticky top-0 bg-slate-50/95 py-3 backdrop-blur-md z-10 border-b border-slate-200/60 tracking-wide">{type}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {items.map(it => (
+                        // AEO / GEO 微資料標籤 (Microdata) 置入
+                        <article key={it.id} onClick={() => toggleAttr(it.id)} itemScope itemType="https://schema.org/TouristAttraction" className={`p-4 sm:p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300 flex flex-col ${selectedIds.includes(it.id) ? 'bg-teal-50/80 border-teal-500 scale-[1.02] shadow-md' : 'bg-white border-slate-100 shadow-sm hover:border-slate-300 hover:shadow-md'}`}>
+                          <h4 itemProp="name" className="font-bold text-slate-900 leading-snug mb-3 text-base">{it.name}</h4>
+                          <div className="text-[11px] font-medium flex flex-wrap gap-2 mb-3">
+                            <span className="bg-slate-100 px-2 py-1 rounded-md text-slate-600 border border-slate-200/60 shadow-sm"><i className="fa-regular fa-clock mr-1"></i>{it.stay}h</span>
+                            <span className={`px-2 py-1 rounded-md border shadow-sm ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot"></i> {it.regionName}</span>
+                          </div>
+                          <p itemProp="description" className="text-xs sm:text-sm text-slate-500 line-clamp-3 leading-relaxed mt-auto">{it.desc}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </div>
+
+            {/* 右側：自動生成的行程表 */}
+            <div className="lg:w-1/2">
+              <div className="bg-white rounded-3xl shadow-xl border border-slate-200/60 overflow-hidden flex flex-col max-h-[85vh] sticky top-24">
+                <div className="bg-slate-800 text-white p-5 lg:p-7">
+                  <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 tracking-wide"><i className="fa-regular fa-calendar-check text-teal-400"></i>您的完美行程表</h2>
+                  <p className="text-xs sm:text-sm opacity-80 mt-2 leading-relaxed">💡 若行程過多，系統會依營業時間與交通為您自動分天數</p>
+                  
+                  <div className="flex flex-wrap gap-3 mt-5">
+                    <div className="flex gap-3 w-full sm:w-auto">
+                      <select 
+                        value={tripDuration} 
+                        onChange={(e) => setTripDuration(Number(e.target.value))}
+                        className="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-white font-bold py-3.5 px-4 rounded-xl outline-none cursor-pointer transition-colors shadow-lg border border-slate-600 text-sm sm:text-base focus:ring-2 focus:ring-teal-500"
+                        title="選擇旅遊總天數"
+                      >
+                        <option value={4}>4 日遊</option>
+                        <option value={5}>5 日遊</option>
+                        <option value={6}>6 日遊</option>
+                        <option value={7}>7 日遊</option>
+                        <option value={8}>8 日遊</option>
+                      </select>
+                      <button 
+                        onClick={() => setSelectedIds([])} 
+                        className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold shadow-lg transition-all cursor-pointer text-sm sm:text-base ${selectedIds.length > 0 ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-slate-600 text-slate-400 hover:bg-slate-500 hover:text-white'}`}
+                        title="清空並重新輸入行程"
+                      >
+                        <i className="fa-solid fa-rotate-right"></i>
+                        <span>重設</span>
+                      </button>
+                    </div>
+                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="w-full sm:flex-1 bg-teal-500 hover:bg-teal-600 py-3.5 px-4 rounded-xl font-bold shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm sm:text-base cursor-pointer">
+                      產出詳細行程
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="p-5 sm:p-7 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-24 flex flex-col items-center gap-4"><i className="fa-solid fa-plane-departure text-6xl opacity-10"></i><p className="text-lg font-medium">尚未選擇任何景點</p></div> : 
+                    itineraryDays.map(d => (
+                      <section key={d.dayNum} className="mb-10">
+                        <h3 className="font-extrabold text-lg sm:text-xl mb-5 border-b-2 border-slate-200/80 pb-3 flex items-center gap-2 text-slate-800">
+                          <i className="fa-solid fa-sun text-orange-500 text-2xl drop-shadow-sm"></i> 第 {d.dayNum} 天 - 【{d.cityName}】 
+                          <span className="text-xs sm:text-sm font-bold text-slate-500 bg-slate-200 px-2 py-1 rounded ml-auto">總計: {d.totalH}h</span>
+                        </h3>
+                        <div className="space-y-6 border-l-[3px] border-slate-200 ml-4 sm:ml-5 pl-7 sm:pl-8 relative pb-4">
+                          {d.items.map((it, idx) => (
+                            <div key={`${it.id}-${idx}`} className="relative mb-6">
+                              {!it.isFirstAirport && (
+                                <div className="mb-5 relative">
+                                  <div className="absolute -left-[43px] sm:-left-[47px] top-1/2 -translate-y-1/2 w-5 h-5 bg-slate-100 rounded-full border-2 border-slate-300 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[10px] text-slate-400"></i></div>
+                                  <div className={`rounded-xl p-3.5 text-xs sm:text-sm border shadow-sm ${it.transitTransport.includes('跨區') || it.transitTransport.includes('出海') ? 'bg-orange-50/80 border-orange-100' : 'bg-teal-50/80 border-teal-100'}`}>
+                                    <div className={`font-bold mb-2 tracking-wide ${it.transitTransport.includes('跨區') || it.transitTransport.includes('出海') ? 'text-orange-800' : 'text-teal-800'}`}>{it.prevName} ➔ {it.name}</div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                      <span className={`bg-white px-2.5 py-1 rounded-md border font-mono shadow-sm font-medium ${it.transitTransport.includes('跨區') || it.transitTransport.includes('出海') ? 'border-orange-200 text-orange-600' : 'border-teal-200 text-teal-600'}`}>
+                                        <i className="fa-regular fa-clock mr-1"></i> {it.tStr}
+                                      </span>
+                                      <span className={`font-bold ${it.transitTransport.includes('跨區') || it.transitTransport.includes('出海') ? 'text-orange-600' : 'text-teal-600'}`}>車/船程 {it.tTime}h</span>
+                                    </div>
+                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{it.transitTransport}</div>
+                                  </div>
+                                </div>
+                              )}
+                              <article className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm relative hover:shadow-lg transition-all duration-300">
+                                <div className="absolute -left-[39px] sm:-left-[43px] top-5 w-5 h-5 bg-teal-500 rounded-full border-[3px] border-white shadow-md z-10"></div>
+                                <div className="text-xs sm:text-sm font-bold text-slate-400 mb-2"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留: '}{it.sStr}</div>
+                                <h4 className="font-bold text-lg sm:text-xl mb-2 text-slate-800">{it.name}</h4>
+                                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mb-1">{it.desc}</p>
+                                {it.bookingLinks && <div className="mt-4 flex gap-2 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-lg font-bold transition-colors shadow-sm focus:ring-2 focus:ring-[#ff5b00] focus:ring-offset-1"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                              </article>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+          </main>
+
+          {/* 12. Footer: 加入版權警語與 RWD 排版 */}
+          <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 md:mt-16 mb-4 w-full print-hidden">
+            <div className="border-t border-slate-200/80 pt-8 flex flex-col items-center text-center space-y-4">
+              <div className="text-slate-400 text-xs sm:text-sm leading-relaxed max-w-2xl px-2">
+                <p className="mb-1.5 font-bold tracking-wide text-slate-500">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+                <p>版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+                <p>本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+              </div>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
