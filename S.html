@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <!-- 外國人自動因應導向英文版 (優先執行) -->
+  <script>
+    (function() {
+      try {
+        var userLang = navigator.language || navigator.userLanguage;
+        if (userLang && !userLang.toLowerCase().startsWith('zh')) {
+          window.location.replace('https://kokko-travel.com/en/phuket/S.html');
+        }
+      } catch (e) {
+        console.warn("Language detection skipped", e);
+      }
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+  <!-- 深度 RWD 優化：確保在各種設備上縮放比例正確 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  
+  <!-- ========================================== -->
+  <!-- SEO / AEO / GEO / AAO 全方位深度優化 -->
+  <!-- ========================================== -->
+  
+  <!-- 基礎 SEO -->
+  <title>2026 最強普吉島行程魔法師 Phuket Itinerary Wizard｜AI 智能排程工具 - Kokko Travel</title>
+  <meta name="description" content="最聰明的普吉島(Phuket)自由行排程工具！自動為您計算海島交通、景點營業時間與跳島路線，一鍵生成專屬的普吉島、皮皮島、皇帝島、斯米蘭群島旅遊行程表，Kokko Travel 帶您輕鬆玩泰國。">
+  <meta name="keywords" content="普吉島行程, 普吉島自由行, 普吉島排程工具, 行程規劃, 泰國海島, 芭東海灘, 普吉鎮, 跳島一日遊, 普吉島交通, 皮皮島, 皇帝島 ,斯米蘭群島, Kokko Travel">
+  <meta name="author" content="Kokko Travel / Im+ Life">
+  
+  <!-- 多語系與標準網址 -->
+  <link rel="canonical" href="https://kokko-travel.com/zh/phuket/S.html">
+  <link rel="alternate" hreflang="zh-Hant" href="https://kokko-travel.com/zh/phuket/S.html" />
+  <link rel="alternate" hreflang="en" href="https://kokko-travel.com/en/phuket/S.html" />
+  <link rel="alternate" hreflang="x-default" href="https://kokko-travel.com/en/phuket/S.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:site_name" content="Kokko Travel">
+  <meta property="og:title" content="2026 普吉島行程魔法師｜一鍵生成專屬海島行程">
+  <meta property="og:description" content="自動計算交通與營業時間，輕鬆規劃芭東、普吉老鎮與皮皮島跳島的完美行程。">
+  <meta property="og:url" content="https://kokko-travel.com/zh/phuket/S.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://kokko-travel.com/image/phuket.png">
+  <meta property="og:locale" content="zh_TW">
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "普吉島行程魔法師 Phuket Itinerary Wizard",
+    "url": "https://kokko-travel.com/zh/phuket/S.html",
+    "description": "自動為旅客計算交通、景點營業時間，一鍵生成專屬的普吉島旅遊行程表。",
+    "applicationCategory": "TravelApplication",
+    "operatingSystem": "All",
+    "author": {
+      "@type": "Organization",
+      "name": "Kokko Travel / Im+ Life",
+      "url": "https://kokko-travel.com/"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "TWD"
+    }
+  }
+  </script>
+
+  <!-- Google tag (gtag.js) GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-W9KZ1CQ9XM');
+  </script>
+
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 載入 FontAwesome 圖示庫 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- 載入 React 核心庫與 Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+    @media print {
+      body { background-color: white !important; }
+      .print-hidden { display: none !important; }
+      .print-break-avoid { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans selection:bg-teal-300 selection:text-teal-900">
+  
+  <div id="root"></div>
+
+  <!-- React 應用程式邏輯 -->
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // --- 景點資料庫 (普吉島專屬) ---
+    const ATTRACTIONS = [
+      // ================= 機場與住宿 (必須的邏輯節點) =================
+      { id: 'hkt_airport', city: 'patong', name: '普吉國際機場 (HKT)', stay: 1.5, region: 10, regionName: '機場', type: '機場', desc: '抵達泰國最大的海島！準備開啟美好的安達曼海度假之旅。', transport: '可搭乘 Phuket Smart Bus (100泰銖)、機場巴士、計程車或預約接送前往下榻飯店。', 
+        bookingLinks: [
+          { url: 'https://hk.trip.com/flights/welcome/?to=home&Allianceid=7913725&SID=303108709', text: '機票比價' },
+          { url: 'https://www.klook.com/zh-TW/search/result/?query=%E6%99%AE%E5%90%89%E5%B3%B6%E6%A9%9F%E5%A0%B4%E6%8E%A5%E9%80%81&aid=117940', text: '機場接送預約' },
+          { url: 'https://www.klook.com/zh-TW/activity/110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher/?aid=117940', text: '泰國 eSIM 上網' }
+        ] 
+      },
+      { id: 'acc_patong', city: 'patong', name: '住宿: 芭東區周邊', stay: 1, region: 11, regionName: '芭東區', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李，準備換上輕便夏裝！', transport: '依據飯店位置搭車前往。' },
+      { id: 'acc_karon', city: 'south', name: '住宿: 卡倫/卡塔周邊', stay: 1, region: 12, regionName: '南部區域', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李。', transport: '依據飯店位置搭車前往。' },
+      { id: 'acc_town', city: 'town', name: '住宿: 普吉鎮周邊', stay: 1, region: 13, regionName: '普吉鎮', type: '住宿區域', desc: '前往飯店辦理入住手續並放置行李。', transport: '依據飯店位置搭車前往。' },
+
+      // ================= 芭東區 (Patong) - 夜生活與購物 =================
+      { id: 'patong_beach', city: 'patong', name: '芭東海灘 (Patong Beach)', stay: 3, timeWindow: [8, 18], region: 11, regionName: '芭東區', type: '觀光景點', desc: '普吉島開發最完善、最熱鬧的海灘。水上活動極多，周邊吃喝玩樂一應俱全。', transport: '芭東區域內建議直接步行，或使用 Bolt 叫車。' },
+      { id: 'jungceylon', city: 'patong', name: '江西冷購物中心 (Jungceylon)', stay: 3, timeWindow: [11, 22], region: 11, regionName: '芭東區', type: '商圈', desc: '芭東最大的綜合型百貨。有 Big C 超市、按摩店與水舞秀，是避暑與採買伴手禮的首選。', transport: '位於芭東大街中心，周邊飯店步行可達。' },
+      { id: 'bangla_road', city: 'patong', name: '孟加拉步行街 (Bangla Road)', stay: 3, timeWindow: [19, 26], region: 11, regionName: '芭東區', type: '夜生活', desc: '普吉島越夜越美麗的核心！封街後兩側充滿霓虹燈、酒吧與夜店，氣氛狂熱。', transport: '晚上封街需徒步進入；外區旅客請用 Bolt/Grab 叫車前往。' },
+      { id: 'banzaan_market', city: 'patong', name: '班贊生鮮夜市 (Banzaan)', stay: 2, timeWindow: [17, 23], region: 11, regionName: '芭東區', type: '商圈', desc: '江西冷正後方，一樓買海鮮二樓代客料理，晚上外圍化身熱鬧的平價美食夜市。', transport: '緊鄰江西冷百貨，步行前往即可。' },
+      { id: 'simon_cabaret', city: 'patong', name: '西蒙人妖秀 (Simon Cabaret)', stay: 2, timeWindow: [18, 22], region: 11, regionName: '芭東區', type: '觀光景點', desc: '普吉島最著名的歌舞秀！服裝華麗、舞台效果極佳，適合全家大小一同觀賞。', transport: '位於芭東南部，建議使用 Bolt 叫車。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/292-simon-cabaret-show-phuket/?spm=SearchResult.SearchResult_LIST&clickId=9522ef3f6d&aid=117940', text: '西蒙人妖秀門票'}] },
+
+      // ================= 卡倫/卡塔/南部 (South) - 景觀與奇岩 =================
+      { id: 'kata_beach', city: 'south', name: '卡塔海灘 (Kata Beach)', stay: 2.5, timeWindow: [8, 18], region: 12, regionName: '南部區域', type: '觀光景點', desc: '迷人的W型海灣，海浪平緩且水下生態豐富，非常適合浮潛與家庭親子同遊。', transport: '可從普吉鎮搭「藍色雙條車」；芭東出發需用 Bolt 叫車。' },
+      { id: 'big_buddha', city: 'south', name: '普吉大佛 (Big Buddha)', stay: 1.5, timeWindow: [8, 18], region: 12, regionName: '南部區域', type: '觀光景點', desc: '坐落於山頂的巨大漢白玉觀音坐像。可360度俯瞰普吉島南部與安達曼海的壯麗景色。', transport: '山路極陡峭！無公車，強烈建議於山下查龍區用 Bolt 叫車或包車。' },
+      { id: 'wat_chalong', city: 'south', name: '查龍寺 (Wat Chalong)', stay: 1.5, timeWindow: [8, 17], region: 12, regionName: '南部區域', type: '觀光景點', desc: '普吉島最大、香火最鼎盛的寺廟。建築金碧輝煌，主塔內供奉著高僧舍利子。', transport: '普吉鎮搭往南部的藍色雙條車可途經；或使用 Bolt 叫車。' },
+      { id: 'promthep_cape', city: 'south', name: '神仙半島 (Promthep Cape)', stay: 2, timeWindow: [16.5, 19], region: 12, regionName: '南部區域', type: '私房景點', desc: '全泰國觀賞夕陽最美的地方！傍晚時分金黃落日灑滿海面，景色令人屏息。', transport: '無大眾交通。日落後極難叫車，請務必「包車(含等候)」或租機車前往。' },
+      { id: 'three_monkeys', city: 'south', name: 'Three Monkeys 叢林餐廳', stay: 2.5, timeWindow: [10, 21], region: 12, regionName: '南部區域', type: '私房景點', desc: '全島最火紅的叢林網美餐廳。隱藏在熱帶雨林中，鳥巢座位拍照效果極佳。', transport: '位於半山腰無公車，請用 Bolt 叫車直達入口。' },
+
+      // ================= 普吉鎮與夜市 (Phuket Town) - 文化與小吃 =================
+      { id: 'old_town', city: 'town', name: '普吉老鎮 (Phuket Old Town)', stay: 3, timeWindow: [9, 20], region: 13, regionName: '普吉鎮', type: '觀光景點', desc: '充滿歷史底蘊，保留了色彩繽紛的中葡式老建築，現進駐許多文青咖啡廳與特色選物店。', transport: '全島交通樞紐！從各海灘皆可搭乘「藍色雙條車」至此。' },
+      { id: 'sunday_market', city: 'town', name: '大坡夜市 (Sunday Walking Street)', stay: 2.5, timeWindow: [16, 22], region: 13, regionName: '普吉鎮', type: '商圈', desc: '【週日限定】普吉老街化身為最美的文創夜市！各式手作商品、街頭藝人與泰南小吃。', transport: '白天搭雙條車抵達，但夜市期間雙條車停駛，回程需用 Bolt 叫車。' },
+      { id: 'naka_market', city: 'town', name: '週末夜市 (Naka Market)', stay: 3, timeWindow: [16, 23], region: 13, regionName: '普吉鎮', type: '商圈', desc: '【週末限定】普吉最大的夜市。分為巨大的平價服飾百貨區與露天美食區，便宜好逛。', transport: '從老鎮搭「粉紅雙條車」可達附近；海灘區出發建議用 Bolt 叫車。' },
+      { id: 'andamanda', city: 'town', name: '安達曼達水上樂園 (Andamanda)', stay: 5, timeWindow: [10, 18], region: 13, regionName: '普吉鎮', type: '觀光景點', desc: '普吉島最新、最巨型的水上樂園。融合泰國神話設計，擁有人造海浪與多條刺激滑水道。', transport: '位於普吉鎮外圍，建議使用 Bolt 或 Grab 叫車。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/71806-andamanda-phuket-admission-phuket/?spm=SearchResult.SearchResult_LIST&clickId=77c4cd2b54&aid=117940', text: '水上樂園優惠門票'}] },
+      { id: 'hanuman_world', city: 'town', name: '哈努曼世界 (Hanuman World)', stay: 3, timeWindow: [9, 17], region: 13, regionName: '普吉鎮', type: '私房景點', desc: '熱帶雨林中的叢林飛躍 (Zipline) 體驗。挑戰高空滑索與天空步道，刺激又好玩。', transport: '通常包含飯店來回接送服務。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/activity/3732-zipline-adventure-hanuman-world-phuket-skywalk/?spm=SearchResult.SearchResult_LIST&clickId=33b8fc6196&aid=117940', text: '叢林飛躍套票'}] },
+
+      // ================= 西北海岸 (NorthWest) - 奢華與表演 =================
+      { id: 'kamala_beach', city: 'northwest', name: '卡馬拉海灘 (Kamala Beach)', stay: 2, timeWindow: [8, 18], region: 14, regionName: '西北海岸', type: '觀光景點', desc: '氛圍悠閒寧靜，適合想避開芭東人潮的旅客。周圍有許多高級度假村與海灘俱樂部。', transport: '搭乘 Phuket Smart Bus 於 Kamala 站下車，或從芭東用 Bolt 叫車。' },
+      { id: 'cafe_del_mar', city: 'northwest', name: 'Cafe Del Mar 海灘俱樂部', stay: 3, timeWindow: [14, 24], region: 14, regionName: '西北海岸', type: '夜生活', desc: '普吉島最高檔的海灘俱樂部之一。在泳池畔的純白躺椅上聽著 DJ 派對音樂賞夕陽。', transport: '位於卡馬拉海灘，建議使用 Bolt 叫車前往。' },
+
+      // ================= 周邊跳島 (Islands) =================
+      { id: 'phi_phi', city: 'islands', name: '皮皮島 & 瑪雅灣一日遊', stay: 8.5, timeWindow: [8, 18], region: 20, regionName: '周邊跳島', type: '觀光景點', desc: '普吉島最經典跳島！朝聖電影《海灘》絕美取景地瑪雅灣，並在清澈見底的潟湖中浮潛。', transport: '強烈建議預訂 Local Tour，旅行社會派專車至飯店接送您前往碼頭搭快艇。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/search/result/?query=%E7%9A%AE%E7%9A%AE%E5%B3%B6%E5%BF%AB%E8%89%87%E4%B8%80%E6%97%A5%E9%81%8A&aid=117940', text: '皮皮島快艇一日遊'}] },
+      { id: 'james_bond', city: 'islands', name: '攀牙灣 & 007島一日遊', stay: 8, timeWindow: [8, 17], region: 20, regionName: '周邊跳島', type: '觀光景點', desc: '欣賞矗立於海中的奇特石灰岩柱，並搭乘獨木舟穿梭於海蝕洞與紅樹林秘境中。', transport: '碼頭偏遠無大眾交通，務必購買含飯店來回接送的一日遊行程。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/search/result/?query=%E6%94%80%E7%89%99%E7%81%A3%E7%8D%A8%E6%9C%A8%E8%88%9F%E4%B8%80%E6%97%A5%E9%81%8A&aid=117940', text: '攀牙灣獨木舟一日遊'}] },
+      { id: 'racha_coral', city: 'islands', name: '皇帝島 & 珊瑚島一日遊', stay: 7.5, timeWindow: [8, 17], region: 20, regionName: '周邊跳島', type: '觀光景點', desc: '距離本島最近的跳島選擇。皇帝島水質極佳適合深潛；珊瑚島則有豐富的水上活動(拖曳傘)。', transport: '從南部查龍碼頭出發，建議直接報名含接送的一日遊最省事。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/search/result/?query=%E7%9A%87%E5%B8%9D%E5%B3%B6%E9%9B%99%E9%AB%94%E5%B8%86%E8%88%B9%E9%81%8A&aid=117940', text: '皇帝島雙體帆船遊'}] },
+      { id: 'similan', city: 'islands', name: '斯米蘭群島一日遊', stay: 10.5, timeWindow: [6, 19], region: 20, regionName: '周邊跳島', type: '私房景點', desc: '【季節限定 10月-5月】世界級潛水勝地！擁有果凍般的海水與細白沙灘，海龜出沒率極高。', transport: '車船路程極遠(車程1.5h+船程1.5h)。務必購買行程由旅行社全程包辦交通。', bookingLinks: [{url: 'https://www.klook.com/zh-TW/search/result/?query=%E6%96%AF%E7%B1%B3%E8%98%AD%E7%BE%A4%E5%B3%B6&aid=117940', text: '斯米蘭群島極致浮潛'}] }
+    ];
+
+    const CITIES = [
+      { id: 'patong', name: '芭東區', color: 'blue' },
+      { id: 'south', name: '卡倫/南部', color: 'amber' },
+      { id: 'town', name: '普吉鎮(夜市)', color: 'teal' },
+      { id: 'northwest', name: '西北海岸', color: 'rose' },
+      { id: 'islands', name: '周邊跳島', color: 'emerald' }
+    ];
+
+    // --- 核心交通與排程邏輯區 ---
+    const formatTime = (h) => {
+      let hh = Math.floor(h) % 24;
+      let mm = Math.round((h - Math.floor(h)) * 60);
+      if (mm === 60) { hh++; mm = 0; }
+      return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+    };
+
+    const getCityColor = (cityId) => {
+      const colors = { patong: 'blue', south: 'amber', town: 'teal', northwest: 'rose', islands: 'emerald' };
+      const c = colors[cityId] || 'slate';
+      return `text-${c}-600 bg-${c}-100 border-${c}-200`;
+    };
+
+    const getSmartTransit = (prev, curr) => {
+      if (curr.id === 'ret') return '✈️ 【準備返航】搭乘計程車、Bolt或預約專車前往普吉國際機場 (HKT) 報到。';
+
+      if (curr.region === 20) return `🚤 【出海跳島】搭乘旅行社專車前往碼頭，轉乘快艇/雙體船出海。\n💡 行程提醒：跳島為全日行程，記得攜帶防曬用品並預先服用暈船藥。`;
+      if (prev && prev.region === 20) return `🚐 【返回飯店】結束跳島行程，搭乘旅行社的接駁專車返回飯店休息。`;
+
+      if (!prev || prev.id.startsWith('acc_') || prev.type === '起點') {
+        if (curr.type === '機場') return `🛬 【抵達普吉】搭乘普吉智慧巴士 (Smart Bus) 或計程車前往 ${curr.name}。`;
+        return `🏨 【出發前往】使用 Bolt 叫車或搭乘雙條車前往 ${curr.name}。`;
+      }
+
+      if (prev.city !== curr.city && prev.id !== 'origin') {
+         return `🚕 【跨區移動】普吉島面積較大，跨區強烈建議使用 Bolt 或 InDrive App 叫車，價格透明且舒適。\n💡 若有時間，白天也可利用普吉鎮為樞紐搭乘「藍色雙條車」轉乘。`;
+      }
+
+      return `🛺 【周邊移動】從 ${prev.name} 步行、或使用 Bolt 短程叫車前往 ${curr.name}。`;
+    };
+
+    // --- 主應用程式 ---
+    function App() {
+      // 預設選擇芭東區
+      const [activeCity, setActiveCity] = useState('patong');
+      const [selectedIds, setSelectedIds] = useState([]);
+      const [showPrintView, setShowPrintView] = useState(false);
+      const [tripDuration, setTripDuration] = useState(5);
+
+      const toggleAttr = (id) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+      const itineraryDays = useMemo(() => {
+        if (selectedIds.length === 0) return [];
+
+        let idsToSchedule = [...selectedIds];
+        idsToSchedule = [...new Set(idsToSchedule)];
+
+        // 排序權重定義 (確保城市分群與時間合理性)
+        const getPriority = (item) => {
+            if (item.id === 'ret') return 999;
+            if (item.type === '起點') return 10;
+            if (item.type === '機場') return 15;
+            if (item.type === '住宿區域') return 20; 
+            
+            let win = item.timeWindow || [9.5, 21.5];
+
+            // 晚上才去的行程排後面 (夜市、夜生活)
+            const isNight = ['夜生活', '商圈'].includes(item.type) && win[0] >= 16;
+            if (isNight) return 90; 
+            
+            // 跳島與全日樂園行程通常佔用一整天白天
+            if (item.stay >= 5) return 25;
+
+            // 一般白天景點
+            if (win[1] <= 18) return 30; 
+            
+            return 50; 
+        };
+
+        const sorted = idsToSchedule
+          .map(id => ATTRACTIONS.find(a => a.id === id))
+          .filter(a => a)
+          .sort((a, b) => {
+            const getSortKey = (item) => {
+              let sk = getPriority(item);
+              // 強制將同區域的資料分群
+              let cityGroup = CITIES.findIndex(c => c.id === item.city);
+              return cityGroup * 100000 + sk * 1000; 
+            };
+            return getSortKey(a) - getSortKey(b);
+          });
+
+        let remaining = [...sorted];
+        let days = [];
+        
+        // ★ 第一天從 13:00 開始 (假設過午抵達或放完行李)
+        let curDay = { items: [], dayCity: 'patong', dayType: null, currentTime: 13.0 }; 
+        let lCity = 'patong', lReg = 11;
+        let prevItemObj = null; 
+
+        // 交通時間計算 (普吉島較大，調整跨區時間)
+        const getTTime = (isNewDay, fCity, tCity, fReg, tReg) => {
+            // 跳島來回時間
+            if (fReg === 20 && tReg !== 20) return 1.5; 
+            if (tReg === 20 && fReg !== 20) return 1.5;
+            
+            if (isNewDay) return 0.5; 
+
+            // 普吉島跨區較遠，約需 45m-1h
+            if (fCity && tCity && fCity !== tCity) {
+                return 0.8; 
+            }
+            // 同區域移動
+            return 0.3; 
+        };
+
+        const checkValid = (a, isF, curTime) => {
+            let tTime = getTTime(isF, lCity, a.city, lReg, a.region);
+            let arrivalTime = curTime + tTime;
+            let isLastDay = days.length === tripDuration - 1;
+            
+            if (!isF) {
+                let isBasic = ['住宿區域', '機場', '起點'].includes(a.type);
+                if (!isBasic) {
+                    // 同區域景點排同一天：強制鎖定同區域
+                    if (a.city !== lCity) {
+                        let hasSameCityLeft = remaining.some(r => r.city === lCity && !['住宿區域', '機場', '起點'].includes(r.type));
+                        if (hasSameCityLeft) return false; 
+                        
+                        // 普吉島跨區耗時，過中午後非夜市行程不建議跨區
+                        if (curTime > 15 && a.type !== '商圈' && a.type !== '夜生活') return false;
+                    }
+                }
+            }
+
+            let win = a.timeWindow || [8, 22]; 
+            if (['住宿區域', '機場'].includes(a.type)) win = [0, 24];
+
+            let waitTime = 0;
+            if (arrivalTime < win[0]) {
+                waitTime = win[0] - arrivalTime;
+                if (waitTime > 2.0 && !isF) return false; // 等太久跳過
+            }
+
+            let actStart = arrivalTime + waitTime;
+            let actEnd = actStart + a.stay;
+
+            // 抵達時已過營業時間
+            if (actStart >= win[1] - 0.5) return false; 
+            
+            // 跳島/樂園等長行程不能排在抵達的下午
+            // 修改判定：允許長行程排在中午 12:00 以前 (修復跳島無法排入的問題)
+            if (a.stay >= 5 && actStart > 12) return false;
+
+            // 最後一天的時間鎖死 (接 14:00 去機場)
+            if (isLastDay) {
+                let retTFromA = getTTime(false, a.city, 'patong', a.region, 10);
+                let maxEndTime = 14.0 - 2.5 - retTFromA; 
+                if (actEnd > maxEndTime) return false;
+            } else {
+                if (!isF && actEnd > 24.0) return false; 
+            }
+
+            return { valid: true, tTime, waitTime, actStart, actEnd };
+        };
+
+        while (remaining.length > 0) {
+            const isF = curDay.items.length === 0;
+            let chosenIdx = -1;
+            let chosenStats = null;
+
+            // 尋找最適合的行程
+            let validCands = [];
+            for (let i = 0; i < remaining.length; i++) {
+                let stats = checkValid(remaining[i], isF, curDay.currentTime);
+                if (stats && stats.valid) {
+                    validCands.push({ a: remaining[i], idx: i, prio: getPriority(remaining[i]), stats });
+                }
+            }
+
+            if (validCands.length > 0) {
+                validCands.sort((ca, cb) => {
+                    let isSameCityA = ca.a.city === lCity ? 1 : 0;
+                    let isSameCityB = cb.a.city === lCity ? 1 : 0;
+                    if (isSameCityA !== isSameCityB) return isSameCityB - isSameCityA;
+
+                    if (ca.prio !== cb.prio) return ca.prio - cb.prio;
+                    if (ca.stats.tTime !== cb.stats.tTime) return ca.stats.tTime - cb.stats.tTime;
+                    let winA = ca.a.timeWindow || [8, 22];
+                    let winB = cb.a.timeWindow || [8, 22];
+                    if (winA[1] !== winB[1]) return winA[1] - winB[1];
+                    
+                    return ca.idx - cb.idx;
+                });
+                chosenIdx = validCands[0].idx;
+                chosenStats = validCands[0].stats;
+            }
+
+            // 本日塞不下了，強制換天
+            if (chosenIdx === -1) {
+                days.push(curDay);
+                if (days.length >= tripDuration) break; // 天數已滿
+                
+                curDay = { items: [], dayCity: remaining[0].city, dayType: null, currentTime: 9.0 };
+                continue;
+            }
+
+            const a = remaining.splice(chosenIdx, 1)[0];
+            const { tTime, waitTime, actStart, actEnd } = chosenStats;
+
+            if (isF && days.length === 0) prevItemObj = { id: 'origin', city: 'patong', name: '機場/抵達點', type: '起點' };
+            if (isF && days.length > 0) prevItemObj = { id: 'acc_hotel', city: a.city, name: `住宿地 (${CITIES.find(c=>c.id===a.city)?.name || '芭東'})`, type: '住宿區域' }; 
+
+            let sTime = curDay.currentTime;
+            let aTime = sTime + tTime;
+            let finalWaitTime = actStart - aTime; 
+
+            let transitMsg = getSmartTransit(prevItemObj, a);
+            if(a.transport) transitMsg += `\n📍 路線指南：${a.transport}`;
+            
+            let win = a.timeWindow || [8, 22];
+            if (finalWaitTime > 0 && win[0] > 0 && !['住宿區域', '機場'].includes(a.type)) {
+                transitMsg += `\n💡 建議：此景點建議 ${win[0]}:00 後開始，預計 ${formatTime(aTime)} 抵達，可於周邊稍作休息。`;
+            }
+
+            let isFirstAirport = (days.length === 0 && isF && a.type === '機場');
+
+            curDay.items.push({
+                ...a, tTime: tTime.toFixed(1), prevName: prevItemObj.name, transitTransport: transitMsg,
+                tStr: `${formatTime(sTime)} - ${formatTime(aTime)}`,
+                sStr: isFirstAirport ? '抵達通關' : `${formatTime(actStart)} - ${formatTime(actEnd)}`,
+                isFirstAirport,
+                endTime: actEnd
+            });
+
+            curDay.currentTime = actEnd;
+            lCity = a.city; lReg = a.region; prevItemObj = a;
+            if (isF) curDay.dayCity = a.city;
+        }
+        
+        if (curDay.items.length > 0 && days.length < tripDuration) {
+            days.push(curDay);
+        }
+        while (days.length < tripDuration) {
+            days.push({ items: [], dayCity: lCity, dayType: null, currentTime: 9.0 });
+        }
+
+        // ================= ★ 壓軸機場 (強制定死在最後一天 14:00) =================
+        let lastD = days[days.length-1];
+        if (!lastD) {
+            lastD = { items: [], dayCity: 'patong', dayType: null, currentTime: 9.0 };
+            days.push(lastD);
+        }
+        
+        let retT = getTTime(lastD.items.length === 0, lCity, 'patong', lReg, 10);
+
+        while (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            let testRetT = getTTime(false, lastItem.city, 'patong', lastItem.region, 10);
+            if (lastItem.endTime > (14.0 - 2.5 - testRetT)) {
+                lastD.items.pop();
+            } else {
+                break;
+            }
+        }
+
+        if (lastD.items.length > 0) {
+            let lastItem = lastD.items[lastD.items.length-1];
+            lastD.currentTime = lastItem.endTime;
+            lCity = lastItem.city;
+            lReg = lastItem.region;
+            prevItemObj = lastItem;
+        } else {
+            lastD.currentTime = 9.0;
+            lReg = 11;
+            prevItemObj = { name: '住宿地', city: lCity };
+        }
+        
+        retT = getTTime(lastD.items.length === 0, lCity, 'patong', lReg, 10);
+        let startTransit = 14.0 - 2.5 - retT;
+        let transitMsg = '🚐 搭乘 Bolt、計程車或飯店專車前往普吉國際機場 (HKT) 報到。';
+        
+        if (lastD.currentTime < startTransit) {
+            transitMsg = `💡 距離前往機場還有空檔時間，建議於 ${formatTime(startTransit)} 準備出發。\n🚐 搭乘車輛前往普吉機場。`;
+        }
+        
+        let retPrev = prevItemObj || {name: '住宿地', city: 'patong'};
+        lastD.items.push({
+            id: 'ret', city: 'patong', name: '結束旅程前往機場', stay: 2.5, region: 999, regionName: '機場', type: '機場',
+            desc: '帶著滿滿的普吉島與跳島回憶準備返家！建議提前抵達機場辦理退稅與免稅店購物。', transport: '於最後行程地點搭車前往普吉機場。',
+            tTime: retT.toFixed(1), prevName: retPrev.name, transitTransport: transitMsg,
+            tStr: `${formatTime(startTransit)} - ${formatTime(14.0 - 2.5)}`,
+            sStr: `${formatTime(14.0 - 2.5)} - 14:00`,
+            isFirstAirport: false,
+            endTime: 14.0
+        });
+        
+        lastD.currentTime = 14.0;
+
+        return days.map((d, i) => {
+          const base = (i === 0 && d.items[0]?.isFirstAirport ? 13.0 : (i === 0 ? 13.0 : 9.0));
+          const end = d.currentTime;
+          return { dayNum: i+1, totalH: (end - base > 0 ? (end - base).toFixed(1) : "0.0"), cityName: CITIES.find(c => c.id === d.dayCity)?.name || '芭東', items: d.items };
+        });
+      }, [selectedIds, tripDuration]);
+
+      if (showPrintView) {
+        return (
+          <div className="min-h-screen bg-white p-4 sm:p-8">
+            <div className="max-w-3xl mx-auto border-2 border-slate-800 p-4 sm:p-8 rounded-2xl">
+              <div className="text-center mb-10"><h1 className="text-2xl sm:text-3xl font-bold">🌴 專屬普吉島度假 行程表</h1><p className="mt-2 text-slate-500 text-sm">智慧排程系統自動為您計算海島交通與建議時段</p></div>
+              {itineraryDays.map(d => (
+                <div key={d.dayNum} className="mb-10 print-break-avoid">
+                  <h2 className="text-xl font-bold border-b-2 pb-2 mb-6">🌞 第 {d.dayNum} 天 - 【{d.cityName} 區域】 ({d.totalH}h)</h2>
+                  <div className="space-y-6 ml-2 sm:ml-4 border-l-2 pl-4 sm:pl-6 border-slate-300">
+                    {d.items.map((it, idx) => (
+                      <div key={`${it.id}-${idx}`} className="relative mb-8">
+                        {!it.isFirstAirport && (
+                          <div className="mb-4 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs sm:text-sm">
+                             <div className="font-bold mb-2">{it.prevName} ➔ {it.name}</div>
+                             <div className="flex gap-3 mb-2"><span className="bg-white px-2 py-1 rounded border font-mono text-teal-500"><i className="fa-regular fa-clock"></i> {it.tStr}</span><span>車程/船程估計：{it.tTime}h</span></div>
+                             <div className="whitespace-pre-wrap text-slate-600">{it.transitTransport}</div>
+                          </div>
+                        )}
+                        <div className="relative">
+                          <div className="absolute -left-[23px] sm:-left-[31px] top-1 w-3 h-3 bg-teal-500 rounded-full border-2 border-white"></div>
+                          <div className="font-bold text-xs sm:text-sm text-slate-500 mb-1"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留：'}{it.sStr}</div>
+                          <h4 className="text-lg sm:text-xl font-bold text-slate-900">{it.name}</h4>
+                          <p className="text-xs sm:text-sm text-slate-600 my-2 leading-relaxed">{it.desc}</p>
+                          {it.bookingLinks && <div className="mt-3 flex gap-2 flex-wrap print-hidden">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] text-white text-xs px-2.5 py-1.5 rounded font-bold hover:bg-[#e05000]"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="mt-10 text-center flex flex-col sm:flex-row justify-center gap-4 print-hidden">
+                <button onClick={() => setShowPrintView(false)} className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700">返回編輯</button>
+                <button onClick={() => window.print()} className="bg-teal-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-teal-500">列印行程 / 儲存 PDF</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const grouped = ATTRACTIONS.filter(a => a.city === activeCity && !a.id.startsWith('acc_')).reduce((acc, c) => { (acc[c.type] = acc[c.type] || []).push(c); return acc; }, {});
+
+      return (
+        <div className="min-h-screen bg-slate-50 pb-10 flex flex-col">
+          <header className="bg-white/90 backdrop-blur-md p-4 sm:px-6 shadow-sm flex flex-wrap justify-between items-center sticky top-0 z-20 border-b gap-3">
+            <div className="flex items-center gap-4">
+              <h1 className="font-bold text-xl flex items-center gap-2"><i className="fa-solid fa-umbrella-beach text-teal-500"></i>普吉行程魔法師</h1>
+              {/* 回到首頁連結更新 */}
+              <a 
+                href="https://kokko-travel.com/zh/phuket/" 
+                className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-teal-600 bg-slate-100 hover:bg-teal-50 px-4 py-2 rounded-full transition-all border border-slate-200 hover:shadow-sm"
+              >
+                <i className="fa-solid fa-house"></i> 回到首頁
+              </a>
+            </div>
+            <div className="flex items-center gap-3">
+              {selectedIds.length > 0 && (
+                <button 
+                  onClick={() => setSelectedIds([])} 
+                  className="text-xs font-bold text-red-500 hover:text-white border border-red-500 hover:bg-red-500 px-4 py-2 rounded-full shadow-sm transition-colors flex items-center gap-1 cursor-pointer"
+                  title="清空所有已選景點"
+                >
+                  <i className="fa-solid fa-trash-can"></i> 清空
+                </button>
+              )}
+              <div className="text-xs font-bold bg-slate-800 text-white px-4 py-2 rounded-full shadow-sm tracking-wide">已選 {selectedIds.length} 站</div>
+            </div>
+          </header>
+          
+          <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col lg:flex-row gap-6 lg:gap-8 mt-2">
+            
+            {/* 左側：景點選擇 */}
+            <div className="lg:w-1/2 flex flex-col gap-4">
+              <nav aria-label="分區選擇" className="bg-white p-2 sm:p-2.5 rounded-xl flex gap-2 overflow-x-auto shadow-sm custom-scrollbar snap-x">
+                {CITIES.map(c => <button key={c.id} onClick={() => setActiveCity(c.id)} className={`snap-center px-5 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 ${activeCity === c.id ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}>{c.name}</button>)}
+              </nav>
+              
+              <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-slate-200/60">
+                <h2 className="text-sm font-bold flex items-center gap-2 mb-2 tracking-wide text-slate-700">
+                  <i className="fa-solid fa-circle-info text-teal-500 text-lg"></i>
+                  智慧排程提示
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                  系統會自動將<strong className="text-orange-500">需搭船的跳島一日遊</strong>排在白天，並將<strong className="text-indigo-500">芭東酒吧/週末夜市</strong>排在晚上。<br className="hidden sm:block"/>普吉島幅員廣闊，跨區域會為您自動計算 Bolt/雙條車的合理交通時間！
+                </p>
+              </div>
+
+              <div className="max-h-[65vh] overflow-y-auto space-y-6 pr-2 custom-scrollbar pb-10">
+                {Object.entries(grouped).map(([type, items]) => (
+                  <section key={type} className="mb-6">
+                    <h3 className="font-extrabold text-slate-800 mb-4 sticky top-0 bg-slate-50/95 py-3 backdrop-blur-md z-10 border-b border-slate-200/60 tracking-wide">{type}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {items.map(it => (
+                        // AEO / GEO 微資料標籤 (Microdata) 置入
+                        <article key={it.id} onClick={() => toggleAttr(it.id)} itemScope itemType="https://schema.org/TouristAttraction" className={`p-4 sm:p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300 flex flex-col ${selectedIds.includes(it.id) ? 'bg-teal-50/80 border-teal-500 scale-[1.02] shadow-md' : 'bg-white border-slate-100 shadow-sm hover:border-slate-300 hover:shadow-md'}`}>
+                          <h4 itemProp="name" className="font-bold text-slate-900 leading-snug mb-3 text-base">{it.name}</h4>
+                          <div className="text-[11px] font-medium flex flex-wrap gap-2 mb-3">
+                            <span className="bg-slate-100 px-2 py-1 rounded-md text-slate-600 border border-slate-200/60 shadow-sm"><i className="fa-regular fa-clock mr-1"></i>{it.stay}h</span>
+                            <span className={`px-2 py-1 rounded-md border shadow-sm ${getCityColor(it.city)}`}><i className="fa-solid fa-location-dot"></i> {it.regionName}</span>
+                          </div>
+                          <p itemProp="description" className="text-xs sm:text-sm text-slate-500 line-clamp-3 leading-relaxed mt-auto">{it.desc}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </div>
+
+            {/* 右側：自動生成的行程表 */}
+            <div className="lg:w-1/2">
+              <div className="bg-white rounded-3xl shadow-xl border border-slate-200/60 overflow-hidden flex flex-col max-h-[85vh] sticky top-24">
+                <div className="bg-slate-800 text-white p-5 lg:p-7">
+                  <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 tracking-wide"><i className="fa-regular fa-calendar-check text-teal-400"></i>您的完美行程表</h2>
+                  <p className="text-xs sm:text-sm opacity-80 mt-2 leading-relaxed">💡 若行程過多，系統會依營業時間與交通為您自動分天數</p>
+                  
+                  <div className="flex flex-wrap gap-3 mt-5">
+                    <div className="flex gap-3 w-full sm:w-auto">
+                      <select 
+                        value={tripDuration} 
+                        onChange={(e) => setTripDuration(Number(e.target.value))}
+                        className="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-white font-bold py-3.5 px-4 rounded-xl outline-none cursor-pointer transition-colors shadow-lg border border-slate-600 text-sm sm:text-base focus:ring-2 focus:ring-teal-500"
+                        title="選擇旅遊總天數"
+                      >
+                        <option value={4}>4 日遊</option>
+                        <option value={5}>5 日遊</option>
+                        <option value={6}>6 日遊</option>
+                        <option value={7}>7 日遊</option>
+                        <option value={8}>8 日遊</option>
+                      </select>
+                      <button 
+                        onClick={() => setSelectedIds([])} 
+                        className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold shadow-lg transition-all cursor-pointer text-sm sm:text-base ${selectedIds.length > 0 ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-slate-600 text-slate-400 hover:bg-slate-500 hover:text-white'}`}
+                        title="清空並重新輸入行程"
+                      >
+                        <i className="fa-solid fa-rotate-right"></i>
+                        <span>重設</span>
+                      </button>
+                    </div>
+                    <button onClick={() => setShowPrintView(true)} disabled={itineraryDays.length === 0} className="w-full sm:flex-1 bg-teal-500 hover:bg-teal-600 py-3.5 px-4 rounded-xl font-bold shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm sm:text-base cursor-pointer">
+                      產出詳細行程
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="p-5 sm:p-7 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                  {itineraryDays.length === 0 ? <div className="text-center text-slate-400 py-24 flex flex-col items-center gap-4"><i className="fa-solid fa-plane-departure text-6xl opacity-10"></i><p className="text-lg font-medium">尚未選擇任何景點</p></div> : 
+                    itineraryDays.map(d => (
+                      <section key={d.dayNum} className="mb-10">
+                        <h3 className="font-extrabold text-lg sm:text-xl mb-5 border-b-2 border-slate-200/80 pb-3 flex items-center gap-2 text-slate-800">
+                          <i className="fa-solid fa-sun text-orange-500 text-2xl drop-shadow-sm"></i> 第 {d.dayNum} 天 - 【{d.cityName}】 
+                          <span className="text-xs sm:text-sm font-bold text-slate-500 bg-slate-200 px-2 py-1 rounded ml-auto">總計: {d.totalH}h</span>
+                        </h3>
+                        <div className="space-y-6 border-l-[3px] border-slate-200 ml-4 sm:ml-5 pl-7 sm:pl-8 relative pb-4">
+                          {d.items.map((it, idx) => (
+                            <div key={`${it.id}-${idx}`} className="relative mb-6">
+                              {!it.isFirstAirport && (
+                                <div className="mb-5 relative">
+                                  <div className="absolute -left-[43px] sm:-left-[47px] top-1/2 -translate-y-1/2 w-5 h-5 bg-slate-100 rounded-full border-2 border-slate-300 flex items-center justify-center shadow-sm z-10"><i className="fa-solid fa-arrow-down text-[10px] text-slate-400"></i></div>
+                                  <div className={`rounded-xl p-3.5 text-xs sm:text-sm border shadow-sm ${it.transitTransport.includes('跨區') || it.transitTransport.includes('出海') ? 'bg-orange-50/80 border-orange-100' : 'bg-teal-50/80 border-teal-100'}`}>
+                                    <div className={`font-bold mb-2 tracking-wide ${it.transitTransport.includes('跨區') || it.transitTransport.includes('出海') ? 'text-orange-800' : 'text-teal-800'}`}>{it.prevName} ➔ {it.name}</div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                      <span className={`bg-white px-2.5 py-1 rounded-md border font-mono shadow-sm font-medium ${it.transitTransport.includes('跨區') || it.transitTransport.includes('出海') ? 'border-orange-200 text-orange-600' : 'border-teal-200 text-teal-600'}`}>
+                                        <i className="fa-regular fa-clock mr-1"></i> {it.tStr}
+                                      </span>
+                                      <span className={`font-bold ${it.transitTransport.includes('跨區') || it.transitTransport.includes('出海') ? 'text-orange-600' : 'text-teal-600'}`}>車/船程 {it.tTime}h</span>
+                                    </div>
+                                    <div className="text-slate-600 whitespace-pre-wrap leading-relaxed">{it.transitTransport}</div>
+                                  </div>
+                                </div>
+                              )}
+                              <article className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm relative hover:shadow-lg transition-all duration-300">
+                                <div className="absolute -left-[39px] sm:-left-[43px] top-5 w-5 h-5 bg-teal-500 rounded-full border-[3px] border-white shadow-md z-10"></div>
+                                <div className="text-xs sm:text-sm font-bold text-slate-400 mb-2"><i className="fa-regular fa-clock"></i> {it.isFirstAirport ? '' : '停留: '}{it.sStr}</div>
+                                <h4 className="font-bold text-lg sm:text-xl mb-2 text-slate-800">{it.name}</h4>
+                                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mb-1">{it.desc}</p>
+                                {it.bookingLinks && <div className="mt-4 flex gap-2 flex-wrap">{it.bookingLinks.map((l, i) => <a key={i} href={l.url} target="_blank" className="bg-[#ff5b00] hover:bg-[#e05000] text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-lg font-bold transition-colors shadow-sm focus:ring-2 focus:ring-[#ff5b00] focus:ring-offset-1"><i className="fa-solid fa-ticket mr-1"></i>🎟️ {l.text}</a>)}</div>}
+                              </article>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+          </main>
+
+          {/* Footer: 加入版權警語與 RWD 排版 */}
+          <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 md:mt-16 mb-4 w-full print-hidden">
+            <div className="border-t border-slate-200/80 pt-8 flex flex-col items-center text-center space-y-4">
+              <div className="text-slate-400 text-xs sm:text-sm leading-relaxed max-w-2xl px-2">
+                <p className="mb-1.5 font-bold tracking-wide text-slate-500">Copyright &copy; 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+                <p>版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+                <p>本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+              </div>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
