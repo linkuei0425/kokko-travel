@@ -72,7 +72,7 @@
         (function() {
             var userLang = navigator.language || navigator.userLanguage;
             if (userLang && !userLang.toLowerCase().startsWith('zh')) {
-                window.location.replace('https://kokko-travel.com/en/bangkok/'); 
+                window.location.replace('https://kokko-travel.com/en/busan/'); 
             }
         })();
     </script>
@@ -376,6 +376,16 @@
                 if(startStation && endStation && startStation !== endStation) {
                     const legs = findShortestPath(startStation, endStation);
                     setRoute(legs);
+
+                    // 【新增】送出 GA4 查路線事件 (Task Completion 訊號)
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'search_route', {
+                            'event_category': 'Transit',
+                            'start_station': startStation,
+                            'end_station': endStation,
+                            'transport_type': 'MRT/BTS'
+                        });
+                    }
                 } else { setRoute(null); }
             }, [startStation, endStation]);
 
