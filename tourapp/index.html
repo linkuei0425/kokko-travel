@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kokko Travel 旅遊手札</title>
+  
+  <!-- 引入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入 Babel 來在瀏覽器中即時編譯 React JSX 語法 -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <link rel="icon" href="https://kokko-travel.com/logo.png">
+  <style>
+    /* 隱藏捲軸但可滾動的小工具類別 */
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-pink-50 min-h-screen">
+
+  <!-- React 應用程式的掛載點 -->
+  <div id="root"></div>
+
+  <!-- 使用 Babel 與 Module 模式載入並執行 -->
+  <script type="text/babel" data-type="module">
+    import React, { useState, useRef, useEffect } from 'https://esm.sh/react@18.2.0';
+    import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
+    import { 
+      PlaneTakeoff, PlaneLanding, CalendarHeart, MapPin, 
+      Camera, DollarSign, Clock, ChevronRight, Printer, 
+      Plus, Trash2, Navigation, Heart, Coffee, Star, Map,
+      Image as ImageIcon, Settings, Save, Home, FolderHeart, ImagePlus, Share2
+    } from 'https://esm.sh/lucide-react@0.292.0';
+
+    import { initializeApp } from 'https://www-d-gstatic-d-com-s-gmn.v.tuangouai.com/firebasejs/11.6.1/firebase-app.js';
+    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www-d-gstatic-d-com-s-gmn.v.tuangouai.com/firebasejs/11.6.1/firebase-auth.js';
+    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from 'https://www-d-gstatic-d-com-s-gmn.v.tuangouai.com/firebasejs/11.6.1/firebase-firestore.js';
+
+    // --- Firebase Setup ---
+    // 注意：若要在自己的網頁空間使用雲端功能，請將此處的設定替換為你自己 Firebase 專案的 Config！
+    let app, auth, db;
+    try {
+      const defaultFirebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
+      
+      const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : defaultFirebaseConfig;
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+    } catch (e) {
+      console.warn("尚未設定正確的 Firebase 參數，雲端功能將暫時無法使用。請至 Firebase 後台取得金鑰並替換。");
+    }
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    // --- Helper Functions ---
+    const airlineMap = {
+      'BR': '長榮航空', 'CI': '中華航空', 'JX': '星宇航空', 'IT': '台灣虎航',
+      'CX': '國泰航空', 'JL': '日本航空', 'NH': '全日空', 'MM': '樂桃航空',
+      'TR': '酷航', 'UO': '香港快運', 'GK': '捷星日本', 'TW': '德威航空',
+      'ZE': '易斯達航空', '7C': '濟州航空', 'LJ': '真航空', 'TG': '泰國航空'
+    };
+
+    const getAirline = (flightNum) => {
+      if (!flightNum) return '';
+      const code = flightNum.trim().substring(0, 2).toUpperCase();
+      return airlineMap[code] || '';
+    };
+
+    const generateDates = (startStr, endStr) => {
+      const dates = [];
+      const curr = new Date(startStr);
+      const end = new Date(endStr);
+      while (curr <= end) {
+        const yyyy = curr.getFullYear();
+        const mm = String(curr.getMonth() + 1).padStart(2, '0');
+        const dd = String(curr.getDate()).padStart(2, '0');
+        dates.push(`${yyyy}-${mm}-${dd}`);
+        curr.setDate(curr.getDate() + 1);
+      }
+      return dates;
+    };
+
+    const formatDate = (dateString) => {
+      const date = new Date(dateString);
+      return `${date.getMonth() + 1}/${date.getDate()} (${['日', '一', '二', '三', '四', '五', '六'][date.getDay()]})`;
+    };
+
+    const getCategoryIcon = (type) => {
+      const icons = { attraction: '🌸', food: '🍔', hotel: '🏨', transport: '🚂', shopping: '🛍️', other: '✨' };
+      return icons[type] || '✨';
+    };
+
+    // --- Image Compression Helpers ---
+    const resizeImage = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800; // 壓縮最大寬度
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+              if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.7)); // 壓縮品質 70%
+          };
+          img.onerror = (err) => reject(err);
+        };
+      });
+    };
+
+    // --- Main App Component ---
+    function App() {
+      const [view, setView] = useState('dashboard'); // 'dashboard', 'setup', 'planner', 'summary'
+      const [savedTrips, setSavedTrips] = useState([]);
+      const [currentTripId, setCurrentTripId] = useState(null);
+      const [user, setUser] = useState(null);
+      
+      // Trip Info State
+      const [tripInfo, setTripInfo] = useState({
+        title: '我的可愛小旅行 🌸',
+        startDate: '',
+        endDate: '',
+        outboundFlight: { number: '', time: '' },
+        returnFlight: { number: '', time: '' },
+        flightCost: ''
+      });
+
+      const [itinerary, setItinerary] = useState({});
+      const [dates, setDates] = useState([]);
+      const [activeDateIndex, setActiveDateIndex] = useState(0);
+      const [isStandalone, setIsStandalone] = useState(true);
+
+      // --- Firebase Auth & Data Fetching ---
+      useEffect(() => {
+        if (!auth) return;
+        const initAuth = async () => {
+          try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+              await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+              await signInAnonymously(auth);
+            }
+          } catch (error) {
+            console.error("Auth error:", error);
+          }
+        };
+        initAuth();
+        const unsubscribe = onAuthStateChanged(auth, setUser);
+        return () => unsubscribe();
+      }, []);
+
+      useEffect(() => {
+        if (!user || !db) {
+          setSavedTrips([]);
+          return;
+        }
+        
+        try {
+          const tripsRef = collection(db, 'artifacts', appId, 'users', user.uid, 'trips');
+          const unsubscribe = onSnapshot(tripsRef, (snapshot) => {
+            const loadedTrips = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            loadedTrips.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+            setSavedTrips(loadedTrips);
+          }, (error) => {
+            console.error("讀取旅程失敗:", error);
+          });
+          return () => unsubscribe();
+        } catch(e) {
+          console.error(e);
+        }
+      }, [user]);
+
+      // PWA 相關偵測
+      useEffect(() => {
+        setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true);
+      }, []);
+
+      // --- Actions ---
+      const createNewTrip = () => {
+        setCurrentTripId(null);
+        setTripInfo({
+          title: '我的可愛小旅行 🌸', startDate: '', endDate: '',
+          outboundFlight: { number: '', time: '' }, returnFlight: { number: '', time: '' }, flightCost: ''
+        });
+        setItinerary({});
+        setDates([]);
+        setView('setup');
+      };
+
+      const openTrip = (trip) => {
+        setCurrentTripId(trip.id);
+        setTripInfo(trip.tripInfo);
+        setItinerary(trip.itinerary);
+        setDates(trip.dates);
+        setActiveDateIndex(0);
+        setView('planner');
+      };
+
+      const deleteTrip = async (id, e) => {
+        e.stopPropagation();
+        if(window.confirm("確定要刪除這趟旅程嗎？刪除後無法恢復喔！")) {
+          if (!user || !db) return;
+          try {
+            await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'trips', id));
+          } catch (error) {
+            console.error("刪除失敗", error);
+            alert("刪除失敗，請重試！");
+          }
+        }
+      };
+
+      const handleStart = () => {
+        if (!tripInfo.startDate || !tripInfo.endDate) {
+          alert("請選擇開始與結束日期唷！");
+          return;
+        }
+        const generatedDates = generateDates(tripInfo.startDate, tripInfo.endDate);
+        setDates(generatedDates);
+        
+        const newItinerary = { ...itinerary };
+        generatedDates.forEach(date => {
+          if (!newItinerary[date]) newItinerary[date] = [];
+        });
+        setItinerary(newItinerary);
+        setView('planner');
+      };
+
+      const handleSaveTrip = async () => {
+        if (!user || !db) {
+          alert("雲端連線失敗！請確認程式碼中的 Firebase 參數是否已正確填寫。");
+          return;
+        }
+        
+        const tripId = currentTripId || Date.now().toString();
+        const tripData = {
+          tripInfo,
+          itinerary,
+          dates,
+          updatedAt: Date.now()
+        };
+        
+        try {
+          const tripRef = doc(db, 'artifacts', appId, 'users', user.uid, 'trips', tripId);
+          await setDoc(tripRef, tripData);
+          if (!currentTripId) setCurrentTripId(tripId);
+          alert("🎉 旅程已成功儲存至雲端！");
+        } catch (error) {
+          console.error("儲存失敗", error);
+          alert("儲存失敗：請檢查容量上限或是網路連線。");
+        }
+      };
+
+      const handleShareTrip = () => {
+        let shareText = `🌸 ${tripInfo.title} 🌸\n`;
+        shareText += `📅 日期: ${tripInfo.startDate.replace(/-/g, '/')} ~ ${tripInfo.endDate.replace(/-/g, '/')}\n`;
+        if(tripInfo.outboundFlight.number) shareText += `🛫 去程: ${tripInfo.outboundFlight.number} (${tripInfo.outboundFlight.time || '未定'})\n`;
+        if(tripInfo.returnFlight.number) shareText += `🛬 回程: ${tripInfo.returnFlight.number} (${tripInfo.returnFlight.time || '未定'})\n`;
+        shareText += `\n✨ 行程總覽 ✨\n`;
+
+        dates.forEach((date, idx) => {
+          const dayActs = itinerary[date] || [];
+          if(dayActs.length > 0) {
+            shareText += `\n[Day ${idx + 1} - ${formatDate(date)}]\n`;
+            dayActs.forEach(act => {
+              const icon = getCategoryIcon(act.type);
+              shareText += `${act.time} ${icon} ${act.title}\n`;
+              if(act.location) shareText += `   📍 ${act.location}\n`;
+            });
+          }
+        });
+
+        shareText += `\n🐥 來自 Kokko Travel 可愛旅遊手札`;
+
+        if (navigator.share) {
+          navigator.share({
+            title: tripInfo.title,
+            text: shareText
+          }).catch((err) => {
+            console.log('Share canceled or failed', err);
+          });
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = shareText;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand('copy');
+            alert("📋 行程文字已複製到剪貼簿！");
+          } catch (err) {}
+          document.body.removeChild(textArea);
+        }
+      };
+
+      const addActivity = (date, activity) => {
+        setItinerary(prev => ({
+          ...prev,
+          [date]: [...prev[date], { ...activity, id: Date.now().toString() }].sort((a, b) => a.time.localeCompare(b.time))
+        }));
+      };
+
+      const deleteActivity = (date, id) => {
+        setItinerary(prev => ({
+          ...prev,
+          [date]: prev[date].filter(act => act.id !== id)
+        }));
+      };
+
+      const getTotalCost = (targetTripInfo = tripInfo, targetItinerary = itinerary) => {
+        let total = Number(targetTripInfo.flightCost) || 0;
+        Object.values(targetItinerary).forEach(day => {
+          day.forEach(act => {
+            total += Number(act.cost) || 0;
+          });
+        });
+        return total;
+      };
+
+      return (
+        <div className="min-h-screen bg-pink-50 font-sans text-slate-800 flex flex-col">
+          {/* Dashboard View */}
+          {view === 'dashboard' && (
+            <div className="max-w-4xl mx-auto w-full p-4 md:p-6 flex-grow">
+              {!isStandalone && (
+                <div className="bg-pink-100 text-pink-600 text-xs md:text-sm px-4 py-3 rounded-2xl mb-4 flex items-center justify-center gap-2 font-bold shadow-sm border border-pink-200">
+                  <span className="text-lg animate-bounce">💡</span> 
+                  <span>小提示：在手機瀏覽器點擊「加到主畫面」，就能變成專屬 APP 喔！</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center mb-8 mt-4 flex-wrap gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden shadow-sm border-2 border-pink-200 bg-white">
+                    <img src="https://kokko-travel.com/logo.png" alt="Logo" className="w-full h-full object-cover" onError={(e)=>{e.target.style.display='none'}} />
+                  </div>
+                  <h1 className="text-2xl font-bold text-pink-600">我的旅程庫</h1>
+                </div>
+                <button 
+                  onClick={createNewTrip}
+                  className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-full font-bold shadow-md flex items-center gap-2 transition-transform hover:scale-105"
+                >
+                  <Plus className="w-5 h-5" /> <span className="hidden sm:inline">新增旅程</span>
+                </button>
+              </div>
+
+              {savedTrips.length === 0 ? (
+                <div className="bg-white rounded-3xl p-10 text-center shadow-sm border-2 border-dashed border-pink-200 mt-10">
+                  <FolderHeart className="w-16 h-16 text-pink-300 mx-auto mb-4" />
+                  <h2 className="text-xl font-bold text-slate-600 mb-2">還沒有任何旅程紀錄喔！</h2>
+                  <p className="text-slate-400 mb-6">開始規劃你的第一趟專屬旅行吧 ✈️</p>
+                  <button 
+                    onClick={createNewTrip}
+                    className="bg-pink-100 text-pink-600 px-6 py-3 rounded-full font-bold hover:bg-pink-200 transition-colors inline-flex items-center gap-2"
+                  >
+                    <PlaneTakeoff className="w-5 h-5" /> 立即建立新旅程
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                  {savedTrips.map(trip => (
+                    <div 
+                      key={trip.id} 
+                      onClick={() => openTrip(trip)}
+                      className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow border border-pink-100 cursor-pointer relative group"
+                    >
+                      <button 
+                        onClick={(e) => deleteTrip(trip.id, e)}
+                        className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-white/80 p-1 rounded-full"
+                        title="刪除旅程"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                      <CalendarHeart className="w-8 h-8 text-pink-400 mb-3" />
+                      <h3 className="font-bold text-lg text-slate-800 mb-1 pr-6 truncate">{trip.tripInfo.title}</h3>
+                      <p className="text-sm text-slate-500 mb-3">
+                        {trip.tripInfo.startDate.replace(/-/g, '/')} ~ {trip.tripInfo.endDate.replace(/-/g, '/')}
+                      </p>
+                      <div className="flex justify-between items-center text-xs border-t border-slate-50 pt-3 mt-2">
+                        <span className="text-slate-400">{trip.dates.length} 天行程</span>
+                        <span className="font-bold text-orange-400">NT$ {getTotalCost(trip.tripInfo, trip.itinerary).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Setup View */}
+          {view === 'setup' && (
+            <div className="flex flex-col items-center justify-center flex-grow p-4 md:p-6 print:hidden">
+              <div className="w-full max-w-lg md:max-w-2xl flex justify-start mb-4">
+                <button onClick={() => setView('dashboard')} className="text-pink-500 font-bold flex items-center gap-1 hover:bg-pink-100 px-3 py-1.5 rounded-full transition-colors">
+                  <Home className="w-4 h-4" /> 回首頁
+                </button>
+              </div>
+              <div className="bg-white rounded-[2rem] shadow-xl p-6 md:p-8 w-full max-w-lg md:max-w-2xl border-4 border-pink-200 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300"></div>
+                
+                <div className="text-center mb-6 md:mb-8 mt-4">
+                  <div className="w-32 h-32 md:w-40 md:h-40 mx-auto mb-4 rounded-full overflow-hidden shadow-md border-4 border-pink-100 flex items-center justify-center bg-slate-50">
+                    <img 
+                      src="https://kokko-travel.com/logo.png" 
+                      alt="Kokko Travel Logo" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/400x400/ffe4e6/ec4899?text=Logo"; }}
+                    />
+                  </div>
+                  <h1 className="text-2xl font-bold text-pink-600">{currentTripId ? '修改旅程設定 ⚙️' : '建立新旅程 ✈️'}</h1>
+                  <p className="text-slate-400 text-sm mt-2">記錄你的美好回憶</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-pink-500 mb-1">旅行名稱</label>
+                    <input 
+                      type="text" 
+                      className="w-full bg-pink-50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 border border-pink-100"
+                      value={tripInfo.title}
+                      onChange={e => setTripInfo({...tripInfo, title: e.target.value})}
+                      placeholder="例如：東京浪漫之旅"
+                    />
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <label className="block text-sm font-bold text-pink-500 mb-1">出發日期</label>
+                      <input 
+                        type="date" 
+                        className="w-full bg-pink-50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 border border-pink-100 text-slate-600"
+                        value={tripInfo.startDate}
+                        onChange={e => setTripInfo({...tripInfo, startDate: e.target.value})}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-bold text-pink-500 mb-1">回程日期</label>
+                      <input 
+                        type="date" 
+                        className="w-full bg-pink-50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 border border-pink-100 text-slate-600"
+                        value={tripInfo.endDate}
+                        min={tripInfo.startDate}
+                        onChange={e => setTripInfo({...tripInfo, endDate: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <label className="block text-sm font-bold text-pink-500 mb-1">去程航班 🛫</label>
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <input 
+                            type="text" 
+                            className="w-full bg-pink-50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 border border-pink-100"
+                            value={tripInfo.outboundFlight.number}
+                            onChange={e => setTripInfo({...tripInfo, outboundFlight: { ...tripInfo.outboundFlight, number: e.target.value.toUpperCase() }})}
+                            placeholder="航班代號 (例: BR192)"
+                          />
+                          {getAirline(tripInfo.outboundFlight.number) && (
+                            <span className="absolute right-3 top-3 text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-lg shadow-sm">
+                              {getAirline(tripInfo.outboundFlight.number)}
+                            </span>
+                          )}
+                        </div>
+                        <input 
+                          type="text" 
+                          className="w-full bg-pink-50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 border border-pink-100 text-sm"
+                          value={tripInfo.outboundFlight.time}
+                          onChange={e => setTripInfo({...tripInfo, outboundFlight: { ...tripInfo.outboundFlight, time: e.target.value }})}
+                          placeholder="時間 (例: 08:30 - 12:45)"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-bold text-pink-500 mb-1">回程航班 🛬</label>
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <input 
+                            type="text" 
+                            className="w-full bg-pink-50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 border border-pink-100"
+                            value={tripInfo.returnFlight.number}
+                            onChange={e => setTripInfo({...tripInfo, returnFlight: { ...tripInfo.returnFlight, number: e.target.value.toUpperCase() }})}
+                            placeholder="航班代號 (例: JX801)"
+                          />
+                          {getAirline(tripInfo.returnFlight.number) && (
+                            <span className="absolute right-3 top-3 text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded-lg shadow-sm">
+                              {getAirline(tripInfo.returnFlight.number)}
+                            </span>
+                          )}
+                        </div>
+                        <input 
+                          type="text" 
+                          className="w-full bg-pink-50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 border border-pink-100 text-sm"
+                          value={tripInfo.returnFlight.time}
+                          onChange={e => setTripInfo({...tripInfo, returnFlight: { ...tripInfo.returnFlight, time: e.target.value }})}
+                          placeholder="時間 (例: 14:00 - 16:30)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-pink-500 mb-1">機票總花費 (NT$)</label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-3.5 w-5 h-5 text-pink-400" />
+                      <input 
+                        type="number" 
+                        className="w-full bg-pink-50 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 border border-pink-100"
+                        value={tripInfo.flightCost}
+                        onChange={e => setTripInfo({...tripInfo, flightCost: e.target.value})}
+                        placeholder="15000"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={handleStart}
+                  className="mt-8 w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-pink-300/50 flex items-center justify-center gap-2"
+                >
+                  {dates.length > 0 ? '確認設定並繼續' : '開始規劃'} <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Planner View */}
+          {view === 'planner' && dates.length > 0 && (
+            <div className="max-w-3xl mx-auto w-full pb-10 print:hidden flex-grow">
+              <div className="bg-white px-4 md:px-6 py-4 md:py-6 rounded-b-[2rem] shadow-sm mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 z-20">
+                <div>
+                  <div className="flex items-center gap-2 md:gap-3 flex-wrap mb-1">
+                    <button onClick={() => setView('dashboard')} className="p-1.5 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition-colors" title="回首頁">
+                      <Home className="w-5 h-5" />
+                    </button>
+                    <h1 className="text-lg md:text-xl font-bold text-pink-600 flex items-center gap-2">
+                      <span className="truncate max-w-[180px] sm:max-w-xs">{tripInfo.title}</span>
+                    </h1>
+                    <button 
+                      onClick={() => setView('setup')}
+                      className="text-slate-400 hover:text-pink-500 transition-colors bg-slate-50 hover:bg-pink-50 pl-2 pr-3 py-1 rounded-full flex items-center gap-1 text-xs font-bold border border-slate-100 flex-shrink-0"
+                      title="修改航班與設定"
+                    >
+                      <Settings className="w-3.5 h-3.5" /> 修改設定
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-400 font-medium pl-10 md:pl-12">
+                    {tripInfo.startDate.replace(/-/g, '/')} - {tripInfo.endDate.replace(/-/g, '/')}
+                  </p>
+                </div>
+                <div className="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto gap-3 md:gap-2">
+                  <div className="bg-orange-50 text-orange-600 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm border border-orange-100 whitespace-nowrap">
+                    <DollarSign className="w-3.5 h-3.5" /> 總花費: NT$ {getTotalCost().toLocaleString()}
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={handleShareTrip}
+                      className="bg-blue-100 text-blue-600 px-4 py-2 rounded-full font-bold text-sm hover:bg-blue-200 transition-colors flex items-center gap-1 shadow-sm whitespace-nowrap"
+                    >
+                      <Share2 className="w-4 h-4" /> 分享
+                    </button>
+                    <button 
+                      onClick={handleSaveTrip}
+                      className="bg-green-100 text-green-600 px-4 py-2 rounded-full font-bold text-sm hover:bg-green-200 transition-colors flex items-center gap-1 shadow-sm whitespace-nowrap"
+                    >
+                      <Save className="w-4 h-4" /> 雲端儲存
+                    </button>
+                    <button 
+                      onClick={() => setView('summary')}
+                      className="bg-indigo-100 text-indigo-600 px-4 py-2 rounded-full font-bold text-sm hover:bg-indigo-200 transition-colors flex items-center gap-1 shadow-sm whitespace-nowrap"
+                    >
+                      <Printer className="w-4 h-4" /> 預覽
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-4 mb-6">
+                <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+                  {dates.map((date, idx) => (
+                    <button
+                      key={date}
+                      onClick={() => setActiveDateIndex(idx)}
+                      className={`flex-shrink-0 px-4 md:px-5 py-2 md:py-3 rounded-2xl font-bold text-sm transition-all shadow-sm
+                        ${activeDateIndex === idx 
+                          ? 'bg-pink-400 text-white shadow-pink-300/50 scale-105' 
+                          : 'bg-white text-pink-400 hover:bg-pink-50'
+                        }`}
+                    >
+                      <div className="text-[10px] md:text-xs opacity-80 mb-0.5">Day {idx + 1}</div>
+                      {formatDate(date)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="px-4">
+                <DailyPlanner 
+                  date={dates[activeDateIndex]} 
+                  activities={itinerary[dates[activeDateIndex]] || []}
+                  onAddActivity={(act) => addActivity(dates[activeDateIndex], act)}
+                  onDeleteActivity={(id) => deleteActivity(dates[activeDateIndex], id)}
+                  resizeImage={resizeImage}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Summary View */}
+          {view === 'summary' && (
+            <div className="max-w-4xl mx-auto w-full p-4 md:p-6 bg-white min-h-screen flex-grow">
+              <div className="flex justify-between items-center mb-6 md:mb-8 print:hidden">
+                <button 
+                  onClick={() => setView('planner')}
+                  className="text-pink-500 font-bold flex items-center hover:bg-pink-50 px-3 md:px-4 py-2 rounded-full text-sm md:text-base"
+                >
+                  <ChevronRight className="w-4 h-4 md:w-5 md:h-5 rotate-180" /> 返回編輯
+                </button>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={handleShareTrip}
+                    className="bg-blue-500 text-white px-4 md:px-6 py-2 rounded-full font-bold shadow-lg hover:bg-blue-600 flex items-center gap-2 text-sm md:text-base"
+                  >
+                    <Share2 className="w-4 h-4 md:w-5 md:h-5" /> 分享
+                  </button>
+                  <button 
+                    onClick={handleSaveTrip}
+                    className="bg-green-500 text-white px-4 md:px-6 py-2 rounded-full font-bold shadow-lg hover:bg-green-600 flex items-center gap-2 text-sm md:text-base"
+                  >
+                    <Save className="w-4 h-4 md:w-5 md:h-5" /> 雲端儲存
+                  </button>
+                  <button 
+                    onClick={() => window.print()}
+                    className="bg-pink-500 text-white px-4 md:px-6 py-2 rounded-full font-bold shadow-lg hover:bg-pink-600 flex items-center gap-2 text-sm md:text-base"
+                  >
+                    <Printer className="w-4 h-4 md:w-5 md:h-5" /> 列印
+                  </button>
+                </div>
+              </div>
+
+              <div className="print:block">
+                <div className="text-center mb-8 md:mb-10 border-b-2 border-pink-100 pb-6 md:pb-8">
+                  <div className="flex items-center justify-center gap-3 mb-3 md:mb-4 px-2">
+                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden shadow-sm border-2 border-pink-100 bg-slate-50 print:border-pink-200 flex-shrink-0">
+                      <img src="https://kokko-travel.com/logo.png" alt="Logo" className="w-full h-full object-cover" onError={(e)=>{e.target.style.display='none'}} />
+                    </div>
+                    <h1 className="text-2xl md:text-4xl font-bold text-pink-600">{tripInfo.title}</h1>
+                  </div>
+                  <p className="text-sm md:text-lg text-slate-500 font-medium flex items-center justify-center gap-2">
+                    <CalendarHeart className="w-4 h-4 md:w-5 md:h-5 text-pink-400" />
+                    {tripInfo.startDate.replace(/-/g, '/')} ~ {tripInfo.endDate.replace(/-/g, '/')}
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 md:gap-6 mt-6">
+                    <div className="bg-blue-50 px-4 md:px-6 py-3 rounded-2xl flex items-center gap-3 w-full sm:w-auto">
+                      <PlaneTakeoff className="w-5 h-5 md:w-6 md:h-6 text-blue-400 flex-shrink-0" />
+                      <div className="text-left">
+                        <div className="text-[10px] md:text-xs text-blue-400 font-bold">去程航班</div>
+                        <div className="font-bold text-slate-700 text-sm md:text-base">
+                          {tripInfo.outboundFlight.number || '未提供'}
+                          {getAirline(tripInfo.outboundFlight.number) && <span className="ml-1 text-xs md:text-sm text-blue-600">({getAirline(tripInfo.outboundFlight.number)})</span>}
+                        </div>
+                        {tripInfo.outboundFlight.time && <div className="text-[10px] md:text-xs text-slate-500 mt-0.5">{tripInfo.outboundFlight.time}</div>}
+                      </div>
+                    </div>
+                    <div className="bg-purple-50 px-4 md:px-6 py-3 rounded-2xl flex items-center gap-3 w-full sm:w-auto">
+                      <PlaneLanding className="w-5 h-5 md:w-6 md:h-6 text-purple-400 flex-shrink-0" />
+                      <div className="text-left">
+                        <div className="text-[10px] md:text-xs text-purple-400 font-bold">回程航班</div>
+                        <div className="font-bold text-slate-700 text-sm md:text-base">
+                          {tripInfo.returnFlight.number || '未提供'}
+                          {getAirline(tripInfo.returnFlight.number) && <span className="ml-1 text-xs md:text-sm text-purple-600">({getAirline(tripInfo.returnFlight.number)})</span>}
+                        </div>
+                        {tripInfo.returnFlight.time && <div className="text-[10px] md:text-xs text-slate-500 mt-0.5">{tripInfo.returnFlight.time}</div>}
+                      </div>
+                    </div>
+                    <div className="bg-orange-50 px-4 md:px-6 py-3 rounded-2xl flex items-center gap-3 w-full sm:w-auto">
+                      <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-orange-400 flex-shrink-0" />
+                      <div className="text-left">
+                        <div className="text-[10px] md:text-xs text-orange-400 font-bold">總預算/花費</div>
+                        <div className="font-bold text-slate-700 text-sm md:text-base">NT$ {getTotalCost().toLocaleString()}</div>
+                        {tripInfo.flightCost && (
+                          <div className="text-[10px] md:text-[11px] text-slate-500 mt-0.5">
+                            (已含機票 NT$ {Number(tripInfo.flightCost).toLocaleString()})
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-8 md:space-y-10">
+                  {dates.map((date, idx) => {
+                    const dayActivities = itinerary[date] || [];
+                    if (dayActivities.length === 0) return null;
+                    
+                    return (
+                      <div key={date} className="break-inside-avoid px-2 md:px-0">
+                        <h2 className="text-lg md:text-2xl font-bold text-white bg-pink-400 inline-block px-4 md:px-6 py-2 rounded-r-2xl rounded-tl-2xl mb-6 shadow-sm">
+                          Day {idx + 1} - {formatDate(date)}
+                        </h2>
+                        
+                        <div className="relative border-l-2 md:border-l-4 border-pink-100 ml-3 md:ml-6 pl-6 md:pl-8 space-y-6 md:space-y-8">
+                          {dayActivities.map((act) => (
+                            <div key={act.id} className="relative">
+                              <div className="absolute -left-[30px] md:-left-[42px] top-1 w-4 h-4 md:w-6 md:h-6 bg-white border-2 md:border-4 border-pink-400 rounded-full"></div>
+                              
+                              <div className="flex flex-col sm:flex-row gap-2 md:gap-4">
+                                <div className="w-auto sm:w-20 pt-0 sm:pt-1 font-bold text-pink-500 sm:text-slate-500 flex-shrink-0 text-sm md:text-base">
+                                  {act.time}
+                                </div>
+                                <div className="flex-1 bg-slate-50 p-3 md:p-4 rounded-2xl border border-slate-100 print:border-slate-300">
+                                  <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
+                                    <h3 className="font-bold text-base md:text-lg text-slate-800 flex items-center gap-2">
+                                      <span>{getCategoryIcon(act.type)}</span> 
+                                      <span className="break-words">{act.title}</span>
+                                    </h3>
+                                    {act.cost && (
+                                      <span className="text-orange-500 font-bold text-xs md:text-sm bg-orange-100 px-2 py-1 rounded-lg flex-shrink-0">
+                                        NT$ {act.cost}
+                                      </span>
+                                    )}
+                                  </div>
+                                  
+                                  {act.location && (
+                                    <div 
+                                      className="text-xs md:text-sm text-blue-500 mb-2 flex items-start md:items-center gap-1 break-words cursor-pointer hover:text-blue-600 w-fit"
+                                      onClick={() => window.open(`https://www-d-google-d-com-s-gmn.v.tuangouai.com/maps/search/?api=1&query=${encodeURIComponent(act.location)}`, '_blank')}
+                                    >
+                                      <MapPin className="w-3 h-3 md:w-4 md:h-4 mt-0.5 md:mt-0 flex-shrink-0" /> 
+                                      <span className="underline decoration-blue-200 underline-offset-2">{act.location}</span>
+                                      <ChevronRight className="w-3 h-3 flex-shrink-0 mt-0.5 md:mt-0" />
+                                    </div>
+                                  )}
+                                  
+                                  {act.notes && (
+                                    <p className="text-xs md:text-sm text-slate-600 mb-3 bg-white p-2 md:p-3 rounded-xl border border-slate-200 break-words">
+                                      {act.notes}
+                                    </p>
+                                  )}
+
+                                  {act.photoUrl && (
+                                    <div className="mt-3 rounded-xl overflow-hidden border-2 border-white shadow-sm bg-slate-50">
+                                      <img src={act.photoUrl} alt={act.title} className="w-full h-auto max-h-[400px] md:max-h-[500px] object-contain" />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Footer */}
+          <footer className="w-full text-center py-6 md:py-8 px-4 text-[10px] md:text-xs text-slate-400 mt-auto bg-transparent border-t border-pink-100/50 print:mt-10 print:border-none">
+            <p className="mb-1">Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
+            <p>版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+            <p>本站包含之圖片、文字內容及程式碼均受法律保護。</p>
+          </footer>
+        </div>
+      );
+    }
+
+    // --- Subcomponent: Daily Planner ---
+    function DailyPlanner({ date, activities, onAddActivity, onDeleteActivity, resizeImage }) {
+      const [isAdding, setIsAdding] = useState(false);
+      const [newAct, setNewAct] = useState({
+        time: '10:00', type: 'attraction', title: '', location: '', cost: '', notes: '', photoUrl: null
+      });
+      const fileInputRef = useRef(null);
+
+      const handlePhotoUpload = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          try {
+            const compressedBase64 = await resizeImage(file);
+            setNewAct({ ...newAct, photoUrl: compressedBase64 });
+          } catch (err) {
+            alert('照片讀取失敗，請重新嘗試！');
+          }
+        }
+      };
+
+      const submitActivity = () => {
+        if (!newAct.title) { alert("請輸入行程名稱！"); return; }
+        onAddActivity(newAct);
+        setIsAdding(false);
+        setNewAct({ time: '12:00', type: 'attraction', title: '', location: '', cost: '', notes: '', photoUrl: null });
+      };
+
+      const getCurrentLocation = () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => { setNewAct(prev => ({ ...prev, location: `${position.coords.latitude}, ${position.coords.longitude}` })); },
+            () => alert("無法取得定位，請確認已允許瀏覽器定位權限。")
+          );
+        } else {
+          alert("您的瀏覽器不支援定位功能。");
+        }
+      };
+
+      const openGoogleMaps = (location) => {
+        if (!location) return;
+        const url = `https://www-d-google-d-com-s-gmn.v.tuangouai.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+        window.open(url, '_blank');
+      };
+
+      return (
+        <div className="space-y-4">
+          {activities.map((act) => (
+            <div key={act.id} className="bg-white rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-sm border border-pink-50 relative overflow-hidden group transition-all hover:shadow-md">
+              <div className="flex justify-between items-start mb-3 gap-2">
+                <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full pr-8">
+                  <div className="bg-pink-100 text-pink-600 font-bold py-1 px-2 md:px-3 rounded-full text-xs md:text-sm flex items-center gap-1 flex-shrink-0">
+                    <Clock className="w-3 h-3 md:w-4 md:h-4" /> {act.time}
+                  </div>
+                  <div className="text-lg md:text-2xl flex-shrink-0">
+                    {getCategoryIcon(act.type)}
+                  </div>
+                  <h3 className="font-bold text-base md:text-lg text-slate-700 break-words">{act.title}</h3>
+                </div>
+                <button onClick={() => onDeleteActivity(act.id)} className="absolute right-2 top-2 md:static text-slate-300 hover:text-red-400 transition-colors p-2">
+                  <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
+                </button>
+              </div>
+
+              <div className="pl-1 space-y-2">
+                {act.location && (
+                  <div className="flex items-start md:items-center gap-1 md:gap-2 text-xs md:text-sm text-blue-500 bg-blue-50 hover:bg-blue-100 cursor-pointer w-fit max-w-full px-3 py-1.5 rounded-2xl md:rounded-full transition-colors break-words" onClick={() => openGoogleMaps(act.location)}>
+                    <MapPin className="w-3 h-3 md:w-4 md:h-4 mt-0.5 md:mt-0 flex-shrink-0" /> 
+                    <span className="line-clamp-2 md:line-clamp-1">{act.location}</span> 
+                    <ChevronRight className="w-3 h-3 flex-shrink-0 mt-0.5 md:mt-0" />
+                  </div>
+                )}
+                {act.cost && (
+                  <div className="flex items-center gap-1 md:gap-2 text-xs md:text-sm text-orange-500 font-medium">
+                    <DollarSign className="w-3 h-3 md:w-4 md:h-4" /> 花費: NT$ {act.cost}
+                  </div>
+                )}
+                {act.notes && (
+                  <div className="text-xs md:text-sm text-slate-500 bg-slate-50 p-3 rounded-xl md:rounded-2xl mt-2 break-words">
+                    {act.notes}
+                  </div>
+                )}
+                {act.photoUrl && (
+                  <div className="mt-3 relative rounded-xl md:rounded-2xl overflow-hidden border-2 border-white shadow-sm bg-slate-50">
+                    <img src={act.photoUrl} alt="行程照片" className="w-full h-auto max-h-[400px] md:max-h-[500px] object-contain" />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {activities.length === 0 && !isAdding && (
+            <div className="text-center py-10 md:py-12 px-4 bg-white/50 rounded-2xl md:rounded-3xl border-2 border-dashed border-pink-200">
+              <Star className="w-10 h-10 md:w-12 md:h-12 text-pink-200 mx-auto mb-2 md:mb-3" />
+              <p className="text-pink-400 font-bold text-sm md:text-base">這天還沒有排行程唷！</p>
+              <p className="text-xs md:text-sm text-pink-300 mt-1">點擊下方按鈕開始規劃吧</p>
+            </div>
+          )}
+
+          {isAdding ? (
+            <div className="bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-lg border-2 border-pink-300">
+              <h3 className="font-bold text-pink-500 mb-4 flex items-center gap-2 text-sm md:text-base">
+                <Plus className="w-4 h-4 md:w-5 md:h-5 bg-pink-100 rounded-full p-0.5" /> 新增行程
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="w-full sm:w-1/3">
+                    <label className="block text-xs font-bold text-slate-400 mb-1">時間</label>
+                    <input type="time" className="w-full bg-slate-50 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-pink-400 outline-none" value={newAct.time} onChange={e => setNewAct({...newAct, time: e.target.value})} />
+                  </div>
+                  <div className="w-full sm:w-2/3">
+                    <label className="block text-xs font-bold text-slate-400 mb-1">類別</label>
+                    <select className="w-full bg-slate-50 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-pink-400 outline-none appearance-none" value={newAct.type} onChange={e => setNewAct({...newAct, type: e.target.value})}>
+                      <option value="attraction">🌸 景點</option>
+                      <option value="food">🍔 美食</option>
+                      <option value="hotel">🏨 住宿</option>
+                      <option value="transport">🚂 交通</option>
+                      <option value="shopping">🛍️ 購物</option>
+                      <option value="other">✨ 其他活動</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">名稱 *</label>
+                  <input type="text" placeholder="例如：東京鐵塔、一蘭拉麵..." className="w-full bg-slate-50 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-pink-400 outline-none" value={newAct.title} onChange={e => setNewAct({...newAct, title: e.target.value})} />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">地點 / Google Maps</label>
+                  <div className="flex gap-2">
+                    <input type="text" placeholder="輸入地址或點擊右側定位" className="w-full bg-slate-50 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-pink-400 outline-none" value={newAct.location} onChange={e => setNewAct({...newAct, location: e.target.value})} />
+                    <button onClick={getCurrentLocation} className="bg-blue-100 text-blue-600 p-2 rounded-xl hover:bg-blue-200 transition-colors flex-shrink-0" title="取得目前位置">
+                      <Navigation className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">花費預算 (NT$)</label>
+                  <input type="number" placeholder="0" className="w-full bg-slate-50 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-pink-400 outline-none" value={newAct.cost} onChange={e => setNewAct({...newAct, cost: e.target.value})} />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">備註 / 心情</label>
+                  <textarea placeholder="寫點什麼..." className="w-full bg-slate-50 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-pink-400 outline-none resize-none h-20" value={newAct.notes} onChange={e => setNewAct({...newAct, notes: e.target.value})}></textarea>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">記錄美好瞬間</label>
+                  <div className="border-2 border-dashed border-pink-200 bg-pink-50 rounded-xl md:rounded-2xl p-3 md:p-4 text-center cursor-pointer hover:bg-pink-100 transition-colors" onClick={() => fileInputRef.current?.click()}>
+                    {newAct.photoUrl ? (
+                      <div className="relative bg-slate-100 rounded-lg md:rounded-xl overflow-hidden">
+                         <img src={newAct.photoUrl} alt="Preview" className="w-full h-auto max-h-64 object-contain" />
+                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                            <span className="text-white font-bold text-xs md:text-sm flex items-center gap-1"><Camera className="w-3 h-3 md:w-4 md:h-4"/> 變更相片 (拍照/相簿)</span>
+                         </div>
+                      </div>
+                    ) : (
+                      <div className="py-4 md:py-6 flex flex-col items-center">
+                        <div className="bg-white p-3 rounded-full shadow-sm mb-2"><ImagePlus className="w-6 h-6 md:w-8 md:h-8 text-pink-400" /></div>
+                        <span className="text-sm md:text-base text-pink-500 font-bold">點擊選擇：拍照 / 相簿</span>
+                        <span className="text-[10px] md:text-xs text-pink-300 mt-1">系統會自動壓縮優化儲存空間</span>
+                      </div>
+                    )}
+                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 md:gap-3 pt-2">
+                  <button onClick={() => setIsAdding(false)} className="flex-1 py-2 md:py-3 rounded-xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors text-sm md:text-base">取消</button>
+                  <button onClick={submitActivity} className="flex-1 py-2 md:py-3 rounded-xl font-bold text-white bg-pink-500 hover:bg-pink-600 transition-colors shadow-lg shadow-pink-200 text-sm md:text-base">確定新增</button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <button onClick={() => setIsAdding(true)} className="w-full py-3 md:py-4 border-2 border-dashed border-pink-300 rounded-2xl md:rounded-3xl text-pink-500 font-bold flex items-center justify-center gap-2 hover:bg-pink-100/50 transition-colors text-sm md:text-base">
+              <Plus className="w-4 h-4 md:w-5 md:h-5" /> 新增下一個行程
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    // 將 App 渲染到頁面上
+    const rootElement = document.getElementById('root');
+    const root = createRoot(rootElement);
+    root.render(<App />);
+  </script>
+</body>
+</html>
