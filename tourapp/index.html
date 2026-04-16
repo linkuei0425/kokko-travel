@@ -3,13 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kokko Travel 旅遊手札</title>
+  <title>Kokko 愛旅行旅遊手札  </title>
   
   <!-- === 網頁分享 (Open Graph) 標籤 === -->
   <meta property="og:title" content="Kokko Travel 旅遊手札">
   <meta property="og:description" content="Kokko 愛旅行，輕鬆記錄專屬你的美好旅遊回憶！">
   <meta property="og:image" content="https://kokko-travel.com/tourapp/1.png">
+  <meta property="og:image:secure_url" content="https://kokko-travel.com/tourapp/1.png">
+  <meta property="og:url" content="https://kokko-travel.com/">
   <meta property="og:type" content="website">
+
+  <!-- === Twitter Card 標籤 (增加跨平台相容性) === -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Kokko Travel 旅遊手札">
+  <meta name="twitter:description" content="Kokko 愛旅行，輕鬆記錄專屬你的美好旅遊回憶！">
+  <meta name="twitter:image" content="https://kokko-travel.com/tourapp/1.png">
 
   <!-- === 加入主畫面 (PWA / 桌面圖示) === -->
   <link rel="apple-touch-icon" href="https://kokko-travel.com/tourapp/1.png">
@@ -240,22 +248,27 @@
         URL.revokeObjectURL(url);
       };
 
-      // --- 匯出 PDF ---
-      const handleDownloadPDF = () => {
+      // --- 匯出 PDF (已修復與強化機制) ---
+      const handleDownloadPDF = async () => {
         const element = document.getElementById('trip-summary-content');
         if (!element) return;
         
         alert("正在為您產製 PDF 檔，這可能需要幾秒鐘的時間...");
         
         const opt = {
-          margin:       10,
-          filename:     `${tripInfo.title}_行程表.pdf`,
+          margin:       [10, 5, 10, 5],
+          filename:     `${tripInfo.title || 'trip'}_行程表.pdf`,
           image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, useCORS: true },
+          html2canvas:  { scale: 2, useCORS: true, allowTaint: true }, // allowTaint 幫助跨網域圖片加載
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        html2pdf().set(opt).from(element).save();
+        try {
+          await window.html2pdf().set(opt).from(element).save();
+        } catch (error) {
+          console.error("PDF 匯出失敗:", error);
+          alert("PDF 匯出時發生錯誤，請稍後再試！");
+        }
       };
 
       // --- 分享/下載圖片 (圖文並茂) ---
@@ -266,7 +279,7 @@
         alert("正在準備您的行程美圖，請稍等喔...");
 
         try {
-          const canvas = await html2canvas(element, { useCORS: true, scale: 2 });
+          const canvas = await html2canvas(element, { useCORS: true, scale: 2, allowTaint: true });
           canvas.toBlob(async (blob) => {
             if (!blob) return;
             const file = new File([blob], `${tripInfo.title}.png`, { type: 'image/png' });
