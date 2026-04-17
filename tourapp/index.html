@@ -59,7 +59,7 @@
       Camera, DollarSign, Clock, ChevronRight, Printer, 
       Plus, Trash2, Navigation, Heart, Coffee, Star, Map,
       Image as ImageIcon, Settings, Save, Home, FolderHeart, ImagePlus, Share2, Users, Download, Upload,
-      Pencil, FileDown, ImageIcon as FileImage, Receipt, WalletCards, X, CheckSquare, List, MessageCircle, ImageDown
+      Pencil, FileDown, ImageIcon as FileImage, Receipt, WalletCards, X, CheckSquare, List, MessageCircle, ImageDown, Loader2
     } from 'https://esm.sh/lucide-react@0.292.0';
 
     // --- Helper Functions ---
@@ -152,6 +152,9 @@
       const [expandedDetails, setExpandedDetails] = useState({}); // 控制每個人的詳細明細是否展開
 
       const [newCompanion, setNewCompanion] = useState('');
+      
+      // 加入載入中狀態 (用於避免轉檔時像當機)
+      const [isGenerating, setIsGenerating] = useState(false);
 
       useEffect(() => {
         try {
@@ -228,40 +231,69 @@
         setTimeout(() => handleSaveTrip(false, newItinerary), 500);
       };
 
-      const handleDownloadPDF = async () => {
+      // 優化後的 PDF 下載功能
+      const handleDownloadPDF = () => {
         const element = document.getElementById('trip-summary-content');
         if (!element) return;
-        alert("正在為您產製 PDF 檔，這可能需要幾秒鐘的時間...");
-        const opt = {
-          margin: [10, 5, 10, 5], filename: `${tripInfo.title}_行程表.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, allowTaint: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        try { await window.html2pdf().set(opt).from(element).save(); } 
-        catch (error) { alert("PDF 匯出時發生錯誤，請稍後再試！"); }
+        
+        setIsGenerating(true); // 顯示載入動畫
+        
+        // 使用 setTimeout 讓畫面有時間渲染出 Loading 效果再開始繁重的轉檔
+        setTimeout(async () => {
+          const opt = {
+            margin: [10, 5, 10, 5], 
+            filename: `${tripInfo.title}_行程表.pdf`,
+            image: { type: 'jpeg', quality: 0.95 },
+            // 降低 scale 至 1.5 以防手機當機，並確保效能
+            html2canvas: { scale: 1.5, useCORS: true, allowTaint: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
+          try { 
+            await window.html2pdf().set(opt).from(element).save(); 
+          } catch (error) { 
+            alert("PDF 匯出時發生錯誤，請稍後再試！"); 
+          } finally {
+            setIsGenerating(false); // 隱藏載入動畫
+          }
+        }, 100);
       };
 
-      const handleShareAsImage = async () => {
+      // 優化後的圖片分享功能
+      const handleShareAsImage = () => {
         const element = document.getElementById('trip-summary-content');
         if (!element) return;
-        alert("正在準備您的行程美圖，請稍等喔...");
-        try {
-          const canvas = await html2canvas(element, { useCORS: true, scale: 2, allowTaint: true });
-          canvas.toBlob(async (blob) => {
-            if (!blob) return;
-            const file = new File([blob], `${tripInfo.title}.png`, { type: 'image/png' });
-            if (navigator.share) {
-              try { await navigator.share({ title: tripInfo.title, text: '來看看我的旅遊行程！✨', files: [file] }); return; } 
-              catch (e) { console.log("使用者取消分享或失敗", e); }
+        
+        setIsGenerating(true); // 顯示載入動畫
+
+        setTimeout(async () => {
+          try {
+            // 將 scale 降為 1.5 可大幅提升手機轉檔速度並避免記憶體崩潰
+            const canvas = await html2canvas(element, { useCORS: true, scale: 1.5, allowTaint: true });
+            
+            // 使用 Promise 包裝 toBlob 並改為 jpeg (轉檔較快且檔案較小)
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+            if (!blob) throw new Error("轉換圖片失敗");
+
+            const file = new File([blob], `${tripInfo.title}.jpg`, { type: 'image/jpeg' });
+            
+            if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
+              try { 
+                await navigator.share({ title: tripInfo.title, text: '來看看我的旅遊行程！✨', files: [file] }); 
+              } catch (e) { 
+                console.log("使用者取消分享或失敗", e); 
+              }
+            } else {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url; a.download = `${tripInfo.title}_行程總覽.jpg`;
+              document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
             }
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = `${tripInfo.title}_行程總覽.png`;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-            alert("您的裝置/瀏覽器不支援直接分享圖片，已自動為您下載行程長圖！");
-          }, 'image/png');
-        } catch (error) { alert("圖片產生失敗，請確認行程照片格式是否正確。"); }
+          } catch (error) { 
+            alert("圖片產生失敗，請確認行程照片格式是否正確。"); 
+          } finally {
+            setIsGenerating(false); // 隱藏載入動畫
+          }
+        }, 100);
       };
 
       const addActivity = (date, activity) => {
@@ -480,28 +512,35 @@
         window.open(lineUrl, '_blank');
       };
 
-      // --- 處理單獨匯出結算表圖檔 ---
-      const handleDownloadSplitImage = async () => {
+      // 優化後的單獨匯出結算表圖檔
+      const handleDownloadSplitImage = () => {
         const element = document.getElementById('split-modal-content');
         if (!element) return;
-        alert("正在產製結算表圖檔，請稍等...");
-        try {
-          const canvas = await html2canvas(element, { useCORS: true, scale: 2, backgroundColor: '#ffffff' });
-          canvas.toBlob(async (blob) => {
-            if (!blob) return;
-            const file = new File([blob], `${tripInfo.title}_結算表.png`, { type: 'image/png' });
+        
+        setIsGenerating(true); // 顯示載入動畫
+
+        setTimeout(async () => {
+          try {
+            const canvas = await html2canvas(element, { useCORS: true, scale: 1.5, backgroundColor: '#ffffff' });
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+            if (!blob) throw new Error("轉換圖片失敗");
+            
+            const file = new File([blob], `${tripInfo.title}_結算表.jpg`, { type: 'image/jpeg' });
             if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
-              try { await navigator.share({ title: `${tripInfo.title} 結算表`, files: [file] }); return; }
+              try { await navigator.share({ title: `${tripInfo.title} 結算表`, files: [file] }); }
               catch(e) { console.log("使用者取消或分享失敗"); }
+            } else {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url; a.download = `${tripInfo.title}_結算表.jpg`;
+              document.body.appendChild(a); a.click(); URL.revokeObjectURL(url);
             }
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = `${tripInfo.title}_結算表.png`;
-            document.body.appendChild(a); a.click(); URL.revokeObjectURL(url);
-          }, 'image/png');
-        } catch (err) {
-          alert("匯出失敗，請確認照片或網路狀態！");
-        }
+          } catch (err) {
+            alert("匯出失敗，請確認照片或網路狀態！");
+          } finally {
+            setIsGenerating(false); // 隱藏載入動畫
+          }
+        }, 100);
       };
 
       // --- 渲染個人的分帳卡片與明細 ---
@@ -638,6 +677,16 @@
 
       return (
         <div className="min-h-screen bg-pink-50 font-sans text-slate-800 flex flex-col relative">
+          
+          {/* 載入中動畫 (Overlay) */}
+          {isGenerating && (
+            <div className="fixed inset-0 bg-white/90 backdrop-blur-sm z-[100] flex flex-col items-center justify-center print:hidden transition-all">
+              <Loader2 className="w-16 h-16 text-pink-500 animate-spin mb-4" />
+              <h3 className="text-xl md:text-2xl font-bold text-pink-600 mb-2 tracking-wide">正在為您精心製作中...</h3>
+              <p className="text-sm text-slate-500 font-medium">這可能需要幾秒鐘，請不要關閉視窗唷！☕</p>
+            </div>
+          )}
+
           {/* Dashboard View */}
           {view === 'dashboard' && (
             <div className="max-w-4xl mx-auto w-full p-4 md:p-6 flex-grow relative">
