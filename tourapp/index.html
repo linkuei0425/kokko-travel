@@ -36,6 +36,15 @@
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     /* Checkbox 樣式調整 */
     input[type="checkbox"] { accent-color: #f472b6; }
+    /* 列印最佳化：去除多餘空白、確保背景顏色印出 */
+    @media print {
+      body, html { margin: 0; padding: 0; height: auto; background-color: white !important; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      .print\:hidden { display: none !important; }
+      #root { display: block; }
+      .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
+      h2 { page-break-after: avoid; break-after: avoid; }
+    }
   </style>
 </head>
 <body class="bg-pink-50 min-h-screen">
@@ -43,14 +52,14 @@
   <div id="root"></div>
 
   <script type="text/babel" data-type="module">
-    import React, { useState, useRef, useEffect } from 'https://esm.sh/react@18.2.0';
+    import React, { useState, useRef, useEffect, useMemo } from 'https://esm.sh/react@18.2.0';
     import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
     import { 
       PlaneTakeoff, PlaneLanding, CalendarHeart, MapPin, 
       Camera, DollarSign, Clock, ChevronRight, Printer, 
       Plus, Trash2, Navigation, Heart, Coffee, Star, Map,
       Image as ImageIcon, Settings, Save, Home, FolderHeart, ImagePlus, Share2, Users, Download, Upload,
-      Pencil, FileDown, ImageIcon as FileImage, Receipt, WalletCards, X, CheckSquare
+      Pencil, FileDown, ImageIcon as FileImage, Receipt, WalletCards, X, CheckSquare, List, MessageCircle, ImageDown
     } from 'https://esm.sh/lucide-react@0.292.0';
 
     // --- Helper Functions ---
@@ -138,9 +147,9 @@
       const [activeDateIndex, setActiveDateIndex] = useState(0);
       const [isStandalone, setIsStandalone] = useState(true);
       
-      // 分帳視窗與計算結果，新增 personInstructions 來儲存每個人的詳細轉帳指示
+      // 分帳視窗與計算結果
       const [showSplitModal, setShowSplitModal] = useState(false);
-      const [splitResult, setSplitResult] = useState({ balances: {}, details: {}, transactions: [], personInstructions: {} });
+      const [expandedDetails, setExpandedDetails] = useState({}); // 控制每個人的詳細明細是否展開
 
       const [newCompanion, setNewCompanion] = useState('');
 
@@ -302,8 +311,21 @@
         setTripInfo({ ...tripInfo, companions: updated, flightPayer: newFlightPayer });
       };
 
-      // --- 強化版分帳計算邏輯 (確保每人都有狀態) ---
-      const calculateSplit = () => {
+      // --- 展開/收合詳細明細的控制 ---
+      const toggleDetails = (person) => {
+        setExpandedDetails(prev => ({ ...prev, [person]: !prev[person] }));
+      };
+      const expandAllDetails = () => {
+        const allExpanded = {};
+        tripInfo.companions.forEach(c => allExpanded[c] = true);
+        setExpandedDetails(allExpanded);
+      };
+      const collapseAllDetails = () => {
+        setExpandedDetails({});
+      };
+
+      // --- 強化版分帳計算邏輯 (包含詳細項目收集) ---
+      const splitResult = useMemo(() => {
         const balances = {};
         const details = {}; 
         
@@ -311,7 +333,7 @@
         const pairwise = {};
         tripInfo.companions.forEach(c => {
           balances[c] = 0;
-          details[c] = { paid: 0, share: 0, balance: 0 }; 
+          details[c] = { paid: 0, share: 0, balance: 0, paidItems: [], sharedItems: [] }; 
           pairwise[c] = {};
           tripInfo.companions.forEach(c2 => {
             pairwise[c][c2] = 0;
@@ -321,47 +343,48 @@
         // --- 2. 計算機票分帳 ---
         if (tripInfo.flightCost && !isNaN(tripInfo.flightCost) && Number(tripInfo.flightCost) > 0 && tripInfo.flightPayer !== 'none') {
           const cost = Number(tripInfo.flightCost);
-          // 防呆：確保 payer 還在名單內
           const payer = tripInfo.companions.includes(tripInfo.flightPayer) ? tripInfo.flightPayer : tripInfo.companions[0];
           const perPerson = cost / tripInfo.companions.length;
           
           if (balances[payer] !== undefined) {
             balances[payer] += cost;
             details[payer].paid += cost;
+            details[payer].paidItems.push({ name: '去回程機票 ✈️', amount: cost });
           }
           tripInfo.companions.forEach(c => {
             if (balances[c] !== undefined) {
               balances[c] -= perPerson;
               details[c].share += perPerson;
-              // 記錄兩兩欠款：c 欠 payer
+              details[c].sharedItems.push({ name: '去回程機票 ✈️', amount: perPerson });
               if (c !== payer) pairwise[c][payer] += perPerson;
             }
           });
         }
 
         // --- 3. 計算行程內各項活動分帳 ---
-        Object.values(itinerary).forEach(day => {
-          day.forEach(act => {
+        Object.entries(itinerary).forEach(([date, dayActs]) => {
+          dayActs.forEach(act => {
             if (act.cost && !isNaN(act.cost) && Number(act.cost) > 0 && act.payer !== 'none') {
               const cost = Number(act.cost);
-              // 防呆：確保 payer 還在名單內
               const payer = tripInfo.companions.includes(act.payer) ? act.payer : tripInfo.companions[0];
               
               let splitWith = (act.splitWith && act.splitWith.length > 0) ? act.splitWith : tripInfo.companions;
-              // 防呆：過濾掉已經不在名單內的參與者，避免死帳
               splitWith = splitWith.filter(c => tripInfo.companions.includes(c));
               
               if (splitWith.length > 0) {
                 const perPerson = cost / splitWith.length;
+                const actName = act.title || '未命名行程';
+                
                 if (balances[payer] !== undefined) {
                   balances[payer] += cost;
                   details[payer].paid += cost;
+                  details[payer].paidItems.push({ name: actName, amount: cost, date });
                 }
                 splitWith.forEach(c => {
                   if (balances[c] !== undefined) {
                     balances[c] -= perPerson;
                     details[c].share += perPerson;
-                    // 記錄兩兩欠款：c 欠 payer
+                    details[c].sharedItems.push({ name: actName, amount: perPerson, date });
                     if (c !== payer) pairwise[c][payer] += perPerson;
                   }
                 });
@@ -374,29 +397,24 @@
           details[c].balance = balances[c];
         });
 
-        // --- 4. 兩兩結算 (Pairwise Netting) 取代原本的 Greedy 演算法 ---
-        // 這樣就能保留「A 欠 B，就由 A 還 B」的直覺邏輯，不隨便將債務轉移給第三方
+        // --- 4. 兩兩結算 (Pairwise Netting) ---
         const transactions = [];
         const processedPairs = new Set();
 
         tripInfo.companions.forEach(c1 => {
           tripInfo.companions.forEach(c2 => {
             if (c1 === c2) return;
-            // 確保 c1-c2 和 c2-c1 被視為同一對，只處理一次
             const pairKey = [c1, c2].sort().join('-'); 
             if (processedPairs.has(pairKey)) return;
             processedPairs.add(pairKey);
 
             const c1OwesC2 = pairwise[c1][c2];
             const c2OwesC1 = pairwise[c2][c1];
-            // 計算這兩個人之間的淨差額
             const net = c1OwesC2 - c2OwesC1;
 
             if (net > 0.01) {
-              // c1 欠 c2 比較多
               transactions.push({ from: c1, to: c2, amount: Math.round(net) });
             } else if (net < -0.01) {
-              // c2 欠 c1 比較多
               transactions.push({ from: c2, to: c1, amount: Math.round(Math.abs(net)) });
             }
           });
@@ -419,59 +437,186 @@
           }
         });
 
-        setSplitResult({ balances, details, transactions, personInstructions });
-      };
+        return { balances, details, transactions, personInstructions };
+      }, [tripInfo, itinerary]);
 
       const handleOpenSplitModal = () => {
-        calculateSplit();
         setShowSplitModal(true);
       };
 
-      const renderSplitSummary = () => {
-        calculateSplit(); // 確保資料是最新的
+      // --- 處理 LINE 純文字分享 (包含明細) ---
+      const handleShareLine = () => {
+        let text = `✈️ 【${tripInfo.title}】分帳結算表 🧾\n\n`;
+        text += `===== 💰 個人結算 =====\n`;
+        
+        Object.entries(splitResult.details).forEach(([person, stat]) => {
+          const balanceTxt = stat.balance > 0.01 ? `應收 NT$ ${Math.round(stat.balance)}` : stat.balance < -0.01 ? `需付 NT$ ${Math.abs(Math.round(stat.balance))}` : '結清';
+          text += `👤 ${person}：${balanceTxt}\n`;
+          text += `   (總代墊 $${Math.round(stat.paid)} / 總應攤 $${Math.round(stat.share)})\n`;
+          
+          if (stat.paidItems.length > 0) {
+            text += `   [代墊項目]\n`;
+            stat.paidItems.forEach(item => text += `    - ${item.name}: $${Math.round(item.amount)}\n`);
+          }
+          if (stat.sharedItems.length > 0) {
+            text += `   [應攤項目]\n`;
+            stat.sharedItems.forEach(item => text += `    - ${item.name}: $${Math.round(item.amount)}\n`);
+          }
+          text += `\n`;
+        });
+
+        text += `===== 💸 轉帳建議 =====\n`;
+        if (splitResult.transactions.length === 0) {
+           text += `✨ 帳目已結清，無須轉帳\n`;
+        } else {
+           splitResult.transactions.forEach(tx => {
+             text += `➡️ ${tx.from} 需轉給 ${tx.to} NT$ ${tx.amount}\n`;
+           });
+        }
+        
+        text += `\n💡 來自 Kokko 旅遊手札`;
+
+        const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
+        window.open(lineUrl, '_blank');
+      };
+
+      // --- 處理單獨匯出結算表圖檔 ---
+      const handleDownloadSplitImage = async () => {
+        const element = document.getElementById('split-modal-content');
+        if (!element) return;
+        alert("正在產製結算表圖檔，請稍等...");
+        try {
+          const canvas = await html2canvas(element, { useCORS: true, scale: 2, backgroundColor: '#ffffff' });
+          canvas.toBlob(async (blob) => {
+            if (!blob) return;
+            const file = new File([blob], `${tripInfo.title}_結算表.png`, { type: 'image/png' });
+            if (navigator.share && /mobile|android|iphone|ipad/i.test(navigator.userAgent)) {
+              try { await navigator.share({ title: `${tripInfo.title} 結算表`, files: [file] }); return; }
+              catch(e) { console.log("使用者取消或分享失敗"); }
+            }
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `${tripInfo.title}_結算表.png`;
+            document.body.appendChild(a); a.click(); URL.revokeObjectURL(url);
+          }, 'image/png');
+        } catch (err) {
+          alert("匯出失敗，請確認照片或網路狀態！");
+        }
+      };
+
+      // --- 渲染個人的分帳卡片與明細 ---
+      const renderPersonCard = (person, stat, inSummary = false) => {
+        const isExpanded = expandedDetails[person];
         return (
-          <div className="bg-orange-50 rounded-2xl md:rounded-3xl p-5 md:p-8 mt-8 border border-orange-100 break-inside-avoid shadow-sm print:bg-white print:border-2">
-            <h3 className="text-xl md:text-2xl font-bold text-orange-600 mb-6 flex items-center gap-2">
-              <Receipt className="w-6 h-6" /> 分帳結算表
-            </h3>
+          <div key={person} className={`${inSummary ? 'bg-white border-orange-100' : 'bg-slate-50 border-slate-200'} p-3 rounded-xl border flex flex-col justify-between shadow-sm`}>
+            <div className={`text-sm md:text-base text-slate-700 font-bold mb-1.5 border-b ${inSummary ? 'border-orange-50' : 'border-slate-200'} pb-1.5 flex justify-between items-center`}>
+              <span>{person}</span>
+              <button 
+                onClick={() => toggleDetails(person)}
+                className={`text-[10px] md:text-xs font-normal px-2 py-1 rounded-lg transition-colors ${inSummary ? 'text-orange-500 bg-orange-50 hover:bg-orange-100' : 'text-blue-500 bg-blue-50 hover:bg-blue-100'} print:hidden focus:outline-none`}
+              >
+                {isExpanded ? '收起明細' : '看明細'}
+              </button>
+            </div>
+            
+            <div className="space-y-1.5 mb-2 text-xs md:text-sm">
+              <div className="flex justify-between text-slate-500">
+                <span>代墊總額:</span>
+                <span className="font-bold text-slate-600">NT$ {Math.round(stat.paid)}</span>
+              </div>
+              <div className="flex justify-between text-slate-500">
+                <span>應攤總額:</span>
+                <span className="font-bold text-slate-600">NT$ {Math.round(stat.share)}</span>
+              </div>
+            </div>
+            <div className={`text-base md:text-lg font-bold flex justify-between items-center pt-2 border-t ${inSummary ? 'border-orange-50' : 'border-slate-200'} ${stat.balance > 0.01 ? 'text-green-500' : stat.balance < -0.01 ? 'text-red-500' : 'text-slate-400'}`}>
+              <span className="text-xs text-slate-400 font-normal">結餘</span>
+              <span>{stat.balance > 0.01 ? `應收 ${Math.round(stat.balance)}` : stat.balance < -0.01 ? `需付 ${Math.abs(Math.round(stat.balance))}` : '結清'}</span>
+            </div>
+
+            {/* 詳細明細清單 */}
+            {isExpanded && (
+              <div className={`mt-2 pt-2 border-t ${inSummary ? 'border-orange-100' : 'border-slate-200'} border-dashed text-xs md:text-sm space-y-2 animate-in fade-in slide-in-from-top-1 print:block`}>
+                <div>
+                  <div className="font-bold text-slate-600 mb-1 flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-blue-400"></span> 他的代墊項目 (付給店家)
+                  </div>
+                  {stat.paidItems.length > 0 ? (
+                    <ul className="space-y-1 pl-3 max-h-32 overflow-y-auto scrollbar-hide print:max-h-none">
+                      {stat.paidItems.map((item, idx) => (
+                        <li key={idx} className="flex justify-between text-slate-500">
+                          <span className="truncate pr-2" title={item.name}>{item.name}</span>
+                          <span className="font-medium text-slate-600 shrink-0">NT$ {Math.round(item.amount)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="text-slate-400 pl-3 text-xs">無代墊項目</div>
+                  )}
+                </div>
+                
+                <div>
+                  <div className="font-bold text-slate-600 mb-1 flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-orange-400"></span> 他的應攤項目 (該出的錢)
+                  </div>
+                  {stat.sharedItems.length > 0 ? (
+                    <ul className="space-y-1 pl-3 max-h-32 overflow-y-auto scrollbar-hide print:max-h-none">
+                      {stat.sharedItems.map((item, idx) => (
+                        <li key={idx} className="flex justify-between text-slate-500">
+                          <span className="truncate pr-2" title={item.name}>{item.name}</span>
+                          <span className="font-medium text-slate-600 shrink-0">NT$ {Math.round(item.amount)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="text-slate-400 pl-3 text-xs">無應攤項目</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      };
+
+      // --- 渲染總覽頁的分帳結算表 ---
+      const renderSplitSummary = () => {
+        const isAllExpanded = tripInfo.companions.length > 0 && tripInfo.companions.every(c => expandedDetails[c]);
+
+        return (
+          <div className="bg-orange-50 rounded-2xl md:rounded-3xl p-4 md:p-5 mt-5 border border-orange-100 break-inside-avoid shadow-sm print:bg-white print:border-2 print:shadow-none">
+            <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
+              <h3 className="text-lg md:text-xl font-bold text-orange-600 flex items-center gap-2">
+                <Receipt className="w-5 h-5" /> 分帳結算表
+              </h3>
+              {tripInfo.companions.length > 1 && (
+                <button 
+                  onClick={isAllExpanded ? collapseAllDetails : expandAllDetails}
+                  className="text-xs md:text-sm font-bold bg-white text-orange-500 border border-orange-200 px-3 py-1.5 rounded-lg shadow-sm hover:bg-orange-50 transition-colors print:hidden flex items-center gap-1 focus:outline-none"
+                >
+                  <List className="w-4 h-4" /> {isAllExpanded ? '收起所有明細' : '展開所有明細'}
+                </button>
+              )}
+            </div>
             
             {tripInfo.companions.length <= 1 ? (
-              <p className="text-slate-500">這是一趟獨旅，不需要分帳喔！</p>
+              <p className="text-slate-500 text-sm">這是一趟獨旅，不需要分帳喔！</p>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-500 mb-3 border-b border-orange-200 pb-2">每人最終收支明細</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {Object.entries(splitResult.details).map(([person, stat]) => (
-                      <div key={person} className="bg-white p-4 rounded-xl shadow-sm border border-orange-100 flex flex-col justify-between">
-                        <div className="text-base text-slate-700 font-bold mb-3 border-b border-orange-50 pb-2">{person}</div>
-                        <div className="space-y-1.5 mb-3 text-sm">
-                          <div className="flex justify-between text-slate-500">
-                            <span>代墊總額:</span>
-                            <span className="font-bold text-slate-600">NT$ {Math.round(stat.paid)}</span>
-                          </div>
-                          <div className="flex justify-between text-slate-500">
-                            <span>應攤總額:</span>
-                            <span className="font-bold text-slate-600">NT$ {Math.round(stat.share)}</span>
-                          </div>
-                        </div>
-                        <div className={`text-lg font-bold flex justify-between items-center pt-2 border-t border-orange-50 ${stat.balance > 0.01 ? 'text-green-500' : stat.balance < -0.01 ? 'text-red-500' : 'text-slate-400'}`}>
-                          <span className="text-xs text-slate-400 font-normal">結算結果</span>
-                          <span>{stat.balance > 0.01 ? `應收 ${Math.round(stat.balance)}` : stat.balance < -0.01 ? `需付 ${Math.abs(Math.round(stat.balance))}` : '結清'}</span>
-                        </div>
-                      </div>
-                    ))}
+                  <h4 className="text-xs md:text-sm font-bold text-slate-500 mb-2 border-b border-orange-200 pb-1.5">每人最終收支與明細</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {Object.entries(splitResult.details).map(([person, stat]) => renderPersonCard(person, stat, true))}
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-bold text-slate-500 mb-3 border-b border-orange-200 pb-2 flex items-center gap-1"><CheckSquare className="w-4 h-4"/> 最佳轉帳路徑 (誰要轉給誰)</h4>
-                  <div className="space-y-3">
+                  <h4 className="text-xs md:text-sm font-bold text-slate-500 mb-2 border-b border-orange-200 pb-1.5 flex items-center gap-1"><CheckSquare className="w-4 h-4"/> 最佳轉帳路徑 (誰要轉給誰)</h4>
+                  <div className="space-y-2">
                     {splitResult.transactions.length === 0 ? (
                       <div className="text-slate-400 text-sm">✨ 帳目已結清，無須轉帳</div>
                     ) : (
                       splitResult.transactions.map((tx, idx) => (
-                        <div key={idx} className="bg-orange-50/80 px-4 py-3 rounded-xl border border-orange-200 flex items-center justify-between shadow-sm">
+                        <div key={idx} className="bg-orange-50/80 px-3 py-2.5 rounded-xl border border-orange-200 flex items-center justify-between shadow-sm">
                           <div className="flex items-center gap-2 md:gap-3">
                             <span className="font-bold text-red-600 bg-red-100 px-2 py-1 rounded-lg text-sm">{tx.from}</span>
                             <span className="text-slate-500 text-xs md:text-sm font-medium">需轉帳給</span>
@@ -728,35 +873,31 @@
           {/* Split Modal */}
           {showSplitModal && (
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm print:hidden">
-              <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-200">
-                <div className="bg-orange-50 p-4 border-b border-orange-100 flex justify-between items-center">
+              <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+                <div className="bg-orange-50 p-4 border-b border-orange-100 flex justify-between items-center shrink-0">
                   <h3 className="text-xl font-bold text-orange-600 flex items-center gap-2"><Receipt className="w-5 h-5" /> 分帳結算中心</h3>
                   <button onClick={() => setShowSplitModal(false)} className="text-orange-300 hover:text-orange-500 bg-white rounded-full p-1"><X className="w-5 h-5" /></button>
                 </div>
-                <div className="p-6 max-h-[70vh] overflow-y-auto">
+                <div id="split-modal-content" className="p-6 overflow-y-auto flex-grow bg-white">
                   <div className="space-y-6">
+                    {/* 為了圖檔匯出加上的隱藏標題，只有轉成圖片時才顯示得清楚 */}
+                    <div className="text-center mb-4 hidden print:block border-b border-orange-100 pb-4">
+                       <h2 className="text-2xl font-bold text-orange-500">✈️ {tripInfo.title}</h2>
+                       <p className="text-slate-500 mt-1">分帳結算表</p>
+                    </div>
+
                     <div>
-                      <h4 className="text-sm font-bold text-slate-400 mb-3 flex items-center gap-1"><Users className="w-4 h-4" /> 個人結餘狀態與明細</h4>
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-sm font-bold text-slate-400 flex items-center gap-1"><Users className="w-4 h-4" /> 個人結餘狀態與明細</h4>
+                        <button 
+                          onClick={Object.keys(expandedDetails).length === tripInfo.companions.length && Object.values(expandedDetails).every(v=>v) ? collapseAllDetails : expandAllDetails}
+                          className="text-xs font-bold text-blue-500 hover:text-blue-600 focus:outline-none"
+                        >
+                          {Object.keys(expandedDetails).length === tripInfo.companions.length && Object.values(expandedDetails).every(v=>v) ? '收起全部' : '展開全部'}
+                        </button>
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {Object.entries(splitResult.details).map(([person, stat]) => (
-                          <div key={person} className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
-                            <div className="text-sm text-slate-700 font-bold mb-2 border-b border-slate-200 pb-1">{person}</div>
-                            <div className="space-y-1 mb-2">
-                              <div className="flex justify-between text-xs text-slate-500">
-                                <span>代墊總額:</span>
-                                <span className="font-bold text-slate-600">NT$ {Math.round(stat.paid)}</span>
-                              </div>
-                              <div className="flex justify-between text-xs text-slate-500">
-                                <span>應攤總額:</span>
-                                <span className="font-bold text-slate-600">NT$ {Math.round(stat.share)}</span>
-                              </div>
-                            </div>
-                            <div className={`text-base md:text-lg font-bold flex justify-between items-center border-t border-slate-200 pt-2 ${stat.balance > 0.01 ? 'text-green-500' : stat.balance < -0.01 ? 'text-red-500' : 'text-slate-400'}`}>
-                              <span className="text-xs text-slate-400 font-normal">結餘</span>
-                              <span>{stat.balance > 0.01 ? `應收 ${Math.round(stat.balance)}` : stat.balance < -0.01 ? `需付 ${Math.abs(Math.round(stat.balance))}` : '結清'}</span>
-                            </div>
-                          </div>
-                        ))}
+                        {Object.entries(splitResult.details).map(([person, stat]) => renderPersonCard(person, stat, false))}
                       </div>
                       <p className="text-[10px] text-slate-400 mt-2">*結餘 = 代墊總額 - 應攤總額。正數代表應收回款項，負數代表需付給他人。</p>
                     </div>
@@ -768,11 +909,11 @@
                           <div className="text-slate-400 text-sm text-center py-2">✨ 帳目已結清，無須轉帳</div>
                         ) : (
                           splitResult.transactions.map((tx, idx) => (
-                            <div key={idx} className="bg-white px-4 py-3 rounded-xl border border-orange-100 flex items-center justify-between shadow-sm">
+                            <div key={idx} className="bg-orange-50 px-4 py-3 rounded-xl border border-orange-100 flex items-center justify-between shadow-sm">
                               <div className="flex items-center gap-2 md:gap-3">
-                                <span className="font-bold text-red-600 bg-red-50 px-2 py-1 rounded-lg text-sm">{tx.from}</span>
-                                <span className="text-slate-400 text-xs md:text-sm">需轉帳給</span>
-                                <span className="font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg text-sm">{tx.to}</span>
+                                <span className="font-bold text-red-600 bg-red-100 px-2 py-1 rounded-lg text-sm">{tx.from}</span>
+                                <span className="text-slate-500 text-xs md:text-sm">需轉帳給</span>
+                                <span className="font-bold text-green-600 bg-green-100 px-2 py-1 rounded-lg text-sm">{tx.to}</span>
                               </div>
                               <div className="font-black text-slate-700 text-base flex items-center">
                                 <DollarSign className="w-4 h-4 text-orange-400 mr-0.5"/> {tx.amount}
@@ -784,8 +925,16 @@
                     </div>
                   </div>
                 </div>
-                <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
-                  <button onClick={() => setShowSplitModal(false)} className="bg-orange-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-orange-600 transition-colors">知道了</button>
+                <div className="p-4 bg-slate-50 border-t border-slate-100 flex flex-wrap justify-between items-center gap-2 shrink-0">
+                  <div className="flex gap-2">
+                    <button onClick={handleShareLine} className="bg-[#00B900] text-white px-3 py-2 rounded-xl font-bold hover:bg-[#009900] transition-colors flex items-center gap-1 text-sm shadow-sm" title="傳送純文字明細至 LINE">
+                      <MessageCircle className="w-4 h-4" /> LINE
+                    </button>
+                    <button onClick={handleDownloadSplitImage} className="bg-blue-100 text-blue-600 px-3 py-2 rounded-xl font-bold hover:bg-blue-200 transition-colors flex items-center gap-1 text-sm shadow-sm" title="將結算表匯出為圖檔">
+                      <ImageDown className="w-4 h-4" /> 圖檔
+                    </button>
+                  </div>
+                  <button onClick={() => setShowSplitModal(false)} className="bg-orange-500 text-white px-5 py-2 rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-sm">知道了</button>
                 </div>
               </div>
             </div>
@@ -799,66 +948,66 @@
                   <ChevronRight className="w-4 h-4 md:w-5 md:h-5 rotate-180" /> 返回編輯
                 </button>
                 <div className="flex gap-3 flex-wrap justify-end">
-                  <button onClick={handleDownloadPDF} className="bg-red-50 text-red-600 hover:bg-red-100 px-4 md:px-6 py-2 rounded-full font-bold shadow-sm flex items-center gap-2 text-sm md:text-base transition-colors">
+                  <button onClick={handleDownloadPDF} className="bg-red-50 text-red-600 hover:bg-red-100 px-4 md:px-6 py-2 rounded-full font-bold shadow-sm flex items-center gap-2 text-sm md:text-base transition-colors" title="下載為 PDF 檔">
                     <FileDown className="w-4 h-4 md:w-5 md:h-5" /> PDF
                   </button>
-                  <button onClick={handleShareAsImage} className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 md:px-6 py-2 rounded-full font-bold shadow-sm flex items-center gap-2 text-sm md:text-base transition-colors">
-                    <FileImage className="w-4 h-4 md:w-5 md:h-5" /> 圖片
+                  <button onClick={handleShareAsImage} className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 md:px-6 py-2 rounded-full font-bold shadow-sm flex items-center gap-2 text-sm md:text-base transition-colors" title="分享至社群或下載圖檔">
+                    <Share2 className="w-4 h-4 md:w-5 md:h-5" /> 分享 / 圖檔
                   </button>
-                  <button onClick={() => window.print()} className="bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 md:px-6 py-2 rounded-full font-bold shadow-sm flex items-center gap-2 text-sm md:text-base transition-colors">
+                  <button onClick={() => setTimeout(() => window.print(), 100)} className="bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 md:px-6 py-2 rounded-full font-bold shadow-sm flex items-center gap-2 text-sm md:text-base transition-colors" title="列印行程表">
                     <Printer className="w-4 h-4 md:w-5 md:h-5" /> 列印
                   </button>
                 </div>
               </div>
 
-              <div id="trip-summary-content" className="print:block p-2 bg-white">
-                <div className="text-center mb-8 md:mb-10 border-b-2 border-pink-100 pb-6 md:pb-8">
-                  <div className="flex items-center justify-center gap-3 mb-3 md:mb-4 px-2">
-                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden shadow-sm border-2 border-pink-100 bg-slate-50 print:border-pink-200 flex-shrink-0">
+              <div id="trip-summary-content" className="print:block p-2 print:p-0 bg-white">
+                <div className="text-center mb-4 md:mb-6 border-b-2 border-pink-100 pb-4">
+                  <div className="flex items-center justify-center gap-3 mb-2 md:mb-3 px-2">
+                    <div className="w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden shadow-sm border-2 border-pink-100 bg-slate-50 print:border-pink-200 flex-shrink-0">
                       <img src="https://kokko-travel.com/logo.png" alt="Logo" className="w-full h-full object-cover" onError={(e)=>{e.target.style.display='none'}} />
                     </div>
-                    <h1 className="text-2xl md:text-4xl font-bold text-pink-600">{tripInfo.title}</h1>
+                    <h1 className="text-xl md:text-3xl font-bold text-pink-600">{tripInfo.title}</h1>
                   </div>
-                  <p className="text-sm md:text-lg text-slate-500 font-medium flex items-center justify-center gap-2 flex-wrap">
-                    <CalendarHeart className="w-4 h-4 md:w-5 md:h-5 text-pink-400" />
+                  <p className="text-xs md:text-sm text-slate-500 font-medium flex items-center justify-center gap-2 flex-wrap">
+                    <CalendarHeart className="w-3.5 h-3.5 md:w-4 md:h-4 text-pink-400" />
                     {tripInfo.startDate.replace(/-/g, '/')} ~ {tripInfo.endDate.replace(/-/g, '/')}
                     {tripInfo.companions && tripInfo.companions.length > 1 && (
-                       <span className="bg-blue-50 text-blue-500 px-2 py-0.5 rounded-lg text-xs md:text-sm ml-2 font-bold border border-blue-100">
+                       <span className="bg-blue-50 text-blue-500 px-2 py-0.5 rounded-lg text-xs ml-1 font-bold border border-blue-100">
                          {tripInfo.companions.length}人同行
                        </span>
                     )}
                   </p>
                   
-                  <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 md:gap-6 mt-6">
-                    <div className="bg-blue-50 px-4 md:px-6 py-3 rounded-2xl flex items-center gap-3 w-full sm:w-auto border border-blue-100">
-                      <PlaneTakeoff className="w-5 h-5 md:w-6 md:h-6 text-blue-400 flex-shrink-0" />
+                  <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 md:gap-4 mt-4">
+                    <div className="bg-blue-50 px-3 md:px-4 py-2 rounded-xl flex items-center gap-2 w-full sm:w-auto border border-blue-100 print:border-slate-200">
+                      <PlaneTakeoff className="w-4 h-4 md:w-5 md:h-5 text-blue-400 flex-shrink-0" />
                       <div className="text-left">
-                        <div className="text-[10px] md:text-xs text-blue-400 font-bold">去程航班</div>
-                        <div className="font-bold text-slate-700 text-sm md:text-base">
+                        <div className="text-[9px] md:text-[10px] text-blue-400 font-bold">去程航班</div>
+                        <div className="font-bold text-slate-700 text-xs md:text-sm">
                           {tripInfo.outboundFlight.number || '未提供'}
-                          {getAirline(tripInfo.outboundFlight.number) && <span className="ml-1 text-xs md:text-sm text-blue-600">({getAirline(tripInfo.outboundFlight.number)})</span>}
+                          {getAirline(tripInfo.outboundFlight.number) && <span className="ml-1 text-[10px] md:text-xs text-blue-600">({getAirline(tripInfo.outboundFlight.number)})</span>}
                         </div>
-                        {tripInfo.outboundFlight.time && <div className="text-[10px] md:text-xs text-slate-500 mt-0.5">{tripInfo.outboundFlight.time}</div>}
+                        {tripInfo.outboundFlight.time && <div className="text-[9px] md:text-[10px] text-slate-500 mt-0.5">{tripInfo.outboundFlight.time}</div>}
                       </div>
                     </div>
-                    <div className="bg-purple-50 px-4 md:px-6 py-3 rounded-2xl flex items-center gap-3 w-full sm:w-auto border border-purple-100">
-                      <PlaneLanding className="w-5 h-5 md:w-6 md:h-6 text-purple-400 flex-shrink-0" />
+                    <div className="bg-purple-50 px-3 md:px-4 py-2 rounded-xl flex items-center gap-2 w-full sm:w-auto border border-purple-100 print:border-slate-200">
+                      <PlaneLanding className="w-4 h-4 md:w-5 md:h-5 text-purple-400 flex-shrink-0" />
                       <div className="text-left">
-                        <div className="text-[10px] md:text-xs text-purple-400 font-bold">回程航班</div>
-                        <div className="font-bold text-slate-700 text-sm md:text-base">
+                        <div className="text-[9px] md:text-[10px] text-purple-400 font-bold">回程航班</div>
+                        <div className="font-bold text-slate-700 text-xs md:text-sm">
                           {tripInfo.returnFlight.number || '未提供'}
-                          {getAirline(tripInfo.returnFlight.number) && <span className="ml-1 text-xs md:text-sm text-purple-600">({getAirline(tripInfo.returnFlight.number)})</span>}
+                          {getAirline(tripInfo.returnFlight.number) && <span className="ml-1 text-[10px] md:text-xs text-purple-600">({getAirline(tripInfo.returnFlight.number)})</span>}
                         </div>
-                        {tripInfo.returnFlight.time && <div className="text-[10px] md:text-xs text-slate-500 mt-0.5">{tripInfo.returnFlight.time}</div>}
+                        {tripInfo.returnFlight.time && <div className="text-[9px] md:text-[10px] text-slate-500 mt-0.5">{tripInfo.returnFlight.time}</div>}
                       </div>
                     </div>
-                    <div className="bg-orange-50 px-4 md:px-6 py-3 rounded-2xl flex items-center gap-3 w-full sm:w-auto border border-orange-100">
-                      <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-orange-400 flex-shrink-0" />
+                    <div className="bg-orange-50 px-3 md:px-4 py-2 rounded-xl flex items-center gap-2 w-full sm:w-auto border border-orange-100 print:border-slate-200">
+                      <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-orange-400 flex-shrink-0" />
                       <div className="text-left">
-                        <div className="text-[10px] md:text-xs text-orange-400 font-bold">總預算/花費</div>
-                        <div className="font-bold text-slate-700 text-sm md:text-base">NT$ {getTotalCost().toLocaleString()}</div>
+                        <div className="text-[9px] md:text-[10px] text-orange-400 font-bold">總預算/花費</div>
+                        <div className="font-bold text-slate-700 text-xs md:text-sm">NT$ {getTotalCost().toLocaleString()}</div>
                         {tripInfo.flightCost && (
-                          <div className="text-[10px] md:text-[11px] text-slate-500 mt-0.5">
+                          <div className="text-[9px] md:text-[10px] text-slate-500 mt-0.5">
                             (機票: NT$ {Number(tripInfo.flightCost).toLocaleString()})
                           </div>
                         )}
@@ -867,51 +1016,51 @@
                   </div>
                 </div>
 
-                <div className="space-y-8 md:space-y-10">
+                <div className="space-y-6 md:space-y-8">
                   {dates.map((date, idx) => {
                     const dayActivities = itinerary[date] || [];
                     if (dayActivities.length === 0) return null;
                     return (
-                      <div key={date} className="break-inside-avoid px-2 md:px-0 mb-8">
-                        <h2 className="text-lg md:text-2xl font-bold text-white bg-pink-400 inline-block px-4 md:px-6 py-2 rounded-r-2xl rounded-tl-2xl mb-6 shadow-sm">
+                      <div key={date} className="break-inside-avoid px-1 md:px-0 mb-6">
+                        <h2 className="text-base md:text-xl font-bold text-white bg-pink-400 inline-block px-3 md:px-5 py-1.5 rounded-r-xl rounded-tl-xl mb-4 shadow-sm">
                           Day {idx + 1} - {formatDate(date)}
                         </h2>
-                        <div className="relative border-l-2 md:border-l-4 border-pink-100 ml-3 md:ml-6 pl-6 md:pl-8 space-y-6 md:space-y-8">
+                        <div className="relative border-l-2 md:border-l-[3px] border-pink-200 ml-2 md:ml-4 pl-4 md:pl-6 space-y-4 md:space-y-5">
                           {dayActivities.map((act) => (
                             <div key={act.id} className="relative break-inside-avoid">
-                              <div className="absolute -left-[30px] md:-left-[42px] top-1 w-4 h-4 md:w-6 md:h-6 bg-white border-2 md:border-4 border-pink-400 rounded-full"></div>
-                              <div className="flex flex-col sm:flex-row gap-2 md:gap-4">
-                                <div className="w-auto sm:w-20 pt-0 sm:pt-1 font-bold text-pink-500 sm:text-slate-500 flex-shrink-0 text-sm md:text-base">{act.time}</div>
-                                <div className="flex-1 bg-slate-50 p-3 md:p-4 rounded-2xl border border-slate-100 print:border-slate-300">
-                                  <div className="flex flex-col justify-between items-start mb-2 gap-2">
+                              <div className="absolute -left-[25px] md:-left-[35px] top-1 w-4 h-4 md:w-5 md:h-5 bg-white border-2 md:border-[3px] border-pink-400 rounded-full"></div>
+                              <div className="flex flex-col sm:flex-row gap-1.5 md:gap-3">
+                                <div className="w-auto sm:w-16 pt-0 sm:pt-0.5 font-bold text-pink-500 sm:text-slate-500 flex-shrink-0 text-xs md:text-sm">{act.time}</div>
+                                <div className="flex-1 bg-slate-50 p-2.5 md:p-3 rounded-xl border border-slate-100 print:border-slate-300 print:bg-white print:border print:shadow-none">
+                                  <div className="flex flex-col justify-between items-start mb-1.5 gap-1.5">
                                     <div className="flex items-center justify-between w-full">
-                                      <h3 className="font-bold text-base md:text-lg text-slate-800 flex items-center gap-2">
+                                      <h3 className="font-bold text-sm md:text-base text-slate-800 flex items-center gap-1.5">
                                         <span>{getCategoryIcon(act.type)}</span> <span className="break-words">{act.title}</span>
                                       </h3>
                                       {act.cost && (
                                         <div className="flex flex-col items-end">
-                                          <span className="text-orange-500 font-bold text-xs md:text-sm bg-orange-100 px-2 py-1 rounded-lg">NT$ {act.cost}</span>
+                                          <span className="text-orange-500 font-bold text-[10px] md:text-xs bg-orange-100 px-1.5 py-0.5 rounded-md">NT$ {act.cost}</span>
                                           {tripInfo.companions.length > 1 && act.payer !== 'none' && (
-                                            <span className="text-[10px] text-slate-400 mt-1">代墊: {tripInfo.companions.includes(act.payer) ? act.payer : tripInfo.companions[0]}</span>
+                                            <span className="text-[9px] text-slate-400 mt-0.5">代墊: {tripInfo.companions.includes(act.payer) ? act.payer : tripInfo.companions[0]}</span>
                                           )}
                                           {tripInfo.companions.length > 1 && act.payer === 'none' && (
-                                            <span className="text-[10px] text-slate-400 mt-1">各自付清</span>
+                                            <span className="text-[9px] text-slate-400 mt-0.5">各自付清</span>
                                           )}
                                         </div>
                                       )}
                                     </div>
                                   </div>
                                   {act.location && (
-                                    <div className="text-xs md:text-sm text-blue-500 mb-2 flex items-start md:items-center gap-1 break-words">
-                                      <MapPin className="w-3 h-3 md:w-4 md:h-4 mt-0.5 md:mt-0 flex-shrink-0" /> <span className="line-clamp-2 md:line-clamp-1">{act.location}</span>
+                                    <div className="text-[10px] md:text-xs text-blue-500 mb-1.5 flex items-start md:items-center gap-1 break-words">
+                                      <MapPin className="w-3 h-3 mt-0.5 md:mt-0 flex-shrink-0" /> <span className="line-clamp-2 md:line-clamp-1">{act.location}</span>
                                     </div>
                                   )}
-                                  {act.notes && <p className="text-xs md:text-sm text-slate-600 mb-3 bg-white p-2 md:p-3 rounded-xl border border-slate-200 break-words whitespace-pre-wrap">{act.notes}</p>}
+                                  {act.notes && <p className="text-[10px] md:text-xs text-slate-600 mb-2 bg-white p-2 rounded-lg border border-slate-200 break-words whitespace-pre-wrap">{act.notes}</p>}
                                   {act.photoUrls && act.photoUrls.length > 0 && (
-                                    <div className={`mt-3 grid gap-2 ${act.photoUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                                    <div className={`mt-2 grid gap-1.5 ${act.photoUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                                       {act.photoUrls.map((url, i) => (
-                                        <div key={i} className="rounded-xl overflow-hidden border-2 border-white shadow-sm bg-slate-50">
-                                          <img src={url} alt={`照片 ${i}`} className="w-full h-auto max-h-[300px] object-cover" />
+                                        <div key={i} className="rounded-lg overflow-hidden border border-slate-200 shadow-sm bg-slate-50 print:border-none">
+                                          <img src={url} alt={`照片 ${i}`} className="w-full h-auto max-h-[150px] md:max-h-[200px] object-cover print:max-h-[120px]" />
                                         </div>
                                       ))}
                                     </div>
