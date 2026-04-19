@@ -4,9 +4,15 @@
     <!-- 1. 外國旅客自動導向 (Language Redirection) - 置於最頂端以達最高效能 -->
     <script>
       (function() {
-        // 加入網域判斷：只有在正式網域上才執行跳轉，避免在本地開發或 AI 預覽環境中觸發跳轉導致畫面消失
+        // 1. 爬蟲防護：避免 Googlebot 預設英文語系被自動導向，導致 GSC 出現「頁面會重新導向」且無法索引
+        var ua = navigator.userAgent.toLowerCase();
+        var isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(ua);
+        if (isBot) return; // 如果是搜尋引擎爬蟲，直接終止重導向，讓其索引中文內容
+
+        // 2. 環境防護：只在正式網域執行，避免開發/預覽環境無限跳轉
         var isProduction = window.location.hostname.includes('kokko-travel.com');
 
+        // 3. 執行語系判斷與重導向 (單次連線只判斷一次)
         if (isProduction && !sessionStorage.getItem('lang_redirect_checked')) {
           sessionStorage.setItem('lang_redirect_checked', 'true');
           var userLang = navigator.language || navigator.userLanguage;
