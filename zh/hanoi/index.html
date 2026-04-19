@@ -3,12 +3,19 @@
 <head>
     <!-- 1. 外國旅客自動導向 (Language Redirection) - 置於最頂端以達最高效能 -->
     <script>
-        (function() {
-            var userLang = navigator.language || navigator.userLanguage;
-            if (userLang && !userLang.toLowerCase().startsWith('zh')) {
-                window.location.replace('https://kokko-travel.com/en/hanoi/index.html');
-            }
-        })();
+      (function() {
+        // 加入網域判斷：只有在正式網域上才執行跳轉，避免在本地開發或 AI 預覽環境中觸發跳轉導致畫面消失
+        var isProduction = window.location.hostname.includes('kokko-travel.com');
+
+        if (isProduction && !sessionStorage.getItem('lang_redirect_checked')) {
+          sessionStorage.setItem('lang_redirect_checked', 'true');
+          var userLang = navigator.language || navigator.userLanguage;
+          // 如果瀏覽器語言不是以 zh 開頭 (如 zh-TW, zh-CN)，則導向英文版
+          if (userLang && !userLang.toLowerCase().startsWith('zh')) {
+            window.location.replace('https://kokko-travel.com/en/hanoi/index.html');
+          }
+        }
+      })();
     </script>
 
     <!-- 2. Google tag (gtag.js) -->
