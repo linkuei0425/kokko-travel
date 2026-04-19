@@ -24,10 +24,22 @@
     <!-- 語言自動判斷與重導向腳本 (外國旅客自動導向英文版) -->
     <script>
         (function() {
-            var lang = navigator.language || navigator.userLanguage;
-            // 若瀏覽器語言不是中文，自動導向英文版
-            if (!lang.toLowerCase().startsWith('zh')) {
-                window.location.replace('https://kokko-travel.com/en/phuquoc/index.html');
+            // 1. 爬蟲防護：避免 Googlebot 預設英文語系被自動導向，導致 GSC 出現「頁面會重新導向」且無法索引
+            var ua = navigator.userAgent.toLowerCase();
+            var isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(ua);
+            if (isBot) return; // 如果是搜尋引擎爬蟲，直接終止重導向，讓其索引中文內容
+
+            // 2. 環境防護：只在正式網域執行，避免開發/預覽環境無限跳轉
+            var isProduction = window.location.hostname.includes('kokko-travel.com');
+
+            // 3. 執行語系判斷與重導向 (單次連線只判斷一次)
+            if (isProduction && !sessionStorage.getItem('lang_redirect_checked')) {
+                sessionStorage.setItem('lang_redirect_checked', 'true');
+                var lang = navigator.language || navigator.userLanguage;
+                // 若瀏覽器語言不是中文，自動導向英文版
+                if (lang && !lang.toLowerCase().startsWith('zh')) {
+                    window.location.replace('https://kokko-travel.com/en/phuquoc/index.html');
+                }
             }
         })();
     </script>
