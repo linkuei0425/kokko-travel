@@ -35,10 +35,19 @@
       gtag('config', 'G-W9KZ1CQ9XM');
     </script>
 
-    <!-- Auto-Redirect Logic for Foreign Travelers (If landing on incorrect language path) -->
+    <!-- Language Auto-Redirect & 404 Prevention Script -->
     <script>
         (function() {
             try {
+                var currentUrl = window.location.href;
+                
+                // 1. 阻擋 404 錯誤：如果網址誤闖 /en-US/，自動導向回正確的 /en/
+                if (currentUrl.includes('/en-US/')) {
+                    window.location.replace(currentUrl.replace('/en-US/', '/en/'));
+                    return; // 中止後續執行
+                }
+
+                // 2. 語系自動跳轉邏輯
                 if(window.location.pathname === '/' || window.location.pathname === '/index.html') {
                     var userLang = navigator.language || navigator.userLanguage;
                     // If user language does not contain 'zh' (Chinese), redirect to English HCMC page
