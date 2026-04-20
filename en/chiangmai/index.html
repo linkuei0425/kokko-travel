@@ -22,15 +22,22 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://kokko-travel.com/en/chiangmai/" />
 
-    <!-- Language Auto-Redirect Script (Requirement 13) -->
+    <!-- Language Auto-Redirect & 404 Prevention Script -->
     <script>
         (function() {
-            var userLang = navigator.language || navigator.userLanguage;
             var currentUrl = window.location.href;
-            // If the user's browser is not Chinese, and they aren't already on the correct EN page
+            
+            // 1. 阻擋 404 錯誤：如果網址誤闖 /en-US/，自動導向回正確的 /en/
+            if (currentUrl.includes('/en-US/')) {
+                window.location.replace(currentUrl.replace('/en-US/', '/en/'));
+                return; // 中止後續執行
+            }
+
+            // 2. 語系自動跳轉邏輯
+            var userLang = navigator.language || navigator.userLanguage;
             if (!userLang.startsWith('zh') && !currentUrl.includes('kokko-travel.com/en/chiangmai/')) {
                 // Uncomment the line below to activate actual redirection in production
-                // window.location.href = 'https://kokko-travel.com/en/chiangmai/';
+                // window.location.replace('https://kokko-travel.com/en/chiangmai/');
             }
         })();
     </script>
@@ -154,13 +161,13 @@
             <button onclick="window.openModal('boatModal')" aria-label="Minivans" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-600 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(234,88,12,0.15)]"><i class="ph ph-van text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">Minivans</span></button>
             <button onclick="window.openModal('attractionModal')" aria-label="Attractions" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-purple-600 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(147,51,234,0.15)]"><i class="ph ph-camera text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">Attractions</span></button>
             
-            <!-- External Links (Updated as per req 1) -->
+            <!-- External Links (Updated to clean /en/ paths) -->
             <button onclick="window.open('https://kokko-travel.com/en/chiangmai/food.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(249,115,22,0.15)]"><i class="ph ph-fork-knife text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">Food Guide</span></button>
             <button onclick="window.open('https://kokko-travel.com/en/chiangmai/shopping.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(244,63,94,0.15)]"><i class="ph ph-handbag text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">Shopping</span></button>
             <button onclick="window.open('https://kokko-travel.com/en/chiangmai/S.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-pink-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(236,72,153,0.15)]"><i class="ph ph-calendar-check text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">Itinerary</span></button>
             <button onclick="window.open('https://kokko-travel.com/en/chiangmai/trip.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(16,185,129,0.15)]"><i class="ph ph-ticket text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">Tour Guide</span></button>
             <button onclick="window.open('https://kokko-travel.com/en/chiangmai/hotel.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(99,102,241,0.15)]"><i class="ph ph-bed text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">Hotels</span></button>
-            <button onclick="window.open('https://kokko-travel.com/en/index.html', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(0,0,0,0.1)] overflow-hidden p-2.5"><img src="https://kokko-travel.com/logo.png" alt="Other Cities" class="w-full h-full object-contain drop-shadow-sm"></div><span class="text-[11px] md:text-xs font-bold text-gray-700">Other Cities</span></button>
+            <button onclick="window.open('https://kokko-travel.com/en/', '_blank')" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(0,0,0,0.1)] overflow-hidden p-2.5"><img src="https://kokko-travel.com/logo.png" alt="Other Cities" class="w-full h-full object-contain drop-shadow-sm"></div><span class="text-[11px] md:text-xs font-bold text-gray-700">Other Cities</span></button>
             
             <button onclick="window.open('https://kokko-travel.com/thailand-en.html', '_blank')" aria-label="Essentials" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-violet-500 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(139,92,246,0.15)]"><i class="ph ph-suitcase text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">Essentials</span></button>
             <button onclick="window.openModal('aboutModal')" aria-label="About Us" class="flex flex-col items-center gap-2 group"><div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-600 group-hover:-translate-y-1 group-active:scale-95 transition-all shadow-[0_4px_15px_rgba(71,85,105,0.15)]"><i class="ph ph-info text-3xl md:text-4xl"></i></div><span class="text-[11px] md:text-xs font-bold text-gray-700">About Us</span></button>
@@ -181,7 +188,7 @@
         </div>
     </nav>
 
-    <!-- 版權宣告區 (Requirement 12) -->
+    <!-- 版權宣告區 -->
     <footer class="mt-auto pt-8 pb-6 px-5 text-center text-[11px] md:text-xs text-gray-400 border-t border-gray-200">
         <p class="mb-1 font-semibold text-gray-500">Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved.</p>
         <p class="mb-0.5">版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
@@ -209,7 +216,6 @@
             <!-- CNX Content -->
             <div id="airport-cnx" class="space-y-5 pb-8 animate-[fadeIn_0.3s_ease-out]">
                 <div class="flex flex-col sm:flex-row gap-3 w-full mb-2">
-                    <!-- Klook Links - Requirement 4(3): Ensure /en-US/ is used (Already /en-US/ but verified) -->
                     <a href="https://affiliate.klook.com/redirect?aid=115196&aff_adid=1232867&k_site=https%3A%2F%2Fwww.klook.com%2Fen-US%2Factivity%2F110438-thailand-esim-high-speed-internet-qr-code-in-the-voucher%2F" target="_blank" rel="noopener noreferrer" class="flex-1 flex sm:flex-col items-center justify-center sm:gap-2 gap-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white py-4 px-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">
                         <i class="ph-fill ph-sim-card text-3xl"></i>
                         <span class="text-sm text-center leading-tight">Super e-SIM<br><span class="text-[10px] opacity-80 font-normal">Klook Special Offer</span></span>
@@ -421,7 +427,6 @@
 <!-- Core JavaScript -->
 <script>
 // --- Link Converter Script for Trip.com / Klook Future Dynamism ---
-// Any links generated dynamically that match requirements 4(2) and 4(3)
 window.formatAffiliateLinks = function(urlStr) {
     try {
         let url = new URL(urlStr);
