@@ -27,9 +27,10 @@
         (function() {
             var currentUrl = window.location.href;
             
-            // 1. 阻擋 404 錯誤：如果網址誤闖 /en-US/，自動導向回正確的 /en/
-            if (currentUrl.includes('/en-US/')) {
-                window.location.replace(currentUrl.replace('/en-US/', '/en/'));
+            // 1. 阻擋 404 錯誤：透過 Regex 精準捕捉 /en-US/ 或 /en-US (忽略大小寫)，並自動導向回正確的 /en/
+            if (currentUrl.match(/\/en-US/i)) {
+                var newUrl = currentUrl.replace(/\/en-US/i, '/en');
+                window.location.replace(newUrl);
                 return; // 中止後續執行
             }
 
