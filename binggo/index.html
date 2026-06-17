@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -6,53 +7,28 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>BINGO AI預測大師</title>
     
-    <!-- 🚨 終極防護欄截器：只要網頁出錯，絕對不允許它白屏，一定要跳出錯誤訊息 -->
-    <script>
-        window.addEventListener('error', function(e) {
-            alert("❌ 網頁執行發生錯誤！\n訊息: " + e.message + "\n檔案: " + e.filename + "\n行號: " + e.lineno);
-        });
-    </script>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
+    <!-- 樣式表引入 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
     <style>
         body {
             -webkit-tap-highlight-color: transparent;
             background-color: #f8fafc;
             user-select: none;
         }
-        textarea {
-            user-select: text; 
-        }
+        textarea { user-select: text; }
         .pb-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem); }
         .pt-safe { padding-top: calc(env(safe-area-inset-top) + 1.25rem); }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="app"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-
+    <script>
+        // --- 預設開獎數據 ---
         const defaultPilioData = `115010750 02, 03, 06, 09, 14, 24, 27, 31, 32, 36, 38, 39, 45, 52, 53, 57, 59, 69, 71, 74
 115010749 03, 06, 07, 09, 10, 12, 14, 18, 23, 26, 39, 42, 47, 48, 50, 51, 57, 72, 77, 78
 115010748 06, 10, 11, 15, 19, 21, 23, 30, 36, 42, 45, 46, 52, 53, 56, 69, 70, 74, 78, 79
@@ -66,873 +42,452 @@
 115010740 01, 06, 11, 13, 16, 17, 18, 20, 22, 26, 34, 36, 41, 44, 47, 54, 59, 60, 69, 78
 115010739 06, 09, 12, 16, 18, 24, 40, 41, 46, 47, 49, 50, 53, 54, 60, 62, 64, 66, 68, 79`;
 
-        const IconDatabase = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>;
-        const IconActivity = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
-        const IconTarget = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>;
-        const IconNetwork = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"></rect><rect x="2" y="16" width="6" height="6" rx="1"></rect><rect x="9" y="2" width="6" height="6" rx="1"></rect><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"></path><path d="M12 12V8"></path></svg>;
-        const IconTrendingUp = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>;
-        const IconRefreshCw = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>;
-        const IconCloudDownload = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 17l4 4 4-4"/><path d="M12 12v9"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>;
-        const IconBookOpen = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>;
-        const IconPlus = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
+        // 全域狀態管理
+        let state = {
+            activeTab: 'input',
+            rawText: defaultPilioData,
+            singleNumbers: '',
+            isUpdating: false,
+            stats: null,
+            parsedCount: 0,
+            parsedDetails: []
+        };
 
-        function App() {
-            const [activeTab, setActiveTab] = useState('input');
-            const [rawText, setRawText] = useState(defaultPilioData);
-            const [stats, setStats] = useState(null);
-            const [parsedCount, setParsedCount] = useState(0);
-            const [isUpdating, setIsUpdating] = useState(false);
-            const [parsedDetails, setParsedDetails] = useState([]);
-            const [singleNumbers, setSingleNumbers] = useState('');
-
-            const parseData = (input) => {
-                if (!input) return { array: [], details: [] };
-                let text = input.replace(/['"]/g, ' ')
-                                .replace(/\d{2,4}[-/\.]\d{1,2}[-/\.]\d{1,2}/g, ' ') 
-                                .replace(/\d{1,2}:\d{2}(:\d{2})?/g, ' ') 
-                                .replace(/\([一二三四五六日]\)/g, ' ') 
-                                .replace(/[期別數開獎時間號碼連莊球大小單雙－\t\n第超級猜-]/g, ' ') 
-                                .replace(/(\d{40})/g, (match) => match.match(/.{2}/g).join(' ')); 
-                
-                text = text.replace(/\b\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,2}\b/g, ' '); 
-                text = text.replace(/\b\d{1,2}[-/\.]\d{1,2}\b/g, ' '); 
-                
-                let details = []; 
-                let parts = text.split(/\b(\d{8,10})\b/);
-                
-                if (parts[0]) {
-                    let nums = parts[0].match(/\b\d+\b/g);
-                    if (nums) {
-                        let validNums = nums.map(Number).filter(n => n >= 1 && n <= 80);
-                        let currentDraw = new Set();
-                        for (let n of validNums) {
-                            currentDraw.add(n);
-                            if (currentDraw.size === 20) {
-                                details.push({ period: "未知", numbers: Array.from(currentDraw).sort((a, b) => a - b) });
-                                currentDraw = new Set(); 
-                            }
+        // --- 核心解析與計算運算捲軸 ---
+        function parseData(input) {
+            if (!input) return { array: [], details: [] };
+            let text = input.replace(/['"]/g, ' ')
+                            .replace(/\d{2,4}[-/\.]\d{1,2}[-/\.]\d{1,2}/g, ' ') 
+                            .replace(/\d{1,2}:\d{2}(:\d{2})?/g, ' ') 
+                            .replace(/\([一二三四五六日]\)/g, ' ') 
+                            .replace(/[期別數開獎時間號碼連莊球大小單雙－\t\n第超級猜-]/g, ' ') 
+                            .replace(/(\d{40})/g, (match) => match.match(/.{2}/g).join(' ')); 
+            
+            text = text.replace(/\b\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,2}\b/g, ' ').replace(/\b\d{1,2}[-/\.]\d{1,2}\b/g, ' '); 
+            let details = []; 
+            let parts = text.split(/\b(\d{8,10})\b/);
+            
+            if (parts[0]) {
+                let nums = parts[0].match(/\b\d+\b/g);
+                if (nums) {
+                    let validNums = nums.map(Number).filter(n => n >= 1 && n <= 80);
+                    let currentDraw = new Set();
+                    for (let n of validNums) {
+                        currentDraw.add(n);
+                        if (currentDraw.size === 20) {
+                            details.push({ period: "未知", numbers: Array.from(currentDraw).sort((a, b) => a - b) });
+                            currentDraw = new Set(); 
                         }
                     }
                 }
-
-                if (parts.length > 1) {
-                    for (let i = 1; i < parts.length; i += 2) {
-                        let period = parts[i];
-                        let block = parts[i+1];
-                        let nums = block.match(/\b\d+\b/g);
-                        if (!nums) continue;
-                        let validNums = nums.map(Number).filter(n => n >= 1 && n <= 80);
-                        let uniqueNums = Array.from(new Set(validNums));
-                        if (uniqueNums.length >= 20) {
-                            details.push({ period, numbers: uniqueNums.slice(0, 20).sort((a, b) => a - b) });
-                        }
+            }
+            if (parts.length > 1) {
+                for (let i = 1; i < parts.length; i += 2) {
+                    let period = parts[i];
+                    let block = parts[i+1];
+                    let nums = block.match(/\b\d+\b/g);
+                    if (!nums) continue;
+                    let validNums = nums.map(Number).filter(n => n >= 1 && n <= 80);
+                    let uniqueNums = Array.from(new Set(validNums));
+                    if (uniqueNums.length >= 20) {
+                        details.push({ period, numbers: uniqueNums.slice(0, 20).sort((a, b) => a - b) });
                     }
                 }
-                
-                let uniqueMap = new Map();
-                details.forEach(d => {
-                    uniqueMap.set(d.period !== "未知" ? d.period : d.numbers.join(','), d);
-                });
-                details = Array.from(uniqueMap.values());
-                
-                let hasValidPeriod = details.some(d => d.period !== "未知");
-                if (hasValidPeriod) {
-                    details.sort((a, b) => (parseInt(a.period) || 0) - (parseInt(b.period) || 0));
-                } else {
-                    details.reverse();
-                }
-                
-                if (details.length > 200) {
-                    details = details.slice(-200);
-                }
-                return { array: details.map(d => d.numbers), details: details }; 
-            };
-
-            const calculateStats = (drawData) => {
-                if (!drawData || drawData.length < 15) return null; 
-
-                let gaps = Array(81).fill(0);
-                
-                let recent10DrawsN1 = drawData.slice(-10);
-                let recent10Freqs = Array(81).fill(0);
-                recent10DrawsN1.forEach(d => d.forEach(n => recent10Freqs[n]++));
-
-                let recent5Draws = drawData.slice(-5);
-                let recent5Freqs = Array(81).fill(0);
-                recent5Draws.forEach(d => d.forEach(n => recent5Freqs[n]++));
-
-                let lastSeen = Array(81).fill(-1);
-                drawData.forEach((draw, index) => {
-                    draw.forEach(n => { lastSeen[n] = index; });
-                });
-                for (let i = 1; i <= 80; i++) {
-                    gaps[i] = lastSeen[i] !== -1 ? drawData.length - 1 - lastSeen[i] : drawData.length;
-                }
-
-                let cov = Array(81).fill(0).map(() => Array(81).fill(0));
-                drawData.forEach(draw => {
-                    for (let i = 0; i < draw.length; i++) {
-                        for (let j = i + 1; j < draw.length; j++) {
-                            cov[draw[i]][draw[j]]++;
-                            cov[draw[j]][draw[i]]++;
-                        }
-                    }
-                });
-
-                let trail = Array(81).fill(0).map(() => Array(81).fill(0));
-                for (let i = 0; i < drawData.length - 1; i++) {
-                    let currentDraw = drawData[i];
-                    let nextDraw = drawData[i + 1];
-                    currentDraw.forEach(m => {
-                        nextDraw.forEach(n => { trail[m][n]++; });
-                    });
-                }
-
-                let latestDraw = drawData[drawData.length - 1];
-                let prevDraw = drawData.length >= 2 ? drawData[drawData.length - 2] : [];
-                let trailScores = Array(81).fill(0);
-                latestDraw.forEach(m => {
-                    for (let n = 1; n <= 80; n++) trailScores[n] += trail[m][n];
-                });
-
-                let hot15 = [...Array(80).keys()].map(i => i + 1).map(num => ({ num, count: recent10Freqs[num] })).filter(x => x.count > 0).sort((a, b) => b.count - a.count).slice(0, 15);
-                let cold15 = [...Array(80).keys()].map(i => i + 1).map(num => ({ num, gap: gaps[num] })).filter(x => x.gap > 0).sort((a, b) => b.gap - a.gap).slice(0, 15);
-
-                let pairCandidates = [];
-                for (let i = 1; i < 80; i++) {
-                    let score = trailScores[i] + trailScores[i+1] + (cov[i][i+1] * 1.5); 
-                    pairCandidates.push({ n1: i, n2: i+1, score: score });
-                }
-                pairCandidates.sort((a, b) => b.score - a.score);
-                let topPairs = [];
-                let usedNumsForPairs = new Set();
-                for (let p of pairCandidates) {
-                    if (!usedNumsForPairs.has(p.n1) && !usedNumsForPairs.has(p.n2)) {
-                        topPairs.push(p);
-                        usedNumsForPairs.add(p.n1);
-                        usedNumsForPairs.add(p.n2);
-                        if (topPairs.length === 2) break; 
-                    }
-                }
-
-                let n3Counts = Array(81).fill(0);
-                latestDraw.forEach(m => {
-                    let sortedTrails = [...Array(80).keys()].map(i => i + 1)
-                        .filter(n => n !== m)
-                        .sort((a, b) => trail[m][b] - trail[m][a]);
-                    let secondHighest = sortedTrails[1]; 
-                    if (secondHighest) n3Counts[secondHighest]++;
-                });
-                let n3Candidates = [...Array(80).keys()].map(i => i + 1).sort((a, b) => n3Counts[b] - n3Counts[a] || trailScores[b] - trailScores[a]);
-                
-                let n2Candidates = [...Array(80).keys()].map(i => i + 1).filter(i => recent10Freqs[i] === 2 && gaps[i] > 1).sort((a, b) => gaps[b] - gaps[a]); 
-                if (n2Candidates.length < 2) {
-                    let extra = [...Array(80).keys()].map(i => i + 1).sort((a, b) => gaps[b] - gaps[a]).filter(x => !n2Candidates.includes(x));
-                    n2Candidates = [...n2Candidates, ...extra.slice(0, 2)];
-                }
-                let icebreakerCandidates = [...Array(80).keys()].map(i => i + 1).sort((a, b) => gaps[b] - gaps[a]);
-                let hot5Candidates = [...Array(80).keys()].map(i => i + 1).sort((a, b) => recent5Freqs[b] - recent5Freqs[a]);
-                
-                let notOpenedLast2_1to10_Candidates = [...Array(10).keys()].map(i => i + 1)
-                    .filter(n => !latestDraw.includes(n) && !prevDraw.includes(n))
-                    .sort((a, b) => gaps[b] - gaps[a]);
-
-                let warmPool = [...Array(80).keys()].map(i => i + 1).filter(i => recent10Freqs[i] >= 2 && recent10Freqs[i] <= 3);
-                let coreIntersectionPicks = warmPool.sort((a, b) => trailScores[b] - trailScores[a]);
-                if (coreIntersectionPicks.length < 5) {
-                    let needed = 5 - coreIntersectionPicks.length;
-                    let extraN3 = n3Candidates.filter(num => !coreIntersectionPicks.includes(num)).slice(0, needed);
-                    coreIntersectionPicks = [...coreIntersectionPicks, ...extraN3];
-                }
-
-                let recent10Draws = drawData.slice(-10);
-                let tailCounts = Array(10).fill(0);
-                recent10Draws.forEach(draw => {
-                    draw.forEach(n => tailCounts[n % 10]++);
-                });
-                let strongTails = [];
-                let maxTailPossible = recent10Draws.length * 8; 
-                for (let i = 0; i < 10; i++) {
-                    let ratio = tailCounts[i] / maxTailPossible;
-                    if (ratio >= 0.25 && ratio <= 0.30) {
-                        strongTails.push({ tail: i, count: tailCounts[i], percentage: Math.round(ratio * 100) });
-                    }
-                }
-                strongTails.sort((a, b) => b.percentage - a.percentage);
-
-                let validTails = strongTails.map(t => t.tail);
-                let n8Candidates = [...Array(80).keys()].map(i => i + 1)
-                    .filter(num => recent5Freqs[num] > 0 && recent5Freqs[num] < 5)
-                    .filter(num => validTails.includes(num % 10))
-                    .sort((a, b) => recent5Freqs[b] - recent5Freqs[a]);
-
-                const generateStars = (targetStars) => {
-                    let selected = new Set();
-                    let sources = {};
-                    let breakdown = { n1: 0, n2: 0, n3: 0, n4: 0, n5: 0, n6: 0, n7: 0, n8: 0 };
-                    
-                    const getSafe = (list, srcType) => {
-                        let found = list.find(x => !selected.has(x));
-                        if (found !== undefined) {
-                            selected.add(found);
-                            sources[found] = srcType;
-                            breakdown[srcType.toLowerCase()]++;
-                        } else {
-                            let fallback = [...Array(80).keys()].map(i=>i+1).find(x => !selected.has(x));
-                            if (fallback) {
-                                selected.add(fallback);
-                                sources[fallback] = srcType;
-                                breakdown[srcType.toLowerCase()]++;
-                            }
-                        }
-                    };
-
-                    const pickByCount = (list, srcType, count) => {
-                        for(let i=0; i<count; i++) getSafe(list, srcType);
-                    };
-
-                    const pickN8WithDeduplication = () => {
-                        let usedTails = new Set(Array.from(selected).map(n => n % 10));
-                        let availableTails = strongTails.map(t => t.tail).filter(t => !usedTails.has(t));
-                        
-                        if (availableTails.length > 0) {
-                            let idealN8 = [...Array(80).keys()].map(i => i + 1)
-                                .filter(n => !selected.has(n))
-                                .filter(n => availableTails.includes(n % 10))
-                                .filter(n => recent5Freqs[n] > 0 && recent5Freqs[n] < 5)
-                                .sort((a, b) => recent5Freqs[b] - recent5Freqs[a]);
-                                
-                            if (idealN8.length > 0) {
-                                getSafe(idealN8, 'N8');
-                                return true;
-                            } else {
-                                let fallbackN8 = [...Array(80).keys()].map(i => i + 1)
-                                    .filter(n => !selected.has(n))
-                                    .filter(n => availableTails.includes(n % 10))
-                                    .sort((a, b) => recent5Freqs[b] - recent5Freqs[a]);
-                                if (fallbackN8.length > 0) {
-                                    getSafe(fallbackN8, 'N8');
-                                    return true;
-                                }
-                            }
-                        }
-                        return false;
-                    };
-
-                    let baseCores = coreIntersectionPicks.slice(0, 2);
-                    
-                    if (targetStars === 2) {
-                        baseCores.forEach(n => { selected.add(n); sources[n] = 'N1'; breakdown.n1++; });
-                    } 
-                    else if (targetStars === 3) {
-                        pickByCount(hot5Candidates, 'N7', 3);
-                    }
-                    else if (targetStars === 4) {
-                        baseCores.forEach(n => { selected.add(n); sources[n] = 'N1'; breakdown.n1++; });
-                        pickByCount(hot5Candidates, 'N7', 1);
-                        if (!pickN8WithDeduplication()) {
-                            getSafe(n3Candidates, 'N3');
-                        }
-                    }
-                    else if (targetStars === 5) {
-                        pickByCount(hot5Candidates, 'N7', 2);
-                        if (!pickN8WithDeduplication()) {
-                            getSafe(n3Candidates, 'N3');
-                        }
-                        pickByCount(n3Candidates, 'N3', 2);
-                    }
-                    else if (targetStars === 6) {
-                        pickByCount(hot5Candidates, 'N7', 2);
-                        pickByCount(n3Candidates, 'N3', 1);
-                        if (!pickN8WithDeduplication()) {
-                            getSafe(n3Candidates, 'N3'); 
-                        }
-                        let c1 = [...Array(80).keys()].map(i => i + 1).sort((a, b) => Array.from(selected).reduce((sum, s) => sum + cov[s][b], 0) - Array.from(selected).reduce((sum, s) => sum + cov[s][a], 0));
-                        getSafe(c1, 'N4'); 
-                        pickByCount(icebreakerCandidates, 'N5', 1); 
-                    }
-                    else if (targetStars === 7) {
-                        pickByCount(n3Candidates, 'N3', 2);
-                        pickByCount(icebreakerCandidates, 'N5', 2);
-                        pickByCount(notOpenedLast2_1to10_Candidates, 'N6', 1);
-                        let c1 = [...Array(80).keys()].map(i => i + 1).sort((a, b) => Array.from(selected).reduce((sum, s) => sum + cov[s][b], 0) - Array.from(selected).reduce((sum, s) => sum + cov[s][a], 0));
-                        pickByCount(c1, 'N4', 2);
-                    }
-                    else if (targetStars === 8) {
-                        pickByCount(n3Candidates, 'N3', 2);
-                        pickByCount(icebreakerCandidates, 'N5', 2);
-                        pickByCount(notOpenedLast2_1to10_Candidates, 'N6', 1);
-                        pickByCount(hot5Candidates, 'N7', 1);
-                        let c1 = [...Array(80).keys()].map(i => i + 1).sort((a, b) => Array.from(selected).reduce((sum, s) => sum + cov[s][b], 0) - Array.from(selected).reduce((sum, s) => sum + cov[s][a], 0));
-                        pickByCount(c1, 'N4', 1);
-                        pickByCount(coreIntersectionPicks, 'N1', 1);
-                    }
-                    else if (targetStars === 9) {
-                        pickByCount(n3Candidates, 'N3', 2);
-                        pickByCount(icebreakerCandidates, 'N5', 2);
-                        pickByCount(notOpenedLast2_1to10_Candidates, 'N6', 2);
-                        pickByCount(hot5Candidates, 'N7', 2);
-                        let c1 = [...Array(80).keys()].map(i => i + 1).sort((a, b) => Array.from(selected).reduce((sum, s) => sum + cov[s][b], 0) - Array.from(selected).reduce((sum, s) => sum + cov[s][a], 0));
-                        pickByCount(c1, 'N4', 1);
-                    }
-                    else if (targetStars === 10) {
-                        pickByCount(coreIntersectionPicks, 'N1', 2);
-                        pickByCount(n2Candidates, 'N2', 1);
-                        pickByCount(icebreakerCandidates, 'N5', 1);
-                        pickByCount(n3Candidates, 'N3', 2);
-                        pickByCount(notOpenedLast2_1to10_Candidates, 'N6', 1);
-                        pickByCount(hot5Candidates, 'N7', 1);
-                        
-                        let c1 = [...Array(80).keys()].map(i => i + 1).sort((a, b) => Array.from(selected).reduce((sum, s) => sum + cov[s][b], 0) - Array.from(selected).reduce((sum, s) => sum + cov[s][a], 0));
-                        pickByCount(c1, 'N4', 2);
-
-                        let rest = [...Array(80).keys()].map(i => i + 1).sort((a, b) => trailScores[b] - trailScores[a]);
-                        while(selected.size < 10) getSafe(rest, 'N3');
-                    }
-
-                    return { set1: { numbers: Array.from(selected).filter(n => n).sort((a, b) => a - b), sources, breakdown } };
-                };
-
-                let recent20Draws = drawData.slice(-20);
-                let recent20Freqs = Array(81).fill(0);
-                recent20Draws.forEach(d => d.forEach(n => recent20Freqs[n]++));
-
-                let hot20_top3 = [...Array(80).keys()].map(i => i + 1)
-                    .map(num => ({ num, count: recent20Freqs[num] }))
-                    .sort((a, b) => b.count - a.count)
-                    .slice(0, 3);
-
-                let cold_top3 = [...Array(80).keys()].map(i => i + 1)
-                    .map(num => ({ num, gap: gaps[num] }))
-                    .sort((a, b) => b.gap - a.gap)
-                    .slice(0, 3);
-
-                let draws100 = drawData.slice(-100);
-                let jump2Counts = Array(81).fill(0);
-                let jump3Counts = Array(81).fill(0);
-                for (let i = 0; i < draws100.length; i++) {
-                    let current = draws100[i];
-                    current.forEach(n => {
-                        if (i + 2 < draws100.length && draws100[i+2].includes(n)) jump2Counts[n]++;
-                        if (i + 3 < draws100.length && draws100[i+3].includes(n)) jump3Counts[n]++;
-                    });
-                }
-                let jump2_top3 = [...Array(80).keys()].map(i => i + 1)
-                    .map(num => ({ num, count: jump2Counts[num] }))
-                    .sort((a, b) => b.count - a.count)
-                    .slice(0, 3);
-                let jump3_top3 = [...Array(80).keys()].map(i => i + 1)
-                    .map(num => ({ num, count: jump3Counts[num] }))
-                    .sort((a, b) => b.count - a.count)
-                    .slice(0, 3);
-
-                let hot5_top5 = [...Array(80).keys()].map(i => i + 1)
-                    .map(num => ({ num, count: recent5Freqs[num] }))
-                    .filter(item => item.count < 5)
-                    .sort((a, b) => b.count - a.count)
-                    .slice(0, 5);
-
-                let rawTrailDetails = latestDraw.map(num => {
-                    let topNext = [...Array(80).keys()].map(i => i + 1)
-                        .filter(i => i !== num)
-                        .sort((a, b) => trail[num][b] - trail[num][a])[0];
-                    return { num, topNext, count: trail[num][topNext] };
-                });
-
-                let groupedTrails = {};
-                rawTrailDetails.forEach(item => {
-                    if (!groupedTrails[item.topNext]) {
-                        groupedTrails[item.topNext] = { topNext: item.topNext, sources: [], totalCount: 0 };
-                    }
-                    groupedTrails[item.topNext].sources.push(item.num);
-                    groupedTrails[item.topNext].totalCount += item.count;
-                });
-
-                let trailDetails = Object.values(groupedTrails).sort((a, b) => b.sources.length - a.sources.length || b.totalCount - a.totalCount);
-
-                return { 
-                    star2: generateStars(2), star3: generateStars(3), star4: generateStars(4), 
-                    star5: generateStars(5), star6: generateStars(6), star7: generateStars(7), 
-                    star8: generateStars(8), star9: generateStars(9), star10: generateStars(10), 
-                    individualTraits: (() => {
-                        let traits = {};
-                        generateStars(2).set1.numbers.forEach(num => {
-                            if(!num) return;
-                            let topTrails = [...Array(80).keys()].map(i => i + 1).filter(i => i !== num).sort((a, b) => trail[num][b] - trail[num][a]).slice(0, 3);
-                            let topCovs = [...Array(80).keys()].map(i => i + 1).filter(i => i !== num).sort((a, b) => cov[num][b] - cov[num][a]).slice(0, 3);
-                            traits[num] = { trails: topTrails, covs: topCovs };
-                        });
-                        return traits;
-                    })(),
-                    hot15, cold15, topPairs,
-                    hot20_top3, cold_top3, jump2_top3, jump3_top3, trailDetails,
-                    hot5_top5, strongTails
-                };
-            };
-
-            const refreshStats = (textData) => {
-                try {
-                    const parsed = parseData(textData);
-                    setParsedCount(parsed.array.length);
-                    setParsedDetails(parsed.details);
-                    if (parsed.array.length >= 15) {
-                        setStats(calculateStats(parsed.array));
-                    }
-                } catch (e) {
-                    console.error("重新計算狀態失敗", e);
-                }
-            };
-
-            const handleProcessData = () => {
-                try {
-                    const parsed = parseData(rawText);
-                    setParsedCount(parsed.array.length);
-                    setParsedDetails(parsed.details);
-                    if (parsed.array.length >= 15) {
-                        setStats(calculateStats(parsed.array));
-                        alert("解析成功！共成功載入 " + parsed.array.length + " 期開獎數據。");
-                        setActiveTab('picks');
-                    } else {
-                        alert("資料不足 (" + parsed.array.length + " 期)！");
-                    }
-                } catch (error) {
-                    alert("解析錯誤：" + error.message);
-                }
-            };
-
-            const handleAddSingleDraw = () => {
-                if (!singleNumbers.trim()) {
-                    alert('請先在欄位中貼上資料！');
-                    return;
-                }
-
-                let cleanText = singleNumbers.replace(/['"]/g, ' ')
-                                             .replace(/\d{2,4}[-/\.]\d{1,2}[-/\.]\d{1,2}/g, ' ') 
-                                             .replace(/\d{1,2}:\d{2}(:\d{2})?/g, ' ') 
-                                             .replace(/\([一二三四五六日]\)/g, ' ') 
-                                             .replace(/[期別數開獎時間號碼連莊球大小單雙－\t\n第超級猜-]/g, ' ') 
-                                             .replace(/(\d{40})/g, (match) => match.match(/.{2}/g).join(' ')); 
-
-                let newDetails = [];
-                let parts = cleanText.split(/\b(\d{8,10})\b/);
-                
-                if (parts[0]) {
-                    let nums = parts[0].match(/\b\d+\b/g);
-                    if (nums) {
-                        let validNums = nums.map(Number).filter(n => n >= 1 && n <= 80);
-                        let currentDraw = new Set();
-                        for (let n of validNums) {
-                            currentDraw.add(n);
-                            if (currentDraw.size === 20) {
-                                newDetails.push({ period: "未知", numbers: Array.from(currentDraw).sort((a, b) => a - b) });
-                                currentDraw = new Set();
-                            }
-                        }
-                    }
-                }
-
-                if (parts.length > 1) {
-                    for (let i = 1; i < parts.length; i += 2) {
-                        let period = parts[i];
-                        let block = parts[i+1];
-                        let nums = block.match(/\b\d+\b/g);
-                        if (nums) {
-                            let validNums = nums.map(Number).filter(n => n >= 1 && n <= 80);
-                            let uniqueNums = Array.from(new Set(validNums));
-                            if (uniqueNums.length >= 20) {
-                                newDetails.push({ period, numbers: uniqueNums.slice(0, 20).sort((a, b) => a - b) });
-                            }
-                        }
-                    }
-                }
-
-                if (newDetails.length === 0) {
-                    alert('找不到足夠的有效號碼，請確認內容！(每期需包含20個不重複的開出號碼)');
-                    return;
-                }
-
-                let maxPeriod = 0;
-                if (parsedDetails.length > 0) {
-                    maxPeriod = Math.max(...parsedDetails.map(d => parseInt(d.period) || 0));
-                }
-                
-                let currentNextPeriod = maxPeriod > 0 ? maxPeriod + 1 : 1;
-                for (let i = newDetails.length - 1; i >= 0; i--) {
-                    if (newDetails[i].period === "未知") {
-                        newDetails[i].period = currentNextPeriod.toString();
-                        currentNextPeriod++;
-                    }
-                }
-
-                const newEntriesString = newDetails.map(d => d.period + " " + d.numbers.map(n => n.toString().padStart(2, '0')).join(', ')).join('\n');
-                const updatedText = newEntriesString + '\n' + rawText;
-                setRawText(updatedText);
-                
-                try {
-                    const parsed = parseData(updatedText);
-                    setParsedCount(parsed.array.length);
-                    setParsedDetails(parsed.details);
-                    if (parsed.array.length >= 15) {
-                        setStats(calculateStats(parsed.array));
-                        alert("成功寫入 " + newDetails.length + " 期資料！");
-                        setSingleNumbers('');
-                    } else {
-                        alert("已寫入 " + newDetails.length + " 期資料，但總期數 (" + parsed.array.length + ") 仍不足 15 期以進行分析。");
-                        setSingleNumbers(''); 
-                    }
-                } catch (error) {
-                    alert("解析錯誤：" + error.message);
-                }
-            };
-
-            const handleAutoUpdate = async () => {
-                setIsUpdating(true);
-                try {
-                    const docId = "1YCp4fwiSdvYvs7Nt7s04Vg3ZcswlqO2Ta2cf16L5lZg";
-                    const tabName = "歷史紀錄";
-                    const cacheBuster = new Date().getTime();
-                    
-                    const directUrl = "https://docs.google.com/spreadsheets/d/" + docId + "/gviz/tq?tqx=out:csv&sheet=" + encodeURIComponent(tabName) + "&t=" + cacheBuster;
-                    
-                    const response = await fetch(directUrl, { method: 'GET', mode: 'cors', cache: 'no-store' });
-                    if (!response.ok) throw new Error("Google 雲端無回應");
-                    
-                    let text = await response.text();
-                    if (!text || text.includes("<html")) throw new Error("抓取到的試算表內容格式不正確");
-                    
-                    setRawText(text);
-                    const parsed = parseData(text);
-                    setParsedCount(parsed.array.length);
-                    setParsedDetails(parsed.details);
-                    
-                    if (parsed.array.length >= 15) {
-                        setStats(calculateStats(parsed.array));
-                        alert("✅ 雲端資料同步完成！\n成功載入了 " + parsed.array.length + " 期開獎記錄。");
-                        setActiveTab('picks');
-                    } else {
-                        alert("⚠️ 雲端資料已載入，但只成功解析到 " + parsed.array.length + " 期。");
-                    }
-                } catch (error) {
-                    alert("❌ 自動更新失敗: " + error.message + "\n\n目前為您切換至本地離線預設數據。");
-                    refreshStats(rawText || defaultPilioData);
-                } finally { 
-                    setIsUpdating(false); 
-                }
-            };
-
-            const NumberBadge = ({ num, source, size = "normal" }) => {
-                if (!num) return null; 
-                const sizeClass = size === "small" ? "w-7 h-7 text-xs" : "w-10 h-10 text-base";
-                let colorClass = "bg-slate-700 text-white";
-                if (source === 'N1') colorClass = "bg-red-500 shadow-red-200";
-                else if (source === 'N2') colorClass = "bg-cyan-500 shadow-cyan-200";
-                else if (source === 'N3') colorClass = "bg-green-500 shadow-green-200";
-                else if (source === 'N4') colorClass = "bg-purple-500 shadow-purple-200";
-                else if (source === 'N5') colorClass = "bg-orange-500 shadow-orange-200";
-                else if (source === 'N6') colorClass = "bg-slate-400 shadow-slate-200";
-                else if (source === 'N7') colorClass = "bg-rose-600 shadow-rose-200";
-                else if (source === 'N8') colorClass = "bg-fuchsia-600 shadow-fuchsia-200";
-                return (
-                    <span className={"inline-flex items-center justify-center rounded-full font-bold shadow-md text-white " + colorClass + " " + sizeClass + " relative"}>
-                        {num.toString().padStart(2, '0')}
-                        {source && size !== "small" && <span className="absolute -top-2 -right-2 text-[8px] bg-white text-gray-800 px-1 rounded-full shadow border">{source}</span>}
-                    </span>
-                );
-            };
-
-            const StarRow = ({ stars, data, customDesc }) => {
-                if (!data || !data.set1) return null;
-                return (
-                    <div className="bg-white p-4 rounded-xl shadow-sm border mb-4 animate-fade-in">
-                        <div className="mb-3 border-b pb-2">
-                            <h4 className="font-bold text-gray-800 text-lg">{stars} 星精準推薦</h4>
-                            <p className="text-xs text-gray-500 mt-1">{customDesc}</p>
-                        </div>
-                        <div>
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">主力組合</span>
-                                <div className="flex gap-1 text-[10px] font-medium flex-wrap justify-end">
-                                    {data.set1.breakdown.n1 > 0 && <span className="text-red-500">核心:{data.set1.breakdown.n1}</span>}
-                                    {data.set1.breakdown.n2 > 0 && <span className="text-cyan-500">回歸:{data.set1.breakdown.n2}</span>}
-                                    {data.set1.breakdown.n5 > 0 && <span className="text-orange-500">破冰:{data.set1.breakdown.n5}</span>}
-                                    {data.set1.breakdown.n3 > 0 && <span className="text-green-500">拖號:{data.set1.breakdown.n3}</span>}
-                                    {data.set1.breakdown.n4 > 0 && <span className="text-purple-500">共伴:{data.set1.breakdown.n4}</span>}
-                                    {data.set1.breakdown.n6 > 0 && <span className="text-slate-500">未開小號:{data.set1.breakdown.n6}</span>}
-                                    {data.set1.breakdown.n7 > 0 && <span className="text-rose-500">5熱:{data.set1.breakdown.n7}</span>}
-                                    {data.set1.breakdown.n8 > 0 && <span className="text-fuchsia-600">強尾:{data.set1.breakdown.n8}</span>}
-                                </div>
-                            </div>
-                            <div className="flex flex-wrap gap-x-2 gap-y-3">
-                                {data.set1.numbers.map((n, i) => <NumberBadge key={stars + "-A-" + n + "-" + i} num={n} source={data.set1.sources[n]} />)}
-                            </div>
-                        </div>
-                    </div>
-                );
-            };
-
-            useEffect(() => {
-                refreshStats(defaultPilioData);
-            }, []);
-
-            return (
-                <div className="min-h-screen pb-20 bg-slate-50">
-                    <div className="bg-slate-900 text-white p-5 rounded-b-3xl sticky top-0 z-50 shadow-md">
-                        <div className="flex justify-between items-center">
-                            <h1 className="text-xl font-bold flex items-center gap-2"><IconActivity /> 預測大師・精準版</h1>
-                            <span className="text-[10px] bg-white text-slate-800 px-2 py-1 rounded-full shadow-sm">載入: {parsedCount}期</span>
-                        </div>
-                        <div className="flex gap-2 mt-3 text-[9px] opacity-60 overflow-x-auto whitespace-nowrap no-scrollbar">
-                            <span>N1:溫熱</span>|<span>N3:拖號</span>|<span>N4:共伴</span>|<span>N5:破冰</span>|<span>N6:未開小號(1-10)</span>|<span>N7:5熱</span>|<span>N8:強尾</span>
-                        </div>
-                    </div>
-
-                    <div className="max-w-md mx-auto p-4">
-                        {activeTab === 'input' && (
-                            <div className="animate-fade-in">
-                                
-                                <div className="bg-white p-4 rounded-xl border mb-4 shadow-sm border-indigo-100">
-                                    <h3 className="font-bold text-indigo-700 mb-2 text-sm flex items-center gap-2">
-                                        <IconPlus /> 手動寫入最新開獎
-                                    </h3>
-                                    <p className="text-[10px] text-gray-500 mb-3">直接貼上網站複製的內容，支援一次貼入多期，期數若無會自動遞增。</p>
-                                    <div className="mb-3">
-                                        <textarea 
-                                            className="w-full h-24 p-2 border rounded-lg text-xs bg-slate-50 focus:outline-blue-500 font-mono resize-none border-indigo-200" 
-                                            placeholder="請直接貼上內容 (支援同時貼上多期開獎)..." 
-                                            value={singleNumbers} 
-                                            onChange={(e) => setSingleNumbers(e.target.value)} 
-                                        />
-                                    </div>
-                                    <button onClick={handleAddSingleDraw} className="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-lg text-sm shadow-md flex justify-center items-center gap-2 transition-colors active:bg-indigo-700">
-                                        <IconPlus /> 寫入並重新分析
-                                    </button>
-                                </div>
-
-                                <div className="bg-white p-4 rounded-xl border mb-4 shadow-sm">
-                                    <h2 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><IconDatabase /> 資料庫管理</h2>
-
-                                    <div className="flex gap-2">
-                                        <button onClick={handleAutoUpdate} disabled={isUpdating} className={"flex-1 " + (isUpdating ? 'bg-gray-400' : 'bg-emerald-600') + " text-white font-bold py-3 rounded-lg text-sm shadow-md"}>
-                                            {isUpdating ? '同步中...' : '雲端同步'}
-                                        </button>
-                                        <button onClick={handleProcessData} className="flex-1 bg-blue-600 text-white font-bold py-3 rounded-lg text-sm shadow-md">解析手動數據</button>
-                                    </div>
-                                    <div className="mt-4">
-                                         <textarea className="w-full h-20 p-2 border rounded-lg text-xs bg-slate-50 font-mono text-gray-400" value={rawText} onChange={(e) => setRawText(e.target.value)} placeholder="可直接貼上多期開獎數據（支援直式/橫式/各大網站複製格式）..." />
-                                    </div>
-                                </div>
-
-                                {parsedCount > 0 && parsedDetails && parsedDetails.length > 0 && (
-                                    <div className="p-4 bg-white border rounded-xl shadow-sm">
-                                        <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase flex justify-between items-center">
-                                            <span>🔍 最新解析預覽</span>
-                                            <span className="text-[9px] font-normal text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded">請核對是否為最新期數</span>
-                                        </h3>
-                                        {[...parsedDetails].reverse().slice(0, 2).map((record, idx) => (
-                                            <div key={idx} className="border-b last:border-0 py-2">
-                                                <div className="text-[10px] font-bold text-blue-600 mb-1">期別: {record.period} {idx === 0 ? '(最新)' : '(次新)'}</div>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {record.numbers.map(n => <span key={n} className="w-5 h-5 text-[9px] bg-slate-700 text-white rounded-full flex items-center justify-center font-bold">{n.toString().padStart(2, '0')}</span>)}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {activeTab === 'logic' && (
-                            <div className="animate-fade-in space-y-4">
-                                <div className="bg-white p-4 rounded-xl border shadow-sm">
-                                    <h2 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><IconBookOpen /> 星級邏輯詳解</h2>
-                                    <div className="space-y-4 text-sm text-gray-600">
-                                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                            <h3 className="font-bold text-slate-800 mb-2">代號與選號指標</h3>
-                                            <ul className="space-y-1 text-xs">
-                                                <li><strong className="text-red-500">N1 溫熱:</strong> 近10期高機率(出現2~3次)的號碼。</li>
-                                                <li><strong className="text-cyan-500">N2 回歸:</strong> 近10期出現2次且近期未開，具備回歸潛力。</li>
-                                                <li><strong className="text-green-500">N3 拖號 (次高頻):</strong> 根據最新一期開出20個號碼，追蹤歷史中下一期「次高頻」出現的號碼。</li>
-                                                <li><strong className="text-purple-500">N4 共伴:</strong> 與當下已選核心號碼有極高共伴率的組合。</li>
-                                                <li><strong className="text-orange-500">N5 破冰:</strong> 遺漏期數最長(連續最久未開)的極冷號。</li>
-                                                <li><strong className="text-slate-500">N6 未開小號:</strong> 近2期皆未開出，且範圍鎖定在 1~10 之間的號碼。</li>
-                                                <li><strong className="text-rose-500">N7 5熱:</strong> 近 5 期內出現頻率極高，短線極度強勢的號碼。</li>
-                                                <li><strong className="text-fuchsia-600">N8 強尾:</strong> 近5期高頻(小於5次)且符合尾數強勢(佔比25%~30%)的號碼。若強尾與已選號碼同尾數，則從其他強尾中不限條件遞補。</li>
-                                            </ul>
-                                        </div>
-                                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                            <h3 className="font-bold text-slate-800 mb-2">各星級配號公式</h3>
-                                            <ul className="space-y-2 text-xs">
-                                                <li className="border-b border-slate-200 pb-1"><strong>2星:</strong> 核心(2)</li>
-                                                <li className="border-b border-slate-200 pb-1"><strong>3星:</strong> 5熱(3)</li>
-                                                <li className="border-b border-slate-200 pb-1"><strong>4星:</strong> 核心(2) + 5熱(1) + 強尾(1)</li>
-                                                <li className="border-b border-slate-200 pb-1"><strong>5星:</strong> 5熱(2) + 強尾(1) + 拖號(2)</li>
-                                                <li className="border-b border-slate-200 pb-1"><strong>6星:</strong> 5熱(2) + 拖號(1) + 強尾(1) + 共伴(1) + 破冰(1)</li>
-                                                <li className="border-b border-slate-200 pb-1"><strong>7星:</strong> 拖號(2) + 破冰(2) + 共伴(2) + 近2期未開小號(1)</li>
-                                                <li className="border-b border-slate-200 pb-1"><strong>8星:</strong> 拖號(2) + 破冰(2) + 共伴(1) + 近2期未開小號(1) + 5熱(1) + 核心(1)</li>
-                                                <li className="border-b border-slate-200 pb-1"><strong>9星:</strong> 拖號(2) + 破冰(2) + 共伴(1) + 近2期未開小號(2) + 5熱(2)</li>
-                                                <li className=""><strong>10星:</strong> 核心(2) + 回歸(1) + 破冰(1) + 共伴(2) + 拖號(2) + 未開小號(1) + 5熱(1)</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'picks' && stats && (
-                            <div className="animate-fade-in">
-                                <StarRow stars={2} data={stats.star2} customDesc="2星推薦核心號(2)。" />
-                                <StarRow stars={3} data={stats.star3} customDesc="5期熱門(3)。" />
-                                <StarRow stars={4} data={stats.star4} customDesc="2星核心(2) + 5期熱門(1) + 尾數強勢號(1)。" />
-                                <StarRow stars={5} data={stats.star5} customDesc="5期熱門(2) + 尾數強勢號(1) + 次高頻拖號(2)。" />
-                                <StarRow stars={6} data={stats.star6} customDesc="5期熱門(2) + 次高頻拖號(1) + 尾數強勢號(1) + 共伴(1) + 破冰(1)。" />
-                                <StarRow stars={7} data={stats.star7} customDesc="次高頻拖號(2) + 破冰(2) + 共伴(2) + 近2期未開小號(1)。" />
-                                <StarRow stars={8} data={stats.star8} customDesc="次高頻拖號(2) + 破冰(2) + 共伴(1) + 近2期未開小號(1) + 5期熱門(1) + 核心(1)。" />
-                                <StarRow stars={9} data={stats.star9} customDesc="次高頻拖號(2) + 破冰(2) + 共伴(1) + 近2期未開小號(2) + 5期熱門(2)。" />
-                                <StarRow stars={10} data={stats.star10} customDesc="核心(2) + 回歸(1) + 破冰(1) + 共伴(2) + 次高頻拖號(2) + 未開小號(1) + 5熱(1)。" />
-                            </div>
-                        )}
-
-                        {activeTab === 'trends' && stats && (
-                            <div className="animate-fade-in space-y-4">
-                                <div className="bg-white p-4 rounded-xl border shadow-sm">
-                                    <h3 className="font-bold text-rose-600 mb-3 border-b pb-2">🔥 近 5 期高頻號 (小於5次, Top 5)</h3>
-                                    <div className="flex flex-wrap gap-3">
-                                        {stats.hot5_top5.map(item => (
-                                            <div key={item.num} className="flex flex-col items-center">
-                                                <NumberBadge num={item.num} size="small" source="N7" />
-                                                <span className="text-[10px] text-gray-500 mt-1">{item.count}次</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="bg-white p-4 rounded-xl border shadow-sm">
-                                    <h3 className="font-bold text-amber-600 mb-3 border-b pb-2">🎯 尾數強勢號 (10局佔比 25%~30%)</h3>
-                                    {stats.strongTails && stats.strongTails.length > 0 ? (
-                                        <div className="flex flex-wrap gap-3">
-                                            {stats.strongTails.map(item => (
-                                                <div key={item.tail} className="flex flex-col items-center justify-center bg-amber-50 w-14 h-14 rounded-lg border border-amber-200 shadow-sm">
-                                                    <span className="text-lg font-bold text-amber-600">{item.tail}尾</span>
-                                                    <span className="text-[9px] text-amber-800/70">{item.percentage}%</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="text-xs text-gray-400 py-2">近期無符合區間的強勢尾數</div>
-                                    )}
-                                </div>
-                                <div className="bg-white p-4 rounded-xl border shadow-sm">
-                                    <h3 className="font-bold text-red-600 mb-3 border-b pb-2">🔥 近 20 期高頻號 (Top 3)</h3>
-                                    <div className="flex flex-wrap gap-3">
-                                        {stats.hot20_top3.map(item => (
-                                            <div key={item.num} className="flex flex-col items-center">
-                                                <NumberBadge num={item.num} size="small" />
-                                                <span className="text-[10px] text-gray-500 mt-1">{item.count}次</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="bg-white p-4 rounded-xl border shadow-sm">
-                                    <h3 className="font-bold text-blue-600 mb-3 border-b pb-2">❄️ 最長遺漏極冷號 (Top 3)</h3>
-                                    <div className="flex flex-wrap gap-3">
-                                        {stats.cold_top3.map(item => (
-                                            <div key={item.num} className="flex flex-col items-center">
-                                                <NumberBadge num={item.num} size="small" />
-                                                <span className="text-[10px] text-gray-500 mt-1">漏{item.gap}期</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="bg-white p-4 rounded-xl border shadow-sm">
-                                    <h3 className="font-bold text-purple-600 mb-3 border-b pb-2">🦘 近 100 期高頻跳期號</h3>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <div className="text-xs font-bold text-gray-600 mb-2">2期跳 (間隔1期)</div>
-                                            <div className="flex flex-wrap gap-3">
-                                                {stats.jump2_top3.map(item => (
-                                                    <div key={item.num} className="flex flex-col items-center">
-                                                        <NumberBadge num={item.num} size="small" />
-                                                        <span className="text-[10px] text-gray-500 mt-1">{item.count}次</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="text-xs font-bold text-gray-600 mb-2">3期跳 (間隔2期)</div>
-                                            <div className="flex flex-wrap gap-3">
-                                                {stats.jump3_top3.map(item => (
-                                                    <div key={item.num} className="flex flex-col items-center">
-                                                        <NumberBadge num={item.num} size="small" />
-                                                        <span className="text-[10px] text-gray-500 mt-1">{item.count}次</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'details' && stats && stats.trailDetails && (
-                            <div className="animate-fade-in space-y-3">
-                                <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-100 mb-2">
-                                    <h3 className="text-sm font-bold text-indigo-800">最新期號碼牽引預測</h3>
-                                    <p className="text-[10px] text-indigo-600 mt-1">取最新一期20個號碼，追蹤歷史中下一期最高頻出現的號碼。若有多個號碼指向同一目標，將合併顯示以突顯強勢牽引。</p>
-                                </div>
-                                {stats.trailDetails.map((item) => (
-                                    <div key={item.topNext} className="bg-white p-3 rounded-xl border-l-4 border-l-teal-500 shadow-sm flex flex-col gap-2">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] text-teal-600 font-bold mb-1">🎯 目標牽引</span>
-                                                    <NumberBadge num={item.topNext} source="N3" />
-                                                </div>
-                                            </div>
-                                            <div className="text-[10px] text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded flex flex-col items-end">
-                                                <span className="font-bold text-teal-700">{item.sources.length} 碼聯合指向</span>
-                                                <span>歷史累計 {item.totalCount} 次</span>
-                                            </div>
-                                        </div>
-                                        <div className="bg-slate-50 p-2 rounded-lg border border-slate-100 mt-1">
-                                            <span className="text-[9px] text-gray-400 mb-1 block">來自本期開出：</span>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {item.sources.map(srcNum => (
-                                                    <NumberBadge key={srcNum} num={srcNum} size="small" />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="fixed bottom-0 w-full bg-white border-t flex justify-around p-1 pb-safe shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)] z-50">
-                        <button onClick={() => setActiveTab('input')} className={"flex flex-col items-center gap-1 w-1/5 py-2 " + (activeTab === 'input' ? 'text-blue-600 font-bold' : 'text-gray-400')}>
-                            <IconDatabase /><span className="text-[10px] whitespace-nowrap">資料庫</span>
-                        </button>
-                        <button onClick={() => setActiveTab('picks')} className={"flex flex-col items-center gap-1 w-1/5 py-2 " + (activeTab === 'picks' ? 'text-blue-600 font-bold' : 'text-gray-400')}>
-                            <IconTarget /><span className="text-[10px] whitespace-nowrap">推薦</span>
-                        </button>
-                        <button onClick={() => setActiveTab('logic')} className={"flex flex-col items-center gap-1 w-1/5 py-2 " + (activeTab === 'logic' ? 'text-blue-600 font-bold' : 'text-gray-400')}>
-                            <IconBookOpen /><span className="text-[10px] whitespace-nowrap">邏輯</span>
-                        </button>
-                        <button onClick={() => setActiveTab('trends')} className={"flex flex-col items-center gap-1 w-1/5 py-2 " + (activeTab === 'trends' ? 'text-indigo-600 font-bold' : 'text-gray-400')}>
-                            <IconTrendingUp /><span className="text-[10px] whitespace-nowrap">趨勢</span>
-                        </button>
-                        <button onClick={() => setActiveTab('details')} className={"flex flex-col items-center gap-1 w-1/5 py-2 " + (activeTab === 'details' ? 'text-teal-600 font-bold' : 'text-gray-400')}>
-                            <IconNetwork /><span className="text-[10px] whitespace-nowrap">牽引</span>
-                        </button>
-                        <a href="https://kokko-travel.com/binggo/money.html" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 w-1/5 py-2 text-amber-500 hover:text-amber-600 font-bold">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 18V6"></path><path d="M9 14.5c0 1.5 1.5 2.5 3 2.5s3-1 3-2.5-1.5-2.5-3-2.5-3-1-3-2.5 1.5-2.5 3-2.5 3 1 3 2.5"></path></svg>
-                            <span className="text-[10px] whitespace-nowrap">招財指南</span>
-                        </a>
-                    </div>
-                </div>
-            );
+            }
+            let uniqueMap = new Map();
+            details.forEach(d => { uniqueMap.set(d.period !== "未知" ? d.period : d.numbers.join(','), d); });
+            details = Array.from(uniqueMap.values());
+            if (details.some(d => d.period !== "未知")) {
+                details.sort((a, b) => (parseInt(a.period) || 0) - (parseInt(b.period) || 0));
+            } else {
+                details.reverse();
+            }
+            if (details.length > 200) details = details.slice(-200);
+            return { array: details.map(d => d.numbers), details: details }; 
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        function calculateStats(drawData) {
+            if (!drawData || drawData.length < 15) return null; 
+            let gaps = Array(81).fill(0), recent10DrawsN1 = drawData.slice(-10), recent10Freqs = Array(81).fill(0);
+            recent10DrawsN1.forEach(d => d.forEach(n => recent10Freqs[n]++));
+            let recent5Draws = drawData.slice(-5), recent5Freqs = Array(81).fill(0);
+            recent5Draws.forEach(d => d.forEach(n => recent5Freqs[n]++));
+            let lastSeen = Array(81).fill(-1);
+            drawData.forEach((draw, index) => { draw.forEach(n => { lastSeen[n] = index; }); });
+            for (let i = 1; i <= 80; i++) gaps[i] = lastSeen[i] !== -1 ? drawData.length - 1 - lastSeen[i] : drawData.length;
+
+            let cov = Array(81).fill(0).map(() => Array(81).fill(0));
+            drawData.forEach(draw => {
+                for (let i = 0; i < draw.length; i++) {
+                    for (let j = i + 1; j < draw.length; j++) { cov[draw[i]][draw[j]]++; cov[draw[j]][draw[i]]++; }
+                }
+            });
+            let trail = Array(81).fill(0).map(() => Array(81).fill(0));
+            for (let i = 0; i < drawData.length - 1; i++) {
+                drawData[i].forEach(m => { drawData[i + 1].forEach(n => { trail[m][n]++; }); });
+            }
+            let latestDraw = drawData[drawData.length - 1], prevDraw = drawData.length >= 2 ? drawData[drawData.length - 2] : [];
+            let trailScores = Array(81).fill(0);
+            latestDraw.forEach(m => { for (let n = 1; n <= 80; n++) trailScores[n] += trail[m][n]; });
+
+            let hot15 = [...Array(80).keys()].map(i => i + 1).map(num => ({ num, count: recent10Freqs[num] })).filter(x => x.count > 0).sort((a, b) => b.count - a.count).slice(0, 15);
+            let cold15 = [...Array(80).keys()].map(i => i + 1).map(num => ({ num, gap: gaps[num] })).filter(x => x.gap > 0).sort((a, b) => b.gap - a.gap).slice(0, 15);
+
+            let pairCandidates = [];
+            for (let i = 1; i < 80; i++) pairCandidates.push({ n1: i, n2: i+1, score: trailScores[i] + trailScores[i+1] + (cov[i][i+1] * 1.5) });
+            pairCandidates.sort((a, b) => b.score - a.score);
+            let topPairs = [], usedNumsForPairs = new Set();
+            for (let p of pairCandidates) {
+                if (!usedNumsForPairs.has(p.n1) && !usedNumsForPairs.has(p.n2)) { topPairs.push(p); usedNumsForPairs.add(p.n1); usedNumsForPairs.add(p.n2); if (topPairs.length === 2) break; }
+            }
+
+            let n3Counts = Array(81).fill(0);
+            latestDraw.forEach(m => {
+                let sortedTrails = [...Array(80).keys()].map(i => i + 1).filter(n => n !== m).sort((a, b) => trail[m][b] - trail[m][a]);
+                if (sortedTrails[1]) n3Counts[sortedTrails[1]]++;
+            });
+            let n3Candidates = [...Array(80).keys()].map(i => i + 1).sort((a, b) => n3Counts[b] - n3Counts[a] || trailScores[b] - trailScores[a]);
+            let n2Candidates = [...Array(80).keys()].map(i => i + 1).filter(i => recent10Freqs[i] === 2 && gaps[i] > 1).sort((a, b) => gaps[b] - gaps[a]); 
+            if (n2Candidates.length < 2) n2Candidates = [...n2Candidates, ...[...Array(80).keys()].map(i => i + 1).sort((a, b) => gaps[b] - gaps[a]).filter(x => !n2Candidates.includes(x)).slice(0, 2)];
+            
+            let icebreakerCandidates = [...Array(80).keys()].map(i => i + 1).sort((a, b) => gaps[b] - gaps[a]);
+            let hot5Candidates = [...Array(80).keys()].map(i => i + 1).sort((a, b) => recent5Freqs[b] - recent5Freqs[a]);
+            let notOpenedLast2_1to10_Candidates = [...Array(10).keys()].map(i => i + 1).filter(n => !latestDraw.includes(n) && !prevDraw.includes(n)).sort((a, b) => gaps[b] - gaps[a]);
+            let coreIntersectionPicks = [...Array(80).keys()].map(i => i + 1).filter(i => recent10Freqs[i] >= 2 && recent10Freqs[i] <= 3).sort((a, b) => trailScores[b] - trailScores[a]);
+            if (coreIntersectionPicks.length < 5) coreIntersectionPicks = [...coreIntersectionPicks, ...n3Candidates.filter(num => !coreIntersectionPicks.includes(num)).slice(0, 5 - coreIntersectionPicks.length)];
+
+            let tailCounts = Array(10).fill(0);
+            drawData.slice(-10).forEach(draw => draw.forEach(n => tailCounts[n % 10]++));
+            let strongTails = [];
+            for (let i = 0; i < 10; i++) {
+                let ratio = tailCounts[i] / (drawData.slice(-10).length * 8);
+                if (ratio >= 0.25 && ratio <= 0.30) strongTails.push({ tail: i, percentage: Math.round(ratio * 100) });
+            }
+            strongTails.sort((a, b) => b.percentage - a.percentage);
+
+            const generateStars = (targetStars) => {
+                let selected = new Set(), sources = {}, breakdown = { n1: 0, n2: 0, n3: 0, n4: 0, n5: 0, n6: 0, n7: 0, n8: 0 };
+                const getSafe = (list, srcType) => {
+                    let found = list.find(x => !selected.has(x));
+                    if (found === undefined) found = [...Array(80).keys()].map(i=>i+1).find(x => !selected.has(x));
+                    if (found) { selected.add(found); sources[found] = srcType; breakdown[srcType.toLowerCase()]++; }
+                };
+                const pickByCount = (list, srcType, count) => { for(let i=0; i<count; i++) getSafe(list, srcType); };
+                const pickN8 = () => {
+                    let usedTails = new Set(Array.from(selected).map(n => n % 10)), availableTails = strongTails.map(t => t.tail).filter(t => !usedTails.has(t));
+                    if (availableTails.length > 0) {
+                        let ideal = [...Array(80).keys()].map(i => i + 1).filter(n => !selected.has(n) && availableTails.includes(n % 10) && recent5Freqs[n] > 0 && recent5Freqs[n] < 5).sort((a, b) => recent5Freqs[b] - recent5Freqs[a]);
+                        if (ideal.length > 0) { getSafe(ideal, 'N8'); return true; }
+                    }
+                    return false;
+                };
+
+                let baseCores = coreIntersectionPicks.slice(0, 2);
+                if (targetStars === 2) baseCores.forEach(n => { selected.add(n); sources[n] = 'N1'; breakdown.n1++; });
+                else if (targetStars === 3) pickByCount(hot5Candidates, 'N7', 3);
+                else if (targetStars === 4) { baseCores.forEach(n => { selected.add(n); sources[n] = 'N1'; breakdown.n1++; }); pickByCount(hot5Candidates, 'N7', 1); if (!pickN8()) getSafe(n3Candidates, 'N3'); }
+                else if (targetStars === 5) { pickByCount(hot5Candidates, 'N7', 2); if (!pickN8()) getSafe(n3Candidates, 'N3'); pickByCount(n3Candidates, 'N3', 2); }
+                else if (targetStars === 6) { pickByCount(hot5Candidates, 'N7', 2); pickByCount(n3Candidates, 'N3', 1); if (!pickN8()) getSafe(n3Candidates, 'N3'); let c1 = [...Array(80).keys()].map(i => i + 1).sort((a, b) => Array.from(selected).reduce((sum, s) => sum + cov[s][b], 0) - Array.from(selected).reduce((sum, s) => sum + cov[s][a], 0)); getSafe(c1, 'N4'); pickByCount(icebreakerCandidates, 'N5', 1); }
+                else if (targetStars === 7) { pickByCount(n3Candidates, 'N3', 2); pickByCount(icebreakerCandidates, 'N5', 2); pickByCount(notOpenedLast2_1to10_Candidates, 'N6', 1); let c1 = [...Array(80).keys()].map(i => i + 1).sort((a, b) => Array.from(selected).reduce((sum, s) => sum + cov[s][b], 0) - Array.from(selected).reduce((sum, s) => sum + cov[s][a], 0)); pickByCount(c1, 'N4', 2); }
+                else if (targetStars === 8) { pickByCount(n3Candidates, 'N3', 2); pickByCount(icebreakerCandidates, 'N5', 2); pickByCount(notOpenedLast2_1to10_Candidates, 'N6', 1); pickByCount(hot5Candidates, 'N7', 1); let c1 = [...Array(80).keys()].map(i => i + 1).sort((a, b) => Array.from(selected).reduce((sum, s) => sum + cov[s][b], 0) - Array.from(selected).reduce((sum, s) => sum + cov[s][a], 0)); pickByCount(c1, 'N4', 1); pickByCount(coreIntersectionPicks, 'N1', 1); }
+                else if (targetStars === 9) { pickByCount(n3Candidates, 'N3', 2); pickByCount(icebreakerCandidates, 'N5', 2); pickByCount(notOpenedLast2_1to10_Candidates, 'N6', 2); pickByCount(hot5Candidates, 'N7', 2); let c1 = [...Array(80).keys()].map(i => i + 1).sort((a, b) => Array.from(selected).reduce((sum, s) => sum + cov[s][b], 0) - Array.from(selected).reduce((sum, s) => sum + cov[s][a], 0)); pickByCount(c1, 'N4', 1); }
+                else if (targetStars === 10) { pickByCount(coreIntersectionPicks, 'N1', 2); pickByCount(n2Candidates, 'N2', 1); pickByCount(icebreakerCandidates, 'N5', 1); pickByCount(n3Candidates, 'N3', 2); pickByCount(notOpenedLast2_1to10_Candidates, 'N6', 1); pickByCount(hot5Candidates, 'N7', 1); let c1 = [...Array(80).keys()].map(i => i + 1).sort((a, b) => Array.from(selected).reduce((sum, s) => sum + cov[s][b], 0) - Array.from(selected).reduce((sum, s) => sum + cov[s][a], 0)); pickByCount(c1, 'N4', 2); let rest = [...Array(80).keys()].map(i => i + 1).sort((a, b) => trailScores[b] - trailScores[a]); while(selected.size < 10) getSafe(rest, 'N3'); }
+                return { numbers: Array.from(selected).filter(n => n).sort((a, b) => a - b), sources, breakdown };
+            };
+
+            let rawTrailDetails = latestDraw.map(num => {
+                let topNext = [...Array(80).keys()].map(i => i + 1).filter(i => i !== num).sort((a, b) => trail[num][b] - trail[num][a])[0];
+                return { num, topNext, count: trail[num][topNext] };
+            });
+            let groupedTrails = {};
+            rawTrailDetails.forEach(item => {
+                if (!groupedTrails[item.topNext]) groupedTrails[item.topNext] = { topNext: item.topNext, sources: [], totalCount: 0 };
+                groupedTrails[item.topNext].sources.push(item.num); groupedTrails[item.topNext].totalCount += item.count;
+            });
+
+            return {
+                star2: generateStars(2), star3: generateStars(3), star4: generateStars(4),
+                star5: generateStars(5), star6: generateStars(6), star7: generateStars(7),
+                star8: generateStars(8), star9: generateStars(9), star10: generateStars(10),
+                hot5_top5: [...Array(80).keys()].map(i => i + 1).map(num => ({ num, count: recent5Freqs[num] })).filter(item => item.count < 5).sort((a, b) => b.count - a.count).slice(0, 5),
+                strongTails,
+                hot20_top3: [...Array(80).keys()].map(i => i + 1).map(num => ({ num, count: Array(81).fill(0) })).map(item => { drawData.slice(-20).forEach(d => d.forEach(n => { if(n===item.num) item.count++; })); return item; }).sort((a,b)=>b.count-a.count).slice(0,3),
+                cold_top3: [...Array(80).keys()].map(i => i + 1).map(num => ({ num, gap: gaps[num] })).sort((a, b) => b.gap - a.gap).slice(0, 3),
+                trailDetails: Object.values(groupedTrails).sort((a, b) => b.sources.length - a.sources.length || b.totalCount - a.totalCount)
+            };
+        }
+
+        // --- 狀態更新與頁面重新渲染引擎 (Vanila JS DOM) ---
+        function updateState(newState) {
+            state = { ...state, ...newState };
+            renderApp();
+        }
+
+        function initApp() {
+            const parsed = parseData(state.rawText);
+            state.parsedCount = parsed.array.length;
+            state.parsedDetails = parsed.details;
+            if (parsed.array.length >= 15) state.stats = calculateStats(parsed.array);
+            renderApp();
+        }
+
+        // 行動端雲端同步核心
+        async function runCloudSync() {
+            if (state.isUpdating) return;
+            updateState({ isUpdating: true });
+            try {
+                const docId = "1YCp4fwiSdvYvs7Nt7s04Vg3ZcswlqO2Ta2cf16L5lZg";
+                const tabName = "歷史紀錄";
+                const cacheBuster = new Date().getTime();
+                const url = "https://docs.google.com/spreadsheets/d/" + docId + "/gviz/tq?tqx=out:csv&sheet=" + encodeURIComponent(tabName) + "&t=" + cacheBuster;
+                
+                const response = await fetch(url, { method: 'GET', mode: 'cors', cache: 'no-store' });
+                if (!response.ok) throw new Error("雲端無回應");
+                let text = await response.text();
+                if (!text || text.includes("<html")) throw new Error("資料格式不正確");
+                
+                const parsed = parseData(text);
+                let nextState = { rawText: text, parsedCount: parsed.array.length, parsedDetails: parsed.details };
+                if (parsed.array.length >= 15) {
+                    nextState.stats = calculateStats(parsed.array);
+                    nextState.activeTab = 'picks';
+                }
+                updateState(nextState);
+                alert("✅ 雲端資料同步完成！");
+            } catch (error) {
+                alert("❌ 同步失敗: " + error.message + "\n已自動切換回離線數據。");
+                const parsed = parseData(state.rawText || defaultPilioData);
+                updateState({ parsedCount: parsed.array.length, parsedDetails: parsed.details, stats: calculateStats(parsed.array) });
+            } finally {
+                updateState({ isUpdating: false });
+            }
+        }
+
+        function runManualParse() {
+            const parsed = parseData(state.rawText);
+            if (parsed.array.length >= 15) {
+                updateState({ parsedCount: parsed.array.length, parsedDetails: parsed.details, stats: calculateStats(parsed.array), activeTab: 'picks' });
+                alert("✅ 解析成功！");
+            } else {
+                alert("⚠️ 資料期數不足 15 期！");
+            }
+        }
+
+        function runAddSingleDraw() {
+            if (!state.singleNumbers.trim()) { alert('請先貼上開獎資料！'); return; }
+            let cleanText = state.singleNumbers.replace(/['"]/g, ' ').replace(/\d{2,4}[-/\.]\d{1,2}[-/\.]\d{1,2}/g, ' ').replace(/\d{1,2}:\d{2}(:\d{2})?/g, ' ').replace(/\([一二三四五六日]\)/g, ' ').replace(/[期別數開獎時間號碼連莊球大小單雙－\t\n第超級猜-]/g, ' ').replace(/(\d{40})/g, (match) => match.match(/.{2}/g).join(' '));
+            let newDetails = [];
+            let parts = cleanText.split(/\b(\d{8,10})\b/);
+            if (parts[0]) {
+                let nums = parts[0].match(/\b\d+\b/g);
+                if (nums) {
+                    let v = nums.map(Number).filter(n => n >= 1 && n <= 80);
+                    let set = new Set();
+                    for (let n of v) { set.add(n); if (set.size === 20) { newDetails.push({ period: "未知", numbers: Array.from(set).sort((a,b)=>a-b) }); set = new Set(); } }
+                }
+            }
+            if (parts.length > 1) {
+                for (let i = 1; i < parts.length; i += 2) {
+                    let period = parts[i], block = parts[i+1];
+                    let nums = block.match(/\b\d+\b/g);
+                    if (nums) {
+                        let uniqueNums = Array.from(new Set(nums.map(Number).filter(n => n >= 1 && n <= 80)));
+                        if (uniqueNums.length >= 20) newDetails.push({ period, numbers: uniqueNums.slice(0, 20).sort((a,b)=>a-b) });
+                    }
+                }
+            }
+            if (newDetails.length === 0) { alert('未偵測到有效開獎號碼(需滿20碼)'); return; }
+            let maxP = state.parsedDetails.length > 0 ? Math.max(...state.parsedDetails.map(d => parseInt(d.period) || 0)) : 0;
+            let currentNext = maxP > 0 ? maxP + 1 : 1;
+            for (let i = newDetails.length - 1; i >= 0; i--) { if (newDetails[i].period === "未知") { newDetails[i].period = currentNext.toString(); currentNext++; } }
+            
+            const newStr = newDetails.map(d => d.period + " " + d.numbers.map(n => n.toString().padStart(2, '0')).join(', ')).join('\n');
+            const updatedText = newStr + '\n' + state.rawText;
+            const finalParsed = parseData(updatedText);
+            
+            updateState({
+                rawText: updatedText,
+                singleNumbers: '',
+                parsedCount: finalParsed.array.length,
+                parsedDetails: finalParsed.details,
+                stats: calculateStats(finalParsed.array)
+            });
+            alert("✅ 成功手動寫入 " + newDetails.length + " 期開獎！");
+        }
+
+        // --- HTML 模板生成元件 ---
+        function getBadgeHtml(num, source, isSmall = false) {
+            if (!num) return '';
+            const sizeClass = isSmall ? "w-7 h-7 text-xs" : "w-10 h-10 text-base";
+            let colorClass = "bg-slate-700 text-white";
+            if (source === 'N1') colorClass = "bg-red-500 shadow-md";
+            else if (source === 'N2') colorClass = "bg-cyan-500 shadow-md";
+            else if (source === 'N3') colorClass = "bg-green-500 shadow-md";
+            else if (source === 'N4') colorClass = "bg-purple-500 shadow-md";
+            else if (source === 'N5') colorClass = "bg-orange-500 shadow-md";
+            else if (source === 'N6') colorClass = "bg-slate-400 shadow-md";
+            else if (source === 'N7') colorClass = "bg-rose-600 shadow-md";
+            else if (source === 'N8') colorClass = "bg-fuchsia-600 shadow-md";
+            
+            return '<span class="inline-flex items-center justify-center rounded-full font-bold text-white ' + colorClass + ' ' + sizeClass + ' relative">' +
+                        num.toString().padStart(2, '0') +
+                        (source && !isSmall ? '<span class="absolute -top-2 -right-2 text-[8px] bg-white text-gray-800 px-1 rounded-full shadow border">' + source + '</span>' : '') +
+                   '</span>';
+        }
+
+        function getStarRowHtml(stars, data, desc) {
+            if (!data) return '';
+            let badges = data.numbers.map(n => getBadgeHtml(n, data.sources[n])).join('');
+            let bd = data.breakdown;
+            return '<div class="bg-white p-4 rounded-xl shadow-sm border mb-4 animate-fade-in">' +
+                        '<div class="mb-3 border-b pb-2">' +
+                            '<h4 class="font-bold text-gray-800 text-lg">' + stars + ' 星精準推薦</h4>' +
+                            '<p class="text-xs text-gray-500 mt-1">' + desc + '</p>' +
+                        '</div>' +
+                        '<div>' +
+                            '<div class="flex justify-between items-center mb-2">' +
+                                '<span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">主力組合</span>' +
+                                '<div class="flex gap-1 text-[10px] font-medium flex-wrap justify-end">' +
+                                    (bd.n1 > 0 ? '<span class="text-red-500">核心:'+bd.n1+'</span>' : '') +
+                                    (bd.n2 > 0 ? '<span class="text-cyan-500">回歸:'+bd.n2+'</span>' : '') +
+                                    (bd.n5 > 0 ? '<span class="text-orange-500">破冰:'+bd.n5+'</span>' : '') +
+                                    (bd.n3 > 0 ? '<span class="text-green-500">拖號:'+bd.n3+'</span>' : '') +
+                                    (bd.n4 > 0 ? '<span class="text-purple-500">共伴:'+bd.n4+'</span>' : '') +
+                                    (bd.n6 > 0 ? '<span class="text-slate-500">未開小號:'+bd.n6+'</span>' : '') +
+                                    (bd.n7 > 0 ? '<span class="text-rose-500">5熱:'+bd.n7+'</span>' : '') +
+                                    (bd.n8 > 0 ? '<span class="text-fuchsia-600">強尾:'+bd.n8+'</span>' : '') +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="flex flex-wrap gap-2">' + badges + '</div>' +
+                        '</div>' +
+                   '</div>';
+        }
+
+        // --- 主渲染渲染核心群 ---
+        function renderApp() {
+            const app = document.getElementById('app');
+            let contentHtml = '';
+
+            if (state.activeTab === 'input') {
+                let previewHtml = '';
+                if (state.parsedCount > 0 && state.parsedDetails.length > 0) {
+                    let previewItems = [...state.parsedDetails].reverse().slice(0, 2).map((record, idx) => {
+                        let numDots = record.numbers.map(n => '<span class="w-5 h-5 text-[9px] bg-slate-700 text-white rounded-full flex items-center justify-center font-bold">' + n.toString().padStart(2, '0') + '</span>').join('');
+                        return '<div class="border-b last:border-0 py-2">' +
+                                    '<div class="text-[10px] font-bold text-blue-600 mb-1">期別: ' + record.period + ' ' + (idx === 0 ? '(最新)' : '(次新)') + '</div>' +
+                                    '<div class="flex flex-wrap gap-1">' + numDots + '</div>' +
+                               '</div>';
+                    }).join('');
+                    previewHtml = '<div class="p-4 bg-white border rounded-xl shadow-sm mt-4">' +
+                                        '<h3 class="text-xs font-bold text-gray-400 mb-3 uppercase flex justify-between items-center"><span>🔍 最新解析預覽</span></h3>' +
+                                        previewItems +
+                                  '</div>';
+                }
+
+                contentHtml = '<div class="animate-fade-in">' +
+                                    '<div class="bg-white p-4 rounded-xl border mb-4 shadow-sm border-indigo-100">' +
+                                        '<h3 class="font-bold text-indigo-700 mb-2 text-sm flex items-center gap-2">➕ 手動寫入最新開獎</h3>' +
+                                        '<p class="text-[10px] text-gray-500 mb-3">直接貼上開獎文字內容，支援自動解析與期數遞增。</p>' +
+                                        '<div class="mb-3"><textarea id="UI_singleNumbers" class="w-full h-24 p-2 border rounded-lg text-xs bg-slate-50 font-mono resize-none border-indigo-200" placeholder="請直接貼上新獎號內容...">' + state.singleNumbers + '</textarea></div>' +
+                                        '<button onclick="runAddSingleDraw()" class="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-lg text-sm shadow-md transition-colors active:bg-indigo-700">寫入並重新分析</button>' +
+                                    '</div>' +
+                                    '<div class="bg-white p-4 rounded-xl border mb-4 shadow-sm">' +
+                                        '<h2 class="font-bold text-gray-800 mb-3 flex items-center gap-2">📂 資料庫管理</h2>' +
+                                        '<div class="flex gap-2">' +
+                                            '<button onclick="runCloudSync()" class="flex-1 bg-emerald-600 text-white font-bold py-3 rounded-lg text-sm shadow-md">' + (state.isUpdating ? '同步中...' : '雲端同步') + '</button>' +
+                                            '<button onclick="runManualParse()" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-lg text-sm shadow-md">解析手動數據</button>' +
+                                        '</div>' +
+                                        '<div class="mt-4"><textarea id="UI_rawText" class="w-full h-20 p-2 border rounded-lg text-xs bg-slate-50 font-mono text-gray-400" placeholder="大數據總庫內容...">' + state.rawText + '</textarea></div>' +
+                                    '</div>' + previewHtml +
+                               '</div>';
+            } 
+            else if (state.activeTab === 'picks' && state.stats) {
+                let s = state.stats;
+                contentHtml = '<div class="animate-fade-in">' +
+                                    getStarRowHtml(2, s.star2, "2星推薦核心號(2)。") +
+                                    getStarRowHtml(3, s.star3, "5期熱門(3)。") +
+                                    getStarRowHtml(4, s.star4, "2星核心(2) + 5期熱門(1) + 尾數強勢號(1)。") +
+                                    getStarRowHtml(5, s.star5, "5期熱門(2) + 尾數強勢號(1) + 次高頻拖號(2)。") +
+                                    getStarRowHtml(6, s.star6, "5期熱門(2) + 次高頻拖號(1) + 尾數強勢號(1) + 共伴(1) + 破冰(1)。") +
+                                    getStarRowHtml(7, s.star7, "次高頻拖號(2) + 破冰(2) + 共伴(2) + 近2期未開小號(1)。") +
+                                    getStarRowHtml(8, s.star8, "次高頻拖號(2) + 破冰(2) + 共伴(1) + 近2期未開小號(1) + 5期熱門(1) + 核心(1)。") +
+                                    getStarRowHtml(9, s.star9, "次高頻拖號(2) + 破冰(2) + 共伴(1) + 近2期未開小號(2) + 5期熱門(2)。") +
+                                    getStarRowHtml(10, s.star10, "核心(2) + 回歸(1) + 破冰(1) + 共伴(2) + 次高頻拖號(2) + 未開小號(1) + 5熱(1)。") +
+                               '</div>';
+            }
+            else if (state.activeTab === 'trends' && state.stats) {
+                let s = state.stats;
+                let h5 = s.hot5_top5.map(i => '<div class="flex flex-col items-center">' + getBadgeHtml(i.num, 'N7', true) + '<span class="text-[10px] text-gray-500 mt-1">' + i.count + '次</span></div>').join('');
+                let tails = s.strongTails.map(i => '<div class="flex flex-col items-center justify-center bg-amber-50 w-14 h-14 rounded-lg border border-amber-200 shadow-sm"><span class="text-lg font-bold text-amber-600">' + i.tail + '尾</span><span class="text-[9px] text-amber-800/70">' + i.percentage + '%</span></div>').join('');
+                let h20 = s.hot20_top3.map(i => '<div class="flex flex-col items-center">' + getBadgeHtml(i.num, '', true) + '<span class="text-[10px] text-gray-500 mt-1">' + i.count + '次</span></div>').join('');
+                let c20 = s.cold_top3.map(i => '<div class="flex flex-col items-center">' + getBadgeHtml(i.num, '', true) + '<span class="text-[10px] text-gray-500 mt-1">漏' + i.gap + '期</span></div>').join('');
+                
+                contentHtml = '<div class="animate-fade-in space-y-4">' +
+                                    '<div class="bg-white p-4 rounded-xl border shadow-sm"><h3 class="font-bold text-rose-600 mb-3 border-b pb-2">🔥 近 5 期高頻號</h3><div class="flex flex-wrap gap-3">' + h5 + '</div></div>' +
+                                    '<div class="bg-white p-4 rounded-xl border shadow-sm"><h3 class="font-bold text-amber-600 mb-3 border-b pb-2">🎯 尾數強勢號 (佔比 25%~30%)</h3><div class="flex flex-wrap gap-3">' + (tails || '<div class="text-xs text-gray-400">暫無強勢尾數</div>') + '</div></div>' +
+                                    '<div class="bg-white p-4 rounded-xl border shadow-sm"><h3 class="font-bold text-red-600 mb-3 border-b pb-2">🔥 近 20 期高頻</h3><div class="flex flex-wrap gap-3">' + h20 + '</div></div>' +
+                                    '<div class="bg-white p-4 rounded-xl border shadow-sm"><h3 class="font-bold text-blue-600 mb-3 border-b pb-2">❄️ 最長遺漏極冷號</h3><div class="flex flex-wrap gap-3">' + c20 + '</div></div>' +
+                               '</div>';
+            }
+            else if (state.activeTab === 'details' && state.stats) {
+                let s = state.stats;
+                let detailsList = s.trailDetails.map(item => {
+                    let srcBadges = item.sources.map(n => getBadgeHtml(n, '', true)).join('');
+                    return '<div class="bg-white p-3 rounded-xl border-l-4 border-l-teal-500 shadow-sm flex flex-col gap-2">' +
+                                '<div class="flex items-center justify-between">' +
+                                    '<div class="flex flex-col items-center"><span class="text-[10px] text-teal-600 font-bold mb-1">🎯 目標牽引</span>' + getBadgeHtml(item.topNext, 'N3') + '</div>' +
+                                    '<div class="text-[10px] text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded text-right"><span class="font-bold text-teal-700 block">' + item.sources.length + ' 碼聯合指向</span>歷史累計 ' + item.totalCount + ' 次</div>' +
+                                '</div>' +
+                                '<div class="bg-slate-50 p-2 rounded-lg border border-slate-100"><span class="text-[9px] text-gray-400 mb-1 block">來自本期開出：</span><div class="flex flex-wrap gap-1">' + srcBadges + '</div></div>' +
+                           '</div>';
+                }).join('');
+
+                contentHtml = '<div class="animate-fade-in space-y-3">' +
+                                    '<div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 mb-2"><h3 class="text-sm font-bold text-indigo-800">最新期號碼牽引預測</h3><p class="text-[10px] text-indigo-600 mt-1">追蹤歷史中下一期最高頻出現的號碼。</p></div>' +
+                                    detailsList +
+                               '</div>';
+            }
+            else if (state.activeTab === 'logic') {
+                contentHtml = '<div class="bg-white p-4 rounded-xl border shadow-sm space-y-4 text-sm text-gray-600">' +
+                                    '<h2 class="font-bold text-gray-800 border-b pb-2">💡 星級指標與配號公式</h2>' +
+                                    '<p class="text-xs">網頁內部已改為純原生 JavaScript 引擎架構，解決跨網域、跨平台（iOS/Android/LINE）與 Babel 的加載衝突，穩定度全面提升。</p>' +
+                               '</div>';
+            }
+
+            // 組裝全域介面結構
+            app.innerHTML = 
+                '<div class="min-h-screen pb-20 bg-slate-50">' +
+                    '<div class="bg-slate-900 text-white p-5 rounded-b-3xl sticky top-0 z-50 shadow-md">' +
+                        '<div class="flex justify-between items-center">' +
+                            '<h1 class="text-xl font-bold flex items-center gap-2">📈 預測大師・精準純淨版</h1>' +
+                            '<span class="text-[10px] bg-white text-slate-800 px-2 py-1 rounded-full shadow-sm">載入: ' + state.parsedCount + '期</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="max-w-md mx-auto p-4">' + contentHtml + '</div>' +
+                    
+                    // 下方導覽列
+                    '<div class="fixed bottom-0 w-full bg-white border-t flex justify-around p-1 pb-safe shadow-lg z-50">' +
+                        '<button onclick="updateActiveTab(\'input\')" class="flex flex-col items-center gap-1 py-2 w-1/5 ' + (state.activeTab === 'input' ? 'text-blue-600 font-bold' : 'text-gray-400') + '"><span class="text-xs">資料庫</span></button>' +
+                        '<button onclick="updateActiveTab(\'picks\')" class="flex flex-col items-center gap-1 py-2 w-1/5 ' + (state.activeTab === 'picks' ? 'text-blue-600 font-bold' : 'text-gray-400') + '"><span class="text-xs">精選推薦</span></button>' +
+                        '<button onclick="updateActiveTab(\'trends\')" class="flex flex-col items-center gap-1 py-2 w-1/5 ' + (state.activeTab === 'trends' ? 'text-indigo-600 font-bold' : 'text-gray-400') + '"><span class="text-xs">趨勢</span></button>' +
+                        '<button onclick="updateActiveTab(\'details\')" class="flex flex-col items-center gap-1 py-2 w-1/5 ' + (state.activeTab === 'details' ? 'text-teal-600 font-bold' : 'text-gray-400') + '"><span class="text-xs">牽引</span></button>' +
+                        '<button onclick="updateActiveTab(\'logic\')" class="flex flex-col items-center gap-1 py-2 w-1/5 ' + (state.activeTab === 'logic' ? 'text-blue-600 font-bold' : 'text-gray-400') + '"><span class="text-xs">說明</span></button>' +
+                    '</div>' +
+                '</div>';
+
+            // 雙向綁定輸入框內容（原生 JS 特性需手動補上監聽）
+            const elRaw = document.getElementById('UI_rawText');
+            if (elRaw) elRaw.addEventListener('input', (e) => state.rawText = e.target.value);
+            const elSingle = document.getElementById('UI_singleNumbers');
+            if (elSingle) elSingle.addEventListener('input', (e) => state.singleNumbers = e.target.value);
+        }
+
+        function updateActiveTab(tabName) {
+            updateState({ activeTab: tabName });
+        }
+
+        // 啟動點
+        window.onload = initApp;
     </script>
 </body>
 </html>
