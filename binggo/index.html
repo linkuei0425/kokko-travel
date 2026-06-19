@@ -510,23 +510,35 @@
                     .sort((a, b) => b.count - a.count)
                     .slice(0, 5);
 
-                let rawTrailDetails = latestDraw.map(num => {
-                    let topNext = [...Array(80).keys()].map(i => i + 1)
+                // --- 修改牽引活頁邏輯：分別列出最新20顆號碼各自的最高頻與次高頻拖號 ---
+                let trailDetails = latestDraw.map(num => {
+                    let sortedTrails = [...Array(80).keys()].map(i => i + 1)
                         .filter(i => i !== num)
-                        .sort((a, b) => trail[num][b] - trail[num][a])[0];
-                    return { num, topNext, count: trail[num][topNext] };
-                });
+                        .map(target => ({ target, count: trail[num][target] || 0 }))
+                        .sort((a, b) => b.count - a.count);
+                    
+                    return { 
+                        source: num, 
+                        top1: sortedTrails[0] ? sortedTrails[0].target : null, 
+                        top1Count: sortedTrails[0] ? sortedTrails[0].count : 0,
+                        top2: sortedTrails[1] ? sortedTrails[1].target : null,
+                        top2Count: sortedTrails[1] ? sortedTrails[1].count : 0
+                    };
+                }).sort((a, b) => a.source - b.source);
 
-                let groupedTrails = {};
-                rawTrailDetails.forEach(item => {
-                    if (!groupedTrails[item.topNext]) {
-                        groupedTrails[item.topNext] = { topNext: item.topNext, sources: [], totalCount: 0 };
-                    }
-                    groupedTrails[item.topNext].sources.push(item.num);
-                    groupedTrails[item.topNext].totalCount += item.count;
+                // --- 新增：計算多重牽引號 (被多個本期號碼的Top1或Top2共同指向) ---
+                let pullCounts = {};
+                trailDetails.forEach(item => {
+                    if (item.top1) pullCounts[item.top1] = (pullCounts[item.top1] || 0) + 1;
+                    if (item.top2) pullCounts[item.top2] = (pullCounts[item.top2] || 0) + 1;
                 });
-
-                let trailDetails = Object.values(groupedTrails).sort((a, b) => b.sources.length - a.sources.length || b.totalCount - a.totalCount);
+                let multiPulled = Object.keys(pullCounts)
+                    .map(Number)
+                    .map(num => ({ num, count: pullCounts[num] }))
+                    .filter(item => item.count >= 2) // 至少被兩個以上的號碼同時牽引
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 5); // 取重疊次數最多的前 5 名
+                // ------------------------------------
 
                 return { 
                     star2: generateStars(2), star3: generateStars(3), star4: generateStars(4), 
@@ -543,7 +555,7 @@
                         return traits;
                     })(),
                     hot15, cold15, topPairs,
-                    hot20_top3, cold_top3, jump2_top3, jump3_top3, trailDetails,
+                    hot20_top3, cold_top3, jump2_top3, jump3_top3, trailDetails, multiPulled,
                     hot5_top5, strongTails
                 };
             };
@@ -661,10 +673,18 @@
                     const directGvizUrl = `https://docs.google.com/spreadsheets/d/${extractedId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetTabName)}&t=${timestamp}`;
                     const directExportUrl = `https://docs.google.com/spreadsheets/d/${extractedId}/export?format=csv&t=${timestamp}`;
                     
-                    // 改變策略：優先「直接連線」Google，如果失敗才退回使用代理伺服器
+                    // 防卡死逾時函式
+                    const fetchWithTimeout = (url, options, timeout = 8000) => {
+                        return Promise.race([
+                            fetch(url, options),
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('連線逾時')), timeout))
+                        ]);
+                    };
+
                     const fetchSources = [
                         { url: directGvizUrl, type: 'direct' },
                         { url: directExportUrl, type: 'direct' },
+                        { url: `https://corsproxy.io/?${encodeURIComponent(directGvizUrl)}`, type: 'proxy' },
                         { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(directGvizUrl)}`, type: 'proxy' },
                         { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(directExportUrl)}`, type: 'proxy' }
                     ];
@@ -675,30 +695,31 @@
 
                     for (const source of fetchSources) {
                         try {
-                            // 關鍵：直接連線時加入 credentials: 'omit'，避免 Google 強制登入重新導向引發跨域錯誤
                             const options = source.type === 'direct' ? { cache: 'no-store', credentials: 'omit' } : { cache: 'no-store' };
-                            const response = await fetch(source.url, options);
+                            const response = await fetchWithTimeout(source.url, options, 8000);
                             
                             if (response.ok) {
                                 let tempText = await response.text();
-                                // 確保回傳的不是 Google 登入畫面或其他無效的 HTML
-                                if (tempText && !tempText.includes("<html") && !tempText.includes("<!DOCTYPE")) {
+                                // 防呆：如果 Google 導向登入頁，直接視為失敗並換下一個
+                                if (tempText && !tempText.includes("<html") && !tempText.includes("<!DOCTYPE") && !tempText.includes("Sign in")) {
                                     let tempParsed = parseData(tempText);
                                     if (tempParsed.array.length > bestParsedLength) {
                                         bestParsedLength = tempParsed.array.length;
                                         bestText = tempText;
                                     }
                                     if (bestParsedLength >= 150) break;
+                                } else {
+                                    throw new Error("抓到無效內容 (可能要求登入)");
                                 }
                             }
                         } catch (e) { 
                             lastError = e;
-                            console.warn(`[${source.type}] 連線嘗試失敗:`, source.url, e); 
+                            console.warn(`[${source.type}] 連線失敗:`, source.url, e.message); 
                         }
                     }
 
                     if (!bestText) {
-                        throw new Error("無法取得資料。請確認您的 Google 試算表共用設定已開啟為「知道連結的任何人均可檢視」。");
+                        throw new Error("Google 拒絕了我們的連線請求 🛑\n\n這通常是因為「權限大門未開啟」。\n\n👉 解決步驟：\n1. 請在您的 Google 試算表右上角點擊「共用」，並將存取權改成【知道連結的任何人】。\n2. 點擊「檔案」>「共用」>【發布到網路】(選擇CSV格式)。\n3. 完成後再點一次雲端同步。");
                     }
                     
                     setRawText(bestText);
@@ -714,7 +735,7 @@
                         alert(`⚠️ 雲端資料已載入，但只解析到 ${parsed.array.length} 期。\n若數量異常，請檢查試算表格式。`);
                     }
                 } catch (error) {
-                    alert(`❌ 自動更新失敗: ${error.message}`);
+                    alert(`${error.message}`);
                 } finally { setIsUpdating(false); }
             };
 
@@ -764,7 +785,7 @@
                                     <h2 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><IconDatabase /> 資料庫管理</h2>
 
                                     <div className="flex gap-2">
-                                        <button onClick={handleAutoUpdate} disabled={isUpdating} className={`flex-1 ${isUpdating ? 'bg-gray-400' : 'bg-emerald-600'} text-white font-bold py-3 rounded-lg text-sm shadow-md`}>雲端同步</button>
+                                        <button onClick={handleAutoUpdate} disabled={isUpdating} className={`flex-1 ${isUpdating ? 'bg-gray-400' : 'bg-emerald-600'} text-white font-bold py-3 rounded-lg text-sm shadow-md`}>{isUpdating ? '努力同步中...' : '雲端同步'}</button>
                                         <button onClick={handleProcessData} className="flex-1 bg-blue-600 text-white font-bold py-3 rounded-lg text-sm shadow-md">解析手動數據</button>
                                     </div>
                                     <div className="mt-4">
@@ -799,13 +820,13 @@
                                         <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                             <h3 className="font-bold text-slate-800 mb-2">代號與選號指標</h3>
                                             <ul className="space-y-1 text-xs">
-                                                <li><strong className="text-red-500">N1 溫熱:</strong> 近10期高機率(出現2~3次)的號碼。</li>
+                                                <li><strong className="text-red-500">N1 溫熱:</strong> 近30期高機率(出現3~4次)的號碼。</li>
                                                 <li><strong className="text-cyan-500">N2 回歸:</strong> 近10期出現2次且近期未開，具備回歸潛力。</li>
                                                 <li><strong className="text-green-500">N3 拖號 (次高頻):</strong> 根據最新一期開出20個號碼，追蹤歷史中下一期「次高頻」出現的號碼。</li>
                                                 <li><strong className="text-purple-500">N4 共伴:</strong> 與當下已選核心號碼有極高共伴率的組合。</li>
                                                 <li><strong className="text-orange-500">N5 破冰:</strong> 遺漏期數最長(連續最久未開)的極冷號。</li>
                                                 <li><strong className="text-slate-500">N6 未開小號:</strong> 近2期皆未開出，且範圍鎖定在 1~10 之間的號碼。</li>
-                                                <li><strong className="text-rose-500">N7 5熱:</strong> 近 5 期內出現頻率極高，短線極度強勢的號碼。</li>
+                                                <li><strong className="text-rose-500">N7 5熱:</strong> 近 10 期內出現頻率極高，短線極度強勢的號碼。</li>
                                                 <li><strong className="text-fuchsia-600">N8 強尾:</strong> 近5期高頻(小於5次)且符合尾數強勢(佔比25%~30%)的號碼。若強尾與已選號碼同尾數，則從其他強尾中不限條件遞補。</li>
                                             </ul>
                                         </div>
@@ -854,6 +875,21 @@
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+                                <div className="bg-white p-4 rounded-xl border shadow-sm">
+                                    <h3 className="font-bold text-teal-600 mb-3 border-b pb-2">🧲 多重牽引號 (Top1+Top2 重疊指向)</h3>
+                                    {stats.multiPulled && stats.multiPulled.length > 0 ? (
+                                        <div className="flex flex-wrap gap-3">
+                                            {stats.multiPulled.map(item => (
+                                                <div key={item.num} className="flex flex-col items-center">
+                                                    <NumberBadge num={item.num} size="small" source="N3" />
+                                                    <span className="text-[10px] text-gray-500 mt-1">被指向 {item.count} 次</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-xs text-gray-400 py-2">本期無明顯重疊的多重牽引號碼</div>
+                                    )}
                                 </div>
                                 <div className="bg-white p-4 rounded-xl border shadow-sm">
                                     <h3 className="font-bold text-amber-600 mb-3 border-b pb-2">🎯 尾數強勢號 (10局佔比 25%~30%)</h3>
@@ -926,32 +962,34 @@
                             <div className="animate-fade-in space-y-3">
                                 <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-100 mb-2">
                                     <h3 className="text-sm font-bold text-indigo-800">最新期號碼牽引預測</h3>
-                                    <p className="text-[10px] text-indigo-600 mt-1">取最新一期20個號碼，追蹤歷史中下一期最高頻出現的號碼。若有多個號碼指向同一目標，將合併顯示以突顯強勢牽引。</p>
+                                    <p className="text-[10px] text-indigo-600 mt-1">取最新一期開出的20個號碼，分別列出歷史資料中，該號碼開出後下一期「最高頻」與「次高頻」的拖號。</p>
                                 </div>
-                                {stats.trailDetails.map((item) => (
-                                    <div key={item.topNext} className="bg-white p-3 rounded-xl border-l-4 border-l-teal-500 shadow-sm flex flex-col gap-2">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] text-teal-600 font-bold mb-1">🎯 目標牽引</span>
-                                                    <NumberBadge num={item.topNext} source="N3" />
+                                <div className="grid grid-cols-1 gap-3">
+                                    {stats.trailDetails.map((item) => (
+                                        <div key={item.source} className="bg-white p-3 rounded-xl border-l-4 border-l-teal-500 shadow-sm flex items-center justify-between">
+                                            <div className="flex flex-col items-center border-r border-gray-100 pr-4 mr-2">
+                                                <span className="text-[10px] text-gray-400 font-bold mb-1">本期號碼</span>
+                                                <NumberBadge num={item.source} size="normal" />
+                                            </div>
+                                            <div className="flex-1 flex flex-col gap-1.5">
+                                                <div className="flex justify-between items-center bg-gray-50 px-2 py-1.5 rounded">
+                                                    <span className="text-[10px] text-teal-700 font-bold flex items-center gap-1">🥇 最高頻</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <NumberBadge num={item.top1} size="small" source="N3" />
+                                                        <span className="text-[10px] text-gray-400 w-7 text-right">{item.top1Count}次</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-between items-center bg-gray-50 px-2 py-1.5 rounded">
+                                                    <span className="text-[10px] text-teal-600 font-semibold flex items-center gap-1">🥈 次高頻</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <NumberBadge num={item.top2} size="small" source="N3" />
+                                                        <span className="text-[10px] text-gray-400 w-7 text-right">{item.top2Count}次</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="text-[10px] text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded flex flex-col items-end">
-                                                <span className="font-bold text-teal-700">{item.sources.length} 碼聯合指向</span>
-                                                <span>歷史累計 {item.totalCount} 次</span>
-                                            </div>
                                         </div>
-                                        <div className="bg-slate-50 p-2 rounded-lg border border-slate-100 mt-1">
-                                            <span className="text-[9px] text-gray-400 mb-1 block">來自本期開出：</span>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {item.sources.map(srcNum => (
-                                                    <NumberBadge key={srcNum} num={srcNum} size="small" />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
