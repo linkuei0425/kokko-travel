@@ -16,15 +16,26 @@
 </head>
 <body class="text-gray-800 antialiased min-h-screen flex flex-col">
 
-    <!-- 頂部導覽列與搜尋框 -->
+    <!-- 頂部導覽列與搜尋/篩選框 -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <h1 class="text-2xl font-bold text-blue-600 flex items-center gap-2">
                 <i class="fa-solid fa-store"></i> 9.25 蝦皮商城各時段限時特賣一覽表
             </h1>
-            <div class="relative w-full sm:w-80">
-                <input type="text" id="searchInput" placeholder="搜尋 6000+ 件商品..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+                <!-- 新增：時段篩選下拉選單 -->
+                <div class="relative w-full sm:w-40">
+                    <select id="timeFilter" class="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow bg-white cursor-pointer text-gray-700">
+                        <option value="">所有時段</option>
+                        <!-- 時段選項會由 JavaScript 自動生成插入這裡 -->
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
+                </div>
+                <!-- 搜尋框 -->
+                <div class="relative w-full sm:w-64">
+                    <input type="text" id="searchInput" placeholder="搜尋商品或標籤..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
             </div>
         </div>
     </header>
@@ -102,6 +113,9 @@
                 
                 filteredProducts = allProducts; // 初始化過濾清單
                 
+                // 動態生成時段下拉選單的選項
+                populateTimeOptions();
+                
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('stats').classList.remove('hidden');
                 
@@ -114,6 +128,37 @@
                     <p class="text-red-600 font-bold text-lg">無法載入資料</p>
                 `;
             }
+        }
+
+        // 動態從資料中擷取不重複的時段並加入選單
+        function populateTimeOptions() {
+            const timeSelect = document.getElementById('timeFilter');
+            // 取得所有不重複且不為空的時段，並進行排序
+            const uniqueTimes = [...new Set(allProducts.map(p => p.time))].filter(t => t.trim() !== '').sort();
+            
+            uniqueTimes.forEach(time => {
+                const option = document.createElement('option');
+                option.value = time;
+                option.textContent = time;
+                timeSelect.appendChild(option);
+            });
+        }
+
+        // 統一處理篩選邏輯 (關鍵字 + 時段)
+        function applyFilters() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const selectedTime = document.getElementById('timeFilter').value;
+
+            filteredProducts = allProducts.filter(p => {
+                const matchKeyword = p.name.toLowerCase().includes(keyword) || p.tag.toLowerCase().includes(keyword);
+                const matchTime = selectedTime === "" || p.time === selectedTime;
+                
+                // 必須同時符合關鍵字與選擇的時段
+                return matchKeyword && matchTime;
+            });
+
+            currentPage = 1; // 篩選後切回第一頁
+            renderPage();
         }
 
         // 渲染目前頁面的卡片
@@ -237,16 +282,9 @@
             container.appendChild(nextBtn);
         }
 
-        // 搜尋框即時篩選
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const keyword = e.target.value.toLowerCase();
-            filteredProducts = allProducts.filter(p => 
-                p.name.toLowerCase().includes(keyword) || 
-                p.tag.toLowerCase().includes(keyword)
-            );
-            currentPage = 1; // 搜尋後切回第一頁
-            renderPage();
-        });
+        // 綁定搜尋框與時段篩選的事件
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('timeFilter').addEventListener('change', applyFilters);
 
         // 載入執行
         window.addEventListener('DOMContentLoaded', fetchGoogleSheetsData);
