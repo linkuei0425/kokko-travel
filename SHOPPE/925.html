@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>9.25 蝦皮商城各時段限時特賣一覽表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; }
+        .loading-spinner { border-top-color: #3b82f6; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <!-- 頂部導覽列與搜尋框 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <h1 class="text-2xl font-bold text-blue-600 flex items-center gap-2">
+                <i class="fa-solid fa-store"></i> 9.25 蝦皮商城各時段限時特賣一覽表
+            </h1>
+            <div class="relative w-full sm:w-80">
+                <input type="text" id="searchInput" placeholder="搜尋 6000+ 件商品..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要內容區 -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex flex-col">
+        
+        <!-- 載入中的動畫 -->
+        <div id="loading" class="flex flex-col justify-center items-center py-20">
+            <div class="w-12 h-12 border-4 border-gray-200 rounded-full loading-spinner mb-4"></div>
+            <p class="text-gray-500 font-medium tracking-wide">正在從雲端載入海量商品資料，請稍候...</p>
+        </div>
+
+        <!-- 狀態列 -->
+        <div id="stats" class="hidden mb-6 text-gray-600 text-sm flex justify-between items-center">
+            <span id="itemCount" class="font-bold"></span>
+            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                <i class="fa-solid fa-bolt"></i> 效能最佳化模式
+            </span>
+        </div>
+
+        <!-- 商品清單網格 -->
+        <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden">
+            <!-- 卡片會由 JavaScript 自動生成插入這裡 -->
+        </div>
+
+        <!-- 搜尋不到結果的提示 -->
+        <div id="no-results" class="hidden flex-col items-center justify-center py-20 text-gray-500">
+            <i class="fa-regular fa-face-frown text-5xl mb-4 text-gray-300"></i>
+            <p class="text-lg">找不到符合條件的商品</p>
+        </div>
+
+        <!-- 分頁導覽列 -->
+        <div id="pagination" class="hidden mt-10 mb-6 flex justify-center items-center gap-2 flex-wrap">
+            <!-- 分頁按鈕會插在這裡 -->
+        </div>
+
+    </main>
+
+    <script>
+        let allProducts = [];       // 儲存全部 6000 筆資料
+        let filteredProducts = [];  // 儲存搜尋過濾後的資料
+        let currentPage = 1;        // 目前頁碼
+        const itemsPerPage = 48;    // 每頁顯示 48 筆 (適合 1,2,3,4 欄排版)
+
+        // 連線到 Google Sheets
+        async function fetchGoogleSheetsData() {
+            const sheetId = '1b5WrX0yct1cBkfuxUrzvHaOKZge511-Epyw33M2UI5s';
+            const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
+            
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                
+                const jsonStart = text.indexOf('{');
+                const jsonEnd = text.lastIndexOf('}');
+                const jsonString = text.substring(jsonStart, jsonEnd + 1);
+                const data = JSON.parse(jsonString);
+                
+                const rows = data.table.rows;
+                allProducts = rows.map(row => {
+                    const cols = row.c;
+                    if (!cols) return null;
+                    return {
+                        id: cols[0]?.v || '',           
+                        time: cols[1]?.f || cols[1]?.v || '', 
+                        status: cols[2]?.v || '',       
+                        tag: cols[3]?.v || '',          
+                        name: cols[4]?.v || '未命名',     
+                        price: cols[5]?.v || '',        
+                        discount: cols[6]?.v || '',     
+                        url: cols[7]?.v || '#'          
+                    };
+                }).filter(p => p !== null && p.name !== '未命名'); 
+                
+                filteredProducts = allProducts; // 初始化過濾清單
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('stats').classList.remove('hidden');
+                
+                renderPage(); // 渲染第一頁
+                
+            } catch (error) {
+                console.error('取得資料失敗:', error);
+                document.getElementById('loading').innerHTML = `
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-4"></i>
+                    <p class="text-red-600 font-bold text-lg">無法載入資料</p>
+                `;
+            }
+        }
+
+        // 渲染目前頁面的卡片
+        function renderPage() {
+            const container = document.getElementById('product-list');
+            const countLabel = document.getElementById('itemCount');
+            const noResults = document.getElementById('no-results');
+            const paginationContainer = document.getElementById('pagination');
+            
+            container.innerHTML = '';
+            
+            // 處理沒資料的狀況
+            if (filteredProducts.length === 0) {
+                countLabel.textContent = `共找到 0 項商品`;
+                container.classList.add('hidden');
+                paginationContainer.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                noResults.classList.add('flex');
+                return;
+            }
+            
+            noResults.classList.add('hidden');
+            noResults.classList.remove('flex');
+            container.classList.remove('hidden');
+            paginationContainer.classList.remove('hidden');
+            paginationContainer.classList.add('flex');
+
+            // 計算目前頁面要顯示的資料範圍
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentItems = filteredProducts.slice(startIndex, endIndex);
+
+            countLabel.textContent = `共 ${filteredProducts.length} 筆商品 (目前顯示第 ${startIndex + 1} - ${Math.min(endIndex, filteredProducts.length)} 筆)`;
+
+            // 生成網格卡片
+            currentItems.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col fade-in border border-gray-200';
+                card.innerHTML = `
+                    <div class="p-5 flex-grow flex flex-col">
+                        <div class="flex justify-between items-start mb-3 gap-2">
+                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded font-bold whitespace-nowrap">${product.tag || '一般商品'}</span>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded whitespace-nowrap font-medium"><i class="fa-regular fa-clock"></i> ${product.time}</span>
+                        </div>
+                        <h3 class="text-gray-800 font-bold text-base mb-3 line-clamp-2 h-12 leading-snug" title="${product.name}">${product.name}</h3>
+                        <div class="mt-auto pt-3 border-t border-gray-100 flex flex-col">
+                            <p class="text-xs text-gray-400 line-through mb-1">原價 $${product.price}</p>
+                            <p class="text-red-500 font-black text-xl leading-none">${product.discount}</p>
+                        </div>
+                    </div>
+                    <a href="${product.url}" target="_blank" rel="noopener noreferrer" 
+                       class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-3 transition-colors duration-200 flex items-center justify-center gap-2 group">
+                        前往購買 <i class="fa-solid fa-arrow-right-from-bracket group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                `;
+                container.appendChild(card);
+            });
+
+            // 滾動回頂部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            renderPaginationControls();
+        }
+
+        // 繪製下方分頁按鈕
+        function renderPaginationControls() {
+            const container = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+            container.innerHTML = '';
+
+            // 上一頁按鈕
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i> 上一頁';
+            prevBtn.className = `px-4 py-2 rounded-lg font-medium transition-colors ${currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`;
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => { currentPage--; renderPage(); };
+            container.appendChild(prevBtn);
+
+            // 頁碼顯示
+            const pageInfo = document.createElement('span');
+            pageInfo.className = 'px-4 py-2 text-gray-600 font-medium';
+            pageInfo.textContent = `第 ${currentPage} 頁 / 共 ${totalPages} 頁`;
+            container.appendChild(pageInfo);
+
+            // 下一頁按鈕
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = '下一頁 <i class="fa-solid fa-chevron-right"></i>';
+            nextBtn.className = `px-4 py-2 rounded-lg font-medium transition-colors ${currentPage === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`;
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => { currentPage++; renderPage(); };
+            container.appendChild(nextBtn);
+        }
+
+        // 搜尋框即時篩選
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase();
+            filteredProducts = allProducts.filter(p => 
+                p.name.toLowerCase().includes(keyword) || 
+                p.tag.toLowerCase().includes(keyword)
+            );
+            currentPage = 1; // 搜尋後切回第一頁
+            renderPage();
+        });
+
+        // 載入執行
+        window.addEventListener('DOMContentLoaded', fetchGoogleSheetsData);
+    </script>
+</body>
+</html>
