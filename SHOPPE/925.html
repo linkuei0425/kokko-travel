@@ -178,30 +178,60 @@
             renderPaginationControls();
         }
 
-        // 繪製下方分頁按鈕
+        // 繪製下方分頁按鈕 (改為下拉式選單)
         function renderPaginationControls() {
             const container = document.getElementById('pagination');
             const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
             container.innerHTML = '';
 
+            // 如果只有一頁或沒資料就不顯示分頁
+            if (totalPages <= 1) return; 
+
             // 上一頁按鈕
             const prevBtn = document.createElement('button');
-            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i> 上一頁';
-            prevBtn.className = `px-4 py-2 rounded-lg font-medium transition-colors ${currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`;
+            prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+            prevBtn.className = `w-10 h-10 flex justify-center items-center rounded-lg font-medium transition-colors ${currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 shadow-sm'}`;
             prevBtn.disabled = currentPage === 1;
             prevBtn.onclick = () => { currentPage--; renderPage(); };
             container.appendChild(prevBtn);
 
-            // 頁碼顯示
-            const pageInfo = document.createElement('span');
-            pageInfo.className = 'px-4 py-2 text-gray-600 font-medium';
-            pageInfo.textContent = `第 ${currentPage} 頁 / 共 ${totalPages} 頁`;
-            container.appendChild(pageInfo);
+            // 建立下拉選單容器 (自訂外觀)
+            const selectWrapper = document.createElement('div');
+            selectWrapper.className = 'relative flex items-center';
+            
+            // 下拉選單本體
+            const select = document.createElement('select');
+            select.className = 'appearance-none bg-white border border-gray-300 text-gray-700 py-2 pl-4 pr-10 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm hover:border-blue-400 transition-colors';
+            
+            // 產生所有的頁碼選項
+            for (let i = 1; i <= totalPages; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `第 ${i} 頁 / 共 ${totalPages} 頁`;
+                if (i === currentPage) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            }
+
+            // 當選擇改變時，跳轉頁面並重新渲染
+            select.onchange = (e) => {
+                currentPage = parseInt(e.target.value, 10);
+                renderPage();
+            };
+
+            // 加入自訂的下拉箭頭圖示 (覆蓋預設樣式)
+            const icon = document.createElement('i');
+            icon.className = 'fa-solid fa-chevron-down absolute right-3 text-gray-500 pointer-events-none text-sm';
+            
+            selectWrapper.appendChild(select);
+            selectWrapper.appendChild(icon);
+            container.appendChild(selectWrapper);
 
             // 下一頁按鈕
             const nextBtn = document.createElement('button');
-            nextBtn.innerHTML = '下一頁 <i class="fa-solid fa-chevron-right"></i>';
-            nextBtn.className = `px-4 py-2 rounded-lg font-medium transition-colors ${currentPage === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`;
+            nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+            nextBtn.className = `w-10 h-10 flex justify-center items-center rounded-lg font-medium transition-colors ${currentPage === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 shadow-sm'}`;
             nextBtn.disabled = currentPage === totalPages;
             nextBtn.onclick = () => { currentPage++; renderPage(); };
             container.appendChild(nextBtn);
