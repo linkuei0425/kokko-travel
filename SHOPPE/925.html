@@ -23,7 +23,7 @@
                 <i class="fa-solid fa-store"></i> 9.25 蝦皮商城各時段限時特賣一覽表
             </h1>
             <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                <!-- 新增：時段篩選下拉選單 -->
+                <!-- 時段篩選下拉選單 -->
                 <div class="relative w-full sm:w-40">
                     <select id="timeFilter" class="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow bg-white cursor-pointer text-gray-700">
                         <option value="">所有時段</option>
@@ -130,11 +130,14 @@
             }
         }
 
-        // 動態從資料中擷取不重複的時段並加入選單
+        // 動態從資料中擷取不重複的時段並加入選單 (已修正安全字串轉換)
         function populateTimeOptions() {
             const timeSelect = document.getElementById('timeFilter');
-            // 取得所有不重複且不為空的時段，並進行排序
-            const uniqueTimes = [...new Set(allProducts.map(p => p.time))].filter(t => t.trim() !== '').sort();
+            
+            // 使用 String(p.time) 強制轉為純文字，避免 Google Sheets 數字格式造成錯誤
+            const uniqueTimes = [...new Set(allProducts.map(p => String(p.time || '')))]
+                .filter(t => t.trim() !== '')
+                .sort();
             
             uniqueTimes.forEach(time => {
                 const option = document.createElement('option');
@@ -151,7 +154,10 @@
 
             filteredProducts = allProducts.filter(p => {
                 const matchKeyword = p.name.toLowerCase().includes(keyword) || p.tag.toLowerCase().includes(keyword);
-                const matchTime = selectedTime === "" || p.time === selectedTime;
+                
+                // 比對時同樣轉成純文字，確保格式一致
+                const pTimeStr = String(p.time || '');
+                const matchTime = selectedTime === "" || pTimeStr === selectedTime;
                 
                 // 必須同時符合關鍵字與選擇的時段
                 return matchKeyword && matchTime;
@@ -265,7 +271,7 @@
                 renderPage();
             };
 
-            // 加入自訂的下拉箭頭圖示 (覆蓋預設樣式)
+            // 加入自訂的下拉箭頭圖示
             const icon = document.createElement('i');
             icon.className = 'fa-solid fa-chevron-down absolute right-3 text-gray-500 pointer-events-none text-sm';
             
