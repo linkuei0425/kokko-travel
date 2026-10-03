@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 載入 Font Awesome 圖示 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 【新增】載入 PapaParse，用來穩定讀取 CSV 格式的 Google Sheets 資料 -->
+    <!-- 載入 PapaParse，用來穩定讀取 CSV 格式的 Google Sheets 資料 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <style>
@@ -33,7 +33,6 @@
                 <div class="relative w-full sm:w-32">
                     <select id="timeFilter" class="appearance-none w-full pl-4 pr-8 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow bg-white cursor-pointer text-gray-700">
                         <option value="">所有時段</option>
-                        <!-- 時段選項會由 JavaScript 自動生成插入這裡 -->
                     </select>
                     <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
                 </div>
@@ -42,12 +41,11 @@
                 <div class="relative w-full sm:w-32">
                     <select id="tagFilter" class="appearance-none w-full pl-4 pr-8 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow bg-white cursor-pointer text-gray-700">
                         <option value="">所有分類</option>
-                        <!-- 分類選項會由 JavaScript 自動生成插入這裡 -->
                     </select>
                     <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
                 </div>
 
-                <!-- 排序下拉選單 (加回折扣排序功能) -->
+                <!-- 排序下拉選單 -->
                 <div class="relative w-full sm:w-40">
                     <select id="sortFilter" class="appearance-none w-full pl-4 pr-8 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow bg-white cursor-pointer text-gray-700">
                         <option value="default">預設排序</option>
@@ -80,13 +78,12 @@
         <div id="stats" class="hidden mb-6 text-gray-600 text-sm flex justify-between items-center">
             <span id="itemCount" class="font-bold"></span>
             <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                <i class="fa-solid fa-bolt"></i> 效能最佳化模式
+                <i class="fa-solid fa-bolt"></i> 智慧去重模式啟用
             </span>
         </div>
 
         <!-- 商品清單網格 -->
         <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden">
-            <!-- 卡片會由 JavaScript 自動生成插入這裡 -->
         </div>
 
         <!-- 搜尋不到結果的提示 -->
@@ -97,21 +94,18 @@
 
         <!-- 分頁導覽列 -->
         <div id="pagination" class="hidden mt-10 mb-6 flex justify-center items-center gap-2 flex-wrap">
-            <!-- 分頁按鈕會插在這裡 -->
         </div>
 
     </main>
 
     <script>
-        let allProducts = [];       // 儲存全部 6000 筆資料
+        let allProducts = [];       // 儲存去重後的資料
         let filteredProducts = [];  // 儲存搜尋過濾後的資料
         let currentPage = 1;        // 目前頁碼
         const itemsPerPage = 48;    // 每頁顯示 48 筆
 
-        // 連線到 Google Sheets (完全改用 CSV 讀取模式，破解格式被吃掉的問題)
         function fetchGoogleSheetsData() {
             const sheetId = '1S0jLsJdZtj-mdwEk4TMxiMMq9Ivrs3NvR0ha4rAiFU4'; 
-            // 使用 export?format=csv 取代原本的 gviz，並加上隨機時間戳記強迫更新
             const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&t=${new Date().getTime()}`;
             
             Papa.parse(url, {
@@ -120,7 +114,7 @@
                 complete: function(results) {
                     const rows = results.data;
                     
-                    // 1. 先初步整理所有有效資料
+                    // 1. 初步整理所有有效資料
                     const rawProducts = rows.slice(1).map(cols => {
                         if (!cols || cols.length < 8) return null;
                         return {
@@ -135,54 +129,35 @@
                         };
                     }).filter(p => p !== null && p.name !== '未命名' && String(p.time).trim() !== '');
                     
-                    // 2. 執行去重邏輯：過濾「同時段」且「同商品」的資料，並只留一筆
+                    // 2. 執行去重邏輯：過濾「同時段」且「同商品」的資料
                     const uniqueMap = new Map();
                     
                     rawProducts.forEach(p => {
-                        // 建立獨一無二的 Key，例如："00:00_JOEKI純水濕紙巾"
                         const uniqueKey = `${p.time}_${p.name}`;
                         
                         if (!uniqueMap.has(uniqueKey)) {
-                            // 如果這個時段的這個商品還沒出現過，直接加入
                             uniqueMap.set(uniqueKey, p);
                         } else {
-                            // 如果已經存在，拿出舊資料來比較
                             const existingP = uniqueMap.get(uniqueKey);
-                            
-                            // 判斷邏輯：如果舊資料的標籤是「現正瘋搶」，但新資料「不是現正瘋搶」，就用新資料替換掉舊的
+                            // 如果舊資料是現正瘋搶，但新資料不是，就用新資料取代
                             if (existingP.tag === '現正瘋搶' && p.tag !== '現正瘋搶') {
                                 uniqueMap.set(uniqueKey, p);
                             }
-                            // 其他情況（例如兩個都不是現正瘋搶，或新的是現正瘋搶），就維持保留第一筆，不做替換
                         }
                     });
                     
-                    // 3. 將去重後的結果轉回陣列，並賦值給 allProducts
+                    // 3. 將去重結果轉回陣列
                     allProducts = Array.from(uniqueMap.values());
+                    filteredProducts = allProducts; 
                     
-                    filteredProducts = allProducts; // 初始化過濾清單
-                    
-                    // 動態生成下拉選單的選項
+                    // 初始化畫面
                     populateTimeOptions();
                     populateTagOptions();
                     
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('stats').classList.remove('hidden');
                     
-                    renderPage(); // 渲染第一頁
-                },
-                    }).filter(p => p !== null && p.name !== '未命名' && String(p.time).trim() !== ''); // 排除空資料
-                    
-                    filteredProducts = allProducts; // 初始化過濾清單
-                    
-                    // 動態生成下拉選單的選項
-                    populateTimeOptions();
-                    populateTagOptions();
-                    
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('stats').classList.remove('hidden');
-                    
-                    renderPage(); // 渲染第一頁
+                    renderPage(); 
                 },
                 error: function(err) {
                     console.error('取得資料失敗:', err);
@@ -194,7 +169,6 @@
             });
         }
 
-        // 動態生成時段選項
         function populateTimeOptions() {
             const timeSelect = document.getElementById('timeFilter');
             const uniqueTimes = [...new Set(allProducts.map(p => String(p.time || '')))]
@@ -209,7 +183,6 @@
             });
         }
 
-        // 動態生成分類選項
         function populateTagOptions() {
             const tagSelect = document.getElementById('tagFilter');
             const uniqueTags = [...new Set(allProducts.map(p => String(p.tag || '')))]
@@ -224,21 +197,18 @@
             });
         }
 
-        // 提取純數字用於折扣排序
         function getDiscountNumber(discountStr) {
             if (!discountStr) return 999; 
             const num = parseFloat(String(discountStr).replace('折', '').trim());
             return isNaN(num) ? 999 : num;
         }
 
-        // 統一處理篩選與排序邏輯
         function applyFilters() {
             const keyword = document.getElementById('searchInput').value.toLowerCase();
             const selectedTime = document.getElementById('timeFilter').value;
             const selectedTag = document.getElementById('tagFilter').value; 
             const sortType = document.getElementById('sortFilter').value;
 
-            // 1. 篩選
             filteredProducts = allProducts.filter(p => {
                 const matchKeyword = p.name.toLowerCase().includes(keyword) || p.tag.toLowerCase().includes(keyword);
                 const pTimeStr = String(p.time || '');
@@ -249,7 +219,6 @@
                 return matchKeyword && matchTime && matchTag;
             });
 
-            // 2. 排序
             if (sortType !== 'default') {
                 filteredProducts.sort((a, b) => {
                     if (sortType === 'discountAsc') {
@@ -268,7 +237,6 @@
             renderPage();
         }
 
-        // 渲染目前頁面的卡片
         function renderPage() {
             const container = document.getElementById('product-list');
             const countLabel = document.getElementById('itemCount');
@@ -325,7 +293,6 @@
             renderPaginationControls();
         }
 
-        // 繪製下方分頁按鈕 
         function renderPaginationControls() {
             const container = document.getElementById('pagination');
             const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
