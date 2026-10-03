@@ -120,11 +120,9 @@
                 complete: function(results) {
                     const rows = results.data;
                     
-                    // 從第二列開始讀取 (跳過表頭)
-                    allProducts = rows.slice(1).map(cols => {
-                        // 確保至少有 8 個欄位
+                    // 1. 先初步整理所有有效資料
+                    const rawProducts = rows.slice(1).map(cols => {
                         if (!cols || cols.length < 8) return null;
-                        
                         return {
                             id: cols[0] || '',            
                             time: cols[1] || '', 
@@ -135,6 +133,44 @@
                             discount: cols[6] || '',      
                             url: cols[7] || '#'          
                         };
+                    }).filter(p => p !== null && p.name !== '未命名' && String(p.time).trim() !== '');
+                    
+                    // 2. 執行去重邏輯：過濾「同時段」且「同商品」的資料，並只留一筆
+                    const uniqueMap = new Map();
+                    
+                    rawProducts.forEach(p => {
+                        // 建立獨一無二的 Key，例如："00:00_JOEKI純水濕紙巾"
+                        const uniqueKey = `${p.time}_${p.name}`;
+                        
+                        if (!uniqueMap.has(uniqueKey)) {
+                            // 如果這個時段的這個商品還沒出現過，直接加入
+                            uniqueMap.set(uniqueKey, p);
+                        } else {
+                            // 如果已經存在，拿出舊資料來比較
+                            const existingP = uniqueMap.get(uniqueKey);
+                            
+                            // 判斷邏輯：如果舊資料的標籤是「現正瘋搶」，但新資料「不是現正瘋搶」，就用新資料替換掉舊的
+                            if (existingP.tag === '現正瘋搶' && p.tag !== '現正瘋搶') {
+                                uniqueMap.set(uniqueKey, p);
+                            }
+                            // 其他情況（例如兩個都不是現正瘋搶，或新的是現正瘋搶），就維持保留第一筆，不做替換
+                        }
+                    });
+                    
+                    // 3. 將去重後的結果轉回陣列，並賦值給 allProducts
+                    allProducts = Array.from(uniqueMap.values());
+                    
+                    filteredProducts = allProducts; // 初始化過濾清單
+                    
+                    // 動態生成下拉選單的選項
+                    populateTimeOptions();
+                    populateTagOptions();
+                    
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('stats').classList.remove('hidden');
+                    
+                    renderPage(); // 渲染第一頁
+                },
                     }).filter(p => p !== null && p.name !== '未命名' && String(p.time).trim() !== ''); // 排除空資料
                     
                     filteredProducts = allProducts; // 初始化過濾清單
