@@ -1,356 +1,706 @@
 <!DOCTYPE html>
+
 <html lang="zh-TW">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>10.03 蝦皮商城各時段限時特賣一覽表</title>
+
     <!-- 載入 Tailwind CSS -->
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- 載入 Font Awesome 圖示 -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 載入 PapaParse，用來穩定讀取 CSV 格式的 Google Sheets 資料 -->
+
+    <!-- 【新增】載入 PapaParse，用來穩定讀取 CSV 格式的 Google Sheets 資料 -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
     
+
     <style>
+
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; }
+
         .loading-spinner { border-top-color: #3b82f6; animation: spinner 1.5s linear infinite; }
+
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
     </style>
+
 </head>
+
 <body class="text-gray-800 antialiased min-h-screen flex flex-col">
 
+
+
     <!-- 頂部導覽列與搜尋/篩選框 -->
+
     <header class="bg-white shadow-sm sticky top-0 z-50">
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
+
             <h1 class="text-2xl font-bold text-blue-600 flex items-center gap-2 whitespace-nowrap">
+
                 <i class="fa-solid fa-store"></i> 10.03 限時特賣一覽表
+
             </h1>
+
             <div class="flex flex-col sm:flex-row w-full lg:w-auto gap-3 flex-wrap justify-end">
+
                 
+
                 <!-- 時段篩選下拉選單 -->
+
                 <div class="relative w-full sm:w-32">
+
                     <select id="timeFilter" class="appearance-none w-full pl-4 pr-8 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow bg-white cursor-pointer text-gray-700">
+
                         <option value="">所有時段</option>
+
+                        <!-- 時段選項會由 JavaScript 自動生成插入這裡 -->
+
                     </select>
+
                     <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
+
                 </div>
+
+
 
                 <!-- 分類篩選下拉選單 -->
+
                 <div class="relative w-full sm:w-32">
+
                     <select id="tagFilter" class="appearance-none w-full pl-4 pr-8 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow bg-white cursor-pointer text-gray-700">
+
                         <option value="">所有分類</option>
+
+                        <!-- 分類選項會由 JavaScript 自動生成插入這裡 -->
+
                     </select>
+
                     <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
+
                 </div>
 
-                <!-- 排序下拉選單 -->
+
+
+                <!-- 排序下拉選單 (加回折扣排序功能) -->
+
                 <div class="relative w-full sm:w-40">
+
                     <select id="sortFilter" class="appearance-none w-full pl-4 pr-8 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow bg-white cursor-pointer text-gray-700">
+
                         <option value="default">預設排序</option>
+
                         <option value="discountAsc">折扣 (低到高)</option>
+
                         <option value="priceAsc">價格 (低到高)</option>
+
                         <option value="priceDesc">價格 (高到低)</option>
+
                     </select>
+
                     <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
+
                 </div>
+
+
 
                 <!-- 搜尋框 -->
+
                 <div class="relative w-full sm:w-48">
+
                     <input type="text" id="searchInput" placeholder="搜尋商品或標籤..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow">
+
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+
                 </div>
+
             </div>
+
         </div>
+
     </header>
 
+
+
     <!-- 主要內容區 -->
+
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex flex-col">
+
         
+
         <!-- 載入中的動畫 -->
+
         <div id="loading" class="flex flex-col justify-center items-center py-20">
+
             <div class="w-12 h-12 border-4 border-gray-200 rounded-full loading-spinner mb-4"></div>
+
             <p class="text-gray-500 font-medium tracking-wide">正在從雲端載入海量商品資料，請稍候...</p>
+
         </div>
+
+
 
         <!-- 狀態列 -->
+
         <div id="stats" class="hidden mb-6 text-gray-600 text-sm flex justify-between items-center">
+
             <span id="itemCount" class="font-bold"></span>
+
             <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                <i class="fa-solid fa-bolt"></i> 智慧去重模式啟用
+
+                <i class="fa-solid fa-bolt"></i> 效能最佳化模式
+
             </span>
+
         </div>
+
+
 
         <!-- 商品清單網格 -->
+
         <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden">
+
+            <!-- 卡片會由 JavaScript 自動生成插入這裡 -->
+
         </div>
+
+
 
         <!-- 搜尋不到結果的提示 -->
+
         <div id="no-results" class="hidden flex-col items-center justify-center py-20 text-gray-500">
+
             <i class="fa-regular fa-face-frown text-5xl mb-4 text-gray-300"></i>
+
             <p class="text-lg">找不到符合條件的商品</p>
+
         </div>
 
+
+
         <!-- 分頁導覽列 -->
+
         <div id="pagination" class="hidden mt-10 mb-6 flex justify-center items-center gap-2 flex-wrap">
+
+            <!-- 分頁按鈕會插在這裡 -->
+
         </div>
+
+
 
     </main>
 
+
+
     <script>
-        let allProducts = [];       // 儲存去重後的資料
+
+        let allProducts = [];       // 儲存全部 6000 筆資料
+
         let filteredProducts = [];  // 儲存搜尋過濾後的資料
+
         let currentPage = 1;        // 目前頁碼
+
         const itemsPerPage = 48;    // 每頁顯示 48 筆
 
+
+
+        // 連線到 Google Sheets (完全改用 CSV 讀取模式，破解格式被吃掉的問題)
+
         function fetchGoogleSheetsData() {
+
             const sheetId = '1S0jLsJdZtj-mdwEk4TMxiMMq9Ivrs3NvR0ha4rAiFU4'; 
+
+            // 使用 export?format=csv 取代原本的 gviz，並加上隨機時間戳記強迫更新
+
             const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&t=${new Date().getTime()}`;
+
             
+
             Papa.parse(url, {
+
                 download: true,
+
                 skipEmptyLines: true,
+
                 complete: function(results) {
+
                     const rows = results.data;
+
                     
-                    // 1. 初步整理所有有效資料
-                    const rawProducts = rows.slice(1).map(cols => {
+
+                    // 從第二列開始讀取 (跳過表頭)
+
+                    allProducts = rows.slice(1).map(cols => {
+
+                        // 確保至少有 8 個欄位
+
                         if (!cols || cols.length < 8) return null;
-                        return {
-                            id: cols[0] || '',            
-                            time: cols[1] || '', 
-                            status: cols[2] || '',        
-                            tag: cols[3] || '',          
-                            name: cols[4] || '未命名',      
-                            price: cols[5] || '',        
-                            discount: cols[6] || '',      
-                            url: cols[7] || '#'          
-                        };
-                    }).filter(p => p !== null && p.name !== '未命名' && String(p.time).trim() !== '');
-                    
-                    // 2. 執行去重邏輯：過濾「同時段」且「同商品」的資料
-                    const uniqueMap = new Map();
-                    
-                    rawProducts.forEach(p => {
-                        const uniqueKey = `${p.time}_${p.name}`;
+
                         
-                        if (!uniqueMap.has(uniqueKey)) {
-                            uniqueMap.set(uniqueKey, p);
-                        } else {
-                            const existingP = uniqueMap.get(uniqueKey);
-                            // 如果舊資料是現正瘋搶，但新資料不是，就用新資料取代
-                            if (existingP.tag === '現正瘋搶' && p.tag !== '現正瘋搶') {
-                                uniqueMap.set(uniqueKey, p);
-                            }
-                        }
-                    });
+
+                        return {
+
+                            id: cols[0] || '',            
+
+                            time: cols[1] || '', 
+
+                            status: cols[2] || '',        
+
+                            tag: cols[3] || '',          
+
+                            name: cols[4] || '未命名',      
+
+                            price: cols[5] || '',        
+
+                            discount: cols[6] || '',      
+
+                            url: cols[7] || '#'          
+
+                        };
+
+                    }).filter(p => p !== null && p.name !== '未命名' && String(p.time).trim() !== ''); // 排除空資料
+
                     
-                    // 3. 將去重結果轉回陣列
-                    allProducts = Array.from(uniqueMap.values());
-                    filteredProducts = allProducts; 
+
+                    filteredProducts = allProducts; // 初始化過濾清單
+
                     
-                    // 初始化畫面
+
+                    // 動態生成下拉選單的選項
+
                     populateTimeOptions();
+
                     populateTagOptions();
+
                     
+
                     document.getElementById('loading').style.display = 'none';
+
                     document.getElementById('stats').classList.remove('hidden');
+
                     
-                    renderPage(); 
+
+                    renderPage(); // 渲染第一頁
+
                 },
+
                 error: function(err) {
+
                     console.error('取得資料失敗:', err);
+
                     document.getElementById('loading').innerHTML = `
+
                         <i class="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-4"></i>
+
                         <p class="text-red-600 font-bold text-lg">無法載入資料，請確認試算表權限</p>
+
                     `;
+
                 }
+
             });
+
         }
+
+
+
+        // 動態生成時段選項
 
         function populateTimeOptions() {
+
             const timeSelect = document.getElementById('timeFilter');
+
             const uniqueTimes = [...new Set(allProducts.map(p => String(p.time || '')))]
+
                 .filter(t => t.trim() !== '')
+
                 .sort();
+
             
+
             uniqueTimes.forEach(time => {
+
                 const option = document.createElement('option');
+
                 option.value = time;
+
                 option.textContent = time;
+
                 timeSelect.appendChild(option);
+
             });
+
         }
+
+
+
+        // 動態生成分類選項
 
         function populateTagOptions() {
+
             const tagSelect = document.getElementById('tagFilter');
+
             const uniqueTags = [...new Set(allProducts.map(p => String(p.tag || '')))]
+
                 .filter(t => t.trim() !== '')
+
                 .sort();
+
             
+
             uniqueTags.forEach(tag => {
+
                 const option = document.createElement('option');
+
                 option.value = tag;
+
                 option.textContent = tag;
+
                 tagSelect.appendChild(option);
+
             });
+
         }
+
+
+
+        // 提取純數字用於折扣排序
 
         function getDiscountNumber(discountStr) {
+
             if (!discountStr) return 999; 
+
             const num = parseFloat(String(discountStr).replace('折', '').trim());
+
             return isNaN(num) ? 999 : num;
+
         }
+
+
+
+        // 統一處理篩選與排序邏輯
 
         function applyFilters() {
+
             const keyword = document.getElementById('searchInput').value.toLowerCase();
+
             const selectedTime = document.getElementById('timeFilter').value;
+
             const selectedTag = document.getElementById('tagFilter').value; 
+
             const sortType = document.getElementById('sortFilter').value;
 
+
+
+            // 1. 篩選
+
             filteredProducts = allProducts.filter(p => {
+
                 const matchKeyword = p.name.toLowerCase().includes(keyword) || p.tag.toLowerCase().includes(keyword);
+
                 const pTimeStr = String(p.time || '');
+
                 const matchTime = selectedTime === "" || pTimeStr === selectedTime;
+
                 const pTagStr = String(p.tag || '');
+
                 const matchTag = selectedTag === "" || pTagStr === selectedTag;
+
                 
+
                 return matchKeyword && matchTime && matchTag;
+
             });
 
+
+
+            // 2. 排序
+
             if (sortType !== 'default') {
+
                 filteredProducts.sort((a, b) => {
+
                     if (sortType === 'discountAsc') {
+
                         return getDiscountNumber(a.discount) - getDiscountNumber(b.discount);
+
                     }
+
                     if (sortType === 'priceAsc' || sortType === 'priceDesc') {
+
                         const priceA = parseFloat(String(a.price).replace(/,/g, '')) || 0;
+
                         const priceB = parseFloat(String(b.price).replace(/,/g, '')) || 0;
+
                         return sortType === 'priceAsc' ? priceA - priceB : priceB - priceA;
+
                     }
+
                     return 0;
+
                 });
+
             }
+
+
 
             currentPage = 1; 
+
             renderPage();
+
         }
 
+
+
+        // 渲染目前頁面的卡片
+
         function renderPage() {
+
             const container = document.getElementById('product-list');
+
             const countLabel = document.getElementById('itemCount');
+
             const noResults = document.getElementById('no-results');
+
             const paginationContainer = document.getElementById('pagination');
+
             
+
             container.innerHTML = '';
+
             
+
             if (filteredProducts.length === 0) {
+
                 countLabel.textContent = `共找到 0 項商品`;
+
                 container.classList.add('hidden');
+
                 paginationContainer.classList.add('hidden');
+
                 noResults.classList.remove('hidden');
+
                 noResults.classList.add('flex');
+
                 return;
+
             }
+
             
+
             noResults.classList.add('hidden');
+
             noResults.classList.remove('flex');
+
             container.classList.remove('hidden');
+
             paginationContainer.classList.remove('hidden');
+
             paginationContainer.classList.add('flex');
 
+
+
             const startIndex = (currentPage - 1) * itemsPerPage;
+
             const endIndex = startIndex + itemsPerPage;
+
             const currentItems = filteredProducts.slice(startIndex, endIndex);
+
+
 
             countLabel.textContent = `共 ${filteredProducts.length} 筆商品 (目前顯示第 ${startIndex + 1} - ${Math.min(endIndex, filteredProducts.length)} 筆)`;
 
+
+
             currentItems.forEach(product => {
+
                 const card = document.createElement('div');
+
                 card.className = 'bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col fade-in border border-gray-200';
+
                 card.innerHTML = `
+
                     <div class="p-5 flex-grow flex flex-col">
+
                         <div class="flex justify-between items-start mb-3 gap-2">
+
                             <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded font-bold whitespace-nowrap">${product.tag || '一般商品'}</span>
+
                             <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded whitespace-nowrap font-medium"><i class="fa-regular fa-clock"></i> ${product.time}</span>
+
                         </div>
+
                         <h3 class="text-gray-800 font-bold text-base mb-3 line-clamp-2 h-12 leading-snug" title="${product.name}">${product.name}</h3>
+
                         <div class="mt-auto pt-3 border-t border-gray-100 flex flex-col">
+
                             <p class="text-xs text-gray-400 line-through mb-1">原價 $${product.price}</p>
+
                             <p class="text-red-500 font-black text-xl leading-none">${product.discount}</p>
+
                         </div>
+
                     </div>
+
                     <a href="${product.url}" target="_blank" rel="noopener noreferrer" 
+
                        class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-3 transition-colors duration-200 flex items-center justify-center gap-2 group">
+
                         商品詳情 <i class="fa-solid fa-arrow-right-from-bracket group-hover:translate-x-1 transition-transform"></i>
+
                     </a>
+
                 `;
+
                 container.appendChild(card);
+
             });
 
+
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
             renderPaginationControls();
+
         }
 
+
+
+        // 繪製下方分頁按鈕 
+
         function renderPaginationControls() {
+
             const container = document.getElementById('pagination');
+
             const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
             container.innerHTML = '';
+
+
 
             if (totalPages <= 1) return; 
 
+
+
             const prevBtn = document.createElement('button');
+
             prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+
             prevBtn.className = `w-10 h-10 flex justify-center items-center rounded-lg font-medium transition-colors ${currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 shadow-sm'}`;
+
             prevBtn.disabled = currentPage === 1;
+
             prevBtn.onclick = () => { currentPage--; renderPage(); };
+
             container.appendChild(prevBtn);
 
+
+
             const selectWrapper = document.createElement('div');
+
             selectWrapper.className = 'relative flex items-center';
+
             
+
             const select = document.createElement('select');
+
             select.className = 'appearance-none bg-white border border-gray-300 text-gray-700 py-2 pl-4 pr-10 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm hover:border-blue-400 transition-colors';
+
             
+
             for (let i = 1; i <= totalPages; i++) {
+
                 const option = document.createElement('option');
+
                 option.value = i;
+
                 option.textContent = `第 ${i} 頁 / 共 ${totalPages} 頁`;
+
                 if (i === currentPage) {
+
                     option.selected = true;
+
                 }
+
                 select.appendChild(option);
+
             }
 
+
+
             select.onchange = (e) => {
+
                 currentPage = parseInt(e.target.value, 10);
+
                 renderPage();
+
             };
 
+
+
             const icon = document.createElement('i');
+
             icon.className = 'fa-solid fa-chevron-down absolute right-3 text-gray-500 pointer-events-none text-sm';
+
             
+
             selectWrapper.appendChild(select);
+
             selectWrapper.appendChild(icon);
+
             container.appendChild(selectWrapper);
 
+
+
             const nextBtn = document.createElement('button');
+
             nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+
             nextBtn.className = `w-10 h-10 flex justify-center items-center rounded-lg font-medium transition-colors ${currentPage === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white border border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 shadow-sm'}`;
+
             nextBtn.disabled = currentPage === totalPages;
+
             nextBtn.onclick = () => { currentPage++; renderPage(); };
+
             container.appendChild(nextBtn);
+
         }
 
+
+
         // 綁定所有事件
+
         document.getElementById('searchInput').addEventListener('input', applyFilters);
+
         document.getElementById('timeFilter').addEventListener('change', applyFilters);
+
         document.getElementById('tagFilter').addEventListener('change', applyFilters);
+
         document.getElementById('sortFilter').addEventListener('change', applyFilters);
 
+
+
         // 載入執行
+
         window.addEventListener('DOMContentLoaded', fetchGoogleSheetsData);
+
     </script>
+
 </body>
-</html>
+
+</html> 
+
