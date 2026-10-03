@@ -1,0 +1,36 @@
+name: 🕒 Auto Update Products Data
+
+on:
+  schedule:
+    cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Check out repository
+        uses: actions/checkout@v3
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # 這裡有修改！告訴機器人先進入 SHOPPE 資料夾再執行
+      - name: ⚙️ Run Python script
+        run: |
+          cd SHOPPE
+          python update_data.py
+
+      # 這裡也有修改！指定加入 SHOPPE/data.json
+      - name: 💾 Commit and push if changed
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add SHOPPE/data.json
+          git commit -m "自動更新商品資料 data.json" || echo "資料無變動，略過提交"
+          git push
