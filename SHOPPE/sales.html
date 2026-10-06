@@ -158,9 +158,20 @@
                 if (sortType === 'default') {
                     const timeA = String(a.time || '');
                     const timeB = String(b.time || '');
+                    
+                    // 判斷是否帶有日期標示 (例如含有 '(' 符號，如 00:00(10/7))
+                    // 將跨日的時段強制排在當日所有時段的最後面
+                    const isTomorrowA = timeA.includes('(');
+                    const isTomorrowB = timeB.includes('(');
+                    
+                    if (isTomorrowA && !isTomorrowB) return 1;  // A是明天，A排後面
+                    if (!isTomorrowA && isTomorrowB) return -1; // B是明天，B排後面
+                    
+                    // 都在同一天時，比較時間先後
                     if (timeA < timeB) return -1;
                     if (timeA > timeB) return 1;
                     
+                    // 時間相同時，比較折扣 (低到高)
                     return getDiscountNumber(a.discount) - getDiscountNumber(b.discount);
                 }
                 
