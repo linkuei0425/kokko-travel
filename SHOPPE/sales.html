@@ -81,6 +81,21 @@
         let currentPage = 1;        
         const itemsPerPage = 48;    
 
+        // 【新增】共用的時間排序邏輯：處理跨日時間排在最後
+        function compareTimeStrings(timeA, timeB) {
+            // 只要帶有 '(' 或 '/' 就視為跨日（例如 00:00(10/7)）
+            const isTomorrowA = timeA.includes('(') || timeA.includes('/');
+            const isTomorrowB = timeB.includes('(') || timeB.includes('/');
+            
+            if (isTomorrowA && !isTomorrowB) return 1;  // A是跨日，A排後面
+            if (!isTomorrowA && isTomorrowB) return -1; // B是跨日，B排後面
+            
+            // 都在同一天時，比較時間大小字串
+            if (timeA < timeB) return -1;
+            if (timeA > timeB) return 1;
+            return 0;
+        }
+
         // 讀取已經被 Python 自動化處理好的 JSON 檔案
         async function fetchStaticData() {
             try {
@@ -97,7 +112,6 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('stats').classList.remove('hidden');
                 
-                // 改為呼叫 applyFilters() 確保初始載入時就套用預設的排序規則
                 applyFilters(); 
             } catch (err) {
                 console.error('取得資料失敗:', err);
@@ -110,7 +124,11 @@
 
         function populateTimeOptions() {
             const timeSelect = document.getElementById('timeFilter');
-            const uniqueTimes = [...new Set(allProducts.map(p => String(p.time || '')))].filter(t => t.trim() !== '').sort();
+            // 取得不重複的時間，並且套用跨日排最後的自訂排序邏輯 (修復下拉選單沒排最後的問題)
+            const uniqueTimes = [...new Set(allProducts.map(p => String(p.time || '')))]
+                .filter(t => t.trim() !== '')
+                .sort(compareTimeStrings);
+                
             uniqueTimes.forEach(time => {
                 const option = document.createElement('option');
                 option.value = time;
@@ -154,22 +172,13 @@
 
             // 2. 排序商品
             filteredProducts.sort((a, b) => {
-                // 預設排序：先時間，再折扣低到高
                 if (sortType === 'default') {
                     const timeA = String(a.time || '');
                     const timeB = String(b.time || '');
                     
-                    // 判斷是否帶有日期標示 (例如含有 '(' 符號，如 00:00(10/7))
-                    // 將跨日的時段強制排在當日所有時段的最後面
-                    const isTomorrowA = timeA.includes('(');
-                    const isTomorrowB = timeB.includes('(');
-                    
-                    if (isTomorrowA && !isTomorrowB) return 1;  // A是明天，A排後面
-                    if (!isTomorrowA && isTomorrowB) return -1; // B是明天，B排後面
-                    
-                    // 都在同一天時，比較時間先後
-                    if (timeA < timeB) return -1;
-                    if (timeA > timeB) return 1;
+                    // 先比較時間 (跨日強制排最後)
+                    const timeCompare = compareTimeStrings(timeA, timeB);
+                    if (timeCompare !== 0) return timeCompare;
                     
                     // 時間相同時，比較折扣 (低到高)
                     return getDiscountNumber(a.discount) - getDiscountNumber(b.discount);
