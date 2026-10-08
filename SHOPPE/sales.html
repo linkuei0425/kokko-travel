@@ -103,7 +103,51 @@
                 const response = await fetch(`data.json?t=${new Date().getTime()}`);
                 if (!response.ok) throw new Error('Data fetch failed');
                 
-                allProducts = await response.json();
+                let rawData = await response.json();
+                
+                // 【精準過濾清單】針對台灣法規禁售/限制商品
+                const excludeKeywords = [
+                    // 1. 藥品類
+                    '感冒藥', '腸胃藥', '止痛藥', '退燒藥', '眼藥水', '藥膏', '指示藥', '成藥', '處方藥',
+                    '減肥藥', '壯陽藥', '催情藥', '墮胎藥', '安眠藥', '避孕藥', '酸痛貼布', '痠痛貼布',
+
+                    // 2. 醫療器材
+                    '保險套', '隱形眼鏡', '美瞳', '驗孕', '排卵試紙', '快篩', '血壓計', '血糖機', 
+                    '耳溫槍', '額溫槍', '體溫計', '衛生棉條', '月亮杯', '隱形眼鏡盒', '生理食鹽水',
+                    '醫療口罩', '醫用口罩',
+
+                    // 3. 環境與動物用藥
+                    '防蚊液', '防蚊噴霧', '防蚊貼', '防蚊掛片', '防蚊扣', '殺蟲劑', '除蚤', '滅鼠', 
+                    '心絲蟲', '螞蟻藥', '蟑螂藥', '老鼠藥', '農藥', '動物用藥',
+
+                    // 4. 菸酒類
+                    '電子煙', '電子菸', '香菸', '菸草', '雪茄', '菸彈', '煙彈', '加熱菸', '水煙',
+                    '啤酒', '威士忌', '高粱', '伏特加', '紅酒', '白酒', '葡萄酒', '烈酒', '香檳',
+
+                    // 5. 武器與管制刀具
+                    '手指虎', '彈簧刀', '蝴蝶刀', '警棍', '甩棍', '手銬', '十字弓', '鎮暴槍', '信號槍',
+
+                    // 6. 毒品與妨害風化
+                    '春藥', '迷姦', '乖乖水', '聽話水', '原味內衣', '原味內褲', '原味絲襪', 
+                    '安非他命', '海洛因', '大麻花', '大麻葉', '大麻煙', 'K他命',
+
+                    // 7. 仿冒品與其他違禁品
+                    '高仿', 'A貨', '1:1訂製', '1:1復刻', '破解版', '遊戲外掛', '盜版', 
+                    '活體動物', '活體寵物', '象牙', '犀牛角', '玳瑁', '彩券', '刮刮樂', '代開發票', '帳戶買賣'
+                ];
+                
+                // 執行過濾
+                allProducts = rawData.filter(p => {
+                    const pName = String(p.name || '');
+                    const pTag = String(p.tag || '');
+                    
+                    const hasExcludedKeyword = excludeKeywords.some(keyword => 
+                        pName.includes(keyword) || pTag.includes(keyword)
+                    );
+                    
+                    return !hasExcludedKeyword; 
+                });
+
                 filteredProducts = allProducts; 
                 
                 populateTimeOptions();
