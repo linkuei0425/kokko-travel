@@ -297,7 +297,158 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-</head><body class="text-gray-800">
+</head>
+<body class="text-gray-800">
+    <!-- 15秒強制倒數或點擊廣告進入之半透明蓋版廣告 (背景半透明可隱約看見主頁) -->
+    <div id="entry-gate-modal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity duration-300">
+        <div class="relative w-full max-w-lg rounded-3xl bg-white/95 backdrop-blur-md p-6 md:p-8 shadow-2xl text-center transform scale-100 transition-transform max-h-[90vh] overflow-y-auto border border-white/20">
+            <!-- 關閉 / 略過按鈕 (15秒未到前先禁用) -->
+            <button id="close-gate-btn" class="absolute right-5 top-5 text-gray-300 cursor-not-allowed text-xl font-bold p-1" disabled>
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="mb-5">
+                <span class="bg-teal-100 text-teal-800 text-xs font-bold px-3.5 py-1.5 rounded-full">✨ 曼谷自由行風格裝備與通訊推薦</span>
+                <h3 class="text-xl md:text-2xl font-extrabold text-gray-900 mt-3">探索曼谷美食必備好物</h3>
+                <p class="text-xs md:text-sm text-gray-600 mt-2">點擊後直接進入美食導航或請耐心等待15秒進入：</p>
+            </div>
+
+            <!-- 5個廣告推薦清單 -->
+            <div class="space-y-3 mb-6 text-left">
+                <!-- 1. 網卡 -->
+                <a href="https://s.shopee.tw/906HGV4hUG" target="_blank" rel="noopener noreferrer" class="ad-item-link block bg-white border border-slate-200 p-3.5 rounded-2xl hover:border-teal-400 hover:bg-teal-50/50 transition-all group shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-teal-500 text-white rounded-xl flex items-center justify-center text-lg font-bold shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+                            <i class="fa-solid fa-sim-card"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-gray-800 text-sm group-hover:text-teal-700 transition-colors">泰國上網卡</h4>
+                            <p class="text-[11px] text-gray-500">隨插即用，輕鬆查詢巷弄美食與餐廳導航</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-gray-400 group-hover:text-teal-600"></i>
+                    </div>
+                </a>
+
+                <!-- 2. ESIM -->
+                <a href="https://s.shopee.tw/5q9FUjndq5" target="_blank" rel="noopener noreferrer" class="ad-item-link block bg-white border border-slate-200 p-3.5 rounded-2xl hover:border-teal-400 hover:bg-teal-50/50 transition-all group shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-sky-500 text-white rounded-xl flex items-center justify-center text-lg font-bold shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+                            <i class="fa-solid fa-wifi"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-gray-800 text-sm group-hover:text-teal-700 transition-colors">高速 eSIM</h4>
+                            <p class="text-[11px] text-gray-500">免換卡即開即用，暢遊曼谷不斷線</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-gray-400 group-hover:text-teal-600"></i>
+                    </div>
+                </a>
+
+                <!-- 3. PHILIPS 行動電源 -->
+                <a href="https://s.shopee.tw/113zk5RsvY" target="_blank" rel="noopener noreferrer" class="ad-item-link block bg-white border border-slate-200 p-3.5 rounded-2xl hover:border-teal-400 hover:bg-teal-50/50 transition-all group shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-amber-500 text-white rounded-xl flex items-center justify-center text-lg font-bold shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+                            <i class="fa-solid fa-battery-full"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-gray-800 text-sm group-hover:text-teal-700 transition-colors">PHILIPS 45W 磁吸行動電源</h4>
+                            <p class="text-[11px] text-gray-500">15000mAh 大容量，拍照拍美食不斷電</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-gray-400 group-hover:text-teal-600"></i>
+                    </div>
+                </a>
+
+                <!-- 4. Apple AirTag 2 -->
+                <a href="https://s.shopee.tw/2gCDjHmYYF" target="_blank" rel="noopener noreferrer" class="ad-item-link block bg-white border border-slate-200 p-3.5 rounded-2xl hover:border-teal-400 hover:bg-teal-50/50 transition-all group shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-indigo-500 text-white rounded-xl flex items-center justify-center text-lg font-bold shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-gray-800 text-sm group-hover:text-teal-700 transition-colors">Apple AirTag 2</h4>
+                            <p class="text-[11px] text-gray-500">行李與隨身物品防丟追蹤，安心出國</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-gray-400 group-hover:text-teal-600"></i>
+                    </div>
+                </a>
+
+                <!-- 5. Bogazy 行李箱 -->
+                <a href="https://s.shopee.tw/3LRuWqsrM5" target="_blank" rel="noopener noreferrer" class="ad-item-link block bg-white border border-slate-200 p-3.5 rounded-2xl hover:border-teal-400 hover:bg-teal-50/50 transition-all group shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-purple-500 text-white rounded-xl flex items-center justify-center text-lg font-bold shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+                            <i class="fa-solid fa-suitcase-rolling"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-gray-800 text-sm group-hover:text-teal-700 transition-colors">Bogazy 行李箱</h4>
+                            <p class="text-[11px] text-gray-500">堅固耐用大容量，裝滿曼谷伴手禮與戰利品</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-gray-400 group-hover:text-teal-600"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 進入網站按鈕 (15秒倒數中) -->
+            <button id="enter-site-btn" class="w-full bg-gray-200 text-gray-400 font-bold py-3.5 rounded-2xl transition-colors text-base cursor-not-allowed shadow-sm" disabled>
+                請等待 15 秒後可進入 (15s)
+            </button>
+        </div>
+    </div>
+
+    <!-- 獨立出來的廣告控制腳本：完全隔離，確保 15 秒倒數與點擊關閉必定生效 -->
+    <script>
+        (function() {
+            function runAdGate() {
+                const modal = document.getElementById('entry-gate-modal');
+                const closeBtn = document.getElementById('close-gate-btn');
+                const enterBtn = document.getElementById('enter-site-btn');
+                const adLinks = document.querySelectorAll('.ad-item-link');
+
+                if (!modal || !enterBtn) return;
+
+                let secondsLeft = 15;
+                enterBtn.innerText = `請等待 ${secondsLeft} 秒後可進入 (${secondsLeft}s)`;
+
+                const countdownTimer = setInterval(() => {
+                    secondsLeft--;
+                    if (secondsLeft > 0) {
+                        enterBtn.innerText = `請等待 ${secondsLeft} 秒後可進入 (${secondsLeft}s)`;
+                    } else {
+                        clearInterval(countdownTimer);
+                        enterBtn.disabled = false;
+                        enterBtn.classList.remove('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                        enterBtn.classList.add('bg-teal-600', 'hover:bg-teal-700', 'text-white', 'shadow-md');
+                        enterBtn.innerText = "進入曼谷美食導航";
+
+                        if (closeBtn) {
+                            closeBtn.disabled = false;
+                            closeBtn.classList.remove('text-gray-300', 'cursor-not-allowed');
+                            closeBtn.classList.add('text-gray-400', 'hover:text-gray-700');
+                        }
+                    }
+                }, 1000);
+
+                const hideModal = () => {
+                    if (enterBtn.disabled) return;
+                    modal.style.display = 'none';
+                };
+
+                if (closeBtn) closeBtn.addEventListener('click', hideModal);
+                if (enterBtn) enterBtn.addEventListener('click', hideModal);
+
+                // 點擊任一商品卡片直接隱藏廣告
+                adLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                    });
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', runAdGate);
+            } else {
+                runAdGate();
+            }
+        })();
+    </script>
 
     <header class="bg-teal-600 text-white sticky top-0 z-50 shadow-md">
         <div class="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -309,6 +460,9 @@
             </a>
         </div>
     </header>
+
+
+    
 
     <main class="container mx-auto px-4 py-6 md:py-10 max-w-7xl">
         <section class="mb-6 md:mb-8">
