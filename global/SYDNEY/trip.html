@@ -3,155 +3,848 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雪梨旅遊行程指南 | Trip Guide</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- SEO & GEO 結構化資料 -->
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "雪梨 Trip Guide",
-  "description": "精選 雪梨 必訪的 trip 推薦清單與詳細交通指南。",
-  "publisher": {
-    "@type": "Organization",
-    "name": "Global Travel Pass"
-  }
-}
-</script>
+    <title>雪梨 旅遊指南</title>
     <style>
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        :root { --primary-color: #3b82f6; --bg-color: #f7f9fa; --text-color: #333; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; line-height: 1.6; scroll-behavior: smooth; }
+        header { background: var(--primary-color); color: white; padding: 2rem 1rem; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 2rem; }
+        .header-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
+        .btn-top { background: white; color: var(--primary-color); text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .btn-top:hover { background: #eff6ff; }
+        .nav-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 1.5rem; }
+        .nav-btn { background: white; color: var(--primary-color); border: none; padding: 0.6rem 1.2rem; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .nav-btn:hover, .nav-btn.active { background: #eff6ff; color: #1d4ed8; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .category-section { margin-bottom: 3rem; display: none; }
+        .category-section.active { display: block; }
+        .category-title { border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .card-tag { display: inline-block; background: #eff6ff; color: var(--primary-color); font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.8rem; width: fit-content; }
+        .card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 0.5rem 0; line-height:1.4; }
+        .card-desc { font-size: 0.95rem; color: #555; flex-grow: 1; margin-bottom: 1rem; }
+        .card-link { display: block; text-align: center; background: var(--primary-color); color: white; text-decoration: none; padding: 0.6rem; border-radius: 4px; font-weight: bold; margin-top: auto; }
+        .card-link:hover { background: #2563eb; }
     </style>
 </head>
-<body class="bg-slate-50">
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState } = React;
-
-        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
-        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
-        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
-        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
-        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
-        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
-        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
-        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
-
-        const CATEGORIES = [
-            { id: '景點門票', icon: Ticket },
-            { id: '一日遊', icon: Sun },
-            { id: '交通與網卡', icon: TrainFront }
-        ];
-
-        const itineraryData = {"comparison_table": [{"key_features": "\u9069\u7528\u96ea\u68a8\u6240\u6709\u706b\u8eca\u3001\u5730\u9435\u3001\u8f15\u8ecc\u3001\u516c\u8eca\u53ca\u5b98\u65b9\u6e21\u8f2a\u3002\u4eab\u5c16\u5cf0/\u96e2\u5cf0\u6298\u6263\u3001\u8f49\u4e58\u6298 AUD 2\u3001\u4e00\u9031\u642d\u6eff 8 \u6b21\u5f8c\u4eab\u534a\u50f9\u7b49\u512a\u60e0\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%9B%AA%E6%A2%A8%20", "name": "Opal Card \u6fb3\u5bf6\u5361 / \u4fe1\u7528\u5361\u611f\u61c9\u652f\u4ed8 (Contactless)", "price_range": "\u4f9d\u91cc\u7a0b\u8a08\u8cbb\uff08\u8a2d\u6709\u6bcf\u65e5 AUD 18.70 / \u6bcf\u9031 AUD 50 \u4e0a\u9650\uff0c\u9031\u4e94\u81f3\u9031\u65e5\u53ca\u5047\u65e5\u6bcf\u65e5\u4e0a\u9650 AUD 9.35\uff09", "target": "\u6240\u6709\u81ea\u7531\u884c\u65c5\u5ba2\u3001\u65e5\u5e38\u901a\u52e4\u8207\u77ed\u671f\u89c0\u5149\u8005", "type": "\u7d14\u4ea4\u901a"}, {"key_features": "\u6307\u5b9a\u5929\u6578\u5167\u7121\u9650\u6b21\u9032\u5165\u8d85\u904e 30 \u500b\u96ea\u68a8\u71b1\u9580\u666f\u9ede\u8207\u9ad4\u9a57\uff0c\u5305\u542b\u96ea\u68a8\u5854\u773c\u3001\u96ea\u68a8\u6b4c\u5287\u9662\u5c0e\u89bd\u3001\u5854\u9f8d\u52a0\u52d5\u7269\u5712\u3001Hop-on Hop-off \u89c0\u5149\u5df4\u58eb\u53ca\u6e21\u8f2a\u7b49\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%9B%AA%E6%A2%A8%20", "name": "Go City - \u96ea\u68a8\u5168\u5305\u5f0f\u666f\u9ede\u901a\u7968 (Sydney All-Inclusive Pass)", "price_range": "\u7d04 AUD 139 - 289 (\u8996 1 \u81f3 5 \u5929\u671f\u800c\u5b9a)", "target": "\u6253\u7b97\u5bc6\u96c6\u9020\u8a2a\u591a\u500b\u6536\u8cbb\u666f\u9ede\u7684\u9ad8\u5f37\u5ea6\u89c0\u5149\u5ba2", "type": "\u666f\u9ede\u5957\u7968"}, {"key_features": "\u53ef\u5f9e 30+ \u500b\u71b1\u9580\u666f\u9ede\u4e2d\u4efb\u9078 2\u30013\u30014\u30015 \u6216 7 \u500b\u666f\u9ede\uff0c\u958b\u5361\u5f8c 60 \u5929\u5167\u6709\u6548\uff0c\u6642\u9593\u5f48\u6027\u9ad8\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%9B%AA%E6%A2%A8%20", "name": "Go City - \u96ea\u68a8\u81ea\u9078\u666f\u9ede\u901a\u7968 (Sydney Explorer Pass)", "price_range": "\u7d04 AUD 89 - 219 (\u4f9d\u9078\u64c7\u666f\u9ede\u6578\u91cf\u800c\u5b9a)", "target": "\u884c\u7a0b\u8f03\u9b06\u6563\u3001\u60f3\u81ea\u9078 2 \u81f3 7 \u500b\u7cbe\u83ef\u666f\u9ede\u7684\u65c5\u5ba2", "type": "\u666f\u9ede\u5957\u7968"}, {"key_features": "\u5305\u542b\u96ea\u68a8\u5e02\u5340\u7d05\u7dda\u8207\u90a6\u4ee3\u6d77\u7058\u85cd\u7dda\u5169\u689d\u8def\u7dda\uff0c\u884c\u7d93\u6b4c\u5287\u9662\u3001\u6e2f\u7063\u5927\u6a4b\u3001\u9054\u4ee4\u6e2f\u3001\u90a6\u4ee3\u6d77\u7058\u7b49\u91cd\u9ede\u5730\u6a19\uff0c\u96a8\u4e0a\u96a8\u4e0b\u4e26\u9644\u8a9e\u97f3\u5c0e\u89bd\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%9B%AA%E6%A2%A8%20", "name": "Big Bus \u96ea\u68a8\u96a8\u4e0a\u96a8\u4e0b\u89c0\u5149\u5df4\u58eb\u7968 (Hop-On Hop-Off Bus)", "price_range": "\u7d04 AUD 61 - 85 (1 \u65e5\u6216 2 \u65e5\u7968)", "target": "\u7b2c\u4e00\u6b21\u5230\u96ea\u68a8\u3001\u4e0d\u719f\u6089\u8def\u7dda\u6216\u60f3\u8f15\u9b06\u904a\u89bd\u7d93\u5178\u5730\u6a19\u8005", "type": "\u89c0\u5149\u5df4\u58eb+\u4ea4\u901a"}], "cp_tips": "\u30101 \u65e5\u5feb\u9583/\u77ed\u9014\u904a\u3011\uff1a\u5efa\u8b70\u76f4\u63a5\u4f7f\u7528\u611f\u61c9\u5f0f\u4fe1\u7528\u5361\uff08Visa/Mastercard\uff09\u5237\u9032\u5237\u51fa\u642d\u4e58\u5927\u773e\u904b\u8f38\u3002\u4e00\u65e5\u5167\u5237\u6eff\u4e0a\u9650\uff08\u5e73\u65e5 AUD 18.70\u3001\u9031\u672b AUD 9.35\uff09\u5f8c\u96a8\u4fbf\u642d\u90fd\u514d\u8cbb\u3002\n\u30103-4 \u5929\u7d93\u5178\u904a\u3011\uff1a\u5927\u773e\u904b\u8f38\u5584\u7528\u300c\u9031\u4e94\u81f3\u9031\u65e5\u6bcf\u65e5\u8eca\u8cc7\u4e0a\u9650 AUD 9.35\u300d\u4ee5\u53ca\u300c\u96e2\u5cf0\u6642\u9593 30% \u6298\u6263\u300d\u3002\u666f\u9ede\u65b9\u9762\u8cfc\u8cb7 Go City \u81ea\u9078 3 \u6216 4 \u666f\u9ede\u901a\u7968\uff08\u642d\u914d\u96ea\u68a8\u6b4c\u5287\u9662\u5c0e\u89bd\u3001\u6500\u767b\u6e2f\u7063\u5927\u6a4b\u9ad4\u9a57\u6216\u52d5\u7269\u5712\uff09\uff0c\u7701\u4e0b\u7d04 30-40% \u9580\u7968\u958b\u92b7\u3002\n\u30105 \u5929\u4ee5\u4e0a\u6df1\u5ea6\u904a\u3011\uff1a\u5229\u7528\u6bcf\u9031\u5927\u773e\u904b\u8f38\u4e0a\u9650 AUD 50 \u7684\u6a5f\u5236\uff0c\u524d\u5f80\u85cd\u5c71\uff08Blue Mountains\uff09\u3001\u66fc\u5229\u6d77\u7058\uff08Manly\uff09\u8207\u4e2d\u592e\u6d77\u5cb8\u5747\u9069\u7528\u3002\u6a5f\u5834\u5f80\u8fd4\u82e5\u60f3\u7701\u9322\uff0c\u53ef\u5229\u7528\u300c420 \u865f\u516c\u8eca\u8f49\u4e58\u706b\u8eca\u300d\u5bc6\u6280\uff0c\u907f\u958b\u9ad8\u984d\u6a5f\u5834\u8eca\u7ad9\u901a\u884c\u8cbb\uff08Station Access Fee\uff09\u3002", "faqs": [{"answer": "\u4e0d\u9700\u8981\uff01\u76f4\u63a5\u4f7f\u7528\u5e36\u6709\u6676\u7247\u611f\u61c9\u529f\u80fd\u7684\u4fe1\u7528\u5361\uff08Visa/Mastercard/Amex\uff09\u6216\u667a\u6167\u578b\u624b\u6a5f/\u624b\u9336\uff08Apple Pay/Google Pay\uff09\u5237\u9032\u5237\u51fa\u5373\u53ef\u3002\u611f\u61c9\u652f\u4ed8\u8207 Opal \u5361\u4eab\u6709\u5b8c\u5168\u76f8\u540c\u7684\u7968\u50f9\u6298\u6263\u8207\u6bcf\u65e5/\u6bcf\u9031\u6263\u6b3e\u4e0a\u9650\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%9B%AA%E6%A2%A8%20", "question": "\u5728\u96ea\u68a8\u642d\u5927\u773e\u904b\u8f38\u4e00\u5b9a\u8981\u8cb7 Opal \u5be6\u9ad4\u5361\u55ce\uff1f"}, {"answer": "\u56e0\u70ba\u96ea\u68a8\u570b\u969b\u6a5f\u5834\u8207\u570b\u5167\u6a5f\u5834\u7ad9\u5c6c\u65bc\u79c1\u71df\u8eca\u7ad9\uff0c\u6703\u984d\u5916\u6536\u53d6\u300c\u8eca\u7ad9\u901a\u884c\u8cbb\uff08Station Access Fee\uff0c\u7d04 AUD 17.34\uff09\u300d\u3002\u82e5\u60f3\u7701\u9322\uff0c\u53ef\u5f9e\u6a5f\u5834\u642d\u4e58 420 \u865f\u516c\u8eca\u81f3 Mascot \u7ad9\u6216 Burwood \u7ad9\uff0c\u518d\u8f49\u4e58\u706b\u8eca\u9032\u5e02\u5340\uff0c\u5373\u53ef\u514d\u53bb\u9ad8\u984d\u901a\u884c\u8cbb\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%9B%AA%E6%A2%A8%20", "question": "\u642d\u4e58\u6a5f\u5834\u706b\u8eca\uff08Airport Link\uff09\u9032\u5e02\u5340\u70ba\u4ec0\u9ebc\u7279\u5225\u8cb4\uff1f\u5982\u4f55\u7701\u9322\uff1f"}, {"answer": "\u96ea\u68a8\u5df2\u5168\u9762\u53d6\u6d88\u5be6\u9ad4\u7684\u7d19\u672c\u4e00\u65e5\u5238\u6216\u591a\u65e5\u5238\uff0c\u53d6\u800c\u4ee3\u4e4b\u7684\u662f\u300c\u81ea\u52d5\u8eca\u8cc7\u4e0a\u9650\u6a5f\u5236\u300d\u3002\u53ea\u8981\u4f7f\u7528 Opal \u5361\u6216\u4fe1\u7528\u5361\u611f\u61c9\u652f\u4ed8\uff0c\u7cfb\u7d71\u6bcf\u65e5/\u6bcf\u9031\u6703\u81ea\u52d5\u5728\u6263\u5230\u4e0a\u9650\u91d1\u984d\uff08\u5e73\u65e5\u6bcf\u5929 AUD 18.70\u3001\u5047\u65e5\u6bcf\u5929 AUD 9.35\u3001\u6bcf\u9031\u4e0a\u9650 AUD 50\uff09\u5f8c\u505c\u6b62\u6263\u6b3e\uff0c\u6548\u679c\u8207\u4e00\u65e5\u5238/\u9031\u5238\u5b8c\u5168\u4e00\u6a23\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%9B%AA%E6%A2%A8%20", "question": "\u96ea\u68a8\u5927\u773e\u904b\u8f38\u6709\u8ce3\u5be6\u9ad4\u7684\u300c\u4e00\u65e5\u5238\u300d\u6216\u300c\u4e09\u65e5\u5238\u300d\u55ce\uff1f"}, {"answer": "\u662f\u7684\uff0c\u96ea\u68a8\u6240\u6709\u516c\u8eca\uff08Bus\uff09\u3001\u706b\u8eca\uff08Train\uff09\u3001\u5730\u9435\uff08Metro\uff09\u3001\u8f15\u8ecc\uff08Light Rail\uff09\u8207\u6e21\u8f2a\uff08Ferry\uff09\u90fd\u300c\u5fc5\u9808\u4e0a\u8eca\u5237\u5361\uff08Tap On\uff09\u3001\u4e0b\u8eca\u5237\u5361\uff08Tap Off\uff09\u300d\uff0c\u5426\u5247\u7cfb\u7d71\u6703\u4f9d\u64da\u8a72\u8def\u7dda\u7684\u6700\u5927\u91cc\u7a0b\u6263\u53d6\u6700\u9ad8\u984d\u8eca\u8cc7\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%9B%AA%E6%A2%A8%20", "question": "\u642d\u4e58\u96ea\u68a8\u7684\u516c\u8eca\u9700\u8981\u4e0a\u4e0b\u8eca\u90fd\u5237\u5361\u55ce\uff1f"}], "title": "\u96ea\u68a8\u4ea4\u901a\u7968\u5238\u8207\u666f\u9ede\u5957\u7968\u7e3d\u89bd"};
-        const REGIONS = Object.keys(itineraryData);
-
-        function App() {
-            const [selectedRegion, setSelectedRegion] = useState(REGIONS[0] || '沖繩本島');
-            const availableCats = Object.keys(itineraryData[selectedRegion] || {});
-            const [selectedCategory, setSelectedCategory] = useState(availableCats[0] || '景點門票');
-
-            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
-
-            return (
-                <div className="min-h-screen font-sans text-slate-800 flex flex-col">
-                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-slate-200">
-                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="text-blue-600 w-6 h-6 md:w-8 md:h-8" />
-                                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-400">
-                                    雪梨必玩行程與票券
-                                    </h1>
-                                </div>
-                                <div className="hidden md:block">
-                                    <a href="index.html" className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm lg:text-base font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-transform active:scale-95">
-                                        <Home className="w-4 h-4" /> 回到首頁
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide items-center">
-                                <a href="index.html" className="md:hidden flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-sm shrink-0">
-                                    <Home className="w-4 h-4" /> 首頁
-                                </a>
-                                {REGIONS.map((region) => (
-                                    <button
-                                        key={region}
-                                        onClick={() => {
-                                            setSelectedRegion(region);
-                                            const newCats = Object.keys(itineraryData[region] || {});
-                                            setSelectedCategory(newCats[0]);
-                                        }}
-                                        className={`whitespace-nowrap px-5 py-2 md:py-2.5 rounded-full text-sm md:text-base font-medium transition-all ${
-                                            selectedRegion === region ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                                        }`}
-                                    >
-                                        {region}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </header>
-
-                    <main className="max-w-7xl mx-auto px-4 py-8 md:py-10 flex-grow w-full">
-                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
-                            {availableCats.map((catId) => {
-                                const foundCat = CATEGORIES.find(c => c.id === catId) || { icon: Ticket };
-                                const IconComp = foundCat.icon;
-                                return (
-                                    <button
-                                        key={catId}
-                                        onClick={() => setSelectedCategory(catId)}
-                                        className={`flex items-center gap-2 px-5 py-2 md:py-2.5 rounded-lg border text-sm md:text-base font-medium transition-all ${
-                                            selectedCategory === catId ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
-                                        }`}
-                                    >
-                                        <IconComp className="w-4 h-4 md:w-5 md:h-5" />
-                                        {catId}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {currentData.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                                {currentData.map((item, index) => (
-                                    <div key={index} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col justify-between hover:shadow-xl transition-all transform hover:-translate-y-1">
-                                        <div>
-                                            <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 leading-tight">{item.title}</h3>
-                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">{item.description}</p>
-                                        </div>
-                                        <div className="mt-auto pt-5 border-t border-slate-100 flex justify-end">
-                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm w-full">
-                                                <Info className="w-4 h-4 md:w-5 md:h-5" />
-                                                <span className="md:text-lg">查看詳情與預訂</span>
-                                                <ExternalLink className="w-4 h-4 md:w-5 md:h-5 ml-1 opacity-70" />
-                                            </a>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-16 text-center flex flex-col items-center justify-center">
-                                <Sparkles className="w-10 h-10 text-slate-400 mb-3" />
-                                <h3 className="text-lg md:text-xl font-medium text-slate-700">目前尚無資料</h3>
-                            </div>
-                        )}
-                    </main>
-                </div>
-            );
+<body>
+    <header>
+        <div class="header-actions">
+            <a href="index.html" class="btn-top">🏠 回到首頁</a>
+            
+        </div>
+        <h1>雪梨 自由行導覽</h1>
+        <div class="nav-buttons" id="navButtons">
+            <button class="nav-btn active" onclick="showCategory('all')">全部</button>
+            <button class="nav-btn" onclick="showCategory('cat_0')">交通與通訊</button><button class="nav-btn" onclick="showCategory('cat_1')">景點與門票</button><button class="nav-btn" onclick="showCategory('cat_2')">觀光行程</button><button class="nav-btn" onclick="showCategory('cat_3')">美食與餐飲</button><button class="nav-btn" onclick="showCategory('cat_5')">特色體驗與活動</button>
+        </div>
+    </header>
+    <div class="container">
+        <section class="category-section active" id="cat_0"><h2 class="category-title">交通與通訊</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">WiFi 分享器＆上網 SIM 卡</span>
+                    <h3 class="card-title">澳洲 5G eSIM | 吃到飽、不穩就退 | Optus</h3>
+                    <p class="card-desc">無縫連線澳洲頂級電信網路。<br>採用 Optus 網路架構，提供高速穩定 5G 數據流量，無需更換實體卡，開卡即可享有順暢上網體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/109206-australia-esim-high-speed-internet-qr-code-voucher/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">WiFi 分享器＆上網 SIM 卡</span>
+                    <h3 class="card-title">澳洲與紐西蘭 5G eSIM</h3>
+                    <p class="card-desc">跨越大洋洲兩國的極速網路夥伴。<br>一張 eSIM 方案即可在澳洲與紐西蘭享有高速 5G 連線，適合跨國旅行者靈活使用。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/161349-5g-australia-and-new-zealand-unlimited-data-esim-optus-spark/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場包車接送</span>
+                    <h3 class="card-title">Bayside｜雪梨機場包車接送</h3>
+                    <p class="card-desc">享受專屬尊榮的雪梨機場專車服務。<br>由專業司機提供雪梨機場與目的地之間的定點接送，確保行車過程舒適、安全且極具效率。</p>
+                    <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=SYD&aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場鐵路＆巴士</span>
+                    <h3 class="card-title">共乘機場接送 雪梨機場（SYD）- 雪梨碼頭／市區／機場飯店</h3>
+                    <p class="card-desc">靈活實用的雪梨機場共乘接駁選擇。<br>串聯雪梨機場、市區飯店及郵輪碼頭，提供經濟且高效率的定點接送服務。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/69210-shared-sydney-airport-one-way-transfer/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場鐵路＆巴士</span>
+                    <h3 class="card-title">機場共乘接送 雪梨機場（SYD）送機接駁服務</h3>
+                    <p class="card-desc">準時且放心的雪梨送機接駁解決方案。<br>提供市區至雪梨機場的專業共乘接送服務，讓您的離境行程規劃更為從容平穩。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/71671-shared-sydney-airport-one-way-transfer/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">隨上隨下觀光巴士</span>
+                    <h3 class="card-title">雪梨 Big Bus 隨上隨下觀光巴士之旅（敞篷）</h3>
+                    <p class="card-desc">以全新視野全景俯瞰雪梨城市風貌。<br>搭乘經典雙層敞篷巴士，自由隨上隨下探訪雪梨歌劇院與雪梨港灣大橋等經典地標。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/87168-sydney-big-bus-hop-on-hop-off-tour-pass-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場鐵路＆巴士</span>
+                    <h3 class="card-title">雪梨機場（SYD）往雪梨共乘機場接送</h3>
+                    <p class="card-desc">抵達雪梨後的順暢接駁第一站。<br>專為抵達旅客設計的機場共乘服務，直達雪梨市區指定地點，輕鬆展開澳洲之旅。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/11160-shared-airport-transfer-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">旅遊服務</span>
+                    <h3 class="card-title">雪梨機場（SYD）貴賓室服務（Plaza Premium Lounge 提供）</h3>
+                    <p class="card-desc">尊享登機前靜謐舒適的休閒時光。<br>位於雪梨機場的環亞貴賓室提供精緻餐飲、高速 Wi-Fi 與舒適休憩區域，打造優質候機體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/5309-airport-skyteam-exclusive-lounge-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場鐵路＆巴士</span>
+                    <h3 class="card-title">共乘機場接送 悉尼機場（SYD）至悉尼市區</h3>
+                    <p class="card-desc">便捷直達雪梨市中心的接送服務。<br>提供雪梨機場至市中心區域的優質共乘接駁，協助您無縫銜接市區行程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/75290-shared-sydney-airport-transfer-syd-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">旅遊服務</span>
+                    <h3 class="card-title">澳洲電子簽證服務</h3>
+                    <p class="card-desc">省時省力的澳洲入境簽證申請支援。<br>協助辦理澳洲電子旅遊簽證 (ETA)，流程清晰專業，讓您的澳洲之旅啟程更為順暢。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/238101-australia-e-visa-service/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場包車接送</span>
+                    <h3 class="card-title">Canterbury-Bankstown｜悉尼班克斯機場包車接送</h3>
+                    <p class="card-desc">開啟順暢的雪梨之旅。提供 Canterbury-Bankstown 地區與班克斯鎮機場之間的專車接送，輕鬆無憂抵達目的地。</p>
+                    <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=BWU&aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場包車接送</span>
+                    <h3 class="card-title">雪梨｜西悉尼機場包車接送</h3>
+                    <p class="card-desc">享受極致舒適的乘車體驗。專為西雪梨機場打造的包車接送服務，免去繁瑣交通，隨心規劃個人行程。</p>
+                    <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=WSI&aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">nan</span>
+                    <h3 class="card-title">巴黎市區觀光、塞納河遊船及在艾菲爾鐵塔享用午餐</h3>
+                    <p class="card-desc">沉浸於花都的浪漫風情。一次涵蓋巴黎市區導覽、塞納河愜意遊船，並於艾菲爾鐵塔內享用精緻午餐。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/11179-paris-tour-seine-cruise-lunch-eiffel-tower/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_1"><h2 class="category-title">景點與門票</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">雪梨景點通票</h3>
+                    <p class="card-desc">彈性探索雪梨熱門景點。憑此通票即可任選多個代表性地標，隨心安排專屬於您的澳洲城市漫遊。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/2186-attractions-combination-ticket-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">動物園＆水族館</span>
+                    <h3 class="card-title">雪梨塔龍加動物園門票</h3>
+                    <p class="card-desc">一覽海港美景與野生動物。走訪雪梨著名的塔龍加動物園，近距離觀察無尾熊、袋鼠等豐富物種。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/1784-taronga-zoo-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">動物園＆水族館</span>
+                    <h3 class="card-title">雪梨費瑟戴爾野生動物園門票</h3>
+                    <p class="card-desc">走進澳洲原生動物的自然家園。費瑟戴爾野生動物園擁有豐富的本土物種，帶來親近自然生態的絕佳體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/12089-featherdale-wildlife-park-entry-ticket-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">動物園＆水族館</span>
+                    <h3 class="card-title">雪梨 SEA LIFE 水族館門票</h3>
+                    <p class="card-desc">探索神秘的蔚藍海底世界。雪梨 SEA LIFE 水族館展出上萬隻海洋生物，帶您深入豐富的生態展區。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/1779-sea-life-aquarium-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">澳大利亞國家海事博物館門票</h3>
+                    <p class="card-desc">揭開澳大利亞豐富的海事歷史。走訪國家海事博物館，欣賞經典艦艇展覽與珍貴的大航海時代文物。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/7469-australian-national-maritime-museum-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">動物園＆水族館</span>
+                    <h3 class="card-title">悉尼動物園門票</h3>
+                    <p class="card-desc">體驗現代化的生態園區設計。悉尼動物園匯聚來自全球與澳洲當地的珍稀動物，適合全家一同走訪。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/37263-sydney-zoo-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">動物園＆水族館</span>
+                    <h3 class="card-title">雪梨塔龍加動物園套票（渡輪船票＆動物園門票）</h3>
+                    <p class="card-desc">結合航程與生態探索的完美組合。搭乘渡輪穿梭雪梨港，直達塔龍加動物園展開一日豐富旅程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/11900-taronga-zoo-express-ferry-captain-cook-round-trip-ticket-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊樂場</span>
+                    <h3 class="card-title">雪梨 Digipark 門票</h3>
+                    <p class="card-desc">感受數位科技與互動藝術的魅力。雪梨 Digipark 提供前衛的科技體驗展區，激發無限想像空間。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/207991-digipark-sydney-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">動物園＆水族館</span>
+                    <h3 class="card-title">雪梨野生動物園門票</h3>
+                    <p class="card-desc">位於市中心的野生動物探索之旅。不用遠行即可在雪梨野生動物園近距離觀賞澳洲著名的五大特色動物。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/1780-wild-life-zoo-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀景台</span>
+                    <h3 class="card-title">雪梨塔門票</h3>
+                    <p class="card-desc">登高俯瞰全城市景與天際線。登上雪梨塔觀景台，以 360 度無死角視野欣賞壯麗的城市美景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/1781-tower-eye-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">Klook 雪梨景點通票</h3>
+                    <p class="card-desc">輕鬆規劃個人化雪梨自由行。憑此景點通票可自由挑選多個雪梨熱門標誌性地標與體驗活動。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/67828-klook-pass-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">雪梨港跨海大橋博物館門票</h3>
+                    <p class="card-desc">重溫地標建築的歷史風華。登上雪梨港灣大橋橋墩觀景台，俯瞰港灣風光並深入瞭解大橋興建歷程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/222852-bridgemuseum-ticket-in-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">雪梨杜莎夫人蠟像館門票</h3>
+                    <p class="card-desc">與全球名人巨星來一場近距離接觸。雪梨杜莎夫人蠟像館設有多個主題展區，重現極具巧思的擬真蠟像。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/1785-madame-tussauds-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">新南威爾士州美術館展覽</h3>
+                    <p class="card-desc">品味高雅的藝術饗宴。新南威爾士州美術館展出許多經典與當代藝術作品，展現豐沛的文化底蘊。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/144915-exhibitions-at-the-art-gallery-of-new-south-wales/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">動物園＆水族館</span>
+                    <h3 class="card-title">塔龍加動物園（Taronga Zoo）& 悉尼港渡輪票</h3>
+                    <p class="card-desc">一次滿足海港觀光與動物園遊覽。搭乘雪梨港渡輪欣賞海岸線，並順道造訪盛名的塔龍加動物園。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/75931-taronga-zoo-sydney-harbour-hopper-admission/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">Klook澳大利亞之旅通票</h3>
+                    <p class="card-desc">暢遊澳洲各大熱門城市的絕佳選擇。憑此通票可彈性走訪跨區域的多個精選景點與多元活動。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/90463-klook-pass-tours-australia/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">紳士魔術秀（The Gentleman Magician’s Magical Soirée）（含開胃菜＆香檳）</h3>
+                    <p class="card-desc">享受一場優雅別緻的夜間魔術晚宴。精緻開胃菜與香檳交織，搭配充滿驚喜與威尼斯風格的精采魔術表演。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/51356-gentleman-magicians-magical-soiree-canapes-champagne/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_2"><h2 class="category-title">觀光行程</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">澳洲雪梨藍山一日遊 （含中文導遊）</h3>
+                    <p class="card-desc">無障礙溝通，深度體驗壯麗藍山風光。<br>專業中文導遊隨行解說，帶您走訪三姐妹岩與壯麗峽谷，享受輕鬆知性的自然之旅。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/169826-one-day-tour-to-the-blue-mountains-includes-chinese-speaking-guide/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨：小團藍山一日遊，含無尾熊和藍山風景世界</h3>
+                    <p class="card-desc">小團優質出行，享受精緻無壓力的探索過程。<br>親近可愛無尾熊，搭乘景觀世界纜車，全方位感受藍山的壯麗景色與自然生態。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/81473-sydney-blue-mountains-one-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨歌劇院導覽與餐飲體驗</h3>
+                    <p class="card-desc">走進建築史上的傳奇美學殿堂。<br>深入雪梨歌劇院內部探訪建築秘辛，並於港畔餐廳享用精緻美食，感受極致的藝術饗宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/59047-sydney-opera-house-tour-dine-sydney-opera-kitchen-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">藍山日落與觀星之旅（含費瑟代爾野生動物園）</h3>
+                    <p class="card-desc">體驗夜幕低垂時的國家公園神祕魅力。<br>先前往動物園近距離接觸原生動物，隨後欣賞藍山餘暉，並在無光害夜空中仰望繁星。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/161793-blue-mountain-sunset-stargazing-tour-with-featherdale-zoo/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨藍山深度一日遊（含三段纜車）</h3>
+                    <p class="card-desc">以多角度視角全面解構藍山奇景。<br>包含景觀高空纜車、索道與鐵路體驗，深入古老熱帶雨林，完美呈現峽谷震撼景象。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/162044-sydney-blue-mountains-deep-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">狂野袋熊、袋鼠與瀑布全包式之旅</h3>
+                    <p class="card-desc">深入野生動物棲息地，探索純粹自然生態。<br>行程全包輕鬆無憂，帶您尋找野生袋熊與袋鼠蹤跡，並欣賞壯麗瀑布景觀。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/34097-walking-wombats-waterfalls-day-tour-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">藍山景觀世界遊樂設施與野生動物之旅（雪梨出發）</h3>
+                    <p class="card-desc">融合自然景觀與豐富生態的經典行程。<br>從雪梨出發，體驗景觀世界熱門設施，並前往野生動物園體驗澳洲生態魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/101180-blue-mountains-deluxe-day-tour-from-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">澳洲藍山一日遊</h3>
+                    <p class="card-desc">經典永恆的藍山國家公園探索之旅。<br>遠離城市喧囂，沿著步道漫步，呼吸尤加利樹香氣，盡情擁抱世界自然遺產之美。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/95647-blue-mountains-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">1.5小時悉尼夜遊</h3>
+                    <p class="card-desc">領略璀璨燈火下的雪梨夜色風華。<br>短時精幹的精緻行程，穿梭於港灣與地標建築間，捕捉城市夜間的浪漫璀璨景象。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/150613-sydney-night-tour-by-big-bus/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">奧蘭治採櫻桃之旅（雪梨出發）</h3>
+                    <p class="card-desc">親自體會親手採摘旬味果實的樂趣。<br>專車前往果園小鎮奧蘭治，體驗採摘新鮮優質櫻桃，享受充滿農莊風情的悠閒一日。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/40256-orange-cherry-picking-day-tour-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">藍山一日遊（雪梨出發）</h3>
+                    <p class="card-desc">暢遊雪梨郊區最富盛名的山林勝景。<br>便利的雪梨往返接送，輕鬆走訪三姐妹岩與絕美觀景台，適合首次訪客的經典路線。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/101138-blue-mountains-day-tour-from-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">藍山國家公園 & 卡統巴景觀世界國家公園 & 遊船一日遊</h3>
+                    <p class="card-desc">集結高山、峽谷與水岸的完整山海體驗。<br>遊覽國家公園與景觀世界後，乘坐悠閒渡輪返回市區，多重視野感受悉尼魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/176727-blue-mountains-national-park-scenic-world-one-day-national-park-cruise-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">藍山動物園、無尾熊、盧拉小鎮與藍山風景世界中文之旅</h3>
+                    <p class="card-desc">全方位結合自然人文與精緻小鎮風情。<br>中文導覽帶領親近無尾熊、漫步盧拉小鎮花園步道，並體驗景觀世界的震撼景色。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/90892-sydney-blue-mountains-one-day-tour-mandarin-speaking-guide/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">邦迪 & 悉尼半日觀光之旅</h3>
+                    <p class="card-desc">高效掌握雪梨市區與經典海岸的流行脈動。<br>半日時間精選邦迪海灘、市區歷史街區與知名港灣觀景點，適合行程緊湊的旅客。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/94285-sydney-bondi-beach-half-day-landmark-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨藍山豪華小團一日遊</h3>
+                    <p class="card-desc">尊享高品質精緻出行的頂級旅遊體驗。<br>嚴選舒適車款與精緻路線，避開人潮，享受高質感且富有隱密性的藍山深度巡禮。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/207480-sydney-blue-mountains-luxury-small-group-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">從雪梨出發：史蒂芬斯港海豚、無尾熊與滑沙體驗</h3>
+                    <p class="card-desc">踏上結合海洋與沙漠地形的冒險旅程。<br>出海尋訪野生海豚，體驗巨大的沙漠滑沙樂趣，並於保護區觀賞可愛無尾熊。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/90899-port-stephens-day-trip-sydney-sydney-mandarin-speaking-guide/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨真實犯罪故事徒步導覽之旅</h3>
+                    <p class="card-desc">掀開歷史繁華背後的暗黑神秘面紗。<br>跟隨專業導覽徒步穿梭舊城老街，聆聽十九世紀雪梨真實發生過的黑幫與懸案故事。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/65657-true-crime-tours-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">藍花楹春日花卉與塔龍加動物園一日遊</h3>
+                    <p class="card-desc">沉浸於紫藍色夢幻花海與動物互動的春日盛宴。<br>漫步賞花熱點欣賞浪漫藍花楹，並前往塔龍加動物園，遠眺港灣同時近距離觀察動物。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/221120-sydney-spring-jacaranda-taronga-zoo-full-day-city-highlights-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">藍山與費瑟戴爾野生動物園</h3>
+                    <p class="card-desc">探索大自然的壯麗景緻。<br>前往藍山國家公園欣賞奇岩怪石，並在野生動物園近距離觀察澳洲本土動物。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/23811-blue-mountains-sydney-zoo-tour-korean-guide-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨市區小團一日遊中文團</h3>
+                    <p class="card-desc">輕鬆悠閒地融入雪梨市井風情。<br>專屬小團搭配中文導覽，帶您深入走訪歌劇院、雪梨港灣大橋與熱門街區。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/90825-sydney-city-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">藍山景觀世界、野生動物園與遊船小團遊</h3>
+                    <p class="card-desc">一站式體驗山林與海港美景。<br>搭乘景觀纜車俯瞰峽谷，造訪動物園後再乘坐舒適遊船返回雪梨港。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/12376-blue-mountain-all-inclusive-day-tour-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">史蒂芬斯港彈性一日遊（含韓語導遊）</h3>
+                    <p class="card-desc">感受蔚藍海岸與沙漠相連的奇景。<br>提供彈性行程安排與韓語導覽，探索史蒂芬斯港的滑沙體驗與海洋生態。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/23587-port-stephens-day-tour-korean-guide-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨歌劇院建築導覽之旅</h3>
+                    <p class="card-desc">深入了解這座世界文化遺產的工藝奇蹟。<br>專業導覽將揭開帆船造型建築內部的工程設計與美學歷史。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/58684-sydney-opera-house-architectural-tour-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨板球場之旅（含雪梨板球場博物館門票）</h3>
+                    <p class="card-desc">走進體育迷的夢幻殿堂。<br>導覽帶您探訪球員休息室與歷史悠久的場館，並含 SCG 博物館門票。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/62349-sydney-cricket-ground-walking-tour-scg-museum-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">獵人谷3天2夜之旅＆觀光火車往返接送（雪梨出發）</h3>
+                    <p class="card-desc">享受漫步莊園與品味美酒的悠閒時光。<br>包含雪梨往返火車接送，深度走訪獵人谷名莊並體驗在地美食。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/46498-hunter-valley-private-trip-hotel-nights-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨歌劇院半日私人文化之旅</h3>
+                    <p class="card-desc">享受獨一無二的專屬文化饗宴。<br>私人導覽專人服務，深入探索歌劇院的藝術展演歷史與建築工藝細節。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/168719-sydney-opera-house-half-day-cultural-self-guided-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">藍山豪華一日遊（含藍山風景世界與野生動物園）</h3>
+                    <p class="card-desc">尊榮奢華的高品質山林探索。<br>全程乘坐舒適車輛，包攬風景世界三項纜車設施與野生動物園精緻體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/131481-blue-mountains-premium-day-tour-with-scenic-world-and-wildlife-park/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨：岩石區幽靈之旅</h3>
+                    <p class="card-desc">揭開雪梨最古老街區的神秘面紗。<br>夜間隨同導覽穿梭於老舊小巷，聆聽有關岩石區傳奇與幽靈歷史。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/34345-haunted-sydney-ghost-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">帕羅尼拉公園 & 米拉米拉瀑布全日導覽小團遊</h3>
+                    <p class="card-desc">尋訪充滿綠意的夢幻城堡與瀑布。<br>造訪雨林深處的古老城堡遺跡，並於絕美的米拉米拉瀑布前親近大自然。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/191260-atherton-tablelands-and-paronella-park-full-day-bus-tour-from-cairns/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨藍山全日野生動物與觀光之旅</h3>
+                    <p class="card-desc">一次全覽藍山的絕景與生態。<br>專車前往三姊妹岩、傑米遜峽谷觀景台，並拜訪澳洲特色野生動物。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/173225-scenic-world-blue-mountains-national-park-one-day-wildlife-sightseeing-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨岩石區1.5小時徒步導覽之旅</h3>
+                    <p class="card-desc">用雙腳丈量雪梨的發源地。<br>專人帶領穿梭於古老石板路，細細品味當地的殖民歷史與建築魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/51212-the-rocks-walking-tours/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨歌劇院後台導覽</h3>
+                    <p class="card-desc">解鎖一般觀眾無法進入的私房領域。<br>走進神秘的後台區域、演員休息室與控制室，感受表演藝術的幕後魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/59070-sydney-opera-house-beyond-the-stage-tour-brunch-opera-kitchen-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨上午觀光遊 & 海港午餐巡遊</h3>
+                    <p class="card-desc">兼具陸上觀光與海上巡禮的完美組合。<br>上午遊覽著名市區景點，中午登上觀光遊船享用美味午餐並賞海港風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/94243-morning-sydney-sights-harbour-lunch-cruise-bus-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨熱門景點一日遊（含影片）</h3>
+                    <p class="card-desc">用鏡頭記錄精彩的雪梨之旅。<br>專業導覽帶您精選熱門地標，並包含個人專屬行程紀錄短片留作紀念。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/214944-sydney-top-instagrammable-spots-day-night-tour-with-video/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨市區觀光一日遊(中文司導)</h3>
+                    <p class="card-desc">全程無語言障礙的質感探索行程。<br>由經驗豐富的中文司機兼導覽親切服務，高效穿梭雪梨各大名勝景點。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/187818-sydney-city-day-tour-iconic-sights-and-landmarks/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">費瑟代爾野生動物園和藍山風景世界之旅（韓語導遊）</h3>
+                    <p class="card-desc">專為韓語旅客打造的精緻生態遊。<br>由韓語導覽帶領體驗藍山纜車設施，並走訪野生動物園與無尾熊互動。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/167648-featherdale-scenic-world-blue-mountains-tour-with-korean-guide/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">坎培拉首都中文導覽一日遊</h3>
+                    <p class="card-desc">深入走訪澳洲的政治與文化心臟。<br>中文導覽引導參觀國會大廈、戰爭紀念館與國立美術館，充實一日人文知性。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/90848-canberra-day-tour-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨藍山採櫻桃一日遊（含午餐）</h3>
+                    <p class="card-desc">體驗採摘新鮮果實的農園樂趣。<br>結合藍山壯麗景致與季節限定的採櫻桃體驗，並包含精緻美味午餐。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/184080-blue-mountains-and-orange-full-day-cherry-picking-tour-from-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨藍山與野生動物園一日小團冒險</h3>
+                    <p class="card-desc">深入探索澳洲自然景觀。<br>隨專業導覽造訪壯麗藍山與野生動物園，近距離接觸珍貴本土動物，感受大自然的絕美震撼。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/223509-sydney-blue-mountains-wildlife-park-full-day-small-group-adventure/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">雪梨大太平洋之路一日私人導覽</h3>
+                    <p class="card-desc">踏上全澳最美的海岸公路。<br>享受私人專車服務，沿著大太平洋之路漫遊，欣賞懸崖與海天一色的壯麗風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/105215-one-day-private-south-coast-car-trip/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_3"><h2 class="category-title">美食與餐飲</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">雪梨塔景觀餐廳 SkyFeast</h3>
+                    <p class="card-desc">高空俯瞰雪梨全景。於旋轉餐廳內享用豐盛的國際自助美食，360度欣賞城市海岸線景色。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/2754-tower-buffet-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">獵人谷葡萄酒、起司和巧克力導覽遊</h3>
+                    <p class="card-desc">探索澳洲古老葡萄酒產區。深入獵人谷品嚐優質佳釀，搭配在地手工起司與濃郁巧克力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/51767-hunter-valley-wine-gin-cheese-tasting-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">雪梨夜生活酒吧串游體驗</h3>
+                    <p class="card-desc">體驗雪梨獨特的夜間活力。隨導覽穿梭熱門酒吧，品味特色調酒並結交來自世界各地的朋友。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/75213-sydney-nightlife-pub-crawl-experience-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">雪梨靈異酒吧導覽與酒窖參觀</h3>
+                    <p class="card-desc">揭開城市古老酒吧的神祕面紗。聆聽傳奇故事，走進幽靜的酒窖，體驗兼具歷史與懸疑的夜間漫步。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/112097-haunted-sydney-pub-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">在悉尼塔Infinity by Mark Best享用午餐和晚餐</h3>
+                    <p class="card-desc">品味頂級名廚精緻料理。在雪梨塔頂層旋轉餐廳享用創新當代法式澳洲菜餚與無敵夜景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/15666-infinity-bar-dining-sydney-tower/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">玻璃船晚餐巡遊</h3>
+                    <p class="card-desc">在璀璨夜色中優雅航行。全景玻璃船提供絕佳視野，於雪梨灣上享用精緻套餐與壯麗地標夜景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/155543-glass-boat-dinner-cruise/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">雪梨秘密酒吧與故事夜生活之旅</h3>
+                    <p class="card-desc">尋訪巷弄間的隱密酒吧。由專業導覽帶領，揭開隱藏門扇後的故事，品嚐個性調酒。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/30831-bar-crawl-experience-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">雪梨魚市半日小團美食之旅</h3>
+                    <p class="card-desc">朝聖南半球規模極大的海鮮市場。精小團體行程帶您現場採買並品嚐最新鮮的生蠔與海鮮佳餚。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/168416-sydney-fish-market-food-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">屢獲殊榮的獵人谷葡萄酒和起司之旅（從Sydney出發）</h3>
+                    <p class="card-desc">出發前往金牌獲獎酒莊。享受專車接送，在獵人谷優雅品嚐獲獎無數的葡萄酒與精選起司。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/97182-hunter-valley-wine-cheese-tasting-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">雪梨獵人谷：主廚帶路美食美酒體驗</h3>
+                    <p class="card-desc">開啟頂級主廚的味蕾之旅。於獵人谷由主廚親自導覽，搭配頂級餐酒與在地當季新鮮食材。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/12339-chef-led-hunter-valley-gourmet-food-wine-tour-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">雪梨馬力維爾美食之旅</h3>
+                    <p class="card-desc">走入雪梨文化多元的潮流街區。漫步馬力維爾，品嚐多國風味美食與在地獨立精釀啤酒。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/157121-marrickville-munch-sydney-food-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">Luke Nguyen皇家植物園野餐體驗</h3>
+                    <p class="card-desc">沉浸於綠意與美味的盛宴。品嚐知名名廚 Luke Nguyen 精心準備的東南亞風味野餐籃，享受花園景致。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/50827-botanic-house-picnic-hamper-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">雪梨魚市場 - 碼頭夕陽</h3>
+                    <p class="card-desc">感受海風與夕陽的浪漫陪伴。在雪梨魚市場碼頭邊享用現切海鮮，觀賞落日餘暉映照海面的美景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/177028-sydney-fish-market-sunset-on-the-wharf/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">Botanic House Luke Nguyen 精選套餐體驗</h3>
+                    <p class="card-desc">於植物園核心享用名廚饗宴。Botanic House 融合亞洲與澳洲風味，提供精緻的當季當代套餐。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/51065-luke-nguyen-tasting-menu-dining-experience-botanic-house-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">雪梨百年公園野餐體驗</h3>
+                    <p class="card-desc">享受綠意盎然的戶外時光。在百年公園的大片草地上展開豐盛野餐，度過悠閒舒適的午後。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/64827-centennial-homestead-picnic-hamper-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">Dave's Brewery Tours 雪梨啤酒廠、酒莊與釀酒廠之旅</h3>
+                    <p class="card-desc">深入在地微釀文化。隨專家參觀精選釀酒廠與酒莊，了解釀造工藝並品嚐各類精釀啤酒與烈酒。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/26896-sydney-brewery-winery-distillery-half-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">在 Domain 或英國皇家植物園享用義式鄉村野餐</h3>
+                    <p class="card-desc">感受義式風情戶外野餐。在廣闊綠地上擺設義式冷盤、起司與麵包，享受極致放鬆的餐飲體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/51754-rustic-italian-picnic-domain-royal-botanic-gardens-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">獵人谷葡萄酒 & 野生動物探索之旅</h3>
+                    <p class="card-desc">結合品酒與自然探索。品嚐獵人谷風味佳釀，同時探訪當地野生動物園，親近澳洲本土動物。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/98554-wine-cheese-tasting-hunter-valley-luxury-wine-wildlife-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">Terrace on the Domain 無限暢飲早午餐</h3>
+                    <p class="card-desc">於公園綠意間享用慢活早午餐。搭配暢飲飲料與精緻料理，遠眺雪梨天際線與植物園景致。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/51068-bottomless-brunch-terrace-on-domain-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">獵人谷葡萄酒品嚐導覽（含雙道式午餐＆巧克力）</h3>
+                    <p class="card-desc">享受完整的酒鄉饗宴。導覽包含精品酒莊品酒、雙道式精緻午餐，以及手工巧克力品嚐體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/128723-hunter-valley-with-lunch-one-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">從雪梨出發：獵人谷品酒之旅</h3>
+                    <p class="card-desc">品味澳洲最古老葡萄酒產區的獨特風味。<br>從雪梨出發前往獵人谷，參訪知名莊園，品嚐頂級葡萄酒與精緻奶酪。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/57458-hunter-valley-wine-beer-spirits-tasting-day-trip-sydney-hunter-valley/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">獵人谷啤酒廠一日遊：獵人谷、紐卡索或雪梨出發</h3>
+                    <p class="card-desc">探索精釀啤酒與在地工藝的完美結合。<br>從多地便利出發，專人帶領造訪在地獨立啤酒廠，體驗豐富的麥芽風味體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/26928-hunter-valley-winery-brewery-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_5"><h2 class="category-title">特色體驗與活動</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">雪梨港觀光遊船</h3>
+                    <p class="card-desc">盡攬經典海岸風光。<br>搭乘觀光遊船穿梭於雪梨港，沿途欣賞雪梨歌劇院與港灣大橋的壯麗景致，體驗優雅的景色之旅。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/66171-sydney-harbour-sightseeing-cruise-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">野生動物</span>
+                    <h3 class="card-title">雪梨賞鯨探險之旅</h3>
+                    <p class="card-desc">感受海洋巨獸的震撼躍動。<br>跟隨專業導覽航向外海，捕捉座頭鯨遷徙時的壯觀姿態，親歷大自然的生命奇蹟。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/119493-sydney-whale-watching-adventure-cruise/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">野生動物</span>
+                    <h3 class="card-title">悉尼港2小時賞鯨巡遊之旅</h3>
+                    <p class="card-desc">高效探索海洋生態之旅。<br>兩小時的精緻航程，帶領旅客迅速前往賞鯨海域，近距離觀賞鯨魚嬉戲的精彩畫面。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/58516-sydney-harbour-whale-watching-cruise-fantasea/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">庫克船長號雪梨港日落晚餐遊船</h3>
+                    <p class="card-desc">沉醉於夕陽與美食的雙重盛宴。<br>登上庫克船長號，在金色晚霞映照的港灣中享用美味佳餚，度過浪漫優雅的夜晚。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/11974-sydney-harbour-sunset-dinner-cruise-captain-cook-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">租車</span>
+                    <h3 class="card-title">雪梨租車 | 租車去雪梨港、查茨伍德、邦迪樞紐、黑鎮、曼利海灘、好市圍</h3>
+                    <p class="card-desc">開啟自由隨心的澳洲公路旅行。<br>提供多款車型選擇，輕鬆串聯雪梨市區、曼利海灘與周邊熱門區域，彈性規劃獨特行程。</p>
+                    <a href="https://www.klook.com/zh-TW/car-rentals/results/?pick=Sydney+Kingsford+Smith+International+Airport&drop=Sydney+Kingsford+Smith+International+Airport&diffLoc=false&pDate=2026-10-31+10%3A00&dDate=2026-11-03+10%3A00&age=30&lat=-33.94611&long=151.17722&dLat=-33.94611&dLong=151.17722&code=AU&dCode=AU&iata=SYD&dIata=SYD&aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">雪梨海港套房飯店</h3>
+                    <p class="card-desc">尊享海港旁的高品質居住體驗。<br>套房設計寬敞舒適，提供現代化設施與優越地理位置，是深度探索雪梨的理想下榻之選。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/393620-yehs-hotel-sydney-harbour-suites/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊船觀光</span>
+                    <h3 class="card-title">雪梨港日出獨木舟體驗（含早餐）</h3>
+                    <p class="card-desc">用晨光與划槳開啟清新的一天。<br>於清晨划動獨木舟劃破平靜水面，迎著海港日出，隨後享受精緻早餐，留下難忘回憶。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/104478-sunrise-kayak-on-sydney-harbour-breakfast-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">悉尼庫克船長觀鯨巡遊</h3>
+                    <p class="card-desc">領略專業團隊的海洋巡航品質。<br>搭乘著名船隊出海賞鯨，搭配專業解說，提供安全且知識豐富的海洋探索體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/11862-whale-watching-cruise-by-captain-cook-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">展覽＆表演</span>
+                    <h3 class="card-title">「歌劇精品」雪梨歌劇院名劇音樂會</h3>
+                    <p class="card-desc">沉浸於經典藝術的聲樂殿堂。<br>在世界級建築雪梨歌劇院內，聆聽著名歌劇詠嘆調的精彩演繹，感受頂尖音樂藝術魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/7706-great-opera-hits-at-sydney-opera-house-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">攀岩</span>
+                    <h3 class="card-title">悉尼港攀登大橋</h3>
+                    <p class="card-desc">挑戰自我登頂城市地標。<br>在安全防護下攀上雪梨港灣大橋頂端，俯瞰360度全景港灣美景，留下無可比擬的壯麗視野。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/2220-bridge-climb-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">水上運動</span>
+                    <h3 class="card-title">悉尼港噴射快艇體驗</h3>
+                    <p class="card-desc">體驗水上極速狂飆的奔放快感。<br>搭乘高速噴射快艇在雪梨港疾馳，搭配高速甩尾與旋轉，帶來充滿活力的極限樂趣。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/22510-harbour-jet-boat-adventure-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">Wake up! 雪梨中央飯店</h3>
+                    <p class="card-desc">感受充滿活力的現代旅宿空間。<br>坐落於雪梨中央車站旁，結合時尚設計與社交氛圍，為背包客與自由行旅客提供便捷住宿。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/269718-wake-up-sydney--hostel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">空中觀光</span>
+                    <h3 class="card-title">悉尼港直升機觀光之旅</h3>
+                    <p class="card-desc">從空中俯瞰海岸線的鳥瞰奇景。<br>搭乘直升機翱翔於天際，將雪梨歌劇院、港灣大橋與金色沙灘的全景美景盡收眼底。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/12437-sydney-harbour-helicopter-flight-tour-transfer-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">赫茲威爾旅行者飯店</h3>
+                    <p class="card-desc">享受實用便捷的南區下榻體驗。<br>飯店座落於好市圍中心，提供簡約舒適的客房與完善設施，鄰近多元餐飲與公共運輸。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/736867-travelodge-hotel-hurstville-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">雪梨南方大飯店</h3>
+                    <p class="card-desc">體驗融合歷史與現代的便利住宿。<br>鄰近唐人街與中央車站，擁有古典建築外觀與現代化客房，是探索市區景點的優質據點。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/438705-great-southern-hotel-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">湖畔飯店及會議中心</h3>
+                    <p class="card-desc">享有一片寧靜自然的水岸風光。<br>飯店緊鄰湖畔，環境清幽宜人，配備完善會議與住宿設施，適合放鬆身心或商務差旅。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/435454-lakeside-hotel-and-conference-centre/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">新鎮舒適住宿</h3>
+                    <p class="card-desc">融入豐富多彩的文青街區氛圍。<br>位於充滿藝術氣息的新鎮，周邊獨立咖啡館與壁畫林立，提供溫馨悠閒的居住環境。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/408113-newtown-cozy-stays/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">萊德精選飯店</h3>
+                    <p class="card-desc">享受靜謐安適的舒心休憩空間。<br>位於萊德區域，提供乾淨整潔的住宿環境與便利設施，適合追求性價比與安寧的旅客。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/268547-the-select-inn-ryde/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">聖利昂納茲飯店</h3>
+                    <p class="card-desc">銜接北岸商務與休閒的理想之選。<br>位於聖利昂納茲樞紐，交通極為便利，提供精緻客房與專業服務，滿足多樣出遊需求。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/81963-hotel-st-leonards/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">馬奎里公園Veriu飯店</h3>
+                    <p class="card-desc">品味精緻時尚的公寓式住宿體驗。<br>位於創新產業園區，設計極具現代感，配備獨立廚房與高品質客房，打造家一般的舒適。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1326479-veriu-macquarie-park/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">子午飯店</h3>
+                    <p class="card-desc">尋找城市中的優雅棲居地。<br>飯店提供舒適房型與便捷交通，讓每位旅客輕鬆探索周邊景色與在地文化。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/861638-meridian-hotel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">查茨伍德探索飯店</h3>
+                    <p class="card-desc">享受如家一般的便利空間。<br>位於熱鬧商業區，配備完善設施與現代化裝潢，適合商務與家庭出行。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/409960-quest-chatswood/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">車士活西爾卡里套房飯店</h3>
+                    <p class="card-desc">體驗當代奢華與設計美學。<br>寬敞套房融合精緻質感，緊鄰購物中心與公共運輸，帶來卓越住宿體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/298923-silkari-suites-chatswood/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">雪梨星之大飯店及公寓</h3>
+                    <p class="card-desc">沉浸於港灣旁的頂級享受。<br>坐落於達令港周邊，集結高雅客房、精緻餐飲與娛樂設施於一體。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/394533-the-star-grand-hotel-and-residences-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">展覽＆表演</span>
+                    <h3 class="card-title">雪梨歌劇院《窈窕淑女》音樂劇</h3>
+                    <p class="card-desc">重溫百老匯經典音樂劇的魅力。<br>在世界級建築地標內觀賞精彩演出，享受難忘的視聽藝術盛宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/184329-my-fair-lady-musical-at-sydney-opera-house/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">莊園飯店</h3>
+                    <p class="card-desc">感受古典建築的歲月韻味。<br>典雅裝潢結合寧靜氛圍，為旅人提供遠離喧囂的舒適住宿選擇。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/263012-hotel-hacienda/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">雪梨馬可波羅汽車旅館</h3>
+                    <p class="card-desc">踏上輕鬆實用的雪梨之旅。<br>地理位置優越，客房簡潔舒適，是預算導向與自駕旅客的優質首選。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/84250-marco-polo-motor-inn-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">空中觀光</span>
+                    <h3 class="card-title">悉尼水上飛機體驗</h3>
+                    <p class="card-desc">從空中俯瞰海岸線的壯麗美景。<br>搭乘水上飛機飛越雪梨港灣，以獨特視野將名勝地標盡收眼底。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/14474-sydney-seaplanes-highlight-flight-sydney/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">宜必思快捷溫特沃斯韋爾飯店</h3>
+                    <p class="card-desc">追求簡約效率的住宿體驗。<br>客房實用乾淨，交通便利，為探索周邊區域提供便利的休憩據點。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/267365-ibis-budget-wentworthville/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">雪梨機場阿迪娜公寓飯店</h3>
+                    <p class="card-desc">為您的轉機與旅程提供從容步調。<br>鄰近機場樞紐，提供寬敞公寓式客房與完整廚房設備，極具便利性。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/40552-adina-apartment-hotel-sydney-airport/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">格蘭維爾飯店</h3>
+                    <p class="card-desc">融入在地社區的溫馨氛圍。<br>提供溫馨客房與道地餐飲服務，讓旅人深刻體會當地的熱情與步調。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/87133-granville-hotel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">宜必思快捷恩菲爾德飯店</h3>
+                    <p class="card-desc">開啟輕鬆無負擔的旅行步調。<br>提供簡潔舒適的住宿環境，搭配便利交通，滿足基礎出遊需求。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/278741-ibis-budget-enfield/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">雪梨中央新城馬洛飯店</h3>
+                    <p class="card-desc">深入感受雪梨多元的文化脈動。<br>坐落於充滿藝術氣息的新城區，結合住宿與特色酒吧，體驗在地生活。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/249489-metro-hotel-marlow-sydney-central/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">劍橋旅館青年旅舍</h3>
+                    <p class="card-desc">結交來自世界各地的旅行者。<br>提供乾淨床位與溫馨公共空間，是青年背包客探索城市的理想基地。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/309317-cambridge-lodge--hostel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊船觀光</span>
+                    <h3 class="card-title">悉尼港黃金日落遊船</h3>
+                    <p class="card-desc">領略夕陽染紅港灣的浪漫景色。<br>搭乘觀光遊船巡航雪梨港，一邊欣賞日落霞光，一邊享受悠閒時光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/127182-golden-glow-sunset-sydney-harbour-cruise/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">悉尼海港觀光郵輪</h3>
+                    <p class="card-desc">盡情探索世界級港灣的迷人風采。<br>悠遊於地標建築之間，欣賞歌劇院與雪梨港灣大橋的壯麗全貌。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/88651-sydney-harbour-sightseeing-cruise-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">宜必思快捷聖彼得飯店</h3>
+                    <p class="card-desc">尋找便捷且經濟的都市停留點。<br>靠近公園與公共交通，提供基本齊全的設施，適合輕裝出行的旅人。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/271115-ibis-budget-st-peters/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">雪梨機場途樂飯店</h3>
+                    <p class="card-desc">享受高效無憂的過境休息時光。<br>專為商務與轉機旅客設計，現代化客房搭配完善設施，確保充足休息。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/433990-travelodge-hotel-sydney-airport/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">綠色廣場價值飯店</h3>
+                    <p class="card-desc">解鎖現代都市生活的新風格。<br>位於快速發展的新興街區，房型充滿設計感且生活機能極為便利。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/272355-valuesuites-green-square/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">悉尼卡巴瑪塔諾富特酒店（2025 年 11 月）</h3>
+                    <p class="card-desc">期待全新打造的優質住宿體驗。<br>結合諾富特品牌的現代時尚設計與多元設施，為區域注入國際級款待。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1959926-novotel-sydney-cabramatta/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section>
+    </div>
+    <script>
+        function showCategory(categoryId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`button[onclick="showCategory('${categoryId}')"]`).classList.add('active');
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.toggle('active', categoryId === 'all' || section.id === categoryId);
+            });
+            window.scrollTo(0, 0);
         }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
     </script>
-    <footer class="text-center py-8 text-gray-400 text-sm md:text-base px-4">
-        <p>Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved. 提供最專業的亞洲自由行旅遊指南與行程規劃工具 (Asia Travel Guides & FIT Itineraries)。版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
-    </footer>
 </body>
 </html>

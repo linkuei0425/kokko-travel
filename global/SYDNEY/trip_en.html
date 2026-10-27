@@ -1,159 +1,850 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sydney Tours & Tickets</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- SEO & GEO 結構化資料 -->
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Sydney Trip Guide",
-  "description": "精選 Sydney 必訪的 trip 推薦清單與詳細交通指南。",
-  "publisher": {
-    "@type": "Organization",
-    "name": "Global Travel Pass"
-  }
-}
-</script>
+    <title>Sydney Travel Guide</title>
     <style>
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        :root { --primary-color: #3b82f6; --bg-color: #f7f9fa; --text-color: #333; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; line-height: 1.6; scroll-behavior: smooth; }
+        header { background: var(--primary-color); color: white; padding: 2rem 1rem; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 2rem; }
+        .header-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
+        .btn-top { background: white; color: var(--primary-color); text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .btn-top:hover { background: #eff6ff; }
+        .nav-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 1.5rem; }
+        .nav-btn { background: white; color: var(--primary-color); border: none; padding: 0.6rem 1.2rem; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .nav-btn:hover, .nav-btn.active { background: #eff6ff; color: #1d4ed8; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .category-section { margin-bottom: 3rem; display: none; }
+        .category-section.active { display: block; }
+        .category-title { border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .card-tag { display: inline-block; background: #eff6ff; color: var(--primary-color); font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.8rem; width: fit-content; }
+        .card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 0.5rem 0; line-height:1.4; }
+        .card-desc { font-size: 0.95rem; color: #555; flex-grow: 1; margin-bottom: 1rem; }
+        .card-link { display: block; text-align: center; background: var(--primary-color); color: white; text-decoration: none; padding: 0.6rem; border-radius: 4px; font-weight: bold; margin-top: auto; }
+        .card-link:hover { background: #2563eb; }
     </style>
 </head>
-<body class="bg-slate-50">
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState } = React;
-
-        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
-        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
-        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
-        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
-        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
-        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
-        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
-        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
-
-        const itineraryData = {"comparison_table": [{"key_features": "Valid on all Sydney trains, Metro, light rail, buses, and official ferries. Enjoy peak/off-peak discounts, an AUD 2 transfer discount, half-price fares after 8 trips in a week, and more.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DSydney%20", "name": "Opal Card / Contactless Credit Card Payment", "price_range": "Distance-based fares (Daily cap of AUD 18.70 / Weekly cap of AUD 50; Daily cap of AUD 9.35 Friday to Sunday and public holidays)", "target": "All independent travelers, daily commuters, and short-term visitors", "type": "Public Transit Only"}, {"key_features": "Unlimited access to over 30 top Sydney attractions and experiences within your chosen consecutive days. Includes the Sydney Tower Eye, Sydney Opera House Guided Tour, Taronga Zoo, Hop-on Hop-off sightseeing buses, ferries, and more.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DSydney%20", "name": "Go City - Sydney All-Inclusive Pass", "price_range": "Approx. AUD 139 - 289 (depending on 1 to 5-day options)", "target": "Action-packed sightseers planning to visit multiple paid attractions in a short time", "type": "Attraction Pass"}, {"key_features": "Choose 2, 3, 4, 5, or 7 attractions from 30+ popular options. Valid for 60 days after activation, offering maximum flexibility.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DSydney%20", "name": "Go City - Sydney Explorer Pass", "price_range": "Approx. AUD 89 - 219 (depending on the number of attractions selected)", "target": "Travelers with a flexible pace wanting to pick 2 to 7 top attractions", "type": "Attraction Pass"}, {"key_features": "Covers two routes: the Sydney City Red Route and the Bondi Beach Blue Route. Passes key landmarks like the Opera House, Harbour Bridge, Darling Harbour, and Bondi Beach. Hop on and off as you wish, complete with audio commentary.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DSydney%20", "name": "Big Bus Sydney Hop-On Hop-Off Sightseeing Bus Pass", "price_range": "Approx. AUD 61 - 85 (1-day or 2-day ticket)", "target": "First-time Sydney visitors or travelers who prefer a relaxed tour of classic landmarks without worrying about routes", "type": "Sightseeing Bus + Transport"}], "cp_tips": "\u30101-Day Express / Short Trip\u3011: Simply use a contactless credit card (Visa/Mastercard) to tap on and off public transit. Once you hit the daily fare cap (AUD 18.70 on weekdays, AUD 9.35 on weekends), all subsequent rides that day are completely free!\n\u30103-4 Day Classic Itinerary\u3011: Take advantage of public transit deals like the Friday\u2013Sunday daily cap of AUD 9.35 and 30% off-peak discounts. For attractions, grab a Go City Explorer Pass for 3 or 4 choices (like a Sydney Opera House tour, Harbour Bridge experience, or Taronga Zoo) to save around 30-40% on admission.\n\u30105+ Day In-Depth Exploration\u3011: Make full use of the AUD 50 weekly transit cap, which covers day trips to the Blue Mountains, Manly Beach, and the Central Coast! To save money getting to/from the airport, use the savvy insider trick: take Route 420 Bus and transfer to a train to bypass the steep Airport Station Access Fee.", "faqs": [{"answer": "Not at all! You can simply tap on and off using any contactless credit/debit card (Visa, Mastercard, Amex) or a smart device with Apple Pay or Google Pay. Contactless payments give you the exact same fare discounts and daily/weekly caps as a physical Opal Card.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DSydney%20", "question": "Do I need a physical Opal Card to use public transit in Sydney?"}, {"answer": "Sydney\u0027s International and Domestic Airport stations are privately operated, so a Station Access Fee (approx. AUD 17.34) is added to your fare. To save money, take Route 420 Bus from the airport to Mascot or Burwood Station, then transfer to a train into the city to avoid this extra fee entirely.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DSydney%20", "question": "Why is the Airport Link train into the city center so expensive, and how can I save money?"}, {"answer": "No, Sydney has phased out physical paper 1-day and multi-day passes in favor of an automatic fare capping system. When using an Opal card or contactless payment, the system automatically stops charging once you reach the capping limits (AUD 18.70/day on weekdays, AUD 9.35/day on weekends/holidays, and AUD 50/week)\u2014giving you the exact same benefits as a day or weekly pass.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DSydney%20", "question": "Does Sydney public transport sell physical 1-day or 3-day travel passes?"}, {"answer": "Yes! You must \u0027Tap On\u0027 when boarding and \u0027Tap Off\u0027 when exiting on all Sydney buses, trains, Metro, light rail, and ferries. Failing to tap off will result in the system charging you the maximum possible fare for that route.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DSydney%20", "question": "Do I need to tap on and off when riding buses in Sydney?"}], "title": "Sydney Transport Passes \u0026 Attraction Bundles Overview"};
-        const REGIONS = Object.keys(itineraryData);
-        
-        // Dynamic category matching based on translated keys (AI might translate them to English)
-        const getIconForCategory = (catName) => {
-            const lowerCat = catName.toLowerCase();
-            if (lowerCat.includes('ticket') || lowerCat.includes('attraction')) return Ticket;
-            if (lowerCat.includes('tour') || lowerCat.includes('day')) return Sun;
-            if (lowerCat.includes('transport') || lowerCat.includes('sim') || lowerCat.includes('wifi')) return TrainFront;
-            return Ticket; // Default
-        };
-
-        function App() {
-            const [selectedRegion, setSelectedRegion] = useState(REGIONS[0] || '');
-            const availableCats = Object.keys(itineraryData[selectedRegion] || {});
-            const [selectedCategory, setSelectedCategory] = useState(availableCats[0] || '');
-
-            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
-
-            return (
-                <div className="min-h-screen font-sans text-slate-800 flex flex-col">
-                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-slate-200">
-                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="text-blue-600 w-6 h-6 md:w-8 md:h-8" />
-                                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-400">
-                                    Sydney Tours & Tickets
-                                    </h1>
-                                </div>
-                                <div className="hidden md:block">
-                                    <a href="index_en.html" className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm lg:text-base font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-transform active:scale-95">
-                                        <Home className="w-4 h-4" /> Home
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide items-center">
-                                <a href="index.html" className="md:hidden flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-sm shrink-0">
-                                    <Home className="w-4 h-4" /> Home
-                                </a>
-                                {REGIONS.map((region) => (
-                                    <button
-                                        key={region}
-                                        onClick={() => {
-                                            setSelectedRegion(region);
-                                            const newCats = Object.keys(itineraryData[region] || {});
-                                            setSelectedCategory(newCats[0]);
-                                        }}
-                                        className={`whitespace-nowrap px-5 py-2 md:py-2.5 rounded-full text-sm md:text-base font-medium transition-all ${
-                                            selectedRegion === region ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                                        }`}
-                                    >
-                                        {region}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </header>
-
-                    <main className="max-w-7xl mx-auto px-4 py-8 md:py-10 flex-grow w-full">
-                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
-                            {availableCats.map((catId) => {
-                                const IconComp = getIconForCategory(catId);
-                                return (
-                                    <button
-                                        key={catId}
-                                        onClick={() => setSelectedCategory(catId)}
-                                        className={`flex items-center gap-2 px-5 py-2 md:py-2.5 rounded-lg border text-sm md:text-base font-medium transition-all ${
-                                            selectedCategory === catId ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
-                                        }`}
-                                    >
-                                        <IconComp className="w-4 h-4 md:w-5 md:h-5" />
-                                        {catId}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {currentData.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                                {currentData.map((item, index) => (
-                                    <div key={index} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col justify-between hover:shadow-xl transition-all transform hover:-translate-y-1">
-                                        <div>
-                                            <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 leading-tight">{item.title}</h3>
-                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">{item.description}</p>
-                                        </div>
-                                        <div className="mt-auto pt-5 border-t border-slate-100 flex justify-end">
-                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm w-full">
-                                                <Info className="w-4 h-4 md:w-5 md:h-5" />
-                                                <span className="md:text-lg">View Details & Book</span>
-                                                <ExternalLink className="w-4 h-4 md:w-5 md:h-5 ml-1 opacity-70" />
-                                            </a>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-16 text-center flex flex-col items-center justify-center">
-                                <Sparkles className="w-10 h-10 text-slate-400 mb-3" />
-                                <h3 className="text-lg md:text-xl font-medium text-slate-700">No data available at the moment.</h3>
-                            </div>
-                        )}
-                    </main>
-                </div>
-            );
+<body>
+    <header>
+        <div class="header-actions">
+            <a href="index_en.html" class="btn-top">🏠 Home</a>
+            
+        </div>
+        <h1>Sydney Travel Guide</h1>
+        <div class="nav-buttons" id="navButtons">
+            <button class="nav-btn active" onclick="showCategory('all')">All</button>
+            <button class="nav-btn" onclick="showCategory('cat_0')">Transport & Connectivity</button><button class="nav-btn" onclick="showCategory('cat_1')">Attractions & Tickets</button><button class="nav-btn" onclick="showCategory('cat_2')">Tours & Sightseeing</button><button class="nav-btn" onclick="showCategory('cat_3')">Food & Dining</button><button class="nav-btn" onclick="showCategory('cat_5')">Unique Experiences</button>
+        </div>
+    </header>
+    <div class="container">
+        <section class="category-section active" id="cat_0"><h2 class="category-title">Transport & Connectivity</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Australia 5G eSIM | Unlimited Data via Optus</h3>
+                    <p class="card-desc">Seamlessly connect to Australia's premier network.<br>Powered by Optus, this 5G eSIM offers high-speed data access across the country with effortless digital activation on your device.</p>
+                    <a href="https://www.klook.com/en-US/activity/109206-australia-esim-high-speed-internet-qr-code-voucher/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Australia & New Zealand 5G eSIM</h3>
+                    <p class="card-desc">Your ultimate high-speed connectivity across Oceania.<br>Stay connected across Australia and New Zealand with a single 5G eSIM package, ensuring reliable coverage throughout your multi-country trip.</p>
+                    <a href="https://www.klook.com/en-US/activity/161349-5g-australia-and-new-zealand-unlimited-data-esim-optus-spark/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Bayside Private Sydney Airport Transfer Service</h3>
+                    <p class="card-desc">Enjoy exclusive comfort with private airport transport.<br>A professional chauffeur provides point-to-point service between Sydney Airport and your destination, ensuring a stress-free travel experience.</p>
+                    <a href="https://www.klook.com/en-US/airport-transfers/?flightDirection=1&code=SYD&aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Shared Airport Transfer: Sydney Airport (SYD) to Cruise Terminal / City / Airport Hotels</h3>
+                    <p class="card-desc">A convenient shared transport solution in Sydney.<br>Connecting Sydney Airport with downtown hotels and cruise terminals, offering efficient and comfortable door-to-door transfer options.</p>
+                    <a href="https://www.klook.com/en-US/activity/69210-shared-sydney-airport-one-way-transfer/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Shared Airport Departure Transfer: Sydney Airport (SYD)</h3>
+                    <p class="card-desc">Reliable departure transport service for Sydney Airport.<br>Enjoy smooth, scheduled shared transfers from city locations directly to your terminal, taking the hassle out of travel day.</p>
+                    <a href="https://www.klook.com/en-US/activity/71671-shared-sydney-airport-one-way-transfer/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Big Bus Hop-On Hop-Off Open-Top Sightseeing Tour</h3>
+                    <p class="card-desc">Discover Sydney's top landmarks at your own pace.<br>Ride the iconic open-top double-decker bus with access to comprehensive routes covering the Opera House, Harbour Bridge, and famous coastlines.</p>
+                    <a href="https://www.klook.com/en-US/activity/87168-sydney-big-bus-hop-on-hop-off-tour-pass-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Shared Airport Arrival Transfer: Sydney Airport (SYD) to Sydney</h3>
+                    <p class="card-desc">The smoothest arrival option at Sydney Airport.<br>Designed for incoming travelers, this shared transfer seamlessly connects the airport to designated city locations for a comfortable start.</p>
+                    <a href="https://www.klook.com/en-US/activity/11160-shared-airport-transfer-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Airport (SYD) Plaza Premium Lounge Access</h3>
+                    <p class="card-desc">Elevate your pre-flight experience with premium comfort.<br>Relax at the Plaza Premium Lounge in Sydney Airport, featuring gourmet refreshments, quiet seating, and executive amenities before your flight.</p>
+                    <a href="https://www.klook.com/en-US/activity/5309-airport-skyteam-exclusive-lounge-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Shared Transfer: Sydney Airport (SYD) to Sydney Downtown</h3>
+                    <p class="card-desc">Effortless direct connection to Sydney city center.<br>Provide dependable shared shuttle services from Sydney Airport to central downtown locations, perfect for independent travelers.</p>
+                    <a href="https://www.klook.com/en-US/activity/75290-shared-sydney-airport-transfer-syd-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Australia Electronic Travel Authority (ETA) Service</h3>
+                    <p class="card-desc">Streamline your travel preparations for Australia.<br>Professional assistance for Australia Electronic Travel Authority (ETA) applications, ensuring a smooth and hassle-free document processing experience.</p>
+                    <a href="https://www.klook.com/en-US/activity/238101-australia-e-visa-service/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Bankstown Airport Private Transfer</h3>
+                    <p class="card-desc">Start your trip seamlessly. Enjoy a smooth private transfer between Canterbury-Bankstown and Bankstown Airport with comfort.</p>
+                    <a href="https://www.klook.com/en-US/airport-transfers/?flightDirection=1&code=BWU&aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Western Sydney Airport Private Transfer</h3>
+                    <p class="card-desc">Experience hassle-free mobility. Enjoy dedicated private transportation to and from Western Sydney Airport for ultimate travel convenience.</p>
+                    <a href="https://www.klook.com/en-US/airport-transfers/?flightDirection=1&code=WSI&aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Paris City Tour, Seine River Cruise & Eiffel Tower Lunch</h3>
+                    <p class="card-desc">Immerse yourself in Parisian charm. Discover city landmarks, cruise along the Seine River, and savor lunch inside the Eiffel Tower.</p>
+                    <a href="https://www.klook.com/en-US/activity/11179-paris-tour-seine-cruise-lunch-eiffel-tower/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_1"><h2 class="category-title">Attractions & Tickets</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Attractions Pass</h3>
+                    <p class="card-desc">Explore the city at your own pace. This attractions pass gives you access to Sydney's top highlights with ultimate flexibility.</p>
+                    <a href="https://www.klook.com/en-US/activity/2186-attractions-combination-ticket-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Taronga Zoo Sydney Entry Ticket</h3>
+                    <p class="card-desc">Meet native wildlife with stunning harbor views. Visit Taronga Zoo Sydney to encounter kangaroos, koalas, and diverse exotic species.</p>
+                    <a href="https://www.klook.com/en-US/activity/1784-taronga-zoo-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Featherdale Wildlife Park Entry Ticket</h3>
+                    <p class="card-desc">Discover Australia's native fauna. Featherdale Wildlife Park offers an intimate look at unique local animals in a natural setting.</p>
+                    <a href="https://www.klook.com/en-US/activity/12089-featherdale-wildlife-park-entry-ticket-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">SEA LIFE Sydney Aquarium Ticket</h3>
+                    <p class="card-desc">Dive into a breathtaking underwater realm. SEA LIFE Sydney Aquarium features thousands of marine creatures and immersive themed exhibits.</p>
+                    <a href="https://www.klook.com/en-US/activity/1779-sea-life-aquarium-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Australian National Maritime Museum Ticket</h3>
+                    <p class="card-desc">Uncover Australia's rich maritime heritage. Explore historic vessels, interactive exhibits, and fascinating naval stories at the museum.</p>
+                    <a href="https://www.klook.com/en-US/activity/7469-australian-national-maritime-museum-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Zoo Ticket</h3>
+                    <p class="card-desc">Experience an innovative wildlife destination. Sydney Zoo houses exotic and native animals in modern, open-air habitats.</p>
+                    <a href="https://www.klook.com/en-US/activity/37263-sydney-zoo-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Taronga Zoo Sydney Combo: Ferry & Entry Ticket</h3>
+                    <p class="card-desc">Combine scenic harbor cruising with wildlife adventures. Take a pleasant ferry ride straight to Taronga Zoo for a memorable trip.</p>
+                    <a href="https://www.klook.com/en-US/activity/11900-taronga-zoo-express-ferry-captain-cook-round-trip-ticket-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Digipark Sydney Ticket</h3>
+                    <p class="card-desc">Enter a world of futuristic interactive fun. Digipark Sydney features cutting-edge digital experiences and innovative modern installations.</p>
+                    <a href="https://www.klook.com/en-US/activity/207991-digipark-sydney-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">WILD LIFE Sydney Zoo Ticket</h3>
+                    <p class="card-desc">Discover Australian wildlife in the heart of the city. WILD LIFE Sydney Zoo lets you encounter iconic Australian animals effortlessly.</p>
+                    <a href="https://www.klook.com/en-US/activity/1780-wild-life-zoo-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Tower Eye Admission Ticket</h3>
+                    <p class="card-desc">Soar above the skyline for breathtaking panoramas. Sydney Tower Eye offers incredible 360-degree views of the city and harbour.</p>
+                    <a href="https://www.klook.com/en-US/activity/1781-tower-eye-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Klook Pass Sydney</h3>
+                    <p class="card-desc">Design your ideal Sydney itinerary. This multi-attraction pass grants access to your choice of top city highlights.</p>
+                    <a href="https://www.klook.com/en-US/activity/67828-klook-pass-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Harbour Bridge Pylon Lookout & Museum Ticket</h3>
+                    <p class="card-desc">Ascend a landmark for incredible heritage views. Explore the museum inside the pylon and enjoy panoramic perspectives of Sydney Harbour.</p>
+                    <a href="https://www.klook.com/en-US/activity/222852-bridgemuseum-ticket-in-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Madame Tussauds Sydney Admission Ticket</h3>
+                    <p class="card-desc">Get up close with lifelike figures of global icons. Madame Tussauds Sydney features interactive zones with famous celebrities and historical figures.</p>
+                    <a href="https://www.klook.com/en-US/activity/1785-madame-tussauds-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Art Gallery of New South Wales Exhibition Ticket</h3>
+                    <p class="card-desc">Immerse yourself in refined artistic culture. The Art Gallery of New South Wales showcases exceptional historical and contemporary art collections.</p>
+                    <a href="https://www.klook.com/en-US/activity/144915-exhibitions-at-the-art-gallery-of-new-south-wales/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Taronga Zoo Entry & Sydney Harbour Ferry Pass</h3>
+                    <p class="card-desc">Enjoy both harbor sightseeing and animal encounters. Cruise through Sydney Harbour and spend a wonderful time exploring Taronga Zoo.</p>
+                    <a href="https://www.klook.com/en-US/activity/75931-taronga-zoo-sydney-harbour-hopper-admission/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Klook Pass Australia</h3>
+                    <p class="card-desc">Travel across Australia with ease and flexibility. This country pass lets you select top attractions across major Australian destinations.</p>
+                    <a href="https://www.klook.com/en-US/activity/90463-klook-pass-tours-australia/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">The Gentleman Magician's Magical Soirée with Canapés & Champagne</h3>
+                    <p class="card-desc">Indulge in an elegant evening of wonder. Enjoy sophisticated magic performances accompanied by fine champagne and gourmet canapés.</p>
+                    <a href="https://www.klook.com/en-US/activity/51356-gentleman-magicians-magical-soiree-canapes-champagne/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_2"><h2 class="category-title">Tours & Sightseeing</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Blue Mountains Day Tour with Chinese-Speaking Guide</h3>
+                    <p class="card-desc">Experience the majesty of the Blue Mountains with easy communication.<br>An expert Chinese-speaking guide leads you to iconic spots like the Three Sisters and scenic valleys.</p>
+                    <a href="https://www.klook.com/en-US/activity/169826-one-day-tour-to-the-blue-mountains-includes-chinese-speaking-guide/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney: Small-Group Blue Mountains Tour with Koalas & Scenic World</h3>
+                    <p class="card-desc">Enjoy an intimate exploration with a small-group setting.<br>Meet adorable koalas and ride the iconic Scenic World funiculars while taking in breathtaking panoramic views of the Blue Mountains.</p>
+                    <a href="https://www.klook.com/en-US/activity/81473-sydney-blue-mountains-one-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Opera House Guided Tour with Dining Experience</h3>
+                    <p class="card-desc">Step inside a legendary masterpiece of modern architecture.<br>Explore the inner halls of the Sydney Opera House with a guided tour, followed by a refined dining experience along the harbor.</p>
+                    <a href="https://www.klook.com/en-US/activity/59047-sydney-opera-house-tour-dine-sydney-opera-kitchen-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Blue Mountains Sunset and Stargazing Tour with Featherdale Wildlife Park</h3>
+                    <p class="card-desc">Uncover the magic of the national park under the evening sky.<br>Visit Featherdale Wildlife Park before marveling at a stunning Blue Mountains sunset and stargazing in pristine dark skies.</p>
+                    <a href="https://www.klook.com/en-US/activity/161793-blue-mountain-sunset-stargazing-tour-with-featherdale-zoo/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Blue Mountains In-Depth Day Tour including 3 Scenic Rides</h3>
+                    <p class="card-desc">Fully immerse yourself in the Blue Mountains from multiple perspectives.<br>Includes three unique rides—Skyway, Cableway, and Railway—to explore rainforests and spectacular canyon vistas.</p>
+                    <a href="https://www.klook.com/en-US/activity/162044-sydney-blue-mountains-deep-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Wild Wombat, Kangaroo, and Waterfalls All-Inclusive Tour</h3>
+                    <p class="card-desc">Venture into wildlife habitats for a pure eco-adventure.<br>This all-inclusive tour takes you to spot wild wombats and kangaroos in their natural element, alongside stunning waterfalls.</p>
+                    <a href="https://www.klook.com/en-US/activity/34097-walking-wombats-waterfalls-day-tour-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Blue Mountains Scenic World Rides & Wildlife Tour from Sydney</h3>
+                    <p class="card-desc">Combine iconic natural wonders with rich native wildlife.<br>Departing from Sydney, ride famous Scenic World attractions and visit a wildlife park to experience Australia's rich biodiversity.</p>
+                    <a href="https://www.klook.com/en-US/activity/101180-blue-mountains-deluxe-day-tour-from-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Australia Blue Mountains Day Tour</h3>
+                    <p class="card-desc">Embark on a classic journey through the Blue Mountains.<br>Escape the city hustle to walk lush trails, breathe fresh eucalyptus air, and appreciate World Heritage landscapes.</p>
+                    <a href="https://www.klook.com/en-US/activity/95647-blue-mountains-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">1.5-Hour Sydney Night Tour</h3>
+                    <p class="card-desc">Witness the dazzling magic of Sydney illuminated at night.<br>A concise 1.5-hour evening tour taking you past iconic landmarks and harbor views lit up under the night sky.</p>
+                    <a href="https://www.klook.com/en-US/activity/150613-sydney-night-tour-by-big-bus/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Orange Cherry Picking Tour from Sydney</h3>
+                    <p class="card-desc">Delight in the fun of picking fresh seasonal fruit.<br>Travel from Sydney to the orchard town of Orange to pick sweet cherries and enjoy a relaxing countryside experience.</p>
+                    <a href="https://www.klook.com/en-US/activity/40256-orange-cherry-picking-day-tour-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Blue Mountains Day Tour from Sydney</h3>
+                    <p class="card-desc">Discover the most famous mountainous retreat near Sydney.<br>With convenient round-trip transport, explore scenic lookouts and iconic rock formations effortlessly.</p>
+                    <a href="https://www.klook.com/en-US/activity/101138-blue-mountains-day-tour-from-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Blue Mountains, Katoomba Scenic World & River Cruise Day Tour</h3>
+                    <p class="card-desc">Combine mountains, canyons, and waterways in one itinerary.<br>Explore Katoomba and Scenic World before concluding with a relaxing river cruise back into Sydney.</p>
+                    <a href="https://www.klook.com/en-US/activity/176727-blue-mountains-national-park-scenic-world-one-day-national-park-cruise-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Blue Mountains Wildlife Park, Koala, Leura Town & Scenic World Tour in Chinese</h3>
+                    <p class="card-desc">Combine nature, local culture, and charming small-town vibes.<br>Led by a Chinese-speaking guide, meet koalas, wander Leura's garden streets, and enjoy Scenic World.</p>
+                    <a href="https://www.klook.com/en-US/activity/90892-sydney-blue-mountains-one-day-tour-mandarin-speaking-guide/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Bondi & Sydney Half-Day Sightseeing Tour</h3>
+                    <p class="card-desc">Capture the essence of Sydney's city and coast efficiently.<br>A perfect half-day overview covering famous Bondi Beach, historic districts, and iconic harbor lookouts.</p>
+                    <a href="https://www.klook.com/en-US/activity/94285-sydney-bondi-beach-half-day-landmark-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Blue Mountains Luxury Small-Group Day Tour</h3>
+                    <p class="card-desc">Indulge in a premium travel experience with ultra-comfort.<br>Traverse the Blue Mountains in luxury vehicles, avoiding crowds while enjoying personalized attention and scenic stops.</p>
+                    <a href="https://www.klook.com/en-US/activity/207480-sydney-blue-mountains-luxury-small-group-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">From Sydney: Port Stephens Dolphins, Koalas & Sandboarding Experience</h3>
+                    <p class="card-desc">Embark on an adventurous journey mixing ocean and desert fun.<br>Cruise to spot wild dolphins, glide down massive sand dunes, and visit a native koala sanctuary.</p>
+                    <a href="https://www.klook.com/en-US/activity/90899-port-stephens-day-trip-sydney-sydney-mandarin-speaking-guide/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney True Crime Stories Walking Tour</h3>
+                    <p class="card-desc">Uncover the dark and mysterious history behind Sydney's streets.<br>Walk through historic alleys while hearing fascinating true stories of 19th-century crime, gangs, and mysteries.</p>
+                    <a href="https://www.klook.com/en-US/activity/65657-true-crime-tours-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Jacaranda Spring Flowers & Taronga Zoo Day Tour</h3>
+                    <p class="card-desc">Immerse yourself in purple blooms and vibrant wildlife.<br>Admire blooming jacaranda trees across scenic spots and visit Taronga Zoo for wildlife encounters with iconic harbor views.</p>
+                    <a href="https://www.klook.com/en-US/activity/221120-sydney-spring-jacaranda-taronga-zoo-full-day-city-highlights-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Blue Mountains and Featherdale Wildlife Park Tour</h3>
+                    <p class="card-desc">Discover natural wonders firsthand.<br>Explore the dramatic landscapes of the Blue Mountains and meet native Australian wildlife at Featherdale.</p>
+                    <a href="https://www.klook.com/en-US/activity/23811-blue-mountains-sydney-zoo-tour-korean-guide-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney City Small Group Day Tour (Chinese Guide)</h3>
+                    <p class="card-desc">Experience Sydney like a local.<br>Enjoy a personalized small-group excursion led by a Chinese-speaking guide to iconic landmarks and hidden gems.</p>
+                    <a href="https://www.klook.com/en-US/activity/90825-sydney-city-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Blue Mountains Scenic World, Wildlife Park & Cruise Small Group Tour</h3>
+                    <p class="card-desc">Immerse yourself in nature and waters.<br>Riders can enjoy cable cars over deep canyons, interact with wildlife, and finish with a scenic cruise.</p>
+                    <a href="https://www.klook.com/en-US/activity/12376-blue-mountain-all-inclusive-day-tour-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Port Stephens Flexible Day Tour with Korean Guide</h3>
+                    <p class="card-desc">Encounter coastal landscapes and desert dunes.<br>This flexible itinerary with a Korean-speaking guide offers thrilling sandboarding and ocean views.</p>
+                    <a href="https://www.klook.com/en-US/activity/23587-port-stephens-day-tour-korean-guide-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Opera House Architectural Tour</h3>
+                    <p class="card-desc">Step inside a world-famous architectural masterpiece.<br>Learn about the groundbreaking design, structural engineering, and history behind the iconic sails.</p>
+                    <a href="https://www.klook.com/en-US/activity/58684-sydney-opera-house-architectural-tour-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Cricket Ground Tour with SCG Museum Entry</h3>
+                    <p class="card-desc">Walk through the gates of sporting history.<br>Explore player changerooms, the historic media center, and fascinating exhibits at the SCG Museum.</p>
+                    <a href="https://www.klook.com/en-US/activity/62349-sydney-cricket-ground-walking-tour-scg-museum-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">3D2N Hunter Valley Tour with Scenic Train Transfer from Sydney</h3>
+                    <p class="card-desc">Indulge in a relaxing country escape.<br>Includes round-trip scenic train transfers from Sydney to sample fine wines and gourmet regional food.</p>
+                    <a href="https://www.klook.com/en-US/activity/46498-hunter-valley-private-trip-hotel-nights-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Half-Day Private Cultural Tour of Sydney Opera House</h3>
+                    <p class="card-desc">Enjoy an exclusive, tailored cultural experience.<br>Discover the artistic heritage and architectural brilliance of the landmark with a dedicated private guide.</p>
+                    <a href="https://www.klook.com/en-US/activity/168719-sydney-opera-house-half-day-cultural-self-guided-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Luxury Blue Mountains Day Tour with Scenic World & Wildlife Park</h3>
+                    <p class="card-desc">Travel in ultimate comfort and premium style.<br>Experience Scenic World's rides, breathtaking lookouts, and close wildlife interactions on a luxury journey.</p>
+                    <a href="https://www.klook.com/en-US/activity/131481-blue-mountains-premium-day-tour-with-scenic-world-and-wildlife-park/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney: The Rocks Ghost Tour</h3>
+                    <p class="card-desc">Uncover the dark secrets of Sydney's past.<br>Lantern-lit walking tour through cobblestone alleys, sharing haunted history and local urban legends.</p>
+                    <a href="https://www.klook.com/en-US/activity/34345-haunted-sydney-ghost-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Paronella Park & Millaa Millaa Falls Small Group Tour</h3>
+                    <p class="card-desc">Journey into a magical rainforest paradise.<br>Explore the enchanting ruins of Paronella Park and capture stunning photography at Millaa Millaa Falls.</p>
+                    <a href="https://www.klook.com/en-US/activity/191260-atherton-tablelands-and-paronella-park-full-day-bus-tour-from-cairns/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Full-Day Blue Mountains Wildlife & Sightseeing Tour</h3>
+                    <p class="card-desc">Experience the rich biodiversity of the Blue Mountains.<br>Visit iconic lookouts like the Three Sisters and get up close to native animals.</p>
+                    <a href="https://www.klook.com/en-US/activity/173225-scenic-world-blue-mountains-national-park-one-day-wildlife-sightseeing-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">1.5-Hour Walking Tour of The Rocks Sydney</h3>
+                    <p class="card-desc">Walk through the historical birthplace of modern Sydney.<br>Stroll down heritage lanes, admiring historic pubs and convict-built structures.</p>
+                    <a href="https://www.klook.com/en-US/activity/51212-the-rocks-walking-tours/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Opera House Backstage Tour</h3>
+                    <p class="card-desc">Access exclusive areas off-limits to the general public.<br>Walk backstage, see green rooms and stage machinery while learning theater production secrets.</p>
+                    <a href="https://www.klook.com/en-US/activity/59070-sydney-opera-house-beyond-the-stage-tour-brunch-opera-kitchen-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Morning Sightseeing Tour & Harbor Lunch Cruise</h3>
+                    <p class="card-desc">Combine classic land highlights with fine maritime dining.<br>Tour Sydney highlights in the morning, followed by a delicious lunch onboard a scenic harbor cruise.</p>
+                    <a href="https://www.klook.com/en-US/activity/94243-morning-sydney-sights-harbour-lunch-cruise-bus-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Top Highlights Day Tour with Video</h3>
+                    <p class="card-desc">Capture every unforgettable moment of your journey.<br>Explore iconic city attractions with a professional guide and receive a personalized keepsake video.</p>
+                    <a href="https://www.klook.com/en-US/activity/214944-sydney-top-instagrammable-spots-day-night-tour-with-video/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney City Sightseeing Day Tour with Chinese Driver-Guide</h3>
+                    <p class="card-desc">Travel seamlessly with personalized localized assistance.<br>An experienced Chinese-speaking driver-guide ensures a smooth, comfortable tour of top city attractions.</p>
+                    <a href="https://www.klook.com/en-US/activity/187818-sydney-city-day-tour-iconic-sights-and-landmarks/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Featherdale Wildlife Park & Blue Mountains Scenic World Tour (Korean Guide)</h3>
+                    <p class="card-desc">Tailored ecological exploration for Korean travelers.<br>Enjoy Scenic World's popular rides and close-up encounters with native wildlife alongside a Korean-speaking guide.</p>
+                    <a href="https://www.klook.com/en-US/activity/167648-featherdale-scenic-world-blue-mountains-tour-with-korean-guide/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Canberra Capital City Day Tour with Chinese Guide</h3>
+                    <p class="card-desc">Delve into Australia's political and cultural core.<br>Discover Parliament House, the War Memorial, and national galleries with an informative Chinese-speaking guide.</p>
+                    <a href="https://www.klook.com/en-US/activity/90848-canberra-day-tour-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Blue Mountains Cherry Picking Day Tour from Sydney with Lunch</h3>
+                    <p class="card-desc">Taste seasonal sweetness amidst mountain scenery.<br>Combine scenic Blue Mountains sightseeing with a fun farm cherry-picking experience and an included lunch.</p>
+                    <a href="https://www.klook.com/en-US/activity/184080-blue-mountains-and-orange-full-day-cherry-picking-tour-from-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Blue Mountains & Wildlife Park Small Group Day Adventure</h3>
+                    <p class="card-desc">Immerse yourself in Australian nature.<br>Join a small group to explore the scenic Blue Mountains and meet native wildlife up close with expert guidance.</p>
+                    <a href="https://www.klook.com/en-US/activity/223509-sydney-blue-mountains-wildlife-park-full-day-small-group-adventure/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Grand Pacific Drive Private Day Tour from Sydney</h3>
+                    <p class="card-desc">Experience one of Australia's most stunning coastal drives.<br>Enjoy a private guided tour along the Grand Pacific Drive with breathtaking ocean views.</p>
+                    <a href="https://www.klook.com/en-US/activity/105215-one-day-private-south-coast-car-trip/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_3"><h2 class="category-title">Food & Dining</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">SkyFeast at Sydney Tower</h3>
+                    <p class="card-desc">Elevate your dining experience with panoramic city views. Enjoy a lavish buffet while taking in 360-degree sights of Sydney.</p>
+                    <a href="https://www.klook.com/en-US/activity/2754-tower-buffet-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Hunter Valley Wine, Cheese and Chocolate Tour</h3>
+                    <p class="card-desc">Discover Australia's oldest wine region. Indulge in local wine tastings paired with artisanal cheeses and hand-crafted chocolates.</p>
+                    <a href="https://www.klook.com/en-US/activity/51767-hunter-valley-wine-gin-cheese-tasting-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Nightlife Bar Crawl</h3>
+                    <p class="card-desc">Experience the energetic side of Sydney. Visit popular local bars with a guide, enjoying drinks and vibrant social atmosphere.</p>
+                    <a href="https://www.klook.com/en-US/activity/75213-sydney-nightlife-pub-crawl-experience-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Ghost Pub Tour and Cellar Visit</h3>
+                    <p class="card-desc">Uncover historic mysteries in old Sydney pubs. Listen to ghost stories and visit historic cellars on a unique night walk.</p>
+                    <a href="https://www.klook.com/en-US/activity/112097-haunted-sydney-pub-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Dining at Infinity by Mark Best at Sydney Tower</h3>
+                    <p class="card-desc">Savor exquisite modern dining high above the city. Enjoy innovative dishes crafted by Mark Best with stunning aerial views.</p>
+                    <a href="https://www.klook.com/en-US/activity/15666-infinity-bar-dining-sydney-tower/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Clearview Glass Boat Dinner Cruise</h3>
+                    <p class="card-desc">Cruise Sydney Harbour under the evening stars. Enjoy a multi-course dinner inside a glass boat with clear, unobstructed views.</p>
+                    <a href="https://www.klook.com/en-US/activity/155543-glass-boat-dinner-cruise/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Hidden Bars and Storytelling Nightlife Tour</h3>
+                    <p class="card-desc">Discover hidden speakeasies tucked away in Sydney lanes. Learn fascinating local stories while sipping curated cocktails with a guide.</p>
+                    <a href="https://www.klook.com/en-US/activity/30831-bar-crawl-experience-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Seafood Market Small Group Gourmet Tour</h3>
+                    <p class="card-desc">Visit one of the Southern Hemisphere's largest markets. Join a small group to taste fresh oysters and local seafood delicacies.</p>
+                    <a href="https://www.klook.com/en-US/activity/168416-sydney-fish-market-food-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Award-Winning Hunter Valley Wine and Cheese Tour from Sydney</h3>
+                    <p class="card-desc">Travel from Sydney to award-winning wineries. Sample fine wines and paired cheeses in the scenic heart of the Hunter Valley.</p>
+                    <a href="https://www.klook.com/en-US/activity/97182-hunter-valley-wine-cheese-tasting-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Hunter Valley Chef-Led Food and Wine Experience</h3>
+                    <p class="card-desc">Embark on a culinary journey led by an expert chef. Enjoy seasonal dishes perfectly paired with premium wines in Hunter Valley.</p>
+                    <a href="https://www.klook.com/en-US/activity/12339-chef-led-hunter-valley-gourmet-food-wine-tour-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Marrickville Food Tour in Sydney</h3>
+                    <p class="card-desc">Explore Sydney's vibrant multicultural hub. Sample authentic global flavors and craft beers throughout the trendy streets of Marrickville.</p>
+                    <a href="https://www.klook.com/en-US/activity/157121-marrickville-munch-sydney-food-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Luke Nguyen Picnic Experience at Royal Botanic Garden</h3>
+                    <p class="card-desc">Enjoy a gourmet picnic by chef Luke Nguyen. Savor Southeast Asian-inspired dishes surrounded by lush scenery in the Botanic Garden.</p>
+                    <a href="https://www.klook.com/en-US/activity/50827-botanic-house-picnic-hamper-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Fish Market Wharf Sunset Experience</h3>
+                    <p class="card-desc">Experience sunset at Sydney Fish Market wharf. Relax by the waterfront while enjoying fresh seafood as dusk falls over the harbor.</p>
+                    <a href="https://www.klook.com/en-US/activity/177028-sydney-fish-market-sunset-on-the-wharf/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Botanic House Tasting Menu by Luke Nguyen</h3>
+                    <p class="card-desc">Dine inside the tranquil Royal Botanic Garden. Enjoy chef Luke Nguyen's signature menu blending Asian and Australian culinary arts.</p>
+                    <a href="https://www.klook.com/en-US/activity/51065-luke-nguyen-tasting-menu-dining-experience-botanic-house-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Centennial Parklands Picnic Experience in Sydney</h3>
+                    <p class="card-desc">Relax in one of Sydney's iconic heritage parks. Delight in a prepared picnic box amidst expansive lawns and serene lakes.</p>
+                    <a href="https://www.klook.com/en-US/activity/64827-centennial-homestead-picnic-hamper-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Dave's Brewery Tours: Sydney Breweries, Wineries and Distilleries</h3>
+                    <p class="card-desc">Discover Sydney's craft beverage scene. Tour local breweries, wineries, and distilleries while learning about craft production from experts.</p>
+                    <a href="https://www.klook.com/en-US/activity/26896-sydney-brewery-winery-distillery-half-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Rustic Italian Picnic at The Domain or Royal Botanic Garden</h3>
+                    <p class="card-desc">Savor an Italian-style picnic spread outdoors. Enjoy cured meats, cheeses, and fresh bread in scenic parkland locations.</p>
+                    <a href="https://www.klook.com/en-US/activity/51754-rustic-italian-picnic-domain-royal-botanic-gardens-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Hunter Valley Wine and Wildlife Discovery Tour</h3>
+                    <p class="card-desc">Combine wine tasting with native wildlife encounters. Visit premier Hunter Valley wineries and see Australian animals in natural settings.</p>
+                    <a href="https://www.klook.com/en-US/activity/98554-wine-cheese-tasting-hunter-valley-luxury-wine-wildlife-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Bottomless Brunch at Terrace on the Domain</h3>
+                    <p class="card-desc">Enjoy a relaxed bottomless brunch overlooking green gardens. Savor delicious dishes paired with free-flowing beverages and skyline views.</p>
+                    <a href="https://www.klook.com/en-US/activity/51068-bottomless-brunch-terrace-on-domain-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Hunter Valley Wine Tasting Tour with 2-Course Lunch and Chocolates</h3>
+                    <p class="card-desc">Indulge in a complete wine region tour. Includes guided tastings at boutique cellars, a 2-course lunch, and local chocolates.</p>
+                    <a href="https://www.klook.com/en-US/activity/128723-hunter-valley-with-lunch-one-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">From Sydney: Hunter Valley Wine Tasting Tour</h3>
+                    <p class="card-desc">Taste the distinct flavors of Australia's oldest wine region.<br>Travel from Sydney to Hunter Valley to visit renowned wineries and sample premium wines paired with local cheeses.</p>
+                    <a href="https://www.klook.com/en-US/activity/57458-hunter-valley-wine-beer-spirits-tasting-day-trip-sydney-hunter-valley/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Hunter Valley Brewery Day Tour: From Hunter Valley, Newcastle, or Sydney</h3>
+                    <p class="card-desc">Discover the perfect fusion of craft beers and local artistry.<br>Departing from multiple locations, visit independent breweries to sample fresh craft beers and learn about brewing processes.</p>
+                    <a href="https://www.klook.com/en-US/activity/26928-hunter-valley-winery-brewery-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_5"><h2 class="category-title">Unique Experiences</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Harbour Sightseeing Cruise</h3>
+                    <p class="card-desc">Embark on a breathtaking coastal journey.<br>Cruise through Sydney Harbour to admire iconic landmarks like the Opera House and Harbour Bridge from the water.</p>
+                    <a href="https://www.klook.com/en-US/activity/66171-sydney-harbour-sightseeing-cruise-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Whale Watching Adventure</h3>
+                    <p class="card-desc">Witness the awe-inspiring ocean giants.<br>Venture into open waters with expert guides to spot migrating humpback whales in their natural habitat.</p>
+                    <a href="https://www.klook.com/en-US/activity/119493-sydney-whale-watching-adventure-cruise/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Harbour 2-Hour Whale Watching Cruise</h3>
+                    <p class="card-desc">Experience an efficient marine wildlife safari.<br>This two-hour cruise takes you swiftly to prime whale-watching spots for unforgettable marine encounters.</p>
+                    <a href="https://www.klook.com/en-US/activity/58516-sydney-harbour-whale-watching-cruise-fantasea/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Captain Cook Sydney Harbour Sunset Dinner Cruise</h3>
+                    <p class="card-desc">Indulge in culinary delights at golden hour.<br>Board Captain Cook Cruises to savour fine dining while watching the sunset over Sydney's glittering harbour.</p>
+                    <a href="https://www.klook.com/en-US/activity/11974-sydney-harbour-sunset-dinner-cruise-captain-cook-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Car Rental | Drive to Sydney Harbour, Chatswood, Bondi Junction, Blacktown, Manly Beach & Hurstville</h3>
+                    <p class="card-desc">Enjoy total flexibility on your Australian road trip.<br>Choose from diverse vehicles to conveniently explore Sydney Harbour, coastal beaches, and vibrant suburban hubs.</p>
+                    <a href="https://www.klook.com/en-US/car-rentals/results/?pick=Sydney+Kingsford+Smith+International+Airport&drop=Sydney+Kingsford+Smith+International+Airport&diffLoc=false&pDate=2026-10-31+10%3A00&dDate=2026-11-03+10%3A00&age=30&lat=-33.94611&long=151.17722&dLat=-33.94611&dLong=151.17722&code=AU&dCode=AU&iata=SYD&dIata=SYD&aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Harbour Suite Hotel</h3>
+                    <p class="card-desc">Elevate your stay with premium harbourfront living.<br>Featuring spacious suites and modern amenities, this hotel serves as an ideal base for exploring Sydney.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/393620-yehs-hotel-sydney-harbour-suites/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Harbour Sunrise Kayak Tour with Breakfast</h3>
+                    <p class="card-desc">Greet the dawn from a unique water perspective.<br>Paddle across calm harbour waters at sunrise and reward yourself with a delicious breakfast by the water.</p>
+                    <a href="https://www.klook.com/en-US/activity/104478-sunrise-kayak-on-sydney-harbour-breakfast-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Captain Cook Cruises Sydney Whale Watching</h3>
+                    <p class="card-desc">Set sail with trusted maritime experts.<br>Join Captain Cook Cruises for an informative whale-watching tour guided by an experienced crew.</p>
+                    <a href="https://www.klook.com/en-US/activity/11862-whale-watching-cruise-by-captain-cook-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">'Great Opera Hits' Sydney Opera House Concert</h3>
+                    <p class="card-desc">Immerse yourself in world-class musical artistry.<br>Listen to famous opera arias performed inside the iconic Sydney Opera House for a memorable cultural evening.</p>
+                    <a href="https://www.klook.com/en-US/activity/7706-great-opera-hits-at-sydney-opera-house-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">BridgeClimb Sydney Harbour Bridge</h3>
+                    <p class="card-desc">Conquer Sydney's grandest architectural landmark.<br>Ascend to the top of the Harbour Bridge for unforgettable 360-degree panoramic views of the entire city.</p>
+                    <a href="https://www.klook.com/en-US/activity/2220-bridge-climb-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Harbour Jet Boat Thrill Ride</h3>
+                    <p class="card-desc">Feel the rush of high-speed aquatic excitement.<br>Experience adrenaline-pumping spins and high-speed maneuvers on a thrill-filled jet boat tour across the harbour.</p>
+                    <a href="https://www.klook.com/en-US/activity/22510-harbour-jet-boat-adventure-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Wake Up! Sydney Central</h3>
+                    <p class="card-desc">Connect with fellow travelers in a vibrant setting.<br>Located right by Central Station, this stylish property offers convenient accommodation and a friendly social atmosphere.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/269718-wake-up-sydney--hostel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Harbour Helicopter Scenic Flight</h3>
+                    <p class="card-desc">Take to the skies for breathtaking aerial vistas.<br>Soar above Sydney Harbour and surrounding coastlines to capture stunning views of iconic landmarks from above.</p>
+                    <a href="https://www.klook.com/en-US/activity/12437-sydney-harbour-helicopter-flight-tour-transfer-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Travelodge Hotel Hurstville Sydney</h3>
+                    <p class="card-desc">Enjoy comfortable lodging in Sydney's south.<br>Located in Hurstville, this hotel offers convenient amenities and easy access to local dining and transport links.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/736867-travelodge-hotel-hurstville-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Great Southern Hotel Sydney</h3>
+                    <p class="card-desc">Stay in the heart of Sydney's vibrant precinct.<br>Housed in a heritage building near Chinatown, this hotel offers comfortable rooms close to major city sights.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/438705-great-southern-hotel-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">The Lakeside Motel Waterfront</h3>
+                    <p class="card-desc">Unwind in a tranquil lakeside environment.<br>Set along peaceful waters, this hotel provides relaxing rooms and versatile event spaces surrounded by nature.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/435454-lakeside-hotel-and-conference-centre/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Newtown Cozy Accommodation</h3>
+                    <p class="card-desc">Experience the artistic soul of Newtown.<br>Nestled in a vibrant neighborhood filled with cafes and murals, this cozy stay offers a warm atmosphere.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/408113-newtown-cozy-stays/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Ryde Choice Hotel</h3>
+                    <p class="card-desc">Discover a peaceful retreat away from city bustle.<br>Located in Ryde, this hotel features clean and comfortable rooms suitable for a relaxed getaway.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/268547-the-select-inn-ryde/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">St Leonards Hotel</h3>
+                    <p class="card-desc">Access Sydney's North Shore with complete ease.<br>Situated near key transport hubs, this hotel offers comfortable accommodations ideal for both business and leisure.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/81963-hotel-st-leonards/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Veriu Macquarie Park</h3>
+                    <p class="card-desc">Embrace modern living in an innovative hub.<br>Featuring stylish self-contained micro-apartments, this property offers a sophisticated stay with modern home comforts.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1326479-veriu-macquarie-park/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Meridian Hotel</h3>
+                    <p class="card-desc">Discover an elegant urban retreat.<br>Offering comfortable rooms and easy transport links, perfect for exploring local attractions.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/861638-meridian-hotel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Quest Chatswood</h3>
+                    <p class="card-desc">Experience the convenience of a home away from home.<br>Located in a vibrant hub, featuring modern amenities for all travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/409960-quest-chatswood/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Silkari Suites Chatswood</h3>
+                    <p class="card-desc">Experience contemporary luxury and style.<br>Spacious suites combined with refined touches, situated near top shopping and transport.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/298923-silkari-suites-chatswood/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">The Star Grand Hotel and Residences Sydney</h3>
+                    <p class="card-desc">Immerse yourself in premium harbor-side hospitality.<br>Offering elegant rooms, fine dining, and entertainment near Darling Harbour.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/394533-the-star-grand-hotel-and-residences-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">My Fair Lady at Sydney Opera House</h3>
+                    <p class="card-desc">Relive the charm of a classic Broadway musical.<br>Enjoy a world-class performance inside Sydney's iconic landmark.</p>
+                    <a href="https://www.klook.com/en-US/activity/184329-my-fair-lady-musical-at-sydney-opera-house/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">The Manor House</h3>
+                    <p class="card-desc">Embrace the timeless appeal of classic architecture.<br>Refined decor and a peaceful ambiance provide a restful stay away from the hustle.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/263012-hotel-hacienda/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Marco Polo Motor Inn Sydney</h3>
+                    <p class="card-desc">Embark on a practical Sydney journey.<br>Featuring clean, comfy rooms and convenient access, ideal for road trips and independent travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/84250-marco-polo-motor-inn-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Seaplanes Experience</h3>
+                    <p class="card-desc">Take to the skies for breathtaking coastal views.<br>Fly over Sydney Harbour and take in panoramic sights of famous landmarks from above.</p>
+                    <a href="https://www.klook.com/en-US/activity/14474-sydney-seaplanes-highlight-flight-sydney/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">ibis budget Wentworthville</h3>
+                    <p class="card-desc">Discover simplicity and functionality.<br>Clean and essential accommodation providing a hassle-free base to explore the local area.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/267365-ibis-budget-wentworthville/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Adina Apartment Hotel Sydney Airport</h3>
+                    <p class="card-desc">Enjoy seamless travel near airport terminals.<br>Spacious apartment-style rooms with full kitchen facilities ensure a relaxing stay.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/40552-adina-apartment-hotel-sydney-airport/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Granville Hotel</h3>
+                    <p class="card-desc">Connect with the authentic local community.<br>Offering cozy rooms and friendly dining in a welcoming neighborhood atmosphere.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/87133-granville-hotel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">ibis budget Enfield</h3>
+                    <p class="card-desc">Start your trip with easy simplicity.<br>Providing clean, straightforward rooms with convenient transport access.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/278741-ibis-budget-enfield/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Marlborough Hotel Newtown Sydney</h3>
+                    <p class="card-desc">Feel the creative pulse of Newtown.<br>Situated in a vibrant artistic neighborhood, combining cozy lodging with popular local pub vibes.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/249489-metro-hotel-marlow-sydney-central/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Cambridge Lodge Hostel</h3>
+                    <p class="card-desc">Connect with global travelers under one roof.<br>Offering clean dorms and inviting communal areas for adventurous backpackers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/309317-cambridge-lodge--hostel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Harbour Golden Sunset Cruise</h3>
+                    <p class="card-desc">Witness the golden glow over the harbor.<br>Cruise along Sydney Harbour at dusk to enjoy breathtaking evening views and relaxation.</p>
+                    <a href="https://www.klook.com/en-US/activity/127182-golden-glow-sunset-sydney-harbour-cruise/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Sydney Harbour Sightseeing Cruise</h3>
+                    <p class="card-desc">Explore the captivating beauty of the harbor.<br>Sail past iconic landmarks like the Sydney Opera House and Harbour Bridge.</p>
+                    <a href="https://www.klook.com/en-US/activity/88651-sydney-harbour-sightseeing-cruise-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">ibis budget St Peters</h3>
+                    <p class="card-desc">Find a convenient city staging point.<br>Located near green parks and transit options, ideal for lightweight, practical travel.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/271115-ibis-budget-st-peters/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Travelodge Hotel Sydney Airport</h3>
+                    <p class="card-desc">Rest easy between your flight schedules.<br>Designed for transit and business travelers, featuring modern comforts near airport terminals.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/433990-travelodge-hotel-sydney-airport/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Value Suites Green Square</h3>
+                    <p class="card-desc">Unlock a stylish modern urban stay.<br>Located in a vibrant precinct with smart room designs and easy city connectivity.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/272355-valuesuites-green-square/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Novotel Sydney Cabramatta (Opening Nov 2025)</h3>
+                    <p class="card-desc">Look forward to a fresh hospitality standard.<br>Blending modern Novotel style with premium facilities for an elevated experience.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1959926-novotel-sydney-cabramatta/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section>
+    </div>
+    <script>
+        function showCategory(categoryId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`button[onclick="showCategory('${categoryId}')"]`).classList.add('active');
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.toggle('active', categoryId === 'all' || section.id === categoryId);
+            });
+            window.scrollTo(0, 0);
         }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
     </script>
-    <footer class="text-center py-8 text-gray-400 text-sm md:text-base px-4">
-        <p>Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved. 提供最專業的亞洲自由行旅遊指南與行程規劃工具 (Asia Travel Guides & FIT Itineraries)。版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
-    </footer>
 </body>
 </html>
