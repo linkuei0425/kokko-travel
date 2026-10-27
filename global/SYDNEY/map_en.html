@@ -201,11 +201,27 @@
                     if(!cat.items) return;
                     cat.items.forEach(attr => {
                         let matchedStation = null;
+                        // 防呆：有空白就剔除代號取後面的完整站名，沒空白就取整段
                         if(attr.transport) {
-                            for(let station of validStations) if(attr.transport.includes(station)) { matchedStation = station; break; }
+                            for(let station of validStations) {
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
+                                if(shortName && attr.transport.includes(shortName)) { matchedStation = station; break; }
+                            }
                         }
                         if(!matchedStation) {
-                            for(let station of validStations) if(attr.name.includes(station)) { matchedStation = station; break; }
+                            for(let station of validStations) {
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
+                                if(shortName && (attr.name.includes(shortName) || (attr.feature && attr.feature.includes(shortName)))) { matchedStation = station; break; }
+                            }
+                        }
+                        if(!matchedStation) {
+                            for(let station of validStations) {
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
+                                if(shortName && attr.name.includes(shortName)) { matchedStation = station; break; }
+                            }
                         }
                         if(matchedStation) {
                             if(!stationAttractions[matchedStation]) stationAttractions[matchedStation] = [];
