@@ -196,7 +196,7 @@
         function mapAttractionsToStations() {
             let validStations = new Set();
             allTransitData.forEach(line => {
-                line.stations.forEach(s => validStations.add((typeof s === 'string' ? s : s.name).split(' ')[1]));
+                line.stations.forEach(s => validStations.add((typeof s === 'string' ? s : s.name)));
             });
 
             
@@ -236,11 +236,11 @@
                 const lineName = line.line_name;
                 const avgTime = line.avg_time_between_stations || 3; 
                 for (let i = 0; i < line.stations.length; i++) {
-                    const currentStation = (typeof line.stations[i] === 'string' ? line.stations[i] : line.stations[i].name).split(' ')[1];
+                    const currentStation = (typeof line.stations[i] === 'string' ? line.stations[i] : line.stations[i].name);
                     stationsList.add(currentStation);
                     if (!graph[currentStation]) graph[currentStation] = {};
                     if (i < line.stations.length - 1) {
-                        const nextStation = (typeof line.stations[i+1] === 'string' ? line.stations[i+1] : line.stations[i+1].name).split(' ')[1];
+                        const nextStation = (typeof line.stations[i+1] === 'string' ? line.stations[i+1] : line.stations[i+1].name);
                         if(!graph[currentStation][nextStation]) graph[currentStation][nextStation] = [];
                         graph[currentStation][nextStation].push({ time: avgTime, line: lineName });
                         if(!graph[nextStation]) graph[nextStation] = {};
@@ -289,7 +289,7 @@
             const lineData = allTransitData.find(l => l.line_name === lineName);
             if(lineData) {
                 lineData.stations.forEach(s => {
-                    const sName = (typeof s === 'string' ? s : s.name).split(' ')[1];
+                    const sName = (typeof s === 'string' ? s : s.name);
                     let attrText = "";
                     if(stationAttractions[sName] && stationAttractions[sName].length > 0) attrText = ` (⭐ ${stationAttractions[sName].length} 景點)`;
                     stationSelect.add(new Option(sName + attrText, sName));
@@ -471,7 +471,7 @@
                         <div class="absolute left-[9px] top-2 bottom-2 w-[3px] bg-slate-100 z-0"></div>
                 `;
                 line.stations.forEach((s) => {
-                    const sName = (typeof s === 'string' ? s : s.name).split(' ')[1];
+                    const sName = (typeof s === 'string' ? s : s.name);
                     let attractions = stationAttractions[sName] || [];
                     let isMatch = true;
                     if (searchQuery) isMatch = sName.includes(searchQuery) || attractions.some(a => a.includes(searchQuery));
