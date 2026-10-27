@@ -3,155 +3,1154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>重慶旅遊行程指南 | Trip Guide</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- SEO & GEO 結構化資料 -->
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "重慶 Trip Guide",
-  "description": "精選 重慶 必訪的 trip 推薦清單與詳細交通指南。",
-  "publisher": {
-    "@type": "Organization",
-    "name": "Global Travel Pass"
-  }
-}
-</script>
+    <title>重慶 旅遊指南</title>
     <style>
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        :root { --primary-color: #3b82f6; --bg-color: #f7f9fa; --text-color: #333; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; line-height: 1.6; scroll-behavior: smooth; }
+        header { background: var(--primary-color); color: white; padding: 2rem 1rem; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 2rem; }
+        .header-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
+        .btn-top { background: white; color: var(--primary-color); text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .btn-top:hover { background: #eff6ff; }
+        .nav-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 1.5rem; }
+        .nav-btn { background: white; color: var(--primary-color); border: none; padding: 0.6rem 1.2rem; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .nav-btn:hover, .nav-btn.active { background: #eff6ff; color: #1d4ed8; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .category-section { margin-bottom: 3rem; display: none; }
+        .category-section.active { display: block; }
+        .category-title { border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .card-tag { display: inline-block; background: #eff6ff; color: var(--primary-color); font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.8rem; width: fit-content; }
+        .card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 0.5rem 0; line-height:1.4; }
+        .card-desc { font-size: 0.95rem; color: #555; flex-grow: 1; margin-bottom: 1rem; }
+        .card-link { display: block; text-align: center; background: var(--primary-color); color: white; text-decoration: none; padding: 0.6rem; border-radius: 4px; font-weight: bold; margin-top: auto; }
+        .card-link:hover { background: #2563eb; }
     </style>
 </head>
-<body class="bg-slate-50">
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState } = React;
-
-        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
-        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
-        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
-        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
-        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
-        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
-        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
-        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
-
-        const CATEGORIES = [
-            { id: '景點門票', icon: Ticket },
-            { id: '一日遊', icon: Sun },
-            { id: '交通與網卡', icon: TrainFront }
-        ];
-
-        const itineraryData = {"comparison_table": [{"link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%87%8D%E6%85%B6%20", "name": "\u91cd\u6176\u8ecc\u9053\u4ea4\u901a\u4e00\u65e5\u7968", "price": "18 RMB", "scope": "\u91cd\u6176\u8ecc\u9053\u4ea4\u901a\uff08\u5730\u9435\u8207\u55ae\u8ecc\uff09\u5168\u7dda\uff0c\u9996\u6b21\u5237\u5361\u5f8c 24 \u5c0f\u6642\u5167\u7121\u9650\u6b21\u642d\u4e58", "suitable_for": "\u55ae\u65e5\u9700\u8981\u983b\u7e41\u642d\u4e58\u5730\u9435\u8de8\u5340\u7a7f\u68ad\u7684\u65c5\u5ba2"}, {"link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%87%8D%E6%85%B6%20", "name": "\u91cd\u6176\u8ecc\u9053\u4ea4\u901a\u4e09\u65e5\u7968", "price": "45 RMB", "scope": "\u91cd\u6176\u8ecc\u9053\u4ea4\u901a\uff08\u5730\u9435\u8207\u55ae\u8ecc\uff09\u5168\u7dda\uff0c\u9996\u6b21\u5237\u5361\u5f8c 72 \u5c0f\u6642\u5167\u7121\u9650\u6b21\u642d\u4e58", "suitable_for": "\u5728\u91cd\u6176\u505c\u7559 3 \u5929\u4e14\u4e3b\u8981\u4ee5\u8ecc\u9053\u4ea4\u901a\u4ee3\u6b65\u7684\u81ea\u7531\u884c\u65c5\u5ba2"}, {"link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%87%8D%E6%85%B6%20", "name": "\u5b9c\u5c45\u66a2\u901a\u5361\uff08\u5be6\u9ad4\u4ea4\u901a\u5361\uff09", "price": "\u62bc\u91d1\u7d04 25 RMB\uff08\u53ef\u52a0\u503c\u4f7f\u7528\uff09", "scope": "\u91cd\u6176\u8ecc\u9053\u4ea4\u901a\u3001\u5e02\u5340\u516c\u8eca\u3001\u9577\u6c5f\u7d22\u9053\u3001\u5169\u6c5f\u5c0f\u6e21\u6e21\u8f2a\u7b49", "suitable_for": "\u559c\u6b61\u7559\u5be6\u9ad4\u5361\u4f5c\u7d00\u5ff5\u3001\u6216\u8a08\u5283\u642d\u4e58\u516c\u8eca\u8207\u9577\u6c5f\u7d22\u9053\uff08\u6709\u6298\u6263\uff09\u7684\u65c5\u5ba2"}, {"link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%87%8D%E6%85%B6%20", "name": "\u4e58\u8eca\u78bc\uff08\u5fae\u4fe1/\u652f\u4ed8\u5bf6/\u96f2\u9583\u4ed8\uff09", "price": "\u514d\u8cbb\u7533\u9818\uff08\u6309\u6b21\u6263\u6b3e\uff0c\u4eab\u55ae\u7a0b\u7968\u7968\u50f9\uff09", "scope": "\u91cd\u6176\u8ecc\u9053\u4ea4\u901a\u3001\u5e02\u5340\u516c\u8eca", "suitable_for": "\u8ffd\u6c42\u4fbf\u5229\u3001\u4e0d\u60f3\u8cfc\u8cb7\u5be6\u9ad4\u5361\u6216\u5957\u7968\u7684\u6240\u6709\u65c5\u5ba2"}], "cp_tips": "\u30101-2 \u5929\u5feb\u9583\u904a\u3011\u76f4\u63a5\u4f7f\u7528\u5fae\u4fe1/\u652f\u4ed8\u5bf6\u7684\u300c\u91cd\u6176\u8ecc\u9053\u4ea4\u901a\u4e58\u8eca\u78bc\u300d\u6216\u300c\u91cd\u6176\u516c\u4ea4\u4e58\u8eca\u78bc\u300d\uff0c\u514d\u53bb\u9000\u5361\u8cfc\u7968\u9ebb\u7169\uff1b\u82e5\u4e00\u5929\u5167\u9810\u8a08\u642d\u4e58\u8ecc\u9053\u4ea4\u901a\u8d85\u904e 5 \u6b21\uff08\u55ae\u7a0b\u6700\u9ad8\u7d04 7-10 \u5143\uff09\uff0c\u8cfc\u8cb7\u300c\u4e00\u65e5\u7968 (18\u5143)\u300d\u6975\u5212\u7b97\u3002\u30103 \u5929\u4ee5\u4e0a\u6df1\u5ea6\u904a\u3011\u8cfc\u8cb7\u300c\u4e09\u65e5\u7968 (45\u5143)\u300d\u642d\u4e58\u8ecc\u9053\u4ea4\u901a CP \u503c\u6975\u9ad8\u3002\u6ce8\u610f\uff1a\u9577\u6c5f\u7d22\u9053\u8207\u6e21\u8f2a\u4e0d\u53ef\u4f7f\u7528\u8ecc\u9053\u4e00\u65e5/\u4e09\u65e5\u7968\uff0c\u4f46\u5237\u300c\u5b9c\u5c45\u66a2\u901a\u5361\u300d\u642d\u4e58\u9577\u6c5f\u7d22\u9053\u53ef\u4eab\u6709\u512a\u60e0\u6298\u62b5\u3002", "faqs": [{"answer": "\u53ef\u4ee5\uff01\u53ea\u9700\u5728\u5fae\u4fe1\u6216\u652f\u4ed8\u5bf6\u641c\u5c0b\u300c\u4e58\u8eca\u78bc\u300d\u5c0f\u7a0b\u5e8f\uff0c\u5207\u63db\u5b9a\u4f4d\u81f3\u91cd\u6176\uff0c\u9818\u53d6\u300c\u91cd\u6176\u8ecc\u9053\u4ea4\u901a\u4e58\u8eca\u78bc\u300d\u8207\u300c\u91cd\u6176\u516c\u4ea4\u4e58\u8eca\u78bc\u300d\uff0c\u5373\u53ef\u76f4\u63a5\u6383\u78bc\u9032\u7ad9\u642d\u4e58\u5730\u9435\u3001\u55ae\u8ecc\u8207\u516c\u8eca\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%87%8D%E6%85%B6%20", "question": "\u91cd\u6176\u642d\u5730\u9435\u548c\u516c\u8eca\u53ef\u4ee5\u4f7f\u7528\u5fae\u4fe1\u6216\u652f\u4ed8\u5bf6\u6383\u78bc\u55ce\uff1f"}, {"answer": "\u642d\u4e58\u300c\u8ecc\u9053\u4ea4\u901a 2 \u865f\u7dda\u300d\u81f3\u300c\u674e\u5b50\u58e9\u7ad9\u300d\u4e0b\u8eca\u3002\u5728\u8eca\u5ec2\u5167\u53ef\u9ad4\u9a57\u7a7f\u6a13\u611f\uff0c\u82e5\u60f3\u62cd\u651d\u5217\u8eca\u9032\u7ad9\u756b\u9762\uff0c\u8acb\u5f9e 1 \u865f\u51fa\u53e3\u51fa\u7ad9\u81f3\u5730\u9762\u89c0\u666f\u5e73\u53f0\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%87%8D%E6%85%B6%20", "question": "\u8457\u540d\u666f\u9ede\u300c\u674e\u5b50\u58e9\u55ae\u8ecc\u7a7f\u6a13\u300d\u8981\u642d\u54ea\u4e00\u689d\u8def\u7dda\uff1f"}, {"answer": "\u642d\u4e58\u8ecc\u9053\u4ea4\u901a\u6700\u7701\u6642\u4e14\u4e0d\u585e\u8eca\u3002\u53ef\u65bc\u6a5f\u5834\u642d\u4e58 10 \u865f\u7dda\u81f3\u300c\u66fe\u5bb6\u5ca9\u7ad9\u300d\u8f49\u4e58 2 \u865f\u7dda\uff0c\u6216\u642d\u4e58 10 \u865f\u7dda\u81f3\u300c\u7d05\u571f\u5730\u7ad9\u300d\u8f49\u4e58 6 \u865f\u7dda\u81f3\u300c\u5c0f\u4ec0\u5b57\u7ad9\u300d\uff08\u9130\u8fd1\u89e3\u653e\u7891\u8207\u6d2a\u5d16\u6d1e\uff09\uff0c\u8eca\u7a0b\u7d04 45-60 \u5206\u9418\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%87%8D%E6%85%B6%20", "question": "\u5f9e\u6c5f\u5317\u6a5f\u5834\u5230\u5e02\u5340\u89e3\u653e\u7891\uff0c\u642d\u5730\u9435\u9084\u662f\u8a08\u7a0b\u8eca\u65b9\u4fbf\uff1f"}, {"answer": "\u5f37\u70c8\u5efa\u8b70\u63d0\u524d\u900f\u904e\u300c\u9577\u6c5f\u7d22\u9053\u300d\u5b98\u65b9\u5fae\u4fe1\u5c0f\u7a0b\u5e8f\u7dda\u4e0a\u9810\u7d04\u8cfc\u7968\u8207\u53d6\u865f\uff0c\u907f\u514d\u73fe\u5834\u6392\u968a\u904e\u4e45\u3002\u73fe\u5834\u4ea6\u53ef\u5237\u300c\u5b9c\u5c45\u66a2\u901a\u5361\u300d\u9032\u7ad9\u4e26\u4eab\u6709\u5c08\u5c6c\u6298\u6263\uff0c\u4f46\u8ecc\u9053\u4ea4\u901a\u4e00\u65e5/\u4e09\u65e5\u7968\u4e0d\u53ef\u7528\u65bc\u7d22\u9053\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E9%87%8D%E6%85%B6%20", "question": "\u9577\u6c5f\u7d22\u9053\u9700\u8981\u63d0\u524d\u8cb7\u7968\u55ce\uff1f\u53ef\u4ee5\u4f7f\u7528\u4ea4\u901a\u7968\u5238\u55ce\uff1f"}], "title": "\u91cd\u6176\u4ea4\u901a\u7968\u5238\u8207\u901a\u884c\u8b49\u7e3d\u89bd"};
-        const REGIONS = Object.keys(itineraryData);
-
-        function App() {
-            const [selectedRegion, setSelectedRegion] = useState(REGIONS[0] || '沖繩本島');
-            const availableCats = Object.keys(itineraryData[selectedRegion] || {});
-            const [selectedCategory, setSelectedCategory] = useState(availableCats[0] || '景點門票');
-
-            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
-
-            return (
-                <div className="min-h-screen font-sans text-slate-800 flex flex-col">
-                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-slate-200">
-                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="text-blue-600 w-6 h-6 md:w-8 md:h-8" />
-                                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-400">
-                                    重慶必玩行程與票券
-                                    </h1>
-                                </div>
-                                <div className="hidden md:block">
-                                    <a href="index.html" className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm lg:text-base font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-transform active:scale-95">
-                                        <Home className="w-4 h-4" /> 回到首頁
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide items-center">
-                                <a href="index.html" className="md:hidden flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-sm shrink-0">
-                                    <Home className="w-4 h-4" /> 首頁
-                                </a>
-                                {REGIONS.map((region) => (
-                                    <button
-                                        key={region}
-                                        onClick={() => {
-                                            setSelectedRegion(region);
-                                            const newCats = Object.keys(itineraryData[region] || {});
-                                            setSelectedCategory(newCats[0]);
-                                        }}
-                                        className={`whitespace-nowrap px-5 py-2 md:py-2.5 rounded-full text-sm md:text-base font-medium transition-all ${
-                                            selectedRegion === region ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                                        }`}
-                                    >
-                                        {region}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </header>
-
-                    <main className="max-w-7xl mx-auto px-4 py-8 md:py-10 flex-grow w-full">
-                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
-                            {availableCats.map((catId) => {
-                                const foundCat = CATEGORIES.find(c => c.id === catId) || { icon: Ticket };
-                                const IconComp = foundCat.icon;
-                                return (
-                                    <button
-                                        key={catId}
-                                        onClick={() => setSelectedCategory(catId)}
-                                        className={`flex items-center gap-2 px-5 py-2 md:py-2.5 rounded-lg border text-sm md:text-base font-medium transition-all ${
-                                            selectedCategory === catId ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
-                                        }`}
-                                    >
-                                        <IconComp className="w-4 h-4 md:w-5 md:h-5" />
-                                        {catId}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {currentData.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                                {currentData.map((item, index) => (
-                                    <div key={index} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col justify-between hover:shadow-xl transition-all transform hover:-translate-y-1">
-                                        <div>
-                                            <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 leading-tight">{item.title}</h3>
-                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">{item.description}</p>
-                                        </div>
-                                        <div className="mt-auto pt-5 border-t border-slate-100 flex justify-end">
-                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm w-full">
-                                                <Info className="w-4 h-4 md:w-5 md:h-5" />
-                                                <span className="md:text-lg">查看詳情與預訂</span>
-                                                <ExternalLink className="w-4 h-4 md:w-5 md:h-5 ml-1 opacity-70" />
-                                            </a>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-16 text-center flex flex-col items-center justify-center">
-                                <Sparkles className="w-10 h-10 text-slate-400 mb-3" />
-                                <h3 className="text-lg md:text-xl font-medium text-slate-700">目前尚無資料</h3>
-                            </div>
-                        )}
-                    </main>
-                </div>
-            );
+<body>
+    <header>
+        <div class="header-actions">
+            <a href="index.html" class="btn-top">🏠 回到首頁</a>
+            
+        </div>
+        <h1>重慶 自由行導覽</h1>
+        <div class="nav-buttons" id="navButtons">
+            <button class="nav-btn active" onclick="showCategory('all')">全部</button>
+            <button class="nav-btn" onclick="showCategory('cat_0')">交通與通訊</button><button class="nav-btn" onclick="showCategory('cat_1')">景點與門票</button><button class="nav-btn" onclick="showCategory('cat_2')">觀光行程</button><button class="nav-btn" onclick="showCategory('cat_3')">美食與餐飲</button><button class="nav-btn" onclick="showCategory('cat_4')">休閒與放鬆</button><button class="nav-btn" onclick="showCategory('cat_5')">特色體驗與活動</button>
+        </div>
+    </header>
+    <div class="container">
+        <section class="category-section active" id="cat_0"><h2 class="category-title">交通與通訊</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">WiFi 分享器＆上網 SIM 卡</span>
+                    <h3 class="card-title">中國5G eSIM | 吃到飽、不穩就退 | 中國聯通</h3>
+                    <p class="card-desc">暢遊中國網路不間斷！提供高速5G上網與靈活方案，免換卡輕鬆開通，讓旅程通訊無縫接軌，隨時分享精彩時刻。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/128576-china-esim-high-speed-internet-qr-code-voucher/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">WiFi 分享器＆上網 SIM 卡</span>
+                    <h3 class="card-title">中港澳 | 4G/5G 高速eSIM 免翻牆（即買即取QR Code）</h3>
+                    <p class="card-desc">精選在地體驗，讓您的旅程更加豐富與便利。建議提早規劃，享受舒適的探索時光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/101509-cn-hk-mo-esim-card/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場包車接送</span>
+                    <h3 class="card-title">重慶｜重慶江北國際機場包車接送</h3>
+                    <p class="card-desc">享受無縫銜接的尊榮機場出行體驗。<br>專車司機於機場迎接，提供直達市區的舒適接送，讓您的重慶之行輕鬆開啟。</p>
+                    <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=CKG&aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶8小時包車一日遊</h3>
+                    <p class="card-desc">靈活自訂您的魔幻山城探索之旅。<br>提供8小時專車服務與專業司機，自由規劃洪崖洞、解放碑等經典地標行程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/130172-chongqing-8-hours-chartered-one-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶武隆包車一日遊</h3>
+                    <p class="card-desc">朝聖喀斯特地貌的自然奇觀。<br>專車前往武隆，直達天生三橋與仙女山，盡情領略壯麗的山谷峽谷與自然景色。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/145979-chongqing-wulong-chartered-day-trip/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶武隆/九黎城12小時包車1-2日遊</h3>
+                    <p class="card-desc">兼具自然壯麗與苗族風情的深度之旅。<br>提供長達12小時靈活包車服務，輕鬆串聯武隆天坑與蚩尤九黎城的文化奇觀。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/130199-wulong-12-hour-chartered-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶武隆包車二日遊</h3>
+                    <p class="card-desc">放慢步調，沉浸於武隆的自然山水間。<br>兩天一夜包車行程，深度遊覽天生三橋、龍水峽地縫與仙女山草原，行程從容愜意。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/149234-chongqing-wulong-2-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶市內包車一日遊</h3>
+                    <p class="card-desc">輕鬆穿梭於山城的立體魔幻街巷。<br>專車接送避開複雜交通，帶您暢遊李子壩輕軌穿樓、長江索道與老街景點。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/145866-chongqing-day-trip-by-chartered-bus/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶大足包車一日遊</h3>
+                    <p class="card-desc">走進石刻藝術的千古殿堂。<br>專車前往大足，細細品味名列世界文化遺產的精美石窟雕刻，體驗深刻的歷史震撼。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/157329-chongqing-dazu-chartered-one-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶大足石刻包車一日遊</h3>
+                    <p class="card-desc">探索世界文化遺產的雕刻奇蹟。<br>專車直達寶頂山與北山石刻，感受宋代石刻藝術的極致工藝與宗教文化魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/146017-chongqing-dazu-rock-carving-day-trip/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">鐵路車票</span>
+                    <h3 class="card-title">【中國鐵路】成都來往重慶/西安/華山/黃龍九寨/樂山/峨眉山 高鐵票</h3>
+                    <p class="card-desc">快捷串聯西南與西北多座熱門旅遊城市。輕鬆代訂成都往返重慶、西安及周邊名勝的高鐵車票。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/121784-china-railway-high-speed-rail-tickets-from-chongqing-to-chengdu-xi-an/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶市區&武隆仙女山草原&天生三橋&芙蓉洞包車1日/2日遊</h3>
+                    <p class="card-desc">串聯山城經典與武隆精華自然地貌。<br>彈性選擇一至二日行程，專車造訪仙女山、天生三橋與神秘的芙蓉洞溶洞奇觀。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/125822-car-rental-with-driver-to-chongqing-xiannu-mountain-three-bridges-furong-cave/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">nan</span>
+                    <h3 class="card-title">重慶金佛山景區門票</h3>
+                    <p class="card-desc">領略世界自然遺產金佛山的四季美景。<br>預訂景區門票，探索壯觀的喀斯特桌山、古老寺廟與高山雲海絕景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/31695-goldon-foshan-ticket-cable-car/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">鐵路通票</span>
+                    <h3 class="card-title">重慶至張家界中國高速鐵路</h3>
+                    <p class="card-desc">便捷連接兩大中國標誌性旅遊勝地。<br>搭乘高鐵從山城重慶平穩前往張家界，享受高效且舒適的跨省鐵道旅程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/176805-train-tickets-china-rail/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶高鐵站私人接送</h3>
+                    <p class="card-desc">享受無縫銜接的鐵道交通轉乘體驗。<br>專車司機於高鐵站準時等候，協助行李搬運並安全送達目的地，旅程更加省心。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/231921-private-pick-up-service-at-chongqing-high-speed-railway-station/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">旅遊服務</span>
+                    <h3 class="card-title">重慶江北機場機場貴賓服務</h3>
+                    <p class="card-desc">開啟舒適的高空旅程第一步。<br>為您提供重慶江北機場貴賓專屬禮遇，包含快速安檢通關與靜謐休息空間，讓候機時光更加悠閒優雅。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/164326-chongqing-jiangbei-airport-vip-service/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶包車夜遊</h3>
+                    <p class="card-desc">領略山城璀璨迷人的夜晚姿態。<br>乘坐舒適專車穿梭於山城的夜間街道，沿途欣賞洪崖洞與江畔的輝煌燈火，盡情沉浸於浪漫夜景之中。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/129590-chongqing-night-charter/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶來往武隆區專車接送</h3>
+                    <p class="card-desc">輕鬆無憂漫遊自然奇景的捷徑。<br>提供重慶市區與武隆區之間的私人專車點對點接送服務，讓您無需繁瑣轉乘，輕鬆開啟地質景觀探索之旅。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/126381-chongqing-private-transfer-to-wulong-district/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶北站&觀音橋&李子壩&洪崖洞 包車一日遊</h3>
+                    <p class="card-desc">一日盡覽經典標誌性都市地標。<br>搭乘私人專車探索重慶經典景點，順暢走訪穿樓輕軌李子壩、熱鬧的觀音橋商圈與迷人洪崖洞，行程靈活自由。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/125988-car-rental-with-driver-to-chongqing-north-railway-station-guanyin-bridge-liziba-hongya-cave/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">nan</span>
+                    <h3 class="card-title">重慶武隆喀斯特地質公園全日私人遊</h3>
+                    <p class="card-desc">親臨大自然的鬼斧神工壯麗奇景。<br>專車帶您前往世界自然遺產武隆喀斯特，深入天生三橋與龍水峽地縫，體驗氣勢磅礡的峽谷地貌與自然魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/100802-wulong-one-day-tour-three-natural-bridges-longshuixia-gap/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">nan</span>
+                    <h3 class="card-title">重慶北山與大足石刻全日私人之旅</h3>
+                    <p class="card-desc">踏入石雕藝術與千年歷史的殿堂。<br>專車前往大足石刻與北山石窟，近距離觀賞保存完好的古代佛教造像，體驗細緻刻畫的深厚文化底蘊與宗教藝術。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/100698-world-heritage-tour-dazu-grottoes-one-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">包車遊覽 重慶動物園&重慶中國三峽博物館&洪崖洞一日遊</h3>
+                    <p class="card-desc">交織生態與歷史文化的精采旅程。<br>由專車接送探訪可愛的貓熊家族、深入了解三峽歷史演變的大峽谷博物館，最後以洪崖洞的燦爛璀璨景色收尾。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/126204-chongqing-car-rental-with-driver-to-chongqing-zoo-china-three-gorges-museum-hongya-cave/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶市 - 成都市專車接送服務</h3>
+                    <p class="card-desc">成渝雙城之間最私密便捷的移動方式。提供重慶與成都市區之間點對點專車接送，行程安排更彈性。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/141594-private-transfer-between-chongqing-and-chengdu/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶來往宜賓市 私人接送</h3>
+                    <p class="card-desc">跨城長途出行的專業愜意選擇。<br>提供重慶與宜賓之間的客製化私人專車服務，由專業司機為您提供安全且私密的行車體驗，省去公眾交通不便。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/141912-private-transfer-between-chongqing-and-yibin/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶來往瀘州市 私人接送</h3>
+                    <p class="card-desc">省時省力的優質川渝跨城接送。<br>往返重慶與酒城瀘州的舒適私人車輛接駁，根據您的時間彈性安排，打造安心順暢的城際移動過程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/142368-private-transfer-between-chongqing-and-luzhou/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">鐵路通票</span>
+                    <h3 class="card-title">中國大陸巴士地鐵一卡通</h3>
+                    <p class="card-desc">一卡在手，暢行各大城市！輕鬆搭乘中國大陸多地的公車與地鐵，免去重複購票麻煩，探索城市風光更隨心所欲。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/91195-bus-metro-card-mainland-china/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶動物園專車接送</h3>
+                    <p class="card-desc">直達可愛動物世界的快捷途徑。<br>專車親自走訪重慶動物園，免去轉乘與等車時間，非常適合家庭旅客輕鬆往返，享有高品質的舒適出行。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/126212-chongqing-private-transfer-to-chongqing-zoo/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場包車接送</span>
+                    <h3 class="card-title">重慶｜重慶仙女山機場包車接送</h3>
+                    <p class="card-desc">高山機場往返的絕佳接駁服務。<br>提供往返重慶仙女山機場的私人車輛服務，貼心連接景區與機場，讓您的仙女山草原之行更加順暢舒適。</p>
+                    <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=CQW&aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶來往自貢市 私人接送</h3>
+                    <p class="card-desc">深入燈會與恐龍之鄉的便利選擇。<br>提供重慶與自貢之間的專屬車輛接送，享受無縫對接的定點服務，讓跨市交通成為一種輕鬆愉快的享受。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/141718-private-transfer-between-chongqing-and-zigong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">重慶來往遵義市 私人接送</h3>
+                    <p class="card-desc">暢行渝黔兩地的舒適專車體驗。<br>連接重慶與貴州遵義的優質私人接送，靈活彈性的點對點行車路線，滿足商務與休閒旅客的多元移動需求。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/142088-private-transfer-between-chongqing-and-zunyi/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">包車遊覽 李子壩&貳廠文創公園&一棵樹觀景臺一日遊</h3>
+                    <p class="card-desc">細品文青風格與絕美夜景的旅程。<br>由專車載您造訪李子壩穿樓輕軌、極具文創特色的貳廠文創公園，最後前往一棵樹觀景台俯瞰山城百萬夜景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/125953-chongqing-car-rental-with-driver-to-liziba-two-factory-cultural-park-a-tree-viewing-platform/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">長江索道&湖廣會館&來福士廣場&洪崖洞一日包車遊</h3>
+                    <p class="card-desc">貫穿經典古今人文的精華路線。<br>專車串聯長江索道體驗、古色古香的湖廣會館、地標建築來福士廣場與洪崖洞，全方位深入山城多元風貌。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/125919-car-rental-with-driver-to-yangtze-river-ropeway-huguang-guild-hall-raffles-square-hongya-cave/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">武隆火車站來往仙女山鎮內景點私人接送</h3>
+                    <p class="card-desc">暢遊自然山林的在地接駁首選。<br>提供武隆火車站至仙女山鎮各個知名景點的私人車輛接送，方便您靈活安排戶外踏青與自然景點行程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/243987-private-transfer-from-wulong-railway-station-to-fairy-mountain-town-attractions/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">旅遊服務</span>
+                    <h3 class="card-title">重慶北站高鐵貴賓廳</h3>
+                    <p class="card-desc">為高鐵旅程注入一份安寧與尊榮。<br>位於重慶北站的專屬休息空間，配有舒適座椅、精致茶點與優雅環境，為您的鐵路出行提供極佳的候車休憩體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/40136-chongqing-north-railway-station-lounge-service/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">旅遊服務</span>
+                    <h3 class="card-title">重慶西站高鐵休息室</h3>
+                    <p class="card-desc">遠離車站喧囂的沉靜放鬆角落。<br>提供重慶西站的高品質休憩空間，配備完善的現代化設施與精緻服務，讓您在等待高鐵時享有寧靜私密時光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/158505-chongqing-west-railway-station-high-speed-railway-lounge/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_1"><h2 class="category-title">景點與門票</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">《重慶·1949》演出門票</h3>
+                    <p class="card-desc">見證沉浸式史詩級劇場的震撼。演出透過旋轉舞台與先進聲光特效，生動重現當地的重大人文歷史故事。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/132505-chongqing-1949-show/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶來福士廣場探索艙·雲端樂園門票</h3>
+                    <p class="card-desc">漫步於兩江交匯處的雲端高空。結合高空觀景平台與刺激體驗，讓訪客全方位感受重慶這座立體魔幻山城。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/178088-chongqing-raffles-city-exploration-cabin-cloud-paradise-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">動物園＆水族館</span>
+                    <h3 class="card-title">重慶動物園</h3>
+                    <p class="card-desc">探索豐富自然生態與可愛物種。園區內設有知名的大熊貓館，是了解野生動物生態與親子共遊的理想場所。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/113383-chongqing-zoo/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶世貿•高空觀景天台131門票</h3>
+                    <p class="card-desc">站上山城地標頂端的視野極限。位於世貿中心高層，提供360度無視野遮擋的絕佳環景，飽覽璀璨都市夜景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/179796-chongqing-world-trade-center-sky-observation-deck-131-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀景台</span>
+                    <h3 class="card-title">重慶雲端之眼觀景臺</h3>
+                    <p class="card-desc">打卡紅遍網路的空中漫步地標。佇立於摩天大樓頂端，以絕佳視野俯瞰兩江交匯與繁華街景，拍照視野極佳。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/116196-chongqing-yunduan-zhiyan-viewing-platform/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀景台</span>
+                    <h3 class="card-title">長江索道門票</h3>
+                    <p class="card-desc">搭乘飛越長江的空中公車。作為重慶標誌性交通工具，橫跨長江兩岸，帶來穿梭於摩天大樓間的獨特視角。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/43465-yangtze-river-cableway-chong-qing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶獨角獸星空藝術館門票</h3>
+                    <p class="card-desc">走進光影交織的夢幻藝術世界。館內設有多個主題沉浸式展區，結合鏡面與燈光效果，創造出迷人的視覺盛宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/195247-ticket-for-chongqing-unicorn-starry-sky-art-museum/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶大型幻境雜技劇《長江》演出票</h3>
+                    <p class="card-desc">領略極致力與美的特技表演。融合高難度雜技、魔術與舞台美學，將長江流域的文化意象轉化為驚豔視覺盛宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/214189-chongqing-grand-fantasy-acrobatic-drama-yangtze-river-show-tickets/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶飛躍重慶劇場門票（來福士購物廣場店）</h3>
+                    <p class="card-desc">體驗身臨其境的球幕飛行之旅。透過裸眼5D飛行影院技術，帶領觀眾低空俯瞰重慶的自然壯景與都市風貌。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/147082-tickets-for-chongqing-feiyue-chongqing-theater-raffles-shopping-plaza-branch/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶湖廣會館門票+《醉巴渝》演出票</h3>
+                    <p class="card-desc">細品百年古建築與在地民俗文化。漫步於清代古建築群中，並觀賞精彩的巴渝特色表演，感受濃厚歷史底蘊。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/188466-chongqing-huguang-guild-hall-ticket-drunken-bayu-performance-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶《印象武隆》大型實景歌舞演出門票</h3>
+                    <p class="card-desc">感受峽谷間張藝謀團隊執導的震撼實景。演出以天然山谷為舞台，將川江號子等消失的民俗文化演繹得動人心魄。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/146926-tickets-of-the-real-scenery-show-impression-of-wulong-in-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶海昌海洋館門票</h3>
+                    <p class="card-desc">開啟深海海洋生物的探索旅程。包含豐富的水生動物展區與互動表演，是兼具科普教育與休閒娛樂的海洋園區。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/184691-chongqing-haichang-ocean-park-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">公園＆花園</span>
+                    <h3 class="card-title">龍水峽地縫</h3>
+                    <p class="card-desc">探索大自然鬼斧神工的喀斯特奇景。沿著壁掛棧道深入幽深地縫，欣賞飛瀑流泉與險峻岩壁組成的地質景觀。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/153116-longshui-gorge-crevice/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶816工程景區門票</h3>
+                    <p class="card-desc">解密世界第一大人工地下核工程。這座隱蔽在山體內部的龐大設施，展現了特殊的歷史背景與工程建築奇蹟。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/188586-chongqing-816-project-scenic-area-admission-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶WFC觀景臺門票(可選咖啡觀景+可選酒吧觀夜景）</h3>
+                    <p class="card-desc">登頂海拔590米的西部第一高樓。在雲端品嚐咖啡或精緻調酒，獨享360度俯瞰山城璀璨夜景的奢華視角。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/173856-chongqing-wfc-panoramic-fun/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">主題樂園</span>
+                    <h3 class="card-title">重慶歡樂谷門票</h3>
+                    <p class="card-desc">開啟心跳加速的都市冒險旅程！<br>園區擁有豐富的遊樂設施與精彩表演，適合全家大小一同前來體驗歡樂時光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/43421-happy-valley-chong-qing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">蚩尤九黎城</h3>
+                    <p class="card-desc">踏入神秘而壯麗的苗族文化殿堂。<br>這裡是了解苗族傳統建築、歷史起源與民俗風情的絕佳去處。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/196815-chiyou-jiuli-palace/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶城上天幕樂遊觀光塔票</h3>
+                    <p class="card-desc">登高遠眺山城雙江匯流的壯闊景致。<br>佇立於觀光塔頂，將重慶繁華的都市天際線盡收眼底。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/192132-chongqing-sky-curtain-joy-tour-observation-tower-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶霧都劇院（解放碑店）</h3>
+                    <p class="card-desc">沉浸於巴渝文化的藝術饗宴之中。<br>劇院位於繁華中心，呈現兼具傳統與現代特色的精彩舞台演出。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/214220-wudu-theatre-jiefangbei-branch-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶懸空玻璃藝術館•沉浸式懸浮玻璃劇場門票</h3>
+                    <p class="card-desc">挑戰視覺極限的奇幻光影世界。<br>結合懸空玻璃與沉浸式劇場，為訪客帶來震撼的立體空間體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/195406-ticket-for-chongqing-suspended-glass-art-museum-immersive-floating-glass-theater/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶《百年重慶茶館》川劇表演票</h3>
+                    <p class="card-desc">品味老重慶茶館裡的道地川劇韻味。<br>欣賞變臉與吐火等經典絕技，體驗最純正的巴渝庶民生活樂趣。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/199460-chongqing-sichuan-opera-performance-ticket-for-a-hundred-years-of-chongqing-teahouse/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">公園＆花園</span>
+                    <h3 class="card-title">武隆喀斯特旅遊區 - 武隆天生三橋 門票</h3>
+                    <p class="card-desc">造訪大自然的鬼斧神工之地。<br>走進雄偉的天然石拱橋與幽深峽谷，感受如電影場景般的磅礡氣勢。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/113391-wulong-tiansheng-three-bridges/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">歷史景點</span>
+                    <h3 class="card-title">重慶湖廣會館</h3>
+                    <p class="card-desc">穿梭於黃牆黛瓦的古老建築群中。<br>這座歷史悠久的會館記錄了湖廣填四川的移民歷史與精湛木雕工藝。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/99165-huguang-guild-hall-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">公園＆花園</span>
+                    <h3 class="card-title">仙女山國家森林公園</h3>
+                    <p class="card-desc">漫步於高山草原的高原天然氧吧。<br>四季景致宜人，擁有廣袤林海與高山草甸，是遠離喧囂的避暑勝地。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/153369-xiannu-mountain-national-forest-park/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶際華園遊玩票</h3>
+                    <p class="card-desc">解鎖極限運動與時尚休閒的雙重體驗。<br>園區提供室內攀岩、風洞飛行等多種動感項目，充滿動感活力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/168585-chongqing-jihua-park-extreme-sports-center/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">主題樂園</span>
+                    <h3 class="card-title">重慶樂和樂都主題公園（重慶野生動物世界）</h3>
+                    <p class="card-desc">探索自然野性與歡樂主題樂園的完美結合。<br>可近距離觀察珍稀野生動物，同時享受刺激的遊樂設施。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/43435-/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶白帝城瞿塘峽景區門票</h3>
+                    <p class="card-desc">朝聖詩仙筆下的長江三峽第一門。<br>登上白帝城俯瞰瞿塘峽葵門壯景，感受深厚的歷史文學底蘊。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/190377-ticket-for-baidi-city-qutang-gorge-scenic-area-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">重慶建川海疆博物館</h3>
+                    <p class="card-desc">登艦探尋國防軍事歷史的浩瀚歲月。<br>由退役軍艦改造而成，實地展現海軍裝備發展與海防文化。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/219382-chongqing-jianchuan-museum/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">公園＆花園</span>
+                    <h3 class="card-title">重慶熱雪奇蹟門票</h3>
+                    <p class="card-desc">四季皆能盡情享受馳騁雪道的樂趣。<br>室內大型滑雪場提供優質雪質與多元冰雪娛樂，為全天候極速體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/86117-chongqingsunac/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">公園＆花園</span>
+                    <h3 class="card-title">重慶大足石刻</h3>
+                    <p class="card-desc">瞻仰世界文化遺產的石窟藝術巔峰。<br>精美的摩崖造像融合佛道儒文化，展現宋代高超的雕刻藝術。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/43546-dazu-rock-carvings-chong-qing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">公園＆花園</span>
+                    <h3 class="card-title">濯水景區-蒲花暗河</h3>
+                    <p class="card-desc">乘船穿梭於神秘溶洞與天生橋群之間。<br>暗河奇觀水質清澈，幽深山谷展現出喀斯特地貌的獨特魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/221979-zhuoshui-scenic-area-puhua-underground-river/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">公園＆花園</span>
+                    <h3 class="card-title">酉陽桃花源景區</h3>
+                    <p class="card-desc">尋訪陶淵明筆下的世外桃源現實版。<br>隱匿於山林中的秦晉遺風古村，展現寧靜祥和的田園風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/222180-youyang-taohuayuan/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶古典戲法魔術博物館-魔法戲院門票</h3>
+                    <p class="card-desc">揭開傳統東方魔術與古老戲法的神秘面紗。<br>融合文物展示與現場幻術演出，打造別具一格的奇幻體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/199894-chongqing-classical-conjuring-magic-museum-magic-theater/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">公園＆花園</span>
+                    <h3 class="card-title">重慶萬州大瀑布群成人門票</h3>
+                    <p class="card-desc">感受寬廣瀑布群的磅礡水勢與自然震撼。<br>寬廣的水簾如銀河瀉地，水霧繚繞中蘊含極大的自然生命力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/43678-wan-zhou-grand-waterfall-chong-qing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">歷史景點</span>
+                    <h3 class="card-title">石寶寨</h3>
+                    <p class="card-desc">仰望倚山而建的長江江心高層木塔奇觀。<br>獨特的十二層紅色塔樓巧奪天工，素有江上明珠之美譽。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/221966-shi-bao-zhai/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">水上樂園</span>
+                    <h3 class="card-title">重慶瑪雅海灘水公園</h3>
+                    <p class="card-desc">準備好迎接清涼水上冒險了嗎？這座主題水公園擁有多項刺激滑水道與造浪池，是夏季消暑與家庭娛樂的理想去處。<br>提供全天候的安全水上設施。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/222221-chongqing-playa-maya-water-park/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">816工程景區</h3>
+                    <p class="card-desc">揭開地下巨型核工程的神秘面紗。此景區為世界上已知最大的人工地下洞窟，展示冷戰時期的宏偉工程與歷史遺跡。<br>極具歷史研討價值。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/153120-project-816-scenic-spot/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">公園＆花園</span>
+                    <h3 class="card-title">南天湖景區</h3>
+                    <p class="card-desc">漫步於高山湖泊與高山草原之間。南天湖四季景色宜人，擁有豐富的自然資源與完善的步道，非常適合戶外健行與休閒度假。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/221972-nantianhu-scenic-area/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">重慶《詩畫中國》體驗票(八一廣場店)</h3>
+                    <p class="card-desc">沉浸於傳統文化的藝術魅力中。展覽透過現代數位科技重現中國古典詩詞與畫作意境，帶來視覺與文化的雙重享受。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/185868-experience-ticket-for-chongqing-poetry-painting-china-bayi-square-store/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">公園＆花園</span>
+                    <h3 class="card-title">黑山谷景區門票</h3>
+                    <p class="card-desc">探索峽谷幽深與瀑布成群的自然奇觀。黑山谷保留了原始森林地貌，空氣清新，是生態旅遊與徒步攝影的絕佳選擇。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/7418-black-mountain-valley-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_2"><h2 class="category-title">觀光行程</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶武隆天生三橋+龍水峽地縫/仙女山森林公園一日遊</h3>
+                    <p class="card-desc">探訪重慶世界自然遺產奇觀。<br>漫步於武隆天生三橋的壯麗石拱之下，並隨心選擇漫遊龍水峽地縫或仙女山森林公園。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/115283-chongqing-three-natural-bridge-longshui-gorge-fairy-mountain-park/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶武隆天生三橋+龍水峽地縫/仙女山國家森林公園純玩一日遊（8人內小團+9點晚出發+可選英文司機+景區直通車）</h3>
+                    <p class="card-desc">精緻舒適的喀斯特地形之旅。<br>8人內小團輕鬆出發，造訪天生三橋與地縫奇景，享受無購物行程的純粹自然風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/160688-chongqing-wulong-tiansheng-sanqiao-longshuixia-dijian-xiannv-mountai/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">Klook中國重慶私人定製旅行（武隆/天生三橋/長江索道/洪崖洞）</h3>
+                    <p class="card-desc">打造專屬於您的重慶探索旅程。<br>靈活規劃路線，一次涵蓋武隆自然奇景、長江索道飛渡與洪崖洞夜景等經典地標。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/166882-klook-china-chongqing-private-customized-tour-ciqikou-wuling-three/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶兩江夜遊</h3>
+                    <p class="card-desc">坐擁長江與嘉陵江交匯之美。<br>搭乘觀光遊船夜遊兩江，將山城錯落有致的立體夜景與沿岸燈火盡收眼底。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/141470-one-day-private-tour-of-wulong-karst-resort-in-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶武隆天生三橋+龍水峽地縫/仙女山 2+1保姆車大巴團（中/英/泰導遊）</h3>
+                    <p class="card-desc">乘坐寬敞保姆車舒適出行。<br>提供多語種導覽服務，深入武隆世界遺產景區，輕鬆遊覽天生三橋與仙女山壯麗景色。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/141609-6-day-private-tour-in-chengdu-jiuzhaigou-and-leshan/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶蚩尤九黎城＆烏江畫廊一日遊</h3>
+                    <p class="card-desc">領略苗族傳統建築與山水畫卷。<br>參觀宏偉的蚩尤九黎城體驗苗族文化，隨後搭船遊覽烏江畫廊的碧水青峰。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/201931-chongqing-chi-you-jiu-li-city-gongtan-old-town-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶市區一日遊小團體驗</h3>
+                    <p class="card-desc">精緻小團深入山城立體空間。<br>穿梭穿樓單軌、腳步老街巷弄，在在地導遊帶領下多角度認識重慶的城市魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/202165-chongqing-city-highlights-full-day-small-group-experience/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶大足石刻一日遊（大巴團/8人團可選）</h3>
+                    <p class="card-desc">驚嘆於千年石刻藝術結晶。<br>專車前往大足石刻，欣賞寶頂山與北山精美的摩崖造像，領略世界文化遺產的深厚底蘊。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/146919-one-day-tour-to-dazu-chongqing-bashan-mountain-carvings-beishan/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶武隆天生三橋+九黎城+龔灘古鎮2日遊</h3>
+                    <p class="card-desc">兩天一夜漫遊武隆與古鎮風光。<br>結合天生三橋自然奇觀、九黎城苗族文化與龔灘古鎮的江畔寧靜，展開深度人文自然之旅。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/147655-chongqing-2-days-with-group-tour-2-8-people-small-group/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">武隆天生三橋＆龍水峽地縫一日遊（小團）</h3>
+                    <p class="card-desc">小團出行探索壯麗地質景觀。<br>置身於天生三橋的天坑絕壁與龍水峽地縫的峽谷瀑布間，感受大自然的鬼斧神工。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/209289-three-natural-bridges-longshui-gorge-full-day-small-group-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶天生三橋＆仙女山小團遊</h3>
+                    <p class="card-desc">漫步於喀斯特地貌與高山草原。<br>行程造訪天生三橋的磅礡氣勢，並前往仙女山享受清新空氣與綠意盎然的高山風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/211955-chongqing-three-natural-bridges-fairy-mountain-full-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶魔幻8D城市全日探索之旅</h3>
+                    <p class="card-desc">解密山城交錯的空間幾何。<br>全日造訪李子壩穿樓輕軌、長江索道與立體魔幻街區，體驗重慶獨一無二的地理奇觀。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/140426-chongqing-mountain-city-one-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶&成都深度純玩6日遊</h3>
+                    <p class="card-desc">體會巴蜀雙城的獨特魔幻與慢生活。精選六天純玩無購物行程，暢遊重慶立體山城景觀與成都悠閒巷弄，深刻領略雙城魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/140419-chengdu-chongqing-6-day-deep-pure-play-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶天生三橋＆仙女山一日遊</h3>
+                    <p class="card-desc">一日暢遊重慶近郊經典景色。<br>走訪天生三橋的宏偉石拱峽谷，再到仙女山森林公園感受青翠廣袤的高山自然風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/206088-chongqing-tiansheng-three-bridges-fairy-mountain-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶武隆深度3日遊2-8人團</h3>
+                    <p class="card-desc">深度細品武隆自然與生態精華。<br>精緻小團出發，以從容節奏遊覽天生三橋、地縫及仙女山，盡情享受山林靜謐時光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/138140-chongqing-wulong-depth-3-day-tour-2-8-people-group/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶武隆喀斯特2日導覽遊含遊船</h3>
+                    <p class="card-desc">結合陸路奇觀與水上遊覽。<br>兩天行程涵蓋武隆喀斯特自然遺產精華，並安排江上遊船，多角度欣賞峽谷風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/141921-chongqing-wulong-natural-three-bridges-longshuixia-ground-crack-fa/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶大足石刻文化遺產全日遊</h3>
+                    <p class="card-desc">沉浸於千年石窟文化遺產。<br>全日行程由專業解說引導，細細品味大足石刻中精湛的宗教雕刻藝術與歷史故事。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/145416-chongqing-dazu-rock-carvings-baoding-mountain-one-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶武隆喀斯特國家公園一日遊</h3>
+                    <p class="card-desc">探索大自然的鬼斧神工。<br>走訪世界自然遺產武隆喀斯特，欣賞震撼的天生三橋與壯麗峽谷景觀。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/196237-chongqing-three-natural-bridges-fairy-mountain-full-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶8D魔幻都市夜景觀光之旅</h3>
+                    <p class="card-desc">感受璀璨山城的不夜魅力。<br>穿梭於立體交錯的都市街道，欣賞洪崖洞與長江夜景交織的震撼畫面。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/140513-chongqing-magic-8d-mountain-city-night-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">世紀郵輪|豪華長江三峽郵輪4天3晚/5天4晚（重慶/宜昌兩地出發)</h3>
+                    <p class="card-desc">航行於壯麗的山水畫卷之中。<br>搭乘豪華郵輪舒適遊覽長江三峽，品味沿途幽深峽谷與人文史蹟。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/181131-century-cruises-luxury-yangtze-river-three-gorges-cruise-4-5-days/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶武隆天生三橋+仙女山+龍水峽純玩兩日遊</h3>
+                    <p class="card-desc">深入武隆極致的自然奇景。<br>一次涵蓋天生三橋、仙女山大草原與龍水峽地縫，體驗純粹無購物山林行程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/176716-chongqing-wulong-three-natural-bridges-fairy-mountain-2-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶武隆5天4晚半自由行精緻8人團</h3>
+                    <p class="card-desc">享受精緻小團的彈性與舒適。<br>八人迷你小團配置，兼具專業導覽與自由探索時間，深度感受武隆靜謐美景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/137399-chongqing-wulong-5-days-4-nights-high-end-private-group/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶武隆天生三橋與仙女山3日遊</h3>
+                    <p class="card-desc">以從容節奏踏訪自然之美。<br>三天深度停留天生三橋與仙女山國家森林公園，享受高山草原與喀斯特地形。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/152110-chongqing-high-end-pure-play-3-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶成都雙城精華景點5日遊</h3>
+                    <p class="card-desc">一程領略巴蜀雙城的獨特風情。<br>串聯重慶魔幻山城與成都悠閒步調，體驗道地美食與歷史文化景點。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/141811-tide-play-chongqing-5-day-tour-2-8-people-small-group/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶喀斯特兩日遊+天生三橋+仙女山+芙蓉洞</h3>
+                    <p class="card-desc">解鎖地下與地上的岩溶奇觀。<br>實地探訪天生三橋、仙女山與芙蓉洞，全方位領略喀斯特地貌的多元面貌。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/136067-chongqing-wulong-high-end-two-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶5日天生三橋與仙女山導覽遊</h3>
+                    <p class="card-desc">隨專業導覽深度體會自然震撼。<br>五天行程完整走訪武隆核心景點，深入了解喀斯特地質演變與地貌特色。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/140303-high-end-5-day-tour-of-chongqing-elite-scenic-spots/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶武隆天生三橋仙女山5天4晚探索之旅</h3>
+                    <p class="card-desc">開啟沉浸式的山林探索之旅。<br>深入走訪天生三橋與仙女山景區，於林海與峽谷間享受芬多精與壯麗風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/115512-chongqing-three-natural-bridges-fairy-mountain-5-days-4-nights-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶、張家界與鳳凰古城6日探索之旅</h3>
+                    <p class="card-desc">跨越省界的壯麗奇峰與古鎮水鄉。<br>從重慶山城出發，前往張家界奇峰地貌與鳳凰古城，體驗多重人文景觀。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/220248-chongqing-zhangjiajie-fenghuang-6-day-exploration/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶武隆＆蚩尤九黎城2日遊</h3>
+                    <p class="card-desc">融合自然地形與苗族文化底蘊。<br>參觀武隆自然絕景，並造訪蚩尤九黎城，親身體驗豐富濃厚的苗族民俗風情。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/231856-chongqing-wulong-chiyou-jiulicheng-2-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶+張家界+天門山+芙蓉鎮+鳳凰 8天7晚精華遊</h3>
+                    <p class="card-desc">縱覽西南最具代表性的自然與人文精粹。<br>一次走遍重慶、張家界天門山、芙蓉鎮及鳳凰古城，行程豐富紮實。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/224810-zhangjiajie-furong-town-phoenix-ancient-city-4-days-with-the-group-t/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶武隆與成都熊貓基地七日探索之旅</h3>
+                    <p class="card-desc">開啟西南喀斯特與生態文化的深度遠征。七天縱貫重慶武隆天生三橋壯景與成都熊貓基地，體驗地形地貌與人文的豐富變化。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/224130-chongqing-wulong-chengdu-panda-base-7-day-exploration/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶夜景城市亮點之旅</h3>
+                    <p class="card-desc">漫步於燈火輝煌的立體都市。<br>專人帶領走訪精選夜景地標，從不同角度俯瞰長江與嘉陵江畔的萬家燈火。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/136332-chongqing-night-scene-classic-loop-night-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">重慶熱門夜景3大景點半日私人之旅</h3>
+                    <p class="card-desc">享受專屬私人車輛與彈性步調。<br>精選三大熱門夜景拍攝點，以私密舒適的方式記錄山城夜晚的最佳風華。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/244465-chongqing-top-3-night-spots-half-day-private-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">磁器口古鎮 & 長江索道小團遊</h3>
+                    <p class="card-desc">穿梭於老街古巷與高空索道之間。<br>遊覽歷史悠久的磁器口古鎮，並搭乘長江索道飛越江面，體驗山城傳統與現代。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/195168-ciqikou-old-town-yangtze-cableway-small-group-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶魔幻山城暢玩五日遊2-12人小團</h3>
+                    <p class="card-desc">小團出行深度探索魔幻立體空間。<br>二至十二人精緻小團，輕鬆穿梭輕軌穿樓與輕快步調，全面體驗山城生活。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/151459-a-five-day-wonderful-tour-in-the-magical-mountain-city-of-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶8D魔幻城市與武隆5日探索之旅，含川劇表演</h3>
+                    <p class="card-desc">結合奇幻都市、自然奇觀與傳統戲曲。<br>走訪重慶市區與武隆景點，並特別安排觀賞經典川劇表演，內容豐富多采。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/227771-chongqing-wulong-city-highlights-5-day-small-group-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">河內出發：2天板約瀑布小團遊</h3>
+                    <p class="card-desc">前往邊境感受壯麗瀑布與田園風光。<br>自河內出發前往越南東北部，欣賞雄偉的板約瀑布與周邊寧靜的山谷景色。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/113846-cao-bang-ban-gioc-waterfall-tour-ha-noi/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">重慶816工程＆天生三橋二日遊</h3>
+                    <p class="card-desc">揭開地下核工程與自然峽谷的神秘面紗。<br>探訪龐大震撼的816地下核工程遺址，並搭配武隆天生三橋壯麗地貌。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/227552-chongqing-project-816-three-bridges-2-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">私家團|重慶+武隆+烏江畫廊3天2晚多線路可選</h3>
+                    <p class="card-desc">踏尋山城與自然秘境。為您提供專屬私家團行程，深入探索武隆喀斯特地形與烏江畫廊景致。<br>靈活路線滿足多樣需求。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/243181-3-2/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">多日遊</span>
+                    <h3 class="card-title">武隆喀斯特2日私人遊（含遊船）</h3>
+                    <p class="card-desc">沉浸於壯麗的喀斯特地貌。包含兩天行程與烏江遊船體驗，近距離感受大自然的鬼斧神工。<br>全程提供專屬私人服務。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/220008-wulong-karst-2-day-private-tour-with-boat-ride/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_3"><h2 class="category-title">美食與餐飲</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶禮宴巴國 · 沉浸式體驗千年前的宮廷君王盛宴</h3>
+                    <p class="card-desc">重現古巴國宮廷盛景。<br>透過精緻的傳統美饌、古樂表演與宮廷儀式，帶領賓客穿越時空，體驗極具文化底蘊的沉浸式晚宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/176894-immersive-experience-of-the-palace-banquet-thousands-of-years-ago/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶慶渝宴•宮廷盛宴體驗</h3>
+                    <p class="card-desc">品味典雅的宮廷飲食文化。<br>結合傳統宮廷菜餚與服飾體驗，精緻餐點搭配合宜服務，為饕客呈獻別具一格的文化美食之旅。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/142214-chongqing-qingyu-banquet-palace-feast-experience/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶曼哈頓天台 | 茶攤· 烤肉</h3>
+                    <p class="card-desc">享受天台上的風情晚宴。<br>融合戶外茶攤與特色烤肉，擁有開闊的天台視野，是親友聚會與觀賞山城夜景的極佳場所。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/181208-chongqing-manhattan-rooftop/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">重慶ESMI NIGHT CLUB | 江北店</h3>
+                    <p class="card-desc">沉浸於充滿活力的夜生活。<br>位於江北區，具備專業燈光音響與節奏強烈的音樂，為夜間娛樂愛好者打造獨特的聚會空間。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/225743-chongqing-esmi-night-club-jiangbei-branch/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶夜間街頭美食之旅：品嚐道地美味</h3>
+                    <p class="card-desc">深入在地巷弄尋找美味。<br>跟隨專業導覽探索夜間小吃攤，品嚐麻辣酸辣等正宗在地風味，體驗接地氣的山城飲食生活。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/218182-chongqing-night-street-food-tour-with-local-delights/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">貓Live House▪重慶本地夜生活體驗</h3>
+                    <p class="card-desc">聆聽獨立音樂的現場魅力。<br>匯集多樣樂團與音樂人演出，具備優質音響與互動氛圍，是體驗在地音樂文化的指標性場所。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/171716-cat-livehouse-in-chongqing-experience-the-local-nightlife/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶南濱裡Southbank Club</h3>
+                    <p class="card-desc">領略南濱路畔的摩登風情。<br>座落於濱江地帶，結合現代餐飲與休閒空間，是欣賞長江夜景與放鬆身心的優質場所。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/207976-chongqing-southbank-club/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶1941自助火鍋餐廳</h3>
+                    <p class="card-desc">體驗懷舊氛圍中的川味麻辣。<br>復古風情的裝潢搭配豐富多元的火鍋食材，讓顧客在濃郁湯底中享受吃到飽的道地鍋物。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/141661-chongqing-1941-self-service-hotpot-restaurant/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶八號廚房自助餐廳</h3>
+                    <p class="card-desc">暢享無國界的豐富饗宴。<br>提供多國料理、海鮮與精緻甜點，明亮寬敞的用餐環境滿足多樣化的餐飲需求。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/184702-chongqing-no-8-kitchen-buffet-restaurant/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶猛虎玫瑰鮮花西餐廳</h3>
+                    <p class="card-desc">沉醉於鮮花圍繞的浪漫氛圍。<br>結合花藝造景與精緻西式餐點，提供雅致舒適的用餐環境，適合情侶約會與質感聚餐。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/186855-chongqing-tiger-rose-garden-western-restaurant/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶碼頭茶館(洪崖洞店)&喝茶觀景勝地</h3>
+                    <p class="card-desc">重溫老重慶的茶館歲月。<br>位於洪崖洞景區，提供傳統蓋碗茶與開闊的觀景角度，讓旅客邊品茗邊俯瞰江岸景致。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/164965-chongqing-dockside-teahouse-hongya-cave-branch/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶福來茶事</h3>
+                    <p class="card-desc">探索當代茶藝的雅致空間。<br>簡約舒適的環境提供多樣精選茶品，是放慢腳步、細細品味茶香與靜謐時光的理想選擇。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/175242-chongqing-fortune-tea-company/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶半日麵食製作與博物館體驗</h3>
+                    <p class="card-desc">親手體驗正宗重慶小麵手藝。<br>透過博物館導覽了解麵食歷史，並在專業師傅指導下完成製麵，感受獨特的飲食文化魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/217541-half-day-chongqing-noodle-making-museum-experience/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶馬隊長清真火鍋</h3>
+                    <p class="card-desc">品嚐正宗清真風味火鍋。<br>選用優質清真肉品與特製湯底，呈現鮮美醇厚的傳統口感，為喜愛麻辣火鍋的食客提供多樣選擇。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/184809-chongqing-ma-captain-halal-hot-pot/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">重慶洪崖洞及魁星樓半日道地美食探索</h3>
+                    <p class="card-desc">漫步地標景點品味在地滋味。<br>穿梭於高低錯落的魁星樓與熱鬧的洪崖洞，沿途導覽並品嚐多元特色小吃，深度體驗山城特色。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/176004-chongqing-hongyadong-kuixinglou-half-day-authentic-food-exploration/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">成都人民公園＆杜甫草堂半日遊（含街頭小吃）</h3>
+                    <p class="card-desc">感受蜀都人文與愜意時光。走訪詩意盎然的杜甫草堂，並於人民公園品茗享用小吃，深刻體會成都濃厚的文化韻味與悠閒。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/212067-chengdu-people-s-park-du-fu-thatched-cottage-half-day-tour-with-street-food/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">洪崖洞精釀啤酒夜間小團遊</h3>
+                    <p class="card-desc">夜幕降臨下的山城別具魅力。<br>跟隨專業導遊穿梭洪崖洞，品嚐在地精釀啤酒，感受重慶獨特的夜間活力與璀璨燈火。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/178019-chongqing-hongyadong-half-day-immersive-night-exploration/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">張家界採茶製茶體驗和花果酒DIY傳統白酒品鑑</h3>
+                    <p class="card-desc">走進張家界自然茶園。<br>親手體驗採茶與製茶工藝，搭配花果酒 DIY 及傳統白酒品鑑，深度感受在地茶酒文化。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/214316-tea-picking-and-making-chinese-wine-diy-and-tasting-in-zhangjiajie/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">珮姐重慶火鍋（上海旗艦店）｜道地重慶火鍋套餐</h3>
+                    <p class="card-desc">在上海品嚐正宗麻辣風味。<br>珮姐重慶火鍋嚴選道地湯底與新鮮食材，呈現濃郁醇厚的經典川渝火鍋體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/229507-pei-jie-chongqing-hotpot-shanghai-flagship-store-authentic-chongqing-hotpot-set/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">李扯拐老火鍋 · 麻辣鮮香重慶魂 | 東郊記憶店</h3>
+                    <p class="card-desc">重現麻辣鮮香的道地重慶魂。位於東郊記憶園區，李扯拐老火鍋以醇香厚重的牛油鍋底與新鮮配料，展現最純正的火鍋魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/152091-li-tug-crutch-old-hot-pot-spicy-and-fragrant-chongqing-soul-east-suburb-memory-store/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">東華川府重慶老火鍋 - 捷運板橋站</h3>
+                    <p class="card-desc">捷運站旁的道地巴蜀美味。<br>東華川府提供傳統炒料熬製的牛油鍋底與精選肉品，帶來層次豐富的麻辣火鍋盛宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/46815-donghua-sichuan-hot-pot/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_4"><h2 class="category-title">休閒與放鬆</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Spa</span>
+                    <h3 class="card-title">重慶嵐悅溫泉票</h3>
+                    <p class="card-desc">洗滌身心疲憊的自然溫泉饗宴。<br>體驗重慶嵐悅溫泉的高品質泉水，環境清幽且設施豐富，是放鬆筋骨、享受沉靜療癒時刻的最佳去處。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/183773-chongqing-lanyue-hot-spring-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Spa</span>
+                    <h3 class="card-title">重慶觀遠足道 | 解放碑店</h3>
+                    <p class="card-desc">走訪繁華商圈後的極致紓壓享受。<br>位於解放碑核心商圈的專業足道會館，提供傳統養生足療與舒壓按摩，為漫步山城後的旅客舒緩雙足疲勞。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/229629-chongqing-guanyuan-foot-therapy-jiefangbei-branch/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Spa</span>
+                    <h3 class="card-title">重慶首悟足道 · 火鍋足療 | 洪崖洞店</h3>
+                    <p class="card-desc">體驗重慶獨特的特色文化。結合傳統足療與在地火鍋元素，在洪崖洞景區旁享受放鬆身心的專業按摩服務。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/163923-shouwu-foot-massage-in-chongqing-hongyadong-branch/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Spa</span>
+                    <h3 class="card-title">足上添花·高空觀景足道SPA｜來福士店</h3>
+                    <p class="card-desc">俯瞰璀璨城景的極致享受。位於來福士高層，提供高品質足道與SPA，讓您在遠眺江景的同時舒緩全身疲憊。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/207783-zenstep-massage-skyline-view-chongqing-branch-1/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Spa</span>
+                    <h3 class="card-title">重慶筋骨堂 · 中式傳統按摩 · 推拿體驗｜來福士店</h3>
+                    <p class="card-desc">感受傳承深厚的中醫養生智慧。由經驗豐富的手法師傅提供精準穴位推拿，幫助調理氣血並有效釋放身體壓力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/183203-chongqing-traditional-chinese-massage-tuina-experience/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Spa</span>
+                    <h3 class="card-title">重慶瀾緹雅·泰式按摩·足療SPA | 解放碑店</h3>
+                    <p class="card-desc">踏入充滿東南亞風情的寧靜空間。坐落於解放碑商圈，引進道地泰式舒壓手法，帶來全身肌肉的深度放鬆體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/229838-chongqing-lantiya-thai-massage-foot-spa-jiefangbei-branch/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Spa</span>
+                    <h3 class="card-title">足上添花·高空觀景足道SPA｜來福士二店</h3>
+                    <p class="card-desc">解鎖無與倫比的高空視覺與身心療癒。於來福士二店享有寬廣視野，搭配專業足部理療，打造舒適的休憩時光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/208207-zenstep-massage-skyline-view-branch-2/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_5"><h2 class="category-title">特色體驗與活動</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">重慶兩江遊</h3>
+                    <p class="card-desc">沿著長江與嘉陵江欣賞城市天際線。兩江遊船提供獨特的觀光視角，讓乘客能舒適地欣賞山城重慶的建築之美與江景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/116128-chongqing-two-rivers-night-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">獨木舟</span>
+                    <h3 class="card-title">重慶地心探險 極地皮筏艇 探洞體驗</h3>
+                    <p class="card-desc">踏入神祕地底世界進行極限探索。結合皮筏艇漂流與溶洞探險，專人指導安全裝備，適合喜愛戶外挑戰的冒險者。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/206930-/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">服裝體驗</span>
+                    <h3 class="card-title">重慶洪崖洞漢服租賃拍攝體驗</h3>
+                    <p class="card-desc">穿上傳統服飾穿梭於魔幻山城景點。體驗包含精緻漢服挑選與專業妝造服務，以洪崖洞夜景為背景留下獨特旅行影像。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/154919-chongqing-first-search-travel-photography-ethnic-hanfu-experience/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">滑索</span>
+                    <h3 class="card-title">重慶天眼洞巖降/飛拉達/地宮飛躍體驗</h3>
+                    <p class="card-desc">挑戰自我極限的高空與地形冒險。結合峭壁飛拉達、洞穴岩降與地宮飛躍，為戶外運動愛好者提供豐富的立體戶外體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/184050-chongqing-tianyan-cave-abseiling-via-ferrata-underground-palace/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">攝影</span>
+                    <h3 class="card-title">重慶網紅機車拍照&拍影片體驗</h3>
+                    <p class="card-desc">體驗山城賽博朋克風格的視覺拍攝。提供時尚機車道具與專業攝影指導，在重慶特色街景中記錄具個人風格的影音作品。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/203037-chongqing-viral-motorcycle-photo-video-session/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">空中觀光</span>
+                    <h3 class="card-title">重慶直升機兩江遊飛行體驗</h3>
+                    <p class="card-desc">從空中鳥瞰山城與雙江交匯的壯麗景色。搭乘直升機進行低空飛行觀光，以全景視角俯瞰重慶獨特的都市地貌與地標建築。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/210801-chongqing-helicopter-two-river-sightseeing-flight-experience/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶解放碑洪崖洞Mc麥悅·空中酒店</h3>
+                    <p class="card-desc">享受高空俯瞰解放碑與江景的住宿體驗。飯店位於核心商圈高層，提供現代化設施與便捷的交通網絡，適合都市觀光旅客。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1753148-maiyue-hotelchongqing-jiefangbei/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">世野SEYA·高空酒店（來福士解放碑店）</h3>
+                    <p class="card-desc">入住地標建築旁奢華優雅的高空客房。飯店擁有視野開闊的景觀窗與精緻室內設計，讓賓客俯瞰都市天際線與璀璨夜景。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1987708-seya-panoramic-hotel--chongqing-raffles-plaza-jiefangbei-managed-by-seya-group/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">Pagoda君亭設計酒店(重慶化龍橋地鐵站印象城店)</h3>
+                    <p class="card-desc">感受藝術設計與現代商務結合的住宿品質。飯店鄰近地鐵站與購物中心，空間簡約舒適，為旅人提供便利且平靜的休憩環境。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1754413-pagoda-hotel-of-ssaw-chongqing-international-landsea/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶解放碑萬豪Moxy酒店</h3>
+                    <p class="card-desc">體驗充滿活力與現代感的都市住宿空間。Moxy 酒店以創新設計與社交氛圍為特色，坐落於解放碑核心區，出行十分便利。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1428618-moxy-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊船觀光</span>
+                    <h3 class="card-title">重慶城市夜景日落遊船</h3>
+                    <p class="card-desc">捕捉日落餘暉至華燈初上的江岸美景。遊船航程經過多座代表性大橋與建築群，是觀察重慶城市燈光變化的絕佳方式。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/218810-chongqing-sunset-cruise-with-city-highlights/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">滑索</span>
+                    <h3 class="card-title">重慶金刀峽飛拉達體驗+攝影</h3>
+                    <p class="card-desc">在峽谷懸崖峭壁間感受攀登的樂趣。結合安全的攀登鐵道設施與專業攝影記錄，讓參與者安心體驗戶外攀岩與自然風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/229242-jindaoxia-via-ferrata-with-photography/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶解放碑亞朵酒店</h3>
+                    <p class="card-desc">享受人文質感與貼心服務的居停空間。飯店位於解放碑商圈內部，提供高品質床寢與閱讀氛圍，為旅程帶來安穩與放鬆。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/937056-atour--hotel-bayi-square-jiefangbei-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊船觀光</span>
+                    <h3 class="card-title">重慶兩江與洪崖洞夜遊</h3>
+                    <p class="card-desc">一站式體驗重慶最具代表性的夜間景觀。行程涵蓋兩江夜航與洪崖洞街區漫步，親身體驗璀璨燈火交織出的山城夜色。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/218833-chongqing-two-rivers-hongyadong-night-cruise/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶國貿格蘭大酒店</h3>
+                    <p class="card-desc">入住歷史悠久且地理位置優越的高級飯店。提供精緻的餐飲選項、舒適客房與視野開闊的城市景觀，適合商務與休閒旅客。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/236768-glenvie-itc-plaza-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶福朋喜來登酒店</h3>
+                    <p class="card-desc">體驗山城舒適與便利的理想之選。<br>酒店坐落於便捷地段，提供現代化客房與完善設施，為商務與休閒旅客帶來優質住宿體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1963084-four-points-by-sheraton-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊船觀光</span>
+                    <h3 class="card-title">重慶9大地標半日郵輪體驗</h3>
+                    <p class="card-desc">從江面盡覽山城獨特的水岸天際線。<br>半日航程串聯重慶九大經典地標，隨船輕鬆欣賞兩江交匯的壯麗景色。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/180126-chongqing-two-river-tour-bandao-ferry-water-art-gallery/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶大世界君亭酒店（解放碑洪崖洞店）</h3>
+                    <p class="card-desc">輕鬆步行探索重慶熱門景點與歷史步道。<br>酒店鄰近解放碑與洪崖洞，結合當代東方美學設計，提供靜謐舒適的城市休憩空間。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1767674-ssaw-hotel-jiefangbei-hongyadong-branch/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">空中觀光</span>
+                    <h3 class="card-title">重慶固定翼飛行體驗</h3>
+                    <p class="card-desc">衝上雲霄俯瞰壯麗山川與城市全景。<br>在專業飛行員指導下搭乘固定翼飛機，親身感受高空飛行的樂趣與獨特視野。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/195520-chongqing-helicopter-flight-experience/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">麥嘉拾趣酒店 - 重慶解放碑朝天門店</h3>
+                    <p class="card-desc">深入感受重慶舊城與現代交融的獨特魅力。<br>位處朝天門與解放碑雙商圈，提供別致裝潢與貼心服務，是漫遊山城的靈魂據點。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1757320-mcsrh-hotel-chongqing-chaotianmen/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">攝影</span>
+                    <h3 class="card-title">重慶網紅摩托車體驗&影片拍攝</h3>
+                    <p class="card-desc">穿梭穿山越嶺的魔幻立體街道。<br>騎乘精選摩托車馳騁於山城地形，配有專業拍攝團隊紀錄專屬於你的酷炫動態影片。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/203172-chongqing-motorcycle-portrait-shooting/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">Ji Hotel Chongqing Jiefangbei Center</h3>
+                    <p class="card-desc">極簡風格為繁華市中心注入一抹清雅。<br>全季酒店秉持東方人文美學，提供極簡舒適的住宿環境，鄰近解放碑核心購物區。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/2087616-ji-hotel-chongqing-jiefangbei-center/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶JW萬豪酒店</h3>
+                    <p class="card-desc">享受奢華精緻的尊榮住宿饗宴。<br>位於渝中區核心心臟地帶，擁有高空絕佳視野、奢華餐飲與水療，打造頂級旅宿體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/674430-jw-marriott-hotel-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">高空彈跳</span>
+                    <h3 class="card-title">重慶高空跳傘體驗</h3>
+                    <p class="card-desc">挑戰極限解鎖絕無僅有的俯瞰視野。<br>由專業教練全程陪同進行萬呎高空跳傘，感受自由落體的極速快感與寬廣天地景致。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/212671-chongqing-tandem-skydiving-experience/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶希爾頓酒店</h3>
+                    <p class="card-desc">經典品牌帶來始終如一的尊貴體驗。<br>坐落於渝中商業區，配備寬敞客房與多國美食餐廳，提供出色的國際化旅宿服務。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/326649-hilton-chongqing-hotel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">Qian Yu Qian Su Scenic Suite Hotel Chongqing</h3>
+                    <p class="card-desc">開窗即可飽覽動人的江景與璀璨夜色。<br>專為景觀打造的套房空間，提供全景落地窗與雅致設施，感受璀璨山城之美。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/2399848-qian-yu-qian-su-scenic-suite-hotel-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊船觀光</span>
+                    <h3 class="card-title">重慶洪崖洞與彈子石輪渡觀光</h3>
+                    <p class="card-desc">搭乘復古輪渡重溫老重慶的渡江記憶。<br>往返於洪崖洞與彈子石老街之間，以最道地的水上路線欣賞懸崖吊腳樓與江岸夜景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/180470-chongqing-two-river-tour-liangjiang-ferry/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊船觀光</span>
+                    <h3 class="card-title">重慶嘉陵小渡</h3>
+                    <p class="card-desc">細細品味嘉陵江畔的悠閒水上時光。<br>簡約親民的水上交通體驗，順江而下將兩岸沿山而建的城市特色風貌盡收眼底。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/180433-chongqing-two-river-tour-jialing-ferry/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶嘉發希爾頓逸林酒店</h3>
+                    <p class="card-desc">溫馨的標誌性餅乾為美好旅程揭開序幕。<br>位於南岸商圈，毗鄰地鐵站，提供現代化設施與精緻餐飲，帶來如家般的溫暖體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/675229-doubletree-by-hilton-hotel-chongqing-nanan/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">高悦酒店（重慶觀音橋步行街店）</h3>
+                    <p class="card-desc">沉浸於當代流行文化與熱鬧商圈之中。<br>緊鄰觀音橋商圈，酒店風格時尚新穎，配備舒適客房，是探索潮流重慶的住宿首選。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1304895-chongqing-kaoyu-hotel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶麗晶酒店</h3>
+                    <p class="card-desc">沉醉於古典與當代奢華交織的尊榮氛圍。<br>位於江北嘴金融中心，坐擁嘉陵江美景，提供頂級客房設施與無微不至的管家服務。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/552457-regent-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">Conrad Chongqing</h3>
+                    <p class="card-desc">佇立於高空俯瞰山城迷人的城市幾何美學。<br>融合當代藝術與在地文化元素，提供精緻高級奢華的客房與獨特的餐飲體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1332801-conrad-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶解放碑威斯汀酒店</h3>
+                    <p class="card-desc">在城市心臟重塑身心靈的平衡與活力。<br>設有無邊際高空泳池與特色天際景觀，提供優質的睡眠與餐飲設施，盡享愜意時光。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/619391-the-westin-chongqing-liberation-square/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">服裝體驗</span>
+                    <h3 class="card-title">重慶古代特色服裝租賃/體驗</h3>
+                    <p class="card-desc">穿越時空化身古風佳人拍攝絕美寫真。<br>提供豐富的漢服與古代服飾選擇，搭配精緻造型與道具，於山城特色景點留下典雅身影。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/139381-special-china-costume-rental-china-clothing-theme-shooting/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶朝天門voco酒店</h3>
+                    <p class="card-desc">感受鮮明活潑且富具質感的現代旅宿風格。<br>坐落於兩江交匯之處，融入潮流設計與靈動空間，為每一次停留注入輕鬆愉悅的氛圍。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1223943-voco-chongqing-chaotianmen-by-ihg/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶盛捷長江服務公寓</h3>
+                    <p class="card-desc">盡覽長江壯麗江景。<br>這座服務公寓座落於沿江地段，提供客房與溫馨設施，專為追求商務與休閒品質的旅客設計。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/188455-somerset-yangtze-river-chongqing/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶解放碑洪崖洞厚居高空江景酒店</h3>
+                    <p class="card-desc">俯瞰山城璀璨夜色。<br>飯店鄰近熱門商圈，主打高空開闊視野與現代化套房，讓房客近距離感受江景與城市的繁華。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/2106807-chongqing-jiefangbei-hongya-cave-houju-highaltitude-riverview-hotel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶來福士洲際酒店 - IHG 旗下飯店</h3>
+                    <p class="card-desc">體驗地標建築的卓越奢華。<br>座落於來福士水晶連廊，將現代設計與無敵江景融合，提供尊榮住宿與精緻餐飲服務。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/619186-intercontinental-chongqing-raffles-city-by-ihg/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">工作坊</span>
+                    <h3 class="card-title">絲線裡的東方美學 |  重慶宋錦非遺手作體驗</h3>
+                    <p class="card-desc">感受千年絲綢工藝的韻味。<br>在專業導師帶領下，親手製作精美的宋錦作品，深入了解中國非物質文化遺產的獨特魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/208202-oriental-aesthetics-in-silk-chongqing-song-brocade-workshop/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">飯店</span>
+                    <h3 class="card-title">重慶芳華酒店</h3>
+                    <p class="card-desc">尋覓都市中的寧靜角落。<br>酒店融合經典與現代設計元素，提供舒適優雅的住宿環境與便捷交通，為旅人打造愜意空間。</p>
+                    <a href="https://www.klook.com/zh-TW/hotels/detail/1766826-chongqing-fang-hua-hotel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section>
+    </div>
+    <script>
+        function showCategory(categoryId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`button[onclick="showCategory('${categoryId}')"]`).classList.add('active');
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.toggle('active', categoryId === 'all' || section.id === categoryId);
+            });
+            window.scrollTo(0, 0);
         }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
     </script>
-    <footer class="text-center py-8 text-gray-400 text-sm md:text-base px-4">
-        <p>Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved. 提供最專業的亞洲自由行旅遊指南與行程規劃工具 (Asia Travel Guides & FIT Itineraries)。版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
-    </footer>
 </body>
 </html>

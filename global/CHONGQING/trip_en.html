@@ -1,159 +1,1156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chongqing Tours & Tickets</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- SEO & GEO 結構化資料 -->
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Chongqing Trip Guide",
-  "description": "精選 Chongqing 必訪的 trip 推薦清單與詳細交通指南。",
-  "publisher": {
-    "@type": "Organization",
-    "name": "Global Travel Pass"
-  }
-}
-</script>
+    <title>Chongqing Travel Guide</title>
     <style>
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        :root { --primary-color: #3b82f6; --bg-color: #f7f9fa; --text-color: #333; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; line-height: 1.6; scroll-behavior: smooth; }
+        header { background: var(--primary-color); color: white; padding: 2rem 1rem; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 2rem; }
+        .header-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
+        .btn-top { background: white; color: var(--primary-color); text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .btn-top:hover { background: #eff6ff; }
+        .nav-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 1.5rem; }
+        .nav-btn { background: white; color: var(--primary-color); border: none; padding: 0.6rem 1.2rem; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .nav-btn:hover, .nav-btn.active { background: #eff6ff; color: #1d4ed8; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .category-section { margin-bottom: 3rem; display: none; }
+        .category-section.active { display: block; }
+        .category-title { border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .card-tag { display: inline-block; background: #eff6ff; color: var(--primary-color); font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.8rem; width: fit-content; }
+        .card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 0.5rem 0; line-height:1.4; }
+        .card-desc { font-size: 0.95rem; color: #555; flex-grow: 1; margin-bottom: 1rem; }
+        .card-link { display: block; text-align: center; background: var(--primary-color); color: white; text-decoration: none; padding: 0.6rem; border-radius: 4px; font-weight: bold; margin-top: auto; }
+        .card-link:hover { background: #2563eb; }
     </style>
 </head>
-<body class="bg-slate-50">
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState } = React;
-
-        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
-        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
-        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
-        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
-        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
-        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
-        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
-        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
-
-        const itineraryData = {"comparison_table": [{"link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DChongqing%20", "name": "Chongqing Rail Transit 1-Day Pass", "price": "18 RMB", "scope": "Unlimited rides across the entire Chongqing Rail Transit network (Metro \u0026 Monorail) for 24 hours after first activation.", "suitable_for": "Travelers hopping between multiple districts frequently in a single day."}, {"link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DChongqing%20", "name": "Chongqing Rail Transit 3-Day Pass", "price": "45 RMB", "scope": "Unlimited rides across the entire Chongqing Rail Transit network (Metro \u0026 Monorail) for 72 hours after first activation.", "suitable_for": "Independent travelers staying in Chongqing for 3 days relying mainly on the rail system."}, {"link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DChongqing%20", "name": "Yiju Changtong Card (Physical IC Transit Card)", "price": "~25 RMB deposit (Reloadable)", "scope": "Chongqing Rail Transit, city buses, Yangtze River Cableway, Liangjiang Ferry, and more.", "suitable_for": "Travelers who want a souvenir card or plan to ride buses and the Yangtze River Cableway (includes discounts)."}, {"link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DChongqing%20", "name": "Digital Transit QR Code (WeChat / Alipay / UnionPay)", "price": "Free to activate (Pay-per-ride at standard single-fare rates)", "scope": "Chongqing Rail Transit and city buses.", "suitable_for": "Anyone seeking hassle-free travel without buying physical cards or multi-day passes."}], "cp_tips": "\u30101\u20132 Day Express Trips\u3011Opt for the mobile \u0027Chongqing Transit QR Code\u0027 on WeChat or Alipay to skip ticket lines and card deposits. However, if you plan to take the metro/monorail more than 5 times a day (single fares can reach 7\u201310 RMB), the 1-Day Pass (18 RMB) is a fantastic deal! \u30103+ Day In-Depth Trips\u3011The 3-Day Pass (45 RMB) offers incredible value for unlimited rail travel. Note: The 1-Day/3-Day Rail Passes do NOT cover the Yangtze River Cableway or ferries, but paying with a physical Yiju Changtong Card grants a discounted rate on the cableway.", "faqs": [{"answer": "Yes! Simply search for the \u0027Transport Code\u0027 (\u4e58\u8eca\u78bc) mini-program in WeChat or Alipay, set your location to Chongqing, and activate the Chongqing Rail Transit and Bus QR codes. You can then tap your phone screen at turnstiles for seamless entry.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DChongqing%20", "question": "Can I use WeChat or Alipay QR codes to ride the Chongqing metro and buses?"}, {"answer": "Take CRT Line 2 and get off at Liziba Station. Stay inside the train to experience riding right through the residential building, or head out Exit 1 to the ground-level viewing platform for the iconic photo of the monorail entering the building.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DChongqing%20", "question": "Which line should I take to see the famous \u0027Train Passing Through a Building\u0027 at Liziba?"}, {"answer": "Taking rail transit is the most time-efficient option and avoids Chongqing\u0027s notorious traffic jams. From the airport, take Line 10 to Zengjiayan Station and transfer to Line 2, or take Line 10 to Hongtudi Station and transfer to Line 6 to Xiaoshizi Station (right next to Jiefangbei and Hongyadong). The journey takes around 45\u201360 minutes.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DChongqing%20", "question": "Is it better to take the metro or a taxi from Jiangbei International Airport to Jiefangbei?"}, {"answer": "We strongly recommend reserving your spot and buying tickets in advance via the official \u0027Yangtze River Cableway\u0027 WeChat mini-program to avoid massive queues. You can also tap the physical Yiju Changtong Card at the turnstile for a special discount, but please note that the 1-Day and 3-Day Rail Passes are NOT accepted.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DChongqing%20", "question": "Do I need to buy Yangtze River Cableway tickets in advance? Are transit passes accepted?"}], "title": "Chongqing Transit Tickets \u0026 Passes: Complete Guide"};
-        const REGIONS = Object.keys(itineraryData);
-        
-        // Dynamic category matching based on translated keys (AI might translate them to English)
-        const getIconForCategory = (catName) => {
-            const lowerCat = catName.toLowerCase();
-            if (lowerCat.includes('ticket') || lowerCat.includes('attraction')) return Ticket;
-            if (lowerCat.includes('tour') || lowerCat.includes('day')) return Sun;
-            if (lowerCat.includes('transport') || lowerCat.includes('sim') || lowerCat.includes('wifi')) return TrainFront;
-            return Ticket; // Default
-        };
-
-        function App() {
-            const [selectedRegion, setSelectedRegion] = useState(REGIONS[0] || '');
-            const availableCats = Object.keys(itineraryData[selectedRegion] || {});
-            const [selectedCategory, setSelectedCategory] = useState(availableCats[0] || '');
-
-            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
-
-            return (
-                <div className="min-h-screen font-sans text-slate-800 flex flex-col">
-                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-slate-200">
-                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="text-blue-600 w-6 h-6 md:w-8 md:h-8" />
-                                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-400">
-                                    Chongqing Tours & Tickets
-                                    </h1>
-                                </div>
-                                <div className="hidden md:block">
-                                    <a href="index_en.html" className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm lg:text-base font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-transform active:scale-95">
-                                        <Home className="w-4 h-4" /> Home
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide items-center">
-                                <a href="index.html" className="md:hidden flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-sm shrink-0">
-                                    <Home className="w-4 h-4" /> Home
-                                </a>
-                                {REGIONS.map((region) => (
-                                    <button
-                                        key={region}
-                                        onClick={() => {
-                                            setSelectedRegion(region);
-                                            const newCats = Object.keys(itineraryData[region] || {});
-                                            setSelectedCategory(newCats[0]);
-                                        }}
-                                        className={`whitespace-nowrap px-5 py-2 md:py-2.5 rounded-full text-sm md:text-base font-medium transition-all ${
-                                            selectedRegion === region ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                                        }`}
-                                    >
-                                        {region}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </header>
-
-                    <main className="max-w-7xl mx-auto px-4 py-8 md:py-10 flex-grow w-full">
-                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
-                            {availableCats.map((catId) => {
-                                const IconComp = getIconForCategory(catId);
-                                return (
-                                    <button
-                                        key={catId}
-                                        onClick={() => setSelectedCategory(catId)}
-                                        className={`flex items-center gap-2 px-5 py-2 md:py-2.5 rounded-lg border text-sm md:text-base font-medium transition-all ${
-                                            selectedCategory === catId ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
-                                        }`}
-                                    >
-                                        <IconComp className="w-4 h-4 md:w-5 md:h-5" />
-                                        {catId}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {currentData.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                                {currentData.map((item, index) => (
-                                    <div key={index} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col justify-between hover:shadow-xl transition-all transform hover:-translate-y-1">
-                                        <div>
-                                            <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 leading-tight">{item.title}</h3>
-                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">{item.description}</p>
-                                        </div>
-                                        <div className="mt-auto pt-5 border-t border-slate-100 flex justify-end">
-                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm w-full">
-                                                <Info className="w-4 h-4 md:w-5 md:h-5" />
-                                                <span className="md:text-lg">View Details & Book</span>
-                                                <ExternalLink className="w-4 h-4 md:w-5 md:h-5 ml-1 opacity-70" />
-                                            </a>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-16 text-center flex flex-col items-center justify-center">
-                                <Sparkles className="w-10 h-10 text-slate-400 mb-3" />
-                                <h3 className="text-lg md:text-xl font-medium text-slate-700">No data available at the moment.</h3>
-                            </div>
-                        )}
-                    </main>
-                </div>
-            );
+<body>
+    <header>
+        <div class="header-actions">
+            <a href="index_en.html" class="btn-top">🏠 Home</a>
+            
+        </div>
+        <h1>Chongqing Travel Guide</h1>
+        <div class="nav-buttons" id="navButtons">
+            <button class="nav-btn active" onclick="showCategory('all')">All</button>
+            <button class="nav-btn" onclick="showCategory('cat_0')">Transport & Connectivity</button><button class="nav-btn" onclick="showCategory('cat_1')">Attractions & Tickets</button><button class="nav-btn" onclick="showCategory('cat_2')">Tours & Sightseeing</button><button class="nav-btn" onclick="showCategory('cat_3')">Food & Dining</button><button class="nav-btn" onclick="showCategory('cat_4')">Relaxation & Spa</button><button class="nav-btn" onclick="showCategory('cat_5')">Unique Experiences</button>
+        </div>
+    </header>
+    <div class="container">
+        <section class="category-section active" id="cat_0"><h2 class="category-title">Transport & Connectivity</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">China 5G eSIM | Unlimited Data | China Unicom</h3>
+                    <p class="card-desc">Stay connected seamlessly across China! Enjoy high-speed 5G unlimited data powered by China Unicom with instant activation and no physical SIM required.</p>
+                    <a href="https://www.klook.com/en-US/activity/128576-china-esim-high-speed-internet-qr-code-voucher/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">中港澳 | 4G/5G 高速eSIM 免翻牆（即買即取QR Code）</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/101509-cn-hk-mo-esim-card/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing: Chongqing Jiangbei International Airport Private Transfer</h3>
+                    <p class="card-desc">Seamless and comfortable airport transit in Chongqing.<br>Enjoy private transfer services directly between Jiangbei Airport and your hotel.</p>
+                    <a href="https://www.klook.com/en-US/airport-transfers/?flightDirection=1&code=CKG&aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing 8-Hour Private Car Day Tour</h3>
+                    <p class="card-desc">Customize your perfect day in the 3D Mountain City.<br>Enjoy 8 hours of private car service to visit top spots like Hongyadong at your pace.</p>
+                    <a href="https://www.klook.com/en-US/activity/130172-chongqing-8-hours-chartered-one-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Wulong Private Car Day Tour</h3>
+                    <p class="card-desc">Journey comfortably to World Heritage natural wonders.<br>Explore Wulong's breathtaking Three Natural Bridges and scenic landscapes with private transport.</p>
+                    <a href="https://www.klook.com/en-US/activity/145979-chongqing-wulong-chartered-day-trip/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Wulong & Jiuli City 12-Hour Private Car 1-2 Day Tour</h3>
+                    <p class="card-desc">Combine stunning nature and rich tribal culture.<br>Enjoy 12-hour flexible private charter options visiting Wulong and Jiuli Miao City seamlessly.</p>
+                    <a href="https://www.klook.com/en-US/activity/130199-wulong-12-hour-chartered-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Wulong Private Car 2-Day Tour</h3>
+                    <p class="card-desc">Immerse fully in Wulong's dramatic natural beauty.<br>A relaxed 2-day private charter covering Tianfu Official Oasis, gorges, and alpine meadows.</p>
+                    <a href="https://www.klook.com/en-US/activity/149234-chongqing-wulong-2-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Downtown Private Car Day Tour</h3>
+                    <p class="card-desc">Navigate Chongqing's intricate terrain effortlessly.<br>A hassle-free private tour covering Liziba Station, Yangtze River Cableway, and iconic streets.</p>
+                    <a href="https://www.klook.com/en-US/activity/145866-chongqing-day-trip-by-chartered-bus/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Dazu Private Car Day Tour</h3>
+                    <p class="card-desc">Travel comfortably to magnificent heritage rock carvings.<br>Discover the centuries-old Buddhist statues and art of Dazu with private charter services.</p>
+                    <a href="https://www.klook.com/en-US/activity/157329-chongqing-dazu-chartered-one-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Dazu Rock Carvings Private Car Day Tour</h3>
+                    <p class="card-desc">Discover exquisite ancient rock art at Dazu.<br>Enjoy private transfer to Baoding Mountain to admire world-renowned medieval stone carvings.</p>
+                    <a href="https://www.klook.com/en-US/activity/146017-chongqing-dazu-rock-carving-day-trip/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">China Railway High-Speed Train Tickets: Chengdu to Chongqing, Xi'an, Jiuzhaigou & More</h3>
+                    <p class="card-desc">Connect across major Chinese destinations effortlessly. Secure high-speed rail tickets from Chengdu to Chongqing, Xi'an, Mount Emei, and beyond.</p>
+                    <a href="https://www.klook.com/en-US/activity/121784-china-railway-high-speed-rail-tickets-from-chongqing-to-chengdu-xi-an/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing City, Wulong Fairy Mountain, Three Natural Bridges & Furong Cave Private Tour</h3>
+                    <p class="card-desc">Experience Chongqing's iconic cityscapes and natural wonders.<br>Flexible 1 or 2-day private tour covering Fairy Mountain, natural bridges, and Furong Cave.</p>
+                    <a href="https://www.klook.com/en-US/activity/125822-car-rental-with-driver-to-chongqing-xiannu-mountain-three-bridges-furong-cave/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Jinfo Mountain Scenic Area Ticket</h3>
+                    <p class="card-desc">Experience the natural magnificence of Jinfo Mountain.<br>Get admission tickets to explore ancient temples, alpine views, and unique karst tablelands.</p>
+                    <a href="https://www.klook.com/en-US/activity/31695-goldon-foshan-ticket-cable-car/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing to Zhangjiajie High-Speed Railway</h3>
+                    <p class="card-desc">Travel effortlessly between Chongqing and Zhangjiajie.<br>Enjoy a smooth and fast ride on China High-Speed Railway connecting two premier destinations.</p>
+                    <a href="https://www.klook.com/en-US/activity/176805-train-tickets-china-rail/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing High-Speed Railway Station Private Transfer</h3>
+                    <p class="card-desc">Ensure a hassle-free arrival at Chongqing train stations.<br>Driver picks you up directly at the station for a prompt transfer to your destination.</p>
+                    <a href="https://www.klook.com/en-US/activity/231921-private-pick-up-service-at-chongqing-high-speed-railway-station/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Jiangbei International Airport VIP Lounge & Service</h3>
+                    <p class="card-desc">Begin your elevated flight journey with comfort.<br>Enjoy exclusive VIP privileges at Chongqing Jiangbei Airport, featuring priority security clearance and serene lounges for a relaxed pre-flight experience.</p>
+                    <a href="https://www.klook.com/en-US/activity/164326-chongqing-jiangbei-airport-vip-service/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Private Night Sightseeing Tour</h3>
+                    <p class="card-desc">Discover the radiant evening charm of the mountain city.<br>Travel in comfort through illuminated streets, taking in panoramic views of Hongyadong and shimmering riverbanks at your own pace.</p>
+                    <a href="https://www.klook.com/en-US/activity/129590-chongqing-night-charter/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Private Transfer Between Chongqing and Wulong District</h3>
+                    <p class="card-desc">Seamless connection to natural geological wonders.<br>Enjoy point-to-point private transfer service between downtown Chongqing and Wulong District, ensuring a relaxed, hassle-free ride for your travel plans.</p>
+                    <a href="https://www.klook.com/en-US/activity/126381-chongqing-private-transfer-to-wulong-district/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Highlights Day Tour by Private Car</h3>
+                    <p class="card-desc">Explore iconic urban landmarks in a single day.<br>Travel via private vehicle to experience Chongqing highlights, including Liziba monorail station, Guanyinqiao, and the stunning Hongyadong.</p>
+                    <a href="https://www.klook.com/en-US/activity/125988-car-rental-with-driver-to-chongqing-north-railway-station-guanyin-bridge-liziba-hongya-cave/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Full-Day Private Tour to Wulong Karst Geological Park</h3>
+                    <p class="card-desc">Witness nature's breathtaking geological masterpieces.<br>Immerse yourself in the UNESCO-listed Wulong Karst area, exploring the majestic Three Natural Bridges and Longshuixia Gap with your private guide.</p>
+                    <a href="https://www.klook.com/en-US/activity/100802-wulong-one-day-tour-three-natural-bridges-longshuixia-gap/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Full-Day Private Tour to Beishan and Dazu Rock Carvings</h3>
+                    <p class="card-desc">Step into a thousand-year realm of stone carving art.<br>Journey to the UNESCO-listed Dazu Rock Carvings and Beishan, admiring intricate ancient Buddhist sculptures with dedicated private transport.</p>
+                    <a href="https://www.klook.com/en-US/activity/100698-world-heritage-tour-dazu-grottoes-one-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Zoo, Three Gorges Museum & Hongyadong Private Tour</h3>
+                    <p class="card-desc">Blend wildlife encounters with cultural heritage seamlessly.<br>Visit giant pandas at Chongqing Zoo, explore local history at the Three Gorges Museum, and conclude your day at vibrant Hongyadong.</p>
+                    <a href="https://www.klook.com/en-US/activity/126204-chongqing-car-rental-with-driver-to-chongqing-zoo-china-three-gorges-museum-hongya-cave/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Private Point-to-Point Transfer: Chongqing & Chengdu</h3>
+                    <p class="card-desc">Enjoy seamless transit between Chengdu and Chongqing. Premium point-to-point private vehicle service ensuring total comfort and schedule flexibility.</p>
+                    <a href="https://www.klook.com/en-US/activity/141594-private-transfer-between-chongqing-and-chengdu/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Private Transfer Between Chongqing and Yibin City</h3>
+                    <p class="card-desc">Professional and comfortable intercity road travel solution.<br>Reliable private driver service between Chongqing and Yibin City, providing a secure, comfortable, and efficient long-distance commute.</p>
+                    <a href="https://www.klook.com/en-US/activity/141912-private-transfer-between-chongqing-and-yibin/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Private Transfer Between Chongqing and Luzhou City</h3>
+                    <p class="card-desc">Convenient direct connection between key Sichuan-Chongqing hubs.<br>Travel smoothly between Chongqing and Luzhou with personalized private transfers tailored to your schedule for maximum convenience.</p>
+                    <a href="https://www.klook.com/en-US/activity/142368-private-transfer-between-chongqing-and-luzhou/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">China Mainland Bus & Metro Transit Card</h3>
+                    <p class="card-desc">Travel smart across mainland China! Use a single transit card for buses and subways in multiple cities, making local commuting fast and simple.</p>
+                    <a href="https://www.klook.com/en-US/activity/91195-bus-metro-card-mainland-china/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Private Direct Transfer to Chongqing Zoo</h3>
+                    <p class="card-desc">Direct and comfortable route to wildlife exploration.<br>Enjoy hassle-free door-to-door private shuttle service to Chongqing Zoo, perfect for families seeking a seamless and relaxing transport option.</p>
+                    <a href="https://www.klook.com/en-US/activity/126212-chongqing-private-transfer-to-chongqing-zoo/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Xiannvshan Airport Private Transfer</h3>
+                    <p class="card-desc">Smooth connection for high-altitude airport travel.<br>Reliable private transfer between Chongqing Xiannvshan Airport and your resort destinations, providing stress-free ground transportation.</p>
+                    <a href="https://www.klook.com/en-US/airport-transfers/?flightDirection=1&code=CQW&aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Private Transfer Between Chongqing and Zigong City</h3>
+                    <p class="card-desc">Direct intercity transfer to the home of lanterns and dinosaurs.<br>Enjoy stress-free travel between Chongqing and Zigong City with dedicated vehicles and professional driver service.</p>
+                    <a href="https://www.klook.com/en-US/activity/141718-private-transfer-between-chongqing-and-zigong/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Private Transfer Between Chongqing and Zunyi City</h3>
+                    <p class="card-desc">Effortless travel between Chongqing and Guizhou region.<br>Private intercity transfers connecting Chongqing and Zunyi, offering customizable pickup locations and ultimate driving comfort.</p>
+                    <a href="https://www.klook.com/en-US/activity/142088-private-transfer-between-chongqing-and-zunyi/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Liziba, TESTBED2 & Yikeshu Observatory Day Tour</h3>
+                    <p class="card-desc">Discover creative spots and mesmerizing panoramic mountain views.<br>Visit Liziba Monorail, the artistic TESTBED2 Cultural Park, and finish with breathtaking skyline views from Yikeshu Observatory.</p>
+                    <a href="https://www.klook.com/en-US/activity/125953-chongqing-car-rental-with-driver-to-liziba-two-factory-cultural-park-a-tree-viewing-platform/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Yangtze River Cableway, Huguang Guild Hall & Raffles City Tour</h3>
+                    <p class="card-desc">Comprehensive exploration of Chongqing's heritage and modern icons.<br>Experience the Yangtze Cableway, historic Huguang Assembly Hall, sleek Raffles City, and magical Hongyadong in total comfort.</p>
+                    <a href="https://www.klook.com/en-US/activity/125919-car-rental-with-driver-to-yangtze-river-ropeway-huguang-guild-hall-raffles-square-hongya-cave/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Wulong Railway Station to Xiannvshan Attractions Private Transfer</h3>
+                    <p class="card-desc">Seamless transport from train station to mountain resort sites.<br>Enjoy direct private transfers between Wulong Railway Station and attractions in Xiannvshan Town for effortless local sightseeing.</p>
+                    <a href="https://www.klook.com/en-US/activity/243987-private-transfer-from-wulong-railway-station-to-fairy-mountain-town-attractions/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing North Railway Station High-Speed Rail VIP Lounge</h3>
+                    <p class="card-desc">Elevate your railway journey with tranquility and convenience.<br>Access the exclusive VIP lounge at Chongqing North Station, featuring quiet seating and light refreshments before your departure.</p>
+                    <a href="https://www.klook.com/en-US/activity/40136-chongqing-north-railway-station-lounge-service/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing West Railway Station High-Speed Rail Lounge</h3>
+                    <p class="card-desc">Escape the bustling terminal into a relaxed, quiet lounge.<br>Enjoy modern facilities and comfortable amenities at Chongqing West Station while waiting for your high-speed train connection.</p>
+                    <a href="https://www.klook.com/en-US/activity/158505-chongqing-west-railway-station-high-speed-railway-lounge/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_1"><h2 class="category-title">Attractions & Tickets</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing 1949 Show Ticket</h3>
+                    <p class="card-desc">Witness a breathtaking immersive theatrical epic. Featuring a rotating stage and cutting-edge effects, this show dramatically unfolds regional historical stories.</p>
+                    <a href="https://www.klook.com/en-US/activity/132505-chongqing-1949-show/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Raffles City Exploration Deck Cloud Park Ticket</h3>
+                    <p class="card-desc">Walk among the clouds at the river confluence. Combining high-altitude observation decks with thrilling attractions, experience the magic of Chongqing's skyline.</p>
+                    <a href="https://www.klook.com/en-US/activity/178088-chongqing-raffles-city-exploration-cabin-cloud-paradise-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Zoo Ticket</h3>
+                    <p class="card-desc">Explore diverse wildlife and peaceful natural surroundings. Home to a famous giant panda house, it is an ideal spot for nature lovers and families.</p>
+                    <a href="https://www.klook.com/en-US/activity/113383-chongqing-zoo/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing World Trade Center Sky Deck 131 Ticket</h3>
+                    <p class="card-desc">Stand atop a landmark building for endless views. Located high up in the World Trade Center, offering unobstructed 360-degree panoramic city vistas.</p>
+                    <a href="https://www.klook.com/en-US/activity/179796-chongqing-world-trade-center-sky-observation-deck-131-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Eye of the Clouds Observation Deck Ticket</h3>
+                    <p class="card-desc">Visit an iconic open-air skywalk atop a skyscraper. Enjoy bird's-eye views of the river confluence and dynamic cityscape from breathtaking heights.</p>
+                    <a href="https://www.klook.com/en-US/activity/116196-chongqing-yunduan-zhiyan-viewing-platform/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Yangtze River Cableway Ticket</h3>
+                    <p class="card-desc">Ride the iconic airborne bus across the Yangtze. As a signature transport experience, it glides across the river, providing unique urban views.</p>
+                    <a href="https://www.klook.com/en-US/activity/43465-yangtze-river-cableway-chong-qing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Unicorn Starry Art Museum Ticket</h3>
+                    <p class="card-desc">Step into a dreamlike world of light and shadow. Featuring multiple immersive thematic zones with creative mirrors and lights for stunning photo opportunities.</p>
+                    <a href="https://www.klook.com/en-US/activity/195247-ticket-for-chongqing-unicorn-starry-sky-art-museum/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Yangtze River Large Illusion Acrobatics Show Ticket</h3>
+                    <p class="card-desc">Marvel at extraordinary strength and graceful acrobatics. Blending dynamic feats, magic, and theatrical design, it celebrates the rich heritage of the Yangtze River.</p>
+                    <a href="https://www.klook.com/en-US/activity/214189-chongqing-grand-fantasy-acrobatic-drama-yangtze-river-show-tickets/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Soaring Over Chongqing Theater Ticket (Raffles City)</h3>
+                    <p class="card-desc">Experience an immersive spherical flight journey. Utilizing 5D theater technology, this attraction soars over Chongqing's famous natural and urban landscapes.</p>
+                    <a href="https://www.klook.com/en-US/activity/147082-tickets-for-chongqing-feiyue-chongqing-theater-raffles-shopping-plaza-branch/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Huguang Guild Hall Ticket + Zui Bayu Performance</h3>
+                    <p class="card-desc">Admire historic architecture and rich local heritage. Explore the Qing Dynasty complex and enjoy vibrant cultural performances showcasing local traditions.</p>
+                    <a href="https://www.klook.com/en-US/activity/188466-chongqing-huguang-guild-hall-ticket-drunken-bayu-performance-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Impression Wulong Live Show Ticket</h3>
+                    <p class="card-desc">Feel the grandeur of a live landscape show set in a gorge. Staged in a natural canyon, it revives local river heritage and traditional folk songs.</p>
+                    <a href="https://www.klook.com/en-US/activity/146926-tickets-of-the-real-scenery-show-impression-of-wulong-in-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Haichang Ocean Park Ticket</h3>
+                    <p class="card-desc">Embark on an underwater discovery journey. Featuring marine life exhibits and performances, it offers an educational and engaging aquatic experience.</p>
+                    <a href="https://www.klook.com/en-US/activity/184691-chongqing-haichang-ocean-park-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Longshui Gorge Fissure Ticket</h3>
+                    <p class="card-desc">Explore a dramatic Karst geological wonder. Walk along cliffside plank paths deep into the gorge, marveling at cascading waterfalls and sheer cliffs.</p>
+                    <a href="https://www.klook.com/en-US/activity/153116-longshui-gorge-crevice/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing 816 Underground Project Ticket</h3>
+                    <p class="card-desc">Uncover the mysteries of a massive underground facility. Built inside a mountain, this colossal engineering marvel reveals fascinating history.</p>
+                    <a href="https://www.klook.com/en-US/activity/188586-chongqing-816-project-scenic-area-admission-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing WFC Observation Deck Ticket (Coffee/Bar Optional)</h3>
+                    <p class="card-desc">Ascend the tallest building in western China. Enjoy coffee or evening cocktails while admiring sweeping, 360-degree night views of the cityscape.</p>
+                    <a href="https://www.klook.com/en-US/activity/173856-chongqing-wfc-panoramic-fun/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Happy Valley Ticket</h3>
+                    <p class="card-desc">Embark on a heart-pounding urban adventure!<br>Happy Valley offers thrilling rides and live entertainment suitable for visitors of all ages.</p>
+                    <a href="https://www.klook.com/en-US/activity/43421-happy-valley-chong-qing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chiyou Jiuli City</h3>
+                    <p class="card-desc">Step into the grand realm of Miao culture.<br>Explore traditional architecture, ancient history, and vibrant ethnic customs in this majestic fortress.</p>
+                    <a href="https://www.klook.com/en-US/activity/196815-chiyou-jiuli-palace/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Skywalk & Observation Tower Ticket</h3>
+                    <p class="card-desc">Elevate your perspective above the mountain city.<br>Enjoy panoramic views of Chongqing's vibrant skyline and merging rivers from high above.</p>
+                    <a href="https://www.klook.com/en-US/activity/192132-chongqing-sky-curtain-joy-tour-observation-tower-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Wudu Theatre (Jiefangbei)</h3>
+                    <p class="card-desc">Immerse yourself in captivating local stage arts.<br>Located in the city center, this theater delivers memorable performances blending tradition with contemporary artistic flair.</p>
+                    <a href="https://www.klook.com/en-US/activity/214220-wudu-theatre-jiefangbei-branch-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Suspended Glass Art Museum & Theatre Ticket</h3>
+                    <p class="card-desc">Challenge your senses in a floating world of light.<br>This immersive glass theater offers breathtaking visuals and extraordinary spatial perspectives.</p>
+                    <a href="https://www.klook.com/en-US/activity/195406-ticket-for-chongqing-suspended-glass-art-museum-immersive-floating-glass-theater/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Centennial Chongqing Tea House Sichuan Opera Ticket</h3>
+                    <p class="card-desc">Savor local tea and traditional opera arts.<br>Experience authentic Sichuan opera techniques including face-changing in a classic tea house setting.</p>
+                    <a href="https://www.klook.com/en-US/activity/199460-chongqing-sichuan-opera-performance-ticket-for-a-hundred-years-of-chongqing-teahouse/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Wulong Karst Tourist Area - Three Natural Bridges Ticket</h3>
+                    <p class="card-desc">Witness the monumental marvels of natural architecture.<br>Explore massive stone arches and deep gorges featured in world-famous cinematic landscapes.</p>
+                    <a href="https://www.klook.com/en-US/activity/113391-wulong-tiansheng-three-bridges/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Huguang Guild Hall</h3>
+                    <p class="card-desc">Walk through centuries of rich migration history.<br>Admire vibrant yellow walls and exquisite wood carvings that depict classical Chinese architecture.</p>
+                    <a href="https://www.klook.com/en-US/activity/99165-huguang-guild-hall-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Fairy Mountain National Forest Park</h3>
+                    <p class="card-desc">Escape to a serene alpine meadow paradise.<br>Surround yourself with vast forest seas, rolling grass hills, and crisp mountain air year-round.</p>
+                    <a href="https://www.klook.com/en-US/activity/153369-xiannu-mountain-national-forest-park/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Jihua Park Ticket</h3>
+                    <p class="card-desc">Unleash your inner adventurer in a dynamic complex.<br>Features indoor skydiving, rock climbing, and diverse action sports for thrill-seeking visitors.</p>
+                    <a href="https://www.klook.com/en-US/activity/168585-chongqing-jihua-park-extreme-sports-center/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Lehe Ledu Theme Park & Wildlife World</h3>
+                    <p class="card-desc">Discover wild nature alongside exciting theme park rides.<br>Observe rare animals up close and enjoy family-friendly entertainment facilities.</p>
+                    <a href="https://www.klook.com/en-US/activity/43435-/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Baidicheng Qutang Gorge Scenic Area Ticket</h3>
+                    <p class="card-desc">Journey into iconic landscapes immortalized by historic poets.<br>Overlook the grand Kui Gate and absorb centuries of rich literary heritage.</p>
+                    <a href="https://www.klook.com/en-US/activity/190377-ticket-for-baidi-city-qutang-gorge-scenic-area-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Jianchuan Maritime Museum</h3>
+                    <p class="card-desc">Board a real navy warship to discover maritime history.<br>This museum showcases naval defense development and preserved military heritage.</p>
+                    <a href="https://www.klook.com/en-US/activity/219382-chongqing-jianchuan-museum/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Boreal Snow Park Chongqing Ticket</h3>
+                    <p class="card-desc">Experience winter fun anytime regardless of the outdoor weather.<br>Enjoy indoor skiing, snowboarding, and playful snow attractions year-round.</p>
+                    <a href="https://www.klook.com/en-US/activity/86117-chongqingsunac/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Dazu Rock Carvings</h3>
+                    <p class="card-desc">Contemplate UNESCO-listed masterpieces of ancient rock art.<br>Intricate cliff sculptures reflect stunning craftsmanship and harmonious cultural philosophies.</p>
+                    <a href="https://www.klook.com/en-US/activity/43546-dazu-rock-carvings-chong-qing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Zhuoshui Scenic Area - Puhua Underground River</h3>
+                    <p class="card-desc">Cruise along a hidden river beneath natural bridges.<br>Explore subterranean caves and stunning karst formations in a peaceful natural environment.</p>
+                    <a href="https://www.klook.com/en-US/activity/221979-zhuoshui-scenic-area-puhua-underground-river/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Youyang Taohuayuan Scenic Area</h3>
+                    <p class="card-desc">Discover a legendary hidden utopian world.<br>Immerse yourself in tranquil rustic scenery and idyllic ancient rural heritage.</p>
+                    <a href="https://www.klook.com/en-US/activity/222180-youyang-taohuayuan/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Ancient Magic Museum & Theatre Ticket</h3>
+                    <p class="card-desc">Unveil the secret arts of classic illusion.<br>Combines historical magic artifacts with live interactive stage performances for a captivating visit.</p>
+                    <a href="https://www.klook.com/en-US/activity/199894-chongqing-classical-conjuring-magic-museum-magic-theater/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Wanzhou Waterfall Complex Adult Ticket</h3>
+                    <p class="card-desc">Feast your eyes on magnificent cascading waters.<br>Walk behind immense water curtains and feel the refreshing power of natural waterfalls.</p>
+                    <a href="https://www.klook.com/en-US/activity/43678-wan-zhou-grand-waterfall-chong-qing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Shibaozhai Pagoda</h3>
+                    <p class="card-desc">Admire an architectural wonder perched upon a rocky hill.<br>This twelve-story wooden pagoda stands magnificently along the Yangtze River.</p>
+                    <a href="https://www.klook.com/en-US/activity/221966-shi-bao-zhai/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Maya Beach Water Park</h3>
+                    <p class="card-desc">Ready for a refreshing aquatic adventure? This park features thrilling slides and wave pools, providing ideal summer recreation and family entertainment.</p>
+                    <a href="https://www.klook.com/en-US/activity/222221-chongqing-playa-maya-water-park/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">816 Underground Project Scenic Area</h3>
+                    <p class="card-desc">Unveil the secrets of a massive underground nuclear facility. As the world's largest man-made cave, it offers a fascinating look into Cold War engineering and history.</p>
+                    <a href="https://www.klook.com/en-US/activity/153120-project-816-scenic-spot/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Nantian Lake Scenic Area</h3>
+                    <p class="card-desc">Wander through alpine lakes and green meadows. Nantian Lake offers stunning seasonal scenery and well-maintained trails, perfect for outdoor hiking and relaxation.</p>
+                    <a href="https://www.klook.com/en-US/activity/221972-nantianhu-scenic-area/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing 'Poetry and Painting China' Experience Ticket (Bayi Square)</h3>
+                    <p class="card-desc">Immerse yourself in traditional cultural elegance. This exhibition utilizes modern digital tech to recreate classical Chinese poetry and paintings in an interactive setting.</p>
+                    <a href="https://www.klook.com/en-US/activity/185868-experience-ticket-for-chongqing-poetry-painting-china-bayi-square-store/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Heishangu Scenic Area Entrance Ticket</h3>
+                    <p class="card-desc">Explore deep canyons and cascading waterfalls. Heishangu preserves primitive forest landscapes, making it an ideal choice for eco-tourism and nature photography.</p>
+                    <a href="https://www.klook.com/en-US/activity/7418-black-mountain-valley-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_2"><h2 class="category-title">Tours & Sightseeing</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Wulong Three Natural Bridges and Longshuixia Gap or Fairy Mountain 1-Day Tour</h3>
+                    <p class="card-desc">Discover Chongqing's natural wonders.<br>Explore the breathtaking karst landscapes of Wulong Three Natural Bridges paired with Longshuixia Gap or Fairy Mountain.</p>
+                    <a href="https://www.klook.com/en-US/activity/115283-chongqing-three-natural-bridge-longshui-gorge-fairy-mountain-park/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Wulong Three Natural Bridges & Longshuixia Gap or Fairy Mountain Small Group Tour</h3>
+                    <p class="card-desc">Enjoy a stress-free scenic trip.<br>Travel in a small group under 8 people to Wulong's natural bridges and gorge with comfortable direct transport.</p>
+                    <a href="https://www.klook.com/en-US/activity/160688-chongqing-wulong-tiansheng-sanqiao-longshuixia-dijian-xiannv-mountai/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Private Customized Tour (Wulong, Yangtze River Cableway, Hongya Cave)</h3>
+                    <p class="card-desc">Tailor your dream itinerary in Chongqing.<br>Enjoy flexible private transport to iconic sites like Yangtze Cableway, Wulong Karst, and Hongya Cave.</p>
+                    <a href="https://www.klook.com/en-US/activity/166882-klook-china-chongqing-private-customized-tour-ciqikou-wuling-three/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Two Rivers Night Cruise</h3>
+                    <p class="card-desc">Admire the brilliant mountain city skyline.<br>Board a night cruise at the junction of the Yangtze and Jialing rivers for dazzling evening views.</p>
+                    <a href="https://www.klook.com/en-US/activity/141470-one-day-private-tour-of-wulong-karst-resort-in-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Wulong Natural Bridges & Longshuixia or Fairy Mountain VIP Bus Tour</h3>
+                    <p class="card-desc">Travel in premium bus comfort.<br>Explore Wulong's iconic UNESCO karst sites with multilingual guide support and extra legroom seating.</p>
+                    <a href="https://www.klook.com/en-US/activity/141609-6-day-private-tour-in-chengdu-jiuzhaigou-and-leshan/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Chiyou Jiuli City and Wujiang Gallery 1-Day Tour</h3>
+                    <p class="card-desc">Experience Miao heritage and river landscapes.<br>Discover the grand architecture of Chiyou Jiuli City and cruise through the scenic Wujiang River Gallery.</p>
+                    <a href="https://www.klook.com/en-US/activity/201931-chongqing-chi-you-jiu-li-city-gongtan-old-town-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing City Center Small Group Day Tour</h3>
+                    <p class="card-desc">Uncover the magic of the 8D city.<br>Join a small group to visit popular urban landmarks, unique transit systems, and historical alleys.</p>
+                    <a href="https://www.klook.com/en-US/activity/202165-chongqing-city-highlights-full-day-small-group-experience/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Dazu Rock Carvings Day Tour</h3>
+                    <p class="card-desc">Marvel at ancient stone carvings.<br>Visit the UNESCO World Heritage site of Dazu Rock Carvings to see exquisite medieval Buddhist cave sculptures.</p>
+                    <a href="https://www.klook.com/en-US/activity/146919-one-day-tour-to-dazu-chongqing-bashan-mountain-carvings-beishan/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Wulong Three Natural Bridges, Jiuli City & Gongtan Ancient Town Tour</h3>
+                    <p class="card-desc">Immerse in nature and cultural heritage.<br>A 2-day journey covering Wulong karst natural bridges, Miao cultural sites, and historic Gongtan Ancient Town.</p>
+                    <a href="https://www.klook.com/en-US/activity/147655-chongqing-2-days-with-group-tour-2-8-people-small-group/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Wulong Three Natural Bridges & Longshuixia Gap Small Group Tour</h3>
+                    <p class="card-desc">Explore dramatic canyon geology.<br>Walk through towering stone bridges and narrow subterranean gorges in Wulong with a small group guide.</p>
+                    <a href="https://www.klook.com/en-US/activity/209289-three-natural-bridges-longshui-gorge-full-day-small-group-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Three Natural Bridges & Fairy Mountain Small Group Tour</h3>
+                    <p class="card-desc">Combine majestic cliffs with mountain meadows.<br>Tour Wulong's grand natural arches and the scenic alpine grasslands of Fairy Mountain in a small group.</p>
+                    <a href="https://www.klook.com/en-US/activity/211955-chongqing-three-natural-bridges-fairy-mountain-full-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Magic 8D City Full-Day Exploration Tour</h3>
+                    <p class="card-desc">Navigate Chongqing's famous multi-layered urban geography.<br>Spend the day discovering monorails passing through buildings, cable cars, and intricate skywalks.</p>
+                    <a href="https://www.klook.com/en-US/activity/140426-chongqing-mountain-city-one-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">6-Day In-Depth Pure Leisure Tour of Chongqing and Chengdu</h3>
+                    <p class="card-desc">Discover the contrasting charms of Southwest China's top cities. Enjoy a pure sightseeing itinerary connecting Chongqing's futuristic cityscape with Chengdu's relaxed, culture-rich lifestyle.</p>
+                    <a href="https://www.klook.com/en-US/activity/140419-chengdu-chongqing-6-day-deep-pure-play-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Three Natural Bridges & Fairy Mountain Day Tour</h3>
+                    <p class="card-desc">A classic day trip to nature.<br>Visit the towering arches of Three Natural Bridges and relax in the cool alpine grasslands of Fairy Mountain.</p>
+                    <a href="https://www.klook.com/en-US/activity/206088-chongqing-tiansheng-three-bridges-fairy-mountain-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">3-Day Wulong In-Depth Tour (2-8 People Small Group)</h3>
+                    <p class="card-desc">Experience Wulong at a relaxed pace.<br>A 3-day small group tour exploring karst caves, natural bridges, and mountain parks in depth.</p>
+                    <a href="https://www.klook.com/en-US/activity/138140-chongqing-wulong-depth-3-day-tour-2-8-people-group/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Wulong Karst Guided Tour with River Cruise</h3>
+                    <p class="card-desc">Explore karst geology by land and water.<br>Features a 2-day guided tour of Wulong's famous stone formations combined with a relaxing river cruise.</p>
+                    <a href="https://www.klook.com/en-US/activity/141921-chongqing-wulong-natural-three-bridges-longshuixia-ground-crack-fa/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Dazu Rock Carvings Cultural Heritage Full-Day Tour</h3>
+                    <p class="card-desc">Delve deep into ancient stone craftsmanship.<br>A comprehensive full-day cultural tour exploring the UNESCO-listed Buddhist carvings and history of Dazu.</p>
+                    <a href="https://www.klook.com/en-US/activity/145416-chongqing-dazu-rock-carvings-baoding-mountain-one-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Wulong Karst National Park Day Tour from Chongqing</h3>
+                    <p class="card-desc">Discover nature's grand design.<br>Explore the UNESCO World Heritage Wulong Karst, featuring spectacular natural bridges and magnificent canyon landscapes.</p>
+                    <a href="https://www.klook.com/en-US/activity/196237-chongqing-three-natural-bridges-fairy-mountain-full-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing 8D Cyberpunk City Night Tour</h3>
+                    <p class="card-desc">Experience the dazzling charm of the mountain city.<br>Traverse multi-layered urban streets and admire breathtaking night views of Hongya Cave and the Yangtze River.</p>
+                    <a href="https://www.klook.com/en-US/activity/140513-chongqing-magic-8d-mountain-city-night-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Century Cruises: Luxury Yangtze Three Gorges Cruise (4D3N/5D4N)</h3>
+                    <p class="card-desc">Sail through a magnificent landscape painting.<br>Enjoy a relaxing luxury cruise along the Yangtze Three Gorges, taking in deep canyons and rich cultural heritage.</p>
+                    <a href="https://www.klook.com/en-US/activity/181131-century-cruises-luxury-yangtze-river-three-gorges-cruise-4-5-days/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Wulong Tour: Three Natural Bridges, Fairy Mountain & Longshui Gorge</h3>
+                    <p class="card-desc">Immerse yourself in Wulong's stunning natural wonders.<br>Cover the Three Natural Bridges, Fairy Mountain grasslands, and Longshui Gorge on a pure sightseeing route.</p>
+                    <a href="https://www.klook.com/en-US/activity/176716-chongqing-wulong-three-natural-bridges-fairy-mountain-2-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5D4N Wulong Semi-Guided Small Group Tour (Max 8)</h3>
+                    <p class="card-desc">Enjoy the comfort and flexibility of a small group.<br>With a maximum of eight guests, this tour offers expert guidance and free exploration time in Wulong.</p>
+                    <a href="https://www.klook.com/en-US/activity/137399-chongqing-wulong-5-days-4-nights-high-end-private-group/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">3-Day Chongqing Wulong: Three Natural Bridges & Fairy Mountain</h3>
+                    <p class="card-desc">Explore nature's elegance at a relaxed pace.<br>Spend three days discovering the Three Natural Bridges and Fairy Mountain's lush alpine meadows.</p>
+                    <a href="https://www.klook.com/en-US/activity/152110-chongqing-high-end-pure-play-3-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5-Day Chongqing & Chengdu Highlights Tour</h3>
+                    <p class="card-desc">Unveil the unique charm of twin Sichuan-Chongqing cities.<br>Connect Chongqing's futuristic cityscape with Chengdu's relaxed lifestyle and rich cultural heritage.</p>
+                    <a href="https://www.klook.com/en-US/activity/141811-tide-play-chongqing-5-day-tour-2-8-people-small-group/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Chongqing Karst Tour: Three Natural Bridges, Fairy Mountain & Furong Cave</h3>
+                    <p class="card-desc">Unlock subterranean and surface karst wonders.<br>Visit Three Natural Bridges, Fairy Mountain, and Furong Cave to experience diverse geological formations.</p>
+                    <a href="https://www.klook.com/en-US/activity/136067-chongqing-wulong-high-end-two-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5-Day Chongqing Wulong Guided Tour</h3>
+                    <p class="card-desc">Experience natural grandeur with professional insights.<br>Take a comprehensive five-day journey through Wulong's iconic geological landscapes.</p>
+                    <a href="https://www.klook.com/en-US/activity/140303-high-end-5-day-tour-of-chongqing-elite-scenic-spots/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5D4N Chongqing Wulong Exploration Journey</h3>
+                    <p class="card-desc">Embark on an immersive mountain forest journey.<br>Thoroughly explore the Three Natural Bridges and Fairy Mountain amidst majestic canyons.</p>
+                    <a href="https://www.klook.com/en-US/activity/115512-chongqing-three-natural-bridges-fairy-mountain-5-days-4-nights-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">6-Day Chongqing, Zhangjiajie & Fenghuang Ancient Town Tour</h3>
+                    <p class="card-desc">Journey across iconic peaks and ancient water towns.<br>Travel from Chongqing to Zhangjiajie's quartz sandstone pillars and the romantic Fenghuang Town.</p>
+                    <a href="https://www.klook.com/en-US/activity/220248-chongqing-zhangjiajie-fenghuang-6-day-exploration/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Wulong & Chiyou Jiuli City Tour</h3>
+                    <p class="card-desc">Merge spectacular nature with rich Miao cultural heritage.<br>Visit Wulong's natural wonders alongside Chiyou Jiuli City to experience authentic ethnic folklore.</p>
+                    <a href="https://www.klook.com/en-US/activity/231856-chongqing-wulong-chiyou-jiulicheng-2-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">8D7N Grand Tour: Chongqing, Zhangjiajie, Tianmen Mountain, Furong & Fenghuang</h3>
+                    <p class="card-desc">Explore Southwest China's most iconic landscapes and heritage.<br>Cover Chongqing, Tianmen Mountain, Furong Town, and Fenghuang Ancient Town in one epic itinerary.</p>
+                    <a href="https://www.klook.com/en-US/activity/224810-zhangjiajie-furong-town-phoenix-ancient-city-4-days-with-the-group-t/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">7-Day Exploration Tour of Chongqing Wulong and Chengdu Panda Base</h3>
+                    <p class="card-desc">Embark on a comprehensive 7-day expedition. Discover Wulong's dramatic Karst bridges, vibrant Chongqing cityscapes, and the world-famous pandas in Chengdu for an unforgettable journey.</p>
+                    <a href="https://www.klook.com/en-US/activity/224130-chongqing-wulong-chengdu-panda-base-7-day-exploration/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Nighttime Highlights Urban Tour</h3>
+                    <p class="card-desc">Wander through a brilliantly illuminated vertical metropolis.<br>Visit curated nighttime landmarks and admire panoramic views across the twin rivers.</p>
+                    <a href="https://www.klook.com/en-US/activity/136332-chongqing-night-scene-classic-loop-night-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Top 3 Night Views Half-Day Private Tour</h3>
+                    <p class="card-desc">Enjoy personalized comfort and a private flexible itinerary.<br>Visit three iconic nighttime photography spots to capture Chongqing's glowing landscape.</p>
+                    <a href="https://www.klook.com/en-US/activity/244465-chongqing-top-3-night-spots-half-day-private-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Ciqikou Ancient Town & Yangtze River Cableway Small Group Tour</h3>
+                    <p class="card-desc">Traverse traditional alleyways and high-altitude cableways.<br>Explore historic Ciqikou Ancient Town and ride the Yangtze River Cableway for iconic city views.</p>
+                    <a href="https://www.klook.com/en-US/activity/195168-ciqikou-old-town-yangtze-cableway-small-group-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5-Day Chongqing Fantastic City Small Group Tour (2-12 Guests)</h3>
+                    <p class="card-desc">Delve deep into the 3D mountain city with an intimate group.<br>Designed for 2-12 travelers, explore iconic urban transit wonders and authentic local life.</p>
+                    <a href="https://www.klook.com/en-US/activity/151459-a-five-day-wonderful-tour-in-the-magical-mountain-city-of-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5-Day Chongqing 8D City & Wulong Tour with Sichuan Opera</h3>
+                    <p class="card-desc">Combine urban wonders, natural sites, and traditional arts.<br>Discover Chongqing and Wulong, topped with a classical Sichuan Opera performance featuring face-changing art.</p>
+                    <a href="https://www.klook.com/en-US/activity/227771-chongqing-wulong-city-highlights-5-day-small-group-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Ban Gioc Waterfall Small Group Tour from Hanoi</h3>
+                    <p class="card-desc">Journey from Hanoi to stunning borderland waterfalls.<br>Travel to northeastern Vietnam to behold the magnificent Ban Gioc Waterfall and serene countryside valleys.</p>
+                    <a href="https://www.klook.com/en-US/activity/113846-cao-bang-ban-gioc-waterfall-tour-ha-noi/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Chongqing 816 Underground Project & Three Natural Bridges Tour</h3>
+                    <p class="card-desc">Uncover historic underground engineering and natural gorges.<br>Visit the monumental 816 Underground Nuclear Project site combined with Wulong's Three Natural Bridges.</p>
+                    <a href="https://www.klook.com/en-US/activity/227552-chongqing-project-816-three-bridges-2-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing, Wulong, and Wujiang Gallery 3D2N Private Tour</h3>
+                    <p class="card-desc">Discover majestic natural landscapes. Explore the Wulong Karst and Wujiang Gallery with a dedicated private tour.<br>Flexible itineraries cater to your needs.</p>
+                    <a href="https://www.klook.com/en-US/activity/243181-3-2/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Wulong Karst Private Tour with Cruise</h3>
+                    <p class="card-desc">Marvel at magnificent geological wonders. Enjoy a two-day private journey featuring a scenic cruise through nature's finest masterpieces.<br>Relax with personalized service.</p>
+                    <a href="https://www.klook.com/en-US/activity/220008-wulong-karst-2-day-private-tour-with-boat-ride/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_3"><h2 class="category-title">Food & Dining</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Ba Kingdom Royal Banquet Chongqing | Immersive Imperial Dining</h3>
+                    <p class="card-desc">Step into ancient royal grandeur. This immersive dining experience combines traditional cuisine with classical music and theatrical performances to recreate an authentic ancient Ba kingdom banquet.</p>
+                    <a href="https://www.klook.com/en-US/activity/176894-immersive-experience-of-the-palace-banquet-thousands-of-years-ago/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Qingyu Imperial Banquet Experience Chongqing</h3>
+                    <p class="card-desc">Enjoy traditional court delicacies. Recreating imperial feast settings, this dining encounter provides guests with heritage-inspired dishes and cultural displays in an elegant dining hall.</p>
+                    <a href="https://www.klook.com/en-US/activity/142214-chongqing-qingyu-banquet-palace-feast-experience/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Manhattan Rooftop | Tea & BBQ</h3>
+                    <p class="card-desc">Unwind on a breezy rooftop. Combining casual tea stalls with smoky barbecue, this open-air location offers sweeping views of the urban skyline at night.</p>
+                    <a href="https://www.klook.com/en-US/activity/181208-chongqing-manhattan-rooftop/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">ESMI Night Club Chongqing | Jiangbei Branch</h3>
+                    <p class="card-desc">Feel the pulse of evening entertainment. Located in the Jiangbei district, this modern nightclub features high-tech sound systems, impressive lighting show, and lively DJ performances.</p>
+                    <a href="https://www.klook.com/en-US/activity/225743-chongqing-esmi-night-club-jiangbei-branch/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Night Street Food Tour: Authentic Flavors</h3>
+                    <p class="card-desc">Explore bustling night markets. Guided by local food experts, this culinary tour visits vibrant street vendors to taste traditional spicy snacks and local culinary favorites.</p>
+                    <a href="https://www.klook.com/en-US/activity/218182-chongqing-night-street-food-tour-with-local-delights/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">MAO Livehouse Chongqing | Local Nightlife Experience</h3>
+                    <p class="card-desc">Experience dynamic live performances. Known as a premier venue for indie bands and musicians, this spot offers state-of-the-art acoustics and energetic live music shows.</p>
+                    <a href="https://www.klook.com/en-US/activity/171716-cat-livehouse-in-chongqing-experience-the-local-nightlife/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Southbank Club</h3>
+                    <p class="card-desc">Soak in modern riverfront views. Positioned along Southbank Road, this contemporary club provides stylish lounge spaces and refreshing dining options overlooking the river.</p>
+                    <a href="https://www.klook.com/en-US/activity/207976-chongqing-southbank-club/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">1941 Hot Pot Buffet Chongqing</h3>
+                    <p class="card-desc">Savor nostalgia alongside rich spices. Decorated with vintage local aesthetics, this buffet-style hot pot restaurant offers unlimited access to fresh ingredients and rich, flavorful broths.</p>
+                    <a href="https://www.klook.com/en-US/activity/141661-chongqing-1941-self-service-hotpot-restaurant/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Kitchen 8 Buffet Chongqing</h3>
+                    <p class="card-desc">Indulge in a versatile culinary spread. Featuring international dishes, seafood, and crafted desserts, this modern buffet restaurant serves a wide array of options for all tastes.</p>
+                    <a href="https://www.klook.com/en-US/activity/184702-chongqing-no-8-kitchen-buffet-restaurant/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Tiger & Rose Flower Western Restaurant Chongqing</h3>
+                    <p class="card-desc">Dine amidst lush floral arrangements. This Western restaurant blends elegant botanical design with expertly crafted dishes, creating a charming atmosphere for quiet meals and special occasions.</p>
+                    <a href="https://www.klook.com/en-US/activity/186855-chongqing-tiger-rose-garden-western-restaurant/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Wharf Teahouse Hongyadong Branch & Scenic Viewpoint</h3>
+                    <p class="card-desc">Experience classic Chongqing tea culture. Nestled in Hongyadong, this teahouse serves traditional Gaiwan tea alongside magnificent panoramic views of the surrounding river and architecture.</p>
+                    <a href="https://www.klook.com/en-US/activity/164965-chongqing-dockside-teahouse-hongya-cave-branch/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Fulai Tea House Chongqing</h3>
+                    <p class="card-desc">Unwind in a tranquil tea lounge. Offering a curated selection of fine teas in a serene environment, this tea house provides a quiet retreat from the city center.</p>
+                    <a href="https://www.klook.com/en-US/activity/175242-chongqing-fortune-tea-company/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Half-Day Noodle Making & Museum Experience</h3>
+                    <p class="card-desc">Master the art of local noodles. This half-day experience combines an educational museum tour with a practical cooking workshop guided by experienced noodle makers.</p>
+                    <a href="https://www.klook.com/en-US/activity/217541-half-day-chongqing-noodle-making-museum-experience/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Captain Ma Halal Hot Pot Chongqing</h3>
+                    <p class="card-desc">Taste authentic halal spicy hot pot. Featuring certified high-quality meats and aromatic broths, this restaurant offers a unique spin on classic hot pot dining in Chongqing.</p>
+                    <a href="https://www.klook.com/en-US/activity/184809-chongqing-ma-captain-halal-hot-pot/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Hongyadong & Kuixing Pavilion Half-Day Food Tour</h3>
+                    <p class="card-desc">Discover iconic sights through local flavors. This half-day guided walking tour visits famous architectural sites like Kuixing Pavilion and Hongyadong while sampling signature local snacks.</p>
+                    <a href="https://www.klook.com/en-US/activity/176004-chongqing-hongyadong-kuixinglou-half-day-authentic-food-exploration/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chengdu Renmin Park and Du Fu Thatched Cottage Half-Day Tour</h3>
+                    <p class="card-desc">Uncover poetic traditions and local culture. Tour the historic Du Fu Thatched Cottage and enjoy tea with local snacks in lively Renmin Park for a quintessential afternoon.</p>
+                    <a href="https://www.klook.com/en-US/activity/212067-chengdu-people-s-park-du-fu-thatched-cottage-half-day-tour-with-street-food/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Hongya Cave Craft Beer Night Small Group Tour</h3>
+                    <p class="card-desc">Experience Chongqing's vibrant nightlife.<br>Explore Hongya Cave with a local guide, taste regional craft beers, and admire the illuminated stilt houses along the river.</p>
+                    <a href="https://www.klook.com/en-US/activity/178019-chongqing-hongyadong-half-day-immersive-night-exploration/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Zhangjiajie Tea Culture Experience, Fruit Wine DIY and Baijiu Tasting</h3>
+                    <p class="card-desc">Immerse yourself in Zhangjiajie's nature.<br>Enjoy picking and roasting fresh tea leaves, DIY fruit-infused wine, and taste traditional Baijiu amidst scenic tea gardens.</p>
+                    <a href="https://www.klook.com/en-US/activity/214316-tea-picking-and-making-chinese-wine-diy-and-tasting-in-zhangjiajie/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Peijie Chongqing Hotpot Shanghai Flagship Store Set Menu</h3>
+                    <p class="card-desc">Savor authentic Sichuan spices in Shanghai.<br>Peijie Chongqing Hotpot offers genuine spicy broths and premium fresh ingredients for a traditional dining experience.</p>
+                    <a href="https://www.klook.com/en-US/activity/229507-pei-jie-chongqing-hotpot-shanghai-flagship-store-authentic-chongqing-hotpot-set/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Li Che Guai Hot Pot at Eastern Suburb Memory</h3>
+                    <p class="card-desc">Indulge in authentic Chongqing spicy flavors. Set inside Eastern Suburb Memory, Li Che Guai serves classic rich butter broths and fresh ingredients for genuine hot pot lovers.</p>
+                    <a href="https://www.klook.com/en-US/activity/152091-li-tug-crutch-old-hot-pot-spicy-and-fragrant-chongqing-soul-east-suburb-memory-store/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Donghua Chuanfu Chongqing Hotpot - MRT Banqiao Station</h3>
+                    <p class="card-desc">Authentic spicy hotpot near Banqiao Station.<br>Donghua Chuanfu delivers traditional rich beef tallow broths and quality hotpot ingredients convenient to public transit.</p>
+                    <a href="https://www.klook.com/en-US/activity/46815-donghua-sichuan-hot-pot/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_4"><h2 class="category-title">Relaxation & Spa</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Lanyue Hot Spring Admission Ticket</h3>
+                    <p class="card-desc">Rejuvenate your mind and body with soothing thermal waters.<br>Relax in the tranquil ambient settings of Chongqing Lanyue Hot Spring, offering premium mineral pools and wellness relaxation.</p>
+                    <a href="https://www.klook.com/en-US/activity/183773-chongqing-lanyue-hot-spring-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Guanyuan Foot Massage & Wellness (Jiefangbei Branch)</h3>
+                    <p class="card-desc">Ultimate relaxation after exploring the vibrant downtown center.<br>Located near Jiefangbei, this wellness studio offers authentic foot therapy and massage to relieve tiredness after walking the mountain city.</p>
+                    <a href="https://www.klook.com/en-US/activity/229629-chongqing-guanyuan-foot-therapy-jiefangbei-branch/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Shouwu Foot Reflexology & Hot Pot Foot Spa | Hongyadong Branch</h3>
+                    <p class="card-desc">Immerse yourself in local relaxation culture. Combining traditional foot therapy with iconic hot pot elements, enjoy professional massage right next to Hongyadong.</p>
+                    <a href="https://www.klook.com/en-US/activity/163923-shouwu-foot-massage-in-chongqing-hongyadong-branch/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Zushangtianhua High-Altitude View Foot SPA | Raffles City Branch</h3>
+                    <p class="card-desc">Indulge in relaxation above the vibrant skyline. Located in Raffles City, this high-altitude SPA offers premium foot treatments paired with breathtaking river views.</p>
+                    <a href="https://www.klook.com/en-US/activity/207783-zenstep-massage-skyline-view-chongqing-branch-1/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Jingutang Traditional Chinese Massage & Tuina | Raffles City Branch</h3>
+                    <p class="card-desc">Discover authentic Chinese healing arts. Experienced therapists apply precise acupressure techniques to relieve tension and restore balance to your body.</p>
+                    <a href="https://www.klook.com/en-US/activity/183203-chongqing-traditional-chinese-massage-tuina-experience/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Lantiya Thai Massage & Foot SPA | Jiefangbei Branch</h3>
+                    <p class="card-desc">Step into a tranquil Southeast Asian oasis. Situated in Jiefangbei, this venue offers authentic Thai massage techniques for deep muscle relaxation.</p>
+                    <a href="https://www.klook.com/en-US/activity/229838-chongqing-lantiya-thai-massage-foot-spa-jiefangbei-branch/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Zushangtianhua High-Altitude View Foot SPA | Raffles City Branch 2</h3>
+                    <p class="card-desc">Unlock stunning high-altitude vistas and pampering treatments. The second Raffles City branch provides expansive city views and expert foot reflexology.</p>
+                    <a href="https://www.klook.com/en-US/activity/208207-zenstep-massage-skyline-view-branch-2/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_5"><h2 class="category-title">Unique Experiences</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Two Rivers Cruise</h3>
+                    <p class="card-desc">Cruise along the Yangtze and Jialing rivers. This boat tour offers a classic perspective to admire Chongqing's dramatic skyline and riverfront architecture.</p>
+                    <a href="https://www.klook.com/en-US/activity/116128-chongqing-two-rivers-night-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Underground Adventure: Rafting & Caving Experience</h3>
+                    <p class="card-desc">Step into the mysterious subterranean world. Combining cave rafting and underground exploration with professional safety equipment, it offers an engaging outdoor challenge.</p>
+                    <a href="https://www.klook.com/en-US/activity/206930-/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Hongyadong Hanfu Rental & Photography Experience</h3>
+                    <p class="card-desc">Wear classical attire amid the iconic stilt houses. This experience includes outfit selection, styling, and photography services against Hongyadong's unique backdrop.</p>
+                    <a href="https://www.klook.com/en-US/activity/154919-chongqing-first-search-travel-photography-ethnic-hanfu-experience/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Tianyan Cave Abseiling, Via Ferrata & Underground Zip Line Experience</h3>
+                    <p class="card-desc">Challenge your limits with vertical rock adventures. Combining via ferrata, abseiling, and underground zip-lining, this tour provides a comprehensive outdoor sporting experience.</p>
+                    <a href="https://www.klook.com/en-US/activity/184050-chongqing-tianyan-cave-abseiling-via-ferrata-underground-palace/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Trendy Motorcycle Photo & Video Experience</h3>
+                    <p class="card-desc">Capture cyberpunk-style visual content in the mountain city. Featuring stylish motorcycles and professional shooting guidance, it creates distinct personal photos and videos.</p>
+                    <a href="https://www.klook.com/en-US/activity/203037-chongqing-viral-motorcycle-photo-video-session/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Two Rivers Helicopter Tour</h3>
+                    <p class="card-desc">Soar above the city for a panoramic aerial view. This helicopter flight provides a unique perspective of Chongqing's river confluence and iconic urban landscape.</p>
+                    <a href="https://www.klook.com/en-US/activity/210801-chongqing-helicopter-two-river-sightseeing-flight-experience/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Mc Maiyue Sky Hotel (Chongqing Jiefangbei Hongyadong)</h3>
+                    <p class="card-desc">Enjoy high-altitude city views in the central commercial district. The hotel offers modern amenities and convenient access to key attractions and transit routes.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1753148-maiyue-hotelchongqing-jiefangbei/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">SEYA High-Altitude Hotel (Raffles Jiefangbei Branch)</h3>
+                    <p class="card-desc">Stay in refined high-altitude accommodations near city landmarks. Featuring floor-to-ceiling windows, the hotel offers expansive skyline and night views.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1987708-seya-panoramic-hotel--chongqing-raffles-plaza-jiefangbei-managed-by-seya-group/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Pagoda Hotel Chongqing Hualongqiao Metro Station INC City</h3>
+                    <p class="card-desc">Experience a blend of artistic design and modern comfort. Conveniently situated near transit and shopping complexes, it provides a functional stay for travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1754413-pagoda-hotel-of-ssaw-chongqing-international-landsea/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Moxy Chongqing Jiefangbei</h3>
+                    <p class="card-desc">Discover a vibrant, contemporary lodging environment. Located in the heart of Jiefangbei, Moxy offers stylish design and accessible amenities for modern travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1428618-moxy-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing City Sunset & Night River Cruise</h3>
+                    <p class="card-desc">Capture the transition from golden twilight to evening city lights. The river cruise sails past iconic bridges and skyline landmarks in total comfort.</p>
+                    <a href="https://www.klook.com/en-US/activity/218810-chongqing-sunset-cruise-with-city-highlights/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Jindaoxia Via Ferrata Experience with Photography</h3>
+                    <p class="card-desc">Experience cliffside climbing along a secured route in Jindaoxia. Equipped with safety gear and photographic documentation, it ensures a memorable outdoor activity.</p>
+                    <a href="https://www.klook.com/en-US/activity/229242-jindaoxia-via-ferrata-with-photography/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Atour Hotel Jiefangbei Chongqing</h3>
+                    <p class="card-desc">Enjoy a tranquil stay centered on quality and thoughtful design. Situated within the Jiefangbei business area, it delivers comfortable rooms and attentive hospitality.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/937056-atour--hotel-bayi-square-jiefangbei-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Two Rivers & Hongyadong Night Tour</h3>
+                    <p class="card-desc">Experience Chongqing's iconic nightscapes in one comprehensive itinerary. Combining river cruising and walking near Hongyadong, it highlights the illuminated city.</p>
+                    <a href="https://www.klook.com/en-US/activity/218833-chongqing-two-rivers-hongyadong-night-cruise/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Grand Hotel Chongqing</h3>
+                    <p class="card-desc">Stay at an established upscale hotel in a convenient downtown location. Offering fine dining, spacious rooms, and broad city views, it caters to diverse travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/236768-glenvie-itc-plaza-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Four Points by Sheraton Chongqing</h3>
+                    <p class="card-desc">Experience ideal comfort and convenience in the Mountain City.<br>Located in an accessible area, offering modern rooms and well-equipped facilities for both business and leisure travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1963084-four-points-by-sheraton-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing 9 Landmarks Half-Day Cruise Experience</h3>
+                    <p class="card-desc">Take in the unique skyline from the river.<br>This half-day cruise connects nine classic Chongqing landmarks, allowing you to enjoy scenic views where two rivers meet.</p>
+                    <a href="https://www.klook.com/en-US/activity/180126-chongqing-two-river-tour-bandao-ferry-water-art-gallery/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">SSAW Boutique Hotel Chongqing (Jiefangbei Hongyadong)</h3>
+                    <p class="card-desc">Walk effortlessly to top local attractions.<br>Situated near Jiefangbei and Hongya Cave, this hotel blends contemporary Oriental aesthetics to deliver a tranquil urban stay.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1767674-ssaw-hotel-jiefangbei-hongyadong-branch/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Fixed-Wing Aircraft Flying Experience</h3>
+                    <p class="card-desc">Soar into the sky for a breathtaking view.<br>Under the guidance of professional pilots, board a fixed-wing aircraft to experience the excitement and stunning views of flight.</p>
+                    <a href="https://www.klook.com/en-US/activity/195520-chongqing-helicopter-flight-experience/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Maijia Shiqu Hotel - Chongqing Jiefangbei Chaotianmen</h3>
+                    <p class="card-desc">Feel the vibrant blend of old and new Chongqing.<br>Located between Chaotianmen and Jiefangbei, this boutique hotel features stylish decor and thoughtful service for curious travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1757320-mcsrh-hotel-chongqing-chaotianmen/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Trending Motorcycle Experience & Video Shoot</h3>
+                    <p class="card-desc">Ride through the city's famous 3D terrain.<br>Explore Chongqing on a stylish motorcycle while a professional media crew captures your memorable moments on video.</p>
+                    <a href="https://www.klook.com/en-US/activity/203172-chongqing-motorcycle-portrait-shooting/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Ji Hotel Chongqing Jiefangbei Center</h3>
+                    <p class="card-desc">Minimalist design brings peace to the bustling city center.<br>Embracing Oriental aesthetics, Ji Hotel offers a cozy, serene lodging experience right near Jiefangbei's shopping area.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/2087616-ji-hotel-chongqing-jiefangbei-center/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">JW Marriott Hotel Chongqing</h3>
+                    <p class="card-desc">Indulge in an atmosphere of refined luxury.<br>Situated in Yuzhong District, this hotel provides breathtaking high-rise views, fine dining, and pampering spa facilities for discerning guests.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/674430-jw-marriott-hotel-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Skydiving Experience</h3>
+                    <p class="card-desc">Challenge your limits with a panoramic aerial perspective.<br>Tandem skydive with experienced instructors from thousands of feet up to feel the ultimate adrenaline rush and scenic views.</p>
+                    <a href="https://www.klook.com/en-US/activity/212671-chongqing-tandem-skydiving-experience/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Hilton Chongqing</h3>
+                    <p class="card-desc">Trust in iconic hospitality in the heart of the city.<br>Located in Yuzhong district, this hotel features spacious rooms, diverse culinary venues, and exceptional international standard service.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/326649-hilton-chongqing-hotel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Qian Yu Qian Su Scenic Suite Hotel Chongqing</h3>
+                    <p class="card-desc">Wake up to mesmerizing views of the river and nightscape.<br>Featuring panoramic floor-to-ceiling windows, these scenic suites offer an elegant sanctuary to admire the stunning cityscape.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/2399848-qian-yu-qian-su-scenic-suite-hotel-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Hongya Cave & Danzishi Ferry Tour</h3>
+                    <p class="card-desc">Relive historic river crossings aboard a classic ferry.<br>Cruising between Hongya Cave and Danzishi, this route offers authentic water perspectives of traditional stilt houses and nightscapes.</p>
+                    <a href="https://www.klook.com/en-US/activity/180470-chongqing-two-river-tour-liangjiang-ferry/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Jialing River Ferry</h3>
+                    <p class="card-desc">Savor peaceful moments cruising along the Jialing River.<br>This local river ferry offers a charming and casual way to observe how the city harmonizes with its mountainous surroundings.</p>
+                    <a href="https://www.klook.com/en-US/activity/180433-chongqing-two-river-tour-jialing-ferry/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">DoubleTree by Hilton Chongqing Nan'an</h3>
+                    <p class="card-desc">Warm hospitality starts with a warm welcome cookie.<br>Situated in Nan'an district near transit, this contemporary hotel offers cozy rooms and fine dining for a relaxed stay.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/675229-doubletree-by-hilton-hotel-chongqing-nanan/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Gaoyue Hotel (Chongqing Guanyinqiao Pedestrian Street)</h3>
+                    <p class="card-desc">Immerse yourself in the vibrant local lifestyle.<br>Adjacent to Guanyinqiao Pedestrian Street, this stylish hotel offers modern amenities and convenient access to shopping and dining.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1304895-chongqing-kaoyu-hotel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Regent Chongqing</h3>
+                    <p class="card-desc">Immerse in timeless elegance overlooking the river.<br>Located in Jiangbeizui, Regent Chongqing combines local craftsmanship, stunning river views, and impeccable personalized service.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/552457-regent-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Conrad Chongqing</h3>
+                    <p class="card-desc">Elevate your travel style above the vibrant skyline.<br>Blending contemporary art with local heritage, Conrad Chongqing delivers luxurious high-rise accommodation and memorable dining offerings.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1332801-conrad-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">The Westin Chongqing Liberation Square</h3>
+                    <p class="card-desc">Recharge your senses in the center of the city.<br>Featuring an infinity pool and dramatic skyline views, this hotel offers wellness amenities designed to refresh every traveler.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/619391-the-westin-chongqing-liberation-square/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Chongqing Traditional Costume Rental & Experience</h3>
+                    <p class="card-desc">Step back in time with authentic traditional attire.<br>Choose from a wide variety of historical garments, complete with styling, to capture stunning photos against Chongqing's historic backdrops.</p>
+                    <a href="https://www.klook.com/en-US/activity/139381-special-china-costume-rental-china-clothing-theme-shooting/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">voco Chongqing Chaotianmen</h3>
+                    <p class="card-desc">Enjoy a charming and playful contemporary hotel experience.<br>Located near Chaotianmen, this stylish hotel features vibrant design, flexible spaces, and warm hospitality for modern travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1223943-voco-chongqing-chaotianmen-by-ihg/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Somerset Yangtze River Chongqing</h3>
+                    <p class="card-desc">Experience serene waterfront living. Located along the iconic river, these serviced apartments provide spacious accommodations and modern amenities tailored for both business and leisure travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/188455-somerset-yangtze-river-chongqing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Houju High Altitude River View Hotel Jiefangbei Hongyadong Chongqing</h3>
+                    <p class="card-desc">Marvel at skyline views from above. Conveniently situated near major landmarks, this high-altitude hotel offers stylish rooms with panoramic views of the river and vibrant cityscape.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/2106807-chongqing-jiefangbei-hongya-cave-houju-highaltitude-riverview-hotel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">InterContinental Chongqing Raffles City - IHG Hotel</h3>
+                    <p class="card-desc">Stay inside an architectural marvel. Set within the iconic Crystal bridge, this hotel offers sophisticated accommodations, world-class dining, and unmatched views over two rivers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/619186-intercontinental-chongqing-raffles-city-by-ihg/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Oriental Aesthetics in Silk | Chongqing Songjin Intangible Cultural Heritage Workshop</h3>
+                    <p class="card-desc">Discover the fine artistry of silk. Guided by skilled artisans, this hands-on workshop introduces traditional Songjin weaving techniques, allowing guests to create their own cultural masterpiece.</p>
+                    <a href="https://www.klook.com/en-US/activity/208202-oriental-aesthetics-in-silk-chongqing-song-brocade-workshop/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Fanghua Hotel Chongqing</h3>
+                    <p class="card-desc">Relax in a peaceful city retreat. Featuring contemporary design elements, this hotel offers well-appointed rooms and thoughtful services for a comfortable stay in Chongqing.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1766826-chongqing-fang-hua-hotel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section>
+    </div>
+    <script>
+        function showCategory(categoryId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`button[onclick="showCategory('${categoryId}')"]`).classList.add('active');
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.toggle('active', categoryId === 'all' || section.id === categoryId);
+            });
+            window.scrollTo(0, 0);
         }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
     </script>
-    <footer class="text-center py-8 text-gray-400 text-sm md:text-base px-4">
-        <p>Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved. 提供最專業的亞洲自由行旅遊指南與行程規劃工具 (Asia Travel Guides & FIT Itineraries)。版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
-    </footer>
 </body>
 </html>
