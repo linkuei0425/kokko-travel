@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>布拉格 旅遊指南</title>
+    <style>
+        :root { --primary-color: #3b82f6; --bg-color: #f7f9fa; --text-color: #333; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; line-height: 1.6; scroll-behavior: smooth; }
+        header { background: var(--primary-color); color: white; padding: 2rem 1rem; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 2rem; }
+        .header-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
+        .btn-top { background: white; color: var(--primary-color); text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .btn-top:hover { background: #eff6ff; }
+        .nav-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 1.5rem; }
+        .nav-btn { background: white; color: var(--primary-color); border: none; padding: 0.6rem 1.2rem; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .nav-btn:hover, .nav-btn.active { background: #eff6ff; color: #1d4ed8; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .category-section { margin-bottom: 3rem; display: none; }
+        .category-section.active { display: block; }
+        .category-title { border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .card-tag { display: inline-block; background: #eff6ff; color: var(--primary-color); font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.8rem; width: fit-content; }
+        .card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 0.5rem 0; line-height:1.4; }
+        .card-desc { font-size: 0.95rem; color: #555; flex-grow: 1; margin-bottom: 1rem; }
+        .card-link { display: block; text-align: center; background: var(--primary-color); color: white; text-decoration: none; padding: 0.6rem; border-radius: 4px; font-weight: bold; margin-top: auto; }
+        .card-link:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-actions">
+            <a href="index.html" class="btn-top">🏠 回到首頁</a>
+            
+        </div>
+        <h1>布拉格 自由行導覽</h1>
+        <div class="nav-buttons" id="navButtons">
+            <button class="nav-btn active" onclick="showCategory('all')">全部</button>
+            <button class="nav-btn" onclick="showCategory('cat_0')">交通與通訊</button><button class="nav-btn" onclick="showCategory('cat_1')">景點與門票</button><button class="nav-btn" onclick="showCategory('cat_2')">觀光行程</button><button class="nav-btn" onclick="showCategory('cat_3')">美食與餐飲</button><button class="nav-btn" onclick="showCategory('cat_5')">特色體驗與活動</button>
+        </div>
+    </header>
+    <div class="container">
+        <section class="category-section active" id="cat_0"><h2 class="category-title">交通與通訊</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">WiFi 分享器＆上網 SIM 卡</span>
+                    <h3 class="card-title">捷克5G eSIM卡 | O2</h3>
+                    <p class="card-desc">暢遊捷克隨時高速連線！免換卡即買即用，提供穩定高速的 5G 網路，讓旅行溝通無阻。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/215900-czech-republic-esim-travel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場包車接送</span>
+                    <h3 class="card-title">布拉格｜布拉格魯濟涅國際機場包車接送</h3>
+                    <p class="card-desc">享受無憂無慮的尊榮抵達！提供專屬車輛與司機接送服務，讓機場與市區之間的往返輕鬆舒適。</p>
+                    <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=PRG&aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場鐵路＆巴士</span>
+                    <h3 class="card-title">布拉格機場—RegioJet運營的布拉格巴士</h3>
+                    <p class="card-desc">小資族首選的高CP值接送！乘坐舒適巴士直達布拉格市區，享受優質座椅與便利服務。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/163350-prague-airport-prague-bus-by-regiojet/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">隨上隨下觀光巴士</span>
+                    <h3 class="card-title">布拉格 42 號線隨上隨下歷史電車票 (Hop-on Hop-off Historical Tram ticket for Line 42 in Prague)</h3>
+                    <p class="card-desc">搭乘復古電車穿梭歷史時空！隨上隨下 42 號線，優雅漫遊布拉格古色古香的核心景區。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/139219-hop-on-hop-off-historical-tram-ticket-for-line-42-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">巴士</span>
+                    <h3 class="card-title">布拉格 - 契斯基庫倫洛夫Flixbus巴士接送</h3>
+                    <p class="card-desc">便捷前往童話城堡小鎮！搭乘舒適的 FlixBus 巴士，輕鬆往返布拉格與契斯基庫倫洛夫。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/221606-prague-cesky-krumlov-bus-transfer-by-flixbus/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場包車接送</span>
+                    <h3 class="card-title">图卢兹｜布拉格納克機場包車接送</h3>
+                    <p class="card-desc">輕鬆開啟你的法國之旅！提供布拉格納克機場至圖盧茲市區的專車接送服務，讓您舒適抵達目的地。</p>
+                    <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=TLS&aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">隨上隨下觀光巴士</span>
+                    <h3 class="card-title">布拉格隨上隨下觀光巴士</h3>
+                    <p class="card-desc">輕鬆探索千塔之城！彈性乘車路線涵蓋各大熱門景點，帶您隨心所欲暢遊布拉格精彩風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/221470-prague-big-bus-hop-on-hop-off-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_1"><h2 class="category-title">景點與門票</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">歷史景點</span>
+                    <h3 class="card-title">布拉格城堡門票</h3>
+                    <p class="card-desc">走進世界最大的古堡群！參觀哥德式的聖維特大教堂與歷史悠久的皇家宮殿，感受波希米亞輝煌。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/107995-prague-castle-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">布拉格遊客通票（Prague Visitor Pass）</h3>
+                    <p class="card-desc">一卡在手暢遊無阻！包含公共交通與超過70個熱門景點免費入場，是自由行最佳神隊友。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/191814-prague-visitor-pass/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">歷史景點</span>
+                    <h3 class="card-title">布拉格城堡與洛布科維奇宮門票</h3>
+                    <p class="card-desc">雙重享受的文化盛宴！不僅能走訪皇室城堡，還可於洛布科維奇宮欣賞莫札特與貝多芬的手稿。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/21425-lobkowicz-palace-castle-ticket-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">布拉格CoolPass門票（60個熱門景點 & 優惠）</h3>
+                    <p class="card-desc">省時省錢的最佳選擇！憑證暢遊60多個精彩景點並享有專屬優惠，全面解鎖布拉格魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/109243-prague-coolpass-admission-top-60-attractions-discounts/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">布拉格 30 多個景點隨上隨下巴士暢遊通行證 (All-Inclusive Pass for 30+ attractions and Hop-on Hop-off Bus in Prague)</h3>
+                    <p class="card-desc">全方位體驗經典布拉格！結合隨上隨下觀光巴士與30多個頂級景點門票，打造完美行程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/139183-go-city-prague-all-inclusive-pass/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">布拉格夢幻博物館（Museum of Fantastic Illusions）門票</h3>
+                    <p class="card-desc">翻轉你的視覺想像！超過150個互動式幻覺展品，帶您拍攝趣味無比的奇幻照片。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/106764-museum-of-fantastic-illusions-ticket-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">布拉格佩特任瞭望塔與鏡子迷宮門票</h3>
+                    <p class="card-desc">俯瞰全城絕美天際線！登頂迷你埃菲爾鐵塔，再到旁邊的鏡子迷宮體驗迷幻樂趣。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/202453-petrin-tower-mirror-maze-ticket-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀景台</span>
+                    <h3 class="card-title">舊市政廳天文鐘樓門票</h3>
+                    <p class="card-desc">佇立於世紀時間交界！親眼見證中世紀天文鐘的運作，並登上鐘樓俯瞰舊城廣場。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/202581-old-town-hall-tower-and-astronomical-clock-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">布拉格卡夫卡博物館門票</h3>
+                    <p class="card-desc">深入大師的荒繆奇幻世界！展出卡夫卡的手稿、日記與信件，帶您探索其文學一生。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/107483-franz-kafka-museum-ticket-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀景台</span>
+                    <h3 class="card-title">布拉格Žižkov電視塔 (Zizkov Television Tower) 觀景台門票</h3>
+                    <p class="card-desc">站上布拉格最高點！在近百公尺高的觀景台享360度視野，欣賞攀爬嬰兒雕塑。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/136987-zizkov-television-tower-observatory-ticket-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">布拉格猶太區門票（含可加購語音導覽）</h3>
+                    <p class="card-desc">穿越沉重的歷史印記！參觀猶太會堂與古老墓園，感受深刻綿長的人文底蘊。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/109043-jewish-quarter-ticket-optional-audio-guide/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">布拉格城堡門票（含接送 & 語音導覽）</h3>
+                    <p class="card-desc">無憂探索偉大古堡！包含便利的專車接送與導覽服務，讓您輕鬆掌握景點歷史脈絡。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/109103-prague-castle-admission-transfer-audio-guide/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">布拉格 (Prague) Lumia Gallery 門票</h3>
+                    <p class="card-desc">沉浸於光影與科技交織的世界！透過現代數位藝術體驗一場視覺與感官的奇幻盛宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/137083-lumia-gallery-ticket-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">布拉格共產主義博物館門票</h3>
+                    <p class="card-desc">揭開鐵幕下的歷史面紗！展覽透過豐富照片、文物與實景復原，真實呈現二戰後捷克的共產統治時期。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/108231-museum-communism-ticket-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">布拉格感官博物館門票</h3>
+                    <p class="card-desc">顛覆你的五感認知！體驗超過50種互動展品與視覺錯覺展區，在娛樂中探索感官的無窮奧秘。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/108217-museum-senses-ticket-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_2"><h2 class="category-title">觀光行程</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">從布拉格出發的捷克克魯姆洛夫一日遊</h3>
+                    <p class="card-desc">造訪童話故事般優美的世界文化遺產小鎮。漫步於庫倫洛夫的紅瓦小巷，參觀宏偉的城堡與欣賞伏爾塔瓦河環繞絕景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/108938-prague-to-cesky-krumlov-one-day-trip/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格至克魯姆洛夫一日遊（含接送服務）</h3>
+                    <p class="card-desc">踏入童話般的中世紀小鎮！專車接送輕鬆往返布拉格與克魯姆洛夫，漫步石板路，探索壯麗城堡與哥德式建築之美。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/117831-cesky-krumlov-one-day-walking-tour-from-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">達沃市全日私人亮點之旅</h3>
+                    <p class="card-desc">解鎖棉蘭老島的熱帶魅力！私人專車帶您深入達沃市，造訪人氣景點、在地市場與文化地標，享受專屬行程體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/79731-davao-city-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">達沃自然景觀探索之旅</h3>
+                    <p class="card-desc">前往綠意盎然的自然秘境！深入達沃豐富的生態景觀，欣賞壯麗山景與熱帶植被，呼吸最純淨的自然芬多精。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/79824-nature-tour-davao/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">庫特納霍拉與聖芭芭拉教堂、人骨教堂一日遊（布拉格出發）</h3>
+                    <p class="card-desc">揭開中世紀古城的神秘面紗！從布拉格出發，參觀世界遺產庫特納霍拉、震撼的人骨教堂與宏偉的聖芭芭拉教堂。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/121485-kutna-hora-with-bone-church-tour-from-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格卡羅維瓦利小團一日遊</h3>
+                    <p class="card-desc">體驗歐洲貴族最愛的溫泉小鎮！精緻小團出發前往卡羅維發利，品嚐溫泉水、品味在地甜點，享受悠閒典雅一日。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/103351-one-day-trip-prague-karlovy-vary-carlsbad/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">從布拉格出發的卡羅維發利和黛安娜瞭望塔一日遊</h3>
+                    <p class="card-desc">站在高處俯瞰溫泉小鎮全景！這趟旅程帶您走訪卡羅維發利，並搭乘纜車登上黛安娜瞭望塔，將絕美山谷風光盡收眼底。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/117847-karlovy-vary-and-watchtower-diana-one-day-tour-from-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格出發的特雷津集中營半日遊</h3>
+                    <p class="card-desc">重溫二戰歷史的肅穆章節。從布拉格出發前往特雷津紀念館，透過導覽深入了解集中營歷史與受害者的真實故事。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/117837-terezin-concentration-camp-half-day-tour-from-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格老城與查理大橋半日步行導覽遊</h3>
+                    <p class="card-desc">用雙腳感受百塔之城的心跳！專業導覽帶您穿梭老城廣場的古老巷弄，走過經典的查理大橋，品味濃厚的歷史底蘊。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/117850-old-town-and-jewish-district-walking-tour-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格城堡 & 城堡區之旅</h3>
+                    <p class="card-desc">探索全世界最大的古堡建築群！走進布拉格城堡區，造訪聖維特大教堂與黃金巷，沉浸於波希米亞王室的昔日輝煌。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/106662-prague-castle-castle-district-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格市區半日遊</h3>
+                    <p class="card-desc">快速精準掌握布拉格精華！半日行程涵蓋市區主要地標與經典景點，非常適合初次造訪這座美麗城市的旅客。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/118338-grand-city-half-day-tour-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格城堡與城堡區歷史小團遊</h3>
+                    <p class="card-desc">深度聆聽波希米亞的宮廷秘辛。精緻小團形式導覽布拉格城堡，深入歷史細節，享受無壓迫感的專業講解體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/109064-prague-castle-tour-fast-track-admission/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格波希米亞瑞士國家公園全日私人導覽</h3>
+                    <p class="card-desc">走進奇幻電影般的壯麗地貌！私人專車前往波希米亞瑞士國家公園，徒步探索砂岩拱門與幽靜峽谷，感受大自然的鬼斧神工。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/134205-bohemian-switzerland-national-park-private-tour-from-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格中世紀地下城和老城之旅</h3>
+                    <p class="card-desc">穿越時空探索地底下的秘密世界！走進布拉格老城隱藏的中世紀地下通道，聽導覽員講述古老城市的傳奇故事。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/140309-medieval-enderground-and-old-town-tour-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格城堡導覽遊</h3>
+                    <p class="card-desc">專屬導覽帶您直擊古堡精華！走訪聖維特大教堂、舊皇宮等著名景點，省去摸索時間，全面了解城堡區的文化價值。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/108239-prague-castle-tour-admission/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格特雷津半日曆史之旅</h3>
+                    <p class="card-desc">走入歷史現場，致敬過往歲月。從布拉格出發至特雷津要塞，專業導覽細述二戰期間的背景，帶來震撼人心的人文省思。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/108213-terezin-tour-admission-transfer-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格城堡與老城半日遊（城市亮點）</h3>
+                    <p class="card-desc">揭開百塔之城的歷史序幕。探索布拉格城堡與老城區，專業導遊將帶領您遊覽查理大橋及天文鐘等經典亮點。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/108105-prague-old-town-charles-bridged-prague-castle-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格自行車之旅（含私人加購）</h3>
+                    <p class="card-desc">用雙腳踏板輕鬆穿梭歷史巷弄。騎乘自行車悠遊布拉格市區與公園，可選擇私人包團享受專屬行程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/108428-prague-bike-tour-private-option/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格幽靈與傳說徒步之旅</h3>
+                    <p class="card-desc">夜幕低垂時走進神秘的古老傳說。漫步於夜間的老城巷弄，聆聽導遊講述布拉格流傳世紀的幽靈故事與怪談。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/107010-prague-ghosts-legends-walking-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格：帶現場導遊的哈雷三輪車觀光之旅</h3>
+                    <p class="card-desc">體驗拉風無比的城市巡航。搭乘哈雷三輪車馳騁於布拉格街頭，在現場導遊解說下輕鬆飽覽熱門景點。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/131148-amazing-trike-harley-viewpoint-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">從布拉格出發的庫特納霍拉一日遊</h3>
+                    <p class="card-desc">踏上遠離喧囂的中世紀文化之旅。前往世界遺產小鎮庫特納霍拉，參觀著名的人骨教堂與聖芭芭拉教堂。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/163512-day-trip-to-kutna-hora-from-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格舊城與新城3小時導覽行程</h3>
+                    <p class="card-desc">高效掌握布拉格的新舊交融之美。三小時精華導覽帶您深入老城廣場與新城區，體驗跨時代的建築魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/109069-prague-city-tour-astronomical-clock-admission/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">【包車】捷克一日遊</h3>
+                    <p class="card-desc">享受高自由度的專屬旅程。提供捷克全境包車服務，專業司機貼心接送，路線靈活可依個人偏好彈性規劃。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/172250-czech-chartered-day-trips/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格猶太區半日遊（專業導覽）</h3>
+                    <p class="card-desc">深層探索猶太文化的深邃歷史。跟隨專業導覽走訪猶太區、猶太教堂與古老墓園，了解其背後的歲月故事。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/108140-jewish-quarter-walking-tour-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">布拉格法蘭茲卡夫卡半日歷史導覽遊</h3>
+                    <p class="card-desc">尋著文學巨擘的足跡漫步布拉格。走訪卡夫卡生活與寫作的地點，從不同角度解讀這位偉大作家的生平。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/109085-prague-through-the-eyes-of-franz-kafka-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_3"><h2 class="category-title">美食與餐飲</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">布拉格民俗晚餐秀體驗</h3>
+                    <p class="card-desc">沉浸於捷克傳統歌舞與道地美饌的歡樂夜。欣賞民俗舞蹈表演，品嚐傳統三道式料理及無限量供應的啤酒與葡萄酒。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/107025-folkloric-dinner-show-experience-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">布拉格中世紀晚餐 & 無限暢飲</h3>
+                    <p class="card-desc">穿越時空回到中世紀的小酒館狂歡夜。在燭光搖曳的地窖中享用豐盛大餐，觀賞火舞者、吞劍士與劍客的精彩演出。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/107177-medieval-dinner-unlimited-drinks-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">皮爾森歐克：布拉格原版啤酒體驗門票</h3>
+                    <p class="card-desc">揭開世界首款金黃拉格啤酒的百年傳奇。透過互動展覽深入了解啤酒釀造工藝，並親自體驗完美的拉酒與品酒環節。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/138483-pilsner-urquell-the-original-beer-experience-tour-and-beer-tastings/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">布拉格 Hard Rock Cafe 用餐體驗</h3>
+                    <p class="card-desc">在搖滾主題空間享用美式經典佳餚。坐落於舊城廣場旁，欣賞豐富的音樂紀念品，享用多汁漢堡與招牌美式料理。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/132563-hard-rock-cafe-dining-experience-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">Reduta 爵士俱樂部布拉格現場爵士音樂會</h3>
+                    <p class="card-desc">朝聖全球最悠久且享譽盛名的爵士聖地。在私密典雅的空間內，聆聽世界級樂手帶來的頂級現場爵士樂演奏。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/202566-reduta-jazz-club-live-jazz-concert-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食觀光</span>
+                    <h3 class="card-title">布拉格「醉猴酒吧巡禮」體驗</h3>
+                    <p class="card-desc">體驗布拉格最嗨、最熱鬧的夜生活趴踢。跟隨在地導遊走訪熱門酒吧與夜店，享用免費飲品並結交來自全球的朋友。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/170033-drunken-monkey-pub-crawl-experience-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_5"><h2 class="category-title">特色體驗與活動</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格伏爾塔瓦河遊船</h3>
+                    <p class="card-desc">從水上輕鬆漫遊千塔之城！搭乘觀光船沿伏爾塔瓦河前行，欣賞查理大橋與布拉格城堡的絕美景色。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/106073-prague-vltava-river-sightseeing-cruise-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格普羅塞克遊船晚宴</h3>
+                    <p class="card-desc">用氣泡酒點亮浪漫之夜！乘船遊覽伏爾塔瓦河，品嚐精緻晚餐與冰鎮普羅塞克，享受奢華水上時刻。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/105822-vltava-river-evening-eco-cruise-prosecco-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格查理大橋1小時經典河上巡遊</h3>
+                    <p class="card-desc">短暫卻精采的水上巡禮！一小時航程精準穿梭於查理大橋周邊，以獨特視野捕捉古城核心風采。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/118168-the-panoramic-vltava-river-cruise-tour-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格自助晚餐夜遊船</h3>
+                    <p class="card-desc">夜幕低垂時的最佳盛宴！搭乘夜航船隻，一邊享用豐盛的自助晚餐，一邊欣賞沉浸在燈光中的波希米亞夜景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/117777-evening-cruise-tour-with-buffet-dinner-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">展覽＆表演</span>
+                    <h3 class="card-title">布拉格的黑光劇院WOW Show (WOW show black light theater in Prague)</h3>
+                    <p class="card-desc">走入光影交織的神奇夢境！WOW黑光劇結合螢光特技、現代舞蹈與幽默表演，呈獻視覺震撼。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/132549-wow-show-black-light-theatre-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">展覽＆表演</span>
+                    <h3 class="card-title">布拉格鏡廳古典音樂會</h3>
+                    <p class="card-desc">沉浸於巴洛克建築的樂章中！在著名的鏡廳聆聽經典古典音樂，享受頂級聲學與華麗裝潢交融的視聽盛宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/189463-mirror-chapel-classical-concert-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格河畔自助晚餐遊船連現場音樂表演</h3>
+                    <p class="card-desc">聆聽現場演奏搭配美味餐點！沿著河岸緩緩航行，品嚐豐富百匯料理，享有音樂與美景交織的放鬆夜晚。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/105849-prague-open-top-glass-boat-sightseeing-dinner-cruise-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">健行</span>
+                    <h3 class="card-title">巴斯泰橋、普拉夫奇斯卡之門與納尼亞岩石全日遊</h3>
+                    <p class="card-desc">踏入奇幻電影的實景地！一日遊探訪壯麗巴斯泰橋、天然石拱門與納尼亞奇岩，深入波希米亞瑞士國家公園。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/136519-the-best-of-bohemian-and-saxon-switzerland-day-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格玻璃船午餐巡遊</h3>
+                    <p class="card-desc">全景玻璃船帶來無死角美景！在溫室般通透的船艙內享用精緻午餐，全方位欣賞伏爾塔瓦河沿岸風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/105888-prague-vltava-river-open-top-glass-boat-lunch-cruise-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格伏爾塔瓦河2小時遊船</h3>
+                    <p class="card-desc">雙倍時長帶來極致放鬆體驗！兩小時航程帶你深度穿梭布拉格新舊城區，隨心遠離陸地喧囂。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/105801-vltava-river-sightseeing-cruise-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格魔鬼運河遊船</h3>
+                    <p class="card-desc">探索布拉格的北方威尼斯！搭乘小船進入隱蔽的魔鬼運河，近距離觀賞古老水車與沿岸私房古蹟。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/106029-prague-devils-channel-sightseeing-cruise-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格遊船晚餐</h3>
+                    <p class="card-desc">點亮捷克之夜的美味旅程！乘船徜徉伏爾塔瓦河，在浪漫燈火包圍下品嚐在地與國際美食。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/105926-prague-vltava-river-sightseeing-dinner-cruise-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">展覽＆表演</span>
+                    <h3 class="card-title">布拉格黑光劇票 (IMAGE black light theatre ticket in Prague)</h3>
+                    <p class="card-desc">體驗捷克道地的無聲劇場藝術！IMAGE劇團融合黑幕特技、舞蹈與默劇，呈現歡樂而驚奇的表演。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/139514-image-black-light-theatre-ticket-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格河上游船之旅</h3>
+                    <p class="card-desc">換個角度欣賞百塔之城的水岸風光。搭乘觀光船巡航伏爾塔瓦河，輕鬆飽覽查理大橋與沿岸歷史建築，體驗優雅的波希米亞風情。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/106815-best-prague-river-cruise-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">布拉格套票：城堡門票、巴士與河川導覽遊</h3>
+                    <p class="card-desc">一張通行證輕鬆搞定首都精華景點。包含布拉格城堡門票、市區觀光巴士與伏爾塔瓦河導覽巡航，助您高效探索城市風貌。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/18766-grand-city-tour-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">展覽＆表演</span>
+                    <h3 class="card-title">布拉格 (Prague) 聖尼古拉教堂 (St. Nicholas Church) 古典音樂會</h3>
+                    <p class="card-desc">在巴洛克風格殿堂中感受古典音符的震撼。走進歷史悠久的聖尼古拉教堂，聆聽頂尖音樂家演奏管風琴與經典名曲。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/140511-st-nicholas-church-classical-concert-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">健行</span>
+                    <h3 class="card-title">薩克森瑞士國家公園與巴斯泰橋一日自然之旅</h3>
+                    <p class="card-desc">踏入如仙境般的奇岩巨石與峽谷秘境。漫步於著名的巴斯泰橋，俯瞰易北河峽谷壯麗景緻，享受絕佳的森林健行體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/217429-saxon-switzerland-bastei-bridge-full-day-nature-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">展覽＆表演</span>
+                    <h3 class="card-title">布拉格 SRNEC 黑光劇團《Anthology》表演</h3>
+                    <p class="card-desc">探索世界上第一個黑光劇團的幻象藝術。經典劇目《Anthology》結合光影、舞蹈與無聲幽默，帶來一場無與倫比的視覺盛宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/203035-black-light-theatre-srnec-antologi-show-ticket-in-prague/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">健行</span>
+                    <h3 class="card-title">布拉格出發：巴斯泰橋與普拉夫奇斯卡之門一日遊</h3>
+                    <p class="card-desc">專為戶外愛好者打造的大自然雙奇觀之旅。一次造訪德國巴斯泰橋與歐洲最大的天然砂岩拱門普拉夫奇斯卡之門。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/217340-prague-bastei-bridge-prav-ick-archway-full-day-guided-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">攝影</span>
+                    <h3 class="card-title">布拉格舊城區專業攝影體驗</h3>
+                    <p class="card-desc">讓專業攝影師為您的旅程留下永恆美照。穿梭於舊城區石板路與古典巷弄，拍攝高質感個人或團體紀念寫真。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/139442-free-esim-essence-of-prague-s-old-town-with-photographer/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">高爾夫</span>
+                    <h3 class="card-title">布拉格電視塔迷你高爾夫體驗門票</h3>
+                    <p class="card-desc">在知名地標建築旁享受趣味戶外高爾夫。位於齊日科夫電視塔下的迷你高爾夫球場，適合親友同樂，放鬆身心。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/138826-mini-golf-experience-under-zizkov-tv-tower/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section>
+    </div>
+    <script>
+        function showCategory(categoryId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`button[onclick="showCategory('${categoryId}')"]`).classList.add('active');
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.toggle('active', categoryId === 'all' || section.id === categoryId);
+            });
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
