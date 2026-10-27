@@ -207,15 +207,23 @@
                     if(!cat.items) return;
                     cat.items.forEach(attr => {
                         let matchedStation = null;
+                        // 改用 .split(' ')[1] 擷取中文簡稱來作為搜尋關鍵字，但保留完整的 station 字串綁定給 matchedStation
                         if(attr.transport) {
-                            for(let station of validStations) if(attr.transport.includes(station)) { matchedStation = station; break; }
-                        }
-                        if(!matchedStation) {
-                            for(let station of validStations) if(attr.name.includes(station) || (attr.feature && attr.feature.includes(station))) { matchedStation = station; break; }
+                            for(let station of validStations) {
+                                let shortName = station.split(' ')[1];
+                                if(shortName && attr.transport.includes(shortName)) { matchedStation = station; break; }
+                            }
                         }
                         if(!matchedStation) {
                             for(let station of validStations) {
-                                if(attr.name.includes(station)) { matchedStation = station; break; }
+                                let shortName = station.split(' ')[1];
+                                if(shortName && (attr.name.includes(shortName) || (attr.feature && attr.feature.includes(shortName)))) { matchedStation = station; break; }
+                            }
+                        }
+                        if(!matchedStation) {
+                            for(let station of validStations) {
+                                let shortName = station.split(' ')[1];
+                                if(shortName && attr.name.includes(shortName)) { matchedStation = station; break; }
                             }
                         }
                         if(matchedStation) {
