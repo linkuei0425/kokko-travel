@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仰光旅遊行程指南 | Trip Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- SEO & GEO 結構化資料 -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "仰光 Trip Guide",
+  "description": "精選 仰光 必訪的 trip 推薦清單與詳細交通指南。",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Global Travel Pass"
+  }
+}
+</script>
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+
+        const CATEGORIES = [
+            { id: '景點門票', icon: Ticket },
+            { id: '一日遊', icon: Sun },
+            { id: '交通與網卡', icon: TrainFront }
+        ];
+
+        const itineraryData = {"comparison_table": [{"coverage": "\u4ef0\u5149 YBS \u516c\u8eca\u7db2\u8def", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E4%BB%B0%E5%85%89%20", "price": "\u7d04 2,000 MMK (\u7a7a\u5361\u5de5\u672c\u8cbb)", "recommendation": "\u9069\u5408\u9810\u8a08\u9577\u671f\u505c\u7559\u6216\u983b\u7e41\u642d\u4e58\u5e02\u5340\u516c\u8eca\u7684\u65c5\u5ba2", "ticket_name": "YPS \u5361 (Yangon Payment Service)"}, {"coverage": "\u4ef0\u5149\u74b0\u72c0\u9435\u8def\u5168\u7dda", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E4%BB%B0%E5%85%89%20", "price": "\u7d04 200 - 300 MMK", "recommendation": "\u9069\u5408\u9ad4\u9a57\u5728\u5730\u4eba\u6587\u98a8\u60c5\u8207\u6162\u901f\u9ad4\u9a57\u57ce\u5e02\u7684\u89c0\u5149\u5ba2", "ticket_name": "\u4ef0\u5149\u74b0\u72c0\u7dda\u706b\u8eca\u7968 (Circular Railway Ticket)"}, {"coverage": "\u4ef0\u5149\u6cb3\u5169\u5cb8\uff08Pansodan \u78bc\u982d\u81f3 Dala \u5340\uff09", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E4%BB%B0%E5%85%89%20", "price": "\u7d04 4,000 MMK (\u5916\u570b\u4eba\u5f80\u8fd4\u7968\u50f9)", "recommendation": "\u9069\u5408\u898f\u5283\u534a\u65e5\u904a\u524d\u5f80\u5c0d\u5cb8\u9054\u62c9\u93ae\u9ad4\u9a57\u9109\u6751\u666f\u7dfb\u7684\u65c5\u5ba2", "ticket_name": "\u4ef0\u5149\u6e21\u8f2a\u7968 (Pansodan-Dala Ferry)"}], "cp_tips": "\u5728\u4ef0\u5149\u65c5\u904a\uff0c\u6700\u9ad8 CP \u503c\u4e14\u6700\u5b89\u5168\u7684\u4ea4\u901a\u7d44\u5408\u662f\u300eGrab \u7db2\u7d04\u8eca\u300f\u914d\u5408\u300e\u4ef0\u5149\u74b0\u72c0\u9435\u8def\u9ad4\u9a57\u300f\u3002\u5e02\u5340\u5167\u642d\u4e58 Grab \u8cbb\u7528\u76f8\u7576\u5e73\u50f9\uff08\u55ae\u7a0b\u7d04 4,000 - 8,000 MMK\uff09\uff0c\u80fd\u7cbe\u6e96\u5b9a\u4f4d\u4e14\u907f\u514d\u8a9e\u8a00\u4e0d\u901a\u8207\u88ab\u6f2b\u5929\u558a\u50f9\uff1b\u82e5\u60f3\u9ad4\u9a57\u5728\u5730\u751f\u6d3b\uff0c\u53ef\u4ee5\u82b1\u8cbb\u6975\u5c11\u8a31\u73fe\u91d1\u642d\u4e58\u74b0\u72c0\u9435\u8def\u7e5e\u884c\u5e02\u90ca\u3002\u516c\u8eca\uff08YBS\uff09\u96d6\u7136\u6700\u4fbf\u5b9c\uff0c\u4f46\u6a19\u793a\u591a\u70ba\u7dec\u6587\u4e14\u8def\u7dda\u8907\u96dc\uff0c\u5c0d\u521d\u8a2a\u65c5\u5ba2\u8f03\u5177\u6311\u6230\u6027\u3002", "faqs": [{"answer": "\u6700\u63a8\u85a6\u4f7f\u7528 Grab APP \u53eb\u8a08\u7a0b\u8eca\uff0c\u76f4\u63a5\u524d\u5f80\u5e02\u4e2d\u5fc3\u8607\u96f7\u5854\uff08Sule Pagoda\uff09\u5468\u908a\u7d04\u9700 45 \u81f3 60 \u5206\u9418\uff0c\u8eca\u8cc7\u900f\u660e\u4e14\u5b89\u5168\u3002\u82e5\u9810\u7b97\u6709\u9650\uff0c\u53ef\u5728\u822a\u5ec8\u5916\u642d\u4e58 YBS \u6a5f\u5834\u516c\u8eca\uff08\u5982 37 \u865f\u7dda\uff09\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E4%BB%B0%E5%85%89%20", "question": "\u4ef0\u5149\u570b\u969b\u6a5f\u5834\u5230\u5e02\u4e2d\u5fc3\u6700\u63a8\u85a6\u54ea\u7a2e\u4ea4\u901a\u65b9\u5f0f\uff1f"}, {"answer": "\u4e0d\u884c\u3002\u4ef0\u5149\u7684\u5927\u773e\u904b\u8f38\u7cfb\u7d71\uff08\u706b\u8eca\u3001\u6e21\u8f2a\u3001\u516c\u8eca\uff09\u7686\u4e0d\u652f\u63f4\u570b\u969b\u4fe1\u7528\u5361\uff0c\u591a\u6578\u50c5\u63a5\u53d7\u7dec\u7538\u57fa\u4e9e\uff08MMK\uff09\u5c0f\u984d\u73fe\u91d1\u652f\u4ed8\u3002\u5efa\u8b70\u96a8\u8eab\u6e96\u5099\u5145\u8db3\u7684\u7dec\u5e63\u96f6\u9322\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E4%BB%B0%E5%85%89%20", "question": "\u4ef0\u5149\u7684\u5927\u773e\u904b\u8f38\u5de5\u5177\u53ef\u4ee5\u5237\u570b\u969b\u4fe1\u7528\u5361\u55ce\uff1f"}, {"answer": "\u975e\u5e38\u65b9\u4fbf\u4e14\u666e\u53ca\u3002Grab \u662f\u4ef0\u5149\u5916\u570b\u65c5\u5ba2\u6700\u501a\u91cd\u7684\u4ea4\u901a\u5de5\u5177\uff0c\u53ef\u5373\u6642\u7ffb\u8b6f\u5730\u5740\u4e26\u986f\u793a\u56fa\u5b9a\u8eca\u8cc7\uff0c\u907f\u514d\u73fe\u5834\u8b70\u50f9\u722d\u8b70\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E4%BB%B0%E5%85%89%20", "question": "\u5728\u4ef0\u5149\u4f7f\u7528 Grab \u53eb\u8eca\u65b9\u4fbf\u55ce\uff1f"}, {"answer": "\u74b0\u72c0\u9435\u8def\u662f\u611f\u53d7\u4ef0\u5149\u5728\u5730\u5eb6\u6c11\u751f\u6d3b\u7684\u7d93\u5178\u65b9\u5f0f\u3002\u7e5e\u884c\u4e00\u5708\u7d04\u9700 3 \u5c0f\u6642\uff0c\u82e5\u6642\u9593\u6709\u9650\uff0c\u5efa\u8b70\u642d\u4e58\u5f9e\u4e2d\u592e\u8eca\u7ad9\u51fa\u767c\u7684\u524d\u534a\u6bb5\uff08\u7d04 45 \u5206\u9418\u81f3 1 \u5c0f\u6642\uff09\u9ad4\u9a57\u5373\u53ef\u3002", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3D%E4%BB%B0%E5%85%89%20", "question": "\u4ef0\u5149\u74b0\u72c0\u9435\u8def\u503c\u5f97\u642d\u4e58\u55ce\uff1f\u9700\u8981\u642d\u5b8c\u6574\u4e00\u5708\u55ce\uff1f"}], "title": "\u4ef0\u5149\u4ea4\u901a\u7968\u5238\u8207\u652f\u4ed8\u65b9\u5f0f\u7e3d\u89bd"};
+        const REGIONS = Object.keys(itineraryData);
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState(REGIONS[0] || '沖繩本島');
+            const availableCats = Object.keys(itineraryData[selectedRegion] || {});
+            const [selectedCategory, setSelectedCategory] = useState(availableCats[0] || '景點門票');
+
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen font-sans text-slate-800 flex flex-col">
+                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-slate-200">
+                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="text-blue-600 w-6 h-6 md:w-8 md:h-8" />
+                                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-400">
+                                    仰光必玩行程與票券
+                                    </h1>
+                                </div>
+                                <div className="hidden md:block">
+                                    <a href="index.html" className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm lg:text-base font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-transform active:scale-95">
+                                        <Home className="w-4 h-4" /> 回到首頁
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide items-center">
+                                <a href="index.html" className="md:hidden flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-sm shrink-0">
+                                    <Home className="w-4 h-4" /> 首頁
+                                </a>
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            const newCats = Object.keys(itineraryData[region] || {});
+                                            setSelectedCategory(newCats[0]);
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2 md:py-2.5 rounded-full text-sm md:text-base font-medium transition-all ${
+                                            selectedRegion === region ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 py-8 md:py-10 flex-grow w-full">
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
+                            {availableCats.map((catId) => {
+                                const foundCat = CATEGORIES.find(c => c.id === catId) || { icon: Ticket };
+                                const IconComp = foundCat.icon;
+                                return (
+                                    <button
+                                        key={catId}
+                                        onClick={() => setSelectedCategory(catId)}
+                                        className={`flex items-center gap-2 px-5 py-2 md:py-2.5 rounded-lg border text-sm md:text-base font-medium transition-all ${
+                                            selectedCategory === catId ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
+                                        }`}
+                                    >
+                                        <IconComp className="w-4 h-4 md:w-5 md:h-5" />
+                                        {catId}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                                {currentData.map((item, index) => (
+                                    <div key={index} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col justify-between hover:shadow-xl transition-all transform hover:-translate-y-1">
+                                        <div>
+                                            <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 leading-tight">{item.title}</h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">{item.description}</p>
+                                        </div>
+                                        <div className="mt-auto pt-5 border-t border-slate-100 flex justify-end">
+                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm w-full">
+                                                <Info className="w-4 h-4 md:w-5 md:h-5" />
+                                                <span className="md:text-lg">查看詳情與預訂</span>
+                                                <ExternalLink className="w-4 h-4 md:w-5 md:h-5 ml-1 opacity-70" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-16 text-center flex flex-col items-center justify-center">
+                                <Sparkles className="w-10 h-10 text-slate-400 mb-3" />
+                                <h3 className="text-lg md:text-xl font-medium text-slate-700">目前尚無資料</h3>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+    <footer class="text-center py-8 text-gray-400 text-sm md:text-base px-4">
+        <p>Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved. 提供最專業的亞洲自由行旅遊指南與行程規劃工具 (Asia Travel Guides & FIT Itineraries)。版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+    </footer>
+</body>
+</html>
