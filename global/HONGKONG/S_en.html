@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 HongKong Smart Itinerary Planner</title>
+    <meta name="description" content="最好用的HongKong自動行程規劃工具！透過2026HongKong自由行路線排程系統，輕鬆安排五天四夜或專屬行程表，內建詳細的交通轉乘指南，讓旅遊規劃變得簡單高效。">
+    <meta name="keywords" content="HongKong行程表, HongKong旅遊規劃, HongKong五天四夜, 2026HongKong自由行路線排程, HongKong自動行程規劃工具, HongKong交通轉乘指南">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "HongKong S Guide",
+  "description": "精選 HongKong 必訪的 S 推薦清單與詳細交通指南。",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Global Travel Pass"
+  }
+}
+</script>
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f9ff; overflow-x: hidden; }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        
+        .tab-active { border-bottom: 2px solid #0ea5e9; color: #0369a1; font-weight: bold; background-color: #f0f9ff; }
+        .tab-inactive { color: #64748b; font-weight: 500; }
+        .tab-inactive:hover { color: #0284c7; background-color: #f8fafc; }
+
+        .filter-btn-active { background-color: #0284c7; color: white; border-color: #0284c7; }
+        .filter-btn-inactive { background-color: #f8fafc; color: #475569; border-color: #e2e8f0; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Mobile Drawer Transitions */
+        .drawer-open { transform: translateX(0%); }
+        .drawer-closed { transform: translateX(100%); }
+        @media (min-width: 1024px) {
+            .drawer-closed { transform: translateX(0%); } /* Always open on desktop */
+        }
+    </style>
+</head>
+<body class="text-gray-800 flex flex-col min-h-screen">
+
+    <header class="text-white shadow-md flex-shrink-0 relative z-50" style="background-color: #dc2626;">
+        <div class="container mx-auto px-4 py-4 md:py-5 flex items-center justify-between">
+            <h1 class="text-xl md:text-2xl lg:text-3xl font-bold flex items-center gap-2">
+                <i class="fa-solid fa-calendar-check"></i> HongKong Smart Planner
+            </h1>
+            <a href="index_en.html" class="flex items-center gap-1 text-sm md:text-base font-medium bg-black/20 hover:bg-black/30 px-4 py-2 rounded-lg transition-colors shadow-sm">
+                <i class="fa-solid fa-house"></i> Home
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 md:py-8 flex-grow flex flex-col lg:flex-row gap-6 lg:gap-8 max-w-7xl relative">
+        
+        <!-- Left Panel: Inspiration Pool -->
+        <div class="w-full lg:w-2/3 flex flex-col h-full bg-white rounded-2xl shadow-sm border border-sky-100 overflow-hidden">
+            <div class="flex border-b border-slate-100 shrink-0">
+                <button onclick="switchTab('schedule')" id="tab-schedule" class="flex-1 py-3.5 md:py-4 tab-active transition-colors flex justify-center items-center gap-2 text-sm md:text-base">
+                    <i class="fa-solid fa-map-location-dot"></i> City Inspiration
+                </button>
+                <button onclick="switchTab('intercity')" id="tab-intercity" class="flex-1 py-3.5 md:py-4 tab-inactive transition-colors flex justify-center items-center gap-2 text-sm md:text-base border-l border-slate-50">
+                    <i class="fa-solid fa-train-tram"></i> Intercity Transport
+                </button>
+            </div>
+
+            <div id="filter-wrapper" class="relative bg-slate-50/80 border-b border-slate-100 shrink-0 group">
+                <button onclick="scrollFilters(-1)" class="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-slate-100 via-slate-50 to-transparent z-10 text-slate-400 hover:text-sky-600 hidden md:flex items-center justify-start pl-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i class="fa-solid fa-circle-chevron-left text-xl bg-white rounded-full shadow-sm"></i>
+                </button>
+                
+                <div id="filter-bar" class="px-4 md:px-6 py-3 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth relative z-0">
+                    <button onclick="filterCategory('All')" id="cat-All" class="filter-btn-active text-xs md:text-sm px-4 py-2 rounded-full border font-bold whitespace-nowrap transition-colors shadow-sm">All</button>
+                    <button onclick="filterCategory('🏛️ Attractions')" id="cat-🏛️ Attractions" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🏛️ Attractions</button>
+                    <button onclick="filterCategory('🛍️ Shopping')" id="cat-🛍️ Shopping" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🛍️ Shopping</button>
+                    <button onclick="filterCategory('🍜 Dining')" id="cat-🍜 Dining" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🍜 Dining</button>
+                    
+                    <button onclick="filterCategory('📸 Instagrammable Spots (Including Hidden Gems)')" id="cat-📸 Instagrammable Spots (Including Hidden Gems)" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">📸 Instagrammable Spots (Including Hidden Gems)</button>
+                    
+                    <button onclick="filterCategory('🛍️ Shopping Spree & 📸 Instagrammable Spots (Including Hidden Gems)')" id="cat-🛍️ Shopping Spree & 📸 Instagrammable Spots (Including Hidden Gems)" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🛍️ Shopping Spree & 📸 Instagrammable Spots (Including Hidden Gems)</button>
+                    
+                    <button onclick="filterCategory('🛍️ Shopping Spree & 🏛️ History & Culture (Museums/Temples/Unique Parks)')" id="cat-🛍️ Shopping Spree & 🏛️ History & Culture (Museums/Temples/Unique Parks)" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🛍️ Shopping Spree & 🏛️ History & Culture (Museums/Temples/Unique Parks)</button>
+                    
+                    <button onclick="filterCategory('🏛️ History & Culture (Museums/Temples/Unique Parks)')" id="cat-🏛️ History & Culture (Museums/Temples/Unique Parks)" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🏛️ History & Culture (Museums/Temples/Unique Parks)</button>
+                    
+                    <button onclick="filterCategory('🏛️ History & Culture (Museums/Temples/Unique Parks) & 📸 Instagrammable Spots (Including Hidden Gems)')" id="cat-🏛️ History & Culture (Museums/Temples/Unique Parks) & 📸 Instagrammable Spots (Including Hidden Gems)" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🏛️ History & Culture (Museums/Temples/Unique Parks) & 📸 Instagrammable Spots (Including Hidden Gems)</button>
+                    
+                    <button onclick="filterCategory('🏮 Morning Markets & Street Markets & Night Markets & 🛍️ Shopping Spree')" id="cat-🏮 Morning Markets & Street Markets & Night Markets & 🛍️ Shopping Spree" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🏮 Morning Markets & Street Markets & Night Markets & 🛍️ Shopping Spree</button>
+                    
+                    <button onclick="filterCategory('🏮 Morning Markets & Street Markets & Night Markets')" id="cat-🏮 Morning Markets & Street Markets & Night Markets" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🏮 Morning Markets & Street Markets & Night Markets</button>
+                    
+                    <button onclick="filterCategory('🏛️ History & Culture (Museums/Temples/Unique Parks) & 🛍️ Shopping Spree')" id="cat-🏛️ History & Culture (Museums/Temples/Unique Parks) & 🛍️ Shopping Spree" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🏛️ History & Culture (Museums/Temples/Unique Parks) & 🛍️ Shopping Spree</button>
+                    
+                    <button onclick="filterCategory('🏮 Morning Markets & Street Markets & Night Markets & 📸 Instagrammable Spots (Including Hidden Gems)')" id="cat-🏮 Morning Markets & Street Markets & Night Markets & 📸 Instagrammable Spots (Including Hidden Gems)" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🏮 Morning Markets & Street Markets & Night Markets & 📸 Instagrammable Spots (Including Hidden Gems)</button>
+                    
+                    <button onclick="filterCategory('🛍️ Shopping Spree')" id="cat-🛍️ Shopping Spree" class="filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm">🛍️ Shopping Spree</button>
+                    
+                </div>
+
+                <button onclick="scrollFilters(1)" class="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-slate-100 via-slate-50 to-transparent z-10 text-slate-400 hover:text-sky-600 hidden md:flex items-center justify-end pr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i class="fa-solid fa-circle-chevron-right text-xl bg-white rounded-full shadow-sm"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 md:p-6 overflow-y-auto flex-grow space-y-4 md:space-y-5 bg-slate-50/50 pb-24" id="pool-container"></div>
+        </div>
+
+        <!-- Mobile Overlay -->
+        <div id="mobile-overlay" onclick="toggleMobileCart()" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity"></div>
+
+        <!-- Right Panel / Mobile Drawer: My Itinerary -->
+        <div id="cart-drawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[400px] lg:w-1/3 lg:relative lg:block lg:z-auto bg-white shadow-2xl lg:shadow-sm border-l lg:border border-sky-100 flex flex-col h-full drawer-closed transition-transform duration-300 lg:rounded-2xl lg:overflow-hidden">
+            
+            <div class="p-4 md:p-6 border-b border-sky-100 bg-sky-50 shrink-0 pt-8 lg:pt-4 relative">
+                <!-- Mobile Close Button -->
+                <button onclick="toggleMobileCart()" class="lg:hidden absolute top-3 right-4 text-slate-400 hover:text-slate-700 text-2xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg md:text-xl font-bold text-sky-800 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-sky-500"></i> My Itinerary
+                    </h2>
+                    <span id="trip-count" class="bg-white border border-sky-200 text-sky-700 text-xs md:text-sm font-bold px-3 py-1 rounded-md shadow-sm">0 Items</span>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <button onclick="shareToLine()" class="bg-[#06C755] hover:opacity-90 text-white text-xs md:text-sm font-bold py-2 px-1 rounded-xl shadow-sm flex items-center justify-center gap-1 transition-opacity">
+                        <i class="fa-brands fa-line"></i> LINE
+                    </button>
+                    <button onclick="exportPdf()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs md:text-sm font-bold py-2 px-1 rounded-xl shadow-sm flex items-center justify-center gap-1 transition-colors">
+                        <i class="fa-solid fa-download"></i> PDF
+                    </button>
+                    <button onclick="printPdf()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-bold py-2 px-1 rounded-xl shadow-sm flex items-center justify-center gap-1 transition-colors">
+                        <i class="fa-solid fa-print"></i> Print
+                    </button>
+                </div>
+                
+                <div class="flex flex-col gap-3">
+                    <div class="flex gap-2 items-center">
+                        <select id="day-selector" onchange="changeDay(this.value)" class="flex-grow bg-white border border-sky-200 text-sky-800 text-sm md:text-base rounded-xl px-4 py-3 font-bold outline-none focus:ring-2 focus:ring-sky-500 shadow-sm cursor-pointer">
+                            <option value="1">Day 1</option>
+                        </select>
+                        <button onclick="addDay()" class="shrink-0 bg-sky-600 text-white text-sm md:text-base px-4 py-3 rounded-xl font-bold hover:bg-sky-700 transition-colors shadow-sm flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add Day
+                        </button>
+                    </div>
+                    <!-- Smart Sorting Button -->
+                    <button onclick="autoSortDay(currentDay)" class="w-full bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-sm font-bold py-2 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles text-indigo-500"></i> AI Smart Route Sorting
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 md:p-6 overflow-y-auto flex-grow bg-white pb-24 lg:pb-6" id="cart-container">
+                <div id="empty-state" class="h-full flex flex-col items-center justify-center text-slate-300 space-y-3">
+                    <i class="fa-regular fa-calendar-plus text-5xl md:text-6xl mb-2"></i>
+                    <p class="text-sm md:text-base text-center text-slate-400 font-medium leading-relaxed">No activities planned yet.<br>Click "Add" from the left panel.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Floating Action Button (FAB) -->
+        <button onclick="toggleMobileCart()" id="fab-cart" class="lg:hidden fixed bottom-6 right-6 bg-sky-600 hover:bg-sky-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center gap-2 z-40 text-base font-bold border-[3px] border-white transition-transform hover:scale-105">
+            <i class="fa-solid fa-clipboard-list text-xl"></i>
+            <span>View Trip</span>
+            <span id="fab-count" class="bg-rose-500 text-white text-xs px-2 py-0.5 rounded-full ml-1 font-black">0</span>
+        </button>
+
+    </main>
+
+    <script>
+        const schedulePool = [{"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.8 stars | The ultimate spot to gaze upon Victoria Harbour, offering captivating views both day and night. For an unforgettable experience, ascend in the late afternoon to witness the transition from daylight to a stunning sunset, and finally, the dazzling city lights. Sky Terrace 428 at The Peak Tower boasts unparalleled panoramic vistas, or take a leisurely stroll along Lugard Road to discover various scenic viewpoints.", "duration": "2-3 hours", "title": "Victoria Peak (The Peak Tower \u0026 Lugard Road)", "transport": "Take the MTR to Central Station, Exit K. Follow signs and walk about 10 minutes to The Peak Tram Terminus, then take The Peak Tram up the mountain. The tram ride is approximately 8 minutes."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.5 stars | The world\u0027s longest outdoor covered escalator system, offering a unique perspective of Central\u0027s vibrant streets as you ascend. SOHO (South of Hollywood Road), nestled along both sides of the escalator, is a melting pot of international restaurants, trendy bars, and chic boutiques. Its exotic ambiance makes it a perfect destination for culinary delights and vibrant nightlife.", "duration": "2-3 hours", "title": "Central Mid-Levels Escalator \u0026 SOHO", "transport": "Take the MTR to Central Station, Exit D2. Walk along Queen\u0027s Road Central for about 10 minutes to reach the escalator entrance. The entire escalator journey takes approximately 20 minutes."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.3 stars | Once the Police Married Quarters, this historic site has been revitalized into a vibrant hub for creative design. It\u0027s home to a collection of local designer boutiques, art galleries, and cozy cafes, making it the perfect place to discover unique handcrafted items and cultural products. The distinctive architecture itself is also highly photogenic.", "duration": "1.5-2 hours", "title": "PMQ (Former Police Married Quarters)", "transport": "Take the MTR to Central Station, Exit D2. Walk along Queen\u0027s Road Central for about 10-15 minutes, or take the Mid-Levels Escalator to the Staunton Street exit and walk about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.2 stars | One of Hong Kong\u0027s oldest temples, dedicated to the Gods of Literature (Man) and War (Mo). The temple is always bustling with worshippers, and giant incense coils hang from the ceiling, creating a solemn and mystical atmosphere. It\u0027s an excellent place to experience Hong Kong\u0027s traditional religious culture.", "duration": "0.5-1 hour", "title": "Man Mo Temple", "transport": "Take the MTR to Sheung Wan Station, Exit A2. Walk along Hillier Street for about 10 minutes. Alternatively, it\u0027s about a 5-minute walk from PMQ."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.4 stars | ARTLANE in Sai Ying Pun is a vibrant district where numerous alleys are adorned with colorful murals, celebrating Hong Kong\u0027s local culture and unique characteristics. It has emerged as a popular Instagram hotspot in recent years, perfect for street art enthusiasts and photography lovers.", "duration": "1-1.5 hours", "title": "Sai Ying Pun Mural Street (ARTLANE)", "transport": "Take the MTR to Sai Ying Pun Station, Exit B3. The murals are right outside the exit."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.3 stars | Officially known as the Western District Public Cargo Working Area, this spot has earned its \u0027Instagram Pier\u0027 moniker thanks to its unique cargo dock scenery and breathtaking sunsets, making it a favorite photography location. Capture industrial-chic shots with shipping containers, pallets, the vast sea, and the distant Tsing Ma Bridge as your backdrop.", "duration": "1-1.5 hours", "title": "Western District Public Cargo Working Area (Instagram Pier)", "transport": "Take the MTR to HKU Station, Exit B2, and walk for about 10-15 minutes. Alternatively, it\u0027s about a 15-minute walk from Sai Ying Pun Mural Street."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.7 stars | One of the finest locations to admire the stunning Victoria Harbour skyline. The Avenue of Stars features handprints and sculptures of Hong Kong\u0027s cinematic legends, and don\u0027t miss the spectacular \u0027A Symphony of Lights\u0027 show every night at 8 PM. Stroll along the promenade and soak in the vibrant energy and romantic charm of Hong Kong.", "duration": "1.5-2.5 hours", "title": "Tsim Sha Tsui Promenade \u0026 Avenue of Stars", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit E, and walk for about 5 minutes. Alternatively, take the Star Ferry to Tsim Sha Tsui Pier."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.6 stars | Voted one of the \u002750 Places of a Lifetime\u0027 by National Geographic Traveler, the Star Ferry offers an iconic and incredibly affordable way to cross Victoria Harbour. It\u0027s the perfect opportunity to experience authentic Hong Kong transportation while enjoying breathtaking views of the city\u0027s skyline. For the best vantage point, choose an upper deck seat.", "duration": "0.5 hour (including travel time)", "title": "Star Ferry (Tsim Sha Tsui - Central/Wan Chai)", "transport": "Board at Tsim Sha Tsui Pier or Central Piers 7/8. The ferry ride takes approximately 8-10 minutes."}, {"category": "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets \u0026 \ud83d\udecd\ufe0f Shopping Spree", "description": "\u2b50 3.8 stars | A bustling open-air market brimming with local flavor, offering a wide array of clothing, accessories, souvenirs, electronics, and more. Prices are generally affordable, but quality can vary, so be sure to browse carefully and haggle for the best deals. It\u0027s a fantastic place to immerse yourself in Hong Kong\u0027s vibrant street culture.", "duration": "1.5-2 hours", "title": "Mong Kok Ladies\u0027 Market (Tung Choi Street)", "transport": "Take the MTR to Mong Kok Station, Exit E2, and walk for about 3 minutes."}, {"category": "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets", "description": "\u2b50 4.0 stars | A truly unique Goldfish Market where shops along the entire street are adorned with plastic bags filled with ornamental fish of countless varieties. Beyond goldfish, you\u0027ll also find a wide selection of aquarium supplies and pets. It\u0027s a visually captivating place, perfect for visitors who enjoy discovering novelties.", "duration": "0.5-1 hour", "title": "Goldfish Market (Northern Tung Choi Street)", "transport": "Take the MTR to Prince Edward Station, Exit B2, and walk for about 5 minutes. Alternatively, walk north from Ladies\u0027 Market for about 10 minutes."}, {"category": "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets", "description": "\u2b50 3.9 stars | A night market steeped in nostalgic Hong Kong charm, featuring a variety of street food stalls, fortune tellers, and bargain goods. Savor delicious dai pai dong (open-air food stall) dishes like claypot rice and seafood, and soak in the lively atmosphere of old Hong Kong. It only opens in the evening, becoming more vibrant as the night progresses.", "duration": "1.5-2 hours", "title": "Temple Street Night Market", "transport": "Take the MTR to Yau Ma Tei Station, Exit C, and walk for about 5 minutes. Alternatively, take Jordan Station, Exit A, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.6 stars | Free admission! This museum vividly showcases Hong Kong\u0027s historical evolution from prehistoric times to the Handover through rich exhibits and interactive multimedia. It\u0027s an excellent place to understand Hong Kong\u0027s culture and history, with the \u0027Hong Kong Story\u0027 permanent exhibition being highly recommended.", "duration": "2-3 hours", "title": "Hong Kong Museum of History", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit B2, and walk for about 10 minutes. Alternatively, take Hung Hom Station, Exit D1, and walk for about 10 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.5 stars | Featuring over 500 exhibits, 70% of which are hands-on, this museum is perfect for families. Learn scientific knowledge through interactive experiences, making education fun and engaging. It\u0027s adjacent to the Museum of History, so you can plan to visit both.", "duration": "2-3 hours", "title": "Hong Kong Science Museum", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit B2, and walk for about 10 minutes. Alternatively, take Hung Hom Station, Exit D1, and walk for about 10 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.2 stars | One of Hong Kong\u0027s largest parks, equipped with excellent facilities including tennis courts, swimming pools, and a central lawn. It\u0027s a popular spot for locals to relax and exercise, and also hosts many major events such as the Lunar New Year Fair and the June 4th candlelight vigil. Experience the daily life of Hong Kong citizens here.", "duration": "1-1.5 hours", "title": "Victoria Park", "transport": "Take the MTR to Tin Hau Station, Exit A2, and walk for about 2 minutes. Alternatively, take Causeway Bay Station, Exit E, and walk for about 5 minutes."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 3.9 stars | A square commemorating Hong Kong\u0027s return to China, featuring a golden bauhinia flower sculpture. It\u0027s a must-visit for many tour groups and offers another perspective of Victoria Harbour. The Convention and Exhibition Centre\u0027s unique architecture is also great for photos.", "duration": "0.5-1 hour", "title": "Golden Bauhinia Square \u0026 Convention and Exhibition Centre", "transport": "Take the MTR to Wan Chai Station, Exit A5. Walk along the footbridge for about 10-15 minutes. Alternatively, take the Star Ferry to Wan Chai Pier and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.3 stars | One of the few remaining tong lau (tenement buildings) with balconies in Hong Kong, famous for its distinctive blue exterior. It has been revitalized under the \u0027Revitalising Historic Buildings Through Partnership Scheme,\u0027 retaining some residents and featuring a docent center and community cultural heritage center. Experience the historical charm of Hong Kong\u0027s old districts.", "duration": "0.5-1 hour", "title": "Blue House Cluster (Wan Chai)", "transport": "Take the MTR to Wan Chai Station, Exit A3, and walk for about 7-10 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.1 stars | One of Hong Kong\u0027s oldest parks, with free admission. The gardens are home to various birds, mammals, and reptiles, as well as a rich diversity of plant species. It\u0027s a tranquil oasis in the city, perfect for a leisurely stroll and connecting with nature.", "duration": "1-1.5 hours", "title": "Hong Kong Zoological and Botanical Gardens", "transport": "Take the MTR to Central Station, Exit D1, and walk uphill for about 15-20 minutes. Alternatively, take bus routes 12A, 12M, 13, etc., and alight at Caine Road Station."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.4 stars | A large, modern park nestled in the heart of bustling Central, featuring a conservatory, aviary, and Flagstaff House Museum of Tea Ware. Its beautiful design offers a serene escape in the busy city. The aviary allows close-up views of various tropical birds.", "duration": "1-1.5 hours", "title": "Hong Kong Park", "transport": "Take the MTR to Admiralty Station, Exit C1, and walk for about 5 minutes. Alternatively, take Central Station, Exit J2, and walk for about 10 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.7 stars | A tranquil oasis in the city, built in the style of a Tang Dynasty garden, with clear ponds and exquisite pavilions. It connects to the adjacent Chi Lin Nunnery (a complex of Tang Dynasty-style wooden architecture), offering a wonderful opportunity to experience classical Chinese gardens and Buddhist culture, as well as a stunning backdrop for photos.", "duration": "1.5-2 hours", "title": "Nan Lian Garden \u0026 Chi Lin Nunnery", "transport": "Take the MTR to Diamond Hill Station, Exit C2, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.5 stars | One of Hong Kong\u0027s most famous temples, known for its bustling incense and reputation for granting wishes. The architecture blends Confucian, Buddhist, and Taoist elements with vibrant colors. Many devotees come here to seek guidance through fortune-telling, experiencing Hong Kong\u0027s unique folk beliefs.", "duration": "1-1.5 hours", "title": "Wong Tai Sin Temple", "transport": "Take the MTR to Wong Tai Sin Station, Exit B2. The temple is right outside the exit."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.2 stars | Famous for its rainbow-colored facades, this is one of Hong Kong\u0027s most popular public housing estates. The basketball court is the best photo spot, offering a vibrant backdrop of colorful buildings. It\u0027s a great place to experience Hong Kong\u0027s distinctive architecture and local living.", "duration": "0.5-1 hour", "title": "Choi Hung Estate", "transport": "Take the MTR to Choi Hung Station, Exit C4, and walk for about 1 minute."}, {"category": "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets \u0026 \ud83d\udecd\ufe0f Shopping Spree", "description": "\u2b50 4.0 stars | An old district brimming with authentic Hong Kong flavor. Apliu Street is a paradise for electronics and second-hand goods, while Fuk Wa Street offers a variety of fabrics, craft materials, and toys. It\u0027s also an excellent place to savor affordable local snacks like pork liver noodles and tofu pudding.", "duration": "2-3 hours", "title": "Sham Shui Po (Apliu Street \u0026 Fuk Wa Street)", "transport": "Take the MTR to Sham Shui Po Station, Exit C2. The markets are right outside the exit."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udecd\ufe0f Shopping Spree", "description": "\u2b50 4.1 stars | Revitalized from an old factory building, JCCAC houses numerous artist studios, galleries, and unique shops. It regularly hosts art exhibitions and markets. It\u0027s a wonderful place to discover local artworks, creative products, and immerse yourself in an artistic atmosphere.", "duration": "1-1.5 hours", "title": "Jockey Club Creative Arts Centre (JCCAC)", "transport": "Take the MTR to Shek Kip Mei Station, Exit C, and walk for about 5-8 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.0 stars | Located next to Temple Street, this is the spiritual heart of the Yau Ma Tei community. Though not large, the temple is historically significant, serving as the guardian deity for fishermen and boat people. Experience traditional Hong Kong temple culture; it can be easily combined with a visit to Temple Street Night Market.", "duration": "0.5-1 hour", "title": "Yau Ma Tei Tin Hau Temple", "transport": "Take the MTR to Yau Ma Tei Station, Exit C, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.3 stars | Hong Kong\u0027s oldest university, its campus features many colonial-era buildings like the Main Building and Hung Hing Ying Building, exuding a classical charm. It\u0027s a great place for photography and soaking in an academic atmosphere. The campus is built on a hill, so be mindful of the slopes.", "duration": "1-1.5 hours", "title": "The University of Hong Kong", "transport": "Take the MTR to HKU Station, Exit A2. The campus is right outside the exit."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udecd\ufe0f Shopping Spree", "description": "\u2b50 3.9 stars | Revitalized from old tong lau buildings, this center is dedicated to promoting Hong Kong\u0027s comic culture. It regularly hosts exhibitions, workshops, and talks, and also features comic-related shops. Travelers interested in comics can come here to discover treasures.", "duration": "0.5-1 hour", "title": "Comix Home Base (Wan Chai)", "transport": "Take the MTR to Wan Chai Station, Exit A3, and walk for about 7-10 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.7 stars | Formerly the Central Police Station compound, including the former Central Police Station, Central Magistracy, and Victoria Prison. It has been revitalized into a comprehensive space integrating history, art, and culture. The well-preserved architectural complex is full of historical significance, with regular art exhibitions and performances, making it a must-visit in Central.", "duration": "2-3 hours", "title": "Tai Kwun (Centre for Heritage and Arts)", "transport": "Take the MTR to Central Station, Exit D1, and walk for about 10 minutes. Alternatively, take the Mid-Levels Escalator to the Hollywood Road exit and walk for about 5 minutes."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.2 stars | Hollywood Road is one of Hong Kong\u0027s oldest streets, lined with numerous antique shops, art galleries, and unique boutiques. Upper Lascar Row (Sheung Wan), also known as Cat Street, specializes in antiques, curios, and souvenirs, making it a great place for treasure hunting. Immerse yourself in Hong Kong\u0027s history and cultural ambiance.", "duration": "1.5-2 hours", "title": "Hollywood Road \u0026 Upper Lascar Row (Antique Street)", "transport": "Take the MTR to Central Station, Exit D2, and walk for about 10 minutes. Alternatively, it\u0027s about a 5-minute walk from Tai Kwun."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.0 stars | Located along the Wan Chai waterfront, this outdoor attraction features sculptures of various original Hong Kong comic characters, such as Old Master Q and Cloud. It\u0027s a free outdoor spot, perfect for photos and experiencing Hong Kong\u0027s comic culture.", "duration": "0.5-1 hour", "title": "Hong Kong Avenue of Comic Stars", "transport": "Take the MTR to Wan Chai Station, Exit A5. Walk along the footbridge for about 10-15 minutes to Golden Bauhinia Square."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.4 stars | Hong Kong\u0027s first public art museum, housing a rich collection of Chinese paintings and calligraphy, antiquities, Hong Kong art, and international artworks. It regularly hosts exhibitions on various themes, making it a great destination for art lovers. Located by Victoria Harbour, it offers beautiful views.", "duration": "1.5-2 hours", "title": "Hong Kong Museum of Art", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit E, and walk for about 5 minutes. Alternatively, it\u0027s next to the Star Ferry Tsim Sha Tsui Pier."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.3 stars | Its distinctive egg-shaped dome is its iconic landmark. The museum features a Space Theatre and exhibition halls, introducing astronomy and space science. The dome screen films in the Space Theatre are truly immersive, suitable for families and visitors curious about the universe.", "duration": "1.5-2 hours", "title": "Hong Kong Space Museum", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit E, and walk for about 5 minutes. Alternatively, it\u0027s next to the Star Ferry Tsim Sha Tsui Pier."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.5 stars | Formerly the Marine Police Headquarters, this historic architectural complex has been revitalized into a destination for shopping, dining, and hospitality. Its elegant Victorian-era architecture provides a stunning backdrop for photos. Inside, you\u0027ll find boutiques and upscale restaurants, offering a taste of colonial-era luxury.", "duration": "1-1.5 hours", "title": "1881 Heritage", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit E, and walk for about 3 minutes."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.6 stars | A \u0027cultural retail\u0027 landmark that seamlessly blends art, culture, retail, and dining. Its unique architectural design features numerous art installations and green spaces. It\u0027s a fantastic place for shopping, dining, and appreciating art, as well as a popular Instagram hotspot.", "duration": "2-3 hours", "title": "K11 Musea", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit E, and walk for about 5 minutes. Alternatively, take East Tsim Sha Tsui Station, Exit J2, and walk for about 1 minute."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.1 stars | Hong Kong\u0027s only surviving pre-war cinema building, now revitalized as a venue for promoting Cantonese opera. Its unique architectural style exudes a nostalgic charm. Visitors can enjoy Cantonese opera performances or simply admire the building itself, experiencing Hong Kong\u0027s traditional art culture.", "duration": "0.5-1 hour", "title": "Yau Ma Tei Theatre (Former Yau Ma Tei Cinema)", "transport": "Take the MTR to Yau Ma Tei Station, Exit A2, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.2 stars | A typical tong lau building, famous for its distinctive verandah design and green exterior. It has been revitalized into a teaching and research center for Chinese medicine by Hong Kong Baptist University. It\u0027s a great spot for photography and experiencing Hong Kong\u0027s old architectural style.", "duration": "0.5-1 hour", "title": "Lui Seng Chun", "transport": "Take the MTR to Prince Edward Station, Exit C2, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.3 stars | Hong Kong\u0027s only surviving H-shaped resettlement block, now revitalized as a youth hostel and museum. The museum showcases the history of public housing development in Hong Kong and the daily lives of early residents. It\u0027s an excellent place to understand Hong Kong\u0027s social changes and local culture.", "duration": "1-1.5 hours", "title": "Mei Ho House Museum", "transport": "Take the MTR to Sham Shui Po Station, Exit B2, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.6 stars | Known as the \u0027Venice of Hong Kong,\u0027 Tai O is one of Hong Kong\u0027s oldest surviving fishing villages. It\u0027s famous for its unique stilt houses and traditional fishing community lifestyle. Take a boat trip to spot Chinese white dolphins, and savor local seafood and shrimp paste. Experience the rustic charm of a traditional fishing village.", "duration": "3-4 hours (including travel)", "title": "Tai O Fishing Village", "transport": "Take the MTR to Tung Chung Station, then transfer to bus route 11 to Tai O (approx. 50 minutes). Alternatively, take bus route 21 from Ngong Ping 360 Cable Car Terminal (approx. 20 minutes)."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.7 stars | Ride the cable car for breathtaking views of Lantau Island. Upon arrival at Ngong Ping Village, visit the majestic Tian Tan Buddha (the world\u0027s tallest outdoor bronze seated Buddha) and the serene Po Lin Monastery. Immerse yourself in the solemnity and tranquility of Buddhist culture while admiring the magnificent natural scenery.", "duration": "3-4 hours (excluding travel)", "title": "Ngong Ping 360 \u0026 Tian Tan Buddha \u0026 Po Lin Monastery", "transport": "Take the MTR to Tung Chung Station, Exit B, and walk for about 5 minutes to the Ngong Ping 360 Cable Car Terminal. The cable car ride is approximately 25 minutes. Once at Ngong Ping Village, all attractions are within walking distance."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.8 stars | Asia\u0027s second Disneyland, featuring seven themed lands. Suitable for visitors of all ages, offering thrilling rides, spectacular shows, vibrant parades, and opportunities to interact with Disney characters. It\u0027s recommended to purchase tickets in advance and download the app to check queue times.", "duration": "6-8 hours", "title": "Hong Kong Disneyland", "transport": "Take the MTR to Sunny Bay Station, then transfer to the Disneyland Resort Line (approx. 30 minutes travel time)."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.7 stars | A theme park combining marine animals, thrilling rides, and large-scale performances. Divided into Waterfront and Summit areas, connected by a cable car or Ocean Express funicular. Perfect for families, offering dolphin shows, pandas, jellyfish, and exhilarating roller coasters.", "duration": "6-8 hours", "title": "Ocean Park Hong Kong", "transport": "Take the MTR South Island Line to Ocean Park Station, Exit B. The park is right outside the exit."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.7 stars | Hong Kong\u0027s newest cultural and artistic landmark. M+ Museum is Asia\u0027s first global museum of contemporary visual culture, with a rich collection. The Hong Kong Palace Museum showcases precious artifacts from the Palace Museum. Both museums feature unique architectural designs, and the waterfront promenade offers stunning views of Victoria Harbour, making it a must-visit for art enthusiasts.", "duration": "3-4 hours", "title": "West Kowloon Cultural District (M+ Museum \u0026 Hong Kong Palace Museum)", "transport": "Take the MTR to Kowloon Station, Exit E4/E5, and walk for about 10-15 minutes. Alternatively, take bus routes 296D, 296C, etc., to West Kowloon Cultural District Station."}, {"category": "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.0 stars | Wan Chai Market is a great place to experience authentic Hong Kong life, where you can buy fresh fruits, vegetables, and seafood. Next to it, Woo Cheong Pawn Shop is one of Hong Kong\u0027s oldest surviving pawn shops, famous for its distinctive corner tong lau architecture and green exterior, making it a popular photo spot.", "duration": "0.5-1 hour", "title": "Wan Chai Market (Woo Cheong Pawn Shop)", "transport": "Take the MTR to Wan Chai Station, Exit A3, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 3.8 stars | A unique Hong Kong folk custom, where elderly women under the Goose Neck Bridge offer \u0027villain hitting\u0027 services to ward off bad luck and evil. It\u0027s a fascinating place to experience traditional Hong Kong culture and beliefs, and an interesting cultural experience.", "duration": "0.5 hour", "title": "Villain Hitting at Ngo Keng Kiu (Goose Neck Bridge)", "transport": "Take the MTR to Causeway Bay Station, Exit A, and walk for about 5 minutes to the underside of Canal Road West Bridge."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.4 stars | The revitalized old Central Market retains the charm of its historic architecture while introducing numerous creative boutiques, restaurants, and public spaces. It\u0027s a new landmark in Central, perfect for shopping, dining, and experiencing a blend of old and new.", "duration": "1-1.5 hours", "title": "Central Market", "transport": "Take the MTR to Central Station, Exit C, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.2 stars | Located within Hong Kong Park, this museum was formerly the residence of the Commander of the British Forces in Hong Kong. It houses a rich collection of Chinese tea ware and regularly hosts tea art exhibitions. It\u0027s an excellent place to learn about Chinese tea culture and appreciate classical architecture.", "duration": "0.5-1 hour", "title": "Flagstaff House Museum of Tea Ware (Hong Kong Park)", "transport": "Take the MTR to Admiralty Station, Exit C1, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.1 stars | Located at Central Pier 8, this museum showcases Hong Kong\u0027s maritime history and culture from ancient times to the present. Through interactive exhibits and models, learn about Hong Kong\u0027s important role as an international port. You can also enjoy views of Victoria Harbour simultaneously.", "duration": "1-1.5 hours", "title": "Hong Kong Maritime Museum", "transport": "Take the MTR to Central Station, Exit A, and walk for about 10 minutes to Central Pier 8."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.3 stars | Located on the other side of Victoria Peak, this was formerly the rear garden of the Governor\u0027s Mountain Lodge. It features expansive lawns, Victorian-style pavilions, and gardens, offering a serene environment perfect for picnics and enjoying different scenic views. It\u0027s generally less crowded than other Peak attractions.", "duration": "1-1.5 hours", "title": "The Peak Garden", "transport": "Walk about 15-20 minutes from The Peak Tower at Victoria Peak, or take Minibus route 1."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.5 stars | Located in Tai Po, this is a farm and botanic garden dedicated to conservation, education, and agriculture. The expansive grounds feature various animals and plants, waterfalls, and observation decks. Guided tours are available, making it a great place to connect with nature and learn about ecology.", "duration": "3-4 hours (including travel)", "title": "Kadoorie Farm and Botanic Garden", "transport": "Take the MTR to Tai Wo Station, Exit A, then transfer to bus route 64K and alight at Kadoorie Farm Station (approx. 20 minutes)."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.4 stars | Located in Tin Shui Wai, this is a world-class eco-tourism facility. The park features a visitor center, wetland interactive area, and outdoor wetland reserve, where you can observe various migratory birds, fish, and amphibians. It\u0027s an excellent place to learn about wetland ecology and connect with nature.", "duration": "2-3 hours (including travel)", "title": "Hong Kong Wetland Park", "transport": "Take the MTR to Tin Shui Wai Station, Exit E, then transfer to Light Rail routes 705 or 706 to Wetland Park Station (approx. 5 minutes)."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.5 stars | Experience Hong Kong\u0027s unique horse racing culture. Visit on a race day to soak in the enthusiastic atmosphere and watch thrilling races. Even if you don\u0027t bet, you\u0027ll feel the passion Hong Kong people have for horse racing. Be sure to check the race day schedule.", "duration": "3-4 hours", "title": "Sha Tin Racecourse (Race Day)", "transport": "Take the MTR East Rail Line to Racecourse Station. Special services are available directly to the racecourse on race days."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.3 stars | One of Hong Kong\u0027s famous temples, dedicated to Che Kung. It\u0027s known for its giant wind wheel, which worshippers spin to bring good fortune. The temple is especially bustling during Lunar New Year, making it a great place to experience traditional Hong Kong beliefs and pray for blessings.", "duration": "0.5-1 hour", "title": "Che Kung Temple (Sha Tin)", "transport": "Take the MTR Tuen Ma Line to Che Kung Temple Station, Exit B. The temple is right outside the exit."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.5 stars | Located on a hill in Sha Tin, the monastery houses nearly ten thousand golden Buddha statues, each with a unique pose, creating a truly spectacular sight. As you ascend the mountain path, you\u0027ll encounter numerous Buddha statues along the way. It\u0027s a visually striking and spiritually rich place, also a unique spot for photography.", "duration": "1.5-2 hours", "title": "Ten Thousand Buddhas Monastery (Sha Tin)", "transport": "Take the MTR East Rail Line to Sha Tin Station, Exit B. Walk about 10 minutes to the Pai Tau Village entrance, then follow signs uphill."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.4 stars | Located in Sha Tin, this is one of Hong Kong\u0027s largest comprehensive museums. It features 12 exhibition galleries covering Hong Kong\u0027s history, art, culture, and folklore. The \u0027Cantonese Opera Heritage Hall\u0027 and \u0027Jin Yong Gallery\u0027 are particularly recommended.", "duration": "2-3 hours", "title": "Hong Kong Heritage Museum (Sha Tin)", "transport": "Take the MTR Tuen Ma Line to Che Kung Temple Station, Exit A, and walk for about 5 minutes. Alternatively, take Sha Tin Station, Exit A, and walk for about 15 minutes."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.6 stars | Hong Kong\u0027s highest peak, offering panoramic views of the entire city on a clear day. In winter, there\u0027s a chance to see frost or even ice. It\u0027s an excellent place for hiking and enjoying natural scenery, and a paradise for photographers. Be mindful of weather changes and bring appropriate gear.", "duration": "3-5 hours (hiking)", "title": "Tai Mo Shan (Hong Kong\u0027s Highest Peak)", "transport": "Take the MTR to Tsuen Wan Station, then transfer to bus route 51 to Tai Mo Shan Country Park Station and hike uphill. Alternatively, take a taxi to the Tai Mo Shan Road gate."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.5 stars | Located in Tsuen Wan, this is a popular hiking destination in Hong Kong. The reservoir offers beautiful scenery, with notable spots like the \u0027Paperbark Tree Forest\u0027 and \u0027Monkey Kingdom.\u0027 It\u0027s perfect for walking, hiking, and connecting with nature. There are many monkeys, so please do not feed them.", "duration": "2-3 hours (hiking)", "title": "Shing Mun Reservoir", "transport": "Take the MTR to Tsuen Wan Station, then transfer to Minibus route 82 to Shing Mun Reservoir Terminus (approx. 15 minutes)."}, {"category": "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets", "description": "\u2b50 4.5 stars | Famous for its fresh seafood, with numerous seafood restaurants along the pier where you can select live seafood and have it cooked to your liking. You can also take a small boat trip to explore Sai Kung\u0027s outlying islands. It\u0027s a fantastic place to savor seafood and experience the charm of a fishing port.", "duration": "2-3 hours (including dining)", "title": "Sai Kung Seafood Street", "transport": "Take the MTR to Hang Hau Station, Exit B1, then transfer to Minibus route 101M to Sai Kung Town Centre (approx. 20 minutes). Alternatively, take Choi Hung Station, Exit C2, then transfer to Minibus route 1A to Sai Kung Town Centre (approx. 30 minutes)."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.6 stars | Located in Sai Kung, this island is famous for its unique tombolo (a natural sand bar connecting two islands). At low tide, a natural sand spit connects Sharp Island to Kiu Tau Island, allowing you to walk across. The island features beaches and a geopark, making it a great spot for snorkeling, swimming, and admiring geological wonders.", "duration": "3-4 hours (including travel)", "title": "Sharp Island (Tombolo)", "transport": "Take a kaito (ferry) from Sai Kung Pier (approx. 15-20 minutes). Be aware of tidal times, as the tombolo only appears at low tide."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.7 stars | An outlying island off Sai Kung, known for its expansive grasslands, free-roaming cattle, and rustic fishing village charm. It\u0027s an excellent place for camping, picnics, and escaping the city\u0027s hustle and bustle. The island also features attractions like Tin Hau Temple and Balanced Rock.", "duration": "4-5 hours (including travel)", "title": "Tap Mun (Grassland, Cattle, Fishing Village)", "transport": "Take the MTR to University Station, Exit B, walk to Ma Liu Shui Pier, then take a ferry to Tap Mun (approx. 1.5 hours). Alternatively, take a ferry from Sai Kung Wong Shek Pier (approx. 30 minutes)."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.6 stars | One of Hong Kong\u0027s famous outlying islands, known for its relaxed atmosphere, delicious seafood, and cycling routes. The island features attractions like Tung Wan Beach, Pak Tai Temple, and Cheung Po Tsai Cave. Rent a bicycle to explore the island, and savor local snacks and seafood meals.", "duration": "4-5 hours (including travel)", "title": "Cheung Chau (Cycling, Seafood, Cheung Po Tsai Cave)", "transport": "Take the MTR to Central Station, Exit A, walk to Central Pier 5, then take a ferry to Cheung Chau (fast ferry approx. 35-40 minutes, ordinary ferry approx. 55-60 minutes)."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.4 stars | A tranquil island that retains the charm of a traditional fishing village. There are no cars on the island, so you can explore it on foot or by bicycle. Attractions include Finger Hill (offering panoramic views of the island), Tung Wan Beach, and the Old Market. Ideal for travelers who enjoy a slow pace and experiencing rustic island life.", "duration": "3-4 hours (including travel)", "title": "Peng Chau (Island Charm, Finger Hill)", "transport": "Take the MTR to Central Station, Exit A, walk to Central Pier 6, then take a ferry to Peng Chau (fast ferry approx. 30 minutes, ordinary ferry approx. 40 minutes)."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.3 stars | Located on the eastern part of Lantau Island, featuring Silvermine Bay Beach and a cycling path. It serves as a transit point for other Lantau attractions (such as Tai O, Ngong Ping). Rent a bicycle and cycle along the coast, enjoying the sea breeze and sunshine. The island also has some restaurants and shops.", "duration": "3-4 hours (including travel)", "title": "Mui Wo (Silvermine Bay, Cycling Path)", "transport": "Take the MTR to Central Station, Exit A, walk to Central Pier 6, then take a ferry to Mui Wo (fast ferry approx. 35-40 minutes, ordinary ferry approx. 55-60 minutes)."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.7 stars | Known as \u0027Hong Kong\u0027s South Pole,\u0027 this is the southernmost island in Hong Kong. It\u0027s famous for its magnificent coastline, unique rock formations (such as Palm Rock, Monk Rock), and lighthouse. It\u0027s an excellent place for hiking and admiring sea-eroded landforms. The island also has seafood restaurants.", "duration": "4-6 hours (including travel)", "title": "Po Toi Island (Hong Kong\u0027s South Pole, Lighthouse, Unique Rocks)", "transport": "Take the MTR to Central Station, Exit A, walk to Central Pier 16, then take a ferry to Po Toi Island (approx. 1 hour). Ferry services are infrequent, so check the schedule carefully."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree", "description": "\u2b50 4.5 stars | A large-scale anime, comic, and game exhibition held annually in summer at the Hong Kong Convention and Exhibition Centre. It brings together the latest anime, games, models, toys, and features cosplay competitions and celebrity meet-and-greets. It\u0027s an annual extravaganza for anime and gaming fans.", "duration": "3-4 hours", "title": "Ani-Com \u0026 Games Hong Kong (Summer Exclusive)", "transport": "Take the MTR to Wan Chai Station, Exit A5. Walk along the footbridge for about 10-15 minutes to the Hong Kong Convention and Exhibition Centre."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree", "description": "\u2b50 4.3 stars | One of Asia\u0027s largest book fairs, held annually in summer at the Hong Kong Convention and Exhibition Centre. It gathers publishers and writers from around the world, offering a wide array of books, stationery, and cultural products. It\u0027s a grand event for book lovers, where you can find your favorite reads.", "duration": "2-3 hours", "title": "Hong Kong Book Fair (Summer Exclusive)", "transport": "Take the MTR to Wan Chai Station, Exit A5. Walk along the footbridge for about 10-15 minutes to the Hong Kong Convention and Exhibition Centre."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.5 stars | A large-scale flower exhibition held annually in spring at Victoria Park. It showcases various themed flowers and horticultural designs, bursting with vibrant colors and beauty. It\u0027s a wonderful place for photography and appreciating floral art, as well as experiencing the essence of spring.", "duration": "2-3 hours", "title": "Hong Kong Flower Show (Spring Exclusive)", "transport": "Take the MTR to Tin Hau Station, Exit A2, and walk for about 2 minutes to Victoria Park."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.8 stars | An international rugby tournament held annually in spring at Hong Kong Stadium. It\u0027s not just a sporting event but also a carnival-like party, with spectators dressing up in elaborate costumes, creating an electric atmosphere. It\u0027s a fantastic way to experience Hong Kong\u0027s international and vibrant side.", "duration": "Full day", "title": "Hong Kong Sevens (Spring Exclusive)", "transport": "Take the MTR to Causeway Bay Station, Exit F1, and walk for about 10-15 minutes to Hong Kong Stadium."}, {"category": "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets", "description": "\u2b50 4.6 stars | A large-scale food and wine festival held annually in autumn at the Central Harbourfront Event Space. It brings together fine wines and gourmet food from around the world, offering a chance to taste various specialty dishes and wines. It\u0027s a paradise for foodies, where you can experience Hong Kong\u0027s international culinary culture.", "duration": "2-3 hours", "title": "Hong Kong Wine \u0026 Dine Festival (Autumn Exclusive)", "transport": "Take the MTR to Central Station, Exit A, and walk for about 10 minutes to the Central Harbourfront Event Space."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.5 stars | An annual festive event held in winter, featuring a giant Christmas tree at Statue Square, dazzling light displays along Victoria Harbour, and fireworks. It\u0027s a wonderful place to soak in Hong Kong\u0027s Christmas and New Year atmosphere, filled with romance and holiday cheer.", "duration": "2-3 hours", "title": "Hong Kong WinterFest (Winter Exclusive)", "transport": "Main activities are at Statue Square in Central. Take the MTR to Central Station, Exit K, and walk for about 5 minutes."}, {"category": "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets", "description": "\u2b50 4.3 stars | A traditional flower market held annually in Victoria Park before Lunar New Year. It sells various festive flowers, New Year goods, and seasonal decorations, bustling with crowds and lively energy. It\u0027s a great place to experience Hong Kong\u0027s Lunar New Year atmosphere and traditional culture.", "duration": "1.5-2 hours", "title": "Hong Kong Lunar New Year Fair (Lunar New Year Exclusive)", "transport": "Take the MTR to Tin Hau Station, Exit A2, and walk for about 2 minutes to Victoria Park."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.4 stars | An international dragon boat race held annually in Victoria Harbour during summer. Teams from around the world gather to paddle fiercely across the harbor, creating a spectacular scene. It\u0027s a great opportunity to experience Hong Kong\u0027s traditional culture and sporting spirit.", "duration": "Half day", "title": "Hong Kong International Dragon Boat Races (Summer Exclusive)", "transport": "Mainly held along the Tsim Sha Tsui East Promenade. Take the MTR to Tsim Sha Tsui East Station, Exit P1, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.4 stars | Located in Tin Shui Wai, this is a world-class eco-tourism facility. The park features a visitor center, wetland interactive area, and outdoor wetland reserve, where you can observe various migratory birds, fish, and amphibians. It\u0027s an excellent place to learn about wetland ecology and connect with nature.", "duration": "2-3 hours", "title": "Hong Kong Wetland Park", "transport": "Take the MTR to Tin Shui Wai Station, Exit E, then transfer to Light Rail routes 705 or 706 to Wetland Park Station (approx. 5 minutes)."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.8 stars | A UNESCO Global Geopark, renowned for its unique hexagonal volcanic rock columns and sea-eroded landforms. Take a sightseeing boat tour to explore High Island, the East Dam of High Island Reservoir, and other areas, admiring the magnificent natural landscapes. It\u0027s a paradise for geology enthusiasts and photographers.", "duration": "4-6 hours (including travel)", "title": "Hong Kong UNESCO Global Geopark (Sai Kung)", "transport": "Take the MTR to Diamond Hill Station, Exit C2, then transfer to bus route 92 to Sai Kung Town Centre. From there, transfer to Minibus route 7 or take a kaito (ferry). Alternatively, take a sightseeing boat from Sai Kung Pier."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.6 stars | Hong Kong\u0027s highest peak, offering panoramic views of the entire city on a clear day. In winter, there\u0027s a chance to see frost or even ice. It\u0027s an excellent place for hiking and enjoying natural scenery, and a paradise for photographers. Be mindful of weather changes and bring appropriate gear.", "duration": "3-5 hours (hiking)", "title": "Tai Mo Shan Country Park", "transport": "Take the MTR to Tsuen Wan Station, then transfer to bus route 51 to Tai Mo Shan Country Park Station and hike uphill. Alternatively, take a taxi to the Tai Mo Shan Road gate."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.1 stars | One of Hong Kong\u0027s oldest parks, with free admission. The gardens are home to various birds, mammals, and reptiles, as well as a rich diversity of plant species. It\u0027s a tranquil oasis in the city, perfect for a leisurely stroll and connecting with nature.", "duration": "1-1.5 hours", "title": "Hong Kong Zoological and Botanical Gardens", "transport": "Take the MTR to Central Station, Exit D1, and walk uphill for about 15-20 minutes. Alternatively, take bus routes 12A, 12M, 13, etc., and alight at Caine Road Station."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.4 stars | A large, modern park nestled in the heart of bustling Central, featuring a conservatory, aviary, and Flagstaff House Museum of Tea Ware. Its beautiful design offers a serene escape in the busy city. The aviary allows close-up views of various tropical birds.", "duration": "1-1.5 hours", "title": "Hong Kong Park", "transport": "Take the MTR to Admiralty Station, Exit C1, and walk for about 5 minutes. Alternatively, take Central Station, Exit J2, and walk for about 10 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.7 stars | A tranquil oasis in the city, built in the style of a Tang Dynasty garden, with clear ponds and exquisite pavilions. It connects to the adjacent Chi Lin Nunnery (a complex of Tang Dynasty-style wooden architecture), offering a wonderful opportunity to experience classical Chinese gardens and Buddhist culture, as well as a stunning backdrop for photos.", "duration": "1.5-2 hours", "title": "Nan Lian Garden \u0026 Chi Lin Nunnery", "transport": "Take the MTR to Diamond Hill Station, Exit C2, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.5 stars | One of Hong Kong\u0027s most famous temples, known for its bustling incense and reputation for granting wishes. The architecture blends Confucian, Buddhist, and Taoist elements with vibrant colors. Many devotees come here to seek guidance through fortune-telling, experiencing Hong Kong\u0027s unique folk beliefs.", "duration": "1-1.5 hours", "title": "Wong Tai Sin Temple", "transport": "Take the MTR to Wong Tai Sin Station, Exit B2. The temple is right outside the exit."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.2 stars | Famous for its rainbow-colored facades, this is one of Hong Kong\u0027s most popular public housing estates. The basketball court is the best photo spot, offering a vibrant backdrop of colorful buildings. It\u0027s a great place to experience Hong Kong\u0027s distinctive architecture and local living.", "duration": "0.5-1 hour", "title": "Choi Hung Estate", "transport": "Take the MTR to Choi Hung Station, Exit C4, and walk for about 1 minute."}, {"category": "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets \u0026 \ud83d\udecd\ufe0f Shopping Spree", "description": "\u2b50 4.0 stars | An old district brimming with authentic Hong Kong flavor. Apliu Street is a paradise for electronics and second-hand goods, while Fuk Wa Street offers a variety of fabrics, craft materials, and toys. It\u0027s also an excellent place to savor affordable local snacks like pork liver noodles and tofu pudding.", "duration": "2-3 hours", "title": "Sham Shui Po (Apliu Street \u0026 Fuk Wa Street)", "transport": "Take the MTR to Sham Shui Po Station, Exit C2. The markets are right outside the exit."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udecd\ufe0f Shopping Spree", "description": "\u2b50 4.1 stars | Revitalized from an old factory building, JCCAC houses numerous artist studios, galleries, and unique shops. It regularly hosts art exhibitions and markets. It\u0027s a wonderful place to discover local artworks, creative products, and immerse yourself in an artistic atmosphere.", "duration": "1-1.5 hours", "title": "Jockey Club Creative Arts Centre (JCCAC)", "transport": "Take the MTR to Shek Kip Mei Station, Exit C, and walk for about 5-8 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.0 stars | Located next to Temple Street, this is the spiritual heart of the Yau Ma Tei community. Though not large, the temple is historically significant, serving as the guardian deity for fishermen and boat people. Experience traditional Hong Kong temple culture; it can be easily combined with a visit to Temple Street Night Market.", "duration": "0.5-1 hour", "title": "Yau Ma Tei Tin Hau Temple", "transport": "Take the MTR to Yau Ma Tei Station, Exit C, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.3 stars | Hong Kong\u0027s oldest university, its campus features many colonial-era buildings like the Main Building and Hung Hing Ying Building, exuding a classical charm. It\u0027s a great place for photography and soaking in an academic atmosphere. The campus is built on a hill, so be mindful of the slopes.", "duration": "1-1.5 hours", "title": "The University of Hong Kong", "transport": "Take the MTR to HKU Station, Exit A2. The campus is right outside the exit."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udecd\ufe0f Shopping Spree", "description": "\u2b50 3.9 stars | Revitalized from old tong lau buildings, this center is dedicated to promoting Hong Kong\u0027s comic culture. It regularly hosts exhibitions, workshops, and talks, and also features comic-related shops. Travelers interested in comics can come here to discover treasures.", "duration": "0.5-1 hour", "title": "Comix Home Base (Wan Chai)", "transport": "Take the MTR to Wan Chai Station, Exit A3, and walk for about 7-10 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.7 stars | Formerly the Central Police Station compound, including the former Central Police Station, Central Magistracy, and Victoria Prison. It has been revitalized into a comprehensive space integrating history, art, and culture. The well-preserved architectural complex is full of historical significance, with regular art exhibitions and performances, making it a must-visit in Central.", "duration": "2-3 hours", "title": "Tai Kwun (Centre for Heritage and Arts)", "transport": "Take the MTR to Central Station, Exit D1, and walk for about 10 minutes. Alternatively, take the Mid-Levels Escalator to the Hollywood Road exit and walk for about 5 minutes."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.2 stars | Hollywood Road is one of Hong Kong\u0027s oldest streets, lined with numerous antique shops, art galleries, and unique boutiques. Upper Lascar Row (Sheung Wan), also known as Cat Street, specializes in antiques, curios, and souvenirs, making it a great place for treasure hunting. Immerse yourself in Hong Kong\u0027s history and cultural ambiance.", "duration": "1.5-2 hours", "title": "Hollywood Road \u0026 Upper Lascar Row (Antique Street)", "transport": "Take the MTR to Central Station, Exit D2, and walk for about 10 minutes. Alternatively, it\u0027s about a 5-minute walk from Tai Kwun."}, {"category": "\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.0 stars | Located along the Wan Chai waterfront, this outdoor attraction features sculptures of various original Hong Kong comic characters, such as Old Master Q and Cloud. It\u0027s a free outdoor spot, perfect for photos and experiencing Hong Kong\u0027s comic culture.", "duration": "0.5-1 hour", "title": "Hong Kong Avenue of Comic Stars", "transport": "Take the MTR to Wan Chai Station, Exit A5. Walk along the footbridge for about 10-15 minutes to Golden Bauhinia Square."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.4 stars | Hong Kong\u0027s first public art museum, housing a rich collection of Chinese paintings and calligraphy, antiquities, Hong Kong art, and international artworks. It regularly hosts exhibitions on various themes, making it a great destination for art lovers. Located by Victoria Harbour, it offers beautiful views.", "duration": "1.5-2 hours", "title": "Hong Kong Museum of Art", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit E, and walk for about 5 minutes. Alternatively, it\u0027s next to the Star Ferry Tsim Sha Tsui Pier."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.3 stars | Its distinctive egg-shaped dome is its iconic landmark. The museum features a Space Theatre and exhibition halls, introducing astronomy and space science. The dome screen films in the Space Theatre are truly immersive, suitable for families and visitors curious about the universe.", "duration": "1.5-2 hours", "title": "Hong Kong Space Museum", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit E, and walk for about 5 minutes. Alternatively, it\u0027s next to the Star Ferry Tsim Sha Tsui Pier."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.5 stars | Formerly the Marine Police Headquarters, this historic architectural complex has been revitalized into a destination for shopping, dining, and hospitality. Its elegant Victorian-era architecture provides a stunning backdrop for photos. Inside, you\u0027ll find boutiques and upscale restaurants, offering a taste of colonial-era luxury.", "duration": "1-1.5 hours", "title": "1881 Heritage", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit E, and walk for about 3 minutes."}, {"category": "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.6 stars | A \u0027cultural retail\u0027 landmark that seamlessly blends art, culture, retail, and dining. Its unique architectural design features numerous art installations and green spaces. It\u0027s a fantastic place for shopping, dining, and appreciating art, as well as a popular Instagram hotspot.", "duration": "2-3 hours", "title": "K11 Musea", "transport": "Take the MTR to Tsim Sha Tsui Station, Exit E, and walk for about 5 minutes. Alternatively, take East Tsim Sha Tsui Station, Exit J2, and walk for about 1 minute."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.1 stars | Hong Kong\u0027s only surviving pre-war cinema building, now revitalized as a venue for promoting Cantonese opera. Its unique architectural style exudes a nostalgic charm. Visitors can enjoy Cantonese opera performances or simply admire the building itself, experiencing Hong Kong\u0027s traditional art culture.", "duration": "0.5-1 hour", "title": "Yau Ma Tei Theatre (Former Yau Ma Tei Cinema)", "transport": "Take the MTR to Yau Ma Tei Station, Exit A2, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "description": "\u2b50 4.2 stars | A typical tong lau building, famous for its distinctive verandah design and green exterior. It has been revitalized into a teaching and research center for Chinese medicine by Hong Kong Baptist University. It\u0027s a great spot for photography and experiencing Hong Kong\u0027s old architectural style.", "duration": "0.5-1 hour", "title": "Lui Seng Chun", "transport": "Take the MTR to Prince Edward Station, Exit C2, and walk for about 5 minutes."}, {"category": "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "description": "\u2b50 4.3 stars | Hong Kong\u0027s only surviving H-shaped resettlement block, now revitalized as a youth hostel and museum. The museum showcases the history of public housing development in Hong Kong and the daily lives of early residents. It\u0027s an excellent place to understand Hong Kong\u0027s social changes and local culture.", "duration": "1-1.5 hours", "title": "Mei Ho House Museum", "transport": "Take the MTR to Sham Shui Po Station, Exit B2, and walk for about 5 minutes."}];
+        const intercityPool = [{"boarding_location": "In Hong Kong, you have two primary ferry terminals for your adventure to Macau:\n1. Hong Kong-Macau Ferry Terminal (Sheung Wan): Take the MTR to Sheung Wan Station, exit D, and enjoy a pleasant 5-minute stroll to the 3rd floor of Shun Tak Centre. This is the busiest terminal, offering frequent departures.\n2. China Ferry Terminal (Tsim Sha Tsui): Hop on the MTR to Tsim Sha Tsui Station, exit A1, and walk for about 10 minutes to reach the terminal nestled within Harbour City. This terminal has fewer sailings.\nUpon arrival in Macau, TurboJET ferries typically dock at the Outer Harbour Ferry Terminal, while Cotai Water Jet ferries usually arrive at the Taipa Ferry Terminal.", "method": "Embark on a thrilling high-speed ferry journey with TurboJET or Cotai Water Jet.", "route": "Hong Kong - Macau", "schedule": "Both ferry operators boast frequent departures, with services running approximately every 15-30 minutes during the day. Night-time sailings are less frequent. The first ferry typically departs around 07:00, with the last departures between 00:00 and 01:00. Some overnight services are also available during specific periods. We highly recommend checking the latest schedules online and booking your tickets in advance, especially if you\u0027re traveling on weekends or public holidays, to secure your spot.", "time": "A swift journey of approximately 1 hour."}, {"boarding_location": "Hong Kong West Kowloon Station: Reach this impressive station by taking the MTR to Austin Station (Exit F) and enjoying a short 5-minute walk. Alternatively, take the MTR to Kowloon Station (Exit C) for an 8-10 minute walk. West Kowloon Station operates under a convenient \u0027co-location arrangement,\u0027 allowing you to complete both Hong Kong and Mainland China immigration procedures within the same station, streamlining your journey.", "method": "Experience the lightning-fast High-Speed Rail (HSR).", "route": "Hong Kong - Shenzhen/Guangzhou (Mainland China)", "schedule": "Services are incredibly frequent, especially for Shenzhen Futian/North stations, with trains departing approximately every 10-20 minutes during the day. There are also numerous services to Guangzhou South. The first train typically departs around 07:00, with the last departures between 22:00 and 23:00. To ensure a smooth trip, we highly recommend purchasing your tickets in advance via the 12306 website or at the station counter, particularly during public holidays.", "time": "Whisk away from Hong Kong West Kowloon to Shenzhen Futian in a mere 14 minutes, or journey to Guangzhou South in about 47 minutes."}, {"boarding_location": "Simply board the MTR East Rail Line and ride it to either Lo Wu Station or Lok Ma Chau Station. The Lo Wu border crossing connects directly to Shenzhen\u0027s bustling Lo Wu Commercial City, while the Lok Ma Chau crossing leads to Shenzhen\u0027s Futian Port. Both stations offer convenient immigration channels.", "method": "Take the convenient MTR East Rail Line.", "route": "Hong Kong - Shenzhen (Mainland China)", "schedule": "The East Rail Line operates with impressive frequency, with trains running approximately every 3-8 minutes during the day. The first train typically departs between 05:30 and 06:00, with the last departures between 23:00 and 00:00. Border crossing points are generally open from 06:30 to 00:00, so please keep these operating hours in mind for your journey.", "time": "A comfortable ride from Hong Kong city center to Lo Wu or Lok Ma Chau takes approximately 40-50 minutes."}];
+        const cityName = "HongKong";
+        const dynamicCats = ["\ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "\ud83d\udecd\ufe0f Shopping Spree \u0026 \ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks)", "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets \u0026 \ud83d\udecd\ufe0f Shopping Spree", "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets", "\ud83c\udfdb\ufe0f History \u0026 Culture (Museums/Temples/Unique Parks) \u0026 \ud83d\udecd\ufe0f Shopping Spree", "\ud83c\udfee Morning Markets \u0026 Street Markets \u0026 Night Markets \u0026 \ud83d\udcf8 Instagrammable Spots (Including Hidden Gems)", "\ud83d\udecd\ufe0f Shopping Spree"];
+        
+        let myTrip = { 1: [] }; 
+        let currentDay = 1;
+        let totalDays = 1;
+        let activeTab = 'schedule';
+        let currentFilter = 'All';
+
+        const poolContainer = document.getElementById('pool-container');
+        const cartContainer = document.getElementById('cart-container');
+        const emptyState = document.getElementById('empty-state');
+        const tripCount = document.getElementById('trip-count');
+        const fabCount = document.getElementById('fab-count'); 
+        const daySelector = document.getElementById('day-selector');
+        const tabSchedule = document.getElementById('tab-schedule');
+        const tabIntercity = document.getElementById('tab-intercity');
+        const filterWrapper = document.getElementById('filter-wrapper'); 
+        const cartDrawer = document.getElementById('cart-drawer');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        // Toggle Mobile Cart Drawer
+        function toggleMobileCart() {
+            if (cartDrawer.classList.contains('drawer-closed')) {
+                cartDrawer.classList.remove('drawer-closed');
+                cartDrawer.classList.add('drawer-open');
+                mobileOverlay.classList.remove('hidden');
+            } else {
+                cartDrawer.classList.remove('drawer-open');
+                cartDrawer.classList.add('drawer-closed');
+                mobileOverlay.classList.add('hidden');
+            }
+        }
+
+        // Smart Route Sorting Algorithm
+        function autoSortDay(day) {
+            let trips = myTrip[day];
+            if(trips.length < 2) {
+                alert("Need at least 2 activities to sort!");
+                return;
+            }
+            
+            trips.sort((a, b) => {
+                let nodeA = (a.transport || "").substring(0, 6);
+                let nodeB = (b.transport || "").substring(0, 6);
+                
+                if (nodeA < nodeB) return -1;
+                if (nodeA > nodeB) return 1;
+                return 0;
+            });
+            
+            alert(`✨ Day ${day}'s itinerary has been smartly optimized based on transit nodes!`);
+            renderCart();
+        }
+
+        function scrollFilters(direction) {
+            const container = document.getElementById('filter-bar');
+            const scrollAmount = 250;
+            container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            if(tab === 'schedule') {
+                tabSchedule.className = "flex-1 py-3.5 md:py-4 tab-active transition-colors flex justify-center items-center gap-2 text-sm md:text-base";
+                tabIntercity.className = "flex-1 py-3.5 md:py-4 tab-inactive transition-colors flex justify-center items-center gap-2 text-sm md:text-base border-l border-slate-50";
+                filterWrapper.style.display = 'block'; 
+            } else {
+                tabIntercity.className = "flex-1 py-3.5 md:py-4 tab-active transition-colors flex justify-center items-center gap-2 text-sm md:text-base border-l border-slate-50";
+                tabSchedule.className = "flex-1 py-3.5 md:py-4 tab-inactive transition-colors flex justify-center items-center gap-2 text-sm md:text-base";
+                filterWrapper.style.display = 'none'; 
+            }
+            renderPool();
+        }
+
+        function filterCategory(category) {
+            currentFilter = category;
+            ['All', '🏛️ Attractions', '🛍️ Shopping', '🍜 Dining', ...dynamicCats].forEach(cat => {
+                const btn = document.getElementById(`cat-${cat}`);
+                if(btn) {
+                    if(cat === category) {
+                        btn.className = "filter-btn-active text-xs md:text-sm px-4 py-2 rounded-full border font-bold whitespace-nowrap transition-colors shadow-sm";
+                    } else {
+                        btn.className = "filter-btn-inactive text-xs md:text-sm px-4 py-2 rounded-full border font-medium whitespace-nowrap transition-colors shadow-sm";
+                    }
+                }
+            });
+            renderPool();
+        }
+
+        function renderPool() {
+            poolContainer.innerHTML = '';
+            let data = activeTab === 'schedule' ? schedulePool : intercityPool;
+            
+            if(activeTab === 'schedule' && currentFilter !== 'All') {
+                data = data.filter(item => {
+                    const cat = item.category || '';
+                    const title = item.title || '';
+                    const desc = item.description || '';
+                    const fullText = (cat + ' ' + title + ' ' + desc).toLowerCase();
+                    const filterLower = currentFilter.toLowerCase();
+
+                    if (filterLower.includes('attraction')) {
+                        if (fullText.includes('attraction') || fullText.includes('culture') || fullText.includes('history') || fullText.includes('景點') || fullText.includes('文藝') || fullText.includes('打卡')) return true;
+                    }
+                    if (filterLower.includes('shopping')) {
+                        if (fullText.includes('shopping') || fullText.includes('market') || fullText.includes('mall') || fullText.includes('購物') || fullText.includes('商圈') || fullText.includes('市集')) return true;
+                    }
+                    if (filterLower.includes('dining')) {
+                        if (fullText.includes('dining') || fullText.includes('cafe') || fullText.includes('restaurant') || fullText.includes('美食') || fullText.includes('咖啡') || fullText.includes('名店')) return true;
+                    }
+                    
+                    return cat.toLowerCase().includes(filterLower);
+                });
+            }
+
+            if(data.length === 0) {
+                poolContainer.innerHTML = `<div class="text-center text-gray-400 py-10 font-medium md:text-lg">No data available for this category</div>`;
+                return;
+            }
+
+            data.forEach((item, index) => {
+                let title = activeTab === 'schedule' ? item.title : item.route;
+                let category = activeTab === 'schedule' ? (item.category || 'Featured') : 'Intercity Transport';
+                let duration = activeTab === 'schedule' ? item.duration : item.time;
+                let transport = activeTab === 'schedule' ? item.transport : item.method;
+                let desc = activeTab === 'schedule' ? item.description : 'Suitable for intercity or cross-border travel.';
+
+                let catLower = category.toLowerCase();
+                let badgeColor = "bg-slate-50 text-slate-600 border-slate-200";
+                
+                if(catLower.includes('attraction') || catLower.includes('culture') || catLower.includes('景點') || catLower.includes('文藝')) badgeColor = "bg-sky-50 text-sky-700 border-sky-200";
+                if(catLower.includes('shopping') || catLower.includes('market') || catLower.includes('購物') || catLower.includes('商圈')) badgeColor = "bg-purple-50 text-purple-700 border-purple-200";
+                if(catLower.includes('dining') || catLower.includes('cafe') || catLower.includes('美食') || catLower.includes('名店')) badgeColor = "bg-amber-50 text-amber-700 border-amber-200";
+                if(dynamicCats.some(dynCat => catLower.includes(dynCat.toLowerCase()))) badgeColor = "bg-emerald-50 text-emerald-700 border-emerald-200";
+
+                let searchKeyword = encodeURIComponent(`${cityName} ${title}`);
+                let formattedDesc = desc.replace(/(⭐\s*[\d\.]+\s*(?:星|Stars?)[\s\w|]*)/gi, `<a href="https://www.google.com/search?q=${searchKeyword}" target="_blank" class="text-sky-600 font-bold hover:underline inline-flex items-center gap-1 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">$1 <i class="fa-solid fa-external-link-alt text-[10px]"></i></a>`);
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-100 rounded-2xl p-5 md:p-6 hover:border-sky-200 hover:shadow-md transition-all fade-in group shadow-sm";
+                card.style.animationDelay = `${index * 0.02}s`;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start gap-3 mb-4">
+                        <h3 class="text-lg md:text-xl font-bold text-gray-800 leading-tight">${title}</h3>
+                        <button onclick="addToTrip('${activeTab}', '${(item.title || item.route).replace(/'/g, "\\'")}')" class="shrink-0 bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white rounded-xl px-4 py-2 font-bold transition-colors border border-sky-100 text-sm shadow-sm">
+                            <i class="fa-solid fa-plus mr-1"></i>Add
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="${badgeColor} border text-xs px-2.5 py-1 rounded-md font-bold">${category}</span>
+                        <span class="bg-rose-50 text-rose-600 border border-rose-100 text-xs px-2.5 py-1 rounded-md font-bold flex items-center gap-1"><i class="fa-regular fa-clock"></i> ${duration}</span>
+                    </div>
+                    <p class="text-sm md:text-base text-gray-600 mb-5 leading-relaxed">${formattedDesc}</p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm md:text-base text-gray-700 flex items-start gap-3">
+                        <span class="${activeTab === 'schedule' ? 'text-sky-500' : 'text-indigo-500'} mt-0.5 shrink-0 text-base">
+                            <i class="fa-solid ${activeTab === 'schedule' ? 'fa-train-subway' : 'fa-ship'}"></i>
+                        </span>
+                        <span class="leading-snug font-medium">${transport}</span>
+                    </div>
+                `;
+                poolContainer.appendChild(card);
+            });
+        }
+
+        function addDay() {
+            totalDays++;
+            myTrip[totalDays] = [];
+            const option = document.createElement('option');
+            option.value = totalDays;
+            option.text = `Day ${totalDays}`;
+            daySelector.appendChild(option);
+            daySelector.value = totalDays;
+            changeDay(totalDays);
+        }
+
+        function changeDay(day) {
+            currentDay = parseInt(day);
+            renderCart();
+        }
+
+        function addToTrip(type, identifier) {
+            let pool = type === 'schedule' ? schedulePool : intercityPool;
+            let rawItem = pool.find(i => (i.title === identifier || i.route === identifier));
+            if(!rawItem) return;
+
+            let tripItem = {
+                title: type === 'schedule' ? rawItem.title : rawItem.route,
+                duration: type === 'schedule' ? rawItem.duration : rawItem.time,
+                transport: type === 'schedule' ? rawItem.transport : rawItem.method,
+                iconColor: type === 'schedule' ? 'bg-sky-500' : 'bg-indigo-500',
+                borderStyle: type === 'schedule' ? 'border-sky-100' : 'border-indigo-100'
+            };
+
+            if(myTrip[currentDay].find(t => t.title === tripItem.title)) {
+                alert(`"${tripItem.title}" is already in Day ${currentDay}'s itinerary!`);
+                return;
+            }
+            myTrip[currentDay].push(tripItem);
+            
+            // Mobile Interaction: Animate FAB to indicate item added
+            if (window.innerWidth < 1024) {
+                let fab = document.getElementById('fab-cart');
+                fab.classList.add('scale-110');
+                setTimeout(() => fab.classList.remove('scale-110'), 300);
+            }
+
+            renderCart();
+        }
+
+        function removeFromTrip(index) {
+            myTrip[currentDay].splice(index, 1);
+            renderCart();
+        }
+
+        function renderCart() {
+            let currentDayTrips = myTrip[currentDay];
+            
+            // Calculate total items across all days for the FAB
+            let totalItemsCount = 0;
+            for(let d in myTrip) totalItemsCount += myTrip[d].length;
+            fabCount.innerText = totalItemsCount;
+            tripCount.innerText = `${currentDayTrips.length} Items`;
+            
+            if(currentDayTrips.length === 0) {
+                emptyState.style.display = 'flex';
+                Array.from(cartContainer.children).forEach(child => {
+                    if(child.id !== 'empty-state') child.remove();
+                });
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            Array.from(cartContainer.children).forEach(child => {
+                if(child.id !== 'empty-state') child.remove();
+            });
+
+            currentDayTrips.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = `bg-white border ${item.borderStyle} rounded-2xl p-5 mb-5 shadow-sm hover:shadow-md transition-shadow relative fade-in`;
+                
+                const line = index !== currentDayTrips.length - 1 ? `<div class="absolute left-[33px] top-[50px] bottom-[-28px] w-0.5 bg-slate-100 z-0"></div>` : '';
+
+                card.innerHTML = `
+                    ${line}
+                    <div class="relative z-10 flex gap-4">
+                        <div class="shrink-0 w-7 h-7 rounded-full ${item.iconColor} text-white flex items-center justify-center text-xs font-bold mt-1.5 shadow-sm ring-4 ring-white">
+                            ${index + 1}
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold text-gray-800 text-base md:text-lg leading-tight pr-4">${item.title}</h4>
+                                <button onclick="removeFromTrip(${index})" class="text-gray-300 hover:text-rose-500 bg-slate-50 hover:bg-rose-50 rounded-lg p-2 transition-colors border border-transparent hover:border-rose-100">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                            <div class="inline-flex bg-rose-50 text-rose-600 text-xs md:text-sm px-2.5 py-1 rounded-md font-bold mb-3 items-center gap-1 border border-rose-100">
+                                <i class="fa-regular fa-clock"></i> ${item.duration}
+                            </div>
+                            <div class="text-xs md:text-sm text-gray-700 bg-slate-50 p-3.5 rounded-xl border border-slate-100 leading-snug flex items-start gap-3">
+                                <span class="${item.iconColor === 'bg-sky-500' ? 'text-sky-500' : 'text-indigo-500'} mt-0.5 shrink-0 text-base">
+                                    <i class="fa-solid ${item.iconColor === 'bg-sky-500' ? 'fa-location-dot' : 'fa-ship'}"></i>
+                                </span>
+                                <span class="font-medium">${item.transport}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                cartContainer.appendChild(card);
+            });
+        }
+
+        window.onload = () => {
+            renderPool();
+        };
+
+        // --- Trip Export & Sharing ---
+        function generateTripText() {
+            let text = `✈️ ${cityName} Exclusive Itinerary\n===================\n`;
+            let hasAnyTrip = false;
+            
+            for (let day = 1; day <= totalDays; day++) {
+                let trips = myTrip[day] || [];
+                if (trips.length > 0) {
+                    hasAnyTrip = true;
+                    text += `\n📌 Day ${day}\n`;
+                    trips.forEach((item, idx) => {
+                        text += `  ${idx + 1}. ${item.title} (${item.duration})\n     👉 Transport: ${item.transport}\n`;
+                    });
+                }
+            }
+            if (!hasAnyTrip) return null;
+            text += `\n✨ Generated by ${cityName} Smart Travel Planner`;
+            return text;
+        }
+
+        function shareToLine() {
+            let tripText = generateTripText();
+            if (!tripText) { alert("No itinerary to share yet!"); return; }
+            navigator.clipboard.writeText(tripText).then(() => {
+                alert("📋 Itinerary copied to clipboard! Opening LINE to share...");
+                window.open(`https://line.me/R/msg/text/?` + encodeURIComponent(tripText), '_blank');
+            }).catch(() => {
+                window.open(`https://line.me/R/msg/text/?` + encodeURIComponent(tripText), '_blank');
+            });
+        }
+
+        function openPrintWindow() {
+            let hasAnyTrip = false;
+            for (let day = 1; day <= totalDays; day++) {
+                if ((myTrip[day] || []).length > 0) { hasAnyTrip = true; break; }
+            }
+            if (!hasAnyTrip) { alert("No itinerary to export yet!"); return null; }
+
+            let printWindow = window.open('', '_blank');
+            let htmlContent = `
+                <html>
+                <head>
+                    <title>${cityName} Travel Itinerary</title>
+                    <style>
+                        body { font-family: 'Noto Sans TC', sans-serif; padding: 20px; color: #333; line-height: 1.6; background: #fff; }
+                        h1 { color: #0284c7; border-bottom: 2px solid #bae6fd; padding-bottom: 10px; text-align: center; margin-bottom: 30px; }
+                        .day-page { 
+                            background: #f8fafc; 
+                            padding: 30px; 
+                            border-radius: 16px; 
+                            border: 1px solid #cbd5e1; 
+                            margin-bottom: 40px; 
+                            page-break-after: always;
+                            break-after: page;
+                        }
+                        h3 { margin-top: 0; color: #0369a1; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; font-size: 1.4em; }
+                        ul { padding-left: 20px; margin: 15px 0; }
+                        li { margin-bottom: 15px; font-size: 1.1em; }
+                        .transport { font-size: 0.95em; color: #475569; display: block; margin-top: 4px; }
+                        .duration { color: #e11d48; font-weight: bold; }
+                        .footer { text-align: center; color: #94a3b8; font-size: 0.9em; margin-top: 20px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>✈️ ${cityName} Exclusive Travel Itinerary</h1>
+            `;
+            
+            for (let day = 1; day <= totalDays; day++) {
+                let trips = myTrip[day] || [];
+                if (trips.length > 0) {
+                    htmlContent += `
+                        <div class="day-page">
+                            <h3>📌 Day ${day}</h3>
+                            <ul>
+                    `;
+                    trips.forEach((item) => {
+                        htmlContent += `
+                            <li>
+                                <strong>${item.title}</strong> <span class="duration">(${item.duration})</span>
+                                <span class="transport">👉 Transport: ${item.transport}</span>
+                            </li>
+                        `;
+                    });
+                    htmlContent += `</ul><div class="footer">${cityName} Smart Travel Guide • Daily Itinerary</div></div>`;
+                }
+            }
+            htmlContent += `</body></html>`;
+            
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            printWindow.focus();
+            return printWindow;
+        }
+
+        function exportPdf() {
+            let win = openPrintWindow();
+            if (win) {
+                setTimeout(() => {
+                    alert("💡 Tip: In the print dialog, change 'Destination' to 'Save as PDF' to export!");
+                    win.print();
+                }, 500);
+            }
+        }
+
+        function printPdf() {
+            let win = openPrintWindow();
+            if (win) {
+                setTimeout(() => { win.print(); }, 500);
+            }
+        }
+    </script>
+    <footer class="text-center py-8 text-gray-400 text-sm md:text-base px-4">
+        <p>Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved. 提供最專業的亞洲自由行旅遊指南與行程規劃工具 (Asia Travel Guides & FIT Itineraries)。版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+    </footer>
+</body>
+</html>

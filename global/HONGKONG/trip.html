@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香港 旅遊指南</title>
+    <style>
+        :root { --primary-color: #3b82f6; --bg-color: #f7f9fa; --text-color: #333; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; line-height: 1.6; scroll-behavior: smooth; }
+        header { background: var(--primary-color); color: white; padding: 2rem 1rem; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 2rem; }
+        .header-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
+        .btn-top { background: white; color: var(--primary-color); text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .btn-top:hover { background: #eff6ff; }
+        .nav-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 1.5rem; }
+        .nav-btn { background: white; color: var(--primary-color); border: none; padding: 0.6rem 1.2rem; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .nav-btn:hover, .nav-btn.active { background: #eff6ff; color: #1d4ed8; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .category-section { margin-bottom: 3rem; display: none; }
+        .category-section.active { display: block; }
+        .category-title { border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .card-tag { display: inline-block; background: #eff6ff; color: var(--primary-color); font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.8rem; width: fit-content; }
+        .card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 0.5rem 0; line-height:1.4; }
+        .card-desc { font-size: 0.95rem; color: #555; flex-grow: 1; margin-bottom: 1rem; }
+        .card-link { display: block; text-align: center; background: var(--primary-color); color: white; text-decoration: none; padding: 0.6rem; border-radius: 4px; font-weight: bold; margin-top: auto; }
+        .card-link:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-actions">
+            <a href="index.html" class="btn-top">🏠 回到首頁</a>
+            
+        </div>
+        <h1>香港 自由行導覽</h1>
+        <div class="nav-buttons" id="navButtons">
+            <button class="nav-btn active" onclick="showCategory('all')">全部</button>
+            <button class="nav-btn" onclick="showCategory('cat_0')">交通與通訊</button><button class="nav-btn" onclick="showCategory('cat_1')">景點與門票</button><button class="nav-btn" onclick="showCategory('cat_2')">觀光行程</button><button class="nav-btn" onclick="showCategory('cat_3')">美食與餐飲</button><button class="nav-btn" onclick="showCategory('cat_4')">休閒與放鬆</button><button class="nav-btn" onclick="showCategory('cat_5')">特色體驗與活動</button>
+        </div>
+    </header>
+    <div class="container">
+        <section class="category-section active" id="cat_0"><h2 class="category-title">交通與通訊</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">WiFi 分享器＆上網 SIM 卡</span>
+                    <h3 class="card-title">香港 5G eSIM | 吃到飽、不穩就退 | CSL</h3>
+                    <p class="card-desc">出國連網不用換卡，秒速開通超方便！採用 CSL 高速 5G 網路，吃到飽吃到爽，訊號穩定讓您的香港旅程暢行無阻。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/132216-esim-hong-kong-with-high-speed-and-stable-internet-connection/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">WiFi 分享器＆上網 SIM 卡</span>
+                    <h3 class="card-title">【無限流量】爽WiFi 中港澳4G/5G WiFi分享器（香港機場領取）- 爽WiFi提供</h3>
+                    <p class="card-desc">跨區旅遊的最佳神隊友！一次滿足中港澳三地上網需求，提供穩定高速流量，香港機場便利領取，多人連線超划算。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/16389-4g-wifi-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場鐵路＆巴士</span>
+                    <h3 class="card-title">機場快綫優惠車票</h3>
+                    <p class="card-desc">想要最快抵達香港市中心的秘密捷徑嗎？乘坐機場快綫僅需24分鐘直達市區，憑 QR Code 快速掃碼進站，省時又便利。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/71-airport-express-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">鐵路通票</span>
+                    <h3 class="card-title">香港八達通卡</h3>
+                    <p class="card-desc">暢遊香港必備的萬能交通卡！一卡在手即可搭乘地鐵、巴士與渡輪，還能在便利商店輕鬆消費，輕鬆體驗港式生活。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/1355-tourist-octopus-card-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">機場包車接送</span>
+                    <h3 class="card-title">香港｜香港國際機場包車接送</h3>
+                    <p class="card-desc">讓您的抵達與出發變得無比輕鬆愉快！提供專業司機專車接送服務，免去排隊候車與搬運重型行李的煩惱，享受舒適車程。</p>
+                    <a href="https://www.klook.com/zh-TW/airport-transfers/?flightDirection=1&code=HKG&aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">渡輪</span>
+                    <h3 class="card-title">香港往／返澳門噴射飛航船票 TurboJET</h3>
+                    <p class="card-desc">輕鬆穿梭雙城，體驗高速跨海航程！預訂噴射飛航船票，只需一小時即可往返香港與澳門市中心，提供舒適安全的搭乘體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/3070-turbojet-ticket-macau/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">渡輪</span>
+                    <h3 class="card-title">香港往／返澳門金光飛航船票 Cotai Water Jet</h3>
+                    <p class="card-desc">直達澳門路氹奢華娛樂區的最優選擇！搭乘金光飛航高速客輪，享用寬敞座席與快速海路連接，輕鬆展開澳門假期。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/24657-macau-cotai-jet-ticket-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">nan</span>
+                    <h3 class="card-title">香港高鐵</h3>
+                    <p class="card-desc">開啟無縫連接內地各大城市的極速之旅！預訂香港高鐵車票，直達廣州、深圳及更多熱門景點，享受高效舒適的鐵路出行。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/94451-hsr-hong-kong-mainlands/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">鐵路車票</span>
+                    <h3 class="card-title">中國大陸鐵路車票</h3>
+                    <p class="card-desc">解鎖高效便捷的高鐵旅程！輕鬆預訂中國大陸火車票，穿梭各大城市，享受舒適座席與準點到達的現代化鐵路服務。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/168765-train-tickets-china-rail/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">鐵路通票</span>
+                    <h3 class="card-title">港鐵遊客全日通（香港機場快綫櫃檯領取）</h3>
+                    <p class="card-desc">解鎖香港暢行無阻的秘密！憑此全日通可在一天內無限次乘坐港鐵，輕鬆穿梭各大熱門景點，於機場方便領取。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/742-mtr-tourist-day-pass-hongkong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">隨上隨下觀光巴士</span>
+                    <h3 class="card-title">澳門隨上隨下觀光巴士之旅（敞篷）</h3>
+                    <p class="card-desc">以全新視野探索璀璨澳門！搭乘敞篷雙層巴士自由穿梭著名地標，隨上隨下彈性安排行程，盡覽城市風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/1876-open-top-bus-tour-macau/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">鐵路通票</span>
+                    <h3 class="card-title">JR Pass 立山黑部＆高山＆松本地區鐵路周遊券</h3>
+                    <p class="card-desc">踏上日本中部阿爾卑斯山的壯麗之旅！一券在手即可無限次搭乘指定 JR 列車及交通工具，輕鬆玩遍高山與松本。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/2973-jr-alpine-takayama-matsumoto-area-pass/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">包車接送</span>
+                    <h3 class="card-title">香港飯店往返 迪士尼樂園/ 海洋公園/ 昂坪360/ 太平山頂 私人接送服務(單程)</h3>
+                    <p class="card-desc">告別繁瑣交通，享受專屬尊榮車程！直達迪士尼、海洋公園或太平山頂等各大景點，舒適安全，適合全家同行。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/802-disneyland-transfers-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">巴士</span>
+                    <h3 class="card-title">澳門至香港直通巴士（環島中港通提供）</h3>
+                    <p class="card-desc">雙城往來從未如此便利！搭乘舒適直通巴士穿梭港澳兩地，提供多個市中心上落車點，輕鬆連接您的港澳旅程。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/17925-hkmo-transfers-hong-kong-macau/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">隨上隨下觀光巴士</span>
+                    <h3 class="card-title">香港 Big Bus 隨上隨下觀光巴士（敞篷）</h3>
+                    <p class="card-desc">坐擁香港經典天際線的極致視角！搭乘露天雙層巴士行經繁華街道與地標，搭配多語言導覽，盡情體驗東方之珠魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/21287-big-bus-tours-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">巴士</span>
+                    <h3 class="card-title">香港 - 深圳巴士車票（環島中港通）</h3>
+                    <p class="card-desc">輕鬆往返港深兩地的最佳選擇！搭乘環島中港通跨境巴士，班次密集且停靠點多，提供順暢無縫的雙城交通體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/6817-city-transfer-shenzhen-bay-check-point-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">鐵路通票</span>
+                    <h3 class="card-title">富士山靜岡地區迷你周遊券</h3>
+                    <p class="card-desc">捕捉聖山富士的震撼美景！專為遊覽靜岡及富士山周邊設計的超值周遊券，輕鬆搭乘鐵路與巴士探索絕景與美食。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/2816-3-day-mt-fuji-shizuoka-area-mini-jr-pass/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">鐵路通票</span>
+                    <h3 class="card-title">JR 山陽 & 山陰 & 北九州地區鐵路周遊券</h3>
+                    <p class="card-desc">縱橫西日本與北九州的最佳利器！憑券無限次搭乘山陽新幹線及區域內列車，一次精采踏尋歷史古都與自然秘境。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/5769-7-day-sanyo-sanin-northern-kyushu-area-jr-pass/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">巴士</span>
+                    <h3 class="card-title">香港來往澳門直通巴士 [永東巴士跨境快線]</h3>
+                    <p class="card-desc">跨境出行最省心的優質選擇！永東直通巴士提供便捷頻繁班次，快速連接港澳市中心，讓您的旅程流暢無阻。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/107885-hk-macau-eebus/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_1"><h2 class="category-title">景點與門票</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">主題樂園</span>
+                    <h3 class="card-title">香港迪士尼樂園門票</h3>
+                    <p class="card-desc">點燃心中奇妙的童話夢想！走進神奇王國與經典迪士尼角色相遇，暢玩精彩遊樂設施與欣賞璀璨夜間表演。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/39-hong-kong-disneyland-resort-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">主題樂園</span>
+                    <h3 class="card-title">香港海洋公園門票</h3>
+                    <p class="card-desc">集結海洋生態與驚險刺激的冒險樂園！觀賞珍稀海洋生物、挑戰極速過山車，適合全家大小共度歡樂時光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/23-ocean-park-hong-kong-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀景台</span>
+                    <h3 class="card-title">香港昂坪360纜車門票</h3>
+                    <p class="card-desc">飛越蔚藍大海與翠綠山巒！搭乘全景纜車前往昂坪市集與天壇大佛，俯瞰大嶼山壯麗的自然風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/45-ngong-ping-360-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">主題樂園</span>
+                    <h3 class="card-title">香港迪士尼樂園度假區餐飲券</h3>
+                    <p class="card-desc">滿足味蕾的奇妙美食饗宴！憑餐飲券於樂園指定餐廳享用各式美味餐點與主題甜點，讓冒險之旅更添滋味。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/524-disneyland-gourmet-meal-voucher-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀景台</span>
+                    <h3 class="card-title">香港太平山頂纜車車票 The Peak Tram Ticket</h3>
+                    <p class="card-desc">開啟俯瞰維港的最佳視野！搭乘百年歷史的山頂纜車升至太平山頂，盡情欣賞絕美的香港天際線與璀璨夜景。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/765-peak-tram-sky-terrace-hongkong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">M+博物館門票</h3>
+                    <p class="card-desc">沉浸於當代視覺文化的殿堂。走進西九文化區的 M+ 博物館，探索來自亞洲及全球的當代藝術、設計與建築展品。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/77795-m-plus-admission-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">香港故宮文化博物館入場門票</h3>
+                    <p class="card-desc">跨越時空感受宮廷瑰寶的魅力。展出九百多件來自北京故宮博物院的珍貴文物，結合現代建築設計呈獻文化盛宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/73590-hong-kong-palace-museum-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">水上樂園</span>
+                    <h3 class="card-title">香港海洋公園水上樂園門票</h3>
+                    <p class="card-desc">準備好迎接全天候的水上冒險！探索全亞洲首個全天候水上樂園，挑戰刺激的滑水梯與多樣化室內外水上設施。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/60256-ocean-park-water-world-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">香港杜莎夫人蠟像館門票</h3>
+                    <p class="card-desc">與世界名人和明星零距離接觸！位於太平山頂的蠟像館集結過百尊栩栩如生的名人蠟像，提供極致互動拍照體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/42-madame-tussauds-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">主題樂園</span>
+                    <h3 class="card-title">香港馬灣公園挪亞方舟</h3>
+                    <p class="card-desc">踏上結合自然與寓教於樂的奇幻之旅。全球首座根據遠古記載等比例打造的挪亞方舟，提供多元互動展館與親子的好去處。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/41-noahs-ark-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊樂場</span>
+                    <h3 class="card-title">香港Kiztopia兒童室內遊樂場門票 - 新城市廣場</h3>
+                    <p class="card-desc">解鎖小朋友的放電樂園！來自新加坡的大型室內遊樂場，設有巨型滑梯、波波池及職業體驗區，寓教於樂極具吸引力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/75045-hong-kong-kiztopia/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">主題樂園</span>
+                    <h3 class="card-title">香港樂高®探索中心Legoland門票</h3>
+                    <p class="card-desc">點燃無窮無盡的創意想像力！專為兒童與家庭打造的樂高室內遊樂場，包含迷你天地、動感影院及多個手作互動區。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/53324-legoland-discovery-centre-ticket-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">景點通票</span>
+                    <h3 class="card-title">Klook 香港景點通行證</h3>
+                    <p class="card-desc">一證在手自由輕鬆探索香港！彈性選擇多個熱門景點門票，享有超值折扣與便利的預訂體驗，玩樂省時又省錢。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/80363-klook-pass-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">博物館</span>
+                    <h3 class="card-title">【獨家優惠】香港大富翁夢想世界入場門票</h3>
+                    <p class="card-desc">親身體驗經典桌遊的實體世界！全球首間大富翁主題館，結合三維全息投影與 4D 科技，帶你探索先生的大宅與金庫。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/28388-monopoly-dreams-ticket-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀景台</span>
+                    <h3 class="card-title">中環海濱摩天輪 門票</h3>
+                    <p class="card-desc">浪漫轉動維多利亞港的迷人景色！坐落於中環海濱，在高空轉動中飽覽兩岸摩天大樓與海岸線，景色令人陶醉。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/18856-observation-wheel-ticket-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊樂場</span>
+                    <h3 class="card-title">啟德AIRSIDE Bouncetopia by Kiztopia 室內遊樂場門票</h3>
+                    <p class="card-desc">盡情彈跳體驗無重力歡樂！位於啟德的新型彈跳遊樂場，擁有超大充氣城堡與障礙挑戰，是放鬆紓壓的絕佳選擇。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/99942-bouncetopia-by-kiztopia-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊樂場</span>
+                    <h3 class="card-title">【Klook獨家】香港Kiztopia兒童室內遊樂場門票 - 將軍澳中心</h3>
+                    <p class="card-desc">體驗將軍澳最夯的親子放電聖地！全新主題展區包含多款體能設施與益智關卡，讓孩子在歡笑中學習與成長。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/114455-hong-kong-kiztopia-park-central/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊樂場</span>
+                    <h3 class="card-title">JOYPOLIS SPORTS HONG KONG ( JP 超動感世界) 門票</h3>
+                    <p class="card-desc">燃燒你的運動熱血與電競魂！結合科技與運動的超動感室內樂園，提供多款日本熱門的沉浸式互動體感遊戲。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/137248-joypolis-sports-hong-kong-ticket/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">動物園＆水族館</span>
+                    <h3 class="card-title">【獨家優惠】香港浩海立方探游館｜親子好去處</h3>
+                    <p class="card-desc">探索神秘深海與水母的夢幻光影！香港首個海洋探索體驗館，結合真水母展覽、光影科技與VR海洋保護遊戲。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/66377-hong-kong-cube-o-discovery-park/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊樂場</span>
+                    <h3 class="card-title">【Klook獨家】香港Kiztopia兒童室內遊樂場門票 - 合和商場</h3>
+                    <p class="card-desc">專為親子打造的玩樂天堂！這座新加坡知名室內遊樂場設有大型波波池及體驗區，提供孩子安全又多元的放電空間。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/145136-klook-exclusive-hong-kong-kiztopia-admission-ticket-hopewell-mall/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_2"><h2 class="category-title">觀光行程</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">山頂纜車快速通關套票：山頂纜車、摩天台 428、杜莎夫人蠟像館</h3>
+                    <p class="card-desc">輕鬆直達香港之巔！憑此快速通關套票可搭乘山頂纜車，前往摩天台428俯瞰維港美景，並參觀杜莎夫人蠟像館。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/523-peak-tram-3-in-1-combo-ticket-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">電車全景遊｜電車旗袍體驗</h3>
+                    <p class="card-desc">穿梭於香港的新舊時空！換上優雅的傳統旗袍，搭乘古典懷舊電車，展開一場深入街頭巷弄的文化全景之旅。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/1280-tramoramic-tour-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">澳門開蓬巴士三大夜景遊</h3>
+                    <p class="card-desc">夜幕低垂後的東方蒙地卡羅正閃耀！乘坐敞篷巴士暢遊澳門，一次收集三大標誌性夜景，體驗不夜城的迷人魅力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/82471-goldspark-hk/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">香港昂坪及大澳全日遊（含纜車）</h3>
+                    <p class="card-desc">探索大嶼山的自然與文化寶藏！本行程包含昂坪360纜車體驗，帶您造訪天壇大佛與充滿漁村風情的大澳水鄉。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/112965-lantau-island-day-trip-big-buddha-dolphin-watching-2024/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">澳門觀光一日遊（香港／澳門出發）</h3>
+                    <p class="card-desc">一天之內玩轉澳門精華景點！無論從香港或澳門出發，都能輕鬆參訪大三巴牌坊、著名賭場與歷史文化遺跡。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/89-sightsee-macau-macau/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">「觀光城巴」-- 隨上隨下開篷巴士</h3>
+                    <p class="card-desc">自由規劃您的專屬都市冒險！乘坐觀光城巴開篷巴士，隨上隨下行經各大熱門地標，享受無死角的城市景致。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/96948-rickshaw-sightseeing-bus-open-top-night-bus-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">一日遊</span>
+                    <h3 class="card-title">香港開蓬觀光巴士遊｜遊覽廟街夜市</h3>
+                    <p class="card-desc">感受最道地的地頭夜生活！搭乘開篷巴士穿梭繁忙街道，並前往九龍熱鬧非凡的廟街夜市品嚐在地小吃。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/122582-open-top-bus-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_3"><h2 class="category-title">美食與餐飲</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港康得思飯店自助餐 Cordis, Hong Kong｜The Place｜自助午餐、自助晚餐</h3>
+                    <p class="card-desc">滿足饕客對環球美食的渴望！The Place 提供現切生鮮海鮮、熱食與精緻甜點，為您帶來豐富的盛宴體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/54415-the-place-cordis-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">九龍海逸君綽飯店自助餐 Harbour Grand Kowloon｜The Promenade｜自助午餐、自助晚餐</h3>
+                    <p class="card-desc">伴隨無敵海景享用豐盛饗宴！The Promenade 匯聚新鮮刺身、頂級牛肉與各式美味，視覺與味覺雙重享受。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/51111-promenade-harbour-grand-kowloon/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港逸東飯店自助餐 Eaton HK｜普慶餐廳 The Astor｜自助午餐、自助晚餐｜獨家優惠</h3>
+                    <p class="card-desc">體驗懷舊復古與現代美食的碰撞！普慶餐廳設有多個美食專區，提供上百道高品質的各國佳餚。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/85761-eaton-hk-the-astor/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">鴻福堂｜多種優惠券｜燒賣／自家湯／涼茶／豬腳薑醋／龜苓膏 / 鴻小飯堂健康餐｜全港多區分店兌換</h3>
+                    <p class="card-desc">隨時隨地為身體補充地道健康滋味！輕鬆兌換自家湯、傳統涼茶或健康小吃，全港多家門市皆可使用。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/78551-hung-fook-tong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港富麗敦海洋公園飯店自助餐｜星耀廳 Lighthouse Café丨自助午餐、晚餐</h3>
+                    <p class="card-desc">在充滿海洋度假氣息的空間享用美食！星耀廳主打國際級海鮮與各國料理，給您放鬆愜意的用餐時光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/85072-hotel-buffet-the-fullerton-ocean-park-hotel-lighthouse-cafe/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港海洋公園萬豪飯店自助餐 Hong Kong Ocean Park Marriott Hotel｜海灣餐廳 Marina Kitchen｜自助午餐、自助晚餐｜品嚐自助美食免費享用兒童遊樂天地</h3>
+                    <p class="card-desc">親子饗樂首選的美食據點！享用高檔豐富自助餐的同時，小朋友還能免費體驗飯店內的專屬遊樂天地。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/20237-marina-kitchen-ocean-park-marriott-hotel-buffet/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港沙田萬怡飯店自助餐 Courtyard by Marriott Hong Kong ST｜MoMo Cafe｜自助午餐、自助晚餐</h3>
+                    <p class="card-desc">品嚐極具物超所值的各國料理！MoMo Cafe 提供多款冰鎮海鮮、精緻熱食及誘人甜點，適合全家共聚。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/20516-momo-cafe-courtyard-marriott-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">【獨家優惠】美麗華飯店自助餐 The Mira｜Yamm｜自助午餐、自助晚餐、下午茶自助餐</h3>
+                    <p class="card-desc">走進時尚奢華的美食殿堂！Yamm 以多國特色主題餐檯聞名，為您呈現現做日本刺身與多款特製佳餚。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/57436-yamm-the-mira-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">泰昌餅家 - 中環／山頂／青衣／將軍澳</h3>
+                    <p class="card-desc">體驗正宗港式古早味！泰昌餅家以香濃酥脆的蛋撻聞名，於中環、山頂等多地皆有分店，是品嚐在地傳統糕點的最佳選擇。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/6682-tai-cheong-tart-set-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港萬麗海景飯店自助餐｜Food Studio｜全新自助餐餐廳 (全新裝修)｜自助午餐、自助晚餐</h3>
+                    <p class="card-desc">踏入全新裝修的精緻美食空間！Food Studio 推出豐富的自助午餐與晚餐，提供各國極品海鮮與精緻熱食。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/172683-renaissance-harbour-view-hotel-hong-kong-buffet-food-studio-lunch-buffet-dinner-buffet/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港西環萬怡飯店自助餐｜MoMo Cafe｜自助午餐、自助晚餐｜刺身、冰鎮海鮮、各款美食、Movenpick 冰淇淋</h3>
+                    <p class="card-desc">盡情享受奢華的海鮮美饌！MoMo Cafe 提供現切刺身、冰鎮海鮮與澎湃熱食，最後再以 Movenpick 冰淇淋完美收尾。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/21614-momo-cafe-courtyard-marriott-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港W飯店自助餐｜KITCHEN｜自助午餐/ 自助晚餐</h3>
+                    <p class="card-desc">感受時尚動感的頂級餐飲魅力！KITCHEN 餐廳匯聚國際佳餚，從豐富海鮮到精緻甜點，打造令人難忘的饕餮盛宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/21302-kitchen-w-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港柏寧飯店 The Park Lane Hong Kong - PLAYT｜自助午餐、自助晚餐、自助早午餐、下午茶自助餐</h3>
+                    <p class="card-desc">滿足全天候的味蕾渴望！PLAYT 餐廳全天候提供豐富餐點，從早午餐到晚餐，匯集當季海鮮與現場烹調特色美食。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/82950-park-lane-playt-buffet/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">朗廷飯店自助餐｜The Food Gallery ｜自助午餐、自助晚餐</h3>
+                    <p class="card-desc">沉浸於典雅的星級饗宴！The Food Gallery 精選全球新鮮食材，呈獻冰鎮海鮮、現切烤肉及奢華甜點。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/52138-foodgallery-thelangham-hongkong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港皇玥 | 精選伴手禮｜人氣蛋卷、蝴蝶酥｜全港多間分店自取</h3>
+                    <p class="card-desc">送禮首選的頂級港式伴手禮！皇玥超人氣蜂巢蛋卷與酥脆蝴蝶酥，嚴選食材精心烘焙，全港多間門市輕鬆提貨。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/25396-imperial-patisserie-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">荃灣西如心飯店自助餐｜Café Circles ｜冰鎮海鮮 ｜自助午餐、晚餐</h3>
+                    <p class="card-desc">徜徉於挑高明亮的美食天堂！Café Circles 嚴選優質冰鎮海鮮與環球美食，為您帶來極致放鬆的用餐體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/39490-nina-hotel-tsuen-wan-west-cafe-circles/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">港島海逸君綽飯店自助餐｜ Harbour Grand Café  咖啡廳｜半自助午餐、自助午餐、自助晚餐</h3>
+                    <p class="card-desc">邊賞維港景致邊享用豐盛大餐！Harbour Grand Café 推出多款自助餐選項，匯聚新鮮刺身與精緻各國美饌。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/49149-harbour-grand-cafe-harbour-grand-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港喜來登飯店自助餐 | 咖啡廳 The Café | 自助午餐、自助晚餐 | Klook獨家優惠</h3>
+                    <p class="card-desc">搶先解鎖獨家美食優惠！The Café 提供豪華冰鎮海鮮與現烹佳餚，無論午餐或晚餐都能滿足饕客的挑剔味蕾。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/87227-hotel-buffet-sheraton-hongkong-hotel-towers-thecafe/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">Haagen-Dazs 冰淇淋電子禮券</h3>
+                    <p class="card-desc">隨時隨地開啟甜蜜時光！使用 Häagen-Dazs 電子禮券，輕鬆兌換香濃滑順的頂級冰淇淋，給自己最極致的味蕾寵愛。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/30047-haagendazs-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港麗思卡爾頓飯店 The Ritz-Carlton 自助餐 | Café 103 | 自助午餐、晚餐及下午茶</h3>
+                    <p class="card-desc">在雲端之上享受極致奢華！Café 103 位於高樓層，提供尊榮的午晚餐與精緻下午茶，俯瞰迷人城景與海港風光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/74928-the-ritz-carlton-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">帝苑飯店 The Royal Garden Hotel｜雅苑座｜自助午餐、自助晚餐</h3>
+                    <p class="card-desc">在空中花園般的情調中用餐！雅苑座擁有獨特的室內中庭景觀，提供豐富的海鮮與環球美食，營造浪漫溫馨氛圍。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/101881-royal-garden-the-greenery/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">香港美利飯店 The Murray｜Garden Lounge｜下午茶</h3>
+                    <p class="card-desc">享受優雅愜意的英式午後時光！Garden Lounge 推出精緻下午茶套餐，結合鹹甜美饌與優質名茶，氛圍極具質感。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/67688-garden-lounge-at-the-murray/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">8度海逸飯店自助餐｜8度餐廳｜自助午餐/晚餐、下午茶</h3>
+                    <p class="card-desc">體驗獨一無二的傾斜視覺魅力！8度餐廳提供 CP 值極高的自助餐點，從鮮美海鮮到招牌芒果拿破崙甜點應有盡有。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/53619-harbourplaza-8degree-buffet/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">都會海逸飯店自助餐 Harbour Plaza Metropolis | 西餐廳 Promenade Restaurant丨自助午餐、自助晚餐、下午茶自助餐</h3>
+                    <p class="card-desc">準備好迎接一場維港美景伴隨的味蕾盛宴了嗎？Promenade 餐廳提供豐富多樣的自助午餐、晚餐及下午茶，全天候滿足您的美食渴望。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/90573-promenade-restaurant-harbour-plaza-metropolis/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">歷山飯店 Hotel Alexandra｜Cafe A 歷山餐廳｜自助午餐、晚餐、下午茶套餐</h3>
+                    <p class="card-desc">踏入宮廷風的華麗空間享受頂級饗宴！歷山餐廳精選多款精緻自助午晚餐與優雅下午茶套餐，帶給您極致奢華的用餐體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/51677-hotel-alexandra-cafe-a/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">馬哥孛羅咖啡廳 Cafe Marco | 馬哥孛羅香港飯店 | 香港餐飲優惠</h3>
+                    <p class="card-desc">尋找尖沙咀心臟地帶的最佳美食選擇？馬哥孛羅咖啡廳匯聚全球多國佳餚，搭配限時餐飲優惠，是朋友聚會與家庭用餐的首選。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/19713-cafe-marco-polo-hotel-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">公利真料竹蔗水 - 中環</h3>
+                    <p class="card-desc">品嚐穿越時光的香港老字號純粹甘甜！中環公利真料竹蔗水遵循古法扎實榨取，清熱解渴，是體驗在地傳統好滋味的必訪小店。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/7253-kung-lee-central-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">早鳥優惠 陶源酒家｜2小時任食大閘蟹放題 兩位起| 多間分店預約</h3>
+                    <p class="card-desc">秋意漸濃正是品嚐蟹膏黃金時刻！陶源酒家推出早鳥優惠，兩小時無限量享用鮮美大閘蟹，全港多間分店輕鬆預約。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/77232-sportful-garden-restaurant/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">唯港薈 Hotel ICON 自助餐 | The Market｜自助午餐、自助晚餐、下午茶 ｜招牌榴槤甜品</h3>
+                    <p class="card-desc">榴槤愛好者絕對不能錯過的終極天堂！The Market 屢獲殊榮，除了新鮮海鮮與國際美食，更有令饕客瘋狂的招牌榴槤系列甜品。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/77213-the-market-hotel-icon-hk/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">灣仔會展中心薈景｜海景自助早午餐+ 免費暢飲｜海景燒烤美食・海鮮自助晚餐｜飯店自助餐優惠2026</h3>
+                    <p class="card-desc">在無敵海景包圍下盡情暢飲與享用美食吧！薈景提供海景燒烤美食、豐富海鮮自助餐與免費暢飲優惠，打造最浪漫的用餐時刻。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/87794-congress-plus/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">九龍香格里拉 Shangri-La Kowloon｜Cafe Kool 咖啡廳｜自助午餐、自助晚餐｜尖沙咀</h3>
+                    <p class="card-desc">一站式解鎖十二個開放式廚房的國際佳餚！尖沙咀九龍香格里拉 Cafe Kool 提供豐富多元的自助午晚餐，滿足挑剔的味蕾。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/111601-shangri-la-kowloon-buffet-cafe-kool-brunch-buffet-lunch-buffet-dinner-buffet/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">Three on Canton｜Be on Canton｜港威飯店｜香港自助餐優惠</h3>
+                    <p class="card-desc">體驗時尚與美食完美交織的都市饗宴！港威飯店 Three on Canton 提供精緻異國料理與戶外露台酒吧，讓您享受摩登餐飲時光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/19761-three-on-canton-gateway-hotel-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">港島香格里拉 Island Shangri-La Hong Kong｜Cafe TOO｜自助午餐、自助晚餐</h3>
+                    <p class="card-desc">匯聚在地地道風味與頂級國際美食的餐飲殿堂！Cafe TOO 聯手多家在地名店，帶來高品質的自助午餐與晚餐精彩盛宴。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/106482-cafe-too-shangri-la-hk/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">WOOBAR - 香港 W 飯店｜下午茶、午市套餐、享受獨一無二的酒吧派對體驗</h3>
+                    <p class="card-desc">感受潮流與奢華交織的活力夜晚！香港 W 飯店 WOOBAR 帶來潮流下午茶、午市套餐與獨一無二的派對體驗，盡顯時髦態度。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/24950-woobar-w-hotel-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">WM飯店｜WM咖啡廳｜半自助午餐、自助早午餐、自助晚餐</h3>
+                    <p class="card-desc">遠離喧囂前往西貢享受渡假風美饌！WM 咖啡廳提供多樣化的半自助午餐、早午餐與晚餐，為您帶來極致放鬆的美食時光。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/67113-cafewm-wm-hotel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">百樂飯店自助餐丨Park café｜自助午餐、自助晚餐、下午茶套餐</h3>
+                    <p class="card-desc">探索位於尖沙咀高CP值的經典精緻餐飲！Park café 推出主題自助午晚餐與高雅下午茶套餐，是親友歡聚的理想場所。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/27539-park-cafe-hotel/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">星巴克香港｜ 不鏽鋼隨行杯 ｜電子禮券</h3>
+                    <p class="card-desc">送給咖啡愛好者最貼心的品質生活禮物！星巴克香港推出精美不鏽鋼隨行杯電子禮券，隨時隨地享受香醇咖啡與環保時尚。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/49192-starbucks-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">恆豐飯店自助餐 Prudential Hotel｜紅煙窗餐廳｜自助午餐、自助晚餐</h3>
+                    <p class="card-desc">重溫經典港式情懷與澎湃海鮮大餐！紅煙窗餐廳以豐盛的冷盤海鮮、熱食與精緻甜點著稱，為您帶來滿足感十足的自助餐體驗。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/124933-prudential-hotel-red-chimneys-buffet/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">SAVVY｜太子飯店｜半自助午餐、周末海鮮早午餐、自助晚餐、鐵板燒套餐</h3>
+                    <p class="card-desc">準備好滿足您的味蕾了嗎？位在尖沙咀太子酒店的SAVVY提供多款精緻自助餐與鐵板燒套餐，匯聚環球美食與頂級海鮮。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/66406-savvy-bar-lounge-restaurant-tsim-sha-tsui/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">美食品嚐</span>
+                    <h3 class="card-title">【快閃優惠】洪瑞珍 | 人氣台式三明治 | 電子現金券 | 全港多區分店兌換</h3>
+                    <p class="card-desc">經典美味讓人難以抗拒！來自台灣的超人氣洪瑞珍三明治，搭配便利的電子現金券，方便您在全港多家分店隨時享用。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/108556-hung-rui-chen-hk/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_4"><h2 class="category-title">休閒與放鬆</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Spa</span>
+                    <h3 class="card-title">THANN Sanctuary 按摩及SPA體驗｜傳統泰國香薰按摩、芳香按摩｜尖沙咀、銅鑼灣、九龍塘</h3>
+                    <p class="card-desc">喚醒疲憊身心的頂級香薰盛宴！體驗獲獎無數的泰式頂級 SPA 與精油按摩，在鬧區中沉浸於純粹的平靜與放鬆。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/44068-thann-sanctuary-spa-experience-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Spa</span>
+                    <h3 class="card-title">尖沙咀帝苑飯店 按摩及SPA體驗 - Sky Club｜深層肌肉按摩、排毒按摩、面部護理｜ 尖沙咀</h3>
+                    <p class="card-desc">奢華飯店內的極致療癒時光！於 Sky Club 享受專業深層肌肉按摩與高級面部護理，為繁忙旅程注入滿滿活力。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/55181-sky-club-spa-experience-royal-garden-tsim-sha-tsui/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section><section class="category-section active" id="cat_5"><h2 class="category-title">特色體驗與活動</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">張保仔號體驗之旅</h3>
+                    <p class="card-desc">踏上經典紅帆船啟航吧！乘坐傳統木製張保仔號穿梭維港，輕鬆感受新舊交融的香港海岸風情。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/659-aqualuna-evening-sail-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">維多利亞港夜景豪華夢之旅(含無限小食飲品＋專人相機攝影+觀光大使現場介紹）</h3>
+                    <p class="card-desc">體驗極致奢華的璀璨夜色！航行於維港之上，享用無限量飲品小吃，並有專人為您拍攝動人時刻。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/10690-victoria-harbour-cruise-luxury-yacht-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">遊船觀光</span>
+                    <h3 class="card-title">昂坪360來回纜車，大澳漁村，天壇大佛之旅</h3>
+                    <p class="card-desc">一站式解鎖大嶼山自然與文化！搭乘全景纜車前往昂坪，造訪壯麗天壇大佛與古樸的大澳水上人家。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/4015-lantau-cultural-heritage-tour-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">永安號 - 維多利亞港遊船之旅（無限暢飲）｜幻彩詠香江｜璀璨夜遊</h3>
+                    <p class="card-desc">今夜就來微醺賞夜景！搭乘永安號遊覽維港，在無限暢飲歡樂氣氛中欣賞熱鬧的『幻彩詠香江』燈光秀。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/53-evening-harbor-cruises-hong-kong/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">室內遊戲</span>
+                    <h3 class="card-title">香港 Super Sports Park 門票｜全港最大室內運動遊樂場｜大角咀</h3>
+                    <p class="card-desc">準備好挑戰你的運動極限了嗎？佔地廣闊的運動樂園設有攀岩、滑板及彈床區，適合全家與朋友一同挑戰。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/83977-super-sports-park/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">觀光郵輪</span>
+                    <h3 class="card-title">維多利亞港夕陽/夜景-天際線之旅【含無限小食飲品+專人攝影+金牌導遊現場介紹】</h3>
+                    <p class="card-desc">捕捉黃昏到霓虹閃耀的美妙瞬間！金牌導遊隨行解說，搭配無限小吃飲品，輕鬆收藏維港最美角度。</p>
+                    <a href="https://www.klook.com/zh-TW/activity/83981-hongkong-skyline-cruise-victoria-harbour-tour/?aid=105907" target="_blank" class="card-link">看詳細說明</a>
+                </article></div></section>
+    </div>
+    <script>
+        function showCategory(categoryId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`button[onclick="showCategory('${categoryId}')"]`).classList.add('active');
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.toggle('active', categoryId === 'all' || section.id === categoryId);
+            });
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
