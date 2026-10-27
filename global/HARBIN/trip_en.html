@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harbin Tours & Tickets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- SEO & GEO 結構化資料 -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Harbin Trip Guide",
+  "description": "精選 Harbin 必訪的 trip 推薦清單與詳細交通指南。",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Global Travel Pass"
+  }
+}
+</script>
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
+        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
+        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
+        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+
+        const itineraryData = {"comparison_table": [{"advantage": "No physical card required\u2014simply scan your phone to ride! Pay as you go, making it hassle-free for all travelers.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "name": "Harbin Transit QR Code (WeChat / Alipay)", "price": "Pay-per-ride (Metro: RMB 2\u20137, Bus: RMB 1\u20132)", "scope": "All Harbin metro lines and city buses", "type": "Digital Transit Payment"}, {"advantage": "Offers discounts on select bus routes, making it a great option for long-term visitors to Harbin.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "name": "Harbin City Transit IC Card", "price": "RMB 15 deposit (plus your choice of top-up amount)", "scope": "Metro, city buses, and select ferries", "type": "Physical Transit Card"}, {"advantage": "Bundles major winter attractions at discounted rates, with select passes including convenient shuttle buses between sights.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "name": "Ice and Snow World \u0026 Attractions Combo Ticket (Seasonal)", "price": "Approx. RMB 320\u2013600 (varies by package)", "scope": "Top winter spots including Harbin Ice and Snow World, Sun Island Snow Expo, and Harbin Polar Park", "type": "Multi-Attraction Combo Pass"}], "cp_tips": "\u30101-2 Day Express Trip\u3011Simply open WeChat or Alipay, search for \u0027Harbin City Transit\u0027 (\u54c8\u723e\u6ff1\u57ce\u5e02\u901a), and activate your transit QR code. Hop on Metro Line 2 to effortlessly zip between Central Street, Sun Island, and the Ice and Snow World!\n\u30103-4 Day In-Depth Tour\u3011Winter temperatures in Northeast China drop significantly, so combining the warm Metro with taxis or ride-hailing services is the most comfortable and efficient way to get around. When crossing the river to Sun Island, take Metro Line 2 in winter (just 1 stop across the river) or enjoy a scenic Songhua River ferry ride during summer.", "faqs": [{"answer": "Currently, there is no direct metro connection to the airport. The easiest way to get downtown is by taking Airport Bus Line 1 to Harbin Railway Station or Airport Bus Line 2 to Harbin West Railway Station, where you can easily transfer to Metro Line 2 or 3.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "question": "Is there a direct metro line from Harbin Taiping International Airport to the city center?"}, {"answer": "You don\u0027t need a physical card! Simply open WeChat or Alipay, search for the \u0027Harbin City Transit\u0027 (\u54c8\u723e\u6ff1\u57ce\u5e02\u901a) mini-program, and activate the transit QR code. You can then scan your phone to ride on all metro lines and almost every city bus.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "question": "How do I pay for metro and bus rides in Harbin?"}, {"answer": "During summer, you can take the Songhua River ferry or the cable car. In winter (December to February), the river freezes over and ferry services pause, so taking Metro Line 2 (just 1 stop between Sun Island Station and Central Street Station) is the fastest and warmest way to cross!", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "question": "How do I cross the river between Sun Island and the Flood Control Monument in winter?"}], "title": "Harbin Transportation \u0026 Attraction Pass Guide"};
+        const REGIONS = Object.keys(itineraryData);
+        
+        // Dynamic category matching based on translated keys (AI might translate them to English)
+        const getIconForCategory = (catName) => {
+            const lowerCat = catName.toLowerCase();
+            if (lowerCat.includes('ticket') || lowerCat.includes('attraction')) return Ticket;
+            if (lowerCat.includes('tour') || lowerCat.includes('day')) return Sun;
+            if (lowerCat.includes('transport') || lowerCat.includes('sim') || lowerCat.includes('wifi')) return TrainFront;
+            return Ticket; // Default
+        };
+
+        function App() {
+            const [selectedRegion, setSelectedRegion] = useState(REGIONS[0] || '');
+            const availableCats = Object.keys(itineraryData[selectedRegion] || {});
+            const [selectedCategory, setSelectedCategory] = useState(availableCats[0] || '');
+
+            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
+
+            return (
+                <div className="min-h-screen font-sans text-slate-800 flex flex-col">
+                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-slate-200">
+                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="text-blue-600 w-6 h-6 md:w-8 md:h-8" />
+                                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-400">
+                                    Harbin Tours & Tickets
+                                    </h1>
+                                </div>
+                                <div className="hidden md:block">
+                                    <a href="index_en.html" className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm lg:text-base font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-transform active:scale-95">
+                                        <Home className="w-4 h-4" /> Home
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide items-center">
+                                <a href="index.html" className="md:hidden flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-sm shrink-0">
+                                    <Home className="w-4 h-4" /> Home
+                                </a>
+                                {REGIONS.map((region) => (
+                                    <button
+                                        key={region}
+                                        onClick={() => {
+                                            setSelectedRegion(region);
+                                            const newCats = Object.keys(itineraryData[region] || {});
+                                            setSelectedCategory(newCats[0]);
+                                        }}
+                                        className={`whitespace-nowrap px-5 py-2 md:py-2.5 rounded-full text-sm md:text-base font-medium transition-all ${
+                                            selectedRegion === region ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+                                        }`}
+                                    >
+                                        {region}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 py-8 md:py-10 flex-grow w-full">
+                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
+                            {availableCats.map((catId) => {
+                                const IconComp = getIconForCategory(catId);
+                                return (
+                                    <button
+                                        key={catId}
+                                        onClick={() => setSelectedCategory(catId)}
+                                        className={`flex items-center gap-2 px-5 py-2 md:py-2.5 rounded-lg border text-sm md:text-base font-medium transition-all ${
+                                            selectedCategory === catId ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
+                                        }`}
+                                    >
+                                        <IconComp className="w-4 h-4 md:w-5 md:h-5" />
+                                        {catId}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {currentData.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                                {currentData.map((item, index) => (
+                                    <div key={index} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col justify-between hover:shadow-xl transition-all transform hover:-translate-y-1">
+                                        <div>
+                                            <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 leading-tight">{item.title}</h3>
+                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">{item.description}</p>
+                                        </div>
+                                        <div className="mt-auto pt-5 border-t border-slate-100 flex justify-end">
+                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm w-full">
+                                                <Info className="w-4 h-4 md:w-5 md:h-5" />
+                                                <span className="md:text-lg">View Details & Book</span>
+                                                <ExternalLink className="w-4 h-4 md:w-5 md:h-5 ml-1 opacity-70" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-16 text-center flex flex-col items-center justify-center">
+                                <Sparkles className="w-10 h-10 text-slate-400 mb-3" />
+                                <h3 className="text-lg md:text-xl font-medium text-slate-700">No data available at the moment.</h3>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+    <footer class="text-center py-8 text-gray-400 text-sm md:text-base px-4">
+        <p>Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved. 提供最專業的亞洲自由行旅遊指南與行程規劃工具 (Asia Travel Guides & FIT Itineraries)。版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
+    </footer>
+</body>
+</html>
