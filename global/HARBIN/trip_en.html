@@ -1,159 +1,688 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Harbin Tours & Tickets</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- SEO & GEO 結構化資料 -->
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Harbin Trip Guide",
-  "description": "精選 Harbin 必訪的 trip 推薦清單與詳細交通指南。",
-  "publisher": {
-    "@type": "Organization",
-    "name": "Global Travel Pass"
-  }
-}
-</script>
+    <title>Harbin Travel Guide</title>
     <style>
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        :root { --primary-color: #3b82f6; --bg-color: #f7f9fa; --text-color: #333; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; line-height: 1.6; scroll-behavior: smooth; }
+        header { background: var(--primary-color); color: white; padding: 2rem 1rem; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 2rem; }
+        .header-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
+        .btn-top { background: white; color: var(--primary-color); text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .btn-top:hover { background: #eff6ff; }
+        .nav-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 1.5rem; }
+        .nav-btn { background: white; color: var(--primary-color); border: none; padding: 0.6rem 1.2rem; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .nav-btn:hover, .nav-btn.active { background: #eff6ff; color: #1d4ed8; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .category-section { margin-bottom: 3rem; display: none; }
+        .category-section.active { display: block; }
+        .category-title { border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .card-tag { display: inline-block; background: #eff6ff; color: var(--primary-color); font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.8rem; width: fit-content; }
+        .card-title { font-size: 1.1rem; font-weight: bold; margin: 0 0 0.5rem 0; line-height:1.4; }
+        .card-desc { font-size: 0.95rem; color: #555; flex-grow: 1; margin-bottom: 1rem; }
+        .card-link { display: block; text-align: center; background: var(--primary-color); color: white; text-decoration: none; padding: 0.6rem; border-radius: 4px; font-weight: bold; margin-top: auto; }
+        .card-link:hover { background: #2563eb; }
     </style>
 </head>
-<body class="bg-slate-50">
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState } = React;
-
-        const MapPin = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
-        const Ticket = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>;
-        const Sun = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
-        const TrainFront = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="M9 15h6"/><path d="M14 19.5l3-3-3-3"/><path d="M10 19.5l-3-3 3-3"/><path d="M4 22v-3.5"/><path d="M20 22v-3.5"/><rect width="16" height="16" x="4" y="3" rx="2"/></svg>;
-        const ExternalLink = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>;
-        const Info = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
-        const Home = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
-        const Sparkles = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
-
-        const itineraryData = {"comparison_table": [{"advantage": "No physical card required\u2014simply scan your phone to ride! Pay as you go, making it hassle-free for all travelers.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "name": "Harbin Transit QR Code (WeChat / Alipay)", "price": "Pay-per-ride (Metro: RMB 2\u20137, Bus: RMB 1\u20132)", "scope": "All Harbin metro lines and city buses", "type": "Digital Transit Payment"}, {"advantage": "Offers discounts on select bus routes, making it a great option for long-term visitors to Harbin.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "name": "Harbin City Transit IC Card", "price": "RMB 15 deposit (plus your choice of top-up amount)", "scope": "Metro, city buses, and select ferries", "type": "Physical Transit Card"}, {"advantage": "Bundles major winter attractions at discounted rates, with select passes including convenient shuttle buses between sights.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "name": "Ice and Snow World \u0026 Attractions Combo Ticket (Seasonal)", "price": "Approx. RMB 320\u2013600 (varies by package)", "scope": "Top winter spots including Harbin Ice and Snow World, Sun Island Snow Expo, and Harbin Polar Park", "type": "Multi-Attraction Combo Pass"}], "cp_tips": "\u30101-2 Day Express Trip\u3011Simply open WeChat or Alipay, search for \u0027Harbin City Transit\u0027 (\u54c8\u723e\u6ff1\u57ce\u5e02\u901a), and activate your transit QR code. Hop on Metro Line 2 to effortlessly zip between Central Street, Sun Island, and the Ice and Snow World!\n\u30103-4 Day In-Depth Tour\u3011Winter temperatures in Northeast China drop significantly, so combining the warm Metro with taxis or ride-hailing services is the most comfortable and efficient way to get around. When crossing the river to Sun Island, take Metro Line 2 in winter (just 1 stop across the river) or enjoy a scenic Songhua River ferry ride during summer.", "faqs": [{"answer": "Currently, there is no direct metro connection to the airport. The easiest way to get downtown is by taking Airport Bus Line 1 to Harbin Railway Station or Airport Bus Line 2 to Harbin West Railway Station, where you can easily transfer to Metro Line 2 or 3.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "question": "Is there a direct metro line from Harbin Taiping International Airport to the city center?"}, {"answer": "You don\u0027t need a physical card! Simply open WeChat or Alipay, search for the \u0027Harbin City Transit\u0027 (\u54c8\u723e\u6ff1\u57ce\u5e02\u901a) mini-program, and activate the transit QR code. You can then scan your phone to ride on all metro lines and almost every city bus.", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "question": "How do I pay for metro and bus rides in Harbin?"}, {"answer": "During summer, you can take the Songhua River ferry or the cable car. In winter (December to February), the river freezes over and ferry services pause, so taking Metro Line 2 (just 1 stop between Sun Island Station and Central Street Station) is the fastest and warmest way to cross!", "link": "https://affiliate.klook.com/redirect?aid=105907\u0026aff_adid=1515818\u0026k_site=https%3A%2F%2Fwww.klook.com%2Fzh-TW%2Fsearch%3Fquery%3DHarbin%20", "question": "How do I cross the river between Sun Island and the Flood Control Monument in winter?"}], "title": "Harbin Transportation \u0026 Attraction Pass Guide"};
-        const REGIONS = Object.keys(itineraryData);
-        
-        // Dynamic category matching based on translated keys (AI might translate them to English)
-        const getIconForCategory = (catName) => {
-            const lowerCat = catName.toLowerCase();
-            if (lowerCat.includes('ticket') || lowerCat.includes('attraction')) return Ticket;
-            if (lowerCat.includes('tour') || lowerCat.includes('day')) return Sun;
-            if (lowerCat.includes('transport') || lowerCat.includes('sim') || lowerCat.includes('wifi')) return TrainFront;
-            return Ticket; // Default
-        };
-
-        function App() {
-            const [selectedRegion, setSelectedRegion] = useState(REGIONS[0] || '');
-            const availableCats = Object.keys(itineraryData[selectedRegion] || {});
-            const [selectedCategory, setSelectedCategory] = useState(availableCats[0] || '');
-
-            const currentData = itineraryData[selectedRegion]?.[selectedCategory] || [];
-
-            return (
-                <div className="min-h-screen font-sans text-slate-800 flex flex-col">
-                    <header className="bg-white shadow-sm sticky top-0 z-10 border-b border-slate-200">
-                        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="text-blue-600 w-6 h-6 md:w-8 md:h-8" />
-                                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-400">
-                                    Harbin Tours & Tickets
-                                    </h1>
-                                </div>
-                                <div className="hidden md:block">
-                                    <a href="index_en.html" className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm lg:text-base font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-transform active:scale-95">
-                                        <Home className="w-4 h-4" /> Home
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide items-center">
-                                <a href="index.html" className="md:hidden flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-sm shrink-0">
-                                    <Home className="w-4 h-4" /> Home
-                                </a>
-                                {REGIONS.map((region) => (
-                                    <button
-                                        key={region}
-                                        onClick={() => {
-                                            setSelectedRegion(region);
-                                            const newCats = Object.keys(itineraryData[region] || {});
-                                            setSelectedCategory(newCats[0]);
-                                        }}
-                                        className={`whitespace-nowrap px-5 py-2 md:py-2.5 rounded-full text-sm md:text-base font-medium transition-all ${
-                                            selectedRegion === region ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                                        }`}
-                                    >
-                                        {region}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </header>
-
-                    <main className="max-w-7xl mx-auto px-4 py-8 md:py-10 flex-grow w-full">
-                        <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
-                            {availableCats.map((catId) => {
-                                const IconComp = getIconForCategory(catId);
-                                return (
-                                    <button
-                                        key={catId}
-                                        onClick={() => setSelectedCategory(catId)}
-                                        className={`flex items-center gap-2 px-5 py-2 md:py-2.5 rounded-lg border text-sm md:text-base font-medium transition-all ${
-                                            selectedCategory === catId ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'
-                                        }`}
-                                    >
-                                        <IconComp className="w-4 h-4 md:w-5 md:h-5" />
-                                        {catId}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {currentData.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                                {currentData.map((item, index) => (
-                                    <div key={index} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col justify-between hover:shadow-xl transition-all transform hover:-translate-y-1">
-                                        <div>
-                                            <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-4 leading-tight">{item.title}</h3>
-                                            <p className="text-slate-600 text-sm md:text-base mb-6 leading-relaxed">{item.description}</p>
-                                        </div>
-                                        <div className="mt-auto pt-5 border-t border-slate-100 flex justify-end">
-                                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm w-full">
-                                                <Info className="w-4 h-4 md:w-5 md:h-5" />
-                                                <span className="md:text-lg">View Details & Book</span>
-                                                <ExternalLink className="w-4 h-4 md:w-5 md:h-5 ml-1 opacity-70" />
-                                            </a>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-16 text-center flex flex-col items-center justify-center">
-                                <Sparkles className="w-10 h-10 text-slate-400 mb-3" />
-                                <h3 className="text-lg md:text-xl font-medium text-slate-700">No data available at the moment.</h3>
-                            </div>
-                        )}
-                    </main>
-                </div>
-            );
+<body>
+    <header>
+        <div class="header-actions">
+            <a href="index_en.html" class="btn-top">🏠 Home</a>
+            
+        </div>
+        <h1>Harbin Travel Guide</h1>
+        <div class="nav-buttons" id="navButtons">
+            <button class="nav-btn active" onclick="showCategory('all')">All</button>
+            <button class="nav-btn" onclick="showCategory('cat_0')">Transport & Connectivity</button><button class="nav-btn" onclick="showCategory('cat_1')">Attractions & Tickets</button><button class="nav-btn" onclick="showCategory('cat_2')">Tours & Sightseeing</button><button class="nav-btn" onclick="showCategory('cat_3')">Food & Dining</button><button class="nav-btn" onclick="showCategory('cat_5')">Unique Experiences</button>
+        </div>
+    </header>
+    <div class="container">
+        <section class="category-section active" id="cat_0"><h2 class="category-title">Transport & Connectivity</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">China 5G eSIM | Unlimited Data | China Unicom</h3>
+                    <p class="card-desc">Stay connected seamlessly across China! Enjoy high-speed 5G unlimited data powered by China Unicom with instant activation and no physical SIM required.</p>
+                    <a href="https://www.klook.com/en-US/activity/128576-china-esim-high-speed-internet-qr-code-voucher/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">中港澳 | 4G/5G 高速eSIM 免翻牆（即買即取QR Code）</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/101509-cn-hk-mo-esim-card/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Taiping International Airport Private Transfers</h3>
+                    <p class="card-desc">Begin your northern journey with absolute ease.<br>Enjoy reliable private transfer service between Harbin Taiping International Airport and the city center for a seamless travel experience.</p>
+                    <a href="https://www.klook.com/en-US/airport-transfers/?flightDirection=1&code=HRB&aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin City Highlights Private Day Tour</h3>
+                    <p class="card-desc">Explore the essential charms of the Ice City in a single day.<br>Travel conveniently by private vehicle to Ice and Snow World, St. Sophia Cathedral, and the Siberian Tiger Park.</p>
+                    <a href="https://www.klook.com/en-US/activity/169299-harbin-city-charter-tour-one-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Private Tour: Harbin, China Snow Town & Yabuli Ski Resort</h3>
+                    <p class="card-desc">Step into a winter fairy tale wonderland.<br>This 2-day private charter smoothly connects Harbin, Yabuli Ski Resort, and China Snow Town with continuous private transport.</p>
+                    <a href="https://www.klook.com/en-US/activity/169332-/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">China Railway High-Speed Train Tickets: Harbin to Changchun, Changbai Mountain, Yanji, Shenyang & Jilin</h3>
+                    <p class="card-desc">Connect easily across Northeast China's top destinations.<br>Book high-speed rail tickets linking Harbin with Changchun, Changbaishan, Yanji, and Shenyang efficiently.</p>
+                    <a href="https://www.klook.com/en-US/activity/135434-1/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5-Day Private Tour: Harbin, Yabuli & China Snow Town</h3>
+                    <p class="card-desc">Immerse deeply into Northeast China's pristine winter landscapes.<br>Enjoy a comprehensive 5-day private charter covering Harbin, Yabuli, and Snow Town at your own pace.</p>
+                    <a href="https://www.klook.com/en-US/activity/138676-haya-snow-5-days-4-nights-charter/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">3-Day Private Tour: Harbin, Yabuli & China Snow Town</h3>
+                    <p class="card-desc">Discover winter magic with a concise holiday itinerary.<br>Connect Harbin, Yabuli, and Snow Town effortlessly over three days with private vehicle service.</p>
+                    <a href="https://www.klook.com/en-US/activity/138640-haya-snow-3-days-2-nights-charter/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin High-Speed Railway Station Transfers</h3>
+                    <p class="card-desc">Ensure a smooth transition upon arrival or departure.<br>Book private transfers between Harbin High-Speed Railway Station and your hotel with professional drivers.</p>
+                    <a href="https://www.klook.com/en-US/activity/135718-high-speed-railway-station-transfer-haerbin/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5-Day Private Tour: Harbin to Changbai Mountain</h3>
+                    <p class="card-desc">Traverse majestic icy landscapes between Harbin and Changbaishan.<br>Enjoy flexible travel with a 5-day private vehicle service exploring key northern highlights.</p>
+                    <a href="https://www.klook.com/en-US/activity/138682-changbaishan-5-days-4-nights-charter/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Classic City Landmarks Private Day Tour</h3>
+                    <p class="card-desc">Experience European elegance in the heart of Harbin.<br>Custom day tour covering St. Sophia Cathedral, Central Street, and the frozen Songhua River.</p>
+                    <a href="https://www.klook.com/en-US/activity/135444-harbin-city-day-bus/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Railway Station VIP Lounge Pass</h3>
+                    <p class="card-desc">Find an oasis of peace amidst busy travel schedules.<br>Access comfortable seating, refreshments, and Wi-Fi at the Harbin Railway Station VIP lounge.</p>
+                    <a href="https://www.klook.com/en-US/activity/180155-harbin-station-high-speed-rail-lounge/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_1"><h2 class="category-title">Attractions & Tickets</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Ice and Snow World Admission Ticket</h3>
+                    <p class="card-desc">Witness magnificent ice architecture illuminated at night.<br>Visit the iconic world-class ice park featuring giant ice sculptures, slides, and magical winter lights.</p>
+                    <a href="https://www.klook.com/en-US/activity/225811-harbin-ice-and-snow-world/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Volga Manor Admission Ticket Harbin</h3>
+                    <p class="card-desc">Immerse in authentic Russian architecture and scenic landscapes.<br>Explore Volga Manor to appreciate exquisite classic buildings, Russian culture, and natural snowscapes.</p>
+                    <a href="https://www.klook.com/en-US/activity/167059-harbin-volga-estate/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">東北虎林園</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/225922-siberia-tiger-park/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">松花江觀光索道</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/140306-songhua-river-sightseeing-ropeway/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Polarland Admission Ticket</h3>
+                    <p class="card-desc">Meet amazing polar animals in a family-friendly setting.<br>Discover penguins, beluga whales, and polar bears with interactive marine performances at Harbin Polarland.</p>
+                    <a href="https://www.klook.com/en-US/activity/105274-harbin-polarland-admission-ticket/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">太陽島風景區</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/225883-harbin-sun-island-scenic-spot/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">哈藥六版畫博物館</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/175416-hayaolu-print-museum/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">聖索菲亞教堂</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/225897-saint-sophia-cathedral/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">黑龍江《東北虎林園國際馬戲城》演出票</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/167546-performance-tickets-for-the-hulin-garden-international-circus-city-in-heilongjiang/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">波塞冬旅遊度假區</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/183242-poseidon-tourist-resort/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">俄羅斯風情小鎮</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/183358-russian-style-town/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">平山神鹿旅遊區</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/175151-pingshan-shenlu-tourist-area/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_2"><h2 class="category-title">Tours & Sightseeing</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Northeast China Private Customized Tour (Harbin/Jilin/Yanji/Shenyang)</h3>
+                    <p class="card-desc">Tailor your journey across Harbin, Jilin, Yanji, and Shenyang. Enjoy personalized itineraries designed for a flexible winter exploration.</p>
+                    <a href="https://www.klook.com/en-US/activity/134556-dongbei/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5-Day Harbin Ice and Snow World, Yabuli & Xuexiang Tour</h3>
+                    <p class="card-desc">Explore northern snow destinations over 5 days, featuring Harbin Ice and Snow World, Yabuli ski slopes, and iconic Xuexiang scenery.</p>
+                    <a href="https://www.klook.com/en-US/activity/168225-harbin/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Ice and Snow Fantasy 7-Day Tour: Harbin, Changbai Mountain, Xuexiang & Yanji</h3>
+                    <p class="card-desc">Discover iconic Northeast highlights over 7 days, including Harbin ice art, scenic Changbai Mountain, Xuexiang views, and Yanji culture.</p>
+                    <a href="https://www.klook.com/en-US/activity/132687-dongb/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5-Day Harbin to Mohe Round-Trip Snow Train Tour</h3>
+                    <p class="card-desc">Travel to China's northernmost point on a scenic snow train, discovering vast winter landscapes and charming Arctic villages over 5 days.</p>
+                    <a href="https://www.klook.com/en-US/activity/81511-snowpiercer-5-day-4-night-harbin/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Harbin & Xuexiang Tour</h3>
+                    <p class="card-desc">Ideal for a short getaway, this 2-day tour efficiently connects Harbin with the famous Xuexiang, showcasing iconic snowy views.</p>
+                    <a href="https://www.klook.com/en-US/activity/182344-harbin-snow-town-2-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Yabuli & Xuexiang Round Trip from Harbin</h3>
+                    <p class="card-desc">Experience skiing in Yabuli and the picturesque landscapes of Xuexiang on this round-trip 2-day excursion from Harbin.</p>
+                    <a href="https://www.klook.com/en-US/activity/168830-harbin-2-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">6-Day Small Group Winter Tour: Harbin, Xuexiang & Changbai Mountain</h3>
+                    <p class="card-desc">Enjoy an intimate travel experience on this 6-day small group tour covering Harbin, romantic Xuexiang, and grand Changbai Mountain.</p>
+                    <a href="https://www.klook.com/en-US/activity/238792-harbin-china-snow-town-changbai-mountain-winter-6-day-small-group-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">China Snow Town Day Tour</h3>
+                    <p class="card-desc">Experience fairytale landscapes in a single day. Tour China Snow Town to photograph famous snow mushrooms and absorb traditional regional winter charm.</p>
+                    <a href="https://www.klook.com/en-US/activity/182668-harbin-snow-town-one-day-tour-ice-and-snow-gallery-dadingdingzi/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">4-Day Northeast Ice and Snow Fairytale Tour: Harbin, Yabuli & Xuexiang</h3>
+                    <p class="card-desc">Spend 4 days taking in Harbin city attractions, Yabuli snow activities, and the captivating evening views of Xuexiang village.</p>
+                    <a href="https://www.klook.com/en-US/activity/133973-4-day-snow-fairy-tale/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Northeast Harbin & Xuexiang Tour</h3>
+                    <p class="card-desc">A straightforward 2-day journey linking Harbin and Xuexiang, offering convenient transport and picturesque winter scenery.</p>
+                    <a href="https://www.klook.com/en-US/activity/189517-harbin-snow-village-two-day-tour-upgrade-to-skiing/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">6-Day Private Tour: Harbin Ice and Snow World & Xuexiang</h3>
+                    <p class="card-desc">Enjoy a private tour experience over 6 days, exploring Harbin Ice and Snow World and Xuexiang with personal vehicle service.</p>
+                    <a href="https://www.klook.com/en-US/activity/177655-harbin-snow-town-private-6-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Harbin, Xuexiang & Ice and Snow Gallery Tour</h3>
+                    <p class="card-desc">Explore natural winter beauty on this 2-day trip covering Xuexiang and the frozen wonders of the Ice and Snow Gallery.</p>
+                    <a href="https://www.klook.com/en-US/activity/234625-harbin-snow-town-ice-and-snow-gallery-2-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">3-Day Winter Journey: Harbin, Yabuli & Xuexiang</h3>
+                    <p class="card-desc">A balanced 3-day itinerary integrating Harbin urban features, outdoor sports in Yabuli, and traditional village views in Xuexiang.</p>
+                    <a href="https://www.klook.com/en-US/activity/234911-harbin-yabuli-snow-village-3-day-winter-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">China Snow Town & Erlanghe Rafting Day Tour</h3>
+                    <p class="card-desc">Combine vibrant snow scenes with water adventures. Enjoy Snow Town scenery alongside winter rafting along the scenic Erlanghe River in one day.</p>
+                    <a href="https://www.klook.com/en-US/activity/186009-chinese-snow-town-one-day-rafting-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">7-Day Tour: Harbin, Mohe & Xuexiang Journey</h3>
+                    <p class="card-desc">Discover vast northern landscapes over 7 days, connecting Harbin, the remote northern frontier of Mohe, and picturesque Xuexiang.</p>
+                    <a href="https://www.klook.com/en-US/activity/175798-meet-snow-in-mohe-snow-town-7-day-premium-small-group-tour-2-8-p/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">5-Day Tour: Harbin, Xuexiang & Changbai Mountain</h3>
+                    <p class="card-desc">Experience iconic winter destinations over 5 days, seamlessly connecting Harbin, Xuexiang, and the stunning Changbai Mountain.</p>
+                    <a href="https://www.klook.com/en-US/activity/100417-dong-bei-xue-xiang-5-days-4-nights/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">6-Day Bus Tour: Harbin, Changbai Mountain, Xuexiang & Jingpo Lake</h3>
+                    <p class="card-desc">Travel by coach on a 6-day journey featuring Harbin, Changbai Mountain, Xuexiang, and the frozen expanse of Jingpo Lake.</p>
+                    <a href="https://www.klook.com/en-US/activity/174764-go-wild-northeast-china-7-day-6-night-coach-tour-2-28-people/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Snow Town & Mount Datudingzi 1-Day Winter Experience</h3>
+                    <p class="card-desc">Ascend high peaks for snowy panoramas. Visit Snow Town and climb Mount Datudingzi, Heilongjiang's highest peak, for majestic forest vistas.</p>
+                    <a href="https://www.klook.com/en-US/activity/234054-harbin-china-snow-town-datudingzi-mountain-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Harbin & Xuexiang Tour with Premium Bus & Kang Accommodation</h3>
+                    <p class="card-desc">Enhance your 2-day trip with luxury coach transport and authentic heated Kang bed accommodation inside Xuexiang village.</p>
+                    <a href="https://www.klook.com/en-US/activity/187808-2-day-tour-of-harbin-snow-town/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Small Group Ski Tour: Harbin, Yabuli & Xuexiang</h3>
+                    <p class="card-desc">Join an intimate small group for a 2-day winter tour featuring alpine skiing in Yabuli and sightseeing in Xuexiang.</p>
+                    <a href="https://www.klook.com/en-US/activity/175998-harbin-yabuli-china-snow-town-2-day-small-group-skiing-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">9-Day Private Deep Tour: Complete Northeast China Winter Panorama</h3>
+                    <p class="card-desc">A comprehensive 9-day private journey through Northeast China's top winter destinations, featuring flexible pacing and personal service.</p>
+                    <a href="https://www.klook.com/en-US/activity/181273-private-tour-9-day-in-depth-panoramic-ice-and-snow-tour-of-harbin-northeast-china/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">2-Day Winter Exploration: Harbin, Xuexiang & Yabuli</h3>
+                    <p class="card-desc">Capture the essence of winter in 2 days with an efficient itinerary visiting Xuexiang village and Yabuli ski resort.</p>
+                    <a href="https://www.klook.com/en-US/activity/234648-harbin-snow-town-yabuli-2-day-winter-discovery-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Siberian Tiger Park & Russian Town Small Group Day Tour</h3>
+                    <p class="card-desc">Step into polar wildlife and exotic charm. Explore the Siberian Tiger Park and stroll through an authentic Russian-style town with expert local guidance.</p>
+                    <a href="https://www.klook.com/en-US/activity/223803-harbin-full-day-small-group-siberia-tiger-park-russian-town-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin, Mohe, Changbai Mountain & Snow Town 9-Day Private Tour</h3>
+                    <p class="card-desc">Journey through Northeast China's ultimate winter wonderlands. This 9-day private tour covers Mohe, Changbai Mountain, and Snow Town with customized services.</p>
+                    <a href="https://www.klook.com/en-US/activity/134690-ice-and-snow-fantasy-panorama-northeast-harbin-9-days-8-nights/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin China Snow Town & Mount Datudingzi Small Group Tour</h3>
+                    <p class="card-desc">Summit the highest peak of Heilongjiang. Join a small group to visit the magical Snow Town and conquer Mount Datudingzi for spectacular snowscapes.</p>
+                    <a href="https://www.klook.com/en-US/activity/233725-harbin-china-snow-town-datudingzi-mountain-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Custom Full-Day Tour with Private Guide & Optional Vehicle</h3>
+                    <p class="card-desc">Tailor your ideal Harbin itinerary with complete freedom. Enjoy personalized guiding services and flexible vehicle choices to explore city highlights at your own pace.</p>
+                    <a href="https://www.klook.com/en-US/activity/234531-harbin-custom-full-day-tour-private-guide-optional-vehicle/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">1-Day Yabuli Skiing & Snow Town Tour</h3>
+                    <p class="card-desc">Maximize your day with two top activities. Experience skiing at Yabuli alongside a visit to the magical snowy village of Snow Town.</p>
+                    <a href="https://www.klook.com/en-US/activity/180619-yabuli-skiing-snow-town-1-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Yabuli & Snow Town 3-Day Tour (4-Star Hotels & 20-Pax Group)</h3>
+                    <p class="card-desc">Experience premier ski resorts and winter landscapes. Stay at 4-star hotels and explore Yabuli Ski Resort and Snow Town in a comfortable group setting.</p>
+                    <a href="https://www.klook.com/en-US/activity/182952-yabuli-snow-village-multi-day-winter-snow-exploration/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin to Yabuli Ski Day Tour with Transport, Gear & All-Day Skiing</h3>
+                    <p class="card-desc">Seamless access to Northeast China's top ski slopes. Includes round-trip transport, full ski equipment, and all-day pass for a hassle-free skiing day.</p>
+                    <a href="https://www.klook.com/en-US/activity/190471-one-day-trip-to-yabuli-ski-resort-in-harbin/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin 3-Day Tour: Ice and Snow World & St. Sophia Cathedral</h3>
+                    <p class="card-desc">Discover the landmark art and architecture of Harbin. This 3-day tour covers the magnificent Ice and Snow World and the historic St. Sophia Cathedral.</p>
+                    <a href="https://www.klook.com/en-US/activity/173028-saint-sophia-church-harbin-ice-and-snow-world-multi-day-city-highlights-all-inclusive-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Ice and Snow World Half-Day Tour with Audio Guide</h3>
+                    <p class="card-desc">Appreciate world-class ice sculptures at your own rhythm. This half-day package features a comprehensive audio guide detailing the magnificent frozen art exhibits.</p>
+                    <a href="https://www.klook.com/en-US/activity/225917-harbin-bingxue-big-world-half-day-tour-with-e-guide/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin, Snow Town, Yabuli & Hengdaohezi 5-Day Private Tour</h3>
+                    <p class="card-desc">Uncover historic towns and snowy landscapes. A 5-day private journey covering Yabuli, Snow Town, and the unique historical atmosphere of Hengdaohezi.</p>
+                    <a href="https://www.klook.com/en-US/activity/100012-dong-bei-harbin-5-days-4-nights/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin 1-Day Private Tour: Siberian Tiger Park & Sun Island</h3>
+                    <p class="card-desc">Combine wildlife conservation with scenic island beauty. Enjoy a seamless day trip to the Siberian Tiger Park and the peaceful natural sights of Sun Island.</p>
+                    <a href="https://www.klook.com/en-US/activity/135583-harbin-siberian-tiger-park-sun-island-scenic-area-saint-sophia-cat/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin 2-Day Tour: Ice and Snow World, Songhua River & Tiger Park</h3>
+                    <p class="card-desc">Immerse yourself in Harbin's core winter sights. Over two days, experience the frozen Songhua River, the Tiger Park, and the glowing Ice and Snow World.</p>
+                    <a href="https://www.klook.com/en-US/activity/169104-harbin-2-day-small-group-tour-ice-world-tiger-park-volga-manor/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Snow Town & Ice-Snow Gallery Day Tour</h3>
+                    <p class="card-desc">Travel through a natural wonderland of ice and rime. This day tour takes you to the iconic Snow Town and the breathtaking Ice-Snow Gallery.</p>
+                    <a href="https://www.klook.com/en-US/activity/186624-yabuli-snow-town-round-trip-one-day-tour-ice-snow-gallery-china/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Siberian Tiger Park & Harbin Grand Theatre Day Tour</h3>
+                    <p class="card-desc">Blend wildlife exploration with modern architectural marvels. Visit the Siberian Tiger Park and admire the stunning design of Harbin Grand Theatre in one day.</p>
+                    <a href="https://www.klook.com/en-US/activity/232439-harbin-siberia-tiger-park-grand-theatre-day-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Institute of Technology & Chinese Baroque Small Group Tour</h3>
+                    <p class="card-desc">Experience historical architecture and academic prestigious tradition. Explore the historic Chinese Baroque district and the renowned Harbin Institute of Technology.</p>
+                    <a href="https://www.klook.com/en-US/activity/225685-harbin-institute-of-technology-chinese-baroque-street-discovery/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Volga Manor Half-Day Tour in Harbin with Audio Guide</h3>
+                    <p class="card-desc">Immerse in authentic Russian countryside architecture and atmosphere. Discover Volga Manor with a self-paced audio guide highlighting its castles and history.</p>
+                    <a href="https://www.klook.com/en-US/activity/225946-harbin-volga-manor-half-day-tour-with-e-guide/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Yabuli Alpine Skiing Day Tour with Bus Transfer</h3>
+                    <p class="card-desc">Designed for alpine ski enthusiasts seeking a day on slopes. Includes convenient round-trip bus transfers and classic alpine ski gear rentals.</p>
+                    <a href="https://www.klook.com/en-US/activity/223328-harbin-yabuli-full-day-skiing-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Yabuli 5-Day Small Group Ski Tour</h3>
+                    <p class="card-desc">An immersive multi-day sports retreat in the snow. Enjoy ample skiing time, small group comradeship, and focused practice at Yabuli Ski Resort.</p>
+                    <a href="https://www.klook.com/en-US/activity/241887-harbin-yabuli-5-day-skiing-adventure-with-small-group/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_3"><h2 class="category-title">Food & Dining</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Harbin Red Gate Imperial Banquet Experience</h3>
+                    <p class="card-desc">Immerse yourself in traditional royal culture with lavish dining, live performances, and optional period costume dress-up experiences.</p>
+                    <a href="https://www.klook.com/en-US/activity/138623-harbin-hongmen-imperial-banquet-experience-imperial-treatment/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section><section class="category-section active" id="cat_5"><h2 class="category-title">Unique Experiences</h2><div class="grid">
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Volga Manor Day Tour from Harbin (Small Group)</h3>
+                    <p class="card-desc">Enjoy a curated small-group excursion to Volga Manor.<br>Includes hassle-free transfers and guided visits to explore Russian architecture and picturesque snowy grounds.</p>
+                    <a href="https://www.klook.com/en-US/activity/223680-volga-manor-full-day-small-group-tour/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Russian Palace Style Costume & Photography Experience in Harbin</h3>
+                    <p class="card-desc">Transform into royalty with an elegant costume photography session.<br>Dress in classic Russian attire and capture lasting holiday memories with professional photography.</p>
+                    <a href="https://www.klook.com/en-US/activity/173272-harbin-court-style-costume-shooting-experience/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">雪鄉 + 十里畫廊一日遊（含馬拉爬犁）</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/241728-china-snow-town-full-day-experience-with-transfers/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Full-Day Skiing at Tianheng Ski Resort Harbin</h3>
+                    <p class="card-desc">Experience the thrill of winter sports on fine snow.<br>Enjoy a full day of skiing at Tianheng Ski Resort with quality slopes and equipment.</p>
+                    <a href="https://www.klook.com/en-US/activity/237926-harbin-tianhengshan-ski-resort-full-day-skiing-adventure/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Yabuli Ski Resort Day Tour from Harbin (Includes Ski Pass)</h3>
+                    <p class="card-desc">Head to China's premier skiing destination effortlessly.<br>Includes round-trip travel from Harbin and ski passes for an unforgettable day at Yabuli Ski Resort.</p>
+                    <a href="https://www.klook.com/en-US/activity/168813-harbin-yabuli-day-trip/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Holiday Inn Express Harbin Cultural Center / Central Street</h3>
+                    <p class="card-desc">Stay conveniently located close to iconic city sights.<br>Offers modern guest rooms and easy access to Central Street for business and leisure travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1748259-holiday-inn-express-harbin-central-avenue-by-ihg/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Maoer Mountain Alpine Skiing Day Tour (Transfers & Gear Included)</h3>
+                    <p class="card-desc">Conquer scenic alpine slopes with an all-inclusive package.<br>Includes round-trip transport, ski resort admission, skis, and poles for a day on Maoer Mountain.</p>
+                    <a href="https://www.klook.com/en-US/activity/237935-mao-ershan-skiing-full-day-adventure/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">ZMAX Hotel Harbin Hayao Road Central Street Ice and Snow World</h3>
+                    <p class="card-desc">Combine trendy design with convenient access to popular attractions.<br>Located near Hayao Road and Ice World, providing stylish comfort for contemporary travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/916631-zmax-hotelharbin-bingxue-big-world/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Xana Deluxe Hotel Harbin Central Street St. Sophia Cathedral</h3>
+                    <p class="card-desc">Indulge in French elegance and thoughtful hospitality.<br>Conveniently situated near St. Sophia Cathedral and Central Street, offering upscale accommodation in downtown Harbin.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1503556-harbin-central-street-sophia-xana-deluxe-hotel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Hanting Hotel Harbin Central Street Qianjin Road</h3>
+                    <p class="card-desc">Enjoy reliable comfort and warm hospitality during your visit.<br>Located near Central Street, offering clean, functional rooms and essential conveniences for all travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/896498-hanting-hotel-harbin-central-street-qianjin-road/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Hilton Garden Inn Harbin Haxi</h3>
+                    <p class="card-desc">Experience modern business comfort in the ice city. Located near Harbin West Railway Station, offering convenient transportation, comfortable rooms, and well-equipped facilities for all travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1769639-hilton-garden-inn-harbin-haxi/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Snow house</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1847670-snow-house/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">JW Marriott Hotel Harbin</h3>
+                    <p class="card-desc">Enjoy luxurious riverfront hospitality in Harbin. Situated in Songbei District, featuring stunning river views and fine dining. Spacious rooms and top-tier services ensure an unforgettable stay.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/314672-jw-marriott-hotel-harbin-river-north/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Ji Hotel (Harbin Songbei Sunac Land)</h3>
+                    <p class="card-desc">Discover minimalist Oriental aesthetics in Songbei. Close to Sunac Land, this hotel features a clean, simple design and offers a peaceful retreat with modern conveniences.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/629451-atour-hotel-harbin-ice-and-snow-world-rongchuangmao-branch/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Atour Light Hotel Harbin Central Street</h3>
+                    <p class="card-desc">Immerse yourself in local culture near Central Street. Located in the bustling Central Street district, combining reading and photography elements for a cozy, lifestyle-oriented accommodation experience.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/883027-atour-light-hotel-harbin-central-street/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Vienna Hotel (Harbin Railway Station Jianguo Street)</h3>
+                    <p class="card-desc">Relax in classic European-style elegance. Near Harbin Railway Station, featuring classic baroque decor and premium bedding to ensure a tranquil rest for business and leisure guests.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1223481-vienna-hotel-harbin-railway-station-jianguo-street/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">James Joyce Coffetel (Harbin Haxi Railway Station Wanda Plaza)</h3>
+                    <p class="card-desc">Indulge in a unique coffee-themed hotel stay. Combining a cafe ambiance with vintage British decor, conveniently situated near the high-speed rail station and Wanda Plaza.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/916626-james-joyce-coffetel-harbin-west-highspeed-railway-station-wanda-plaza/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Qiuguo Hotel (Harbin Central Street Saint Sophia Cathedral Railway Station)</h3>
+                    <p class="card-desc">Enjoy seamless access to Harbin's iconic landmarks. Prime location near Saint Sophia Cathedral and Central Street, offering smart room technology and warm, thoughtful services.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/620269-orange-hotel-harbin-railway-station-central-street/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">7 Days Inn Harbin First Affiliated Hospital of Harbin Medical University</h3>
+                    <p class="card-desc">Enjoy a simple and clean stay in a central area. Located right by the medical center, offering practical amenities, crisp bedding, and easy access to daily necessities.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1230004-7-days-inn-harbin-yida-one-yuan/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">大禿頂子山 & 雪鄉一日遊（含馬拉爬犁體驗）</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/activity/241757-datudingzi-mountain-xuexiang-day-tour-with-sleigh-ride/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Ji Hotel (Harbin Central Street)</h3>
+                    <p class="card-desc">Unwind in a modern wood-toned oasis. Located directly on historic Central Street, providing convenient access to shopping and dining, complemented by warm, minimalist interiors.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/624593-ji-hotel-harbin-central-avenue/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Homeinn Selected (Harbin Central Street Xinyang Road Airport Bus Station)</h3>
+                    <p class="card-desc">A perfect hub for seamless airport transit. Positioned right by the airport shuttle stop and near Central Street, featuring stylish modern design and convenient amenities.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1863719-home-inn-plus-harbin-central-street-hit-xinyang-road-airport-bus-station/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Pai Hotel Harbin Baroque Chengde Square</h3>
+                    <p class="card-desc">Explore historic streets with vibrant local character. Located near Chengde Square and the Chinese Baroque district, offering unique, colorful room designs and essential modern comfort.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/916659-pai-hotelsharbin-baroque-chengde-square/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Jinjiang Inn Style Harbin West Station Chengxiang Road Metro Station</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/630148-jinjiang-inn-style-harbin-west-station-chengxiang-road-metro-station/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Binpeng Tianxia Hotel (Harbin Taiping International Airport)</h3>
+                    <p class="card-desc">Stress-free accommodations near the airport terminal. Situated close to Taiping International Airport, featuring quiet rooms and reliable airport transfer options for transit travelers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1414013-binpeng-tianxia-hotel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Atour Hotel Harbin Exhibition Center Hongqi Avenue</h3>
+                    <p class="card-desc">Elevate your business trip with literary charm. Near the Harbin International Exhibition Center, featuring a 24-hour library, cozy guestrooms, and attentive service for professionals.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/630840-atour-hotel-harbin-convention-and-exhibition-center/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Jinjiang Inn Select Harbin Songhuajiang Side Daxing Street</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/916624-jinjiang-inn-select-harbin-songhuajiang-side-daxing-street--------------------------------/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Vienna Hotel 5.0 Harbin Taiping International Airport</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1987749-vienna-hotel-50-harbin-taiping-international-airport/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">7 Days Inn Harbin Chengde Square</h3>
+                    <p class="card-desc">Reliable comfort in a well-connected location. Centrally located around Chengde Square, providing essential amenities, clean spaces, and convenient access to local dining and transit.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/916642-7-days-inn-harbin-cheng-de-plaza/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Shangri-La Songbei, Harbin</h3>
+                    <p class="card-desc">Indulge in riverfront luxury and magnificent views. Set in Songbei with views of the Songhua River and Ice World, featuring world-class dining, spa facilities, and refined hospitality.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/228993-shangrila-songbei-harbin/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Shangri-La Hotel, Harbin</h3>
+                    <p class="card-desc">Classic luxury overlooking the majestic Songhua River. Located along the riverbank, combining timeless elegance with exceptional service, fine dining, and panoramic water views.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/317356-shangrila-harbin/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Fairfield by Marriott Harbin Downtown</h3>
+                    <p class="card-desc">Enjoy effortless travel and modern simplicity downtown. Situated in the city center, offering inviting spaces, intuitive amenities, and reliable quality for business and leisure stays.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/880497-fairfield-by-marriott-harbin-downtown/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Jinjiang Inn Harbin Xidazhi Street</h3>
+                    <p class="card-desc">Dependable lodging near major transit options. Located along Xidazhi Street near Metro stops, providing standardized clean rooms, excellent security, and convenient city travel.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/568508-jinjiang-inn-harbin-xidazhi-street/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Crystal Orange Hotel Harbin Central Street R&F Jiangwan</h3>
+                    <p class="card-desc">Contemporary style meets smart living near the river. Located at R&F Jiangwan near Central Street, offering tech-forward room controls, stylish interior designs, and stunning urban views.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1996530-crystal-orange-harbin-zhong-yang-street-fuli-jiangwan/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Jinjiang Metropolo Hotel Harbin West Station Wanda Plaza</h3>
+                    <p class="card-desc">Refined metropolitan hospitality near the high-speed hub. Adjacent to Harbin West Station and Wanda Plaza, featuring Art Deco aesthetics, thoughtful amenities, and seamless business access.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/916656-metropolo-jinjiang-hotels-harbin-west-station-wanda-plaza/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Bremen Hotel Harbin</h3>
+                    <p class="card-desc">European charm in the heart of Harbin. Inspired by German architectural styles, offering elegant guestrooms, authentic ambiance, and easy access to local commercial centers.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/916620-bremen-hotel/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">James Joyce Coffetel Harbin Central Street</h3>
+                    <p class="card-desc">Savor classic cafe ambience on Central Street. Steps from Central Street, blending vintage coffeehouse aesthetic with comfortable accommodation for a relaxed, cultured travel experience.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/937821-james-joyce-coffetel-hotel-harbin-central-avenue-flood-control-memorial-tower/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Licheng Donggu Hotel (Harbin Ice and Snow World)</h3>
+                    <p class="card-desc">Experience winter comfort near the famous Ice and Snow World. This hotel offers modern amenities and convenient access to key attractions.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1656544-rezen-dong-hotel-harbin-ice--snow-world/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">Starway Hotel (Harbin Central Street Sophia Church)</h3>
+                    <p class="card-desc">Curated local experience to enrich your journey seamlessly. We recommend planning ahead.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1616765-starway-hotel-harbin-central-street-sophia-church/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article>
+                <article class="card">
+                    <span class="card-tag">Travel Experience</span>
+                    <h3 class="card-title">GreenTree Inn Harbin Railway Station Express Hotel</h3>
+                    <p class="card-desc">Positioned near Harbin Railway Station, this hotel provides practical accommodation and excellent transport connectivity for efficient travel.</p>
+                    <a href="https://www.klook.com/en-US/hotels/detail/1031766-greentree-inn-express-hotel-harbin-railway-station-airport-bus-station/?aid=105907" target="_blank" class="card-link">View Details</a>
+                </article></div></section>
+    </div>
+    <script>
+        function showCategory(categoryId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`button[onclick="showCategory('${categoryId}')"]`).classList.add('active');
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.toggle('active', categoryId === 'all' || section.id === categoryId);
+            });
+            window.scrollTo(0, 0);
         }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
     </script>
-    <footer class="text-center py-8 text-gray-400 text-sm md:text-base px-4">
-        <p>Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved. 提供最專業的亞洲自由行旅遊指南與行程規劃工具 (Asia Travel Guides & FIT Itineraries)。版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
-    </footer>
 </body>
 </html>
