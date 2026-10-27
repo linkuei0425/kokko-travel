@@ -6,6 +6,17 @@
     <title>2026 Prague Unified Transit & Smart Route Planner</title>
     <meta name="description" content="探索Prague的無限魅力！Kokko愛旅行提供2026最新Prague自由行最強旅遊攻略，涵蓋熱門景點、隱藏版秘境與實用交通景點指南，助您輕鬆規劃完美旅程。">
     <meta name="keywords" content="Prague旅遊, Prague自由行, 2026Prague最強旅遊攻略, Prague交通景點指南, Kokko愛旅行">
+    <!-- ========================================== -->
+    <!-- 【10. Google Analytics 追蹤碼】 -->
+    <!-- ========================================== -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script type="application/ld+json">
@@ -181,7 +192,7 @@
         function mapAttractionsToStations() {
             let validStations = new Set();
             allTransitData.forEach(line => {
-                line.stations.forEach(s => validStations.add((typeof s === 'string' ? s : s.name).split(' ')[0]));
+                line.stations.forEach(s => validStations.add((typeof s === 'string' ? s : s.name).split(' ').filter((_, i) => i !== 1).join(' ')));
             });
 
             Object.values(attractionData).forEach(dist => {
@@ -190,11 +201,27 @@
                     if(!cat.items) return;
                     cat.items.forEach(attr => {
                         let matchedStation = null;
+                        // 防呆：有空白就剔除代號取後面的完整站名，沒空白就取整段
                         if(attr.transport) {
-                            for(let station of validStations) if(attr.transport.includes(station)) { matchedStation = station; break; }
+                            for(let station of validStations) {
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
+                                if(shortName && attr.transport.includes(shortName)) { matchedStation = station; break; }
+                            }
                         }
                         if(!matchedStation) {
-                            for(let station of validStations) if(attr.name.includes(station)) { matchedStation = station; break; }
+                            for(let station of validStations) {
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
+                                if(shortName && (attr.name.includes(shortName) || (attr.feature && attr.feature.includes(shortName)))) { matchedStation = station; break; }
+                            }
+                        }
+                        if(!matchedStation) {
+                            for(let station of validStations) {
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
+                                if(shortName && attr.name.includes(shortName)) { matchedStation = station; break; }
+                            }
                         }
                         if(matchedStation) {
                             if(!stationAttractions[matchedStation]) stationAttractions[matchedStation] = [];
@@ -214,11 +241,11 @@
                 const lineName = line.line_name;
                 const avgTime = line.avg_time_between_stations || 3; 
                 for (let i = 0; i < line.stations.length; i++) {
-                    const currentStation = (typeof line.stations[i] === 'string' ? line.stations[i] : line.stations[i].name).split(' ')[0];
+                    const currentStation = (typeof line.stations[i] === 'string' ? line.stations[i] : line.stations[i].name).split(' ').filter((_, i) => i !== 1).join(' ');
                     stationsList.add(currentStation);
                     if (!graph[currentStation]) graph[currentStation] = {};
                     if (i < line.stations.length - 1) {
-                        const nextStation = (typeof line.stations[i+1] === 'string' ? line.stations[i+1] : line.stations[i+1].name).split(' ')[0];
+                        const nextStation = (typeof line.stations[i+1] === 'string' ? line.stations[i+1] : line.stations[i+1].name).split(' ').filter((_, i) => i !== 1).join(' ');
                         if(!graph[currentStation][nextStation]) graph[currentStation][nextStation] = [];
                         graph[currentStation][nextStation].push({ time: avgTime, line: lineName });
                         if(!graph[nextStation]) graph[nextStation] = {};
@@ -267,7 +294,7 @@
             const lineData = allTransitData.find(l => l.line_name === lineName);
             if(lineData) {
                 lineData.stations.forEach(s => {
-                    const sName = (typeof s === 'string' ? s : s.name).split(' ')[0];
+                    const sName = (typeof s === 'string' ? s : s.name).split(' ').filter((_, i) => i !== 1).join(' ');
                     let attrText = "";
                     if(stationAttractions[sName] && stationAttractions[sName].length > 0) attrText = ` (⭐ ${stationAttractions[sName].length} Spots)`;
                     stationSelect.add(new Option(sName + attrText, sName));
@@ -449,7 +476,7 @@
                         <div class="absolute left-[9px] top-2 bottom-2 w-[3px] bg-slate-100 z-0"></div>
                 `;
                 line.stations.forEach((s) => {
-                    const sName = (typeof s === 'string' ? s : s.name).split(' ')[0];
+                    const sName = (typeof s === 'string' ? s : s.name).split(' ').filter((_, i) => i !== 1).join(' ');
                     let attractions = stationAttractions[sName] || [];
                     let isMatch = true;
                     if (searchQuery) isMatch = sName.includes(searchQuery) || attractions.some(a => a.toLowerCase().includes(searchQuery));

@@ -6,6 +6,17 @@
     <title>2026最新！布拉格市區交通大眾運輸與景點智慧串線導航</title>
     <meta name="description" content="探索布拉格的無限魅力！Kokko愛旅行提供2026最新布拉格自由行最強旅遊攻略，涵蓋熱門景點、隱藏版秘境與實用交通景點指南，助您輕鬆規劃完美旅程。">
     <meta name="keywords" content="布拉格旅遊, 布拉格自由行, 2026布拉格最強旅遊攻略, 布拉格交通景點指南, Kokko愛旅行">
+    <!-- ========================================== -->
+    <!-- 【10. Google Analytics 追蹤碼】 -->
+    <!-- ========================================== -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W9KZ1CQ9XM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-W9KZ1CQ9XM');
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -185,7 +196,7 @@
         function mapAttractionsToStations() {
             let validStations = new Set();
             allTransitData.forEach(line => {
-                line.stations.forEach(s => validStations.add((typeof s === 'string' ? s : s.name).split(' ')[0]));
+                line.stations.forEach(s => validStations.add((typeof s === 'string' ? s : s.name)));
             });
 
             
@@ -196,15 +207,27 @@
                     if(!cat.items) return;
                     cat.items.forEach(attr => {
                         let matchedStation = null;
+                        // 改用 .split(' ')[1] 擷取中文簡稱來作為搜尋關鍵字，但保留完整的 station 字串綁定給 matchedStation
                         if(attr.transport) {
-                            for(let station of validStations) if(attr.transport.includes(station)) { matchedStation = station; break; }
-                        }
-                        if(!matchedStation) {
-                            for(let station of validStations) if(attr.name.includes(station) || (attr.feature && attr.feature.includes(station))) { matchedStation = station; break; }
+                            for(let station of validStations) {
+                                // 防呆：有空白就取第二段，沒空白就取整段
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts[1] : parts[0];
+                                if(shortName && attr.transport.includes(shortName)) { matchedStation = station; break; }
+                            }
                         }
                         if(!matchedStation) {
                             for(let station of validStations) {
-                                if(attr.name.includes(station)) { matchedStation = station; break; }
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts[1] : parts[0];
+                                if(shortName && (attr.name.includes(shortName) || (attr.feature && attr.feature.includes(shortName)))) { matchedStation = station; break; }
+                            }
+                        }
+                        if(!matchedStation) {
+                            for(let station of validStations) {
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts[1] : parts[0];
+                                if(shortName && attr.name.includes(shortName)) { matchedStation = station; break; }
                             }
                         }
                         if(matchedStation) {
@@ -225,11 +248,11 @@
                 const lineName = line.line_name;
                 const avgTime = line.avg_time_between_stations || 3; 
                 for (let i = 0; i < line.stations.length; i++) {
-                    const currentStation = (typeof line.stations[i] === 'string' ? line.stations[i] : line.stations[i].name).split(' ')[0];
+                    const currentStation = (typeof line.stations[i] === 'string' ? line.stations[i] : line.stations[i].name);
                     stationsList.add(currentStation);
                     if (!graph[currentStation]) graph[currentStation] = {};
                     if (i < line.stations.length - 1) {
-                        const nextStation = (typeof line.stations[i+1] === 'string' ? line.stations[i+1] : line.stations[i+1].name).split(' ')[0];
+                        const nextStation = (typeof line.stations[i+1] === 'string' ? line.stations[i+1] : line.stations[i+1].name);
                         if(!graph[currentStation][nextStation]) graph[currentStation][nextStation] = [];
                         graph[currentStation][nextStation].push({ time: avgTime, line: lineName });
                         if(!graph[nextStation]) graph[nextStation] = {};
@@ -278,7 +301,7 @@
             const lineData = allTransitData.find(l => l.line_name === lineName);
             if(lineData) {
                 lineData.stations.forEach(s => {
-                    const sName = (typeof s === 'string' ? s : s.name).split(' ')[0];
+                    const sName = (typeof s === 'string' ? s : s.name);
                     let attrText = "";
                     if(stationAttractions[sName] && stationAttractions[sName].length > 0) attrText = ` (⭐ ${stationAttractions[sName].length} 景點)`;
                     stationSelect.add(new Option(sName + attrText, sName));
@@ -460,7 +483,7 @@
                         <div class="absolute left-[9px] top-2 bottom-2 w-[3px] bg-slate-100 z-0"></div>
                 `;
                 line.stations.forEach((s) => {
-                    const sName = (typeof s === 'string' ? s : s.name).split(' ')[0];
+                    const sName = (typeof s === 'string' ? s : s.name);
                     let attractions = stationAttractions[sName] || [];
                     let isMatch = true;
                     if (searchQuery) isMatch = sName.includes(searchQuery) || attractions.some(a => a.includes(searchQuery));
