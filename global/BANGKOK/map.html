@@ -210,19 +210,23 @@
                         // 改用 .split(' ')[1] 擷取中文簡稱來作為搜尋關鍵字，但保留完整的 station 字串綁定給 matchedStation
                         if(attr.transport) {
                             for(let station of validStations) {
-                                let shortName = station.split(' ')[1];
+                                // 防呆：有空白就取第二段，沒空白就取整段
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts[1] : parts[0];
                                 if(shortName && attr.transport.includes(shortName)) { matchedStation = station; break; }
                             }
                         }
                         if(!matchedStation) {
                             for(let station of validStations) {
-                                let shortName = station.split(' ')[1];
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts[1] : parts[0];
                                 if(shortName && (attr.name.includes(shortName) || (attr.feature && attr.feature.includes(shortName)))) { matchedStation = station; break; }
                             }
                         }
                         if(!matchedStation) {
                             for(let station of validStations) {
-                                let shortName = station.split(' ')[1];
+                                let parts = station.split(' ');
+                                let shortName = parts.length > 1 ? parts[1] : parts[0];
                                 if(shortName && attr.name.includes(shortName)) { matchedStation = station; break; }
                             }
                         }
@@ -240,6 +244,8 @@
 
         function buildGraph() {
             mapAttractionsToStations();
+            
+            // 1. 建立同路線相鄰站點的連線權重
             allTransitData.forEach(line => {
                 const lineName = line.line_name;
                 const avgTime = line.avg_time_between_stations || 3; 
@@ -247,6 +253,7 @@
                     const currentStation = (typeof line.stations[i] === 'string' ? line.stations[i] : line.stations[i].name);
                     stationsList.add(currentStation);
                     if (!graph[currentStation]) graph[currentStation] = {};
+                    
                     if (i < line.stations.length - 1) {
                         const nextStation = (typeof line.stations[i+1] === 'string' ? line.stations[i+1] : line.stations[i+1].name);
                         if(!graph[currentStation][nextStation]) graph[currentStation][nextStation] = [];
@@ -257,7 +264,46 @@
                     }
                 }
             });
+
+            // 2. 優化後的智慧轉乘邏輯：嚴格限制只有「真正的大站、同名或具備轉乘關係」才連線
+            let stationNodes = Array.from(stationsList);
+            for (let i = 0; i < stationNodes.length; i++) {
+                for (let j = i + 1; j < stationNodes.length; j++) {
+                    let s1 = stationNodes[i];
+                    let s2 = stationNodes[j];
+                    
+                    // 萃取純站名（例如把 "JY17 新宿站 Shinjuku" 拆解出核心名稱）
+                    let clean1 = s1.replace(/^[A-Za-z0-9]+\s+/, '').replace(/站.*$/, '').trim();
+                    let clean2 = s2.replace(/^[A-Za-z0-9]+\s+/, '').replace(/站.*$/, '').trim();
+                    
+                    // 只有當核心站名完全一致（例如兩者都叫「新宿」或「東京」或「秋葉原」）時才建立轉乘
+                    if (clean1 && clean2 && clean1 === clean2) {
+                        // 如果是觀光公車（bus）或交通船（boat）跟地鐵同名，通常不能直接站內轉乘，避免不合理亂切
+                        let isBusOrBoat1 = s1.includes('R') || s1.includes('都01') || s1.includes('TC');
+                        let isBusOrBoat2 = s2.includes('R') || s2.includes('都01') || s2.includes('TC');
+                        if (isBusOrBoat1 || isBusOrBoat2) continue; // 跳過公車與船的強制內聯，讓它們走各自路線
+
+                        let isOutStation = (s1.includes('（') || s2.includes('（'));
+                        let transferTime = isOutStation ? 10 : 3; // 站內轉乘給予 3 分鐘，讓直走優先
+                        let transferType = isOutStation ? '站外轉乘' : '站內轉乘';
+
+                        if(!graph[s1]) graph[s1] = {};
+                        if(!graph[s2]) graph[s2] = {};
+                        
+                        if(!graph[s1][s2]) graph[s1][s2] = [];
+                        if(!graph[s2][s1]) graph[s2][s1] = [];
+                        
+                        if(!graph[s1][s2].some(x => x.line.includes('轉乘'))) {
+                            graph[s1][s2].push({ time: transferTime, line: transferType });
+                        }
+                        if(!graph[s2][s1].some(x => x.line.includes('轉乘'))) {
+                            graph[s2][s1].push({ time: transferTime, line: transferType });
+                        }
+                    }
+                }
+            }
         }
+
 
         function populateLineDropdowns() {
             const startLineSelect = document.getElementById('start-line');
@@ -402,16 +448,63 @@
             if (!path) { alert("找不到可行路線！可能是不同交通工具間無交集站點。"); return; }
             resultBox.classList.remove('hidden'); pathDetails.innerHTML = '';
             
-            let totalTime = 0, currentLine = null, html = '';
-            document.getElementById('total-stops').innerText = path.length - 1;
-
+            // 💡 優化：自動過濾並合併連續的同名轉乘站點（例如 N04 麻布十番 與 E22 麻布十番）
+            let optimizedPath = [];
+            let transferInfoList = []; 
+            
             for (let i = 0; i < path.length; i++) {
-                let station = path[i], isStart = (i === 0), isEnd = (i === path.length - 1);
-                let nextStation = isEnd ? null : path[i+1], lineToNext = nextStation ? graph[station][nextStation][0] : null;
-                if(lineToNext) totalTime += lineToNext.time;
+                let current = path[i];
+                let cleanCurrent = current.replace(/^[A-Za-z0-9]+\s+/, '').replace(/站.*$/, '').trim();
+                
+                if (i < path.length - 1) {
+                    let next = path[i+1];
+                    let cleanNext = next.replace(/^[A-Za-z0-9]+\s+/, '').replace(/站.*$/, '').trim();
+                    
+                    // 如果當前站與下一站核心名稱相同，且中間發生了轉乘
+                    if (cleanCurrent === cleanNext && graph[current] && graph[current][next]) {
+                        let edge = graph[current][next].find(x => x.line.includes('轉乘'));
+                        if (edge) {
+                            optimizedPath.push(next); // 保留轉乘後的站點名稱代碼
+                            transferInfoList.push({ index: optimizedPath.length - 1, line: edge.line, time: edge.time });
+                            i++; // 跳過下一個重複的站點
+                            continue;
+                        }
+                    }
+                }
+                optimizedPath.push(current);
+                if (i > 0) {
+                    let prev = optimizedPath[optimizedPath.length - 2];
+                    if (graph[prev] && graph[prev][current]) {
+                        let edge = graph[prev][current].find(x => x.line.includes('轉乘'));
+                        if (edge) {
+                            transferInfoList.push({ index: optimizedPath.length - 1, line: edge.line, time: edge.time });
+                        }
+                    }
+                }
+            }
+            
+            let totalTime = 0, html = '';
+            document.getElementById('total-stops').innerText = optimizedPath.length - 1;
 
-                let isTransfer = (!isStart && !isEnd && lineToNext && currentLine && currentLine !== lineToNext.line);
-                if(isStart) currentLine = lineToNext ? lineToNext.line : null;
+            for (let i = 0; i < optimizedPath.length; i++) {
+                let station = optimizedPath[i];
+                let isStart = (i === 0);
+                let isEnd = (i === optimizedPath.length - 1);
+                
+                let transferMatch = transferInfoList.find(t => t.index === i);
+                let isTransfer = (!isStart && !isEnd && transferMatch);
+                let transferLineName = transferMatch ? transferMatch.line : '';
+                let isOutStationTransfer = transferLineName.includes('站外轉乘');
+                
+                if (transferMatch) {
+                    totalTime += transferMatch.time;
+                } else if (i < optimizedPath.length - 1) {
+                    let nextS = optimizedPath[i+1];
+                    if (graph[station] && graph[station][nextS]) {
+                        let rideEdge = graph[station][nextS].find(x => !x.line.includes('轉乘'));
+                        if (rideEdge) totalTime += rideEdge.time;
+                    }
+                }
 
                 let attrHtml = '', attractionsToShow = stationAttractions[station] || [];
                 if (customStationNotes && customStationNotes.has(station)) {
@@ -424,9 +517,25 @@
                 if (isStart || isEnd || isTransfer || (customStationNotes && customStationNotes.has(station))) {
                     let icon = isStart ? 'fa-location-dot text-sky-600' : (isEnd ? 'fa-flag-checkered text-rose-600' : 'fa-person-walking-arrow-right text-orange-500');
                     if (customStationNotes && customStationNotes.has(station) && !isStart && !isEnd) icon = 'fa-camera-retro text-indigo-600';
-                    let badge = isStart ? `<span class="ml-2 bg-sky-100 text-sky-700 text-xs px-2.5 py-1 rounded font-bold">起點 • 搭乘 ${currentLine}</span>` : 
-                                (isEnd ? `<span class="ml-2 bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded font-bold">終點</span>` : 
-                                (isTransfer ? `<span class="ml-2 bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded font-bold">轉乘 ${lineToNext.line}</span>` : ''));
+                    
+                    // --- 替換開始 ---
+let targetLine = "";
+if (isTransfer && i < optimizedPath.length - 1) {
+    let nextS = optimizedPath[i+1];
+    if (graph[station] && graph[station][nextS]) {
+        // 找出前往下一站的實體路線(非轉乘虛擬線)
+        let rideEdge = graph[station][nextS].find(x => !x.line.includes('轉乘'));
+        if (rideEdge) targetLine = rideEdge.line;
+    }
+}
+let transferDisplay = targetLine ? `${transferLineName} ➔ ${targetLine}` : transferLineName;
+
+let badge = isStart ? `<span class="ml-2 bg-sky-100 text-sky-700 text-xs px-2.5 py-1 rounded font-bold">起點</span>` : 
+            (isEnd ? `<span class="ml-2 bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded font-bold">終點</span>` : 
+            (isTransfer ? (isOutStationTransfer ? 
+                `<span class="ml-2 bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded font-bold">⚠️ ${transferDisplay}</span>` : 
+                `<span class="ml-2 bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded font-bold">🔄 ${transferDisplay}</span>`) : ''));
+// --- 替換結束 ---
 
                     html += `
                     <div class="relative z-10 my-4 md:my-5">
@@ -445,12 +554,11 @@
                         <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4"><span class="text-gray-700 font-bold text-base md:text-lg">${station}</span>${attrHtml}</div>
                     </div>`;
                 }
-                if(isTransfer && lineToNext) currentLine = lineToNext.line;
             }
 
             pathDetails.innerHTML = html;
-            let transferCount = (html.match(/轉乘/g) || []).length;
-            if(transferCount > 0) { totalTime += (transferCount * 4); transferNote.classList.remove('hidden'); } else { transferNote.classList.add('hidden'); }
+            let transferCount = transferInfoList.length;
+            if(transferCount > 0) { transferNote.classList.remove('hidden'); } else { transferNote.classList.add('hidden'); }
             document.getElementById('total-time').innerText = totalTime;
             resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
