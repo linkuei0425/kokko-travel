@@ -346,6 +346,7 @@
         const categoryContainer = document.getElementById('category-buttons');
         const contentArea = document.getElementById('content-area');
         const cityName = "\u6cb3\u5167";
+        const cityNameEn = "Hanoi";
         let curDist = null, curCat = null;
 
         function init() {
@@ -394,17 +395,48 @@
                 contentArea.innerHTML = `<div class="col-span-full text-center text-gray-400 py-12 md:text-lg">此分類目前無資料</div>`;
                 return;
             }
-            
             contentArea.innerHTML = items.map(item => {
-                // 1. 保留你的星級特色美化標籤 (連結到 Google 搜尋)
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cityName + ' ' + item.name)}`;
                 const searchKeyword = encodeURIComponent(`${cityName} ${item.name}`);
                 const formattedFeature = item.feature.replace(/(⭐\s*[\d\.]+星[\s\w|]*)/g, `<a href="https://www.google.com/search?q=${searchKeyword}" target="_blank" class="text-sky-600 font-bold hover:underline inline-flex items-center gap-1 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">$1 <i class="fa-solid fa-external-link-alt text-[10px]"></i></a>`);
 
-                // 2. 直接讀取 Python 已經算好的網址！(加入 ?. 防呆機制)
-                const mapUrl = item.urls?.gmap || `https://www.google.com/maps/search/?api=1&query=${searchKeyword}`;
-                const agodaUrl = item.urls?.agoda || '#';
-                const bookingUrl = item.urls?.booking || '#';
-                const tripUrl = item.urls?.trip || '#';
+                // 1. 提取括號內的英文名稱
+                let englishNameMatch = item.name.match(/\(([^)]+)\)|（([^）]+）)/);
+                let englishName = englishNameMatch ? (englishNameMatch[1] || englishNameMatch[2]) : '';
+
+                // 2. 提取乾淨的中文飯店名稱
+                let cleanHotelName = item.name.split('(')[0].split('（')[0].split('-')[0].trim();
+                cleanHotelName = cleanHotelName.replace(/酒店|飯店|大酒店/g, '').trim();
+
+                let hotelOnlyName = cleanHotelName;
+                if (hotelOnlyName.startsWith(cityName)) {
+                    hotelOnlyName = hotelOnlyName.substring(cityName.length).trim();
+                }
+
+                // 3. 建立各訂房網目標網址
+                const bestSearchTerm = englishName ? englishName : hotelOnlyName;
+                const searchFullQuery = `${cityName} ${hotelOnlyName}`;
+                const agodaTargetUrl = `https://www.agoda.com/search?text=${encodeURIComponent(searchFullQuery)}`;
+                
+                // ⭐ Booking 維持原樣不變
+                const bookingTargetUrl = `https://www.booking.com/searchresults.zh-tw.html?ss=${encodeURIComponent(cleanHotelName)}`;
+                
+                // ⭐ 【強制修正英文城市名稱空格與後綴】確保為 "Hong Kong" 並加上 ", China"
+                let fixedCityNameEn = cityNameEn;
+                if (cityNameEn.replace(/\s+/g, '').toLowerCase() === 'hongkong') {
+                    fixedCityNameEn = 'Hong Kong';
+                }
+
+                let tripDestName = englishName ? `${englishName}, ${fixedCityNameEn}` : `${hotelOnlyName}, ${fixedCityNameEn}`;
+                if (fixedCityNameEn.toLowerCase() === 'hong kong' && !tripDestName.toLowerCase().includes('china')) {
+                    tripDestName += ', China';
+                }
+
+                const tripAffiliateUrl = `https://tw.trip.com/hotels/list?flexType=1&fixedDate=0&cityName=${encodeURIComponent(fixedCityNameEn)}&destName=${encodeURIComponent(tripDestName)}&Allianceid=7913725&SID=298418583`;
+
+                // 4. 透過 encodeURIComponent 將 Agoda 與 Booking 目標網址打包進 tp.media 分潤轉址中
+                const agodaAffiliateUrl = `https://tp.media/r?campaign_id=104&marker=720742&p=2854&trs=520492&u=${encodeURIComponent(agodaTargetUrl)}`;
+                const bookingAffiliateUrl = `https://tp.media/r?campaign_id=84&marker=720742&p=2076&trs=520492&u=${encodeURIComponent(bookingTargetUrl)}`;
 
                 return `
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -427,13 +459,13 @@
                         </a>
                         
                         <div class="grid grid-cols-3 gap-2 mt-1">
-                            <a href="${agodaUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center py-2 rounded-lg shadow-sm text-xs font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors">
+                            <a href="${agodaAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center py-2 rounded-lg shadow-sm text-xs font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors">
                                 Agoda
                             </a>
-                            <a href="${bookingUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center py-2 rounded-lg shadow-sm text-xs font-bold text-white bg-indigo-800 hover:bg-indigo-900 transition-colors">
+                            <a href="${bookingAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center py-2 rounded-lg shadow-sm text-xs font-bold text-white bg-indigo-800 hover:bg-indigo-900 transition-colors">
                                 Booking
                             </a>
-                            <a href="${tripUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center py-2 rounded-lg shadow-sm text-xs font-bold text-white bg-sky-500 hover:bg-sky-600 transition-colors">
+                            <a href="${tripAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center py-2 rounded-lg shadow-sm text-xs font-bold text-white bg-sky-500 hover:bg-sky-600 transition-colors">
                                 Trip.com
                             </a>
                         </div>
@@ -442,9 +474,7 @@
                 `;
             }).join('');
         }
-        
         document.addEventListener('DOMContentLoaded', init);
-    
     </script>
     <footer class="text-center py-8 text-gray-400 text-sm md:text-base px-4">
         <p>Copyright © 2026 Kokko Travel / Im+ Life. All Rights Reserved. 提供最專業的亞洲自由行旅遊指南與行程規劃工具 (Asia Travel Guides & FIT Itineraries)。版權所有，未經授權禁止轉載、翻印或任何商業用途。</p>
