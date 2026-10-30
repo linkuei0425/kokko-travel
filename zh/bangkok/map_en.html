@@ -183,6 +183,12 @@
         busRaw.forEach(l => { l.type = 'bus'; l.icon = 'fa-bus'; l.bg = 'bg-emerald-500'; l.border = 'border-emerald-200'; });
         const allTransitData = [...subwayRaw, ...boatRaw, ...busRaw];
 
+        // 💡 關鍵修正：精準過濾中文字元的輔助函數，不再誤殺英文單字
+        const cleanEnName = (name) => {
+            if(!name) return "";
+            return name.replace(/[\u4e00-\u9fa5]+/g, '').replace(/\s+/g, ' ').trim();
+        };
+
         let currentTab = 'subway';
         let stationsList = new Set();
         let graph = {}; 
@@ -192,7 +198,7 @@
         function mapAttractionsToStations() {
             let validStations = new Set();
             allTransitData.forEach(line => {
-                line.stations.forEach(s => validStations.add((typeof s === 'string' ? s : s.name).split(' ').filter((_, i) => i !== 1).join(' ')));
+                line.stations.forEach(s => validStations.add(cleanEnName(typeof s === 'string' ? s : s.name)));
             });
 
             Object.values(attractionData).forEach(dist => {
@@ -201,7 +207,6 @@
                     if(!cat.items) return;
                     cat.items.forEach(attr => {
                         let matchedStation = null;
-                        // 防呆：有空白就剔除代號取後面的完整站名，沒空白就取整段
                         if(attr.transport) {
                             for(let station of validStations) {
                                 let parts = station.split(' ');
@@ -241,11 +246,11 @@
                 const lineName = line.line_name;
                 const avgTime = line.avg_time_between_stations || 3; 
                 for (let i = 0; i < line.stations.length; i++) {
-                    const currentStation = (typeof line.stations[i] === 'string' ? line.stations[i] : line.stations[i].name).split(' ').filter((_, i) => i !== 1).join(' ');
+                    const currentStation = cleanEnName(typeof line.stations[i] === 'string' ? line.stations[i] : line.stations[i].name);
                     stationsList.add(currentStation);
                     if (!graph[currentStation]) graph[currentStation] = {};
                     if (i < line.stations.length - 1) {
-                        const nextStation = (typeof line.stations[i+1] === 'string' ? line.stations[i+1] : line.stations[i+1].name).split(' ').filter((_, i) => i !== 1).join(' ');
+                        const nextStation = cleanEnName(typeof line.stations[i+1] === 'string' ? line.stations[i+1] : line.stations[i+1].name);
                         if(!graph[currentStation][nextStation]) graph[currentStation][nextStation] = [];
                         graph[currentStation][nextStation].push({ time: avgTime, line: lineName });
                         if(!graph[nextStation]) graph[nextStation] = {};
@@ -294,7 +299,7 @@
             const lineData = allTransitData.find(l => l.line_name === lineName);
             if(lineData) {
                 lineData.stations.forEach(s => {
-                    const sName = (typeof s === 'string' ? s : s.name).split(' ').filter((_, i) => i !== 1).join(' ');
+                    const sName = cleanEnName(typeof s === 'string' ? s : s.name);
                     let attrText = "";
                     if(stationAttractions[sName] && stationAttractions[sName].length > 0) attrText = ` (⭐ ${stationAttractions[sName].length} Spots)`;
                     stationSelect.add(new Option(sName + attrText, sName));
@@ -387,9 +392,67 @@
         }
 
         function calculateRoute() {
-            const start = document.getElementById('start-station').value; const end = document.getElementById('end-station').value;
+            const start = document.getElementById('start-station').value; 
+            const end = document.getElementById('end-station').value;
+            const startLine = document.getElementById('start-line').value;
+            const endLine = document.getElementById('end-line').value;
+
             if (!start || !end) { alert("Please select both Start and Destination!"); return; }
             if (start === end) { alert("Start and Destination cannot be the same!"); return; }
+
+            if (startLine !== endLine) {
+                let extractKeys = (name) => {
+                    if(!name) return { cn: "", en: "" };
+                    let cnMatch = name.match(/[\u4e00-\u9fa5]+/g);
+                    let cn = cnMatch ? cnMatch.join('').replace(/站$/, '') : "";
+                    let en = name.replace(/[\u4e00-\u9fa5]/g, '')
+                                 .replace(/^[A-Za-z0-9-]+\s+/, '') 
+                                 .replace(/station/i, '')
+                                 .replace(/[^a-zA-Z]/g, '')
+                                 .toLowerCase();
+                    return { cn, en };
+                };
+
+                let endKeys = extractKeys(end);
+                let startLineData = allTransitData.find(l => l.line_name === startLine);
+                
+                if (startLineData && (endKeys.cn || endKeys.en)) {
+                    let directStation = startLineData.stations.find(s => {
+                        let sName = cleanEnName(typeof s === 'string' ? s : s.name);
+                        let sKeys = extractKeys(sName);
+                        
+                        let cnMatch = (endKeys.cn.length >= 2 && sKeys.cn.length >= 2 && (sKeys.cn.includes(endKeys.cn) || endKeys.cn.includes(sKeys.cn)));
+                        let enMatch = (endKeys.en.length >= 3 && sKeys.en === endKeys.en);
+                        
+                        return cnMatch || enMatch;
+                    });
+
+                    if (directStation) {
+                        let dsName = cleanEnName(typeof directStation === 'string' ? directStation : directStation.name);
+                        let msg = `💡 Quick Tip:\n\nThe line you're starting on [${startLine}] already has the station "${dsName}".\n\nYou can take a direct route without transferring!\n\nClick "OK" to automatically switch to the direct route.`;
+                        
+                        if (confirm(msg)) {
+                            document.getElementById('end-line').value = startLine;
+                            updateStations('end'); 
+                            
+                            let options = Array.from(document.getElementById('end-station').options);
+                            let targetOpt = options.find(opt => opt.value === dsName || opt.value.includes(dsName));
+                            
+                            if (targetOpt) {
+                                document.getElementById('end-station').value = targetOpt.value;
+                            } else {
+                                document.getElementById('end-station').add(new Option(dsName, dsName));
+                                document.getElementById('end-station').value = dsName;
+                            }
+                            calculateRoute(); 
+                            return; 
+                        } else {
+                            return; 
+                        }
+                    }
+                }
+            }
+
             document.getElementById('result-title').innerText = `📍 Route: ${start} ➔ ${end}`;
             renderResult(findBfsPath(start, end), null);
         }
@@ -476,10 +539,10 @@
                         <div class="absolute left-[9px] top-2 bottom-2 w-[3px] bg-slate-100 z-0"></div>
                 `;
                 line.stations.forEach((s) => {
-                    const sName = (typeof s === 'string' ? s : s.name).split(' ').filter((_, i) => i !== 1).join(' ');
+                    const sName = cleanEnName(typeof s === 'string' ? s : s.name);
                     let attractions = stationAttractions[sName] || [];
                     let isMatch = true;
-                    if (searchQuery) isMatch = sName.includes(searchQuery) || attractions.some(a => a.toLowerCase().includes(searchQuery));
+                    if (searchQuery) isMatch = sName.toLowerCase().includes(searchQuery) || attractions.some(a => a.toLowerCase().includes(searchQuery));
                     if (isMatch) hasMatchingStation = true;
                     if (!isMatch && searchQuery) return;
 
