@@ -416,11 +416,14 @@
                 // 3. 建立各訂房網目標網址
                 const bestSearchTerm = englishName ? englishName : hotelOnlyName;
                 const searchFullQuery = `${cityName} ${hotelOnlyName}`;
-                const agodaTargetUrl = `https://www.agoda.com/search?text=${encodeURIComponent(searchFullQuery)}`;
+                const agodaTargetUrl = `https://www.agoda.com/zh-tw/search?searchText=${encodeURIComponent(searchFullQuery)}`;
+                
+                
                 
                 // ⭐ Booking 維持原樣不變
+                // ✅ 調整後的寫法（維持您原本滿意的 Booking 邏輯）
                 const bookingTargetUrl = `https://www.booking.com/searchresults.zh-tw.html?ss=${encodeURIComponent(cleanHotelName)}`;
-                
+                const bookingAffiliateUrl = `https://tp.media/r?campaign_id=84&marker=720742&p=2076&trs=520492&u=${encodeURIComponent(bookingTargetUrl)}`;
                 // ⭐ 【強制修正英文城市名稱空格與後綴】確保為 "Hong Kong" 並加上 ", China"
                 let fixedCityNameEn = cityNameEn;
                 if (cityNameEn.replace(/\s+/g, '').toLowerCase() === 'hongkong') {
@@ -436,7 +439,7 @@
 
                 // 4. 透過 encodeURIComponent 將 Agoda 與 Booking 目標網址打包進 tp.media 分潤轉址中
                 const agodaAffiliateUrl = `https://tp.media/r?campaign_id=104&marker=720742&p=2854&trs=520492&u=${encodeURIComponent(agodaTargetUrl)}`;
-                const bookingAffiliateUrl = `https://tp.media/r?campaign_id=84&marker=720742&p=2076&trs=520492&u=${encodeURIComponent(bookingTargetUrl)}`;
+                
 
                 return `
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -459,11 +462,11 @@
                         </a>
                         
                         <div class="grid grid-cols-3 gap-2 mt-1">
-                            <a href="${agodaAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center py-2 rounded-lg shadow-sm text-xs font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors">
-                                Agoda
-                            </a>
                             <a href="${bookingAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center py-2 rounded-lg shadow-sm text-xs font-bold text-white bg-indigo-800 hover:bg-indigo-900 transition-colors">
                                 Booking
+                            </a>
+                            <a href="${agodaAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center py-2 rounded-lg shadow-sm text-xs font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors">
+                                Agoda
                             </a>
                             <a href="${tripAffiliateUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center py-2 rounded-lg shadow-sm text-xs font-bold text-white bg-sky-500 hover:bg-sky-600 transition-colors">
                                 Trip.com
