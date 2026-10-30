@@ -267,25 +267,43 @@
 
             // 2. 優化後的智慧轉乘邏輯：嚴格限制只有「真正的大站、同名或具備轉乘關係」才連線
             let stationNodes = Array.from(stationsList);
+            
+            // 🌟 升級版高容錯站名萃取器
+            let getCoreName = (name) => {
+                if(!name) return "";
+                // 1. 去除括號與裡面所有文字(交會站等)，並把「臺」統一轉成「台」避免字體不同斷線
+                let n = name.replace(/\([^)]*\)/g, '').replace(/（[^）]*）/g, '').replace(/臺/g, '台');
+                // 2. 去除站點代碼 (支援如 BR10, R-08)
+                n = n.replace(/^[A-Za-z0-9-]+\s+/, '');
+                
+                let cn = n.match(/[\u4e00-\u9fa5]+/g); 
+                if (cn) {
+                    let core = cn.join('');
+                    if(core.endsWith('站')) core = core.slice(0, -1);
+                    return core; 
+                }
+                return n.replace(/\s*station.*$/i, '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase(); 
+            };
+
             for (let i = 0; i < stationNodes.length; i++) {
                 for (let j = i + 1; j < stationNodes.length; j++) {
                     let s1 = stationNodes[i];
                     let s2 = stationNodes[j];
                     
-                    // 萃取純站名（例如把 "JY17 新宿站 Shinjuku" 拆解出核心名稱）
-                    let clean1 = s1.replace(/^[A-Za-z0-9]+\s+/, '').replace(/站.*$/, '').trim();
-                    let clean2 = s2.replace(/^[A-Za-z0-9]+\s+/, '').replace(/站.*$/, '').trim();
+                    let clean1 = getCoreName(s1);
+                    let clean2 = getCoreName(s2);
                     
-                    // 只有當核心站名完全一致（例如兩者都叫「新宿」或「東京」或「秋葉原」）時才建立轉乘
                     if (clean1 && clean2 && clean1 === clean2) {
-                        // 如果是觀光公車（bus）或交通船（boat）跟地鐵同名，通常不能直接站內轉乘，避免不合理亂切
-                        let isBusOrBoat1 = s1.includes('R') || s1.includes('都01') || s1.includes('TC');
-                        let isBusOrBoat2 = s2.includes('R') || s2.includes('都01') || s2.includes('TC');
-                        if (isBusOrBoat1 || isBusOrBoat2) continue; // 跳過公車與船的強制內聯，讓它們走各自路線
+                        // 🚨 修正：移除 includes('R')，避免誤殺台北捷運紅線(R)與文湖線(BR)
+                        let isBusOrBoat1 = s1.includes('都01') || s1.includes('TC');
+                        let isBusOrBoat2 = s2.includes('都01') || s2.includes('TC');
+                        if (isBusOrBoat1 || isBusOrBoat2) continue; 
 
-                        let isOutStation = (s1.includes('（') || s2.includes('（'));
-                        let transferTime = isOutStation ? 10 : 3; // 站內轉乘給予 3 分鐘，讓直走優先
-                        let transferType = isOutStation ? '站外轉乘' : '站內轉乘';
+                        // 💡 智慧語言偵測：若站名沒有中文字，判定為英文模式
+                        let isEn = !/[\u4e00-\u9fa5]/.test(s1); 
+                        let isOutStation = (s1.includes('（') || s2.includes('（') || s1.includes('(') || s2.includes('('));
+                        let transferTime = isOutStation ? 10 : 3; 
+                        let transferType = isOutStation ? (isEn ? 'Out-of-station Transfer' : '站外轉乘') : (isEn ? 'Transfer' : '站內轉乘');
 
                         if(!graph[s1]) graph[s1] = {};
                         if(!graph[s2]) graph[s2] = {};
@@ -293,11 +311,12 @@
                         if(!graph[s1][s2]) graph[s1][s2] = [];
                         if(!graph[s2][s1]) graph[s2][s1] = [];
                         
-                        if(!graph[s1][s2].some(x => x.line.includes('轉乘'))) {
-                            graph[s1][s2].push({ time: transferTime, line: transferType });
+                        // 使用 isTransferEdge 屬性作為轉乘標記
+                        if(!graph[s1][s2].some(x => x.isTransferEdge)) {
+                            graph[s1][s2].push({ time: transferTime, line: transferType, isTransferEdge: true });
                         }
-                        if(!graph[s2][s1].some(x => x.line.includes('轉乘'))) {
-                            graph[s2][s1].push({ time: transferTime, line: transferType });
+                        if(!graph[s2][s1].some(x => x.isTransferEdge)) {
+                            graph[s2][s1].push({ time: transferTime, line: transferType, isTransferEdge: true });
                         }
                     }
                 }
@@ -436,37 +455,123 @@
         }
 
         function calculateRoute() {
-            const start = document.getElementById('start-station').value; const end = document.getElementById('end-station').value;
+            const start = document.getElementById('start-station').value; 
+            const end = document.getElementById('end-station').value;
+            const startLine = document.getElementById('start-line').value;
+            const endLine = document.getElementById('end-line').value;
+
             if (!start || !end) { alert("請完整選擇起點與終點！"); return; }
             if (start === end) { alert("起點和終點不能相同！"); return; }
+
+            // 👇 終極防呆版：中英雙核比對邏輯 👇
+            if (startLine !== endLine) {
+                let extractKeys = (name) => {
+                    if(!name) return { cn: "", en: "" };
+                    // 1. 抓中文核心 (去掉"站"字)
+                    let cnMatch = name.match(/[\u4e00-\u9fa5]+/g);
+                    let cn = cnMatch ? cnMatch.join('').replace(/站$/, '') : "";
+                    
+                    // 2. 抓英文核心 (去掉中文、去掉開頭站點代碼 S7/G1、去掉空格與標點符號)
+                    let en = name.replace(/[\u4e00-\u9fa5]/g, '')
+                                 .replace(/^[A-Za-z0-9-]+\s+/, '') 
+                                 .replace(/station/i, '')
+                                 .replace(/[^a-zA-Z]/g, '')
+                                 .toLowerCase();
+                    return { cn, en };
+                };
+
+                let endKeys = extractKeys(end);
+                let startLineData = allTransitData.find(l => l.line_name === startLine);
+                
+                if (startLineData && (endKeys.cn || endKeys.en)) {
+                    let directStation = startLineData.stations.find(s => {
+                        let sName = (typeof s === 'string' ? s : s.name);
+                        let sKeys = extractKeys(sName);
+                        
+                        // 條件 A：中文達 2 字以上且互相包含 (例如: 恭通武里 vs 吞武里 就不會觸發)
+                        let cnMatch = (endKeys.cn.length >= 2 && sKeys.cn.length >= 2 && (sKeys.cn.includes(endKeys.cn) || endKeys.cn.includes(sKeys.cn)));
+                        // 條件 B：純英文字母完全相等 (krungthonburi === krungthonburi) 完美命中！
+                        let enMatch = (endKeys.en.length >= 3 && sKeys.en === endKeys.en);
+                        
+                        return cnMatch || enMatch;
+                    });
+
+                    if (directStation) {
+                        let dsName = (typeof directStation === 'string' ? directStation : directStation.name);
+                        let msg = `💡 溫馨提醒：\n\n您所在的【${startLine}】上已經有同站點「${dsName}」。\n\n建議您直接搭乘即可，無需跨線轉乘！\n\n點擊「確定」自動幫您切換為直達路線。`;
+                        
+                        if (confirm(msg)) {
+                            // 1. 自動把終點路線切換成起點路線
+                            document.getElementById('end-line').value = startLine;
+                            updateStations('end'); 
+                            
+                            // 2. 確保終點的下拉選單正確選中該站
+                            let options = Array.from(document.getElementById('end-station').options);
+                            let targetOpt = options.find(opt => opt.value === dsName || opt.value.includes(dsName));
+                            
+                            if (targetOpt) {
+                                document.getElementById('end-station').value = targetOpt.value;
+                            } else {
+                                // 萬一下拉選單重製有時間差，強制手動補入並選取
+                                document.getElementById('end-station').add(new Option(dsName, dsName));
+                                document.getElementById('end-station').value = dsName;
+                            }
+                            
+                            // 3. 帶著正確的站點重新計算路線
+                            calculateRoute(); 
+                            return; 
+                        } else {
+                            // 使用者按取消，強制結束運算，避免跳出找不到路線的報錯
+                            return; 
+                        }
+                    }
+                }
+            }
+            // 👆 終極防呆版結束 👆
+
             document.getElementById('result-title').innerText = `📍 導航路線：${start} ➔ ${end}`;
             renderResult(findBfsPath(start, end), null);
         }
+        
 
         function renderResult(path, customStationNotes) {
             const resultBox = document.getElementById('route-result'), pathDetails = document.getElementById('path-details'), transferNote = document.getElementById('transfer-note');
             if (!path) { alert("找不到可行路線！可能是不同交通工具間無交集站點。"); return; }
             resultBox.classList.remove('hidden'); pathDetails.innerHTML = '';
             
-            // 💡 優化：自動過濾並合併連續的同名轉乘站點（例如 N04 麻布十番 與 E22 麻布十番）
+            // 🌟 升級版高容錯站名萃取器 (與 buildGraph 完全同步)
+            let getCoreName = (name) => {
+                if(!name) return "";
+                let n = name.replace(/\([^)]*\)/g, '').replace(/（[^）]*）/g, '').replace(/臺/g, '台');
+                n = n.replace(/^[A-Za-z0-9-]+\s+/, '');
+                let cn = n.match(/[\u4e00-\u9fa5]+/g); 
+                if (cn) {
+                    let core = cn.join('');
+                    if(core.endsWith('站')) core = core.slice(0, -1);
+                    return core; 
+                }
+                return n.replace(/\s*station.*$/i, '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase(); 
+            };
+
             let optimizedPath = [];
             let transferInfoList = []; 
             
             for (let i = 0; i < path.length; i++) {
                 let current = path[i];
-                let cleanCurrent = current.replace(/^[A-Za-z0-9]+\s+/, '').replace(/站.*$/, '').trim();
+                let cleanCurrent = getCoreName(current);
                 
                 if (i < path.length - 1) {
                     let next = path[i+1];
-                    let cleanNext = next.replace(/^[A-Za-z0-9]+\s+/, '').replace(/站.*$/, '').trim();
+                    let cleanNext = getCoreName(next);
                     
-                    // 如果當前站與下一站核心名稱相同，且中間發生了轉乘
                     if (cleanCurrent === cleanNext && graph[current] && graph[current][next]) {
-                        let edge = graph[current][next].find(x => x.line.includes('轉乘'));
+                        // 改用 isTransferEdge 判斷
+                        let edge = graph[current][next].find(x => x.isTransferEdge);
                         if (edge) {
-                            optimizedPath.push(next); // 保留轉乘後的站點名稱代碼
-                            transferInfoList.push({ index: optimizedPath.length - 1, line: edge.line, time: edge.time });
-                            i++; // 跳過下一個重複的站點
+                            optimizedPath.push(next); 
+                            // 💡 關鍵修改：將「下車」的原始站名與代碼(fromStation)記錄下來
+                            transferInfoList.push({ index: optimizedPath.length - 1, line: edge.line, time: edge.time, fromStation: current });
+                            i++; 
                             continue;
                         }
                     }
@@ -475,9 +580,9 @@
                 if (i > 0) {
                     let prev = optimizedPath[optimizedPath.length - 2];
                     if (graph[prev] && graph[prev][current]) {
-                        let edge = graph[prev][current].find(x => x.line.includes('轉乘'));
+                        let edge = graph[prev][current].find(x => x.isTransferEdge);
                         if (edge) {
-                            transferInfoList.push({ index: optimizedPath.length - 1, line: edge.line, time: edge.time });
+                            transferInfoList.push({ index: optimizedPath.length - 1, line: edge.line, time: edge.time, fromStation: prev });
                         }
                     }
                 }
@@ -494,48 +599,80 @@
                 let transferMatch = transferInfoList.find(t => t.index === i);
                 let isTransfer = (!isStart && !isEnd && transferMatch);
                 let transferLineName = transferMatch ? transferMatch.line : '';
-                let isOutStationTransfer = transferLineName.includes('站外轉乘');
                 
+                let isEn = !/[\u4e00-\u9fa5]/.test(station);
+                let isOutStationTransfer = transferLineName.includes('站外') || transferLineName.includes('Out');
+                
+                let targetLine = "";
                 if (transferMatch) {
                     totalTime += transferMatch.time;
+                    if (i < optimizedPath.length - 1) {
+                        let nextS = optimizedPath[i+1];
+                        if (graph[station] && graph[station][nextS]) {
+                            let rideEdge = graph[station][nextS].find(x => !x.isTransferEdge);
+                            if (rideEdge) targetLine = rideEdge.line;
+                        }
+                    }
                 } else if (i < optimizedPath.length - 1) {
                     let nextS = optimizedPath[i+1];
                     if (graph[station] && graph[station][nextS]) {
-                        let rideEdge = graph[station][nextS].find(x => !x.line.includes('轉乘'));
+                        let rideEdge = graph[station][nextS].find(x => !x.isTransferEdge);
                         if (rideEdge) totalTime += rideEdge.time;
                     }
                 }
+                
+                // 👇 請將剛剛插入的代碼「替換」成這段修正版 👇
+                if (!isStart && !isEnd && !isTransfer) {
+                    let prevS = optimizedPath[i-1];
+                    let nextS = optimizedPath[i+1];
+                    let edgeIn = (graph[prevS] && graph[prevS][station]) ? graph[prevS][station].find(x => !x.isTransferEdge) : null;
+                    let edgeOut = (graph[station] && graph[station][nextS]) ? graph[station][nextS].find(x => !x.isTransferEdge) : null;
+                    
+                    // 如果進站路線與出站路線不同，觸發轉乘 UI
+                    if (edgeIn && edgeOut && edgeIn.line !== edgeOut.line) {
+                        isTransfer = true;
+                        transferLineName = isEn ? 'Transfer' : '站內轉乘';
+                        targetLine = edgeOut.line;
+                        totalTime += 3; // 補上預設轉乘時間
+                        
+                        // 【關鍵修正】：必須賦予 transferMatch 實體物件，避免下方判斷 .fromStation 時報錯崩潰
+                        transferMatch = { 
+                            fromStation: station,
+                            line: transferLineName
+                        };
+                        transferInfoList.push(transferMatch);
+                    }
+                }
+
+                let transferDisplay = targetLine ? `${transferLineName} ➔ ${targetLine}` : transferLineName;
 
                 let attrHtml = '', attractionsToShow = stationAttractions[station] || [];
                 if (customStationNotes && customStationNotes.has(station)) {
-                    attrHtml += `<div class="mt-3 bg-indigo-50 border border-indigo-200 text-indigo-800 text-sm px-3 py-2 rounded-lg font-bold"><i class="fa-solid fa-map-pin text-indigo-500 mr-1"></i> 造訪：${customStationNotes.get(station).join('、')}</div>`;
+                    let visTxt = isEn ? "Visit:" : "造訪：";
+                    attrHtml += `<div class="mt-3 bg-indigo-50 border border-indigo-200 text-indigo-800 text-sm px-3 py-2 rounded-lg font-bold"><i class="fa-solid fa-map-pin text-indigo-500 mr-1"></i> ${visTxt} ${customStationNotes.get(station).join('、')}</div>`;
                 } else if (attractionsToShow.length > 0) {
                     let tags = attractionsToShow.map(a => `<span class="bg-amber-50 text-amber-700 border border-amber-200 text-xs px-2.5 py-1 rounded whitespace-nowrap"><i class="fa-solid fa-star text-amber-400"></i> ${a}</span>`).join('');
                     attrHtml = `<div class="mt-2.5 flex flex-wrap gap-1.5">${tags}</div>`;
+                }
+
+                // 💡 新增：當遇到轉乘站時，同時顯示「下車代碼」與「上車代碼」
+                let displayStationName = station;
+                if (isTransfer && transferMatch.fromStation && transferMatch.fromStation !== station) {
+                    displayStationName = `<span class="text-slate-400 font-medium">${transferMatch.fromStation}</span> <i class="fa-solid fa-angle-right text-slate-300 mx-1"></i> <span class="text-gray-800">${station}</span>`;
                 }
 
                 if (isStart || isEnd || isTransfer || (customStationNotes && customStationNotes.has(station))) {
                     let icon = isStart ? 'fa-location-dot text-sky-600' : (isEnd ? 'fa-flag-checkered text-rose-600' : 'fa-person-walking-arrow-right text-orange-500');
                     if (customStationNotes && customStationNotes.has(station) && !isStart && !isEnd) icon = 'fa-camera-retro text-indigo-600';
                     
-                    // --- 替換開始 ---
-let targetLine = "";
-if (isTransfer && i < optimizedPath.length - 1) {
-    let nextS = optimizedPath[i+1];
-    if (graph[station] && graph[station][nextS]) {
-        // 找出前往下一站的實體路線(非轉乘虛擬線)
-        let rideEdge = graph[station][nextS].find(x => !x.line.includes('轉乘'));
-        if (rideEdge) targetLine = rideEdge.line;
-    }
-}
-let transferDisplay = targetLine ? `${transferLineName} ➔ ${targetLine}` : transferLineName;
-
-let badge = isStart ? `<span class="ml-2 bg-sky-100 text-sky-700 text-xs px-2.5 py-1 rounded font-bold">起點</span>` : 
-            (isEnd ? `<span class="ml-2 bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded font-bold">終點</span>` : 
-            (isTransfer ? (isOutStationTransfer ? 
-                `<span class="ml-2 bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded font-bold">⚠️ ${transferDisplay}</span>` : 
-                `<span class="ml-2 bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded font-bold">🔄 ${transferDisplay}</span>`) : ''));
-// --- 替換結束 ---
+                    let lblStart = isEn ? "Start" : "起點";
+                    let lblEnd   = isEn ? "End" : "終點";
+                    
+                    let badge = isStart ? `<span class="ml-2 bg-sky-100 text-sky-700 text-xs px-2.5 py-1 rounded font-bold">${lblStart}</span>` : 
+                                (isEnd ? `<span class="ml-2 bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded font-bold">${lblEnd}</span>` : 
+                                (isTransfer ? (isOutStationTransfer ? 
+                                    `<span class="ml-2 bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded font-bold">⚠️ ${transferDisplay}</span>` : 
+                                    `<span class="ml-2 bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded font-bold">🔄 ${transferDisplay}</span>`) : ''));
 
                     html += `
                     <div class="relative z-10 my-4 md:my-5">
@@ -543,7 +680,7 @@ let badge = isStart ? `<span class="ml-2 bg-sky-100 text-sky-700 text-xs px-2.5 
                             <i class="fa-solid ${icon} text-base md:text-lg"></i>
                         </div>
                         <div class="bg-white p-5 md:p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h4 class="text-gray-800 font-extrabold text-lg md:text-xl flex items-center flex-wrap gap-2">${station} ${badge}</h4>
+                            <h4 class="text-gray-800 font-extrabold text-lg md:text-xl flex items-center flex-wrap gap-2">${displayStationName} ${badge}</h4>
                             ${attrHtml}
                         </div>
                     </div>`;
@@ -551,7 +688,7 @@ let badge = isStart ? `<span class="ml-2 bg-sky-100 text-sky-700 text-xs px-2.5 
                     html += `
                     <div class="relative z-10 py-3 md:py-4 ml-1 md:ml-2">
                         <div class="absolute -left-[32px] md:-left-[40px] top-1/2 -translate-y-1/2 bg-white w-3 h-3 md:w-4 md:h-4 rounded-full border-[3px] border-sky-400 shadow-sm"></div>
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4"><span class="text-gray-700 font-bold text-base md:text-lg">${station}</span>${attrHtml}</div>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4"><span class="text-gray-700 font-bold text-base md:text-lg">${displayStationName}</span>${attrHtml}</div>
                     </div>`;
                 }
             }
