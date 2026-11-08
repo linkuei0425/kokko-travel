@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蝦皮分潤選品神器</title>
+    <!-- 使用 Tailwind CSS 快速排版 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 PapaParse 用於前端解析 CSV 檔案 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <h1 class="text-3xl font-bold text-gray-800">蝦皮分潤選品系統</h1>
+        
+        <!-- 篩選器區塊 -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                
+                <!-- 1. 等級 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">會員等級 (切換檔案)</label>
+                    <select id="filter-level" class="w-full border-gray-300 rounded-md shadow-sm p-2 border" onchange="loadCsvData()">
+                        <option value="0">等級 0</option>
+                        <option value="1">等級 1</option>
+                        <option value="2">等級 2</option>
+                        <option value="3">等級 3</option>
+                    </select>
+                </div>
+
+                <!-- 2. 大分類 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">大分類</label>
+                    <select id="filter-main-cat" class="w-full border-gray-300 rounded-md shadow-sm p-2 border" onchange="updateSubCats()">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+
+                <!-- 3. 中分類 (小分類) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">中分類</label>
+                    <select id="filter-sub-cat" class="w-full border-gray-300 rounded-md shadow-sm p-2 border">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+
+                <!-- 4. 分潤率區間 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">分潤率區間 (%)</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="number" id="filter-rate-min" placeholder="最低" class="w-full border-gray-300 rounded-md shadow-sm p-2 border">
+                        <span class="text-gray-500">-</span>
+                        <input type="number" id="filter-rate-max" placeholder="最高" class="w-full border-gray-300 rounded-md shadow-sm p-2 border">
+                    </div>
+                </div>
+
+                <!-- 5. 最低推廣分潤金額 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">單件最低分潤金額 ($)</label>
+                    <input type="number" id="filter-profit-min" placeholder="例如: 10" class="w-full border-gray-300 rounded-md shadow-sm p-2 border">
+                </div>
+            </div>
+
+            <div class="mt-4 flex justify-end">
+                <button onclick="applyFilters()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md shadow transition">
+                    搜尋 / 篩選
+                </button>
+            </div>
+        </div>
+
+        <!-- 列表呈現區塊 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left font-medium text-gray-500">分類</th>
+                            <th class="px-6 py-3 text-left font-medium text-gray-500 w-1/3">商品資訊</th>
+                            <th class="px-6 py-3 text-left font-medium text-gray-500">售價</th>
+                            <th class="px-6 py-3 text-left font-medium text-gray-500">分潤率</th>
+                            <th class="px-6 py-3 text-left font-medium text-gray-500">單件分潤</th>
+                            <th class="px-6 py-3 text-center font-medium text-gray-500">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="result-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- 商品資料會透過 JavaScript 動態載入至此 -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="loading-msg" class="text-center py-10 text-gray-500">
+                載入資料中，請稍候...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allProducts = [];
+        let mainCatMap = {};
+
+        // 設定 CSV 檔案所在的雲端路徑 (如果在同一個資料夾，保持 "./" 即可)
+        // 若您的檔案放在外部空間，請替換為完整的絕對網址，例如: "https://您的網域/資料夾/"
+        const CSV_BASE_URL = "."; 
+
+        // 1. 根據所選等級讀取對應的 CSV 檔案
+        function loadCsvData() {
+            const level = document.getElementById('filter-level').value;
+            // 組合出檔名：蝦皮分潤選品清單-等級0.csv
+            const csvUrl = `${CSV_BASE_URL}/蝦皮分潤選品清單-等級${level}.csv`;
+            
+            document.getElementById('loading-msg').style.display = 'block';
+            document.getElementById('result-table-body').innerHTML = '';
+
+            Papa.parse(csvUrl, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    allProducts = results.data.filter(row => row['商品名稱']); 
+                    processCategories();
+                    applyFilters();
+                    document.getElementById('loading-msg').style.display = 'none';
+                },
+                error: function(err) {
+                    document.getElementById('loading-msg').innerHTML = `<span class="text-red-500">找不到檔案 (${csvUrl})，請確認該等級的 CSV 是否已上傳至雲端。</span>`;
+                    console.error("CSV載入錯誤:", err);
+                }
+            });
+        }
+
+        // 2. 解析資料庫裡的所有大小分類並連動下拉選單
+        function processCategories() {
+            mainCatMap = {};
+            allProducts.forEach(row => {
+                const main = row['大分類'] ? row['大分類'].trim() : '未分類';
+                const sub = row['中分類'] ? row['中分類'].trim() : '未分類';
+                
+                if (!mainCatMap[main]) mainCatMap[main] = new Set();
+                mainCatMap[main].add(sub);
+            });
+
+            const mainSelect = document.getElementById('filter-main-cat');
+            mainSelect.innerHTML = '<option value="">全部</option>';
+            Object.keys(mainCatMap).sort().forEach(main => {
+                mainSelect.innerHTML += `<option value="${main}">${main}</option>`;
+            });
+            updateSubCats(); 
+        }
+
+        // 3. 當大分類改變時，動態更新中分類
+        function updateSubCats() {
+            const mainSelected = document.getElementById('filter-main-cat').value;
+            const subSelect = document.getElementById('filter-sub-cat');
+            subSelect.innerHTML = '<option value="">全部</option>';
+
+            if (mainSelected && mainCatMap[mainSelected]) {
+                Array.from(mainCatMap[mainSelected]).sort().forEach(sub => {
+                    subSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
+                });
+            }
+        }
+
+        // 4. 文字轉換數值工具 (處理包含 % 和 $ 的字串)
+        const parsePercent = (val) => val ? parseFloat(val.replace('%', '')) : 0;
+        const parseMoney = (val) => val ? parseFloat(val.replace('$', '').replace(',', '')) : 0;
+
+        // 5. 執行所有過濾條件
+        function applyFilters() {
+            const mainCat = document.getElementById('filter-main-cat').value;
+            const subCat = document.getElementById('filter-sub-cat').value;
+            const rateMin = parseFloat(document.getElementById('filter-rate-min').value);
+            const rateMax = parseFloat(document.getElementById('filter-rate-max').value);
+            const profitMin = parseFloat(document.getElementById('filter-profit-min').value);
+
+            const filteredData = allProducts.filter(row => {
+                if (mainCat && row['大分類'].trim() !== mainCat) return false;
+                if (subCat && row['中分類'].trim() !== subCat) return false;
+
+                const currentRate = parsePercent(row['分潤率']);
+                if (!isNaN(rateMin) && currentRate < rateMin) return false;
+                if (!isNaN(rateMax) && currentRate > rateMax) return false;
+
+                const currentProfit = parseMoney(row['推廣分潤']);
+                if (!isNaN(profitMin) && currentProfit < profitMin) return false;
+
+                return true;
+            });
+
+            renderTable(filteredData);
+        }
+
+        // 6. 將過濾後的資料渲染成表格並開啟新視窗
+        function renderTable(data) {
+            const tbody = document.getElementById('result-table-body');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">找不到符合條件的商品</td></tr>';
+                return;
+            }
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-orange-50 transition";
+                
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            ${row['大分類']}
+                        </span>
+                        <div class="text-xs text-gray-500 mt-1">${row['中分類']}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900 line-clamp-2" title="${row['商品名稱']}">${row['商品名稱']}</div>
+                        <div class="text-xs text-gray-500 mt-1">店鋪: ${row['商店名稱']} | 銷量: ${row['銷售量']}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-red-600 font-medium">
+                        $${row['商品價格']}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-green-600">
+                        ${row['分潤率']}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap font-bold text-orange-600">
+                        ${row['推廣分潤']}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <a href="${row['推廣連結']}" target="_blank" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600">
+                            推廣連結
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 預設載入時自動讀取 Level 0 的檔案
+        window.onload = loadCsvData;
+    </script>
+</body>
+</html>
