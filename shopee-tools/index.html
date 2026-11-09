@@ -15,22 +15,28 @@
         <h1 class="text-3xl font-bold text-gray-800 flex flex-col md:flex-row md:items-baseline gap-2">
             <span>蝦皮分潤選品系統</span>
             <span class="text-sm font-normal text-gray-500">
-                 (每個人專屬推薦商品不同，因此會有些許差異。因分潤率廠商會不定期調整，檔案2個月更新一次)
+                 (數據基準-等級2，每個人專屬推薦商品不同，因此會有些許差異。因分潤率廠商會不定期調整，檔案2個月更新一次)
             </span>
         </h1>
         
         <!-- 篩選器區塊 -->
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            
+            <!-- 【新增】關鍵字搜尋區塊 -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">關鍵字查詢 (商品名稱)</label>
+                <input type="text" id="filter-keyword" placeholder="請輸入想尋找的商品關鍵字 (例如：吹風機、衛生紙)..." class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 
                 <!-- 1. 等級 -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">會員等級 (切換檔案)</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">創作者等級 (切換檔案)</label>
                     <select id="filter-level" class="w-full border-gray-300 rounded-md shadow-sm p-2 border" onchange="loadCsvData()">
-                        <option value="0">等級 0</option>
-                        <option value="1">等級 1</option>
+                        
                         <option value="2">等級 2</option>
-                        <option value="3">等級 3</option>
+                       
                     </select>
                 </div>
 
@@ -104,13 +110,12 @@
         let mainCatMap = {};
 
         // 設定 CSV 檔案所在的雲端路徑 (如果在同一個資料夾，保持 "./" 即可)
-        // 若您的檔案放在外部空間，請替換為完整的絕對網址，例如: "https://您的網域/資料夾/"
         const CSV_BASE_URL = "."; 
 
         // 1. 根據所選等級讀取對應的 CSV 檔案
         function loadCsvData() {
             const level = document.getElementById('filter-level').value;
-            // 組合出檔名：蝦皮分潤選品清單-等級0.csv
+            // 組合出檔名：shopee-0.csv
             const csvUrl = `${CSV_BASE_URL}/shopee-${level}.csv`;
             
             document.getElementById('loading-msg').style.display = 'block';
@@ -171,6 +176,8 @@
 
         // 5. 執行所有過濾條件
         function applyFilters() {
+            // 【新增】取得關鍵字並轉換為小寫，方便不區分大小寫比對
+            const keyword = document.getElementById('filter-keyword').value.trim().toLowerCase();
             const mainCat = document.getElementById('filter-main-cat').value;
             const subCat = document.getElementById('filter-sub-cat').value;
             const rateMin = parseFloat(document.getElementById('filter-rate-min').value);
@@ -178,6 +185,9 @@
             const profitMin = parseFloat(document.getElementById('filter-profit-min').value);
 
             const filteredData = allProducts.filter(row => {
+                // 【新增】關鍵字篩選 (如果輸入了關鍵字，但商品名稱不包含該關鍵字，則排除)
+                if (keyword && !String(row['商品名稱']).toLowerCase().includes(keyword)) return false;
+
                 if (mainCat && row['大分類'].trim() !== mainCat) return false;
                 if (subCat && row['中分類'].trim() !== subCat) return false;
 
