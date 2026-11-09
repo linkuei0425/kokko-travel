@@ -15,66 +15,73 @@
         <h1 class="text-3xl font-bold text-gray-800 flex flex-col md:flex-row md:items-baseline gap-2">
             <span>蝦皮分潤選品系統</span>
             <span class="text-sm font-normal text-gray-500">
-                 (數據基準-等級2，若等級為0-1級約會少0.5-4.5%不等，每個人專屬推薦商品不同，因此會有些許差異。因分潤率廠商會不定期調整，檔案不定期更新)
+                 (數據基準-等級2，每個人專屬推薦商品不同，因此會有些許差異。因分潤率廠商會不定期調整，檔案2個月更新一次)
             </span>
         </h1>
         
         <!-- 篩選器區塊 -->
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             
-            <!-- 【新增】關鍵字搜尋區塊 -->
+            <!-- 關鍵字搜尋 -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">關鍵字查詢 (商品名稱)</label>
                 <input type="text" id="filter-keyword" placeholder="請輸入想尋找的商品關鍵字 (例如：吹風機、衛生紙)..." class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                
-                <!-- 1. 等級 -->
+            <!-- 分類篩選區 (一排3個) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">創作者等級 (切換檔案)</label>
-                    <select id="filter-level" class="w-full border-gray-300 rounded-md shadow-sm p-2 border" onchange="loadCsvData()">
-                        
+                    <select id="filter-level" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" onchange="loadCsvData()">
                         <option value="2">等級 2</option>
-                       
                     </select>
                 </div>
-
-                <!-- 2. 大分類 -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">大分類</label>
-                    <select id="filter-main-cat" class="w-full border-gray-300 rounded-md shadow-sm p-2 border" onchange="updateSubCats()">
+                    <select id="filter-main-cat" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" onchange="updateSubCats()">
                         <option value="">全部</option>
                     </select>
                 </div>
-
-                <!-- 3. 中分類 (小分類) -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">中分類</label>
-                    <select id="filter-sub-cat" class="w-full border-gray-300 rounded-md shadow-sm p-2 border">
+                    <select id="filter-sub-cat" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
                         <option value="">全部</option>
                     </select>
-                </div>
-
-                <!-- 4. 分潤率區間 -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">分潤率區間 (%)</label>
-                    <div class="flex items-center space-x-2">
-                        <input type="number" id="filter-rate-min" placeholder="最低" class="w-full border-gray-300 rounded-md shadow-sm p-2 border">
-                        <span class="text-gray-500">-</span>
-                        <input type="number" id="filter-rate-max" placeholder="最高" class="w-full border-gray-300 rounded-md shadow-sm p-2 border">
-                    </div>
-                </div>
-
-                <!-- 5. 最低推廣分潤金額 -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">單件最低分潤金額 ($)</label>
-                    <input type="number" id="filter-profit-min" placeholder="例如: 10" class="w-full border-gray-300 rounded-md shadow-sm p-2 border">
                 </div>
             </div>
 
-            <div class="mt-4 flex justify-end">
-                <button onclick="applyFilters()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md shadow transition">
+            <!-- 【更新】數值輸入篩選區 (一排3個，全部改為直接輸入區間) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- 價格輸入 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">商品價格區間 ($)</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="number" id="filter-price-min" placeholder="最低" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                        <span class="text-gray-500">-</span>
+                        <input type="number" id="filter-price-max" placeholder="最高" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                </div>
+
+                <!-- 分潤率輸入 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">分潤率區間 (%)</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="number" id="filter-rate-min" placeholder="最低" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                        <span class="text-gray-500">-</span>
+                        <input type="number" id="filter-rate-max" placeholder="最高" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                </div>
+
+                <!-- 單件分潤金額 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">單件最低分潤金額 ($)</label>
+                    <input type="number" id="filter-profit-min" placeholder="例如: 10" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                </div>
+            </div>
+
+            <!-- 搜尋按鈕 -->
+            <div class="mt-6 flex justify-end">
+                <button onclick="applyFilters()" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-2 rounded-md shadow transition">
                     搜尋 / 篩選
                 </button>
             </div>
@@ -109,13 +116,11 @@
         let allProducts = [];
         let mainCatMap = {};
 
-        // 設定 CSV 檔案所在的雲端路徑 (如果在同一個資料夾，保持 "./" 即可)
+        // 設定 CSV 檔案所在的雲端路徑
         const CSV_BASE_URL = "."; 
 
-        // 1. 根據所選等級讀取對應的 CSV 檔案
         function loadCsvData() {
             const level = document.getElementById('filter-level').value;
-            // 組合出檔名：shopee-0.csv
             const csvUrl = `${CSV_BASE_URL}/shopee-${level}.csv`;
             
             document.getElementById('loading-msg').style.display = 'block';
@@ -132,13 +137,12 @@
                     document.getElementById('loading-msg').style.display = 'none';
                 },
                 error: function(err) {
-                    document.getElementById('loading-msg').innerHTML = `<span class="text-red-500">找不到檔案 (${csvUrl})，請確認該等級的 CSV 是否已上傳至雲端。</span>`;
+                    document.getElementById('loading-msg').innerHTML = `<span class="text-red-500">找不到檔案 (${csvUrl})，請確認該等級的 CSV 是否存在。</span>`;
                     console.error("CSV載入錯誤:", err);
                 }
             });
         }
 
-        // 2. 解析資料庫裡的所有大小分類並連動下拉選單
         function processCategories() {
             mainCatMap = {};
             allProducts.forEach(row => {
@@ -157,7 +161,6 @@
             updateSubCats(); 
         }
 
-        // 3. 當大分類改變時，動態更新中分類
         function updateSubCats() {
             const mainSelected = document.getElementById('filter-main-cat').value;
             const subSelect = document.getElementById('filter-sub-cat');
@@ -170,31 +173,46 @@
             }
         }
 
-        // 4. 文字轉換數值工具 (處理包含 % 和 $ 的字串)
+        // 文字轉換數值工具
         const parsePercent = (val) => val ? parseFloat(val.replace('%', '')) : 0;
         const parseMoney = (val) => val ? parseFloat(val.replace('$', '').replace(',', '')) : 0;
 
-        // 5. 執行所有過濾條件
+        // 執行所有過濾條件
         function applyFilters() {
-            // 【新增】取得關鍵字並轉換為小寫，方便不區分大小寫比對
             const keyword = document.getElementById('filter-keyword').value.trim().toLowerCase();
             const mainCat = document.getElementById('filter-main-cat').value;
             const subCat = document.getElementById('filter-sub-cat').value;
+            
+            // 讀取價格區間
+            const priceMin = parseFloat(document.getElementById('filter-price-min').value);
+            const priceMax = parseFloat(document.getElementById('filter-price-max').value);
+            
+            // 讀取分潤率區間
             const rateMin = parseFloat(document.getElementById('filter-rate-min').value);
             const rateMax = parseFloat(document.getElementById('filter-rate-max').value);
+            
+            // 讀取單件最低分潤
             const profitMin = parseFloat(document.getElementById('filter-profit-min').value);
 
             const filteredData = allProducts.filter(row => {
-                // 【新增】關鍵字篩選 (如果輸入了關鍵字，但商品名稱不包含該關鍵字，則排除)
+                // 1. 關鍵字篩選
                 if (keyword && !String(row['商品名稱']).toLowerCase().includes(keyword)) return false;
 
+                // 2. 分類篩選
                 if (mainCat && row['大分類'].trim() !== mainCat) return false;
                 if (subCat && row['中分類'].trim() !== subCat) return false;
 
+                // 3. 價格篩選
+                const currentPrice = parseMoney(row['商品價格']);
+                if (!isNaN(priceMin) && currentPrice < priceMin) return false;
+                if (!isNaN(priceMax) && currentPrice > priceMax) return false;
+
+                // 4. 分潤率篩選
                 const currentRate = parsePercent(row['分潤率']);
                 if (!isNaN(rateMin) && currentRate < rateMin) return false;
                 if (!isNaN(rateMax) && currentRate > rateMax) return false;
 
+                // 5. 單件分潤金額篩選
                 const currentProfit = parseMoney(row['推廣分潤']);
                 if (!isNaN(profitMin) && currentProfit < profitMin) return false;
 
@@ -204,7 +222,6 @@
             renderTable(filteredData);
         }
 
-        // 6. 將過濾後的資料渲染成表格並開啟新視窗
         function renderTable(data) {
             const tbody = document.getElementById('result-table-body');
             tbody.innerHTML = '';
@@ -214,7 +231,10 @@
                 return;
             }
 
-            data.forEach(row => {
+            // 限制最多顯示 1000 筆，避免瀏覽器卡頓
+            const displayData = data.slice(0, 1000);
+
+            displayData.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-orange-50 transition";
                 
@@ -246,9 +266,15 @@
                 `;
                 tbody.appendChild(tr);
             });
+            
+            // 如果超過 1000 筆，顯示提示
+            if (data.length > 1000) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 bg-gray-50">僅顯示前 1000 筆結果，請使用篩選條件縮小範圍。</td>`;
+                tbody.appendChild(tr);
+            }
         }
 
-        // 預設載入時自動讀取 Level 0 的檔案
         window.onload = loadCsvData;
     </script>
 </body>
