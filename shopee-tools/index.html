@@ -276,10 +276,10 @@ def process_and_combine(input_folder, output_filename):
                 chunk['商品價格_數值'] = chunk.get('商品價格', 0).apply(parse_price)
                 chunk['銷售量_數值'] = chunk.get('銷售量', 0).apply(parse_sales)
 
-                # 分潤計算公式：(銷售金額 * (分潤% - 5.5%)) + (銷售金額 * 5.5% 上限100元)
+                # 分潤計算公式：(銷售金額 * (分潤% - 5%)) + (銷售金額 * 5% 上限100元)
                 sales_amount = chunk['商品價格_數值']
                 part1 = sales_amount * (chunk['分潤率_數值'] - 0.055)
-                part2 = (sales_amount * 0.055).apply(lambda x: min(x, 100.0))
+                part2 = (sales_amount * 0.05).apply(lambda x: min(x, 100.0))
                 chunk['最終分潤金額'] = part1 + part2
 
                 # ==========================================
