@@ -1,417 +1,281 @@
-import pandas as pd
-import os
-import glob
-import openpyxl
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-from openpyxl.utils import get_column_letter
-
-# ==========================================
-# 1. 數值清洗函數
-# ==========================================
-def parse_price(val):
-    if pd.isna(val):
-        return 0.0
-    val_str = str(val).strip().replace(',', '')
-    if '萬' in val_str:
-        try: return float(val_str.replace('萬', '')) * 10000
-        except: return 0.0
-    elif 'k' in val_str.lower():
-        try: return float(val_str.lower().replace('k', '')) * 1000
-        except: return 0.0
-    else:
-        try: return float(val_str)
-        except: return 0.0
-
-def parse_sales(val):
-    if pd.isna(val):
-        return 0.0
-    val_str = str(val).strip().replace(',', '').replace('+', '')
-    if '億' in val_str:
-        try: return float(val_str.replace('億', '')) * 100000000
-        except: return 0.0
-    elif '萬' in val_str:
-        try: return float(val_str.replace('萬', '')) * 10000
-        except: return 0.0
-    elif 'k' in val_str.lower():
-        try: return float(val_str.lower().replace('k', '')) * 1000
-        except: return 0.0
-    else:
-        try: return float(val_str)
-        except: return 0.0
-
-
-# ==========================================
-# 2. 超大型 15x10 關鍵字分類字典 (請全部用小寫)
-# ==========================================
-CATEGORY_RULES = {
-    '美妝保養': {
-        '臉部保養': '精華|面膜|化妝水|乳液|面霜|理膚寶水|霓淨思|ahc|雅漾',
-        '臉部清潔': '洗面乳|卸妝|潔顏|潔膚乳|洗面露',
-        '防曬隔離': '防曬|隔離霜|防曬乳|安耐曬',
-        '底妝': '粉底|氣墊粉餅|蜜粉|遮瑕',
-        '眼部彩妝': '眼影|眼線|睫毛膏|眉筆',
-        '唇部彩妝': '唇膏|口紅|唇釉|護唇膏',
-        '身體保養': '身體乳|護手霜|足膜|頸霜|burt\'s bees',
-        '身體清潔': '沐浴乳|香皂|去角質|沐浴露|沐浴',
-        '髮品保養': '洗髮|護髮|潤髮|髮膜|shampoo|alpecin',
-        '美妝工具': '刷具|粉撲|美妝蛋|化妝棉'
-    },
-    '3C與電子產品': {
-        '電腦與筆電': '筆電|桌機|macbook|微星|msi',
-        '電腦周邊': '滑鼠|鍵盤|硬碟|隨身碟|記憶卡|路由器|分享器|logitech|羅技|seagate|希捷',
-        '螢幕與顯示器': '螢幕|顯示器|奇美|chimei',
-        '影音設備': '耳機|音響|喇叭|麥克風|藍牙耳機',
-        '智能穿戴': '智慧手錶|智能手環|apple watch',
-        '攝影器材': '相機|單眼|腳架|攝影機|空拍機',
-        '辦公設備': '印表機|墨水|碎紙機|掃描器',
-        '線材與轉接': '轉接頭|傳輸線|hdmi|type-c|充電線',
-        '電子零件': '記憶體|主機板|顯示卡|電源供應器',
-        '儲存裝置': '固態硬碟|ssd|hdd|行動硬碟'
-    },
-    '手機平板與周邊': {
-        '智慧型手機': '手機|iphone|samsung|oppo|vivo',
-        '平板電腦': '平板|ipad|galaxy tab',
-        '手機殼套': '手機殼|保護殼|皮套',
-        '螢幕保護': '保護貼|玻璃貼|防窺',
-        '充電設備': '充電器|快充|行動電源|充電頭',
-        '手機支架': '手機架|車架|指環扣',
-        '外接設備': '外接鏡頭|補光燈',
-        '穿戴配件': '錶帶|保護殼',
-        '蘋果周邊': 'magsafe|airpods',
-        '其他周邊': '掛繩|防塵塞'
-    },
-    '家電與影音': {
-        '廚房家電': '冰箱|烤箱|微波爐|電鍋|氣炸鍋|咖啡機|洗碗機',
-        '清潔家電': '吸塵器|掃地機器人|洗地機',
-        '季節家電': '電風扇|冷氣|暖氣|除濕機|捕蚊燈',
-        '生活家電': '洗衣機|烘衣機|熨斗|掛燙機',
-        '視聽家電': '電視|電視盒|投影機',
-        '飲水設備': '淨水器|濾水壺|飲水機|brita',
-        '美容家電': '吹風機|電捲棒|除毛儀|洗臉機|理髮器',
-        '健康家電': '按摩椅|體重計|體脂計|按摩槍|按摩',
-        '照明設備': '檯燈|吸頂燈|燈泡|小夜燈',
-        '智慧家庭': '智慧開關|智能插座|監視器'
-    },
-    '居家生活': {
-        '收納整理': '收納箱|收納櫃|層架|衣架',
-        '寢具': '床包|枕頭|棉被|床墊|毯子|被套',
-        '衛浴用品': '毛巾|浴巾|牙刷|牙膏|馬桶刷',
-        '清潔用品': '洗衣精|洗碗精|清潔劑|拖把|抹布',
-        '餐廚用品': '鍋具|平底鍋|菜刀|砧板|保鮮盒|bialetti',
-        '餐具水杯': '碗盤|筷子|保溫瓶|馬克杯|水壺',
-        '傢俱': '沙發|茶几|書桌|電腦椅|衣櫃',
-        '居家裝飾': '壁貼|窗簾|地毯|時鐘|盆栽',
-        '日用耗材': '衛生紙|紙巾|垃圾袋|濕紙巾',
-        '五金修繕': '螺絲|起子|電鑽|油漆|延長線'
-    },
-    '運動健身': {
-        '運動鞋': '運動鞋|慢跑鞋|籃球鞋|puma|nike|adidas',
-        '運動服飾': '運動衣|排汗衫|運動褲|壓力褲|運動內衣',
-        '健身器材': '啞鈴|瑜珈墊|健腹輪|阻力帶|跳繩',
-        '戶外露營': '帳篷|睡袋|露營椅|卡式爐|手電筒',
-        '自行車': '腳踏車|安全帽|車燈|單車',
-        '球類運動': '籃球|羽球|網球|桌球|足球',
-        '游泳衝浪': '泳衣|泳鏡|泳帽|防磨衣',
-        '釣魚用具': '釣竿|捲線器|釣餌',
-        '運動配件': '運動袋|護膝|護腕|運動毛巾',
-        '水上活動': '溯溪|浮潛|救生衣'
-    },
-    '女裝與服飾配件': {
-        '女上衣': 't恤|襯衫|背心|雪紡|毛衣|針織衫',
-        '女褲子': '牛仔褲|寬褲|短褲|內搭褲|西裝褲',
-        '裙子': '洋裝|半身裙|連身裙|短裙',
-        '女外套': '女外套|大衣|風衣|女夾克',
-        '內衣褲': '內衣|內褲|無鋼圈|隱形胸罩',
-        '居家睡衣': '睡衣|睡袍|居家服',
-        '女包': '側背包|帆布包|托特包|後背包|女包',
-        '女鞋': '高跟鞋|平底鞋|涼鞋|女靴|瑪莉珍鞋',
-        '飾品': '項鍊|耳環|戒指|手鍊|髮飾',
-        '女配件': '圍巾|女帽|皮帶|墨鏡'
-    },
-    '男裝與服飾配件': {
-        '男上衣': '男t恤|polo衫|男襯衫|帽t',
-        '男褲子': '男牛仔褲|休閒褲|工作褲|男短褲',
-        '男外套': '男夾克|防風外套|西裝外套|男大衣',
-        '男內衣褲': '男內褲|四角褲|平口褲|吊嘎',
-        '男鞋': '休閒鞋|皮鞋|男涼鞋|男靴',
-        '男包': '公事包|腰包|男後背包|男側背包',
-        '男配件': '男皮帶|領帶|男帽|太陽眼鏡',
-        '男飾品': '男項鍊|男戒指|男手環',
-        '西裝': '西裝|套裝|西裝背心',
-        '男運動休閒': '男運動服|衝鋒衣|排汗衣'
-    },
-    '母嬰用品': {
-        '尿布與濕紙巾': '尿布|紙尿褲|拉拉褲|嬰兒濕紙巾',
-        '奶粉與副食品': '奶粉|米精|果泥|副食品',
-        '哺乳用品': '奶瓶|擠乳器|溢乳墊|安撫奶嘴',
-        '嬰兒洗浴': '嬰兒沐浴|嬰兒洗髮|嬰兒乳液|護膚膏',
-        '童裝童鞋': '童裝|包屁衣|童鞋|嬰兒帽',
-        '孕婦裝與用品': '孕婦裝|托腹帶|孕婦褲',
-        '推車與汽座': '嬰兒推車|汽車座椅|提籃',
-        '寢具與安撫': '嬰兒床|包巾|安撫巾|固齒器',
-        '玩具與教育': '積木|布書|聲光玩具|地墊',
-        '安全防護': '防撞條|床圍|護欄|安全鎖'
-    },
-    '美食與伴手禮': {
-        '零食餅乾': '餅乾|洋芋片|巧克力|糖果|肉乾',
-        '飲料沖泡': '咖啡|茶包|氣泡水|果汁|黑茶|奶茶',
-        '泡麵速食': '泡麵|乾拌麵|即食粥',
-        '米麵乾貨': '白米|麵條|麵粉|香菇|木耳',
-        '調味料': '醬油|辣椒醬|沙茶醬|番茄醬',
-        '烘焙材料': '麵粉|酵母|奶油|糖粉',
-        '生鮮肉品': '牛肉|豬肉|雞肉|海鮮|蝦',
-        '冷凍食品': '水餃|蔥油餅|冰淇淋|微波食品',
-        '保健食品': '維他命|益生菌|葉黃素|膠原蛋白',
-        '伴手禮盒': '禮盒|鳳梨酥|蛋捲|牛軋糖'
-    },
-    '旅遊休閒': {
-        '行李箱': '行李箱|登機箱|胖胖箱',
-        '旅行收納': '分裝|收納瓶|按壓瓶|行李收納袋|護照包',
-        '頸枕與配件': '頸枕|眼罩|耳塞|行李束帶',
-        '轉換插頭': '轉接頭|萬國插頭|變壓器',
-        '旅遊票券': '餐券|住宿券|展覽票|樂園門票',
-        '戶外裝備': '登山包|登山杖|望遠鏡',
-        '交通卡': '悠遊卡|一卡通|icash',
-        '翻譯機': '翻譯機|口譯機',
-        '隨身包': '隨身小包|護照套|防竊包',
-        '雨具': '摺疊傘|雨衣|雨鞋'
-    },
-    '汽機車零配件': {
-        '機車百貨': '機車安全帽|機車雨衣|機車手套|行車紀錄器',
-        '汽車百貨': '腳踏墊|避光墊|晴雨窗|方向盤套',
-        '機車零件': '機車輪胎|機油|煞車皮|排氣管',
-        '汽車零件': '雨刷|車燈泡|濾網|電瓶',
-        '清潔保養': '洗車精|打蠟|鍍膜|除油膜',
-        '車載電子': '導航|車充|測速器|車載螢幕',
-        '裝飾改裝': '車貼|氣嘴蓋|車牌框|改裝',
-        '防盜安全': '大鎖|碟煞鎖|防盜器',
-        '維修工具': '扳手|千斤頂|補胎包',
-        '騎士人身部品': '防摔衣|機車護膝|車靴'
-    },
-    '寵物用品': {
-        '狗糧與零食': '狗飼料|狗罐頭|狗零食|潔牙骨',
-        '貓糧與零食': '貓飼料|貓罐頭|肉泥|貓零食',
-        '貓砂與貓砂盆': '貓砂|豆腐砂|礦砂|貓砂盆',
-        '寵物清潔': '寵物沐浴|除蚤|尿墊|撿便袋',
-        '寵物玩具': '逗貓棒|貓抓板|耐咬玩具|飛盤',
-        '寵物睡墊': '狗床|貓窩|寵物墊|涼墊',
-        '外出提籠': '提籠|寵物推車|胸背帶|牽繩',
-        '寵物保健': '化毛膏|寵物排便|寵物維他命',
-        '寵物服飾': '狗衣服|貓衣服|項圈|領結',
-        '寵物碗盤': '飼料碗|寵物飲水機|慢食碗'
-    },
-    '書籍及文創': {
-        '雜誌期刊': '雜誌|周刊|天下|商業周刊',
-        '文學小說': '小說|散文|翻譯文學',
-        '商業理財': '股票|投資|財經|管理',
-        '心理勵志': '心理學|成長|人際',
-        '童書與教具': '童書|繪本|字卡|有聲書',
-        '考試用書': '多益|公職|國考|參考書',
-        '辦公文具': '原子筆|筆記本|立可帶|資料夾',
-        '美術用品': '色鉛筆|水彩|畫布|素描',
-        '手作材料': '毛線|串珠|黏土|摺紙',
-        '節慶派對': '氣球|裝飾|卡片|禮物盒'
-    },
-    '遊戲與玩具': {
-        '益智玩具': '拼圖|魔術方塊|桌遊',
-        '模型與公仔': '鋼彈|公仔|盲盒|gk',
-        '絨毛玩具': '娃娃|抱枕|玩偶|泰迪熊',
-        '遙控玩具': '遙控車|遙控飛機|無人機',
-        '兒童玩具': '辦家家酒|水槍|沙漏|家家酒',
-        '樂高': 'lego|樂高',
-        '遊戲主機': 'ps5|switch|xbox|任天堂',
-        '遊戲片': '遊戲片|switch遊戲|ps5遊戲',
-        '虛擬點數': '點數卡|mycard|gash|psn',
-        '電競周邊': '電競鍵盤|電競滑鼠|電競椅|方向盤'
-    }
-}
-
-
-# ==========================================
-# 3. 主程式：分批處理、黑名單過濾、分類與計算篩選
-# ==========================================
-def process_and_combine(input_folder, output_filename):
-    csv_files = glob.glob(os.path.join(input_folder, "*.csv"))
-    
-    if not csv_files:
-        print(f"在 {input_folder} 中沒有找到 CSV 檔案。")
-        return
-
-    chunk_size = 100000 
-    seen_urls = set()   
-    all_filtered_data = [] 
-
-    for file_path in csv_files:
-        filename = os.path.basename(file_path)
-        print(f"\n🚀 正在分塊處理並計算大檔案: {filename} ...")
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蝦皮分潤選品神器</title>
+    <!-- 使用 Tailwind CSS 快速排版 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 PapaParse 用於前端解析 CSV 檔案 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-7xl mx-auto space-y-6">
         
-        try:
-            for i, chunk in enumerate(pd.read_csv(file_path, chunksize=chunk_size)):
+        <h1 class="text-3xl font-bold text-gray-800 flex flex-col md:flex-row md:items-baseline gap-2">
+            <span>蝦皮分潤選品系統</span>
+            <span class="text-sm font-normal text-gray-500">
+                 (數據基準-等級2，每個人專屬推薦商品不同，因此會有些許差異。因分潤率廠商會不定期調整，檔案2個月更新一次)
+            </span>
+        </h1>
+        
+        <!-- 篩選器區塊 -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            
+            <!-- 關鍵字搜尋 -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">關鍵字查詢 (商品名稱)</label>
+                <input type="text" id="filter-keyword" placeholder="請輸入想尋找的商品關鍵字 (例如：吹風機、衛生紙)..." class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+            </div>
+
+            <!-- 分類篩選區 (一排3個) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">創作者等級 (切換檔案)</label>
+                    <select id="filter-level" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" onchange="loadCsvData()">
+                        <option value="2">等級 2</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">大分類</label>
+                    <select id="filter-main-cat" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" onchange="updateSubCats()">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">中分類</label>
+                    <select id="filter-sub-cat" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 【更新】數值輸入篩選區 (一排3個，全部改為直接輸入區間) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- 價格輸入 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">商品價格區間 ($)</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="number" id="filter-price-min" placeholder="最低" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                        <span class="text-gray-500">-</span>
+                        <input type="number" id="filter-price-max" placeholder="最高" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                </div>
+
+                <!-- 分潤率輸入 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">分潤率區間 (%)</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="number" id="filter-rate-min" placeholder="最低" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                        <span class="text-gray-500">-</span>
+                        <input type="number" id="filter-rate-max" placeholder="最高" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                </div>
+
+                <!-- 單件分潤金額 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">單件最低分潤金額 ($)</label>
+                    <input type="number" id="filter-profit-min" placeholder="例如: 10" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
+                </div>
+            </div>
+
+            <!-- 搜尋按鈕 -->
+            <div class="mt-6 flex justify-end">
+                <button onclick="applyFilters()" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-2 rounded-md shadow transition">
+                    搜尋 / 篩選
+                </button>
+            </div>
+        </div>
+
+        <!-- 列表呈現區塊 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left font-medium text-gray-500">分類</th>
+                            <th class="px-6 py-3 text-left font-medium text-gray-500 w-1/3">商品資訊</th>
+                            <th class="px-6 py-3 text-left font-medium text-gray-500">售價</th>
+                            <th class="px-6 py-3 text-left font-medium text-gray-500">分潤率</th>
+                            <th class="px-6 py-3 text-left font-medium text-gray-500">單件分潤</th>
+                            <th class="px-6 py-3 text-center font-medium text-gray-500">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="result-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- 商品資料會透過 JavaScript 動態載入至此 -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="loading-msg" class="text-center py-10 text-gray-500">
+                載入資料中，請稍候...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allProducts = [];
+        let mainCatMap = {};
+
+        // 設定 CSV 檔案所在的雲端路徑
+        const CSV_BASE_URL = "."; 
+
+        function loadCsvData() {
+            const level = document.getElementById('filter-level').value;
+            const csvUrl = `${CSV_BASE_URL}/shopee-${level}.csv`;
+            
+            document.getElementById('loading-msg').style.display = 'block';
+            document.getElementById('result-table-body').innerHTML = '';
+
+            Papa.parse(csvUrl, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    allProducts = results.data.filter(row => row['商品名稱']); 
+                    processCategories();
+                    applyFilters();
+                    document.getElementById('loading-msg').style.display = 'none';
+                },
+                error: function(err) {
+                    document.getElementById('loading-msg').innerHTML = `<span class="text-red-500">找不到檔案 (${csvUrl})，請確認該等級的 CSV 是否存在。</span>`;
+                    console.error("CSV載入錯誤:", err);
+                }
+            });
+        }
+
+        function processCategories() {
+            mainCatMap = {};
+            allProducts.forEach(row => {
+                const main = row['大分類'] ? row['大分類'].trim() : '未分類';
+                const sub = row['中分類'] ? row['中分類'].trim() : '未分類';
                 
-                # --- A. 推廣連結去重 ---
-                if '推廣連結' in chunk.columns:
-                    chunk = chunk[~chunk['推廣連結'].isin(seen_urls)].copy()
-                    seen_urls.update(chunk['推廣連結'].dropna().tolist())
+                if (!mainCatMap[main]) mainCatMap[main] = new Set();
+                mainCatMap[main].add(sub);
+            });
+
+            const mainSelect = document.getElementById('filter-main-cat');
+            mainSelect.innerHTML = '<option value="">全部</option>';
+            Object.keys(mainCatMap).sort().forEach(main => {
+                mainSelect.innerHTML += `<option value="${main}">${main}</option>`;
+            });
+            updateSubCats(); 
+        }
+
+        function updateSubCats() {
+            const mainSelected = document.getElementById('filter-main-cat').value;
+            const subSelect = document.getElementById('filter-sub-cat');
+            subSelect.innerHTML = '<option value="">全部</option>';
+
+            if (mainSelected && mainCatMap[mainSelected]) {
+                Array.from(mainCatMap[mainSelected]).sort().forEach(sub => {
+                    subSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
+                });
+            }
+        }
+
+        // 文字轉換數值工具
+        const parsePercent = (val) => val ? parseFloat(val.replace('%', '')) : 0;
+        const parseMoney = (val) => val ? parseFloat(val.replace('$', '').replace(',', '')) : 0;
+
+        // 執行所有過濾條件
+        function applyFilters() {
+            const keyword = document.getElementById('filter-keyword').value.trim().toLowerCase();
+            const mainCat = document.getElementById('filter-main-cat').value;
+            const subCat = document.getElementById('filter-sub-cat').value;
+            
+            // 讀取價格區間
+            const priceMin = parseFloat(document.getElementById('filter-price-min').value);
+            const priceMax = parseFloat(document.getElementById('filter-price-max').value);
+            
+            // 讀取分潤率區間
+            const rateMin = parseFloat(document.getElementById('filter-rate-min').value);
+            const rateMax = parseFloat(document.getElementById('filter-rate-max').value);
+            
+            // 讀取單件最低分潤
+            const profitMin = parseFloat(document.getElementById('filter-profit-min').value);
+
+            const filteredData = allProducts.filter(row => {
+                // 1. 關鍵字篩選
+                if (keyword && !String(row['商品名稱']).toLowerCase().includes(keyword)) return false;
+
+                // 2. 分類篩選
+                if (mainCat && row['大分類'].trim() !== mainCat) return false;
+                if (subCat && row['中分類'].trim() !== subCat) return false;
+
+                // 3. 價格篩選
+                const currentPrice = parseMoney(row['商品價格']);
+                if (!isNaN(priceMin) && currentPrice < priceMin) return false;
+                if (!isNaN(priceMax) && currentPrice > priceMax) return false;
+
+                // 4. 分潤率篩選
+                const currentRate = parsePercent(row['分潤率']);
+                if (!isNaN(rateMin) && currentRate < rateMin) return false;
+                if (!isNaN(rateMax) && currentRate > rateMax) return false;
+
+                // 5. 單件分潤金額篩選
+                const currentProfit = parseMoney(row['推廣分潤']);
+                if (!isNaN(profitMin) && currentProfit < profitMin) return false;
+
+                return true;
+            });
+
+            renderTable(filteredData);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('result-table-body');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">找不到符合條件的商品</td></tr>';
+                return;
+            }
+
+            // 限制最多顯示 1000 筆，避免瀏覽器卡頓
+            const displayData = data.slice(0, 1000);
+
+            displayData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-orange-50 transition";
                 
-                if chunk.empty: continue
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            ${row['大分類']}
+                        </span>
+                        <div class="text-xs text-gray-500 mt-1">${row['中分類']}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900 line-clamp-2" title="${row['商品名稱']}">${row['商品名稱']}</div>
+                        <div class="text-xs text-gray-500 mt-1">店鋪: ${row['商店名稱']} | 銷量: ${row['銷售量']}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-red-600 font-medium">
+                        $${row['商品價格']}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-green-600">
+                        ${row['分潤率']}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap font-bold text-orange-600">
+                        ${row['推廣分潤']}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <a href="${row['推廣連結']}" target="_blank" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600">
+                            前往商品頁
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // 如果超過 1000 筆，顯示提示
+            if (data.length > 1000) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 bg-gray-50">僅顯示前 1000 筆結果，請使用篩選條件縮小範圍。</td>`;
+                tbody.appendChild(tr);
+            }
+        }
 
-                # --- B. 確保必要欄位存在並轉小寫 ---
-                if '商品名稱' not in chunk.columns: break
-                chunk['商品名稱'] = chunk['商品名稱'].astype(str).str.lower()
-                chunk['來源檔案'] = filename
-
-                # --- B-2. 擋掉黑名單：刪除贈品與需牌照特許商品 ---
-                mask_gift = chunk['商品名稱'].str.contains('贈品|請勿下單|加價購|會員限定|會員兌禮|滿額贈|非賣品|0元加購', na=False)
-                mask_license = chunk['商品名稱'].str.contains('醫療|藥品|隱形眼鏡|環境用藥|血壓計|血糖機|快篩|血氧機|殺蟲劑|防蚊液', na=False)
-                chunk = chunk[~mask_gift & ~mask_license].copy()
-                
-                if chunk.empty: continue
-                
-                # --- C. 數值清洗與計算 ---
-                if '分潤率' in chunk.columns:
-                    chunk['分潤率_數值'] = pd.to_numeric(chunk['分潤率'].astype(str).str.replace('%', '', regex=False), errors='coerce').fillna(0) / 100.0
-                else:
-                    chunk['分潤率_數值'] = 0.0
-                
-                chunk['商品價格_數值'] = chunk.get('商品價格', 0).apply(parse_price)
-                chunk['銷售量_數值'] = chunk.get('銷售量', 0).apply(parse_sales)
-
-                # 分潤計算公式：(銷售金額 * (分潤% - 5%)) + (銷售金額 * 5% 上限100元)
-                sales_amount = chunk['商品價格_數值']
-                part1 = sales_amount * (chunk['分潤率_數值'] - 0.055)
-                part2 = (sales_amount * 0.05).apply(lambda x: min(x, 100.0))
-                chunk['最終分潤金額'] = part1 + part2
-
-                # ==========================================
-                # --- C-2. 自動建立價格與分潤率區間 ---
-                # ==========================================
-                # 1. 價格區間
-                price_bins = [0, 99, 499, 999, 2999, 4999, float('inf')]
-                price_labels = ['0-99', '100-499', '500-999', '1000-2999', '3000-4999', '5000以上']
-                chunk['商品價格區間'] = pd.cut(chunk['商品價格_數值'], bins=price_bins, labels=price_labels, right=False, include_lowest=True)
-                
-                # 2. 分潤率區間
-                margin_bins = [0, 0.049, 0.099, 0.199, 0.299, float('inf')]
-                margin_labels = ['5%以下', '5-9%', '10-19%', '20-29%', '30%以上']
-                chunk['分潤率區間(%)'] = pd.cut(chunk['分潤率_數值'], bins=margin_bins, labels=margin_labels, right=False, include_lowest=True)
-                # ==========================================
-
-                # ==========================================
-                # --- E. 自動分類 (採用字典迴圈) ---
-                # ==========================================
-                chunk['大分類'] = '其他/未分類'
-                chunk['中分類'] = '其他'
-                
-                # 遍歷 15 個大分類與 150 個小分類
-                for main_cat, sub_cats_dict in CATEGORY_RULES.items():
-                    for sub_cat, keywords in sub_cats_dict.items():
-                        # 若商品名稱包含關鍵字，就寫入對應的分類
-                        mask = chunk['商品名稱'].str.contains(keywords, na=False)
-                        chunk.loc[mask, ['大分類', '中分類']] = [main_cat, sub_cat]
-                # ==========================================
-
-                all_filtered_data.append(chunk)
-                print(f"  ...處理至第 {(i+1) * chunk_size} 筆，目前累積過濾後菁英商品: {sum(len(df) for df in all_filtered_data)} 筆...")
-
-        except Exception as e:
-            print(f"❌ 處理 {filename} 時發生錯誤: {e}")
-
-    # ==========================================
-    # 4. 彙整、排序與 Excel 排版匯出
-    # ==========================================
-    if not all_filtered_data:
-        print("沒有任何商品符合篩選條件！")
-        return
-    
-    final_df = pd.concat(all_filtered_data, ignore_index=True)
-    final_df = final_df.sort_values(by='最終分潤金額', ascending=False)
-    
-    print(f"\n✅ 所有檔案處理完畢！準備將 {len(final_df)} 筆菁英商品匯出為精美 Excel...")
-
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = '高分潤商品清單'
-
-    headers = [
-        '大分類', '中分類', '商品價格區間', '分潤率區間(%)', '商品編號', '商品名稱', '商品價格', '銷售量', 
-        '商店名稱', '原始分潤率', '原始推廣分潤', '最終計算分潤金額', 
-        '來源檔案', '商品連結', '推廣連結'
-    ]
-    ws.append(headers)
-
-    for _, row in final_df.iterrows():
-        row_data = [
-            row.get('大分類', ''),
-            row.get('中分類', ''),
-            str(row.get('商品價格區間', '')),
-            str(row.get('分潤率區間(%)', '')),
-            row.get('商品編號', ''),
-            row.get('商品名稱', ''),
-            row.get('商品價格', ''),
-            row.get('銷售量', ''),
-            row.get('商店名稱', ''),
-            row.get('分潤率', ''),
-            row.get('推廣分潤', ''),
-            round(row.get('最終分潤金額', 0), 2),
-            row.get('來源檔案', ''),
-            row.get('商品連結', ''),
-            row.get('推廣連結', '')
-        ]
-        ws.append(row_data)
-
-    # 樣式設定
-    header_fill = PatternFill(start_color='1F4E78', end_color='1F4E78', fill_type='solid')
-    header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
-    data_font = Font(name='Calibri', size=11)
-    border_side = Side(border_style='thin', color='D9D9D9')
-    border = Border(left=border_side, right=border_side, top=border_side, bottom=border_side)
-    align_left = Alignment(horizontal='left', vertical='center')
-    align_right = Alignment(horizontal='right', vertical='center')
-    align_center = Alignment(horizontal='center', vertical='center')
-
-    for col_num in range(1, len(headers) + 1):
-        cell = ws.cell(row=1, column=col_num)
-        cell.fill = header_fill
-        cell.font = header_font
-        cell.alignment = align_center
-        cell.border = border
-    ws.row_dimensions[1].height = 25
-
-    for row_num in range(2, ws.max_row + 1):
-        ws.row_dimensions[row_num].height = 20
-        for col_num in range(1, len(headers) + 1):
-            cell = ws.cell(row=row_num, column=col_num)
-            cell.font = data_font
-            cell.border = border
-            col_name = headers[col_num - 1]
-            if col_name in ['商品價格', '原始推廣分潤', '最終計算分潤金額']:
-                cell.alignment = align_right
-                if col_name == '最終計算分潤金額':
-                    cell.number_format = '$#,##0.00'
-            elif col_name in ['商品編號', '原始分潤率', '銷售量', '商品價格區間', '分潤率區間(%)']:
-                cell.alignment = align_center
-            else:
-                cell.alignment = align_left
-
-    for col in ws.columns:
-        max_len = 0
-        col_letter = get_column_letter(col[0].column)
-        for cell in col:
-            if cell.value is not None:
-                max_len = max(max_len, len(str(cell.value)))
-        ws.column_dimensions[col_letter].width = min(max(max_len + 3, 12), 50)
-
-    ws.freeze_panes = 'A2'
-    wb.save(output_filename)
-    
-    # 【新增】除了 Excel，同時匯出一份乾淨的 CSV 給前端網頁使用
-    csv_filename = output_filename.replace('.xlsx', '.csv')
-    final_df.to_csv(csv_filename, index=False, encoding='utf-8-sig')
-    print(f"🎉 處理完成！\n - Excel報表已儲存至: {output_filename}\n - 前端資料庫已儲存至: {csv_filename}\n共產出 {len(final_df)} 筆合格優質商品。")
-
-if __name__ == "__main__":
-    INPUT_DIR = "./shopee_raw_files" 
-    OUTPUT_FILE = "shopee-2.xlsx" # 修改檔名以符合前端的設定
-    
-    print("啟動【百萬級】蝦皮整合腳本：黑名單剔除 ＋ 分批去重 ＋ 價格與分潤區間 ＋ 自動 150 類字典分類 ＋ 雙格式匯出...")
-    process_and_combine(INPUT_DIR, OUTPUT_FILE)
+        window.onload = loadCsvData;
+    </script>
+</body>
+</html>
