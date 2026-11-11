@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- 【1. 效能優化：DNS 預先解析與資源預先連線 (加速載入提升 SEO)】 -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+
     <!-- ========================================== -->
     <!-- 【Google Analytics 追蹤碼】 -->
     <!-- ========================================== -->
@@ -16,16 +21,18 @@
     </script>
     <!-- ========================================== -->
     
-    <!-- 【SEO 基本設定】 -->
+    <!-- 【SEO 基本設定與爬蟲終極指令】 -->
     <title>【完全免費】蝦皮分潤選品神器 | 創作者聯盟行銷高傭金篩選工具</title>
     <meta name="description" content="專為蝦皮聯盟行銷（Shopee Affiliate）創作者設計的「完全免費、免註冊」選品神器。提供即時商品篩選、高分潤率查詢、單件推廣分潤計算功能，輕鬆找出爆款高傭金商品，提升網紅與KOL的被動收入。">
     <meta name="keywords" content="蝦皮分潤, 蝦皮聯盟行銷, 選品神器, 蝦皮客, 高分潤商品, 蝦皮分潤計算, 創作者選品, Shopee Affiliate, 免費工具">
     <meta name="author" content="Kokko愛旅行">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"> <!-- 授權搜尋引擎最大化展示摘要與大圖 -->
     <link rel="canonical" href="https://kokko-travel.com/shopee-tools/">
 
     <!-- 【SEO 社交媒體標籤 (Open Graph / Facebook / LINE)】 -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kokko-travel.com/shopee-tools/">
+    <meta property="og:locale" content="zh_TW"> <!-- 宣告語系 -->
     <meta property="og:title" content="【完全免費】蝦皮分潤選品神器 | 創作者聯盟行銷必備">
     <meta property="og:description" content="一鍵篩選蝦皮高分潤商品！支援關鍵字、分類、價格與分潤率進階搜尋，助你輕鬆賺取蝦皮聯盟行銷高額傭金。">
     <meta property="og:image" content="https://kokko-travel.com/shopee-tools/shopeetool.jpg"> 
@@ -36,7 +43,7 @@
     <meta property="twitter:description" content="一鍵篩選蝦皮高分潤商品！支援關鍵字、分類、價格與分潤率進階搜尋，助你輕鬆賺取高額傭金。">
     <meta property="twitter:image" content="https://kokko-travel.com/shopee-tools/shopeetool.jpg">
 
-    <!-- 【AEO / GEO 結構化資料 (Schema Markup)】讓 AI 引擎與 Google 讀懂你的工具 -->
+    <!-- 【AEO / GEO 結構化資料 - 網站與應用程式】 -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -54,7 +61,34 @@
     }
     </script>
 
-    <!-- 【AEO FAQ 結構化資料】針對 AI 常見問題生成最佳解答 -->
+    <!-- 【2. 新增！AEO HowTo 結構化資料：教 AI 如何使用你的工具】 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "如何使用蝦皮分潤選品神器找出高佣金商品？",
+      "description": "透過三個簡單步驟，快速篩選出蝦皮聯盟行銷最高分潤率與單件佣金的爆款商品。",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "步驟一：輸入商品關鍵字或分類",
+          "text": "在搜尋框輸入你想推廣的商品名稱，或是直接從大分類與中分類下拉選單中挑選受眾感興趣的領域。"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "步驟二：設定分潤率與價格區間",
+          "text": "輸入你期望的「分潤率區間(%)」或「單件最低分潤金額($)」，系統會自動過濾出符合高佣金標準的商品。"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "步驟三：獲取推廣連結",
+          "text": "點擊表格右側的「前往商品頁」，即可前往蝦皮複製該專屬分潤連結，發布至社群平台開始賺取被動收入。"
+        }
+      ]
+    }
+    </script>
+
+    <!-- 【AEO FAQ 結構化資料】 -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -86,21 +120,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body class="bg-gray-50 p-6">
+    <!-- 【5. 彌補動態渲染盲區 (NoScript SEO fallback)】當爬蟲不執行 JS 時能讀到的內容 -->
+    <noscript>
+        <div style="padding: 20px; background: #fff;">
+            <h2>蝦皮分潤選品神器 - 免費高佣金聯盟行銷篩選系統</h2>
+            <p>本工具支援蝦皮聯盟行銷(Shopee Affiliate)的各大分類選品，包含：居家生活、美妝保養、女生衣著、3C與筆電、美食伴手禮、母嬰玩具等。立即免費使用，找出高分潤率(%)與高單件佣金的爆款推廣商品。</p>
+        </div>
+    </noscript>
+
     <div class="max-w-7xl mx-auto space-y-6">
         
-        <!-- 【GEO 語意化標題與隱藏文本】幫助 AI 生成引擎萃取重點 -->
         <header>
             <h1 class="text-3xl font-bold text-gray-800 flex flex-col md:flex-row md:items-center gap-3">
                 <div class="flex items-center gap-2">
                     <span>蝦皮分潤選品系統</span>
-                    <!-- 強調完全免費的視覺標籤 -->
                     <span class="bg-red-500 text-white text-sm px-2 py-1 rounded-md shadow-sm whitespace-nowrap">完全免費</span>
                 </div>
                 <span class="text-sm font-normal text-gray-500 mt-1 md:mt-0">
                      (數據基準-等級2，因分潤率廠商會不定期調整，檔案將持續更新)
                 </span>
             </h1>
-            <!-- 提供給 GEO/AI 閱讀的摘要上下文 (視覺微調淡化，但不隱藏以免被視為作弊) -->
             <p class="text-sm text-gray-500 mt-2 max-w-4xl" aria-label="工具簡介">
                 本工具為<strong>蝦皮聯盟行銷 (Shopee Affiliate)</strong> 專用選品神器，提供創作者快速進行商品搜尋、售價與分潤率分析。輸入價格區間與單件推廣分潤，即可精準找出高佣金商品，極大化你的變現效率。
             </p>
@@ -114,7 +153,7 @@
                 <input type="text" id="filter-keyword" placeholder="請輸入想尋找的商品關鍵字 (例如：吹風機、衛生紙)..." class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
             </div>
 
-            <!-- 分類篩選區 (一排3個) -->
+            <!-- 分類篩選區 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                     <label for="filter-level" class="block text-sm font-medium text-gray-700 mb-1">創作者等級 (切換檔案)</label>
@@ -138,7 +177,6 @@
 
             <!-- 數值輸入篩選區 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- 價格輸入 -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">商品價格區間 ($)</label>
                     <div class="flex items-center space-x-2">
@@ -147,8 +185,6 @@
                         <input type="number" id="filter-price-max" placeholder="最高" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" aria-label="最高價格">
                     </div>
                 </div>
-
-                <!-- 分潤率輸入 -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">分潤率區間 (%)</label>
                     <div class="flex items-center space-x-2">
@@ -157,8 +193,6 @@
                         <input type="number" id="filter-rate-max" placeholder="最高" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500" aria-label="最高分潤率">
                     </div>
                 </div>
-
-                <!-- 單件分潤金額 -->
                 <div>
                     <label for="filter-profit-min" class="block text-sm font-medium text-gray-700 mb-1">單件最低分潤金額 ($)</label>
                     <input type="number" id="filter-profit-min" placeholder="例如: 10" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-orange-500 focus:border-orange-500">
@@ -174,7 +208,7 @@
         </main>
 
         <!-- 列表呈現區塊 -->
-        <section class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" aria-label="搜尋結果列表">
+        <section id="table-section" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" aria-label="搜尋結果列表">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
@@ -187,11 +221,18 @@
                             <th scope="col" class="px-6 py-3 text-center font-medium text-gray-500">操作</th>
                         </tr>
                     </thead>
-                    <tbody id="result-table-body" class="bg-white divide-y divide-gray-200">
+                    <!-- 【4. 無障礙與爬蟲優化：aria-live="polite" 告知機器人內容會動態更新】 -->
+                    <tbody id="result-table-body" class="bg-white divide-y divide-gray-200" aria-live="polite">
                         <!-- 商品資料會透過 JavaScript 動態載入至此 -->
                     </tbody>
                 </table>
             </div>
+            
+            <!-- 分頁控制列 -->
+            <div id="pagination-container" class="bg-gray-50 px-6 py-3 border-t border-gray-200 flex items-center justify-between hidden">
+                <!-- 透過 JavaScript 動態產生 -->
+            </div>
+
             <div id="loading-msg" class="text-center py-10 text-gray-500" role="status">
                 載入資料中，請稍候...
             </div>
@@ -200,9 +241,12 @@
 
     <script>
         let allProducts = [];
+        let currentFilteredData = []; 
         let mainCatMap = {};
+        
+        let currentPage = 1;
+        const rowsPerPage = 50; 
 
-        // 設定 CSV 檔案所在的雲端路徑
         const CSV_BASE_URL = "."; 
 
         function loadCsvData() {
@@ -211,6 +255,7 @@
             
             document.getElementById('loading-msg').style.display = 'block';
             document.getElementById('result-table-body').innerHTML = '';
+            document.getElementById('pagination-container').classList.add('hidden');
 
             Papa.parse(csvUrl, {
                 download: true,
@@ -219,7 +264,7 @@
                 complete: function(results) {
                     allProducts = results.data.filter(row => row['商品名稱']); 
                     processCategories();
-                    applyFilters();
+                    applyFilters(); 
                     document.getElementById('loading-msg').style.display = 'none';
                 },
                 error: function(err) {
@@ -273,7 +318,7 @@
             const rateMax = parseFloat(document.getElementById('filter-rate-max').value);
             const profitMin = parseFloat(document.getElementById('filter-profit-min').value);
 
-            const filteredData = allProducts.filter(row => {
+            currentFilteredData = allProducts.filter(row => {
                 if (keyword && !String(row['商品名稱']).toLowerCase().includes(keyword)) return false;
                 if (mainCat && row['大分類'].trim() !== mainCat) return false;
                 if (subCat && row['中分類'].trim() !== subCat) return false;
@@ -292,19 +337,44 @@
                 return true;
             });
 
-            renderTable(filteredData);
+            currentPage = 1;
+            renderTable();
         }
 
-        function renderTable(data) {
+        function changePage(step) {
+            const totalPages = Math.ceil(currentFilteredData.length / rowsPerPage);
+            const newPage = currentPage + step;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderTable();
+                document.getElementById('table-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(currentFilteredData.length / rowsPerPage);
+            const newPage = parseInt(page, 10);
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderTable();
+                document.getElementById('table-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function renderTable() {
             const tbody = document.getElementById('result-table-body');
+            const paginationContainer = document.getElementById('pagination-container');
             tbody.innerHTML = '';
 
-            if (data.length === 0) {
+            if (currentFilteredData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">找不到符合條件的商品</td></tr>';
+                paginationContainer.classList.add('hidden');
                 return;
             }
 
-            const displayData = data.slice(0, 1000);
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const displayData = currentFilteredData.slice(startIndex, endIndex);
 
             displayData.forEach(row => {
                 const tr = document.createElement('tr');
@@ -338,12 +408,66 @@
                 `;
                 tbody.appendChild(tr);
             });
-            
-            if (data.length > 1000) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 bg-gray-50">僅顯示前 1000 筆結果，請使用篩選條件縮小範圍。</td>`;
-                tbody.appendChild(tr);
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(currentFilteredData.length / rowsPerPage);
+            const paginationContainer = document.getElementById('pagination-container');
+
+            if (totalPages <= 1) {
+                paginationContainer.classList.add('hidden');
+                return;
             }
+
+            paginationContainer.classList.remove('hidden');
+
+            const startItem = (currentPage - 1) * rowsPerPage + 1;
+            const endItem = Math.min(currentPage * rowsPerPage, currentFilteredData.length);
+
+            let pageOptions = '';
+            for (let i = 1; i <= totalPages; i++) {
+                pageOptions += `<option value="${i}" ${i === currentPage ? 'selected' : ''}>第 ${i} 頁</option>`;
+            }
+
+            paginationContainer.innerHTML = `
+                <div class="flex-1 flex items-center justify-between sm:hidden w-full">
+                    <button onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''} class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}">上一頁</button>
+                    
+                    <select onchange="goToPage(this.value)" class="mx-2 block w-full border-gray-300 rounded-md text-sm py-2 pl-3 pr-8 focus:ring-orange-500 focus:border-orange-500 cursor-pointer shadow-sm">
+                        ${pageOptions}
+                    </select>
+
+                    <button onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''} class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}">下一頁</button>
+                </div>
+
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            顯示第 <span class="font-medium">${startItem}</span> 到 <span class="font-medium">${endItem}</span> 筆，共找到 <span class="font-medium text-orange-600">${currentFilteredData.length}</span> 筆商品
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px items-center" aria-label="Pagination">
+                            <button onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''} class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}">
+                                <span>上一頁</span>
+                            </button>
+                            
+                            <div class="relative inline-flex items-center px-3 py-1 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                <select onchange="goToPage(this.value)" class="border-gray-300 rounded bg-gray-50 text-sm py-1 pl-2 pr-6 focus:ring-orange-500 focus:border-orange-500 cursor-pointer">
+                                    ${pageOptions}
+                                </select>
+                                <span class="ml-2">/ 共 ${totalPages} 頁</span>
+                            </div>
+
+                            <button onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''} class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}">
+                                <span>下一頁</span>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            `;
         }
 
         window.onload = loadCsvData;
