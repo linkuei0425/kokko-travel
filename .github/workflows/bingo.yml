@@ -2,13 +2,24 @@ name: BINGO Auto Scraper
 
 on:
   schedule:
-    # 在每小時的這些特定分鐘執行 (剛好避開整點，確保網站資料已經更新)
-    - cron: '1,6,11,16,21,26,31,36,41,46,51,56 * * * *'
+    # 台灣時間 07:00 ~ 23:59 開獎，對應 UTC 時間為 23:00 ~ 15:59
+    # 每 5 分鐘觸發一次 (第 1, 6, 11... 分鐘)
+    - cron: '1,6,11,16,21,26,31,36,41,46,51,56 0-16,23 * * *'
   workflow_dispatch: # 保持手動觸發按鈕
+
+# 🌟 關鍵修復 1：賦予機器人 git push 寫回儲存庫的權限
+permissions:
+  contents: write
+
+# 🌟 關鍵修復 2：防止排程塞車時多個任務同時撞在一起
+concurrency:
+  group: bingo-scraper-group
+  cancel-in-progress: false
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    timeout-minutes: 5 # 限制單次最長 5 分鐘，防止卡死
     steps:
       - name: 📥 取得最新程式碼
         uses: actions/checkout@v4
@@ -26,7 +37,7 @@ jobs:
 
       - name: 🚀 執行爬蟲並寫入試算表
         env:
-          GAS_URL: ${{ secrets.GAS_URL }} # 從 Secrets 安全讀取網址
+          GAS_URL: ${{ secrets.GAS_URL }}
         run: python bingo_scraper.py
 
       - name: 💾 自動更新 last_period.txt (維持防呆機制)
@@ -36,6 +47,7 @@ jobs:
           git add last_period.txt
           if ! git diff --staged --quiet; then
             git commit -m "自動更新最新期數 [skip ci]"
+            git pull --rebase origin main || true
             git push
           else
             echo "期數未更新，無需 commit"
