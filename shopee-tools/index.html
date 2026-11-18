@@ -118,8 +118,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 PapaParse 用於前端解析 CSV 檔案 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <!-- 針對電腦版與手機版分別設定底部懸浮高度，避開電腦工作列遮擋 -->
+    <style>
+        .shopee-floating-bar {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            z-index: 99999;
+            pointer-events: none;
+        }
+        @media (min-width: 768px) {
+            .shopee-floating-bar {
+                bottom: 65px;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-50 p-6 pb-28">
+<body class="bg-gray-50 p-6 pb-36">
     <!-- 【5. 彌補動態渲染盲區 (NoScript SEO fallback)】當爬蟲不執行 JS 時能讀到的內容 -->
     <noscript>
         <div style="padding: 20px; background: #fff;">
@@ -245,8 +262,8 @@
         </section>
     </div>
 
-    <!-- 底部常駐浮動橫幅 (離底 16px 懸浮設計，避免被電腦工作列或視窗邊緣切掉) -->
-    <div style="position: fixed; bottom: 16px; left: 16px; right: 16px; z-index: 9999; pointer-events: none;">
+    <!-- 底部常駐浮動橫幅 (電腦版離底 65px、手機版離底 16px，徹底避開工作列遮擋) -->
+    <div class="shopee-floating-bar">
         <div class="max-w-5xl mx-auto bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-2xl rounded-xl border-2 border-white px-4 py-3 flex items-center justify-between gap-3" style="pointer-events: auto;">
             <div class="flex items-center gap-2 text-xs sm:text-base font-medium">
                 <span class="text-lg sm:text-xl">🔥</span>
