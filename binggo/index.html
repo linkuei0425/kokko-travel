@@ -175,38 +175,55 @@
             const [singleNumbers, setSingleNumbers] = useState('');
             const [startPeriod, setStartPeriod] = useState('');
             
-            // 🌟 5秒後彈出改版廣告的 State
+            // 🌟 廣告相關 State
             const [showAdModal, setShowAdModal] = useState(false);
+            const [countdown, setCountdown] = useState(30);
 
-            // 🌟 監聽當切換到 'picks' (推薦) 分頁時，結合 localStorage 檢查是否超過 1 小時
+            // 🌟 絕對時間戳記計算，支援跨分頁記憶倒數
             useEffect(() => {
-                let timer = null;
+                let showTimer = null;
+                let countInterval = null;
+
                 if (activeTab === 'picks') {
                     const lastShownTime = localStorage.getItem('shopee_ad_last_shown');
                     const now = new Date().getTime();
-                    const oneHour = 60 * 60 * 1000; // 1 小時的毫秒數
+                    const oneHour = 60 * 60 * 1000; // 1 小時冷卻
 
-                    // 如果從沒顯示過，或者距離上次顯示已經超過 1 小時
                     if (!lastShownTime || (now - parseInt(lastShownTime, 10)) > oneHour) {
-                        timer = setTimeout(() => {
+                        showTimer = setTimeout(() => {
                             setShowAdModal(true);
-                            // 記錄這次彈出的時間
-                            localStorage.setItem('shopee_ad_last_shown', new Date().getTime().toString());
+                            
+                            const expireTime = new Date().getTime() + 30000;
+                            localStorage.setItem('shopee_ad_expire_time', expireTime.toString());
+                            localStorage.setItem('shopee_ad_last_shown', now.toString());
+
+                            countInterval = setInterval(() => {
+                                const remaining = Math.max(0, Math.ceil((parseInt(localStorage.getItem('shopee_ad_expire_time') || '0', 10) - new Date().getTime()) / 1000));
+                                setCountdown(remaining);
+                                
+                                if (remaining <= 0) {
+                                    clearInterval(countInterval);
+                                    setShowAdModal(false);
+                                }
+                            }, 200);
+
                         }, 5000); // 停留 5 秒後跳出
                     }
                 } else {
-                    setShowAdModal(false);
+                    if (showTimer) clearTimeout(showTimer);
                 }
+
                 return () => {
-                    if (timer) clearTimeout(timer);
+                    if (showTimer) clearTimeout(showTimer);
+                    if (countInterval) clearInterval(countInterval);
                 };
             }, [activeTab]);
 
-            // 🌟 安全關閉廣告函式：加入 150 毫秒延遲，確保分潤封包 100% 送出
-            const handleAdClick = (e) => {
-                // 延遲 150 毫秒再關閉彈窗，讓瀏覽器有充足時間處理新分頁的連線與 Cookie 寫入
+            // 🌟 安全關閉廣告函式：加入 150 毫秒延遲，確保分潤 100% 寫入
+            const handleAdClick = () => {
                 setTimeout(() => {
                     setShowAdModal(false);
+                    localStorage.setItem('shopee_ad_expire_time', '0');
                 }, 150);
             };
 
@@ -819,35 +836,40 @@
 
             return (
                 <div className="min-h-screen pb-20 bg-slate-50 relative">
-                    {/* 🌟 5秒後彈出的蝦皮分潤推廣蓋板廣告 (帶有 1 小時冷卻與 150ms 延遲關閉) */}
+                    {/* 🌟 90% 螢幕大尺寸蓋板廣告 (內含網站免費經營與感謝點擊說明) */}
                     {showAdModal && (
                         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in">
-                            <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-indigo-100 relative text-center">
-                                <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg text-2xl">
+                            <div className="bg-white rounded-3xl w-[90%] max-w-md p-7 shadow-2xl border border-indigo-100 relative text-center">
+                                <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-white w-20 h-20 rounded-full flex items-center justify-center shadow-lg text-3xl">
                                     🎁
                                 </div>
-                                <div className="mt-6">
-                                    <span className="bg-orange-50 text-orange-600 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">限時好康推薦</span>
-                                    <h3 className="text-xl font-bold text-gray-900 mt-2">蝦皮超殺特惠專區</h3>
-                                    <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                                        精選熱銷爆款、免運專區與限時特賣！動動手指挑選好物，把幸運帶回家 ✨
+                                <div className="mt-8">
+                                    <span className="bg-orange-50 text-orange-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">限時好康推薦</span>
+                                    <h3 className="text-2xl font-bold text-gray-900 mt-3">蝦皮超殺特惠專區</h3>
+                                    
+                                    {/* 🌟 溫馨置入的使用說明 */}
+                                    <p className="text-xs text-gray-600 mt-3 leading-relaxed bg-amber-50 p-3 rounded-xl border border-amber-200/60">
+                                        💡 本網站為免費提供，目前以廣告點擊與分潤微薄收入維持網站營運。如果您喜歡這套預測工具，請各位朋友幫忙點擊下方按鈕支持，感激不盡！✨
                                     </p>
                                 </div>
-                                <div className="mt-6 space-y-2">
+                                <div className="mt-6 space-y-3">
                                     <a 
                                         href="https://s.shopee.tw/2gCoa1shfG" 
                                         target="_blank" 
                                         rel="noopener noreferrer"
                                         onClick={handleAdClick}
-                                        className="block w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow-md active:scale-95 transition-transform text-center"
+                                        className="block w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3.5 rounded-2xl text-base shadow-md active:scale-95 transition-transform text-center"
                                     >
                                         前往蝦皮搶好康 🛒
                                     </a>
                                     <button 
                                         onClick={handleAdClick}
-                                        className="w-full bg-gray-100 text-gray-500 font-medium py-2 rounded-xl text-xs hover:bg-gray-200 transition-colors"
+                                        className="w-full bg-gray-100 text-gray-600 font-medium py-2.5 rounded-2xl text-sm hover:bg-gray-200 transition-colors flex justify-center items-center gap-2"
                                     >
-                                        關閉廣告
+                                        <span>關閉廣告</span>
+                                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full font-bold">
+                                            {countdown}s
+                                        </span>
                                     </button>
                                 </div>
                             </div>
