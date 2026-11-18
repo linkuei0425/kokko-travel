@@ -128,7 +128,6 @@
             );
         };
 
-        // 支援顯示 set1 (組合A) 與 set2 (組合B)
         const StarRow = ({ stars, data, customDesc }) => (
             <div className="bg-white p-4 rounded-xl shadow-sm border mb-4 animate-fade-in">
                 <div className="mb-3 border-b pb-2">
@@ -175,6 +174,41 @@
             const [parsedDetails, setParsedDetails] = useState([]);
             const [singleNumbers, setSingleNumbers] = useState('');
             const [startPeriod, setStartPeriod] = useState('');
+            
+            // 🌟 5秒後彈出改版廣告的 State
+            const [showAdModal, setShowAdModal] = useState(false);
+
+            // 🌟 監聽當切換到 'picks' (推薦) 分頁時，結合 localStorage 檢查是否超過 1 小時
+            useEffect(() => {
+                let timer = null;
+                if (activeTab === 'picks') {
+                    const lastShownTime = localStorage.getItem('shopee_ad_last_shown');
+                    const now = new Date().getTime();
+                    const oneHour = 60 * 60 * 1000; // 1 小時的毫秒數
+
+                    // 如果從沒顯示過，或者距離上次顯示已經超過 1 小時
+                    if (!lastShownTime || (now - parseInt(lastShownTime, 10)) > oneHour) {
+                        timer = setTimeout(() => {
+                            setShowAdModal(true);
+                            // 記錄這次彈出的時間
+                            localStorage.setItem('shopee_ad_last_shown', new Date().getTime().toString());
+                        }, 5000); // 停留 5 秒後跳出
+                    }
+                } else {
+                    setShowAdModal(false);
+                }
+                return () => {
+                    if (timer) clearTimeout(timer);
+                };
+            }, [activeTab]);
+
+            // 🌟 安全關閉廣告函式：加入 150 毫秒延遲，確保分潤封包 100% 送出
+            const handleAdClick = (e) => {
+                // 延遲 150 毫秒再關閉彈窗，讓瀏覽器有充足時間處理新分頁的連線與 Cookie 寫入
+                setTimeout(() => {
+                    setShowAdModal(false);
+                }, 150);
+            };
 
             const parseData = (input) => {
                 let text = input.replace(/['"]/g, ' ')
@@ -239,7 +273,7 @@
             };
 
             const calculateStats = (drawData) => {
-                if (drawData.length < 1) return null; // 移除15期限制，改為至少1期即可運作
+                if (drawData.length < 1) return null;
 
                 let gaps = Array(81).fill(0);
                 
@@ -358,7 +392,6 @@
                     .filter(num => validTails.includes(num % 10))
                     .sort((a, b) => recent5Freqs[b] - recent5Freqs[a]);
 
-                // --- 提前計算牽引號相關資料，方便星級產生時取用 ---
                 let trailDetails = latestDraw.map(num => {
                     let sortedTrails = [...Array(80).keys()].map(i => i + 1)
                         .filter(i => i !== num)
@@ -387,11 +420,9 @@
                     .slice(0, 5);
 
                 let multiPulledCandidates = multiPulled.map(item => item.num);
-                // 防呆：若該期無多重牽引號，則備用取自一般拖號
                 if (multiPulledCandidates.length === 0) {
                     multiPulledCandidates = [...n3Candidates]; 
                 }
-                // ------------------------------------------------
 
                 const generateStars = (targetStars, excludeSet = new Set()) => {
                     let selected = new Set();
@@ -451,29 +482,24 @@
                     if (targetStars === 2) {
                         baseCores.forEach(n => { selected.add(n); sources[n] = 'N1'; breakdown.n1++; });
                     } 
-                    // ====== 3星組合 A與B ======
                     else if (targetStars === '3-1') {
                         pickByCount(icebreakerCandidates, 'N5', 1);
                         pickByCount(hot5Candidates, 'N7', 2);
                     }
                     else if (targetStars === '3-2') {
-                        // 新公式: 拖號(2) + 多重牽引號(1)
                         pickByCount(n3Candidates, 'N3', 2);
                         pickByCount(multiPulledCandidates, 'N3', 1);
                     }
-                    // ====== 4星組合 A與B ======
                     else if (targetStars === '4-1') {
                         pickByCount(coreIntersectionPicks, 'N1', 2);
                         pickByCount(hot5Candidates, 'N7', 1);
                         pickByCount(icebreakerCandidates, 'N5', 1);
                     }
                     else if (targetStars === '4-2') {
-                        // 新公式: 多重牽引號(1) + 拖號(2) + 核心(1)
                         pickByCount(multiPulledCandidates, 'N3', 1);
                         pickByCount(n3Candidates, 'N3', 2);
                         pickByCount(coreIntersectionPicks, 'N1', 1);
                     }
-                    // ==============================================
                     else if (targetStars === 5) {
                         pickByCount(hot5Candidates, 'N7', 2);
                         if (!pickN8WithDeduplication()) {
@@ -709,7 +735,6 @@
                     const extractedId = "1kiWuUzH231Jta_njGD7Immue_LcoVrbsGu_hPclduCY";
                     const timestamp = new Date().getTime();
 
-                    // 直接使用最穩定的通用 CSV 匯出網址
                     const directExportUrl = `https://docs.google.com/spreadsheets/d/${extractedId}/export?format=csv&t=${timestamp}`;
                     
                     const fetchWithTimeout = (url, options, timeout = 8000) => {
@@ -738,13 +763,11 @@
                                 if (tempText && !tempText.includes("<html") && !tempText.includes("<!DOCTYPE") && !tempText.includes("Sign in")) {
                                     let tempParsed = parseData(tempText);
                                     
-                                    // 🟢 加入指定期數過濾邏輯
                                     if (startPeriod.trim()) {
                                         const sp = parseInt(startPeriod.trim(), 10);
                                         if (!isNaN(sp)) {
                                             tempParsed.details = tempParsed.details.filter(d => (parseInt(d.period) || 0) >= sp);
                                             tempParsed.array = tempParsed.details.map(d => d.numbers);
-                                            // 重組文字以更新 Textarea (新到舊排序)
                                             tempText = [...tempParsed.details].reverse().map(d => `${d.period} ${d.numbers.map(n => n.toString().padStart(2, '0')).join(', ')}`).join('\n');
                                         }
                                     }
@@ -795,8 +818,43 @@
             }, []);
 
             return (
-                <div className="min-h-screen pb-20 bg-slate-50">
-                    <div className="bg-slate-900 text-white p-5 rounded-b-3xl sticky top-0 z-50 shadow-md">
+                <div className="min-h-screen pb-20 bg-slate-50 relative">
+                    {/* 🌟 5秒後彈出的蝦皮分潤推廣蓋板廣告 (帶有 1 小時冷卻與 150ms 延遲關閉) */}
+                    {showAdModal && (
+                        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in">
+                            <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-indigo-100 relative text-center">
+                                <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg text-2xl">
+                                    🎁
+                                </div>
+                                <div className="mt-6">
+                                    <span className="bg-orange-50 text-orange-600 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">限時好康推薦</span>
+                                    <h3 className="text-xl font-bold text-gray-900 mt-2">蝦皮超殺特惠專區</h3>
+                                    <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+                                        精選熱銷爆款、免運專區與限時特賣！動動手指挑選好物，把幸運帶回家 ✨
+                                    </p>
+                                </div>
+                                <div className="mt-6 space-y-2">
+                                    <a 
+                                        href="https://s.shopee.tw/2gCoa1shfG" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        onClick={handleAdClick}
+                                        className="block w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow-md active:scale-95 transition-transform text-center"
+                                    >
+                                        前往蝦皮搶好康 🛒
+                                    </a>
+                                    <button 
+                                        onClick={handleAdClick}
+                                        className="w-full bg-gray-100 text-gray-500 font-medium py-2 rounded-xl text-xs hover:bg-gray-200 transition-colors"
+                                    >
+                                        關閉廣告
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="bg-slate-900 text-white p-5 rounded-b-3xl sticky top-0 z-40 shadow-md">
                         <div className="flex justify-between items-center">
                             <h1 className="text-xl font-bold flex items-center gap-2"><IconActivity /> 預測大師・精準版</h1>
                             <span className="text-[10px] bg-white text-slate-800 px-2 py-1 rounded-full shadow-sm">載入: {parsedCount}期</span>
