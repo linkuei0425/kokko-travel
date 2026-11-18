@@ -1,0 +1,43 @@
+name: BINGO Auto Scraper
+
+on:
+  schedule:
+    # GitHub Actions 使用 UTC 時間，這代表每 5 分鐘執行一次
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # 允許你隨時手動點擊按鈕測試
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 取得最新程式碼
+        uses: actions/checkout@v4
+
+      - name: 🐍 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: 📦 安裝相依套件
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install chromium --with-deps
+
+      - name: 🚀 執行爬蟲並寫入試算表
+        env:
+          GAS_URL: ${{ secrets.GAS_URL }} # 從 Secrets 提取網址並注入環境變數
+        run: python bingo_scraper.py
+
+      - name: 💾 儲存最新期數 (防重複機制)
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add last_period.txt
+          # 檢查檔案是否有變更，有變更才 push
+          if ! git diff --staged --quiet; then
+            git commit -m "自動更新最新期數 [skip ci]"
+            git push
+          else
+            echo "期數未更新，無需 commit"
+          fi
