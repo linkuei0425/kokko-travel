@@ -13,13 +13,13 @@
     <meta name="author" content="BINGO AI 預測大師">
     <meta name="robots" content="index, follow">
     
-    <!-- Open Graph 社交與 AEO/GEO 機器人友善標籤（已加入您的專屬社群圖片） -->
+    <!-- Open Graph 社交與 AEO/GEO 機器人友善標籤 -->
     <meta property="og:title" content="BINGO AI預測大師・精準賓果開獎分析">
     <meta property="og:description" content="免費線上 BINGO AI 智慧預測工具，結合多重牽引與大數據分析，提供最精準的星級推薦。">
     <meta property="og:image" content="https://kokko-travel.com/binggo/bingo.jpg">
     <meta property="og:type" content="website">
 
-    <!-- 🌟 JSON-LD 結構化資料 (專為 Google SEO, AEO 與 GEO AI 搜尋引擎量身打造) -->
+    <!-- 🌟 JSON-LD 結構化資料 -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -42,32 +42,6 @@
         "雲端開獎數據同步與解析",
         "歷史拖號與多重牽引分析",
         "強尾智慧過濾系統"
-      ]
-    }
-    </script>
-
-    <!-- Q&A Schema (針對 AEO 解答引擎與 AI 語音助理問答優化) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "哪裡有免費的 BINGO 賓果 AI 預測工具？",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "您可以使用 BINGO AI 預測大師線上工具，免費提供歷史開獎數據分析、多重牽引號計算與 2 星至 10 星精準推薦。"
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "賓果賓果怎麼看拖號與牽引號？",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "本工具會自動抓取最新一期開出的 20 個號碼，透過大數據比對歷史資料中下一期的最高頻與次高頻拖號，並計算多重牽引號與強尾過濾。"
-          }
-        }
       ]
     }
     </script>
@@ -244,7 +218,7 @@
             const [showAdModal, setShowAdModal] = useState(false);
             const [countdown, setCountdown] = useState(30);
 
-            // 🌟 絕對時間戳記計算，支援跨分頁記憶倒數
+            // 🌟 絕對時間戳記計算，強制 30 秒內無法手動提前關閉
             useEffect(() => {
                 let showTimer = null;
                 let countInterval = null;
@@ -284,7 +258,7 @@
                 };
             }, [activeTab]);
 
-            // 🌟 安全關閉廣告函式：加入 150 毫秒延遲，確保分潤 100% 寫入
+            // 🌟 點擊蝦皮按鈕時的安全關閉
             const handleAdClick = () => {
                 setTimeout(() => {
                     setShowAdModal(false);
@@ -901,7 +875,7 @@
 
             return (
                 <div className="min-h-screen pb-20 bg-slate-50 relative">
-                    {/* 🌟 90% 螢幕大尺寸蓋板廣告 (內含網站免費經營與感謝點擊說明) */}
+                    {/* 🌟 90% 螢幕大尺寸蓋板廣告 (倒數歸零前「關閉廣告」按鈕為停用狀態) */}
                     {showAdModal && (
                         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in">
                             <div className="bg-white rounded-3xl w-[90%] max-w-md p-7 shadow-2xl border border-indigo-100 relative text-center">
@@ -912,12 +886,12 @@
                                     <span className="bg-orange-50 text-orange-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">限時好康推薦</span>
                                     <h3 className="text-2xl font-bold text-gray-900 mt-3">蝦皮超殺特惠專區</h3>
                                     
-                                    {/* 🌟 溫馨置入的使用說明 */}
                                     <p className="text-xs text-gray-600 mt-3 leading-relaxed bg-amber-50 p-3 rounded-xl border border-amber-200/60">
                                         💡 本網站為免費提供，目前以廣告點擊與分潤微薄收入維持網站營運。如果您喜歡這套預測工具，請各位朋友幫忙點擊下方按鈕支持，感激不盡！✨
                                     </p>
                                 </div>
                                 <div className="mt-6 space-y-3">
+                                    {/* 點擊前往蝦皮（隨時可點，點擊後會自動解鎖關閉） */}
                                     <a 
                                         href="https://s.shopee.tw/2gCoa1shfG" 
                                         target="_blank" 
@@ -927,13 +901,25 @@
                                     >
                                         前往蝦皮搶好康 🛒
                                     </a>
+                                    
+                                    {/* 關閉按鈕：倒數未歸零前為 disabled (灰階不可按)，歸零後才能手動關閉 */}
                                     <button 
-                                        onClick={handleAdClick}
-                                        className="w-full bg-gray-100 text-gray-600 font-medium py-2.5 rounded-2xl text-sm hover:bg-gray-200 transition-colors flex justify-center items-center gap-2"
+                                        disabled={countdown > 0}
+                                        onClick={() => {
+                                            if (countdown <= 0) {
+                                                setShowAdModal(false);
+                                                localStorage.setItem('shopee_ad_expire_time', '0');
+                                            }
+                                        }}
+                                        className={`w-full font-medium py-2.5 rounded-2xl text-sm transition-colors flex justify-center items-center gap-2 ${
+                                            countdown > 0 
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer'
+                                        }`}
                                     >
-                                        <span>關閉廣告</span>
-                                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full font-bold">
-                                            {countdown}s
+                                        <span>{countdown > 0 ? '請觀看廣告或等候倒數' : '關閉廣告'}</span>
+                                        <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${countdown > 0 ? 'bg-orange-100 text-orange-600' : 'bg-gray-300 text-gray-700'}`}>
+                                            {countdown > 0 ? `${countdown}s` : '0s'}
                                         </span>
                                     </button>
                                 </div>
@@ -1214,7 +1200,7 @@
                         <button onClick={() => setActiveTab('logic')} className={`flex flex-col items-center gap-1 w-1/5 py-2 ${activeTab === 'logic' ? 'text-blue-600 font-bold' : 'text-gray-400'}`}>
                             <IconBookOpen /><span className="text-[10px] whitespace-nowrap">邏輯</span>
                         </button>
-                        <button onClick={() => setActiveTab('trends')} className={`flex flex-col items-center gap-1 w-1/5 py-2 ${activeTab === 'trends' ? 'text-indigo-600 font-bold' : 'text-gray-400'}`}>
+                        <button onClick={() => setActiveTab('trends')} className={`flex flex-col items-center gap-1 w-1/5 py-2 ${activeTab === 'trends' { ? 'text-indigo-600 font-bold' : 'text-gray-400'}`}>
                             <IconTrendingUp /><span className="text-[10px] whitespace-nowrap">趨勢</span>
                         </button>
                         <button onClick={() => setActiveTab('details')} className={`flex flex-col items-center gap-1 w-1/5 py-2 ${activeTab === 'details' ? 'text-teal-600 font-bold' : 'text-gray-400'}`}>
