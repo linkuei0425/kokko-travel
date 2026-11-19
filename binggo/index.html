@@ -116,7 +116,6 @@
 </head>
 <body>
     <div id="root">
-        <!-- 加入載入畫面，避免使用者以為白屏當機 -->
         <div style="text-align: center; padding: 50px; color: #666; font-family: sans-serif;">
             <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">預測大師載入中...</div>
             <span style="font-size: 12px; color: #aaa;">若長時間停留此畫面，請確認網路連線或強制重新整理 (Ctrl+F5)</span>
@@ -244,51 +243,47 @@
             const [showAdModal, setShowAdModal] = useState(false);
             const [countdown, setCountdown] = useState(30);
 
-            // 🌟 絕對時間戳記計算，強制 30 秒內無法手動提前關閉
+            // 🌟 1. 偵測進入「推薦」分頁，5 秒後觸發廣告彈窗
             useEffect(() => {
-                let showTimer = null;
-                let countInterval = null;
+                if (activeTab !== 'picks') return;
 
-                if (activeTab === 'picks') {
-                    const lastShownTime = localStorage.getItem('shopee_ad_last_shown');
-                    const now = new Date().getTime();
-                    const oneHour = 60 * 60 * 1000; // 1 小時冷卻
+                const lastShownTime = localStorage.getItem('shopee_ad_last_shown');
+                const now = Date.now();
+                const oneHour = 60 * 60 * 1000; // 1 小時冷卻
 
-                    if (!lastShownTime || (now - parseInt(lastShownTime, 10)) > oneHour) {
-                        showTimer = setTimeout(() => {
-                            setShowAdModal(true);
-                            
-                            const expireTime = new Date().getTime() + 30000;
-                            localStorage.setItem('shopee_ad_expire_time', expireTime.toString());
-                            localStorage.setItem('shopee_ad_last_shown', now.toString());
+                if (!lastShownTime || (now - parseInt(lastShownTime, 10)) > oneHour) {
+                    const showTimer = setTimeout(() => {
+                        localStorage.setItem('shopee_ad_last_shown', Date.now().toString());
+                        setCountdown(30); // 確保每次開啟都從 30 秒開始
+                        setShowAdModal(true);
+                    }, 5000);
 
-                            countInterval = setInterval(() => {
-                                const remaining = Math.max(0, Math.ceil((parseInt(localStorage.getItem('shopee_ad_expire_time') || '0', 10) - new Date().getTime()) / 1000));
-                                setCountdown(remaining);
-                                
-                                if (remaining <= 0) {
-                                    clearInterval(countInterval);
-                                    setShowAdModal(false);
-                                }
-                            }, 200);
-
-                        }, 5000); // 停留 5 秒後跳出
-                    }
-                } else {
-                    if (showTimer) clearTimeout(showTimer);
+                    return () => clearTimeout(showTimer);
                 }
-
-                return () => {
-                    if (showTimer) clearTimeout(showTimer);
-                    if (countInterval) clearInterval(countInterval);
-                };
             }, [activeTab]);
+
+            // 🌟 2. 獨立控制倒數計時（只要 showAdModal 為 true 就每秒減 1）
+            useEffect(() => {
+                if (!showAdModal) return;
+
+                const expireTime = Date.now() + 30000;
+                const countInterval = setInterval(() => {
+                    const remaining = Math.max(0, Math.ceil((expireTime - Date.now()) / 1000));
+                    setCountdown(remaining);
+
+                    if (remaining <= 0) {
+                        clearInterval(countInterval);
+                        setShowAdModal(false);
+                    }
+                }, 250);
+
+                return () => clearInterval(countInterval);
+            }, [showAdModal]);
 
             // 🌟 點擊蝦皮按鈕時的安全關閉
             const handleAdClick = () => {
                 setTimeout(() => {
                     setShowAdModal(false);
-                    localStorage.setItem('shopee_ad_expire_time', '0');
                 }, 150);
             };
 
@@ -910,7 +905,7 @@
                                 </div>
                                 <div className="mt-8">
                                     <span className="bg-orange-50 text-orange-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">限時好康推薦</span>
-                                    <h3 className="text-2xl font-bold text-gray-900 mt-3">蝦皮購物專區</h3>
+                                    <h3 className="text-2xl font-bold text-gray-900 mt-3">蝦皮限時特賣專區</h3>
                                     
                                     <p className="text-xs text-gray-600 mt-3 leading-relaxed bg-amber-50 p-3 rounded-xl border border-amber-200/60">
                                         💡 本網站為免費提供，目前以廣告點擊與分潤微薄收入維持網站營運。如果您喜歡這套預測工具，請各位朋友幫忙點擊下方按鈕支持，感激不盡！✨
@@ -919,7 +914,7 @@
                                 <div className="mt-6 space-y-3">
                                     {/* 點擊前往蝦皮（隨時可點，點擊後會自動解鎖關閉） */}
                                     <a 
-                                        href="https://s.shopee.tw/2gCoa1shfG" 
+                                        href="https://s.shopee.tw/9fMZYiyApZ" 
                                         target="_blank" 
                                         rel="noopener noreferrer"
                                         onClick={handleAdClick}
@@ -934,7 +929,6 @@
                                         onClick={() => {
                                             if (countdown <= 0) {
                                                 setShowAdModal(false);
-                                                localStorage.setItem('shopee_ad_expire_time', '0');
                                             }
                                         }}
                                         className={`w-full font-medium py-2.5 rounded-2xl text-sm transition-colors flex justify-center items-center gap-2 ${
