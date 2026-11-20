@@ -2721,14 +2721,19 @@ window.setWheelGuarantee = function(mode) {
 };
 
 // 從已排序候選池中篩出結構健康的聰明包牌核心球池（支援物件陣列或純字串陣列）：
-// 三區均衡（8碼每區≤3顆、9碼每區≤4顆）、禁止三連號擠塞、奇偶防單邊、同尾數≤2顆、上期連莊≤2顆
-function selectBalancedWheelPool(rankedItems, targetCount = 8, latestSet = new Set()) {
+// 三區均衡（8碼每區≤3顆、9碼每區≤4顆）、禁止純三連號、熱溫冷三層分層（熱0~3期≤4顆、冷≥10期≤2顆）、奇偶防單邊、同尾數≤2顆、上期連莊≤2顆
+function selectBalancedWheelPool(rankedItems, targetCount = 8, latestSet = new Set(), omissionMap = null) {
   if (!Array.isArray(rankedItems) || rankedItems.length <= targetCount) {
     return Array.isArray(rankedItems) ? [...rankedItems] : [];
   }
 
+  const omMap = omissionMap || appData?.stats?.omission || {};
   const getBall = item => (typeof item === 'string' ? item : item.ball);
   const getZoneIdx = num => (num <= 13 ? 0 : (num <= 26 ? 1 : 2));
+  const getHwcTier = ball => {
+    const om = omMap[ball] ?? 5;
+    return om <= 3 ? 0 : (om <= 9 ? 1 : 2); // 0=熱(0~3期), 1=溫(4~9期), 2=冷(>=10期)
+  };
   const createsTripleConsec = (numSet, cand) => {
     let run = 1;
     let x = cand - 1;
@@ -2746,9 +2751,13 @@ function selectBalancedWheelPool(rankedItems, targetCount = 8, latestSet = new S
   let oddCnt = 0;
   let evenCnt = 0;
   let repeatCnt = 0;
+  let hotCnt = 0;
+  let coldCnt = 0;
 
   const maxPerZone = targetCount <= 8 ? 3 : 4;
   const maxOddEven = targetCount <= 8 ? 5 : 6;
+  const maxHot = targetCount <= 8 ? 4 : 5;
+  const maxCold = targetCount <= 8 ? 2 : 3;
   const maxRepeat = 2;
   const maxSameTail = 2;
 
@@ -2762,9 +2771,14 @@ function selectBalancedWheelPool(rankedItems, targetCount = 8, latestSet = new S
       const t = n % 10;
       const isOdd = n % 2 === 1;
       const isRep = latestSet.has(b);
+      const hwc = getHwcTier(b);
 
       if (opts.zone && zoneCnt[z] >= maxPerZone) continue;
       if (opts.consec && createsTripleConsec(selectedNums, n)) continue;
+      if (opts.hwc) {
+        if (hwc === 0 && hotCnt >= maxHot) continue;
+        if (hwc === 2 && coldCnt >= maxCold) continue;
+      }
       if (opts.repeat && isRep && repeatCnt >= maxRepeat) continue;
       if (opts.tail && (tailCnt[t] || 0) >= maxSameTail) continue;
       if (opts.oddEven) {
@@ -2780,19 +2794,21 @@ function selectBalancedWheelPool(rankedItems, targetCount = 8, latestSet = new S
       if (isOdd) oddCnt++;
       else evenCnt++;
       if (isRep) repeatCnt++;
+      if (hwc === 0) hotCnt++;
+      else if (hwc === 2) coldCnt++;
     }
   };
 
   // 分層放寬補齊，確保一定湊滿 targetCount 顆
-  tryPass({ zone: true, consec: true, repeat: true, tail: true, oddEven: true });
+  tryPass({ zone: true, consec: true, hwc: true, repeat: true, tail: true, oddEven: true });
   if (selected.length < targetCount) {
-    tryPass({ zone: true, consec: true, repeat: true, tail: false, oddEven: true });
+    tryPass({ zone: true, consec: true, hwc: true, repeat: true, tail: false, oddEven: true });
   }
   if (selected.length < targetCount) {
-    tryPass({ zone: true, consec: true, repeat: false, tail: false, oddEven: false });
+    tryPass({ zone: true, consec: true, hwc: false, repeat: false, tail: false, oddEven: false });
   }
   if (selected.length < targetCount) {
-    tryPass({ zone: false, consec: false, repeat: false, tail: false, oddEven: false });
+    tryPass({ zone: false, consec: false, hwc: false, repeat: false, tail: false, oddEven: false });
   }
 
   return selected;
@@ -3111,7 +3127,7 @@ function computeConsensusEngine() {
           ${idx === 0 ? '👑 ' : ''}${item.label} ${item.lift.toFixed(2)}x (${item.rate}% / 基準${item.expectedRate}%)
         </span>
       `).join('')}
-      <span class="px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/35 text-amber-300 font-bold">🔁 連莊 ≤ 1・拖牌 ≤ 2・防極端與三連號</span>
+      <span class="px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/35 text-amber-300 font-bold">🔁 連莊 ≤ 1・拖牌 ≤ 2・熱溫冷分層・TOP 12 決選</span>
     `;
   }
 
@@ -3216,13 +3232,13 @@ function computeConsensusEngine() {
     };
   });
 
-  // 統一排序標準：TOP 8 套用三區均衡與防三連號擠塞（讓 8 碼聰明包牌結構更健康）
+  // 統一排序標準：TOP 8 套用三區均衡、熱溫冷三層分層與防純三連號（讓 8 碼聰明包牌結構更健康）
   scoredBalls.sort((a, b) => b.score - a.score || b.hitCount - a.hitCount || a.ball.localeCompare(b.ball));
   consensusFullRanked = scoredBalls;
-  consensusTop8List = selectBalancedWheelPool(scoredBalls, 8, latestSet);
+  consensusTop8List = selectBalancedWheelPool(scoredBalls, 8, latestSet, stats.omission);
 
   renderConsensusTop8();
-  pickFilteredConsensus5(scoredBalls.slice(0, 16));
+  pickFilteredConsensus5(scoredBalls.slice(0, 12));
 }
 
 function renderConsensusTop8() {
@@ -3263,8 +3279,9 @@ function pickFilteredConsensus5(candidatePool, randomizeTop = false) {
   if (!candidatePool || candidatePool.length < 5) return;
   const latestSet = new Set(appData?.latest?.numbers_str || []);
   const dragSet = new Set((appData?.stats?.drag_top6 || []).map(d => d.ball));
+  const omMap = appData?.stats?.omission || {};
 
-  // 取前 16 名不重複高分候選球（C(16,5) = 4,368 組，前端運算 < 2ms）
+  // 取前 12 名不重複高分候選球（C(12,5) = 792 組，集中前段高分球且運算 < 1ms）
   const seen = new Set();
   const ordered = [...candidatePool]
     .sort((a, b) => b.score - a.score || (b.hitCount || 0) - (a.hitCount || 0) || a.ball.localeCompare(b.ball))
@@ -3273,7 +3290,7 @@ function pickFilteredConsensus5(candidatePool, randomizeTop = false) {
       seen.add(item.ball);
       return true;
     })
-    .slice(0, 16);
+    .slice(0, 12);
 
   if (ordered.length < 5) return;
 
@@ -3303,11 +3320,18 @@ function pickFilteredConsensus5(candidatePool, randomizeTop = false) {
 
     let repeatUsed = 0;
     let dragUsed = 0;
+    let hotCnt = 0;
+    let warmCnt = 0;
+    let coldCnt = 0;
     let totalScore = 0;
     items.forEach(x => {
       totalScore += (x.score || 0);
       if (latestSet.has(x.ball)) repeatUsed++;
       if (dragSet.has(x.ball)) dragUsed++;
+      const om = omMap[x.ball] ?? 5;
+      if (om <= 3) hotCnt++;
+      else if (om <= 9) warmCnt++;
+      else coldCnt++;
     });
 
     return {
@@ -3321,6 +3345,10 @@ function pickFilteredConsensus5(candidatePool, randomizeTop = false) {
       maxZone,
       maxConsecRun,
       consecPairs,
+      hotCnt,
+      warmCnt,
+      coldCnt,
+      hwcLabel: `${hotCnt}-${warmCnt}-${coldCnt}`,
       pd,
       repeatUsed,
       dragUsed,
@@ -3328,9 +3356,9 @@ function pickFilteredConsensus5(candidatePool, randomizeTop = false) {
     };
   };
 
-  // 分層防呆池：
-  // tier1（完整防極端擠塞）：連莊≤1、拖牌≤2、禁全奇全偶(1:4~4:1)、禁三連號且最多1組二連號、單區≤3顆、和值65~140、AC≥4
-  // tier2（放寬和值/AC，保留禁全奇全偶、防三連號與單區≤3顆）
+  // 分層防呆池（經 100/200/300/500 期盲測勝出定案版）：
+  // tier1（完整防極端＋熱溫冷分層）：連莊≤1、拖牌≤2、熱(0~3期)1~3顆、溫(4~9期)1~3顆、冷(≥10期)0~2顆、禁全奇全偶(1:4~4:1)、禁純三連號且最多1組二連號、單區≤3顆、和值65~140、AC≥4
+  // tier2（放寬和值/AC/熱溫冷，保留禁全奇全偶、防純三連號與單區≤3顆）
   // tier3（僅保留連莊≤1、拖牌≤2）
   // tier4（保底全組合）
   const tier1 = [];
@@ -3348,7 +3376,8 @@ function pickFilteredConsensus5(candidatePool, randomizeTop = false) {
             const passCaps = combo.repeatUsed <= 1 && combo.dragUsed <= 2;
             const passNoAllOddEven = combo.odd >= 1 && combo.odd <= 4;
             const passNoClump = combo.maxConsecRun <= 2 && combo.maxZone <= 3 && passNoAllOddEven;
-            const passFullGuard = passCaps && passNoClump && combo.consecPairs <= 1 && combo.sum >= 65 && combo.sum <= 140 && combo.ac >= 4;
+            const passHwc = combo.hotCnt >= 1 && combo.hotCnt <= 3 && combo.warmCnt >= 1 && combo.warmCnt <= 3 && combo.coldCnt <= 2;
+            const passFullGuard = passCaps && passNoClump && passHwc && combo.consecPairs <= 1 && combo.sum >= 65 && combo.sum <= 140 && combo.ac >= 4;
 
             if (passFullGuard) {
               tier1.push(combo);
@@ -3389,13 +3418,13 @@ function pickFilteredConsensus5(candidatePool, randomizeTop = false) {
 
   const metaEl = document.getElementById('consensusFinalMeta');
   if (metaEl) {
-    metaEl.textContent = `和值:${chosen.sum} · 奇偶:${chosen.odd}:${5 - chosen.odd} · 質合:${chosen.pd.primeRatio} · 三區:${chosen.zones.label} · AC:${chosen.ac} · 跨:${chosen.span} · 連莊:${chosen.repeatUsed} · 拖牌:${chosen.dragUsed}`;
+    metaEl.textContent = `和值:${chosen.sum} · 奇偶:${chosen.odd}:${5 - chosen.odd} · 熱溫冷:${chosen.hwcLabel} · 三區:${chosen.zones.label} · AC:${chosen.ac} · 跨:${chosen.span} · 連莊:${chosen.repeatUsed} · 拖牌:${chosen.dragUsed}`;
   }
 }
 
 window.rerollConsensusCombo = function() {
   if (!appData || !consensusTop8List.length) return;
-  const pool = consensusFullRanked.length >= 16 ? consensusFullRanked.slice(0, 16) : (consensusFullRanked.length >= 5 ? consensusFullRanked : consensusTop8List);
+  const pool = consensusFullRanked.length >= 12 ? consensusFullRanked.slice(0, 12) : (consensusFullRanked.length >= 5 ? consensusFullRanked : consensusTop8List);
   pickFilteredConsensus5(pool, true);
 };
 
