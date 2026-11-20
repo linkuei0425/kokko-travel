@@ -358,8 +358,8 @@ const strategyDetails = {
   },
   hot: {
     title: '💡 演算法原理：熱門順勢追擊模型',
-    desc: '假設強勢號碼在短期內具有「慣性延續」效應。系統會大幅拉高近期頻繁開出號碼的中選機率（需剔除近 5 期開出 2 次以上號碼），適合用來追連莊號與當期最旺的熱門主支。',
-    formula: '權重計算公式：基礎分 1 ＋ (近10期開出次數 × 4) ＋ (近30期開出次數 × 2.5)（剔除近5期開2次以上號碼）。'
+    desc: '假設強勢號碼在短期內具有「慣性延續」效應。系統會大幅拉高近期頻繁開出號碼的中選機率，完整保留高頻強勢球，適合用來追連莊號與當期最旺的熱門主支。',
+    formula: '權重計算公式：基礎分 1 ＋ (近10期開出次數 × 4) ＋ (近30期開出次數 × 2.5)。'
   },
   cold: {
     title: '💡 演算法原理：遺漏冷門回補模型',
@@ -519,7 +519,7 @@ function scanTopFormulas(records) {
     longWindow: 0,
     shortWindow: 0,
     scoreWindow: 0,
-    minLongHits: 16,
+    minLongHits: 19,
     usedFallbackConsensus: false
   };
   if (!records || records.length < 7) return emptyResult;
@@ -528,8 +528,8 @@ function scanTopFormulas(records) {
   const longWindow = Math.min(100, maxAvailable);
   const shortWindow = Math.min(20, maxAvailable);
   const scoreWindow = Math.min(30, maxAvailable);
-  // 近 100 期嚴格門檻：命中 >= 16 次（勝率 >= 16%，即 > 15%）
-  const minLongHits = longWindow >= 100 ? 16 : Math.max(2, Math.ceil(longWindow * 0.16));
+  // 近 100 期嚴格門檻：命中 >= 19 次（約高於隨機基準 +1.85 個標準差，降低多重檢定雜訊）
+  const minLongHits = longWindow >= 100 ? 19 : Math.max(2, Math.ceil(longWindow * 0.19));
 
   // 預先建立無未來洩漏之「各期開獎前遺漏快照」供類型 D（間隔週期型）使用
   function computeOmissionFrom(startIdx) {
@@ -739,7 +739,7 @@ function scanTopFormulas(records) {
 
     const longRate = Math.round((longHits / longWindow) * 1000) / 10;
     const shortRate = Math.round((shortHits / shortWindow) * 1000) / 10;
-    const isLongQualified = longHits >= minLongHits && longRate > 15;
+    const isLongQualified = longHits >= minLongHits && longRate >= 19;
     const isOverheated = shortHits >= 7 || shortRate >= 35;
     const isWarm = !isOverheated && shortRate >= 20 && shortRate <= 25;
 
@@ -830,7 +830,7 @@ function scanTopFormulas(records) {
   }
   const dedupedAll = Array.from(uniqueMap.values());
 
-  // 篩出近 100 期勝率 > 15%（命中 >= 16 次）之合格公式
+  // 篩出近 100 期勝率 >= 19%（命中 >= 19 次）之合格公式
   const qualifiedRaw = evaluated.filter(f => f.isLongQualified);
   const qualifiedDeduped = dedupedAll.filter(f => f.isLongQualified);
   const dedupedQualifiedRemoved = qualifiedRaw.length - qualifiedDeduped.length;
@@ -1113,6 +1113,7 @@ function buildStatsFromRecords(records) {
   const recent30 = records.slice(0, 30);
   const recent200 = records.slice(0, 200);
   let repeatDraws = 0;
+  let totalRepeatBalls = 0;
   const repeatBallCounter = {};
   for (let i = 0; i < recent200.length - 1; i++) {
     const curr = recent200[i].numbers_str;
@@ -1120,10 +1121,14 @@ function buildStatsFromRecords(records) {
     const repeats = curr.filter(b => prevSet.has(b));
     if (repeats.length > 0) {
       repeatDraws++;
+      totalRepeatBalls += repeats.length;
       repeats.forEach(b => { repeatBallCounter[b] = (repeatBallCounter[b] || 0) + 1; });
     }
   }
-  const repeatRate = recent200.length > 1 ? Math.round((repeatDraws / (recent200.length - 1)) * 100) : 0;
+  const comparePairs = Math.max(0, recent200.length - 1);
+  const repeatRate = comparePairs > 0 ? Math.round((repeatDraws / comparePairs) * 100) : 0;
+  const avgRepeatBalls = comparePairs > 0 ? Math.round((totalRepeatBalls / comparePairs) * 100) / 100 : 0;
+  const singleBallRepeatRate = comparePairs > 0 ? Math.round((totalRepeatBalls / (comparePairs * 5)) * 1000) / 10 : 0;
   const topRepeats = Object.entries(repeatBallCounter)
     .map(([ball, count]) => ({ ball, count }))
     .sort((a, b) => b.count - a.count || a.ball.localeCompare(b.ball))
@@ -1277,6 +1282,8 @@ function buildStatsFromRecords(records) {
       drag_top6,
       top_twins,
       repeatRate,
+      avgRepeatBalls,
+      singleBallRepeatRate,
       consecRate,
       topRepeats,
       obliqueBalls: Array.from(obliqueSet).sort(),
@@ -1964,7 +1971,10 @@ function renderAll() {
     `;
   }).join('');
 
-  document.getElementById('repeatRateVal').textContent = `${appData.stats.repeatRate}%`;
+  const repeatRateEl = document.getElementById('repeatRateVal');
+  if (repeatRateEl) {
+    repeatRateEl.innerHTML = `${appData.stats.repeatRate}%<span class="block text-[11px] font-normal text-slate-400 mt-1 whitespace-nowrap">均 ${appData.stats.avgRepeatBalls.toFixed(2)} 顆/期</span><span class="block text-[11px] font-normal text-slate-400 whitespace-nowrap">單球連莊 ${appData.stats.singleBallRepeatRate}%</span>`;
+  }
   document.getElementById('consecRateVal').textContent = `${appData.stats.consecRate}%`;
   document.getElementById('topRepeatBalls').innerHTML = appData.stats.topRepeats.length
     ? appData.stats.topRepeats.map(item => `
@@ -2147,9 +2157,8 @@ function generatePrediction() {
   const stats = appData.stats;
   const allBalls = Array.from({ length: 39 }, (_, i) => pad2(i + 1));
 
-  const hot5ExcludeSet = currentStrategy === 'hot' ? (stats.hot5Ge2Set || new Set()) : new Set();
   const available = allBalls.filter(b =>
-    !fixedBalls.has(b) && !excludedBalls.has(b) && !isBallInCutZone(b) && !hot5ExcludeSet.has(b)
+    !fixedBalls.has(b) && !excludedBalls.has(b) && !isBallInCutZone(b)
   );
   const validFixed = Array.from(fixedBalls).filter(b => !isBallInCutZone(b));
   const needCount = 5 - validFixed.length;
@@ -2179,7 +2188,6 @@ function generatePrediction() {
     const r0Boost = (stats.road0NeedsBoost && Number(b) % 3 === 0) ? (stats.road0WeightBoost || 5) : 0;
 
     if (currentStrategy === 'hot') {
-      if (stats.hot5Ge2Set && stats.hot5Ge2Set.has(b)) return 0;
       return 1 + f10 * 4 + f30 * 2.5;
     }
     if (currentStrategy === 'cold') return 1 + om * 2.2 + Math.max(0, 6 - f30) * 2 + r0Boost;
@@ -2208,9 +2216,7 @@ function generatePrediction() {
 
     const nums = chosen.map(Number);
     const pd = analyzePrimeAndDigitSum(nums);
-    const latestIsPrimeHeavy = (appData?.latest?.numbers?.filter(n => PRIMES_539.has(n)).length || 0) >= 3;
-    const passMeanReversion = !latestIsPrimeHeavy || pd.isMeanRevertingPrime;
-    const passPrimeDigit = !usePrimeDigitFilter || (pd.isValidPrime && pd.isValidDigitSum && (attempt > 90 || passMeanReversion));
+    const passPrimeDigit = !usePrimeDigitFilter || (pd.isValidPrime && pd.isValidDigitSum);
 
     if (currentStrategy === 'golden') {
       const sum = nums.reduce((a, b) => a + b, 0);
@@ -2657,7 +2663,16 @@ function renderWheelNumberGrid() {
 
   const count = wheelSelectedBalls.size;
   const badgeEl = document.getElementById('wheelSelectedCountBadge');
-  if (badgeEl) badgeEl.textContent = `已選 ${count} / 12 碼`;
+  if (badgeEl) {
+    if (count >= 6) {
+      const nums = Array.from(wheelSelectedBalls).map(Number).sort((a, b) => a - b);
+      const z = calcZones(nums);
+      const oddCnt = nums.filter(x => x % 2 === 1).length;
+      badgeEl.textContent = `已選 ${count} / 12 碼 · 三區 ${z.label} · 奇偶 ${oddCnt}:${count - oddCnt}`;
+    } else {
+      badgeEl.textContent = `已選 ${count} / 12 碼`;
+    }
+  }
 
   const chipsEl = document.getElementById('wheelSelectedChips');
   if (chipsEl) {
@@ -2705,35 +2720,137 @@ window.setWheelGuarantee = function(mode) {
   renderWheelResult();
 };
 
+// 從已排序候選池中篩出結構健康的聰明包牌核心球池（支援物件陣列或純字串陣列）：
+// 三區均衡（8碼每區≤3顆、9碼每區≤4顆）、禁止三連號擠塞、奇偶防單邊、同尾數≤2顆、上期連莊≤2顆
+function selectBalancedWheelPool(rankedItems, targetCount = 8, latestSet = new Set()) {
+  if (!Array.isArray(rankedItems) || rankedItems.length <= targetCount) {
+    return Array.isArray(rankedItems) ? [...rankedItems] : [];
+  }
+
+  const getBall = item => (typeof item === 'string' ? item : item.ball);
+  const getZoneIdx = num => (num <= 13 ? 0 : (num <= 26 ? 1 : 2));
+  const createsTripleConsec = (numSet, cand) => {
+    let run = 1;
+    let x = cand - 1;
+    while (numSet.has(x)) { run++; x--; }
+    x = cand + 1;
+    while (numSet.has(x)) { run++; x++; }
+    return run >= 3;
+  };
+
+  const selected = [];
+  const selectedSet = new Set();
+  const selectedNums = new Set();
+  const zoneCnt = [0, 0, 0];
+  const tailCnt = {};
+  let oddCnt = 0;
+  let evenCnt = 0;
+  let repeatCnt = 0;
+
+  const maxPerZone = targetCount <= 8 ? 3 : 4;
+  const maxOddEven = targetCount <= 8 ? 5 : 6;
+  const maxRepeat = 2;
+  const maxSameTail = 2;
+
+  const tryPass = (opts) => {
+    for (const item of rankedItems) {
+      if (selected.length >= targetCount) break;
+      const b = getBall(item);
+      if (selectedSet.has(b)) continue;
+      const n = Number(b);
+      const z = getZoneIdx(n);
+      const t = n % 10;
+      const isOdd = n % 2 === 1;
+      const isRep = latestSet.has(b);
+
+      if (opts.zone && zoneCnt[z] >= maxPerZone) continue;
+      if (opts.consec && createsTripleConsec(selectedNums, n)) continue;
+      if (opts.repeat && isRep && repeatCnt >= maxRepeat) continue;
+      if (opts.tail && (tailCnt[t] || 0) >= maxSameTail) continue;
+      if (opts.oddEven) {
+        if (isOdd && oddCnt >= maxOddEven) continue;
+        if (!isOdd && evenCnt >= maxOddEven) continue;
+      }
+
+      selected.push(item);
+      selectedSet.add(b);
+      selectedNums.add(n);
+      zoneCnt[z]++;
+      tailCnt[t] = (tailCnt[t] || 0) + 1;
+      if (isOdd) oddCnt++;
+      else evenCnt++;
+      if (isRep) repeatCnt++;
+    }
+  };
+
+  // 分層放寬補齊，確保一定湊滿 targetCount 顆
+  tryPass({ zone: true, consec: true, repeat: true, tail: true, oddEven: true });
+  if (selected.length < targetCount) {
+    tryPass({ zone: true, consec: true, repeat: true, tail: false, oddEven: true });
+  }
+  if (selected.length < targetCount) {
+    tryPass({ zone: true, consec: true, repeat: false, tail: false, oddEven: false });
+  }
+  if (selected.length < targetCount) {
+    tryPass({ zone: false, consec: false, repeat: false, tail: false, oddEven: false });
+  }
+
+  return selected;
+}
+
+// 旋轉矩陣小／大／中三層交錯映射：
+// 數學覆蓋保證 100% 等價不變，且避免 [0,1,2,3,4] 全部押到最小號、[5,6,7,8,9] 全部押到最大號
+function interleaveWheelBalls(sortedBalls) {
+  const n = sortedBalls.length;
+  const c1 = Math.floor((n + 2) / 3);
+  const c2 = Math.floor((2 * n + 2) / 3);
+  const low = sortedBalls.slice(0, c1);
+  const mid = sortedBalls.slice(c1, c2);
+  const high = sortedBalls.slice(c2);
+  const result = [];
+  const maxLen = Math.max(low.length, mid.length, high.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (i < low.length) result.push(low[i]);
+    if (i < high.length) result.push(high[i]);
+    if (i < mid.length) result.push(mid[i]);
+  }
+  return result;
+}
+
 window.autoFillWheelBalls = function(preset) {
   if (!appData) return;
   const allBalls = Array.from({ length: 39 }, (_, i) => pad2(i + 1));
   const stats = appData.stats;
+  const latestSet = new Set(appData.latest?.numbers_str || []);
   wheelSelectedBalls.clear();
 
   if (preset === 'hot8') {
-    const sorted = [...allBalls].sort((a, b) => (stats.freq_30[b] || 0) - (stats.freq_30[a] || 0));
-    sorted.slice(0, 8).forEach(b => wheelSelectedBalls.add(b));
+    const sorted = [...allBalls].sort((a, b) => (stats.freq_30[b] || 0) - (stats.freq_30[a] || 0) || a.localeCompare(b));
+    selectBalancedWheelPool(sorted, 8, latestSet).forEach(b => wheelSelectedBalls.add(b));
   } else if (preset === 'golden9') {
     const dragMap = {};
     stats.drag_top6.forEach(d => { dragMap[d.ball] = d.score; });
     const sorted = [...allBalls].sort((a, b) => {
       const sa = (stats.freq_30[a] || 0) * 1.5 + Math.min(stats.omission[a] || 0, 12) + (dragMap[a] || 0);
       const sb = (stats.freq_30[b] || 0) * 1.5 + Math.min(stats.omission[b] || 0, 12) + (dragMap[b] || 0);
-      return sb - sa;
+      return sb - sa || a.localeCompare(b);
     });
-    sorted.slice(0, 9).forEach(b => wheelSelectedBalls.add(b));
+    selectBalancedWheelPool(sorted, 9, latestSet).forEach(b => wheelSelectedBalls.add(b));
   } else if (preset === 'drag8') {
-    const picks = new Set();
-    (stats.sandwichBalls || []).forEach(b => picks.add(b));
-    (stats.obliqueBalls || []).forEach(b => picks.add(b));
-    (stats.drag_top6 || []).forEach(d => picks.add(d.ball));
-    const hotSorted = [...allBalls].sort((a, b) => (stats.freq_30[b] || 0) - (stats.freq_30[a] || 0));
-    for (const b of hotSorted) {
-      if (picks.size >= 8) break;
-      picks.add(b);
-    }
-    Array.from(picks).slice(0, 8).forEach(b => wheelSelectedBalls.add(b));
+    const ordered = [];
+    const seen = new Set();
+    const pushUnique = b => {
+      if (!seen.has(b)) {
+        seen.add(b);
+        ordered.push(b);
+      }
+    };
+    (stats.sandwichBalls || []).forEach(pushUnique);
+    (stats.obliqueBalls || []).forEach(pushUnique);
+    (stats.drag_top6 || []).forEach(d => pushUnique(d.ball));
+    const hotSorted = [...allBalls].sort((a, b) => (stats.freq_30[b] || 0) - (stats.freq_30[a] || 0) || a.localeCompare(b));
+    hotSorted.forEach(pushUnique);
+    selectBalancedWheelPool(ordered, 8, latestSet).forEach(b => wheelSelectedBalls.add(b));
   }
 
   renderWheelNumberGrid();
@@ -2767,7 +2884,8 @@ function renderWheelResult() {
   }
 
   const templates = WHEEL_TEMPLATES[n]?.[wheelGuaranteeMode] || [];
-  let rawTickets = templates.map(idxArr => idxArr.map(i => sortedBalls[i]).sort());
+  const mappedBalls = interleaveWheelBalls(sortedBalls);
+  let rawTickets = templates.map(idxArr => idxArr.map(i => mappedBalls[i]).sort());
 
   const useAiFilter = document.getElementById('wheelAiFilterToggle')?.checked ?? false;
   let filteredCount = 0;
@@ -2802,13 +2920,14 @@ function renderWheelResult() {
     '4to3': `選 ${n} 碼只要中 4 碼，保證至少 1 注中 3 碼（參獎）`,
     '5to4': `選 ${n} 碼若開出 5 碼，保證至少 1 注中 4 碼（貳獎2萬）`
   };
-  noteEl.textContent = modeDescMap[wheelGuaranteeMode] + (filteredCount > 0 ? `（AI濾水再省 ${filteredCount} 注）` : '');
+  noteEl.textContent = modeDescMap[wheelGuaranteeMode] + ' · 已套用三區交錯配號' + (filteredCount > 0 ? `（AI濾水再省 ${filteredCount} 注）` : '');
 
   listEl.innerHTML = rawTickets.map((ticket, idx) => {
     const nums = ticket.map(Number);
     const sum = nums.reduce((a, b) => a + b, 0);
     const pd = analyzePrimeAndDigitSum(nums);
     const ac = calcACValue(nums);
+    const zones = calcZones(nums);
     return `
       <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-950/85 border border-slate-800/90">
         <div class="flex items-center gap-1.5">
@@ -2818,7 +2937,7 @@ function renderWheelResult() {
           `).join('')}
         </div>
         <div class="text-[11px] text-slate-400 font-num">
-          和:${sum} · 質合:${pd.primeRatio} · AC:${ac}
+          和:${sum} · 三區:${zones.label} · 質合:${pd.primeRatio} · AC:${ac}
         </div>
       </div>
     `;
@@ -2868,17 +2987,26 @@ window.sendWheelToCommunity = function() {
 // 🏆 跨維度共識總決選引擎（不含遺漏期、破紀錄雷達與馬可夫鏈）
 // =========================================================================
 let consensusTop8List = [];
+let consensusFullRanked = [];
 let consensusFinal5 = [];
 
 function calibrateIndicatorWeights(records) {
   const windowSize = Math.min(100, records.length - 2);
+  const totalCombos539 = nCr(39, 5); // 575,757
+  // 計算當期候選池大小為 k 顆時，純隨機至少命中 1 顆的精確理論機率
+  const expectedHitProb = k => {
+    if (k <= 0) return 0;
+    if (k >= 35) return 1;
+    return 1 - (nCr(39 - k, 5) / totalCombos539);
+  };
+
   const counters = {
-    sandwich: { hits: 0, draws: 0, label: '夾號焦點' },
-    oblique:  { hits: 0, draws: 0, label: '斜連延伸' },
-    neighbor: { hits: 0, draws: 0, label: '上期鄰號' },
-    skipOne:  { hits: 0, draws: 0, label: '隔期跳開' },
-    hot30:    { hits: 0, draws: 0, label: '近期熱門' },
-    coldRoad: { hits: 0, draws: 0, label: '偏冷012路' }
+    sandwich: { hits: 0, draws: 0, expectedHits: 0, label: '夾號焦點' },
+    oblique:  { hits: 0, draws: 0, expectedHits: 0, label: '斜連延伸' },
+    neighbor: { hits: 0, draws: 0, expectedHits: 0, label: '上期鄰號' },
+    skipOne:  { hits: 0, draws: 0, expectedHits: 0, label: '隔期跳開' },
+    hot30:    { hits: 0, draws: 0, expectedHits: 0, label: '近期熱門' },
+    coldRoad: { hits: 0, draws: 0, expectedHits: 0, label: '偏冷012路' }
   };
 
   if (windowSize >= 5) {
@@ -2894,6 +3022,7 @@ function calibrateIndicatorWeights(records) {
       }
       if (sand.length) {
         counters.sandwich.draws++;
+        counters.sandwich.expectedHits += expectedHitProb(sand.length);
         if (sand.some(b => targetSet.has(b))) counters.sandwich.hits++;
       }
 
@@ -2905,6 +3034,7 @@ function calibrateIndicatorWeights(records) {
       });
       if (ob.size) {
         counters.oblique.draws++;
+        counters.oblique.expectedHits += expectedHitProb(ob.size);
         if (Array.from(ob).some(b => targetSet.has(b))) counters.oblique.hits++;
       }
 
@@ -2915,41 +3045,53 @@ function calibrateIndicatorWeights(records) {
       });
       if (nb.size) {
         counters.neighbor.draws++;
+        counters.neighbor.expectedHits += expectedHitProb(nb.size);
         if (Array.from(nb).some(b => targetSet.has(b))) counters.neighbor.hits++;
       }
 
       const sk = prev2.numbers.filter(n => !p1Set.has(n)).map(pad2);
       if (sk.length) {
         counters.skipOne.draws++;
+        counters.skipOne.expectedHits += expectedHitProb(sk.length);
         if (sk.some(b => targetSet.has(b))) counters.skipOne.hits++;
       }
 
-      const sliceHist = records.slice(i + 1, i + 21);
+      // 統一使用近 30 期視窗回測，與實戰 stats.freq_30 保持一致
+      const sliceHist = records.slice(i + 1, i + 31);
       const fMap = {};
       allBalls.forEach(b => fMap[b] = 0);
       sliceHist.forEach(r => r.numbers_str.forEach(b => fMap[b]++));
       const topHot = [...allBalls].sort((a, b) => fMap[b] - fMap[a]).slice(0, 8);
       counters.hot30.draws++;
+      counters.hot30.expectedHits += expectedHitProb(topHot.length);
       if (topHot.some(b => targetSet.has(b))) counters.hot30.hits++;
 
       const rCnt = [0, 0, 0];
       records.slice(i + 1, i + 11).forEach(r => r.numbers.forEach(n => rCnt[n % 3]++));
       const minMod = rCnt.indexOf(Math.min(...rCnt));
       counters.coldRoad.draws++;
+      counters.coldRoad.expectedHits += expectedHitProb(13); // 0/1/2 路各 13 顆球
       if (records[i].numbers.some(n => n % 3 === minMod)) counters.coldRoad.hits++;
     }
   }
 
   const rates = {};
+  const expectedRates = {};
+  const lifts = {};
   const ranking = [];
   Object.entries(counters).forEach(([key, obj]) => {
-    const rate = obj.draws > 0 ? Math.round((obj.hits / obj.draws) * 100) : 50;
+    const rate = obj.draws > 0 ? Math.round((obj.hits / obj.draws) * 100) : 0;
+    const expectedRate = obj.draws > 0 ? Math.round((obj.expectedHits / obj.draws) * 100) : 0;
+    const lift = obj.expectedHits > 0 ? Math.round((obj.hits / obj.expectedHits) * 100) / 100 : 1.0;
     rates[key] = rate;
-    ranking.push({ key, label: obj.label, rate, hits: obj.hits, draws: obj.draws });
+    expectedRates[key] = expectedRate;
+    lifts[key] = lift;
+    ranking.push({ key, label: obj.label, rate, expectedRate, lift, hits: obj.hits, draws: obj.draws });
   });
 
-  ranking.sort((a, b) => b.rate - a.rate);
-  return { rates, ranking, windowSize };
+  // 依超額勝率 Lift 排序（避免候選球數多的指標佔盡便宜）
+  ranking.sort((a, b) => b.lift - a.lift || b.rate - a.rate);
+  return { rates, expectedRates, lifts, ranking, windowSize };
 }
 
 function computeConsensusEngine() {
@@ -2958,25 +3100,25 @@ function computeConsensusEngine() {
   const allBalls = Array.from({ length: 39 }, (_, i) => pad2(i + 1));
 
   const cal = calibrateIndicatorWeights(appData.history);
-  const latestExcludeSet = new Set(appData.latest?.numbers_str || []);
+  const latestSet = new Set(appData.latest?.numbers_str || []);
   const calBar = document.getElementById('dynamicCalibrationBar');
   if (calBar && cal.ranking.length) {
     const top3 = cal.ranking.slice(0, 3);
-    const latestStr = (appData.latest?.numbers_str || []).join('、');
     calBar.innerHTML = `
-      <span class="px-2 py-0.5 rounded bg-sky-500/20 border border-sky-500/40 text-sky-300 font-bold">⚖️ 近${cal.windowSize}期動態勝率校準：</span>
+      <span class="px-2 py-0.5 rounded bg-sky-500/20 border border-sky-500/40 text-sky-300 font-bold">⚖️ 近${cal.windowSize}期超額勝率(Lift)校準：</span>
       ${top3.map((item, idx) => `
         <span class="px-2 py-0.5 rounded ${idx === 0 ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold' : 'bg-slate-900 border border-slate-700 text-slate-300'}">
-          ${idx === 0 ? '👑 ' : ''}${item.label} 命中率 ${item.rate}%
+          ${idx === 0 ? '👑 ' : ''}${item.label} ${item.lift.toFixed(2)}x (${item.rate}% / 基準${item.expectedRate}%)
         </span>
       `).join('')}
-      <span class="px-2 py-0.5 rounded bg-rose-500/15 border border-rose-500/35 text-rose-300 font-bold">🚫 強制排除上期（${latestStr}）</span>
+      <span class="px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/35 text-amber-300 font-bold">🔁 連莊 ≤ 1・拖牌 ≤ 2・防極端與三連號</span>
     `;
   }
 
-  const mult = key => {
-    const r = cal.rates[key] ?? 50;
-    return Math.max(0.65, Math.min(1.5, 0.5 + (r / 100)));
+  // 以超額勝率 Lift 公平調權（1.0x 為隨機基準，限制在 0.70x ～ 1.35x 防止小樣本過度擬合）
+  const liftMult = key => {
+    const lift = cal.lifts?.[key] ?? 1.0;
+    return Math.max(0.7, Math.min(1.35, 1 + (lift - 1) * 1.25));
   };
 
   const dragMap = {};
@@ -2991,6 +3133,7 @@ function computeConsensusEngine() {
   });
 
   const sandwichSet = new Set(stats.sandwichBalls || []);
+  const obliqueSet = new Set(stats.obliqueBalls || []);
   const neighborSet = new Set(stats.neighborBalls || []);
   const skipOneSet = new Set(stats.skipOneBalls || []);
 
@@ -3013,22 +3156,19 @@ function computeConsensusEngine() {
     let score = 0;
     const reasons = [];
 
-    const highWinBonus = rKey => {
-      const r = cal.rates[rKey] ?? 50;
-      if (r >= 70) return 1.35;
-      if (r >= 60) return 1.18;
-      if (r <= 40) return 0.75;
-      return 1.0;
-    };
-
     if (dragMap[b]) {
-      const dragRankBoost = Math.max(0, (7 - dragMap[b].rank) * 3.5);
-      score += 36 + dragRankBoost + Math.min(14, dragMap[b].score * 1.2);
+      // 調降至與其他核心指標同量級（約 17.2 ～ 23.2 分），避免單項過度主導
+      const dragRankBoost = Math.max(0, (7 - dragMap[b].rank) * 1.2);
+      score += 16 + dragRankBoost;
       reasons.push(`拖牌TOP${dragMap[b].rank}★`);
     }
     if (sandwichSet.has(b)) {
-      score += 18 * mult('sandwich') * highWinBonus('sandwich');
-      reasons.push(`夾號(${cal.rates.sandwich}%)`);
+      score += 18 * liftMult('sandwich');
+      reasons.push(`夾號(${cal.lifts.sandwich.toFixed(2)}x)`);
+    }
+    if (obliqueSet.has(b)) {
+      score += 17 * liftMult('oblique');
+      reasons.push(`斜連(${cal.lifts.oblique.toFixed(2)}x)`);
     }
 
     if (twinSet.has(b)) {
@@ -3040,29 +3180,29 @@ function computeConsensusEngine() {
       reasons.push('星期旺號');
     }
     if (hotTop8Set.has(b)) {
-      score += 15 * mult('hot30') * highWinBonus('hot30');
+      score += 15 * liftMult('hot30');
       reasons.push(`近期熱(${stats.freq_30[b]}次)`);
     }
 
     if (neighborSet.has(b)) {
-      score += 15 * mult('neighbor') * highWinBonus('neighbor');
-      reasons.push(`鄰號(${cal.rates.neighbor}%)`);
+      score += 15 * liftMult('neighbor');
+      reasons.push(`鄰號(${cal.lifts.neighbor.toFixed(2)}x)`);
     }
     if (skipOneSet.has(b)) {
-      score += 14 * mult('skipOne') * highWinBonus('skipOne');
-      reasons.push(`隔期(${cal.rates.skipOne}%)`);
+      score += 14 * liftMult('skipOne');
+      reasons.push(`隔期(${cal.lifts.skipOne.toFixed(2)}x)`);
     }
     if (num % 3 === coldRoadMod) {
-      const r0Mult = (num % 3 === 0 && stats.road0NeedsBoost) ? 1.5 : 1.0;
-      score += 14 * mult('coldRoad') * highWinBonus('coldRoad') * r0Mult;
+      const r0Mult = (num % 3 === 0 && stats.road0NeedsBoost) ? 1.25 : 1.0;
+      score += 14 * liftMult('coldRoad') * r0Mult;
       reasons.push((num % 3 === 0 && stats.road0NeedsBoost) ? `0路<14顆加重` : `${coldRoadMod}路待補`);
     }
 
     const overlapCount = reasons.length;
     if (overlapCount >= 4) {
-      score += (overlapCount - 2) * 5.5;
+      score += (overlapCount - 2) * 5.0;
     } else if (overlapCount === 3) {
-      score += 4.5;
+      score += 4.0;
     }
 
     score += (stats.freq_30[b] || 0) * 0.5;
@@ -3071,21 +3211,18 @@ function computeConsensusEngine() {
       ball: b,
       score: Math.round(score * 10) / 10,
       hitCount: reasons.length,
+      isLastDraw: latestSet.has(b),
       reasons
     };
   });
 
-  scoredBalls.sort((a, b) => {
-    const aMulti = a.hitCount >= 3 ? 1 : 0;
-    const bMulti = b.hitCount >= 3 ? 1 : 0;
-    if (bMulti !== aMulti) return bMulti - aMulti;
-    return b.score - a.score || b.hitCount - a.hitCount || a.ball.localeCompare(b.ball);
-  });
-  const eligibleScored = scoredBalls.filter(item => !latestExcludeSet.has(item.ball));
-  consensusTop8List = eligibleScored.slice(0, 8);
+  // 統一排序標準：TOP 8 套用三區均衡與防三連號擠塞（讓 8 碼聰明包牌結構更健康）
+  scoredBalls.sort((a, b) => b.score - a.score || b.hitCount - a.hitCount || a.ball.localeCompare(b.ball));
+  consensusFullRanked = scoredBalls;
+  consensusTop8List = selectBalancedWheelPool(scoredBalls, 8, latestSet);
 
   renderConsensusTop8();
-  pickFilteredConsensus5(eligibleScored.slice(0, 14));
+  pickFilteredConsensus5(scoredBalls.slice(0, 16));
 }
 
 function renderConsensusTop8() {
@@ -3098,6 +3235,9 @@ function renderConsensusTop8() {
     const tagsHtml = item.reasons.slice(0, 2).map(r =>
       `<span class="inline-block px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300 border border-slate-700/80 truncate max-w-full">${r}</span>`
     ).join('');
+    const repeatBadge = item.isLastDraw
+      ? `<span class="inline-block px-1.5 py-0.5 rounded bg-amber-500/20 text-[10px] text-amber-300 border border-amber-500/40 font-bold">上期號</span>`
+      : '';
     const extraCount = item.reasons.length > 2 ? `<span class="text-[10px] text-amber-400 font-bold">+${item.reasons.length - 2}項</span>` : '';
 
     return `
@@ -3107,12 +3247,12 @@ function renderConsensusTop8() {
           <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold">中 ${item.hitCount} 指標</span>
         </div>
         <div class="flex items-center justify-center my-0.5">
-          <button onclick="addSingleBallToFixed('${item.ball}')" title="點擊設為 AI 選號定膽" class="w-10 h-10 rounded-full ${ballCls} flex items-center justify-center font-num font-black text-base hover:scale-105 transition">
+          <button onclick="addSingleBallToFixed('${item.ball}')" title="點擊設為 AI 選號定膽（共識總分 ${item.score}）" class="w-10 h-10 rounded-full ${ballCls} flex items-center justify-center font-num font-black text-base hover:scale-105 transition">
             ${item.ball}
           </button>
         </div>
         <div class="flex flex-wrap items-center justify-center gap-1 min-h-[22px]">
-          ${tagsHtml}${extraCount}
+          ${repeatBadge}${tagsHtml}${extraCount}
         </div>
       </div>
     `;
@@ -3121,39 +3261,121 @@ function renderConsensusTop8() {
 
 function pickFilteredConsensus5(candidatePool, randomizeTop = false) {
   if (!candidatePool || candidatePool.length < 5) return;
-  const latestExcludeSet = new Set(appData?.latest?.numbers_str || []);
-  const ranked = candidatePool
-    .filter(item => !latestExcludeSet.has(item.ball))
-    .sort((a, b) => b.score - a.score || (b.hitCount || 0) - (a.hitCount || 0) || a.ball.localeCompare(b.ball));
-  if (ranked.length < 5) return;
-  const scoreLookup = {};
-  ranked.forEach(item => { scoreLookup[item.ball] = item; });
+  const latestSet = new Set(appData?.latest?.numbers_str || []);
+  const dragSet = new Set((appData?.stats?.drag_top6 || []).map(d => d.ball));
 
-  const dragList = (appData?.stats?.drag_top6 || []).map(d => d.ball).filter(b => !latestExcludeSet.has(b));
-  let dragPool = dragList.map(b => scoreLookup[b] || { ball: b, score: 40, hitCount: 1, reasons: ['拖牌重權'] });
-  if (randomizeTop && dragPool.length > 2) {
-    dragPool = [...dragPool].sort(() => Math.random() - 0.5);
-  }
-  const pickedDrag2 = dragPool.slice(0, 2);
-  const pickedSet = new Set(pickedDrag2.map(x => x.ball));
+  // 取前 16 名不重複高分候選球（C(16,5) = 4,368 組，前端運算 < 2ms）
+  const seen = new Set();
+  const ordered = [...candidatePool]
+    .sort((a, b) => b.score - a.score || (b.hitCount || 0) - (a.hitCount || 0) || a.ball.localeCompare(b.ball))
+    .filter(item => {
+      if (seen.has(item.ball)) return false;
+      seen.add(item.ball);
+      return true;
+    })
+    .slice(0, 16);
 
-  let restCandidates = ranked.filter(x => !pickedSet.has(x.ball));
-  if (randomizeTop && restCandidates.length > 3) {
-    const topSlice = restCandidates.slice(0, Math.min(9, restCandidates.length));
-    restCandidates = [...topSlice].sort(() => Math.random() - 0.5);
-  }
-  const selectedItems = [...pickedDrag2, ...restCandidates.slice(0, 5 - pickedDrag2.length)];
+  if (ordered.length < 5) return;
 
-  const balls = selectedItems.map(x => x.ball).sort();
-  const nums = balls.map(Number);
-  const chosen = {
-    balls,
-    sum: nums.reduce((acc, v) => acc + v, 0),
-    odd: nums.filter(v => v % 2 === 1).length,
-    ac: calcACValue(nums),
-    span: nums[4] - nums[0],
-    pd: analyzePrimeAndDigitSum(nums)
+  const evalCombo = items => {
+    const balls = items.map(x => x.ball).sort();
+    const nums = balls.map(Number);
+    const sum = nums.reduce((acc, v) => acc + v, 0);
+    const odd = nums.filter(v => v % 2 === 1).length;
+    const ac = calcACValue(nums);
+    const span = nums[4] - nums[0];
+    const zones = calcZones(nums);
+    const maxZone = Math.max(zones.z1, zones.z2, zones.z3);
+    const pd = analyzePrimeAndDigitSum(nums);
+
+    let maxConsecRun = 1;
+    let curRun = 1;
+    let consecPairs = 0;
+    for (let i = 0; i < nums.length - 1; i++) {
+      if (nums[i + 1] - nums[i] === 1) {
+        consecPairs++;
+        curRun++;
+        if (curRun > maxConsecRun) maxConsecRun = curRun;
+      } else {
+        curRun = 1;
+      }
+    }
+
+    let repeatUsed = 0;
+    let dragUsed = 0;
+    let totalScore = 0;
+    items.forEach(x => {
+      totalScore += (x.score || 0);
+      if (latestSet.has(x.ball)) repeatUsed++;
+      if (dragSet.has(x.ball)) dragUsed++;
+    });
+
+    return {
+      balls,
+      key: balls.join(','),
+      sum,
+      odd,
+      ac,
+      span,
+      zones,
+      maxZone,
+      maxConsecRun,
+      consecPairs,
+      pd,
+      repeatUsed,
+      dragUsed,
+      totalScore: Math.round(totalScore * 10) / 10
+    };
   };
+
+  // 分層防呆池：
+  // tier1（完整防極端擠塞）：連莊≤1、拖牌≤2、禁全奇全偶(1:4~4:1)、禁三連號且最多1組二連號、單區≤3顆、和值65~140、AC≥4
+  // tier2（放寬和值/AC，保留禁全奇全偶、防三連號與單區≤3顆）
+  // tier3（僅保留連莊≤1、拖牌≤2）
+  // tier4（保底全組合）
+  const tier1 = [];
+  const tier2 = [];
+  const tier3 = [];
+  const tier4 = [];
+
+  const n = ordered.length;
+  for (let a = 0; a < n - 4; a++) {
+    for (let b = a + 1; b < n - 3; b++) {
+      for (let c = b + 1; c < n - 2; c++) {
+        for (let d = c + 1; d < n - 1; d++) {
+          for (let e = d + 1; e < n; e++) {
+            const combo = evalCombo([ordered[a], ordered[b], ordered[c], ordered[d], ordered[e]]);
+            const passCaps = combo.repeatUsed <= 1 && combo.dragUsed <= 2;
+            const passNoAllOddEven = combo.odd >= 1 && combo.odd <= 4;
+            const passNoClump = combo.maxConsecRun <= 2 && combo.maxZone <= 3 && passNoAllOddEven;
+            const passFullGuard = passCaps && passNoClump && combo.consecPairs <= 1 && combo.sum >= 65 && combo.sum <= 140 && combo.ac >= 4;
+
+            if (passFullGuard) {
+              tier1.push(combo);
+            } else if (passCaps && passNoClump) {
+              tier2.push(combo);
+            } else if (passCaps) {
+              tier3.push(combo);
+            } else {
+              tier4.push(combo);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const activeTier = tier1.length ? tier1 : (tier2.length ? tier2 : (tier3.length ? tier3 : tier4));
+  activeTier.sort((a, b) => b.totalScore - a.totalScore || b.ac - a.ac || a.key.localeCompare(b.key));
+
+  let chosen = activeTier[0];
+  if (randomizeTop && activeTier.length > 1) {
+    const prevKey = consensusFinal5.join(',');
+    const topSlice = activeTier.slice(0, Math.min(20, activeTier.length));
+    const altPool = topSlice.filter(x => x.key !== prevKey);
+    const pickFrom = altPool.length ? altPool : topSlice;
+    chosen = pickFrom[Math.floor(Math.random() * pickFrom.length)];
+  }
 
   consensusFinal5 = chosen.balls;
   const ballsEl = document.getElementById('consensusFinalBalls');
@@ -3167,21 +3389,14 @@ function pickFilteredConsensus5(candidatePool, randomizeTop = false) {
 
   const metaEl = document.getElementById('consensusFinalMeta');
   if (metaEl) {
-    metaEl.textContent = `和值:${chosen.sum} · 奇偶:${chosen.odd}:${5 - chosen.odd} · 質合:${chosen.pd.primeRatio} · 合單雙:${chosen.pd.digitSumRatio} · AC:${chosen.ac} · 跨:${chosen.span}・含拖牌2碼）`;
+    metaEl.textContent = `和值:${chosen.sum} · 奇偶:${chosen.odd}:${5 - chosen.odd} · 質合:${chosen.pd.primeRatio} · 三區:${chosen.zones.label} · AC:${chosen.ac} · 跨:${chosen.span} · 連莊:${chosen.repeatUsed} · 拖牌:${chosen.dragUsed}`;
   }
 }
 
 window.rerollConsensusCombo = function() {
   if (!appData || !consensusTop8List.length) return;
-  const latestExcludeSet = new Set(appData?.latest?.numbers_str || []);
-  const allBalls = Array.from({ length: 39 }, (_, i) => pad2(i + 1));
-  const topSet = new Set(consensusTop8List.map(x => x.ball));
-  const extraBalls = allBalls
-    .filter(b => !topSet.has(b) && !latestExcludeSet.has(b))
-    .sort((a, b) => (appData.stats.freq_30[b] || 0) - (appData.stats.freq_30[a] || 0))
-    .slice(0, 6)
-    .map(b => ({ ball: b, score: 10 }));
-  pickFilteredConsensus5([...consensusTop8List, ...extraBalls], true);
+  const pool = consensusFullRanked.length >= 16 ? consensusFullRanked.slice(0, 16) : (consensusFullRanked.length >= 5 ? consensusFullRanked : consensusTop8List);
+  pickFilteredConsensus5(pool, true);
 };
 
 window.copyConsensusCombo = function() {
@@ -3189,7 +3404,7 @@ window.copyConsensusCombo = function() {
   const top8Str = consensusTop8List.map(x => x.ball).join('、');
   const text = [
     `🏆【今彩539 AI 跨維度共識決選】`,
-    `🎯 本期精選 5 碼（共識評分直出・無濾網）：${consensusFinal5.join('、')}`,
+    `🎯 本期精選 5 碼（Lift 超額勝率排序・連莊≤1・拖牌≤2・防擠塞）：${consensusFinal5.join('、')}`,
     `🔥 綜合指標 TOP 8 焦點池：${top8Str}`,
     `👉 免費查牌路／回測：https://kokko-travel.com/539/`
   ].join('\n');
