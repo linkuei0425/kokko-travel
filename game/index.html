@@ -18,6 +18,7 @@
 <meta name="twitter:image" content="./work.jpg">
 <link rel="image_src" href="./work.jpg">
 <title>社畜大逃生</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 * {
     box-sizing: border-box;
@@ -954,6 +955,42 @@
     font-weight: 900;
     cursor: pointer;
   }
+  .line-profile-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(6, 199, 85, 0.14);
+    border: 1px solid rgba(6, 199, 85, 0.5);
+    border-radius: 99px;
+    padding: 4px 12px 4px 6px;
+    margin: 0 auto 8px;
+    width: fit-content;
+    font-size: 12px;
+    font-weight: 800;
+    color: #bbf7d0;
+  }
+  .line-profile-bar img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #06C755;
+  }
+  .line-share-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 11px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #06C755, #059669);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
+  }
+  .line-share-btn:active { transform: scale(0.98); }
 
   /* ==================== 過關 3 題猜謎彈窗樣式 ==================== */
   .quiz-progress-row {
@@ -1201,6 +1238,10 @@
     <div class="modal-mask" id="resultModal">
       <div class="modal-card" style="border-color:#34d399;">
         <h2 id="modalTitle" style="color:#34d399;">🚇 成功搭上末班捷運逃離公司！</h2>
+        <div class="line-profile-bar" id="lineProfileBar" style="display:none;">
+          <img id="lineProfileAvatar" src="" alt="LINE頭貼" style="display:none;">
+          <span id="lineProfileName">LINE 社畜玩家</span>
+        </div>
         <div class="chest-badge" id="nextLevelPreviewBadge" style="border-color:#ef4444;color:#fca5a5;">下一關：LV.2 進階地獄（難度全面提升！）</div>
         <div class="thief-highlight-box">
           <div style="font-size:11px;color:#cbd5e1;font-weight:700;" id="modalSalaryInfo">依月薪 NT$48,000（時薪 NT$273）計算</div>
@@ -1249,6 +1290,7 @@
         </div>
 
         <button class="modal-btn" id="modalActionBtn" onclick="handleModalContinue()">挑戰 LV.2 更高難度關卡 ➔</button>
+        <button type="button" class="line-share-btn" id="lineShareBtn" onclick="shareStealRecordToLine()">📤 炫耀偷薪戰績給 LINE 好友</button>
       </div>
     </div>
   </div>
@@ -4817,11 +4859,133 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) saveGameProgressToDevice();
 });
 
+// ==================== LINE LIFF 整合系統（免改架構，填入 LIFF ID 即啟用） ====================
+// 請將 LINE Developers Console 建立好的 LIFF ID 填入下方引號內（例如：'2006123456-AbCdEfGh'）
+const LINE_LIFF_ID = '2012740983-nHYDUzvt';
+let isLiffReady = false;
+const lineUserProfile = {
+  userId: '',
+  displayName: '',
+  pictureUrl: ''
+};
+
+function renderLineProfileUI() {
+  const bar = document.getElementById('lineProfileBar');
+  const avatar = document.getElementById('lineProfileAvatar');
+  const nameEl = document.getElementById('lineProfileName');
+  if (!bar || !nameEl) return;
+  if (lineUserProfile.displayName) {
+    nameEl.textContent = `${lineUserProfile.displayName} 的摸魚戰績`;
+    if (lineUserProfile.pictureUrl && avatar) {
+      avatar.src = lineUserProfile.pictureUrl;
+      avatar.style.display = 'block';
+    }
+    bar.style.display = 'flex';
+  }
+}
+
+async function initLineLiff() {
+  if (typeof liff === 'undefined' || !LINE_LIFF_ID) return;
+  try {
+    await liff.init({ liffId: LINE_LIFF_ID });
+    isLiffReady = true;
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      lineUserProfile.userId = profile.userId || '';
+      lineUserProfile.displayName = profile.displayName || '';
+      lineUserProfile.pictureUrl = profile.pictureUrl || '';
+      renderLineProfileUI();
+    }
+  } catch (e) {
+    // 非 LINE 環境或尚未設定 LIFF ID 時靜默降級，不影響遊戲本體
+  }
+}
+
+async function shareStealRecordToLine() {
+  initAudio();
+  playSound('build');
+
+  const totalMoney = getCurrentMoney();
+  const bobaCount = (totalMoney / 75).toFixed(1);
+  const lvNum = levelIndex + 1;
+  const dailyMoney = Math.round(stealLedger.dailyNet || 0);
+  const rankEl = document.getElementById('modalThiefRank');
+  const rankText = rankEl ? rankEl.textContent : '見習摸魚員';
+  const playerLabel = lineUserProfile.displayName ? `【${lineUserProfile.displayName}】` : '我';
+  const shareUrl = LINE_LIFF_ID ? `https://liff.line.me/${LINE_LIFF_ID}` : window.location.href;
+  const plainText = `🏃‍♂️ 社畜大逃生戰績回報！\n${playerLabel}在 LV.${lvNum} 帶薪偷了 NT$${totalMoney}（可換 ${bobaCount} 杯珍奶），今日累計 NT$${dailyMoney}，獲得稱號「${rankText}」！\n快來一起潑咖啡打慣老闆 👉 ${shareUrl}`;
+
+  // 1. 若在 LINE LIFF 環境內且支援 shareTargetPicker，發送精緻 Flex 卡片
+  if (isLiffReady && typeof liff !== 'undefined' && liff.isApiAvailable && liff.isApiAvailable('shareTargetPicker')) {
+    try {
+      const flexMessage = {
+        type: 'flex',
+        altText: `🏃‍♂️ ${playerLabel}在《社畜大逃生》帶薪偷了 NT$${totalMoney}！`,
+        contents: {
+          type: 'bubble',
+          styles: {
+            header: { backgroundColor: '#111827' },
+            body: { backgroundColor: '#141c2e' },
+            footer: { backgroundColor: '#141c2e' }
+          },
+          header: {
+            type: 'box',
+            layout: 'vertical',
+            contents: [
+              { type: 'text', text: '🏃‍♂️ 社畜大逃生・偷薪戰績卡', weight: 'bold', color: '#fde047', size: 'md' }
+            ]
+          },
+          body: {
+            type: 'box',
+            layout: 'vertical',
+            spacing: 'sm',
+            contents: [
+              { type: 'text', text: `${playerLabel} 剛逃到 LV.${lvNum}！`, color: '#cbd5e1', size: 'sm', weight: 'bold' },
+              { type: 'text', text: `NT$ ${totalMoney}`, color: '#34d399', size: 'xxl', weight: 'bold' },
+              { type: 'text', text: `🧋 約可換購 ${bobaCount} 杯全糖珍奶`, color: '#a7f3d0', size: 'xs' },
+              { type: 'text', text: `🏆 稱號：${rankText} ｜ 今日累計 NT$${dailyMoney}`, color: '#38bdf8', size: 'xs', wrap: true }
+            ]
+          },
+          footer: {
+            type: 'box',
+            layout: 'vertical',
+            contents: [
+              {
+                type: 'button',
+                style: 'primary',
+                color: '#06C755',
+                action: { type: 'uri', label: '立即開始帶薪逃班！', uri: shareUrl }
+              }
+            ]
+          }
+        }
+      };
+      const res = await liff.shareTargetPicker([flexMessage]);
+      if (res) {
+        playSound('win');
+        alert('🎉 已成功分享偷薪戰績卡給 LINE 好友！');
+      }
+      return;
+    } catch (e) {}
+  }
+
+  // 2. 一般手機瀏覽器或尚未填 LIFF ID 時，自動降級為 LINE 連結分享 / 系統分享
+  const lineShareUrl = `https://line.me/R/msg/text/?${encodeURIComponent(plainText)}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: '社畜大逃生・偷薪戰績', text: plainText, url: shareUrl });
+      return;
+    } catch (e) {}
+  }
+  window.open(lineShareUrl, '_blank');
+}
+
 updateSalaryPreview();
 resizeCanvas();
 loadLevel(0);
 loadGameProgressFromDevice();
 requestAnimationFrame(loop);
+initLineLiff();
 </script>
 </body>
 </html>
