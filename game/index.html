@@ -1117,7 +1117,6 @@
 
 <script>
 // ==================== 無版權可商用 200 題猜謎題庫與外部數據庫載入支援 ====================
-// 可選：若部署在同源或外部 JSON 數據庫，可在同層放 ./trivia_200.json（格式為 [{ "q": "...", "options": ["..."], "ans": 0, "explain": "..." }]）
 const EXTERNAL_TRIVIA_DB_URL = './trivia_200.json';
 
 const TRIVIA_TOPICS = [
@@ -1235,7 +1234,6 @@ function build200CommercialTriviaBank() {
 
 let triviaQuestionBank = build200CommercialTriviaBank();
 
-// 嘗試從外部 JSON 數據庫載入（若存在則合併或替換，維持至少 200 題）
 (async function tryLoadExternalTriviaDb() {
   try {
     if (typeof fetch !== 'function') return;
@@ -1397,13 +1395,14 @@ function advanceLevelQuizStep() {
     }
     levelQuizSession = null;
     document.getElementById('levelQuizModal').classList.remove('open');
+    saveGameProgressToDevice();
     openStealModal(true, false, `猜謎答對 ${totalCorrect} / 3 題（+${totalCorrect} 杯咖啡）${bonusLifeMsg}`);
   }
 }
 
 // ==================== 月薪自動換算時薪系統 ====================
 let userMonthlySalary = 72000;
-let userHourlyRate = Math.round(72000 / 240); // 每月30天*8小時=240工時
+let userHourlyRate = Math.round(72000 / 240);
 
 function updateSalaryPreview() {
   const val = Math.max(10000, Number(document.getElementById('monthlySalaryInput').value) || 72000);
@@ -1701,6 +1700,7 @@ function buyShopItem(itemType, cost) {
   updateMatHUD();
   updateHeartsHUD();
   updateThiefHUD();
+  saveGameProgressToDevice();
 }
 
 function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
@@ -1754,8 +1754,16 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
 function handleModalContinue() {
   const act = document.getElementById('modalActionBtn').dataset.action;
   document.getElementById('resultModal').classList.remove('open');
-  if (act === 'nextLevel') loadLevel(levelIndex + 1);
-  else if (act === 'retryLevel') loadLevel(levelIndex);
+  if (act === 'nextLevel') {
+    loadLevel(levelIndex + 1);
+  } else if (act === 'retryLevel') {
+    // 失敗重試時保留當前生命值下限 1，避免卡在 0 血無限重開
+    if (hero.hp <= 0) hero.hp = 1;
+    loadLevel(levelIndex);
+  } else {
+    // 繼續當前關卡（不重置關卡進度）
+    gameOver = false;
+  }
 }
 
 // ==================== 多元寶箱心理測驗系統 ====================
@@ -1904,6 +1912,7 @@ function resolveChestPsyTest(testIdx, optIdx) {
   if (chosen.penalty && chosen.penalty > 0) {
     const scaledPenalty = chosen.penalty + levelIndex * 10;
     thiefStats.spentMoney += scaledPenalty;
+    recordLedgerDelta(-scaledPenalty);
     if (chosen.loseHp) hero.hp = Math.max(0, hero.hp - chosen.loseHp);
     updateHeartsHUD();
     updateThiefHUD();
@@ -1917,7 +1926,10 @@ function resolveChestPsyTest(testIdx, optIdx) {
       <button class="modal-btn" style="background:#ef4444;color:#fff;" onclick="closeChestModalAndReturn()">返回原本闖關畫面 ➔</button>
     `;
   } else {
-    if (chosen.money) thiefStats.bonusMoney += chosen.money;
+    if (chosen.money) {
+      thiefStats.bonusMoney += chosen.money;
+      recordLedgerDelta(chosen.money);
+    }
     if (chosen.mat) hero.materials += chosen.mat;
     if (chosen.coffee) hero.coffeeAmmo += chosen.coffee;
     if (chosen.heal) hero.hp = Math.min(hero.maxHp, hero.hp + chosen.heal);
@@ -1936,6 +1948,7 @@ function resolveChestPsyTest(testIdx, optIdx) {
       <button class="modal-btn" onclick="closeChestModalAndReturn()">收下獎勵，返回闖關畫面 ➔</button>
     `;
   }
+  saveGameProgressToDevice();
 }
 
 function closeChestModalAndReturn() {
@@ -1948,7 +1961,7 @@ function closeChestModalAndReturn() {
   }
 }
 
-// ==================== 寶箱小遊戲：職場消消樂（每次隨機任務） ====================
+// ==================== 寶箱小遊戲：職場消消樂（完成後保留目前關卡進度） ====================
 function startMatchThreeMiniGame(box, modal) {
   const ROWS = 5;
   const COLS = 5;
@@ -2083,7 +2096,7 @@ function startMatchThreeMiniGame(box, modal) {
         ${bannerNote || `進度：${progress} / ${mission.target} ｜ 剩餘步數：${movesLeft} 步（點相鄰兩格交換湊3連線）`}
       </div>
       <div class="m3-grid">${tilesHtml}</div>
-      <button class="modal-btn" style="background:#334155;color:#cbd5e1;padding:9px;font-size:13px;" onclick="closeChestModalAndReturn()">離開消消樂，返回關卡 ➔</button>
+      <button class="modal-btn" style="background:#334155;color:#cbd5e1;padding:9px;font-size:13px;" onclick="closeChestModalAndReturn()">回到目前關卡繼續走 ➔</button>
     `;
   }
 
@@ -2098,28 +2111,24 @@ function startMatchThreeMiniGame(box, modal) {
       if (!finished && progress >= mission.target) {
         finished = true;
         thiefStats.bonusMoney += prize;
+        recordLedgerDelta(prize);
         hero.materials += 4;
         hero.coffeeAmmo += 2;
         updateMatHUD();
         updateCoffeeHUD();
         updateThiefHUD();
+        saveGameProgressToDevice();
         playSound('win');
         vibrate([30, 20, 50]);
-        renderM3UI(`🎉 任務完成！獲得偷薪 +NT$${prize}、建材+4、咖啡+2！正在返回關卡...`);
-        setTimeout(() => {
-          closeChestModalAndReturn();
-          spawnFloatText(hero.x, hero.y - 25, `🧩 消消樂過關！偷薪 +NT$${prize}！`, '#fde047');
-        }, 950);
+        renderM3UI(`🎉 任務完成！已發放偷薪 +NT$${prize}、建材+4、咖啡+2（關卡位置保留）！`);
       } else if (!finished && movesLeft <= 0) {
         finished = true;
         thiefStats.spentMoney += 15;
+        recordLedgerDelta(-15);
         updateThiefHUD();
+        saveGameProgressToDevice();
         playSound('hurt');
-        renderM3UI('😅 步數用盡未達標！扣 NT$15 作為加班費，正在返回關卡...');
-        setTimeout(() => {
-          closeChestModalAndReturn();
-          spawnFloatText(hero.x, hero.y - 25, '😅 消消樂步數用盡 -NT$15', '#f43f5e');
-        }, 950);
+        renderM3UI('😅 步數用盡未達標！扣 NT$15 作為加班費，可點下方按鈕回到目前關卡。');
       } else {
         renderM3UI();
       }
@@ -2351,6 +2360,7 @@ function startBlackjackPkGame(box, modal) {
       return;
     }
     thiefStats.spentMoney += betAmount;
+    recordLedgerDelta(-betAmount);
     updateThiefHUD();
     playSound('jump');
     vibrate(15);
@@ -2381,6 +2391,7 @@ function startBlackjackPkGame(box, modal) {
       playSound('hurt');
       vibrate(40);
       updateThiefHUD();
+      saveGameProgressToDevice();
       renderBjUI(`💥 爆牌了（${pScore} 點）！輸掉壓注 NT$ ${betAmount}`);
     } else if (pScore === 21) {
       window.bjStand();
@@ -2402,11 +2413,13 @@ function startBlackjackPkGame(box, modal) {
     if (dScore > 21 || pScore > dScore) {
       const payout = betAmount * 2;
       thiefStats.bonusMoney += payout;
+      recordLedgerDelta(payout);
       playSound('win');
       vibrate([30, 20, 50]);
       msg = `🎉 你贏了（${pScore} vs ${dScore}）！抱走 NT$ ${payout}！`;
     } else if (pScore === dScore) {
       thiefStats.bonusMoney += betAmount;
+      recordLedgerDelta(betAmount);
       playSound('build');
       msg = `🤝 平手（${pScore} vs ${dScore}）！退回壓注 NT$ ${betAmount}`;
     } else {
@@ -2416,6 +2429,7 @@ function startBlackjackPkGame(box, modal) {
     }
 
     updateThiefHUD();
+    saveGameProgressToDevice();
     renderBjUI(msg);
   };
 
@@ -2607,9 +2621,11 @@ function startAngrySlingshotBossGame(box, modal) {
     if (!finished && (sBoss.hp <= 0 || sBoss.x > sW + 20)) {
       finished = true;
       thiefStats.bonusMoney += prize;
+      recordLedgerDelta(prize);
       hero.materials += 4;
       updateMatHUD();
       updateThiefHUD();
+      saveGameProgressToDevice();
       playSound('win');
       vibrate([30, 20, 50]);
       document.getElementById('slingStatusText').textContent = `🎉 擊垮慣老闆！獲得偷薪 +NT$${prize}！正在返回關卡...`;
@@ -2620,7 +2636,9 @@ function startAngrySlingshotBossGame(box, modal) {
     } else if (!finished && ammo === 0 && sProjs.length === 0) {
       finished = true;
       thiefStats.spentMoney += 15;
+      recordLedgerDelta(-15);
       updateThiefHUD();
+      saveGameProgressToDevice();
       playSound('hurt');
       document.getElementById('slingStatusText').textContent = '😅 彈藥用盡！返回原本闖關畫面...';
       setTimeout(() => {
@@ -2753,9 +2771,11 @@ function startMiniBubbleGame(box, modal) {
       clearInterval(miniBubbleTimer);
       modal.classList.remove('open');
       thiefStats.bonusMoney += prize;
+      recordLedgerDelta(prize);
       hero.coffeeAmmo += 2;
       updateCoffeeHUD();
       updateThiefHUD();
+      saveGameProgressToDevice();
       playSound('win');
       spawnParticles(hero.x, hero.y, ['#38bdf8', '#34d399', '#fde047'], 24, 7);
       spawnFloatText(hero.x, hero.y - 25, `🫧 全部捏爆！偷薪 +NT$${prize} & 咖啡+2杯！`, '#38bdf8');
@@ -2770,7 +2790,9 @@ function startMiniBubbleGame(box, modal) {
       clearInterval(miniBubbleTimer);
       modal.classList.remove('open');
       thiefStats.spentMoney += 15;
+      recordLedgerDelta(-15);
       updateThiefHUD();
+      saveGameProgressToDevice();
       playSound('hurt');
       spawnFloatText(hero.x, hero.y - 25, '⏰ 沒捏完！壓力反噬 -NT$15！', '#f43f5e');
     } else if (tEl) {
@@ -3073,6 +3095,7 @@ function triggerCoffeeAttack(btn) {
     spawnFloatText(hero.x, hero.y - 20, '☕ 潑出庫存冰美式！', '#fde047');
   } else if (curMoney >= 45) {
     thiefStats.spentMoney += 45;
+    recordLedgerDelta(-45);
     updateThiefHUD();
     spawnFloatText(hero.x, hero.y - 20, '☕ 超商現買潑咖啡 -NT$45！', '#fbbf24');
   } else {
@@ -3129,6 +3152,7 @@ function triggerDig(btn) {
     if (Math.abs((p.x + p.w / 2) - reachX) < 44 && Math.abs((p.y + p.h / 2) - reachY) < 45) {
       patrollers.splice(i, 1);
       thiefStats.bonusMoney += 20;
+      recordLedgerDelta(20);
       updateThiefHUD();
       playSound('chest');
       vibrate(30);
@@ -3270,7 +3294,6 @@ function update() {
   if (hero.swingAnim > 0) hero.swingAnim = Math.max(0, hero.swingAnim - 0.14);
   if (coffeeCooldown > 0) coffeeCooldown--;
 
-  // 第 2～4 關（levelIndex 1, 2, 3）：隨機觸發火球突然在前面滾過來，必需跳過去
   const lvNum = levelIndex + 1;
   if (lvNum >= 2 && lvNum <= 4) {
     fireballSpawnTimer--;
@@ -3293,7 +3316,6 @@ function update() {
     }
   }
 
-  // 第 3～5 關（levelIndex 2, 3, 4）：電腦會突然隨機在上方掉落需要閃避
   if (lvNum >= 3 && lvNum <= 5) {
     computerSpawnTimer--;
     if (computerSpawnTimer <= 0) {
@@ -3314,7 +3336,6 @@ function update() {
     }
   }
 
-  // 更新滾動火球
   for (let i = rollingFireballs.length - 1; i >= 0; i--) {
     const fb = rollingFireballs[i];
     fb.life--;
@@ -3356,7 +3377,6 @@ function update() {
     }
   }
 
-  // 更新上方掉落電腦
   for (let i = fallingComputers.length - 1; i >= 0; i--) {
     const comp = fallingComputers[i];
     comp.life--;
@@ -3430,6 +3450,7 @@ function update() {
           patrollers.splice(j, 1);
           const reward = 50 + levelIndex * 10;
           thiefStats.bonusMoney += reward;
+          recordLedgerDelta(reward);
           updateThiefHUD();
           spawnFloatText(p.x, p.y - 20, `☕ 消滅【${p.name}】+NT$${reward}！`, '#fde047');
         } else {
@@ -3582,6 +3603,7 @@ function update() {
         coffees.splice(k, 1);
         intercepted = true;
         thiefStats.bonusMoney += 10;
+        recordLedgerDelta(10);
         updateThiefHUD();
         playSound('build');
         vibrate(18);
@@ -3623,7 +3645,9 @@ function update() {
     gameOver = true;
     const clearBonus = 80 + levelIndex * 30;
     thiefStats.bonusMoney += clearBonus;
+    recordLedgerDelta(clearBonus);
     updateThiefHUD();
+    saveGameProgressToDevice();
     playSound('win');
     vibrate([50, 30, 80]);
     spawnParticles(exitSubway.x + exitSubway.w / 2, exitSubway.y + 40, ['#34d399', '#38bdf8', '#fde047'], 45, 9);
@@ -3748,7 +3772,6 @@ function render() {
     }
   }
 
-  // 終點捷運站下班閘門
   ctx.fillStyle = '#0f172a';
   drawRoundedRect(exitSubway.x, exitSubway.y, exitSubway.w, exitSubway.h, 12);
   ctx.fill();
@@ -3770,7 +3793,6 @@ function render() {
   ctx.font = 'bold 10.5px sans-serif';
   ctx.fillText('準時下班！', exitSubway.x + exitSubway.w / 2, exitSubway.y + 108);
 
-  // 巡邏主管
   for (const p of patrollers) {
     if (p.x + p.w < cameraX - 50 || p.x > cameraX + W + 50) continue;
 
@@ -3794,7 +3816,6 @@ function render() {
     ctx.fillText(p.hp > 1 ? `${p.name}(${p.hp}血)` : p.name, p.x + p.w / 2, p.y - 11);
   }
 
-  // 繪製第 2～4 關滾動火球
   for (const fb of rollingFireballs) {
     ctx.save();
     ctx.translate(fb.x, fb.y);
@@ -3815,7 +3836,6 @@ function render() {
     ctx.restore();
   }
 
-  // 繪製第 3～5 關上方掉落電腦
   for (const comp of fallingComputers) {
     if (comp.warnTimer > 0) {
       ctx.fillStyle = 'rgba(239, 68, 68, 0.85)';
@@ -3848,7 +3868,6 @@ function render() {
     ctx.fillText('☕', cf.x, cf.y);
   }
 
-  // 繪製組長/主管丟出的「報告飛彈」
   for (const br of bossReports) {
     ctx.fillStyle = '#991b1b';
     drawRoundedRect(br.x - 24, br.y - 12, 48, 24, 6);
@@ -4165,7 +4184,6 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) saveGameProgressToDevice();
 });
 
-// 初始化啟動（先顯示月薪輸入框，背景已載入 LV.1 關卡）
 updateSalaryPreview();
 resizeCanvas();
 loadLevel(0);
