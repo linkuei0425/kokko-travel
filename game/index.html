@@ -37,6 +37,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    touch-action: none;
   }
 
   /* ==================== 開場月薪換算時薪彈窗 ==================== */
@@ -261,6 +262,7 @@
     font-size: 10.5px;
     font-weight: 800;
     cursor: pointer;
+    touch-action: none;
   }
   .mini-btn.shop {
     background: linear-gradient(135deg, #f59e0b, #d97706);
@@ -315,11 +317,13 @@
     width: 100%;
     overflow: hidden;
     background: #0f172a;
+    touch-action: none;
   }
   canvas {
     display: block;
     width: 100%;
     height: 100%;
+    touch-action: none;
   }
 
 
@@ -378,14 +382,17 @@
     justify-content: space-between;
     align-items: center;
     gap: 6px;
+    touch-action: none;
   }
   .dpad-group {
     display: flex;
     gap: 8px;
+    touch-action: none;
   }
   .action-group {
     display: flex;
     gap: 6px;
+    touch-action: none;
   }
   .pad-btn {
     width: 52px;
@@ -402,6 +409,7 @@
     justify-content: center;
     cursor: pointer;
     box-shadow: 0 4px 0 #090d16;
+    touch-action: none;
   }
   .pad-btn:active, .pad-btn.pressed {
     transform: translateY(3px);
@@ -902,7 +910,7 @@
         <div class="thief-money-badge">💰 <span id="liveStealMoney">NT$ 90</span></div>
         <div class="coffee-pill">☕ <span id="coffeeAmmoText">10</span></div>
         <div class="mat-pill">🧱 <span id="matCountText">8</span></div>
-        <span class="life-pill" id="lifeHearts">❤️❤️❤️</span>
+        <span class="life-pill" id="lifeHearts">❤️❤️❤️❤️❤️ 100%</span>
       </div>
       <div class="hud-btns">
         <button class="mini-btn" onclick="reopenSalaryModal()">💵 月薪</button>
@@ -986,7 +994,7 @@
           </div>
           <div class="shop-item">
             <div class="shop-item-info">
-              <div class="t">🧋 手搖飲全糖黑糖珍奶（恢復 +2 ❤️）</div>
+              <div class="t">🧋 手搖飲全糖黑糖珍奶（恢復 +25% 血）</div>
               <div class="d">台灣手搖飲現況均價 $75，喝一口理智回血</div>
             </div>
             <button class="buy-btn" onclick="buyShopItem('heal2', 75)">NT$ 75</button>
@@ -1116,6 +1124,116 @@
   </div>
 
 <script>
+// ==================== 防止手機操作按鍵時畫面突然放大 ====================
+(function preventMobileZoomOnButtons() {
+  document.addEventListener('dblclick', (e) => {
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('gesturestart', (e) => {
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('gesturechange', (e) => {
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('gestureend', (e) => {
+    e.preventDefault();
+  }, { passive: false });
+
+  let lastTouchEndMs = 0;
+  document.addEventListener('touchend', (e) => {
+    const target = e.target;
+    if (target && target.closest && (target.closest('.gamepad-dock') || target.closest('.pad-btn') || target.closest('.top-hud'))) {
+      const now = Date.now();
+      if (now - lastTouchEndMs <= 320) {
+        e.preventDefault();
+      }
+      lastTouchEndMs = now;
+    }
+  }, { passive: false });
+})();
+
+// ==================== 每日 5 條命（00:00 重置）與每次被攻擊 -25% 血量系統 ====================
+const DAILY_LIVES_MAX = 5;
+const ATTACK_DAMAGE_PERCENT = 25;
+
+function getTodayDateKey(ts = Date.now()) {
+  const d = new Date(ts);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+let lifeDayKey = getTodayDateKey(Date.now());
+let dailyLivesLeft = DAILY_LIVES_MAX;
+
+function checkAndResetDailyLives(nowMs = Date.now()) {
+  const today = getTodayDateKey(nowMs);
+  if (lifeDayKey !== today) {
+    lifeDayKey = today;
+    dailyLivesLeft = DAILY_LIVES_MAX;
+    if (typeof hero !== 'undefined') {
+      hero.hp = 100;
+      hero.maxHp = 100;
+      if (typeof gameOver !== 'undefined' && gameOver && dailyLivesLeft > 0) {
+        gameOver = false;
+      }
+      updateHeartsHUD();
+      if (typeof spawnFloatText === 'function') {
+        spawnFloatText(hero.x, hero.y - 32, '🌅 00:00 每日 5 條命已重置！', '#34d399');
+      }
+    }
+    if (typeof saveGameProgressToDevice === 'function') {
+      saveGameProgressToDevice();
+    }
+  }
+}
+
+function applyDamagePercent(dmgPct = ATTACK_DAMAGE_PERCENT, reasonLabel = '受到攻擊') {
+  checkAndResetDailyLives(Date.now());
+  if (hero.invulnTimer > 0 || gameOver) return false;
+
+  hero.hp = Math.max(0, hero.hp - dmgPct);
+  hero.invulnTimer = 65;
+  hero.vy = -8;
+  if (typeof playSound === 'function') playSound('hurt');
+  if (typeof vibrate === 'function') vibrate(40);
+  updateHeartsHUD();
+
+  if (hero.hp <= 0) {
+    dailyLivesLeft = Math.max(0, dailyLivesLeft - 1);
+    updateHeartsHUD();
+    if (dailyLivesLeft > 0) {
+      hero.hp = 100;
+      updateHeartsHUD();
+      if (typeof spawnFloatText === 'function') {
+        spawnFloatText(hero.x, hero.y - 22, `💔 ${reasonLabel}（-25%血）消耗1命！剩 ${dailyLivesLeft} 條命`, '#f43f5e');
+      }
+    } else {
+      gameOver = true;
+      if (typeof spawnFloatText === 'function') {
+        spawnFloatText(hero.x, hero.y - 22, '😵 今日 5 條命已用完！00:00 重置', '#f43f5e');
+      }
+      setTimeout(() => openStealModal(false, true), 550);
+    }
+    if (typeof saveGameProgressToDevice === 'function') {
+      saveGameProgressToDevice();
+    }
+    return true;
+  } else {
+    if (typeof spawnFloatText === 'function') {
+      spawnFloatText(hero.x, hero.y - 18, `💥 ${reasonLabel} -${dmgPct}% 血（剩 ${hero.hp}%）！`, '#f43f5e');
+    }
+    if (typeof saveGameProgressToDevice === 'function') {
+      saveGameProgressToDevice();
+    }
+    return false;
+  }
+}
+
 // ==================== 無版權可商用 200 題猜謎題庫與外部數據庫載入支援 ====================
 const EXTERNAL_TRIVIA_DB_URL = './trivia_200.json';
 
@@ -1342,7 +1460,7 @@ function renderLevelQuizStep(feedbackData = null) {
 
   box.innerHTML = `
     <h2 style="color:#38bdf8;">🧠 LV.${lvNum} 過關猜謎（題庫共 ${triviaQuestionBank.length} 題隨機抽）</h2>
-    <div class="chest-badge">答對 1 題 +1 杯咖啡 ☕ ｜ 答對 3 題額外加 1 條命 ❤️</div>
+    <div class="chest-badge">答對 1 題 +1 杯咖啡 ☕ ｜ 答對 3 題額外加 1 條命（上限 5 條）</div>
     <div class="quiz-progress-row">
       <span>第 ${currentIdx + 1} / ${questions.length} 題（${qItem.category}）</span>
       <span style="color:#fde047;">目前已答對：${correctCount} 題</span>
@@ -1387,10 +1505,10 @@ function advanceLevelQuizStep() {
     const totalCorrect = levelQuizSession.correctCount;
     let bonusLifeMsg = '';
     if (totalCorrect >= 3) {
-      hero.maxHp += 1;
-      hero.hp += 1;
+      checkAndResetDailyLives(Date.now());
+      dailyLivesLeft = Math.min(DAILY_LIVES_MAX, dailyLivesLeft + 1);
       updateHeartsHUD();
-      bonusLifeMsg = ' 🎉 恭喜 3 題全對，額外加 1 條命 ❤️！';
+      bonusLifeMsg = ` 🎉 恭喜 3 題全對，額外加 1 條命（今日剩 ${dailyLivesLeft}/${DAILY_LIVES_MAX} 條）！`;
       spawnFloatText(hero.x, hero.y - 36, '❤️ 3 題全對！額外加 1 條命！', '#34d399');
     }
     levelQuizSession = null;
@@ -1692,8 +1810,8 @@ function buyShopItem(itemType, cost) {
     hero.materials += 5;
     spawnFloatText(hero.x, hero.y - 25, '🧱 購入加厚紙箱 +5 塊 ($99)', '#38bdf8');
   } else if (itemType === 'heal2') {
-    hero.hp = Math.min(hero.maxHp, hero.hp + 2);
-    spawnFloatText(hero.x, hero.y - 25, '🧋 喝手搖珍奶回血 +2 ❤️ ($75)', '#34d399');
+    hero.hp = Math.min(hero.maxHp, hero.hp + 25);
+    spawnFloatText(hero.x, hero.y - 25, '🧋 喝手搖珍奶回血 +25% ($75)', '#34d399');
   }
 
   updateCoffeeHUD();
@@ -1714,8 +1832,12 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
     document.getElementById('nextLevelPreviewBadge').textContent = extraClearNote ? `${baseNextText} ｜ ${extraClearNote}` : baseNextText;
     document.getElementById('nextLevelPreviewBadge').style.display = 'inline-block';
   } else if (isDead) {
-    document.getElementById('modalTitle').textContent = `😵‍💫 LV.${currentLvNum} 挑戰失敗，被抓去開會！`;
-    document.getElementById('nextLevelPreviewBadge').textContent = '記得在🏪商店補充咖啡與珍奶再挑戰！';
+    document.getElementById('modalTitle').textContent = dailyLivesLeft > 0
+      ? `😵‍💫 LV.${currentLvNum} 挑戰失敗，被抓去開會！`
+      : `🚫 今日 5 條命已用完（00:00 自動重置）！`;
+    document.getElementById('nextLevelPreviewBadge').textContent = dailyLivesLeft > 0
+      ? `今日剩餘 ${dailyLivesLeft} / ${DAILY_LIVES_MAX} 條命，記得在🏪商店補充咖啡與珍奶再挑戰！`
+      : '每日 5 條命將於每天 00:00 自動重置，明天再戰！';
     document.getElementById('nextLevelPreviewBadge').style.display = 'inline-block';
   } else {
     document.getElementById('modalTitle').textContent = '💰 今日薪水小偷價值結算';
@@ -1741,8 +1863,10 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
     btn.textContent = `進入 LV.${currentLvNum + 1} 更高難度關卡 ➔`;
     btn.dataset.action = 'nextLevel';
   } else if (isDead) {
-    btn.textContent = `🔄 重新挑戰 LV.${currentLvNum}！`;
-    btn.dataset.action = 'retryLevel';
+    btn.textContent = dailyLivesLeft > 0
+      ? `🔄 重新挑戰 LV.${currentLvNum}（剩 ${dailyLivesLeft} 條命）！`
+      : '🕒 今日命數已用完（00:00 重置），關閉視窗';
+    btn.dataset.action = dailyLivesLeft > 0 ? 'retryLevel' : 'closeOnly';
   } else {
     btn.textContent = '繼續挖寶蓋房逃班！➔';
     btn.dataset.action = 'closeOnly';
@@ -1757,12 +1881,13 @@ function handleModalContinue() {
   if (act === 'nextLevel') {
     loadLevel(levelIndex + 1);
   } else if (act === 'retryLevel') {
-    // 失敗重試時保留當前生命值下限 1，避免卡在 0 血無限重開
-    if (hero.hp <= 0) hero.hp = 1;
-    loadLevel(levelIndex);
+    checkAndResetDailyLives(Date.now());
+    if (dailyLivesLeft > 0) {
+      hero.hp = 100;
+      loadLevel(levelIndex);
+    }
   } else {
-    // 繼續當前關卡（不重置關卡進度）
-    gameOver = false;
+    if (dailyLivesLeft > 0) gameOver = false;
   }
 }
 
@@ -1774,8 +1899,8 @@ const DIVERSE_PSY_TESTS = [
     options: [
       {
         text: 'A. 擺滿免費下午茶與按摩椅的秘密休息室',
-        result: '【享樂療癒型人格】你懂得在壓力中尋找小確幸！獎勵：偷薪獎金 +NT$45 ＆ 愛心 +1 ❤️',
-        money: 45, mat: 2, heal: 1, penalty: 0
+        result: '【享樂療癒型人格】你懂得在壓力中尋找小確幸！獎勵：偷薪獎金 +NT$45 ＆ 血量 +25%',
+        money: 45, mat: 2, heal: 25, penalty: 0
       },
       {
         text: 'B. 通往公司頂樓停機坪的秘密逃生通道',
@@ -1795,8 +1920,8 @@ const DIVERSE_PSY_TESTS = [
     options: [
       {
         text: 'A. 療癒森林綠（讓眼睛與大腦徹底放空）',
-        result: '【自然平衡型人格】你需要遠離螢幕與喧囂來充電！獎勵：愛心 +1 ❤️ ＆ 偷薪 +NT$40',
-        money: 40, mat: 3, heal: 1, penalty: 0
+        result: '【自然平衡型人格】你需要遠離螢幕與喧囂來充電！獎勵：血量 +25% ＆ 偷薪 +NT$40',
+        money: 40, mat: 3, heal: 25, penalty: 0
       },
       {
         text: 'B. 熱血火焰紅（把所有不爽通通燃燒殆盡）',
@@ -1816,8 +1941,8 @@ const DIVERSE_PSY_TESTS = [
     options: [
       {
         text: 'A. 秒回「在！請問主管有什麼急事嗎？」（自投羅網）',
-        result: '💥 踩雷扣分！你太老實被抓去免費加班了！偷薪 -NT$30 ＆ 扣 1 ❤️',
-        penalty: 30, loseHp: 1
+        result: '💥 踩雷扣分！你太老實被抓去免費加班了！偷薪 -NT$30 ＆ 扣 25% 血',
+        penalty: 30, loseHpPct: 25
       },
       {
         text: 'B. 假裝進地下室沒訊號，18:05 打卡下班後再禮貌回覆',
@@ -1837,8 +1962,8 @@ const DIVERSE_PSY_TESTS = [
     options: [
       {
         text: 'A. 情緒穩定的「水豚君」（天塌下來先泡澡再說）',
-        result: '【佛系抗壓型人格】你擁有強大的心理結界，不被主管情緒勒索！獎勵：愛心 +1 ❤️ ＆ 偷薪 +NT$45',
-        money: 45, mat: 2, heal: 1, penalty: 0
+        result: '【佛系抗壓型人格】你擁有強大的心理結界，不被主管情緒勒索！獎勵：血量 +25% ＆ 偷薪 +NT$45',
+        money: 45, mat: 2, heal: 25, penalty: 0
       },
       {
         text: 'B. 戰力爆表的「平頭哥蜜獾」（誰惹我我就跟誰拚了）',
@@ -1913,7 +2038,13 @@ function resolveChestPsyTest(testIdx, optIdx) {
     const scaledPenalty = chosen.penalty + levelIndex * 10;
     thiefStats.spentMoney += scaledPenalty;
     recordLedgerDelta(-scaledPenalty);
-    if (chosen.loseHp) hero.hp = Math.max(0, hero.hp - chosen.loseHp);
+    if (chosen.loseHpPct) {
+      hero.hp = Math.max(0, hero.hp - chosen.loseHpPct);
+      if (hero.hp <= 0) {
+        dailyLivesLeft = Math.max(0, dailyLivesLeft - 1);
+        if (dailyLivesLeft > 0) hero.hp = 100;
+      }
+    }
     updateHeartsHUD();
     updateThiefHUD();
     playSound('hurt');
@@ -1955,7 +2086,7 @@ function closeChestModalAndReturn() {
   if (miniSlingRaf) cancelAnimationFrame(miniSlingRaf);
   clearInterval(miniBubbleTimer);
   document.getElementById('chestEventModal').classList.remove('open');
-  if (hero.hp <= 0) {
+  if (dailyLivesLeft <= 0) {
     gameOver = true;
     setTimeout(() => openStealModal(false, true), 400);
   }
@@ -2869,8 +3000,8 @@ const hero = {
   facing: 1,
   onGround: false,
   jumpsLeft: 2,
-  hp: 3,
-  maxHp: 3,
+  hp: 100,
+  maxHp: 100,
   coffeeAmmo: 10,
   materials: 8,
   invulnTimer: 0,
@@ -2999,6 +3130,7 @@ function resizeCanvas() {
 }
 
 function loadLevel(idx) {
+  checkAndResetDailyLives(Date.now());
   levelIndex = Math.max(0, idx);
   const theme = LEVEL_THEMES[levelIndex % LEVEL_THEMES.length];
   document.getElementById('levelBadge').textContent = `LV.${levelIndex + 1} ${theme.rankTitle}`;
@@ -3011,13 +3143,15 @@ function loadLevel(idx) {
   hero.facing = 1;
   hero.onGround = false;
   hero.jumpsLeft = 2;
+  hero.maxHp = 100;
+  if (hero.hp <= 0) hero.hp = 100;
   hero.coffeeAmmo = Math.max(hero.coffeeAmmo, 10);
   hero.materials = Math.max(hero.materials, 8);
   hero.invulnTimer = 0;
   hero.swingAnim = 0;
 
   cameraX = 0;
-  gameOver = false;
+  gameOver = dailyLivesLeft <= 0;
   coffees = [];
   bossReports = [];
   rollingFireballs = [];
@@ -3037,9 +3171,10 @@ function loadLevel(idx) {
 }
 
 function updateHeartsHUD() {
-  const full = Math.max(0, hero.hp);
-  const empty = Math.max(0, hero.maxHp - full);
-  document.getElementById('lifeHearts').textContent = '❤️'.repeat(full) + '🖤'.repeat(empty);
+  const full = Math.max(0, Math.min(DAILY_LIVES_MAX, dailyLivesLeft));
+  const empty = Math.max(0, DAILY_LIVES_MAX - full);
+  const pct = Math.max(0, Math.min(100, Math.round((hero.hp / Math.max(1, hero.maxHp)) * 100)));
+  document.getElementById('lifeHearts').textContent = `${'❤️'.repeat(full)}${'🖤'.repeat(empty)} ${pct}%`;
 }
 
 function updateMatHUD() {
@@ -3278,6 +3413,7 @@ function rectIntersect(a, b) {
 const GRAVITY = 0.54;
 
 function update() {
+  checkAndResetDailyLives(Date.now());
   updateThiefHUD();
   updateStealLedgerTick();
   updateCoffeeAutoRegen();
@@ -3360,20 +3496,9 @@ function update() {
 
     const fbBox = { x: fb.x - fb.r * 0.78, y: fb.y - fb.r * 0.78, w: fb.r * 1.56, h: fb.r * 1.56 };
     if (rectIntersect(hero, fbBox) && hero.invulnTimer === 0) {
-      hero.hp--;
-      hero.invulnTimer = 65;
-      hero.vy = -8.5;
-      playSound('hurt');
-      vibrate(40);
-      updateHeartsHUD();
       spawnParticles(fb.x, fb.y, ['#fb923c', '#ef4444', '#fde047'], 16, 6);
-      spawnFloatText(hero.x, hero.y - 18, '🔥 沒跳過火球被燙到 -1 ❤️！', '#fb923c');
       rollingFireballs.splice(i, 1);
-      if (hero.hp <= 0) {
-        gameOver = true;
-        setTimeout(() => openStealModal(false, true), 550);
-        return;
-      }
+      if (applyDamagePercent(ATTACK_DAMAGE_PERCENT, '被火球燙到')) return;
     }
   }
 
@@ -3404,20 +3529,9 @@ function update() {
 
     const compBox = { x: comp.x - comp.w * 0.42, y: comp.y - comp.h * 0.42, w: comp.w * 0.84, h: comp.h * 0.84 };
     if (rectIntersect(hero, compBox) && hero.invulnTimer === 0) {
-      hero.hp--;
-      hero.invulnTimer = 65;
-      hero.vy = -8;
-      playSound('hurt');
-      vibrate(40);
-      updateHeartsHUD();
       spawnParticles(comp.x, comp.y, ['#38bdf8', '#f43f5e', '#ffffff'], 16, 6);
-      spawnFloatText(hero.x, hero.y - 18, '💻 被掉落電腦砸中 -1 ❤️！快閃避！', '#f43f5e');
       fallingComputers.splice(i, 1);
-      if (hero.hp <= 0) {
-        gameOver = true;
-        setTimeout(() => openStealModal(false, true), 550);
-        return;
-      }
+      if (applyDamagePercent(ATTACK_DAMAGE_PERCENT, '被掉落電腦砸中')) return;
     }
   }
 
@@ -3517,21 +3631,34 @@ function update() {
   blocks = blocks.filter(b => !b.broken);
 
   if (hero.y > H + 20) {
-    hero.hp--;
-    updateHeartsHUD();
+    hero.hp = Math.max(0, hero.hp - ATTACK_DAMAGE_PERCENT);
     playSound('hurt');
     vibrate(45);
     if (hero.hp <= 0) {
-      gameOver = true;
-      setTimeout(() => openStealModal(false, true), 400);
-      return;
+      dailyLivesLeft = Math.max(0, dailyLivesLeft - 1);
+      if (dailyLivesLeft > 0) {
+        hero.hp = 100;
+        hero.x = Math.max(40, hero.x - 120);
+        hero.y = 60;
+        hero.vy = 0;
+        hero.invulnTimer = 60;
+        updateHeartsHUD();
+        spawnFloatText(hero.x, hero.y, `⚠️ 掉進加班深淵 -25%血扣1命（剩 ${dailyLivesLeft} 命）！`, '#f43f5e');
+      } else {
+        updateHeartsHUD();
+        gameOver = true;
+        setTimeout(() => openStealModal(false, true), 400);
+        return;
+      }
     } else {
       hero.x = Math.max(40, hero.x - 120);
       hero.y = 60;
       hero.vy = 0;
       hero.invulnTimer = 60;
-      spawnFloatText(hero.x, hero.y, '⚠️ 掉進加班深淵 -1 ❤️！', '#f43f5e');
+      updateHeartsHUD();
+      spawnFloatText(hero.x, hero.y, `⚠️ 掉進加班深淵 -25% 血（剩 ${hero.hp}%）！`, '#f43f5e');
     }
+    saveGameProgressToDevice();
   }
 
   const targetCam = hero.x - W * 0.28;
@@ -3573,18 +3700,7 @@ function update() {
     }
 
     if (rectIntersect(hero, p) && hero.invulnTimer === 0) {
-      hero.hp--;
-      hero.invulnTimer = 65;
-      hero.vy = -8.5;
-      playSound('hurt');
-      vibrate(40);
-      updateHeartsHUD();
-      spawnFloatText(hero.x, hero.y - 18, `😵 被【${p.name}】抓到 -1 ❤️！`, '#f43f5e');
-      if (hero.hp <= 0) {
-        gameOver = true;
-        setTimeout(() => openStealModal(false, true), 550);
-        return;
-      }
+      if (applyDamagePercent(ATTACK_DAMAGE_PERCENT, `被【${p.name}】攻擊`)) return;
     }
   }
 
@@ -3620,18 +3736,7 @@ function update() {
     if (rectIntersect(hero, { x: br.x - 14, y: br.y - 14, w: 28, h: 28 })) {
       bossReports.splice(i, 1);
       if (hero.invulnTimer === 0) {
-        hero.hp--;
-        hero.invulnTimer = 65;
-        hero.vy = -8;
-        playSound('hurt');
-        vibrate(40);
-        updateHeartsHUD();
-        spawnFloatText(hero.x, hero.y - 18, `📄 被【${br.fromName}】的${br.label}砸中 -1 ❤️！`, '#f43f5e');
-        if (hero.hp <= 0) {
-          gameOver = true;
-          setTimeout(() => openStealModal(false, true), 550);
-          return;
-        }
+        if (applyDamagePercent(ATTACK_DAMAGE_PERCENT, `被【${br.fromName}】${br.label}砸中`)) return;
       }
       continue;
     }
@@ -4048,6 +4153,8 @@ function saveGameProgressToDevice() {
     const payload = {
       v: 1,
       savedAt: Date.now(),
+      lifeDayKey: lifeDayKey,
+      dailyLivesLeft: dailyLivesLeft,
       userMonthlySalary: userMonthlySalary,
       userHourlyRate: userHourlyRate,
       levelIndex: typeof levelIndex === 'number' ? levelIndex : 0,
@@ -4088,6 +4195,15 @@ function loadGameProgressFromDevice() {
     if (!raw) return false;
     const data = JSON.parse(raw);
     if (!data || typeof data !== 'object') return false;
+
+    const today = getTodayDateKey(Date.now());
+    if (typeof data.lifeDayKey === 'string' && data.lifeDayKey === today && typeof data.dailyLivesLeft === 'number') {
+      lifeDayKey = data.lifeDayKey;
+      dailyLivesLeft = Math.max(0, Math.min(DAILY_LIVES_MAX, data.dailyLivesLeft));
+    } else {
+      lifeDayKey = today;
+      dailyLivesLeft = DAILY_LIVES_MAX;
+    }
 
     if (typeof data.userMonthlySalary === 'number' && data.userMonthlySalary >= 10000) {
       userMonthlySalary = data.userMonthlySalary;
@@ -4151,8 +4267,12 @@ function loadGameProgressFromDevice() {
     }
 
     if (data.hero && typeof data.hero === 'object') {
-      if (typeof data.hero.maxHp === 'number') hero.maxHp = data.hero.maxHp;
-      if (typeof data.hero.hp === 'number') hero.hp = Math.max(1, Math.min(hero.maxHp, data.hero.hp));
+      hero.maxHp = 100;
+      if (typeof data.hero.hp === 'number' && data.lifeDayKey === today) {
+        hero.hp = Math.max(1, Math.min(100, data.hero.hp));
+      } else {
+        hero.hp = 100;
+      }
       if (typeof data.hero.coffeeAmmo === 'number') hero.coffeeAmmo = Math.max(0, data.hero.coffeeAmmo);
       if (typeof data.hero.materials === 'number') hero.materials = Math.max(0, data.hero.materials);
       updateHeartsHUD();
