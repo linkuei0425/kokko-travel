@@ -954,11 +954,66 @@ function reopenSalaryModal() {
   }
 }
 
+
+// ==================== 背景音樂播放系統（1.mp3 與 2.mp3 同層自動輪播） ====================
+const BGM_TRACKS = ['./1.mp3', './2.mp3'];
+let bgmAudio = null;
+let bgmTrackIdx = 0;
+let bgmWanted = true;
+let isStartingBgm = false;
+
+function initBgm() {
+  if (!bgmAudio) {
+    bgmAudio = new Audio(BGM_TRACKS[bgmTrackIdx]);
+    bgmAudio.loop = false;
+    bgmAudio.volume = 0.35;
+    bgmAudio.addEventListener('ended', () => {
+      bgmTrackIdx = (bgmTrackIdx + 1) % BGM_TRACKS.length;
+      bgmAudio.src = BGM_TRACKS[bgmTrackIdx];
+      if (bgmWanted && (typeof soundEnabled === 'undefined' || soundEnabled)) {
+        bgmAudio.play().catch(() => {});
+      }
+    });
+    bgmAudio.addEventListener('error', () => {
+      bgmTrackIdx = (bgmTrackIdx + 1) % BGM_TRACKS.length;
+      const nextUrl = BGM_TRACKS[bgmTrackIdx];
+      if (bgmAudio.getAttribute('data-tried') !== nextUrl) {
+        bgmAudio.setAttribute('data-tried', nextUrl);
+        bgmAudio.src = nextUrl;
+        if (bgmWanted && (typeof soundEnabled === 'undefined' || soundEnabled)) {
+          bgmAudio.play().catch(() => {});
+        }
+      }
+    });
+  }
+}
+
+function startBgmIfAllowed() {
+  if (isStartingBgm) return;
+  if (!bgmWanted || (typeof soundEnabled !== 'undefined' && !soundEnabled)) return;
+  isStartingBgm = true;
+  try {
+    initBgm();
+    if (bgmAudio && bgmAudio.paused) {
+      bgmAudio.play().catch(() => {});
+    }
+  } finally {
+    setTimeout(() => { isStartingBgm = false; }, 150);
+  }
+}
+
+function stopBgm() {
+  if (bgmAudio && !bgmAudio.paused) {
+    bgmAudio.pause();
+  }
+}
+
 // ==================== 音效引擎 ====================
 let audioCtx = null;
 let soundEnabled = true;
 
 function initAudio() {
+  startBgmIfAllowed();
   if (!audioCtx) {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (AudioContext) audioCtx = new AudioContext();
@@ -2437,6 +2492,38 @@ function updateCoffeeHUD() {
   document.getElementById('coffeeAmmoText').textContent = hero.coffeeAmmo;
 }
 
+
+// ==================== 咖啡自動補充系統（不足10杯時，每1小時加1杯至10杯） ====================
+const COFFEE_MAX_CAP = 10;
+const COFFEE_REGEN_INTERVAL_MS = 3600 * 1000; // 1 小時 = 3600 秒
+let coffeeRegenAccumMs = 0;
+let lastCoffeeRegenTick = Date.now();
+
+function updateCoffeeAutoRegen() {
+  const now = Date.now();
+  const dt = Math.min(250, now - lastCoffeeRegenTick);
+  lastCoffeeRegenTick = now;
+
+  const isSalaryOpen = !document.getElementById('salaryOverlay').classList.contains('hidden');
+  const isShopOpen = document.getElementById('shopModal').classList.contains('open');
+  const isModalOpen = document.getElementById('resultModal').classList.contains('open');
+  const isChestOpen = document.getElementById('chestEventModal').classList.contains('open');
+  if (isSalaryOpen || isShopOpen || isModalOpen || isChestOpen || gameOver) return;
+
+  if (hero.coffeeAmmo < COFFEE_MAX_CAP) {
+    coffeeRegenAccumMs += dt;
+    while (coffeeRegenAccumMs >= COFFEE_REGEN_INTERVAL_MS && hero.coffeeAmmo < COFFEE_MAX_CAP) {
+      coffeeRegenAccumMs -= COFFEE_REGEN_INTERVAL_MS;
+      hero.coffeeAmmo = Math.min(COFFEE_MAX_CAP, hero.coffeeAmmo + 1);
+      updateCoffeeHUD();
+      spawnFloatText(hero.x, hero.y - 28, '☕ 滿 1 小時自動補 1 杯咖啡！', '#fde047');
+    }
+  } else {
+    // 已達 10 杯上限時歸零累積計時
+    coffeeRegenAccumMs = 0;
+  }
+}
+
 let coffeeCooldown = 0;
 function triggerCoffeeAttack(btn) {
   initAudio();
@@ -2632,6 +2719,7 @@ const GRAVITY = 0.54;
 
 function update() {
   updateThiefHUD();
+  updateCoffeeAutoRegen();
   const isSalaryOpen = !document.getElementById('salaryOverlay').classList.contains('hidden');
   const isModalOpen = document.getElementById('resultModal').classList.contains('open') ||
                       document.getElementById('chestEventModal').classList.contains('open') ||
