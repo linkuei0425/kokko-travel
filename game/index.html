@@ -19,7 +19,7 @@
 <link rel="image_src" href="./work.jpg">
 <title>社畜大逃生</title>
 <style>
-  * {
+- {
     box-sizing: border-box;
     user-select: none;
     -webkit-user-select: none;
@@ -323,37 +323,48 @@
   }
 
 
-  /* ==================== 背景音樂與音效雙滑桿控制列 ==================== */
-  .audio-sliders-bar {
-    background: #0f172a;
-    border-top: 1px solid #1e293b;
-    padding: 4px 10px;
+
+  /* ==================== 右上角設定彈窗（音樂 / 音效 / 月薪設定） ==================== */
+  .settings-panel-box {
+    background: #0b1120;
+    border: 1.5px solid #334155;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin: 10px 0 12px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
     gap: 10px;
-    font-size: 10.5px;
-    font-weight: 800;
-    color: #cbd5e1;
-    flex-shrink: 0;
+    text-align: left;
   }
-  .slider-group {
-    flex: 1;
+  .settings-row-item {
     display: flex;
-    align-items: center;
-    gap: 5px;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #e2e8f0;
   }
-  .slider-group input[type="range"] {
-    flex: 1;
-    height: 4px;
+  .settings-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .settings-row-item input[type="range"] {
+    width: 100%;
+    height: 6px;
     accent-color: #34d399;
     cursor: pointer;
   }
-  .slider-val {
-    min-width: 28px;
-    text-align: right;
-    color: #fde047;
-    font-variant-numeric: tabular-nums;
+  .settings-salary-btn {
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 10px;
+    border: 1.5px solid #38bdf8;
+    background: rgba(56, 189, 248, 0.14);
+    color: #bae6fd;
+    font-size: 12.5px;
+    font-weight: 900;
+    cursor: pointer;
   }
 
   /* ==================== 手機拇指黃金比例虛擬手把 ==================== */
@@ -813,6 +824,39 @@
     font-weight: 900;
     cursor: pointer;
   }
+
+  /* ==================== 過關 3 題猜謎彈窗樣式 ==================== */
+  .quiz-progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0b1120;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #bae6fd;
+  }
+  .quiz-answer-box {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1.5px solid #38bdf8;
+    border-radius: 12px;
+    padding: 11px;
+    margin-bottom: 10px;
+    text-align: left;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .quiz-answer-box.wrong {
+    border-color: #f43f5e;
+    background: rgba(69, 10, 10, 0.45);
+  }
+  .quiz-answer-box.correct {
+    border-color: #34d399;
+    background: rgba(6, 78, 59, 0.45);
+  }
 </style>
 </head>
 <body>
@@ -862,6 +906,7 @@
       </div>
       <div class="hud-btns">
         <button class="mini-btn" onclick="reopenSalaryModal()">💵 月薪</button>
+        <button class="mini-btn" onclick="openGameSettingsModal()">⚙️ 設定</button>
         <button class="mini-btn shop" onclick="openShopModal()">🏪 商店</button>
         <button class="mini-btn gold" onclick="openStealModal(false, false)">🏁 結算</button>
       </div>
@@ -877,6 +922,40 @@
   <!-- ==================== 手機滿版橫向挖掘＋蓋房主畫布 ==================== -->
   <div class="canvas-wrap" id="canvasWrap">
     <canvas id="gameCanvas"></canvas>
+
+    <!-- 右上角設定彈窗（音樂 / 音效 / 月薪設定） -->
+    <div class="modal-mask" id="settingsModal">
+      <div class="modal-card" style="border-color:#38bdf8;">
+        <h2 style="color:#38bdf8;">⚙️ 遊戲設定</h2>
+        <div class="chest-badge">調整音樂、音效與月薪換算</div>
+        <div class="settings-panel-box">
+          <div class="settings-row-item">
+            <div class="settings-row-top">
+              <span>🎵 音樂音量</span>
+              <span id="bgmVolText" style="color:#fde047;">12%</span>
+            </div>
+            <input type="range" id="bgmVolSlider" min="0" max="100" value="12" oninput="setBgmVolumePercent(this.value)">
+          </div>
+
+          <div class="settings-row-item">
+            <div class="settings-row-top">
+              <span>🔔 音效音量</span>
+              <span id="sfxVolText" style="color:#fde047;">60%</span>
+            </div>
+            <input type="range" id="sfxVolSlider" min="0" max="100" value="60" oninput="setSfxVolumePercent(this.value)">
+          </div>
+
+          <div class="settings-row-item">
+            <div class="settings-row-top">
+              <span>💵 月薪設定</span>
+              <span id="settingsSalarySummary" style="color:#34d399;">NT$ 72,000（時薪 $300）</span>
+            </div>
+            <button type="button" class="settings-salary-btn" onclick="openSalaryFromSettings()">修改月薪與時薪換算 ➔</button>
+          </div>
+        </div>
+        <button class="modal-btn" onclick="closeGameSettingsModal()">完成設定，返回遊戲 ➔</button>
+      </div>
+    </div>
 
     <!-- 辦公室茶水間商店彈窗 -->
     <div class="modal-mask" id="shopModal">
@@ -920,6 +999,11 @@
     <!-- 寶箱奇遇彈窗（憤怒鳥彈弓打老闆 / 多元心理測驗 / 捏泡泡） -->
     <div class="modal-mask" id="chestEventModal">
       <div class="modal-card" id="chestEventContent"></div>
+    </div>
+
+    <!-- 過關 3 題猜謎彈窗（無版權可商用 200 題隨機抽題） -->
+    <div class="modal-mask" id="levelQuizModal">
+      <div class="modal-card" id="levelQuizContent" style="border-color:#38bdf8;"></div>
     </div>
 
     <!-- 過關 / 薪水小偷結算彈窗 -->
@@ -978,20 +1062,6 @@
     </div>
   </div>
 
-  <!-- ==================== 音樂音量與音效音量滑桿 ==================== -->
-  <div class="audio-sliders-bar">
-    <div class="slider-group">
-      <span>🎵 音樂</span>
-      <input type="range" id="bgmVolSlider" min="0" max="100" value="12" oninput="setBgmVolumePercent(this.value)">
-      <span class="slider-val" id="bgmVolText">12%</span>
-    </div>
-    <div class="slider-group">
-      <span>🔔 音效</span>
-      <input type="range" id="sfxVolSlider" min="0" max="100" value="60" oninput="setSfxVolumePercent(this.value)">
-      <span class="slider-val" id="sfxVolText">60%</span>
-    </div>
-  </div>
-
   <!-- ==================== 手機大按鈕虛擬控制器 ==================== -->
   <div class="gamepad-dock">
     <div class="dpad-group">
@@ -1046,6 +1116,291 @@
   </div>
 
 <script>
+// ==================== 無版權可商用 200 題猜謎題庫與外部數據庫載入支援 ====================
+// 可選：若部署在同源或外部 JSON 數據庫，可在同層放 ./trivia_200.json（格式為 [{ "q": "...", "options": ["..."], "ans": 0, "explain": "..." }]）
+const EXTERNAL_TRIVIA_DB_URL = './trivia_200.json';
+
+const TRIVIA_TOPICS = [
+  { name: '職場效率', unit: '分鐘', base: 15, step: 5, emoji: '💼', tip: '合理拆解任務與設定番茄鐘，能降低切換成本並提升專注度。' },
+  { name: '時間管理', unit: '小時', base: 2, step: 1, emoji: '⏰', tip: '優先處理高影響力事項（重要不緊急），避免整天被瑣事追著跑。' },
+  { name: '財務常識', unit: '元', base: 500, step: 250, emoji: '💰', tip: '先儲蓄再消費、留意複利與緊急預備金，是穩健理財的基礎。' },
+  { name: '生活科學', unit: '度', base: 20, step: 2, emoji: '🔬', tip: '水的沸點在標準大氣壓下為 100°C，而日常溫差與熱傳導影響體感溫度。' },
+  { name: '數位技能', unit: 'MB', base: 50, step: 25, emoji: '💻', tip: '善用快捷鍵、雲端備份與清楚命名檔案，能大幅減少重複作業。' },
+  { name: '溝通協作', unit: '點', base: 10, step: 5, emoji: '🤝', tip: '把結論與待辦事項寫在前面，能讓跨部門溝通更精準省時。' },
+  { name: '健康作息', unit: '杯', base: 6, step: 1, emoji: '🌿', tip: '定時起身伸展、適度補充水分與維持規律睡眠，有助維持白天精神。' },
+  { name: '邏輯推理', unit: '步', base: 3, step: 1, emoji: '🧩', tip: '先確認已知條件與限制，再用排除法驗證選項，最不容易出錯。' }
+];
+
+const CURATED_TRIVIA_ITEMS = [
+  { q: '在職場專案中，想要避免「做到一半才發現方向錯了」，最有效的做法是什麼？', options: ['先做草稿或規格對齊再展開', '埋頭苦幹直到期限前一天', '全部交給別人決定', '不寫任何紀錄'], ans: 0, explain: '提前對齊目標與規格可大幅減少返工成本。' },
+  { q: '撰寫工作報告或訊息時，哪種結構最容易讓主管快速抓到重點？', options: ['先講結論與行動建議，再補細節', '從頭到尾流水帳講過程', '只放長篇截圖不寫文字', '全部用縮寫不解釋'], ans: 0, explain: '「結論先行（PREP/金字塔原則）」能讓閱讀者在最短時間掌握重點。' },
+  { q: '電腦檔案很多時，下列哪種命名方式最利於排序與搜尋？', options: ['2026-11-21_專案名稱_v02', '最終版', '打死不改版_真的最後', '新增資料夾(3)'], ans: 0, explain: '「日期_主題_版本」可依時間與名稱自然排序，方便查找。' },
+  { q: '下列哪一項屬於「重要但不緊急」的任務？', options: ['建立自動化工具與技能進修', '突發系統當機搶修', '十分鐘後要交的急件', '剛剛響起的電話'], ans: 0, explain: '投資能力與流程優化通常不火燒眉毛，卻決定長期成長。' },
+  { q: '水在標準大氣壓（1 atm）下的沸點大約是多少攝氏度？', options: ['100°C', '80°C', '120°C', '0°C'], ans: 0, explain: '在標準大氣壓下，純水沸點約為 100°C（212°F）。' },
+  { q: '以下哪一種做法有助於減少長時間看螢幕的眼睛疲勞？', options: ['每 20～30 分鐘看遠處休息一下', '把螢幕亮度調到最刺眼', '關燈在全黑房間盯螢幕', '連續盯著看 4 小時不眨眼'], ans: 0, explain: '適度望遠與眨眼能讓睫狀肌放鬆並維持淚膜濕潤。' },
+  { q: '試算表（如 Excel / Google Sheets）中，若要計算某範圍數值的總和，常用哪個函式？', options: ['SUM', 'IF', 'COUNTIF', 'LEFT'], ans: 0, explain: 'SUM 用於計算數值總和；IF 用於條件判斷。' },
+  { q: '團隊交接工作時，最重要的資訊通常包含哪一項？', options: ['目前進度、卡關點與下一步', '只丟帳號密碼', '只說「加油」', '隱藏所有問題'], ans: 0, explain: '清楚交代現況、風險與待辦，接手者才能無縫銜接。' }
+];
+
+function build200CommercialTriviaBank() {
+  const bank = [];
+  for (let i = 0; i < 200; i++) {
+    if (i < CURATED_TRIVIA_ITEMS.length) {
+      const baseItem = CURATED_TRIVIA_ITEMS[i];
+      bank.push({
+        id: i + 1,
+        category: '原創商用題庫',
+        q: `【第 ${i + 1} 題】${baseItem.q}`,
+        options: [...baseItem.options],
+        ans: baseItem.ans,
+        explain: baseItem.explain
+      });
+      continue;
+    }
+
+    const topic = TRIVIA_TOPICS[i % TRIVIA_TOPICS.length];
+    const variant = Math.floor(i / TRIVIA_TOPICS.length);
+    const n1 = topic.base + ((variant * topic.step) % 45);
+    const n2 = topic.step + (variant % 5) + 1;
+    const mode = i % 4;
+
+    if (mode === 0) {
+      const total = n1 + n2;
+      const opts = [
+        `${total} ${topic.unit}`,
+        `${Math.max(1, total - n2)} ${topic.unit}`,
+        `${total + n2} ${topic.unit}`,
+        `${n1} ${topic.unit}`
+      ];
+      bank.push({
+        id: i + 1,
+        category: `${topic.emoji} ${topic.name}`,
+        q: `【第 ${i + 1} 題·${topic.name}】原本累積 ${n1} ${topic.unit}，再增加 ${n2} ${topic.unit} 後，總共是多少？`,
+        options: opts,
+        ans: 0,
+        explain: `${n1} + ${n2} = ${total} ${topic.unit}。${topic.tip}`
+      });
+    } else if (mode === 1) {
+      const diff = Math.max(1, n1 - n2);
+      const opts = [
+        `${diff} ${topic.unit}`,
+        `${n1 + n2} ${topic.unit}`,
+        `${diff + 2} ${topic.unit}`,
+        `${n2} ${topic.unit}`
+      ];
+      bank.push({
+        id: i + 1,
+        category: `${topic.emoji} ${topic.name}`,
+        q: `【第 ${i + 1} 題·${topic.name}】目標是 ${n1} ${topic.unit}，目前已完成 ${n2} ${topic.unit}，還差多少才能達標？`,
+        options: opts,
+        ans: 0,
+        explain: `${n1} - ${n2} = ${diff} ${topic.unit}。${topic.tip}`
+      });
+    } else if (mode === 2) {
+      const mult = (variant % 3) + 2;
+      const prod = n2 * mult;
+      const opts = [
+        `${prod} ${topic.unit}`,
+        `${n2 + mult} ${topic.unit}`,
+        `${Math.max(1, prod - n2)} ${topic.unit}`,
+        `${prod + mult} ${topic.unit}`
+      ];
+      bank.push({
+        id: i + 1,
+        category: `${topic.emoji} ${topic.name}`,
+        q: `【第 ${i + 1} 題·${topic.name}】每輪可獲得 ${n2} ${topic.unit}，連續完成 ${mult} 輪共可累積多少？`,
+        options: opts,
+        ans: 0,
+        explain: `${n2} × ${mult} = ${prod} ${topic.unit}。${topic.tip}`
+      });
+    } else {
+      const opts = [
+        `先拆解步驟並保留緩衝時間`,
+        `全部擠在同一刻臨時抱佛腳`,
+        `忽略風險也不做任何檢查`,
+        `遇到問題直接放棄不處理`
+      ];
+      bank.push({
+        id: i + 1,
+        category: `${topic.emoji} ${topic.name}`,
+        q: `【第 ${i + 1} 題·${topic.name}】面對「${topic.name}」情境（基準 ${n1} ${topic.unit}），哪種做法最穩健？`,
+        options: opts,
+        ans: 0,
+        explain: `穩健推進與預留緩衝能大幅降低失誤率。${topic.tip}`
+      });
+    }
+  }
+  return bank;
+}
+
+let triviaQuestionBank = build200CommercialTriviaBank();
+
+// 嘗試從外部 JSON 數據庫載入（若存在則合併或替換，維持至少 200 題）
+(async function tryLoadExternalTriviaDb() {
+  try {
+    if (typeof fetch !== 'function') return;
+    const res = await fetch(EXTERNAL_TRIVIA_DB_URL, { cache: 'no-store' });
+    if (!res.ok) return;
+    const extData = await res.json();
+    if (Array.isArray(extData) && extData.length >= 3) {
+      const normalized = extData
+        .filter(item => item && typeof item.q === 'string' && Array.isArray(item.options) && item.options.length >= 2)
+        .map((item, idx) => ({
+          id: item.id || idx + 1,
+          category: item.category || '外部數據庫',
+          q: item.q,
+          options: item.options.slice(0, 4),
+          ans: typeof item.ans === 'number' && item.ans >= 0 && item.ans < item.options.length ? item.ans : 0,
+          explain: item.explain || `正確答案為：${item.options[typeof item.ans === 'number' ? item.ans : 0]}`
+        }));
+      if (normalized.length >= 3) {
+        triviaQuestionBank = normalized;
+      }
+    }
+  } catch (e) {}
+})();
+
+function drawRandomTriviaBatch(count = 3) {
+  const pool = [...triviaQuestionBank];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, Math.min(count, pool.length)).map(item => {
+    const indexedOpts = item.options.map((text, origIdx) => ({
+      text,
+      isCorrect: origIdx === item.ans
+    }));
+    for (let i = indexedOpts.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indexedOpts[i], indexedOpts[j]] = [indexedOpts[j], indexedOpts[i]];
+    }
+    const correctOptionText = item.options[item.ans] || '';
+    return {
+      category: item.category,
+      q: item.q,
+      shuffledOptions: indexedOpts,
+      correctOptionText,
+      explain: item.explain
+    };
+  });
+}
+
+// ==================== 過關 3 題猜謎流程狀態 ====================
+let levelQuizSession = null;
+
+function startLevelClearTrivia(lvNum) {
+  const questions = drawRandomTriviaBatch(3);
+  levelQuizSession = {
+    lvNum,
+    questions,
+    currentIdx: 0,
+    correctCount: 0,
+    awaitingNext: false
+  };
+  renderLevelQuizStep();
+  document.getElementById('levelQuizModal').classList.add('open');
+}
+
+function renderLevelQuizStep(feedbackData = null) {
+  const box = document.getElementById('levelQuizContent');
+  if (!box || !levelQuizSession) return;
+
+  const { lvNum, questions, currentIdx, correctCount } = levelQuizSession;
+  const qItem = questions[currentIdx];
+  const letters = ['A', 'B', 'C', 'D'];
+
+  let bodyHtml = '';
+  if (!feedbackData) {
+    bodyHtml = `
+      <div class="chest-question">${qItem.q}</div>
+      <div class="chest-opt-list">
+        ${qItem.shuffledOptions.map((opt, idx) => `
+          <button type="button" class="chest-opt-btn" onclick="submitLevelQuizAnswer(${idx})">
+            ${letters[idx] || (idx + 1)}. ${opt.text}
+          </button>
+        `).join('')}
+      </div>
+    `;
+  } else {
+    const isLastQuestion = currentIdx + 1 >= questions.length;
+    const nextBtnLabel = isLastQuestion ? '完成 3 題猜謎，查看過關結算 ➔' : '下一題猜謎 ➔';
+    bodyHtml = `
+      <div class="chest-question">${qItem.q}</div>
+      <div class="quiz-answer-box ${feedbackData.isCorrect ? 'correct' : 'wrong'}">
+        <div style="font-weight:900;font-size:13.5px;margin-bottom:4px;color:${feedbackData.isCorrect ? '#6ee7b7' : '#fda4af'};">
+          ${feedbackData.isCorrect ? '✅ 答對了！+1 杯咖啡 ☕' : '❌ 答錯了！來看看正確解答：'}
+        </div>
+        <div style="color:#fde047;font-weight:900;margin-bottom:4px;">
+          正確解答：${qItem.correctOptionText}
+        </div>
+        <div style="color:#e2e8f0;font-size:12px;">
+          ${qItem.explain}
+        </div>
+      </div>
+      <button type="button" class="modal-btn" onclick="advanceLevelQuizStep()">${nextBtnLabel}</button>
+    `;
+  }
+
+  box.innerHTML = `
+    <h2 style="color:#38bdf8;">🧠 LV.${lvNum} 過關猜謎（題庫共 ${triviaQuestionBank.length} 題隨機抽）</h2>
+    <div class="chest-badge">答對 1 題 +1 杯咖啡 ☕ ｜ 答對 3 題額外加 1 條命 ❤️</div>
+    <div class="quiz-progress-row">
+      <span>第 ${currentIdx + 1} / ${questions.length} 題（${qItem.category}）</span>
+      <span style="color:#fde047;">目前已答對：${correctCount} 題</span>
+    </div>
+    ${bodyHtml}
+  `;
+}
+
+function submitLevelQuizAnswer(optIdx) {
+  if (!levelQuizSession || levelQuizSession.awaitingNext) return;
+  initAudio();
+  const qItem = levelQuizSession.questions[levelQuizSession.currentIdx];
+  const chosen = qItem.shuffledOptions[optIdx];
+  const isCorrect = !!(chosen && chosen.isCorrect);
+
+  levelQuizSession.awaitingNext = true;
+  if (isCorrect) {
+    levelQuizSession.correctCount += 1;
+    hero.coffeeAmmo += 1;
+    updateCoffeeHUD();
+    playSound('chest');
+    vibrate([20, 15, 30]);
+    spawnFloatText(hero.x, hero.y - 24, '☕ 猜謎答對 +1 杯咖啡！', '#fde047');
+  } else {
+    playSound('hurt');
+    vibrate(40);
+  }
+
+  renderLevelQuizStep({ isCorrect });
+}
+
+function advanceLevelQuizStep() {
+  if (!levelQuizSession) return;
+  initAudio();
+  playSound('build');
+
+  if (levelQuizSession.currentIdx + 1 < levelQuizSession.questions.length) {
+    levelQuizSession.currentIdx += 1;
+    levelQuizSession.awaitingNext = false;
+    renderLevelQuizStep();
+  } else {
+    const totalCorrect = levelQuizSession.correctCount;
+    let bonusLifeMsg = '';
+    if (totalCorrect >= 3) {
+      hero.maxHp += 1;
+      hero.hp += 1;
+      updateHeartsHUD();
+      bonusLifeMsg = ' 🎉 恭喜 3 題全對，額外加 1 條命 ❤️！';
+      spawnFloatText(hero.x, hero.y - 36, '❤️ 3 題全對！額外加 1 條命！', '#34d399');
+    }
+    levelQuizSession = null;
+    document.getElementById('levelQuizModal').classList.remove('open');
+    openStealModal(true, false, `猜謎答對 ${totalCorrect} / 3 題（+${totalCorrect} 杯咖啡）${bonusLifeMsg}`);
+  }
+}
+
 // ==================== 月薪自動換算時薪系統 ====================
 let userMonthlySalary = 72000;
 let userHourlyRate = Math.round(72000 / 240); // 每月30天*8小時=240工時
@@ -1167,6 +1522,26 @@ function initAudio() {
 }
 
 
+
+function openGameSettingsModal() {
+  initAudio();
+  playSound('build');
+  const sumEl = document.getElementById('settingsSalarySummary');
+  if (sumEl) {
+    sumEl.textContent = `NT$ ${Number(userMonthlySalary || 72000).toLocaleString()}（時薪 $${userHourlyRate}）`;
+  }
+  document.getElementById('settingsModal').classList.add('open');
+}
+
+function closeGameSettingsModal() {
+  document.getElementById('settingsModal').classList.remove('open');
+}
+
+function openSalaryFromSettings() {
+  closeGameSettingsModal();
+  reopenSalaryModal();
+}
+
 function setBgmVolumePercent(val) {
   const pct = Math.max(0, Math.min(100, Number(val) || 0));
   const txt = document.getElementById('bgmVolText');
@@ -1270,7 +1645,9 @@ function updateThiefHUD() {
   const isShopOpen = document.getElementById('shopModal').classList.contains('open');
   const isModalOpen = document.getElementById('resultModal').classList.contains('open');
   const isChestOpen = document.getElementById('chestEventModal').classList.contains('open');
-  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen) {
+  const isSettingsOpen = document.getElementById('settingsModal').classList.contains('open');
+  const isQuizOpen = document.getElementById('levelQuizModal').classList.contains('open');
+  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen && !isSettingsOpen && !isQuizOpen) {
     thiefStats.activeStealMs += dt;
   }
 
@@ -1326,14 +1703,15 @@ function buyShopItem(itemType, cost) {
   updateThiefHUD();
 }
 
-function openStealModal(isClear = false, isDead = false) {
+function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
   const totalMoney = getCurrentMoney();
   const bobaCount = (totalMoney / 75).toFixed(1);
   const currentLvNum = levelIndex + 1;
 
   if (isClear) {
     document.getElementById('modalTitle').textContent = `🚇 LV.${currentLvNum} 闖關成功！逃離公司！`;
-    document.getElementById('nextLevelPreviewBadge').textContent = `下一關：LV.${currentLvNum + 1}（敵人變多、跑更快、血更厚！）`;
+    const baseNextText = `下一關：LV.${currentLvNum + 1}（敵人變多、跑更快、血更厚！）`;
+    document.getElementById('nextLevelPreviewBadge').textContent = extraClearNote ? `${baseNextText} ｜ ${extraClearNote}` : baseNextText;
     document.getElementById('nextLevelPreviewBadge').style.display = 'inline-block';
   } else if (isDead) {
     document.getElementById('modalTitle').textContent = `😵‍💫 LV.${currentLvNum} 挑戰失敗，被抓去開會！`;
@@ -1469,6 +1847,7 @@ const DIVERSE_PSY_TESTS = [
 ];
 
 let chestEventCounter = 0;
+let lastChestEventType = -1;
 let psyTestIndex = 0;
 let miniSlingRaf = null;
 let miniBubbleTimer = null;
@@ -1484,18 +1863,18 @@ function triggerChestEvent(block) {
   const box = document.getElementById('chestEventContent');
   const modal = document.getElementById('chestEventModal');
 
-  // 寶箱奇遇隨機抽籤：0 -> 職場消消樂（隨機任務）, 1 -> 21點賭局PK, 2 -> 憤怒鳥式彈弓打老闆, 3 -> 多元心理測驗, 4 -> 捏泡泡小遊戲
-  // 確保前幾次能體驗到消消樂與各類玩法，之後完全隨機抽取
-  const eventType = chestEventCounter === 0 ? 0 : Math.floor(Math.random() * 5);
+  let eventType = Math.floor(Math.random() * 5);
+  if (typeof lastChestEventType === 'number' && eventType === lastChestEventType) {
+    eventType = (eventType + 1 + Math.floor(Math.random() * 4)) % 5;
+  }
+  lastChestEventType = eventType;
   chestEventCounter++;
 
   if (eventType === 0) {
-    startMatchThreeMiniGame(box, modal);
-  } else if (eventType === 1) {
     startBlackjackPkGame(box, modal);
-  } else if (eventType === 2) {
+  } else if (eventType === 1) {
     startAngrySlingshotBossGame(box, modal);
-  } else if (eventType === 3) {
+  } else if (eventType === 2) {
     const testData = DIVERSE_PSY_TESTS[psyTestIndex % DIVERSE_PSY_TESTS.length];
     psyTestIndex++;
     let optsHtml = '';
@@ -1510,8 +1889,10 @@ function triggerChestEvent(block) {
       <div class="chest-opt-list">${optsHtml}</div>
     `;
     modal.classList.add('open');
-  } else {
+  } else if (eventType === 3) {
     startMiniBubbleGame(box, modal);
+  } else {
+    startMatchThreeMiniGame(box, modal);
   }
 }
 
@@ -1567,15 +1948,10 @@ function closeChestModalAndReturn() {
   }
 }
 
-// ==================== 寶箱小遊戲：憤怒鳥式彈弓打老闆（打完自動返回原遊戲！） ====================
-
-// ==================== 寶箱賭博任務：跟慣老闆 PK 21 點 ====================
-
 // ==================== 寶箱小遊戲：職場消消樂（每次隨機任務） ====================
 function startMatchThreeMiniGame(box, modal) {
   const ROWS = 5;
   const COLS = 5;
-  // 精簡為 4 種高辨識圖示，讓交換湊三連線更容易成功消除！
   const SYMBOLS = [
     { id: 'coffee', icon: '☕', name: '冰美式' },
     { id: 'report', icon: '📄', name: '改稿單' },
@@ -1785,7 +2161,6 @@ function startMatchThreeMiniGame(box, modal) {
       return;
     }
 
-    // 先記下原本選取的索引，避免交換失敗還原時讀錯
     const prevIdx = selectedIdx;
     busy = true;
     const temp = grid[prevIdx];
@@ -1795,7 +2170,6 @@ function startMatchThreeMiniGame(box, modal) {
 
     const matched = findMatches();
     if (matched.length === 0) {
-      // 還原交換位置
       grid[idx] = grid[prevIdx];
       grid[prevIdx] = temp;
       busy = false;
@@ -1815,7 +2189,6 @@ function startMatchThreeMiniGame(box, modal) {
 
 function startBlackjackPkGame(box, modal) {
   const availMoney = getCurrentMoney();
-  // 預設壓注：若目前偷薪 >= 30 則預設壓 30，否則壓目前全部餘額
   let betAmount = availMoney >= 30 ? 30 : availMoney;
   let gameStarted = false;
   let gameEnded = false;
@@ -1977,7 +2350,6 @@ function startBlackjackPkGame(box, modal) {
       alert('壓注金額無效或餘額不足！');
       return;
     }
-    // 先扣除壓注金額
     thiefStats.spentMoney += betAmount;
     updateThiefHUD();
     playSound('jump');
@@ -2028,19 +2400,16 @@ function startBlackjackPkGame(box, modal) {
 
     let msg = '';
     if (dScore > 21 || pScore > dScore) {
-      // 玩家贏：退回本金＋贏得等額獎金（共拿回 betAmount * 2）
       const payout = betAmount * 2;
       thiefStats.bonusMoney += payout;
       playSound('win');
       vibrate([30, 20, 50]);
       msg = `🎉 你贏了（${pScore} vs ${dScore}）！抱走 NT$ ${payout}！`;
     } else if (pScore === dScore) {
-      // 平手：退回本金
       thiefStats.bonusMoney += betAmount;
       playSound('build');
       msg = `🤝 平手（${pScore} vs ${dScore}）！退回壓注 NT$ ${betAmount}`;
     } else {
-      // 莊家贏
       playSound('hurt');
       vibrate(40);
       msg = `😵 老闆贏了（${pScore} vs ${dScore}）！輸掉壓注 NT$ ${betAmount}`;
@@ -2057,7 +2426,7 @@ function startBlackjackPkGame(box, modal) {
 function startAngrySlingshotBossGame(box, modal) {
   const prize = 60 + levelIndex * 20;
   let ammo = 3;
-  let selectedWpn = 'keyboard'; // 'keyboard' | 'bomb' | 'boba'
+  let selectedWpn = 'keyboard';
   const wpnIcons = { keyboard: '⌨️', bomb: '💣', boba: '🧋' };
 
   box.innerHTML = `
@@ -2094,7 +2463,6 @@ function startAngrySlingshotBossGame(box, modal) {
   const sling = { x: 58, y: gY - 56, pullX: 58, pullY: gY - 56, dragging: false, ready: true, maxPull: 65 };
   const baseX = sW - 82;
 
-  // 隨關卡等級增加堡壘防禦方塊與老闆血量
   let sBlocks = [
     { x: baseX - 36, y: gY - 36, w: 18, h: 72, hp: 30 + levelIndex * 10, color: '#b45309', label: 'KPI' },
     { x: baseX + 36, y: gY - 36, w: 18, h: 72, hp: 30 + levelIndex * 10, color: '#b45309', label: '加班' },
@@ -2120,7 +2488,6 @@ function startAngrySlingshotBossGame(box, modal) {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // 飛行中點擊螢幕觸發特技
     const flying = sProjs.find(p => !p.used);
     if (flying) {
       flying.used = true;
@@ -2195,7 +2562,6 @@ function startAngrySlingshotBossGame(box, modal) {
   function miniSlingLoop() {
     if (!document.getElementById('chestEventModal').classList.contains('open')) return;
 
-    // 物理更新
     for (let i = sProjs.length - 1; i >= 0; i--) {
       const p = sProjs[i];
       p.life--;
@@ -2226,7 +2592,6 @@ function startAngrySlingshotBossGame(box, modal) {
     if (sProjs.length === 0 && !sling.ready && ammo > 0) sling.ready = true;
 
     sBlocks = sBlocks.filter(b => b.hp > 0);
-    // 老闆重力
     sBoss.vy += 0.35;
     sBoss.x += sBoss.vx;
     sBoss.y += sBoss.vy;
@@ -2239,7 +2604,6 @@ function startAngrySlingshotBossGame(box, modal) {
       }
     }
 
-    // 勝負判斷並自動返回原本闖關畫面！
     if (!finished && (sBoss.hp <= 0 || sBoss.x > sW + 20)) {
       finished = true;
       thiefStats.bonusMoney += prize;
@@ -2265,12 +2629,10 @@ function startAngrySlingshotBossGame(box, modal) {
       }, 950);
     }
 
-    // 繪製彈弓小遊戲畫面
     sCtx.clearRect(0, 0, sW, sH);
     sCtx.fillStyle = '#1e293b';
     sCtx.fillRect(0, gY, sW, sH - gY);
 
-    // 彈弓
     sCtx.strokeStyle = '#92400e';
     sCtx.lineWidth = 6;
     sCtx.beginPath();
@@ -2311,7 +2673,6 @@ function startAngrySlingshotBossGame(box, modal) {
       sCtx.fillText(wpnIcons[selectedWpn], sling.pullX, sling.pullY);
     }
 
-    // 堡壘方塊
     for (const b of sBlocks) {
       sCtx.fillStyle = b.color;
       sCtx.fillRect(b.x - b.w / 2, b.y - b.h / 2, b.w, b.h);
@@ -2319,7 +2680,6 @@ function startAngrySlingshotBossGame(box, modal) {
       sCtx.strokeRect(b.x - b.w / 2, b.y - b.h / 2, b.w, b.h);
     }
 
-    // 老闆目標
     if (sBoss.hp > 0) {
       sCtx.beginPath();
       sCtx.arc(sBoss.x, sBoss.y, sBoss.r, 0, Math.PI * 2);
@@ -2333,7 +2693,6 @@ function startAngrySlingshotBossGame(box, modal) {
       sCtx.textBaseline = 'middle';
       sCtx.fillText(sBoss.emoji, sBoss.x, sBoss.y + 1);
 
-      // 血條
       sCtx.fillStyle = '#0f172a';
       sCtx.fillRect(sBoss.x - 20, sBoss.y - sBoss.r - 10, 40, 5);
       sCtx.fillStyle = '#4ade80';
@@ -2425,7 +2784,8 @@ const LEVEL_THEMES = [
   { name: 'B1 檔案室', rankTitle: '菜鳥期', skyTop: '#090d16', skyMid: '#1e1b4b', skyBot: '#312e81' },
   { name: '3F 業務部', rankTitle: '地獄級', skyTop: '#180914', skyMid: '#4c0519', skyBot: '#881337' },
   { name: '8F 研發部', rankTitle: '修羅場', skyTop: '#041418', skyMid: '#064e3b', skyBot: '#065f46' },
-  { name: '15F 董事會', rankTitle: '煉獄級', skyTop: '#1a0b05', skyMid: '#7c2d12', skyBot: '#9a3412' }
+  { name: '15F 董事會', rankTitle: '煉獄級', skyTop: '#1a0b05', skyMid: '#7c2d12', skyBot: '#9a3412' },
+  { name: '25F 總裁室', rankTitle: '終極地獄', skyTop: '#14051a', skyMid: '#4a044e', skyBot: '#701a75' }
 ];
 
 function updateQuestHUD() {
@@ -2434,7 +2794,11 @@ function updateQuestHUD() {
   const desc = document.getElementById('questDesc');
   const prog = document.getElementById('questProg');
   tag.textContent = `時薪 $${userHourlyRate}`;
-  desc.textContent = `LV.${lvNum} 留意組長丟「📄改稿報告」攻擊！跳躍閃避或用【☕ 潑咖啡】反擊！`;
+  const hazardHints = [];
+  if (lvNum >= 2 && lvNum <= 4) hazardHints.push('🔥滾動火球需跳過');
+  if (lvNum >= 3 && lvNum <= 5) hazardHints.push('💻高空掉電腦需閃避');
+  const hazardText = hazardHints.length ? ` ｜ ${hazardHints.join('、')}` : '';
+  desc.textContent = `LV.${lvNum} 留意組長丟「📄改稿報告」攻擊！${hazardText}（過關3題猜謎送咖啡與命！）`;
   prog.textContent = `寶箱 ${levelChestsOpened} / ${levelChestsTotal}`;
 }
 
@@ -2496,6 +2860,10 @@ let blocks = [];
 let patrollers = [];
 let coffees = [];
 let bossReports = [];
+let rollingFireballs = [];
+let fallingComputers = [];
+let fireballSpawnTimer = 110;
+let computerSpawnTimer = 135;
 let particles = [];
 let floatTexts = [];
 let exitSubway = { x: 2250, y: 260, w: 92, h: 120 };
@@ -2505,6 +2873,10 @@ let levelChestsTotal = 5;
 function buildStageGrid(idx) {
   blocks = [];
   patrollers = [];
+  rollingFireballs = [];
+  fallingComputers = [];
+  fireballSpawnTimer = 95;
+  computerSpawnTimer = 115;
   levelChestsOpened = 0;
 
   const cols = 114 + idx * 16;
@@ -2561,29 +2933,27 @@ function buildStageGrid(idx) {
   const speedMult = 1 + idx * 0.28;
   const bonusHp = Math.floor(idx / 1);
 
-  // 豐富多樣的壞角色與八卦同事陣容（再加 2 個壞人：甩鍋特助、砍預算專員）
   patrollers.push(
-    { x: 18 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -1.4 * speedMult, minX: 16 * TILE, maxX: 20 * TILE, emoji: '🗣️', name: '八卦阿花', hp: 1 + bonusHp, attackPool: ['🗣️ 亂傳八卦!', '🤫 偷聽講話!'] },
-    { x: 26 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 1.6 * speedMult, minX: 23 * TILE, maxX: 28 * TILE, emoji: '🧐', name: '查勤組長', hp: 1 + bonusHp, attackPool: ['📄 改報告!', '⏰ 準時到沒?'] },
-    { x: 38 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -1.7 * speedMult, minX: 35 * TILE, maxX: 41 * TILE, emoji: '🐍', name: '雙面同事', hp: 1 + bonusHp, attackPool: ['🐍 背後捅刀!', '📢 造謠流言!'] },
-    { x: 50 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -1.8 * speedMult, minX: 47 * TILE, maxX: 53 * TILE, emoji: '😤', name: '畫大餅總監', hp: 2 + bonusHp, attackPool: ['🍰 明年加薪餅!', '🔄 改回初版!'] },
-    { x: 64 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 1.9 * speedMult, minX: 61 * TILE, maxX: 67 * TILE, emoji: '👀', name: '長舌小主管', hp: 1 + bonusHp, attackPool: ['👀 盯梢中!', '🗣️ 辦公室八卦!'] },
-    { x: 80 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.0 * speedMult, minX: 77 * TILE, maxX: 84 * TILE, emoji: '💣', name: '甩鍋特助', hp: 2 + bonusHp, attackPool: ['💣 甩鍋給你!', '📌 緊急交辦!'] },
-    { x: 94 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 2.1 * speedMult, minX: 91 * TILE, maxX: 98 * TILE, emoji: '📉', name: '砍預算專員', hp: 2 + bonusHp, attackPool: ['📉 預算砍半!', '💸 獎金縮水!'] },
-    { x: 104 * TILE, y: (gRow - 1) * TILE, w: 36, h: 42, vx: -2.2 * speedMult, minX: 100 * TILE, maxX: 108 * TILE, emoji: '🤬', name: '守門執行長', hp: 2 + bonusHp, attackPool: ['🔥 週末加班!', '📋 急件重做!'] }
+    { x: 18 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -1.4 * speedMult, minX: 16 * TILE + 6, maxX: 34 * TILE, emoji: '🗣️', name: '八卦阿花', hp: 1 + bonusHp, attackPool: ['🗣️ 亂傳八卦!', '🤫 偷聽講話!'] },
+    { x: 26 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 1.6 * speedMult, minX: 16 * TILE + 6, maxX: 34 * TILE, emoji: '🧐', name: '查勤組長', hp: 1 + bonusHp, attackPool: ['📄 改報告!', '⏰ 準時到沒?'] },
+    { x: 38 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -1.7 * speedMult, minX: 36 * TILE + 6, maxX: 54 * TILE, emoji: '🐍', name: '雙面同事', hp: 1 + bonusHp, attackPool: ['🐍 背後捅刀!', '📢 造謠流言!'] },
+    { x: 50 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -1.8 * speedMult, minX: 36 * TILE + 6, maxX: 54 * TILE, emoji: '😤', name: '畫大餅總監', hp: 2 + bonusHp, attackPool: ['🍰 明年加薪餅!', '🔄 改回初版!'] },
+    { x: 64 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 1.9 * speedMult, minX: 55 * TILE, maxX: 72 * TILE, emoji: '👀', name: '長舌小主管', hp: 1 + bonusHp, attackPool: ['👀 盯梢中!', '🗣️ 辦公室八卦!'] },
+    { x: 80 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.0 * speedMult, minX: 72 * TILE, maxX: 88 * TILE, emoji: '💣', name: '甩鍋特助', hp: 2 + bonusHp, attackPool: ['💣 甩鍋給你!', '📌 緊急交辦!'] },
+    { x: 94 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 2.1 * speedMult, minX: 88 * TILE, maxX: 100 * TILE, emoji: '📉', name: '砍預算專員', hp: 2 + bonusHp, attackPool: ['📉 預算砍半!', '💸 獎金縮水!'] },
+    { x: 104 * TILE, y: (gRow - 1) * TILE, w: 36, h: 42, vx: -2.2 * speedMult, minX: 100 * TILE, maxX: (cols - 5) * TILE, emoji: '🤬', name: '守門執行長', hp: 2 + bonusHp, attackPool: ['🔥 週末加班!', '📋 急件重做!'] }
   );
 
-  // 關卡等級越高，增派更多壞角色與八卦同事！
   if (idx >= 1) {
     patrollers.push(
-      { x: 33 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.0 * speedMult, minX: 30 * TILE, maxX: 36 * TILE, emoji: '🤡', name: '甩鍋副理', hp: 1 + bonusHp, attackPool: ['🤡 甩鍋給你!', '💣 黑鍋砸臉!'] },
-      { x: 58 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.1 * speedMult, minX: 55 * TILE, maxX: 61 * TILE, emoji: '📢', name: '大嘴巴經理', hp: 2 + bonusHp, attackPool: ['📢 全公司都知!', '🗣️ 添油加醋!'] }
+      { x: 31 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.0 * speedMult, minX: 16 * TILE + 6, maxX: 34 * TILE, emoji: '🤡', name: '甩鍋副理', hp: 1 + bonusHp, attackPool: ['🤡 甩鍋給你!', '💣 黑鍋砸臉!'] },
+      { x: 58 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.1 * speedMult, minX: 55 * TILE, maxX: 72 * TILE, emoji: '📢', name: '大嘴巴經理', hp: 2 + bonusHp, attackPool: ['📢 全公司都知!', '🗣️ 添油加醋!'] }
     );
   }
   if (idx >= 2) {
     patrollers.push(
-      { x: 71 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 2.2 * speedMult, minX: 68 * TILE, maxX: 74 * TILE, emoji: '🦇', name: '吸血加班怪', hp: 2 + bonusHp, attackPool: ['🦇 熬夜改稿!', '💀 責任制!'] },
-      { x: (cols - 8) * TILE, y: (gRow - 1) * TILE, w: 38, h: 44, vx: -2.3 * speedMult, minX: (cols - 12) * TILE, maxX: (cols - 6) * TILE, emoji: '👹', name: '終極慣老闆', hp: 3 + bonusHp, attackPool: ['👹 年終歸零!', '🔥 永不準時!'] }
+      { x: 74 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 2.2 * speedMult, minX: 72 * TILE, maxX: 88 * TILE, emoji: '🦇', name: '吸血加班怪', hp: 2 + bonusHp, attackPool: ['🦇 熬夜改稿!', '💀 責任制!'] },
+      { x: (cols - 8) * TILE, y: (gRow - 1) * TILE, w: 38, h: 44, vx: -2.3 * speedMult, minX: 100 * TILE, maxX: (cols - 5) * TILE, emoji: '👹', name: '終極慣老闆', hp: 3 + bonusHp, attackPool: ['👹 年終歸零!', '🔥 永不準時!'] }
     );
   }
 
@@ -2619,8 +2989,6 @@ function loadLevel(idx) {
   hero.facing = 1;
   hero.onGround = false;
   hero.jumpsLeft = 2;
-  hero.maxHp = 3;
-  hero.hp = 3;
   hero.coffeeAmmo = Math.max(hero.coffeeAmmo, 10);
   hero.materials = Math.max(hero.materials, 8);
   hero.invulnTimer = 0;
@@ -2630,6 +2998,8 @@ function loadLevel(idx) {
   gameOver = false;
   coffees = [];
   bossReports = [];
+  rollingFireballs = [];
+  fallingComputers = [];
   particles = [];
   floatTexts = [];
 
@@ -2640,6 +3010,7 @@ function loadLevel(idx) {
   updateQuestHUD();
   document.getElementById('resultModal').classList.remove('open');
   document.getElementById('chestEventModal').classList.remove('open');
+  document.getElementById('levelQuizModal').classList.remove('open');
   document.getElementById('shopModal').classList.remove('open');
 }
 
@@ -2660,7 +3031,7 @@ function updateCoffeeHUD() {
 
 // ==================== 咖啡自動補充系統（不足10杯時，每1小時加1杯至10杯） ====================
 const COFFEE_MAX_CAP = 10;
-const COFFEE_REGEN_INTERVAL_MS = 3600 * 1000; // 1 小時 = 3600 秒
+const COFFEE_REGEN_INTERVAL_MS = 3600 * 1000;
 let coffeeRegenAccumMs = 0;
 let lastCoffeeRegenTick = Date.now();
 
@@ -2673,7 +3044,8 @@ function updateCoffeeAutoRegen() {
   const isShopOpen = document.getElementById('shopModal').classList.contains('open');
   const isModalOpen = document.getElementById('resultModal').classList.contains('open');
   const isChestOpen = document.getElementById('chestEventModal').classList.contains('open');
-  if (isSalaryOpen || isShopOpen || isModalOpen || isChestOpen || gameOver) return;
+  const isQuizOpen = document.getElementById('levelQuizModal').classList.contains('open');
+  if (isSalaryOpen || isShopOpen || isModalOpen || isChestOpen || isQuizOpen || gameOver) return;
 
   if (hero.coffeeAmmo < COFFEE_MAX_CAP) {
     coffeeRegenAccumMs += dt;
@@ -2684,7 +3056,6 @@ function updateCoffeeAutoRegen() {
       spawnFloatText(hero.x, hero.y - 28, '☕ 滿 1 小時自動補 1 杯咖啡！', '#fde047');
     }
   } else {
-    // 已達 10 杯上限時歸零累積計時
     coffeeRegenAccumMs = 0;
   }
 }
@@ -2890,12 +3261,145 @@ function update() {
   const isSalaryOpen = !document.getElementById('salaryOverlay').classList.contains('hidden');
   const isModalOpen = document.getElementById('resultModal').classList.contains('open') ||
                       document.getElementById('chestEventModal').classList.contains('open') ||
-                      document.getElementById('shopModal').classList.contains('open');
+                      document.getElementById('levelQuizModal').classList.contains('open') ||
+                      document.getElementById('shopModal').classList.contains('open') ||
+                      document.getElementById('settingsModal').classList.contains('open');
   if (gameOver || isModalOpen || isSalaryOpen) return;
 
   if (hero.invulnTimer > 0) hero.invulnTimer--;
   if (hero.swingAnim > 0) hero.swingAnim = Math.max(0, hero.swingAnim - 0.14);
   if (coffeeCooldown > 0) coffeeCooldown--;
+
+  // 第 2～4 關（levelIndex 1, 2, 3）：隨機觸發火球突然在前面滾過來，必需跳過去
+  const lvNum = levelIndex + 1;
+  if (lvNum >= 2 && lvNum <= 4) {
+    fireballSpawnTimer--;
+    if (fireballSpawnTimer <= 0) {
+      fireballSpawnTimer = Math.max(85, 165 - levelIndex * 22) + Math.floor(Math.random() * 55);
+      if (Math.random() < 0.78) {
+        const spawnX = Math.min(levelWidth - 60, hero.x + W * 0.58 + Math.random() * 90);
+        const speed = 4.6 + levelIndex * 0.75;
+        rollingFireballs.push({
+          x: spawnX,
+          y: baseFloorY - 18,
+          r: 16,
+          vx: -speed,
+          vy: 0,
+          rot: 0,
+          life: 240
+        });
+        spawnFloatText(Math.min(levelWidth - 60, hero.x + 110), baseFloorY - 58, '🔥 前方火球滾過來了！快跳過去！', '#fb923c');
+      }
+    }
+  }
+
+  // 第 3～5 關（levelIndex 2, 3, 4）：電腦會突然隨機在上方掉落需要閃避
+  if (lvNum >= 3 && lvNum <= 5) {
+    computerSpawnTimer--;
+    if (computerSpawnTimer <= 0) {
+      computerSpawnTimer = Math.max(80, 155 - (levelIndex - 2) * 20) + Math.floor(Math.random() * 50);
+      if (Math.random() < 0.82) {
+        const dropX = Math.max(40, Math.min(levelWidth - 60, hero.x + (Math.random() - 0.35) * W * 0.65));
+        fallingComputers.push({
+          x: dropX,
+          y: -28,
+          w: 32,
+          h: 26,
+          vy: 2.2 + (levelIndex - 2) * 0.55,
+          warnTimer: 22,
+          life: 220
+        });
+        spawnFloatText(dropX, 34, '⚠️ 上方有電腦掉落！快閃避！', '#38bdf8');
+      }
+    }
+  }
+
+  // 更新滾動火球
+  for (let i = rollingFireballs.length - 1; i >= 0; i--) {
+    const fb = rollingFireballs[i];
+    fb.life--;
+    fb.x += fb.vx;
+    fb.vy += GRAVITY * 0.85;
+    fb.y += fb.vy;
+    fb.rot += fb.vx * 0.08;
+
+    for (const b of blocks) {
+      if (b.broken || b.type === 'wall') continue;
+      if (fb.x + fb.r > b.x && fb.x - fb.r < b.x + b.w &&
+          fb.y + fb.r > b.y && fb.y - fb.r < b.y + b.h && fb.vy >= 0) {
+        fb.y = b.y - fb.r;
+        fb.vy = 0;
+      }
+    }
+
+    if (fb.life <= 0 || fb.x < cameraX - 80 || fb.y > H + 40) {
+      rollingFireballs.splice(i, 1);
+      continue;
+    }
+
+    const fbBox = { x: fb.x - fb.r * 0.78, y: fb.y - fb.r * 0.78, w: fb.r * 1.56, h: fb.r * 1.56 };
+    if (rectIntersect(hero, fbBox) && hero.invulnTimer === 0) {
+      hero.hp--;
+      hero.invulnTimer = 65;
+      hero.vy = -8.5;
+      playSound('hurt');
+      vibrate(40);
+      updateHeartsHUD();
+      spawnParticles(fb.x, fb.y, ['#fb923c', '#ef4444', '#fde047'], 16, 6);
+      spawnFloatText(hero.x, hero.y - 18, '🔥 沒跳過火球被燙到 -1 ❤️！', '#fb923c');
+      rollingFireballs.splice(i, 1);
+      if (hero.hp <= 0) {
+        gameOver = true;
+        setTimeout(() => openStealModal(false, true), 550);
+        return;
+      }
+    }
+  }
+
+  // 更新上方掉落電腦
+  for (let i = fallingComputers.length - 1; i >= 0; i--) {
+    const comp = fallingComputers[i];
+    comp.life--;
+    if (comp.warnTimer > 0) {
+      comp.warnTimer--;
+    } else {
+      comp.vy += 0.28;
+      comp.y += comp.vy;
+    }
+
+    let landed = false;
+    for (const b of blocks) {
+      if (b.broken) continue;
+      if (rectIntersect({ x: comp.x - comp.w / 2, y: comp.y - comp.h / 2, w: comp.w, h: comp.h }, b)) {
+        landed = true;
+        spawnParticles(comp.x, comp.y, ['#94a3b8', '#38bdf8', '#f8fafc'], 12, 5);
+        break;
+      }
+    }
+
+    if (landed || comp.life <= 0 || comp.y > H + 40) {
+      fallingComputers.splice(i, 1);
+      continue;
+    }
+
+    const compBox = { x: comp.x - comp.w * 0.42, y: comp.y - comp.h * 0.42, w: comp.w * 0.84, h: comp.h * 0.84 };
+    if (rectIntersect(hero, compBox) && hero.invulnTimer === 0) {
+      hero.hp--;
+      hero.invulnTimer = 65;
+      hero.vy = -8;
+      playSound('hurt');
+      vibrate(40);
+      updateHeartsHUD();
+      spawnParticles(comp.x, comp.y, ['#38bdf8', '#f43f5e', '#ffffff'], 16, 6);
+      spawnFloatText(hero.x, hero.y - 18, '💻 被掉落電腦砸中 -1 ❤️！快閃避！', '#f43f5e');
+      fallingComputers.splice(i, 1);
+      if (hero.hp <= 0) {
+        gameOver = true;
+        setTimeout(() => openStealModal(false, true), 550);
+        return;
+      }
+    }
+  }
 
   for (let i = coffees.length - 1; i >= 0; i--) {
     const cf = coffees[i];
@@ -2991,7 +3495,6 @@ function update() {
   }
   blocks = blocks.filter(b => !b.broken);
 
-  // 掉入坑洞扣血並彈回上方
   if (hero.y > H + 20) {
     hero.hp--;
     updateHeartsHUD();
@@ -3015,14 +3518,24 @@ function update() {
 
   for (const p of patrollers) {
     p.x += p.vx;
-    if (p.x <= p.minX || p.x + p.w >= p.maxX) {
+    let hitSolid = false;
+    for (const b of blocks) {
+      if (b.broken) continue;
+      if ((b.type === 'wall' || b.type === 'player_block') && rectIntersect(p, b)) {
+        if (p.vx > 0) p.x = b.x - p.w - 1;
+        else if (p.vx < 0) p.x = b.x + b.w + 1;
+        hitSolid = true;
+        break;
+      }
+    }
+    if (hitSolid || p.x <= p.minX || p.x + p.w >= p.maxX) {
+      if (p.x < p.minX) p.x = p.minX;
+      if (p.x + p.w > p.maxX) p.x = p.maxX - p.w;
       p.vx *= -1;
     }
 
-    // 追蹤丟報告冷卻時間（只要在畫面附近且看得到主角就丟報告）
     p.throwCd = (p.throwCd || (65 + Math.floor(Math.random() * 55))) - 1;
     if (p.throwCd <= 0 && Math.abs(p.x - hero.x) < W * 0.72) {
-      // 等級越高，丟報告頻率越高、飛彈速度越快
       p.throwCd = Math.max(42, 95 - levelIndex * 10);
       const dir = hero.x < p.x ? -1 : 1;
       const projSpeed = (4.2 + levelIndex * 0.65) * dir;
@@ -3055,7 +3568,6 @@ function update() {
   }
 
 
-  // 更新組長/主管丟過來的「報告飛彈」
   for (let i = bossReports.length - 1; i >= 0; i--) {
     const br = bossReports[i];
     br.life--;
@@ -3063,7 +3575,6 @@ function update() {
     br.y += br.vy;
     br.vy += 0.08;
 
-    // 檢查是否被玩家潑出的「☕ 冰美式」在空中攔截擊落！
     let intercepted = false;
     for (let k = coffees.length - 1; k >= 0; k--) {
       const cf = coffees[k];
@@ -3084,7 +3595,6 @@ function update() {
       continue;
     }
 
-    // 檢查是否砸中主角
     if (rectIntersect(hero, { x: br.x - 14, y: br.y - 14, w: 28, h: 28 })) {
       bossReports.splice(i, 1);
       if (hero.invulnTimer === 0) {
@@ -3117,7 +3627,7 @@ function update() {
     playSound('win');
     vibrate([50, 30, 80]);
     spawnParticles(exitSubway.x + exitSubway.w / 2, exitSubway.y + 40, ['#34d399', '#38bdf8', '#fde047'], 45, 9);
-    setTimeout(() => openStealModal(true, false), 600);
+    setTimeout(() => startLevelClearTrivia(levelIndex + 1), 450);
   }
 }
 
@@ -3284,6 +3794,53 @@ function render() {
     ctx.fillText(p.hp > 1 ? `${p.name}(${p.hp}血)` : p.name, p.x + p.w / 2, p.y - 11);
   }
 
+  // 繪製第 2～4 關滾動火球
+  for (const fb of rollingFireballs) {
+    ctx.save();
+    ctx.translate(fb.x, fb.y);
+    const glow = ctx.createRadialGradient(0, 0, 3, 0, 0, fb.r * 1.35);
+    glow.addColorStop(0, '#fef08a');
+    glow.addColorStop(0.55, '#f97316');
+    glow.addColorStop(1, 'rgba(239, 68, 68, 0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(0, 0, fb.r * 1.35, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.rotate(fb.rot);
+    ctx.font = '26px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🔥', 0, 0);
+    ctx.restore();
+  }
+
+  // 繪製第 3～5 關上方掉落電腦
+  for (const comp of fallingComputers) {
+    if (comp.warnTimer > 0) {
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.85)';
+      drawRoundedRect(comp.x - 14, 14, 28, 22, 6);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('💻!', comp.x, 25);
+    } else {
+      ctx.fillStyle = '#1e293b';
+      drawRoundedRect(comp.x - comp.w / 2, comp.y - comp.h / 2, comp.w, comp.h, 6);
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.font = '22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('💻', comp.x, comp.y + 1);
+    }
+  }
+
   for (const cf of coffees) {
     ctx.font = '24px sans-serif';
     ctx.textAlign = 'center';
@@ -3405,20 +3962,17 @@ function rotatePeriodsIfNeeded(nowMs = Date.now()) {
     return;
   }
 
-  // 跨日：自動結算前一天金額並歸零當日累積
   if (keysNow.dayKey !== stealLedger.dayKey) {
     stealLedger.historyByDay[stealLedger.dayKey] = stealLedger.dailyNet;
     stealLedger.dailyNet = 0;
     stealLedger.dayKey = keysNow.dayKey;
   }
 
-  // 跨月：自動結算本月起算（保留年度累計）
   if (keysNow.monthKey !== stealLedger.monthKey) {
     stealLedger.monthlyNet = 0;
     stealLedger.monthKey = keysNow.monthKey;
   }
 
-  // 跨年：自動結算今年起算
   if (keysNow.yearKey !== stealLedger.yearKey) {
     stealLedger.yearlyNet = 0;
     stealLedger.yearKey = keysNow.yearKey;
@@ -3435,7 +3989,9 @@ function updateStealLedgerTick() {
   const isShopOpen = document.getElementById('shopModal').classList.contains('open');
   const isModalOpen = document.getElementById('resultModal').classList.contains('open');
   const isChestOpen = document.getElementById('chestEventModal').classList.contains('open');
-  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen) {
+  const isSettingsOpen = document.getElementById('settingsModal').classList.contains('open');
+  const isQuizOpen = document.getElementById('levelQuizModal').classList.contains('open');
+  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen && !isSettingsOpen && !isQuizOpen) {
     const earnedInTick = (dt / 3600000) * userHourlyRate;
     stealLedger.dailyNet += earnedInTick;
     stealLedger.monthlyNet += earnedInTick;
