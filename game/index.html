@@ -19,10 +19,11 @@
 <link rel="image_src" href="./work.jpg">
 <title>社畜大逃生</title>
 <style>
-- {
+* {
     box-sizing: border-box;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
@@ -31,10 +32,12 @@
     padding: 0;
     width: 100%;
     height: 100%;
+    height: 100dvh;
     background: #0b1120;
     color: #f8fafc;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
     overflow: hidden;
+    overscroll-behavior: none;
     display: flex;
     flex-direction: column;
   }
@@ -180,23 +183,42 @@
   /* ==================== 頂部手機專屬狀態列 ==================== */
   .top-hud {
     background: #111827;
-    padding: 6px 8px;
+    padding: 5px 8px;
     border-bottom: 2px solid #1f2937;
     flex-shrink: 0;
-    z-index: 10;
+    z-index: 20;
   }
   .hud-row1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     margin-bottom: 4px;
   }
   .hud-left {
     display: flex;
     align-items: center;
     gap: 4px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .hud-row2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    margin-bottom: 4px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .hud-row2::-webkit-scrollbar { display: none; }
+  .hud-stats-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
   }
   .lv-badge {
     background: linear-gradient(135deg, #ef4444, #b91c1c);
@@ -246,6 +268,16 @@
   .life-pill {
     font-size: 11px;
     font-weight: 800;
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: rgba(244, 63, 94, 0.14);
+    border: 1px solid rgba(244, 63, 94, 0.4);
+    border-radius: 99px;
+    padding: 2px 7px;
+  }
+  .lv-badge, .stage-pill, .thief-money-badge, .coffee-pill, .mat-pill {
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .hud-btns {
     display: flex;
@@ -409,84 +441,142 @@
   .gamepad-dock {
     background: #111827;
     border-top: 2px solid #1f2937;
-    padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+    padding: 7px 8px calc(8px + env(safe-area-inset-bottom));
     flex-shrink: 0;
-    z-index: 10;
+    z-index: 25;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 6px;
+    touch-action: none;
   }
   .dpad-group {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    touch-action: none;
   }
   .action-group {
     display: flex;
-    gap: 6px;
+    gap: 5px;
+    touch-action: none;
   }
   .pad-btn {
-    width: 52px;
-    height: 58px;
-    border-radius: 16px;
+    width: clamp(46px, 13.5vw, 56px);
+    height: 54px;
+    border-radius: 14px;
     background: #1e293b;
     border: 2px solid #334155;
     color: #f8fafc;
-    font-size: 21px;
+    font-size: 19px;
     font-weight: 900;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 0 #090d16;
+    box-shadow: 0 3px 0 #090d16;
+    touch-action: none;
+    padding: 0;
+    line-height: 1.05;
   }
   .pad-btn:active, .pad-btn.pressed {
-    transform: translateY(3px);
+    transform: translateY(2px);
     box-shadow: 0 1px 0 #090d16;
     border-color: #34d399;
     background: #273549;
   }
   .pad-btn .lbl {
-    font-size: 9.5px;
+    font-size: 9px;
     color: #cbd5e1;
     margin-top: 2px;
     font-weight: 800;
+    white-space: nowrap;
   }
   .pad-btn.coffee {
-    width: 58px;
+    width: clamp(50px, 14.8vw, 60px);
     background: linear-gradient(180deg, #78350f 0%, #451a03 100%);
     border-color: #fbbf24;
   }
   .pad-btn.dig {
-    width: 56px;
+    width: clamp(50px, 14.8vw, 60px);
     background: linear-gradient(180deg, #92400e 0%, #451a03 100%);
     border-color: #f59e0b;
   }
   .pad-btn.build {
-    width: 56px;
+    width: clamp(48px, 14vw, 58px);
     background: linear-gradient(180deg, #065f46 0%, #022c22 100%);
     border-color: #34d399;
   }
   .pad-btn.jump {
-    width: 58px;
+    width: clamp(50px, 14.8vw, 60px);
     background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 100%);
     border-color: #60a5fa;
+  }
+  canvas {
+    touch-action: none;
+  }
+
+  /* ==================== 手機橫向全視野模式 ==================== */
+  @media (orientation: landscape) and (max-height: 520px) {
+    .top-hud {
+      padding: 3px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: rgba(17, 24, 39, 0.88);
+    }
+    .hud-row1 {
+      margin-bottom: 0;
+      flex: 0 0 auto;
+    }
+    .hud-brand-text { display: none; }
+    .hud-row2 {
+      margin-bottom: 0;
+      flex: 1;
+      justify-content: center;
+    }
+    .quest-strip { display: none; }
+    .gamepad-dock {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: transparent;
+      border-top: none;
+      padding: 6px 14px calc(6px + env(safe-area-inset-bottom));
+      pointer-events: none;
+    }
+    .dpad-group, .action-group {
+      pointer-events: auto;
+    }
+    .pad-btn {
+      width: 52px;
+      height: 46px;
+      font-size: 17px;
+      opacity: 0.8;
+      border-radius: 12px;
+    }
+    .pad-btn.coffee, .pad-btn.dig, .pad-btn.build, .pad-btn.jump {
+      width: 54px;
+    }
   }
 
   /* ==================== 彈窗系統 ==================== */
   .modal-mask {
-    position: absolute;
+    position: fixed;
     inset: 0;
     background: rgba(6, 9, 19, 0.92);
     display: none;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 12px;
-    z-index: 40;
+    justify-content: flex-start;
+    padding: max(12px, env(safe-area-inset-top)) 12px max(14px, env(safe-area-inset-bottom));
+    z-index: 95;
     text-align: center;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
   .modal-mask.open { display: flex; }
   .modal-card {
@@ -496,6 +586,8 @@
     padding: 14px 12px;
     width: 100%;
     max-width: 390px;
+    margin: auto 0;
+    flex-shrink: 0;
     box-shadow: 0 15px 35px rgba(0,0,0,0.8);
   }
   .modal-card h2 { margin: 0 0 5px; color: #fbbf24; font-size: 17.5px; }
@@ -934,13 +1026,9 @@
   <div class="top-hud">
     <div class="hud-row1">
       <div class="hud-left">
-        <span style="font-size:12px;font-weight:900;color:#fde047;white-space:nowrap;">🏃‍♂️ 社畜大逃生</span>
+        <span class="hud-brand-text" style="font-size:12px;font-weight:900;color:#fde047;white-space:nowrap;">🏃‍♂️ 社畜大逃生</span>
         <span class="lv-badge" id="levelBadge">LV.1 菜鳥期</span>
         <span class="stage-pill" id="stagePill">B1 檔案室</span>
-        <div class="thief-money-badge">💰 <span id="liveStealMoney">NT$ 90</span></div>
-        <div class="coffee-pill">☕ <span id="coffeeAmmoText">10</span></div>
-        <div class="mat-pill">🧱 <span id="matCountText">8</span></div>
-        <span class="life-pill" id="lifeHearts">❤️❤️❤️</span>
       </div>
       <div class="hud-btns">
         <button class="mini-btn" onclick="reopenSalaryModal()">💵 月薪</button>
@@ -948,6 +1036,15 @@
         <button class="mini-btn shop" onclick="openShopModal()">🏪 商店</button>
         <button class="mini-btn gold" onclick="openStealModal(false, false)">🏁 結算</button>
       </div>
+    </div>
+
+    <div class="hud-row2">
+      <div class="hud-stats-group">
+        <div class="thief-money-badge">💰 <span id="liveStealMoney">NT$ 90</span></div>
+        <div class="coffee-pill">☕ <span id="coffeeAmmoText">10</span></div>
+        <div class="mat-pill">🧱 <span id="matCountText">8</span></div>
+      </div>
+      <span class="life-pill" id="lifeHearts">👤5命 ❤️❤️❤️❤️❤️</span>
     </div>
 
     <div class="quest-strip">
@@ -1020,6 +1117,7 @@
           <div class="guide-sec-title">💰 薪水小偷與茶水間商店</div>
           <ul class="guide-list">
             <li>依設定月薪自動換算時薪，闖關期間即時累計偷薪與日／月／年帳本。</li>
+            <li>每天擁有 <strong>5 條命</strong>（跨日自動補滿），<strong>每條命有 5 格血 ❤️❤️❤️❤️❤️</strong>（可承受 5 次傷害）。</li>
             <li>咖啡不足 10 杯時每 1 小時自動補 1 杯；也可到 <strong>🏪 商店</strong>購買咖啡、紙箱、珍奶回血與 <strong>🛡️ 防窺護盾</strong>（自動抵擋 1 次傷害）。</li>
           </ul>
           <div class="guide-sec-title">⚠️ 各關職場危機應對</div>
@@ -1159,7 +1257,7 @@
   <div class="gamepad-dock">
     <div class="dpad-group">
       <button class="pad-btn" id="btnLeft"
-        onpointerdown="setKey('left', true, this)"
+        onpointerdown="event.preventDefault();setKey('left', true, this)"
         onpointerup="setKey('left', false, this)"
         onpointerleave="setKey('left', false, this)"
         onpointercancel="setKey('left', false, this)">
@@ -1167,7 +1265,7 @@
         <span class="lbl">左走</span>
       </button>
       <button class="pad-btn" id="btnRight"
-        onpointerdown="setKey('right', true, this)"
+        onpointerdown="event.preventDefault();setKey('right', true, this)"
         onpointerup="setKey('right', false, this)"
         onpointerleave="setKey('right', false, this)"
         onpointercancel="setKey('right', false, this)">
@@ -1178,30 +1276,34 @@
 
     <div class="action-group">
       <button class="pad-btn coffee" id="btnCoffee"
-        onpointerdown="triggerCoffeeAttack(this)"
+        onpointerdown="event.preventDefault();triggerCoffeeAttack(this)"
         onpointerup="releaseBtn(this)"
-        onpointerleave="releaseBtn(this)">
+        onpointerleave="releaseBtn(this)"
+        onpointercancel="releaseBtn(this)">
         <span>☕</span>
-        <span class="lbl">潑咖啡-$45</span>
+        <span class="lbl">潑咖啡</span>
       </button>
       <button class="pad-btn dig" id="btnDig"
-        onpointerdown="triggerDig(this)"
+        onpointerdown="event.preventDefault();triggerDig(this)"
         onpointerup="releaseBtn(this)"
-        onpointerleave="releaseBtn(this)">
+        onpointerleave="releaseBtn(this)"
+        onpointercancel="releaseBtn(this)">
         <span>⛏️</span>
-        <span class="lbl">挖鏟/開箱</span>
+        <span class="lbl">挖/開箱</span>
       </button>
       <button class="pad-btn build" id="btnBuild"
-        onpointerdown="triggerBuild(this)"
+        onpointerdown="event.preventDefault();triggerBuild(this)"
         onpointerup="releaseBtn(this)"
-        onpointerleave="releaseBtn(this)">
+        onpointerleave="releaseBtn(this)"
+        onpointercancel="releaseBtn(this)">
         <span>🧱</span>
         <span class="lbl">蓋方塊</span>
       </button>
       <button class="pad-btn jump" id="btnJump"
-        onpointerdown="triggerJump(this)"
+        onpointerdown="event.preventDefault();triggerJump(this)"
         onpointerup="releaseBtn(this)"
-        onpointerleave="releaseBtn(this)">
+        onpointerleave="releaseBtn(this)"
+        onpointercancel="releaseBtn(this)">
         <span>🦘</span>
         <span class="lbl">二段跳</span>
       </button>
@@ -1480,11 +1582,12 @@ function advanceLevelQuizStep() {
     const totalCorrect = levelQuizSession.correctCount;
     let bonusLifeMsg = '';
     if (totalCorrect >= 3) {
-      hero.maxHp += 1;
-      hero.hp += 1;
+      syncDailyLivesIfNewDay();
+      hero.dailyLives += 1;
+      hero.hp = hero.maxHp;
       updateHeartsHUD();
-      bonusLifeMsg = ' 🎉 恭喜 3 題全對，額外加 1 條命 ❤️！';
-      spawnFloatText(hero.x, hero.y - 36, '❤️ 3 題全對！額外加 1 條命！', '#34d399');
+      bonusLifeMsg = ' 🎉 恭喜 3 題全對，額外加 1 條命並回滿血 ❤️！';
+      spawnFloatText(hero.x, hero.y - 36, '👤 3 題全對！+1 條命並回滿血！', '#34d399');
     }
     levelQuizSession = null;
     document.getElementById('levelQuizModal').classList.remove('open');
@@ -1825,8 +1928,14 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
     document.getElementById('nextLevelPreviewBadge').textContent = extraClearNote ? `${baseNextText} ｜ ${extraClearNote}` : baseNextText;
     document.getElementById('nextLevelPreviewBadge').style.display = 'inline-block';
   } else if (isDead) {
-    document.getElementById('modalTitle').textContent = `😵‍💫 LV.${currentLvNum} 挑戰失敗，被抓去開會！`;
-    document.getElementById('nextLevelPreviewBadge').textContent = '記得在🏪商店補充咖啡與珍奶再挑戰！';
+    syncDailyLivesIfNewDay();
+    if (hero.dailyLives > 0) {
+      document.getElementById('modalTitle').textContent = `😵‍💫 LV.${currentLvNum} 挑戰失敗，失去 1 條命！`;
+      document.getElementById('nextLevelPreviewBadge').textContent = `今日剩餘 ${hero.dailyLives} / ${MAX_DAILY_LIVES} 條命（每條命 5 格血，重試將自動滿血！）`;
+    } else {
+      document.getElementById('modalTitle').textContent = `😵‍💫 今日 ${MAX_DAILY_LIVES} 條命已用完！`;
+      document.getElementById('nextLevelPreviewBadge').textContent = '明天 00:00 自動恢復 5 條命，休息一下明天再逃班！';
+    }
     document.getElementById('nextLevelPreviewBadge').style.display = 'inline-block';
   } else {
     document.getElementById('modalTitle').textContent = '💰 今日薪水小偷價值結算';
@@ -1852,8 +1961,13 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
     btn.textContent = `進入 LV.${currentLvNum + 1} 更高難度關卡 ➔`;
     btn.dataset.action = 'nextLevel';
   } else if (isDead) {
-    btn.textContent = `🔄 重新挑戰 LV.${currentLvNum}！`;
-    btn.dataset.action = 'retryLevel';
+    if (hero.dailyLives > 0) {
+      btn.textContent = `🔄 滿血重新挑戰 LV.${currentLvNum}（剩 ${hero.dailyLives} 條命）！`;
+      btn.dataset.action = 'retryLevel';
+    } else {
+      btn.textContent = `⏳ 今日 5 條命已用完（明天自動恢復）`;
+      btn.dataset.action = 'outOfLives';
+    }
   } else {
     btn.textContent = '繼續挖寶蓋房逃班！➔';
     btn.dataset.action = 'closeOnly';
@@ -1868,9 +1982,25 @@ function handleModalContinue() {
   if (act === 'nextLevel') {
     loadLevel(levelIndex + 1);
   } else if (act === 'retryLevel') {
-    // 失敗重試時保留當前生命值下限 1，避免卡在 0 血無限重開
-    if (hero.hp <= 0) hero.hp = 1;
+    syncDailyLivesIfNewDay();
+    if (hero.dailyLives <= 0) {
+      openStealModal(false, true);
+      return;
+    }
+    // 消耗 1 條命重試後，恢復滿血 5 格
+    hero.hp = hero.maxHp;
     loadLevel(levelIndex);
+    saveGameProgressToDevice();
+  } else if (act === 'outOfLives') {
+    syncDailyLivesIfNewDay();
+    if (hero.dailyLives > 0) {
+      hero.hp = hero.maxHp;
+      loadLevel(levelIndex);
+      saveGameProgressToDevice();
+    } else {
+      alert('今日 5 條命已全部用完囉！明天 00:00 會自動恢復 5 條命，先休息一下吧！');
+      document.getElementById('resultModal').classList.add('open');
+    }
   } else {
     // 繼續當前關卡（不重置關卡進度）
     gameOver = false;
@@ -2066,9 +2196,8 @@ function closeChestModalAndReturn() {
   if (miniSlingRaf) cancelAnimationFrame(miniSlingRaf);
   clearInterval(miniBubbleTimer);
   document.getElementById('chestEventModal').classList.remove('open');
-  if (hero.hp <= 0) {
-    gameOver = true;
-    setTimeout(() => openStealModal(false, true), 400);
+  if (hero.hp <= 0 && !gameOver) {
+    handleHeroDeath(400);
   }
 }
 
@@ -2941,7 +3070,10 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 let W = 360, H = 480;
 let baseFloorY = 390;
+let viewScale = 1;
+let viewW = 360, viewH = 480;
 let cameraX = 0;
+let cameraY = 0;
 let levelWidth = 2500;
 let levelIndex = 0;
 let gameOver = false;
@@ -2972,6 +3104,9 @@ function setKey(dir, val, btn) {
 }
 function releaseBtn(btn) { if (btn) btn.classList.remove('pressed'); }
 
+const MAX_HP_PER_LIFE = 5;
+const MAX_DAILY_LIVES = 5;
+
 const hero = {
   x: 70,
   y: 280,
@@ -2982,8 +3117,10 @@ const hero = {
   facing: 1,
   onGround: false,
   jumpsLeft: 2,
-  hp: 3,
-  maxHp: 3,
+  hp: MAX_HP_PER_LIFE,
+  maxHp: MAX_HP_PER_LIFE,
+  dailyLives: MAX_DAILY_LIVES,
+  dailyLivesDate: '',
   shield: 0,
   coffeeAmmo: 10,
   materials: 8,
@@ -3117,13 +3254,20 @@ function buildStageGrid(idx) {
 
 function resizeCanvas() {
   const wrap = document.getElementById('canvasWrap');
-  W = wrap.clientWidth;
-  H = wrap.clientHeight;
+  W = Math.max(240, wrap.clientWidth || window.innerWidth);
+  H = Math.max(180, wrap.clientHeight || window.innerHeight);
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = W * dpr;
   canvas.height = H * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  baseFloorY = H - TILE * 2.2;
+  // 橫向螢幕較矮時自動微幅縮放視野，確保上方電腦、跳躍高度與地底寶箱都能一覽無遺
+  const isLandscapeShort = (W > H && H < 360);
+  viewScale = isLandscapeShort ? Math.max(0.72, Math.min(1, H / 330)) : 1;
+  viewW = W / viewScale;
+  viewH = H / viewScale;
+  const floorTopY = Math.floor(baseFloorY / TILE) * TILE;
+  const bottomReserve = isLandscapeShort ? 92 : 96;
+  cameraY = floorTopY - (viewH - bottomReserve);
 }
 
 function loadLevel(idx) {
@@ -3171,22 +3315,52 @@ function loadLevel(idx) {
   if (gMod) gMod.classList.remove('open');
 }
 
+function syncDailyLivesIfNewDay() {
+  const todayKey = getPeriodKeys(Date.now()).dayKey;
+  if (!hero.dailyLivesDate) {
+    hero.dailyLivesDate = todayKey;
+    if (typeof hero.dailyLives !== 'number') hero.dailyLives = MAX_DAILY_LIVES;
+    return;
+  }
+  if (hero.dailyLivesDate !== todayKey) {
+    hero.dailyLivesDate = todayKey;
+    hero.dailyLives = MAX_DAILY_LIVES;
+    hero.maxHp = MAX_HP_PER_LIFE;
+    if (hero.hp <= 0) hero.hp = hero.maxHp;
+    updateHeartsHUD();
+    saveGameProgressToDevice();
+  }
+}
+
 function updateHeartsHUD() {
-  const full = Math.max(0, hero.hp);
-  const empty = Math.max(0, hero.maxHp - full);
+  hero.maxHp = MAX_HP_PER_LIFE;
+  const full = Math.max(0, Math.min(MAX_HP_PER_LIFE, Number(hero.hp) || 0));
+  const empty = Math.max(0, MAX_HP_PER_LIFE - full);
+  const livesNum = Math.max(0, typeof hero.dailyLives === 'number' ? hero.dailyLives : MAX_DAILY_LIVES);
   const shieldStr = (hero.shield && hero.shield > 0) ? ` 🛡️${hero.shield}` : '';
-  document.getElementById('lifeHearts').textContent = '❤️'.repeat(full) + '🖤'.repeat(empty) + shieldStr;
+  document.getElementById('lifeHearts').textContent = `👤${livesNum}命 ` + '❤️'.repeat(full) + '🖤'.repeat(empty) + shieldStr;
 }
 
 function triggerScreenShake(amount) {
   screenShake = Math.max(screenShake, amount);
 }
 
+function handleHeroDeath(delayMs = 550) {
+  if (gameOver) return;
+  syncDailyLivesIfNewDay();
+  gameOver = true;
+  hero.hp = 0;
+  hero.dailyLives = Math.max(0, hero.dailyLives - 1);
+  updateHeartsHUD();
+  saveGameProgressToDevice();
+  setTimeout(() => openStealModal(false, true), delayMs);
+}
+
 function applyHeroDamage(msg, knockVy = -8.5, textColor = '#f43f5e') {
-  if (hero.invulnTimer > 0) return false;
+  if (hero.invulnTimer > 0 || gameOver) return false;
   if (hero.shield && hero.shield > 0) {
     hero.shield--;
-    hero.invulnTimer = 65;
+    hero.invulnTimer = 75;
     hero.vy = Math.min(-5, knockVy * 0.65);
     triggerScreenShake(5);
     playSound('build');
@@ -3197,8 +3371,8 @@ function applyHeroDamage(msg, knockVy = -8.5, textColor = '#f43f5e') {
     saveGameProgressToDevice();
     return false;
   }
-  hero.hp--;
-  hero.invulnTimer = 65;
+  hero.hp = Math.max(0, hero.hp - 1);
+  hero.invulnTimer = 75;
   hero.vy = knockVy;
   triggerScreenShake(7);
   playSound('hurt');
@@ -3206,10 +3380,10 @@ function applyHeroDamage(msg, knockVy = -8.5, textColor = '#f43f5e') {
   updateHeartsHUD();
   spawnFloatText(hero.x, hero.y - 18, msg, textColor);
   if (hero.hp <= 0) {
-    gameOver = true;
-    setTimeout(() => openStealModal(false, true), 550);
+    handleHeroDeath(550);
     return true;
   }
+  saveGameProgressToDevice();
   return false;
 }
 
@@ -3450,6 +3624,7 @@ function rectIntersect(a, b) {
 const GRAVITY = 0.54;
 
 function update() {
+  syncDailyLivesIfNewDay();
   updateThiefHUD();
   updateStealLedgerTick();
   updateCoffeeAutoRegen();
@@ -3480,7 +3655,7 @@ function update() {
       const chance = lvNum >= 4 ? 0.55 : 0.78;
       if (Math.random() < chance) {
         globalHazardCooldown = cdGap;
-        const spawnX = Math.min(levelWidth - 60, hero.x + W * 0.58 + Math.random() * 90);
+        const spawnX = Math.min(levelWidth - 60, hero.x + viewW * 0.58 + Math.random() * 90);
         const speed = 4.6 + Math.min(4, levelIndex) * 0.65;
         rollingFireballs.push({
           x: spawnX,
@@ -3505,17 +3680,17 @@ function update() {
       const chance = lvNum >= 4 ? 0.58 : 0.82;
       if (Math.random() < chance) {
         globalHazardCooldown = cdGap;
-        const dropX = Math.max(40, Math.min(levelWidth - 60, hero.x + (Math.random() - 0.35) * W * 0.65));
+        const dropX = Math.max(40, Math.min(levelWidth - 60, hero.x + (Math.random() - 0.35) * viewW * 0.65));
         fallingComputers.push({
           x: dropX,
-          y: -28,
+          y: cameraY - 28,
           w: 32,
           h: 26,
           vy: 2.2 + Math.min(3, levelIndex - 2) * 0.5,
           warnTimer: 22,
           life: 220
         });
-        spawnFloatText(dropX, 34, '⚠️ 上方有電腦掉落！快閃避！', '#38bdf8');
+        spawnFloatText(dropX, cameraY + 34, '⚠️ 上方有電腦掉落！快閃避！', '#38bdf8');
       }
     }
   }
@@ -3582,7 +3757,7 @@ function update() {
       }
     }
 
-    if (fb.life <= 0 || fb.x < cameraX - 80 || fb.y > H + 40) {
+    if (fb.life <= 0 || fb.x < cameraX - 80 || fb.y > baseFloorY + TILE * 4) {
       rollingFireballs.splice(i, 1);
       continue;
     }
@@ -3616,7 +3791,7 @@ function update() {
       }
     }
 
-    if (landed || comp.life <= 0 || comp.y > H + 40) {
+    if (landed || comp.life <= 0 || comp.y > baseFloorY + TILE * 4) {
       fallingComputers.splice(i, 1);
       continue;
     }
@@ -3632,7 +3807,7 @@ function update() {
   // 更新盯梢光束（LV.4+）
   for (let i = surveillanceBeams.length - 1; i >= 0; i--) {
     const bm = surveillanceBeams[i];
-    const startX = cameraX + W + 24;
+    const startX = cameraX + viewW + 24;
     let endX = cameraX - 24;
     let blocker = null;
 
@@ -3843,26 +4018,27 @@ function update() {
   }
   blocks = blocks.filter(b => !b.broken);
 
-  if (hero.y > H + 20) {
-    hero.hp--;
+  if (hero.y > baseFloorY + TILE * 3.5) {
+    hero.hp = Math.max(0, hero.hp - 1);
     updateHeartsHUD();
     playSound('hurt');
     vibrate(45);
     if (hero.hp <= 0) {
-      gameOver = true;
-      setTimeout(() => openStealModal(false, true), 400);
+      handleHeroDeath(400);
       return;
     } else {
       hero.x = Math.max(40, hero.x - 120);
-      hero.y = 60;
+      hero.y = baseFloorY - 220;
       hero.vy = 0;
-      hero.invulnTimer = 60;
+      hero.invulnTimer = 75;
       spawnFloatText(hero.x, hero.y, '⚠️ 掉進加班深淵 -1 ❤️！', '#f43f5e');
+      saveGameProgressToDevice();
     }
   }
 
-  const targetCam = hero.x - W * 0.28;
-  cameraX = Math.max(0, Math.min(levelWidth - W, targetCam));
+  const leadRatio = W > H ? 0.22 : 0.28;
+  const targetCam = hero.x - viewW * leadRatio;
+  cameraX = Math.max(0, Math.min(Math.max(0, levelWidth - viewW), targetCam));
 
   for (const p of patrollers) {
     p.x += p.vx;
@@ -3941,7 +4117,7 @@ function update() {
       continue;
     }
 
-    if (br.life <= 0 || br.y > H) {
+    if (br.life <= 0 || br.y > baseFloorY + TILE * 4) {
       bossReports.splice(i, 1);
     }
   }
@@ -3999,10 +4175,11 @@ function render() {
     screenShake *= 0.84;
     if (screenShake <= 0.25) screenShake = 0;
   }
-  ctx.translate(-cameraX + shakeX, shakeY);
+  ctx.scale(viewScale, viewScale);
+  ctx.translate(-cameraX + shakeX, -cameraY + shakeY);
 
   for (const b of blocks) {
-    if (b.x + b.w < cameraX - 50 || b.x > cameraX + W + 50) continue;
+    if (b.x + b.w < cameraX - 50 || b.x > cameraX + viewW + 50) continue;
 
     if (b.type === 'steel') {
       ctx.fillStyle = '#1e293b';
@@ -4106,7 +4283,7 @@ function render() {
   ctx.fillText('準時下班！', exitSubway.x + exitSubway.w / 2, exitSubway.y + 108);
 
   for (const p of patrollers) {
-    if (p.x + p.w < cameraX - 50 || p.x > cameraX + W + 50) continue;
+    if (p.x + p.w < cameraX - 50 || p.x > cameraX + viewW + 50) continue;
 
     ctx.fillStyle = '#450a0a';
     drawRoundedRect(p.x, p.y, p.w, p.h, 10);
@@ -4150,14 +4327,15 @@ function render() {
 
   for (const comp of fallingComputers) {
     if (comp.warnTimer > 0) {
+      const warnY = cameraY + 14;
       ctx.fillStyle = 'rgba(239, 68, 68, 0.85)';
-      drawRoundedRect(comp.x - 14, 14, 28, 22, 6);
+      drawRoundedRect(comp.x - 14, warnY, 28, 22, 6);
       ctx.fill();
       ctx.fillStyle = '#ffffff';
       ctx.font = '900 12px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('💻!', comp.x, 25);
+      ctx.fillText('💻!', comp.x, warnY + 11);
     } else {
       ctx.fillStyle = '#1e293b';
       drawRoundedRect(comp.x - comp.w / 2, comp.y - comp.h / 2, comp.w, comp.h, 6);
@@ -4175,7 +4353,7 @@ function render() {
 
   // 繪製 LV.4+ 盯梢光束
   for (const bm of surveillanceBeams) {
-    const sX = bm.startX !== undefined ? bm.startX : (cameraX + W + 24);
+    const sX = bm.startX !== undefined ? bm.startX : (cameraX + viewW + 24);
     const eX = bm.endX !== undefined ? bm.endX : (cameraX - 24);
     if (bm.warnTimer > 0) {
       ctx.save();
@@ -4190,7 +4368,7 @@ function render() {
       ctx.fillStyle = '#f43f5e';
       ctx.font = '900 12px sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText('🚨 盯梢瞄準中', cameraX + W - 12, bm.y - 10);
+      ctx.fillText('🚨 盯梢瞄準中', cameraX + viewW - 12, bm.y - 10);
       ctx.restore();
     } else {
       ctx.save();
@@ -4353,6 +4531,32 @@ function loop() {
 }
 
 window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => {
+  setTimeout(resizeCanvas, 120);
+  setTimeout(resizeCanvas, 320);
+});
+
+// 防止手機快速連點或雙指縮放畫面（保留輸入框正常點擊）
+let lastGlobalTouchEnd = 0;
+document.addEventListener('touchend', (e) => {
+  const tag = e.target && e.target.tagName ? e.target.tagName.toUpperCase() : '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  const now = Date.now();
+  if (now - lastGlobalTouchEnd <= 320) {
+    e.preventDefault();
+  }
+  lastGlobalTouchEnd = now;
+}, { passive: false });
+
+document.addEventListener('dblclick', (e) => {
+  const tag = e.target && e.target.tagName ? e.target.tagName.toUpperCase() : '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  e.preventDefault();
+}, { passive: false });
+
+['gesturestart', 'gesturechange', 'gestureend'].forEach((evtName) => {
+  document.addEventListener(evtName, (e) => e.preventDefault(), { passive: false });
+});
 
 
 
@@ -4463,6 +4667,8 @@ function saveGameProgressToDevice() {
       hero: {
         hp: hero.hp,
         maxHp: hero.maxHp,
+        dailyLives: hero.dailyLives,
+        dailyLivesDate: hero.dailyLivesDate || getPeriodKeys(Date.now()).dayKey,
         shield: hero.shield || 0,
         coffeeAmmo: hero.coffeeAmmo,
         materials: hero.materials
@@ -4561,14 +4767,30 @@ function loadGameProgressFromDevice() {
     }
 
     if (data.hero && typeof data.hero === 'object') {
-      if (typeof data.hero.maxHp === 'number') hero.maxHp = data.hero.maxHp;
-      if (typeof data.hero.hp === 'number') hero.hp = Math.max(1, Math.min(hero.maxHp, data.hero.hp));
+      hero.maxHp = MAX_HP_PER_LIFE;
+      if (typeof data.hero.dailyLives === 'number' && typeof data.hero.dailyLivesDate === 'string') {
+        hero.dailyLives = Math.max(0, data.hero.dailyLives);
+        hero.dailyLivesDate = data.hero.dailyLivesDate;
+        hero.hp = typeof data.hero.hp === 'number' ? Math.max(0, Math.min(hero.maxHp, data.hero.hp)) : hero.maxHp;
+      } else {
+        // 舊版存檔升級：直接給予今日滿 5 條命與滿 5 格血
+        hero.dailyLives = MAX_DAILY_LIVES;
+        hero.dailyLivesDate = getPeriodKeys(Date.now()).dayKey;
+        hero.hp = hero.maxHp;
+      }
+      syncDailyLivesIfNewDay();
+      if (hero.hp <= 0 && hero.dailyLives > 0) {
+        hero.hp = hero.maxHp;
+      }
       if (typeof data.hero.shield === 'number') hero.shield = Math.max(0, data.hero.shield);
       if (typeof data.hero.coffeeAmmo === 'number') hero.coffeeAmmo = Math.max(0, data.hero.coffeeAmmo);
       if (typeof data.hero.materials === 'number') hero.materials = Math.max(0, data.hero.materials);
       updateHeartsHUD();
       updateCoffeeHUD();
       updateMatHUD();
+      if (hero.dailyLives <= 0 && hero.hp <= 0) {
+        gameOver = true;
+      }
     }
 
     lastCoffeeRegenTick = Date.now();
