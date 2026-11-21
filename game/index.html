@@ -322,6 +322,40 @@
     height: 100%;
   }
 
+
+  /* ==================== 背景音樂與音效雙滑桿控制列 ==================== */
+  .audio-sliders-bar {
+    background: #0f172a;
+    border-top: 1px solid #1e293b;
+    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #cbd5e1;
+    flex-shrink: 0;
+  }
+  .slider-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .slider-group input[type="range"] {
+    flex: 1;
+    height: 4px;
+    accent-color: #34d399;
+    cursor: pointer;
+  }
+  .slider-val {
+    min-width: 28px;
+    text-align: right;
+    color: #fde047;
+    font-variant-numeric: tabular-nums;
+  }
+
   /* ==================== 手機拇指黃金比例虛擬手把 ==================== */
   .gamepad-dock {
     background: #111827;
@@ -702,6 +736,48 @@
     opacity: 0.2;
   }
 
+
+  /* ==================== 每日 / 每月 / 每年偷薪自動結算看板 ==================== */
+  .ledger-period-box {
+    background: #0b1120;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+  .ledger-period-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .ledger-period-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .ledger-cell {
+    background: #141c2e;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 6px 4px;
+    text-align: center;
+  }
+  .ledger-cell .p-val {
+    font-size: 13px;
+    font-weight: 900;
+    color: #34d399;
+    font-variant-numeric: tabular-nums;
+  }
+  .ledger-cell .p-lbl {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+
   /* 結算彈窗樣式 */
   .thief-highlight-box {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(56, 189, 248, 0.16));
@@ -857,6 +933,27 @@
           <div class="thief-perk" id="modalStealPerk">淨賺約可換購 0 杯全糖珍奶！</div>
         </div>
 
+        <div class="ledger-period-box">
+          <div class="ledger-period-title">
+            <span>📅 自動累計結算帳本</span>
+            <span id="ledgerDateLabel" style="color:#38bdf8;"></span>
+          </div>
+          <div class="ledger-period-grid">
+            <div class="ledger-cell">
+              <div class="p-val" id="ledgerDailyMoney">NT$ 0</div>
+              <div class="p-lbl">今天偷薪</div>
+            </div>
+            <div class="ledger-cell">
+              <div class="p-val" id="ledgerMonthlyMoney">NT$ 0</div>
+              <div class="p-lbl">本月偷薪</div>
+            </div>
+            <div class="ledger-cell">
+              <div class="p-val" id="ledgerYearlyMoney">NT$ 0</div>
+              <div class="p-lbl">今年偷薪</div>
+            </div>
+          </div>
+        </div>
+
         <div class="thief-stats">
           <div class="t-stat">
             <div class="v" id="modalClearedLv">LV.1</div>
@@ -878,6 +975,20 @@
 
         <button class="modal-btn" id="modalActionBtn" onclick="handleModalContinue()">挑戰 LV.2 更高難度關卡 ➔</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ==================== 音樂音量與音效音量滑桿 ==================== -->
+  <div class="audio-sliders-bar">
+    <div class="slider-group">
+      <span>🎵 音樂</span>
+      <input type="range" id="bgmVolSlider" min="0" max="100" value="12" oninput="setBgmVolumePercent(this.value)">
+      <span class="slider-val" id="bgmVolText">12%</span>
+    </div>
+    <div class="slider-group">
+      <span>🔔 音效</span>
+      <input type="range" id="sfxVolSlider" min="0" max="100" value="60" oninput="setSfxVolumePercent(this.value)">
+      <span class="slider-val" id="sfxVolText">60%</span>
     </div>
   </div>
 
@@ -998,7 +1109,9 @@ function initBgm() {
   if (!bgmAudio) {
     bgmAudio = new Audio(BGM_TRACKS[bgmTrackIdx]);
     bgmAudio.loop = false;
-    bgmAudio.volume = 0.20;
+    const sliderEl = document.getElementById('bgmVolSlider');
+    const pct = sliderEl ? Number(sliderEl.value) : 12;
+    bgmAudio.volume = Math.max(0, Math.min(1, pct / 100));
     bgmAudio.addEventListener('ended', () => {
       bgmTrackIdx = (bgmTrackIdx + 1) % BGM_TRACKS.length;
       bgmAudio.src = BGM_TRACKS[bgmTrackIdx];
@@ -1053,6 +1166,22 @@ function initAudio() {
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 }
 
+
+function setBgmVolumePercent(val) {
+  const pct = Math.max(0, Math.min(100, Number(val) || 0));
+  const txt = document.getElementById('bgmVolText');
+  if (txt) txt.textContent = pct + '%';
+  if (bgmAudio) {
+    bgmAudio.volume = pct / 100;
+  }
+}
+
+function setSfxVolumePercent(val) {
+  const pct = Math.max(0, Math.min(100, Number(val) || 0));
+  const txt = document.getElementById('sfxVolText');
+  if (txt) txt.textContent = pct + '%';
+}
+
 function playSound(type) {
   if (!soundEnabled) return;
   initAudio();
@@ -1060,6 +1189,8 @@ function playSound(type) {
   const now = audioCtx.currentTime;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
+  const sfxSlider = document.getElementById('sfxVolSlider');
+  const sfxScale = sfxSlider ? (Number(sfxSlider.value) / 100) * 1.4 : 0.85;
   osc.connect(gain);
   gain.connect(audioCtx.destination);
 
@@ -1067,14 +1198,14 @@ function playSound(type) {
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(220, now);
     osc.frequency.exponentialRampToValueAtTime(95, now + 0.09);
-    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.setValueAtTime(0.14 * sfxScale, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
     osc.start(now); osc.stop(now + 0.11);
   } else if (type === 'build') {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(320, now);
     osc.frequency.exponentialRampToValueAtTime(580, now + 0.08);
-    gain.gain.setValueAtTime(0.24, now);
+    gain.gain.setValueAtTime(0.14 * sfxScale, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
     osc.start(now); osc.stop(now + 0.1);
   } else if (type === 'chest') {
@@ -1082,21 +1213,21 @@ function playSound(type) {
     osc.frequency.setValueAtTime(523, now);
     osc.frequency.setValueAtTime(659, now + 0.07);
     osc.frequency.setValueAtTime(1046, now + 0.14);
-    gain.gain.setValueAtTime(0.26, now);
+    gain.gain.setValueAtTime(0.16 * sfxScale, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.32);
     osc.start(now); osc.stop(now + 0.33);
   } else if (type === 'jump') {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(220, now);
     osc.frequency.exponentialRampToValueAtTime(580, now + 0.14);
-    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.setValueAtTime(0.11 * sfxScale, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
     osc.start(now); osc.stop(now + 0.16);
   } else if (type === 'hurt') {
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(200, now);
     osc.frequency.linearRampToValueAtTime(75, now + 0.25);
-    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.setValueAtTime(0.16 * sfxScale, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.27);
     osc.start(now); osc.stop(now + 0.28);
   } else if (type === 'win') {
@@ -1105,7 +1236,7 @@ function playSound(type) {
     osc.frequency.setValueAtTime(659, now + 0.09);
     osc.frequency.setValueAtTime(784, now + 0.18);
     osc.frequency.setValueAtTime(1046, now + 0.27);
-    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.setValueAtTime(0.12 * sfxScale, now);
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
     osc.start(now); osc.stop(now + 0.46);
   }
@@ -1171,6 +1302,7 @@ function buyShopItem(itemType, cost) {
   }
 
   thiefStats.spentMoney += cost;
+  recordLedgerDelta(-cost);
   playSound('chest');
   vibrate(20);
 
@@ -1237,6 +1369,7 @@ function openStealModal(isClear = false, isDead = false) {
     btn.textContent = '繼續挖寶蓋房逃班！➔';
     btn.dataset.action = 'closeOnly';
   }
+  renderLedgerSummaryInModal();
   document.getElementById('resultModal').classList.add('open');
 }
 
@@ -2751,7 +2884,9 @@ const GRAVITY = 0.54;
 
 function update() {
   updateThiefHUD();
+  updateStealLedgerTick();
   updateCoffeeAutoRegen();
+  periodicAutoSaveTick();
   const isSalaryOpen = !document.getElementById('salaryOverlay').classList.contains('hidden');
   const isModalOpen = document.getElementById('resultModal').classList.contains('open') ||
                       document.getElementById('chestEventModal').classList.contains('open') ||
@@ -3235,10 +3370,250 @@ function loop() {
 
 window.addEventListener('resize', resizeCanvas);
 
+
+
+// ==================== 每日 / 每月 / 每年偷薪自動結算帳本 ====================
+const stealLedger = {
+  lastSyncMs: Date.now(),
+  dayKey: '',
+  monthKey: '',
+  yearKey: '',
+  dailyNet: 0,
+  monthlyNet: 0,
+  yearlyNet: 0,
+  historyByDay: {}
+};
+
+function getPeriodKeys(ts = Date.now()) {
+  const d = new Date(ts);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return {
+    dayKey: `${y}-${m}-${day}`,
+    monthKey: `${y}-${m}`,
+    yearKey: `${y}`
+  };
+}
+
+function rotatePeriodsIfNeeded(nowMs = Date.now()) {
+  const keysNow = getPeriodKeys(nowMs);
+  if (!stealLedger.dayKey) {
+    stealLedger.dayKey = keysNow.dayKey;
+    stealLedger.monthKey = keysNow.monthKey;
+    stealLedger.yearKey = keysNow.yearKey;
+    return;
+  }
+
+  // 跨日：自動結算前一天金額並歸零當日累積
+  if (keysNow.dayKey !== stealLedger.dayKey) {
+    stealLedger.historyByDay[stealLedger.dayKey] = stealLedger.dailyNet;
+    stealLedger.dailyNet = 0;
+    stealLedger.dayKey = keysNow.dayKey;
+  }
+
+  // 跨月：自動結算本月起算（保留年度累計）
+  if (keysNow.monthKey !== stealLedger.monthKey) {
+    stealLedger.monthlyNet = 0;
+    stealLedger.monthKey = keysNow.monthKey;
+  }
+
+  // 跨年：自動結算今年起算
+  if (keysNow.yearKey !== stealLedger.yearKey) {
+    stealLedger.yearlyNet = 0;
+    stealLedger.yearKey = keysNow.yearKey;
+  }
+}
+
+function updateStealLedgerTick() {
+  const now = Date.now();
+  const dt = Math.min(250, Math.max(0, now - stealLedger.lastSyncMs));
+  stealLedger.lastSyncMs = now;
+  rotatePeriodsIfNeeded(now);
+
+  const isSalaryOpen = !document.getElementById('salaryOverlay').classList.contains('hidden');
+  const isShopOpen = document.getElementById('shopModal').classList.contains('open');
+  const isModalOpen = document.getElementById('resultModal').classList.contains('open');
+  const isChestOpen = document.getElementById('chestEventModal').classList.contains('open');
+  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen) {
+    const earnedInTick = (dt / 3600000) * userHourlyRate;
+    stealLedger.dailyNet += earnedInTick;
+    stealLedger.monthlyNet += earnedInTick;
+    stealLedger.yearlyNet += earnedInTick;
+  }
+}
+
+function recordLedgerDelta(deltaMoney) {
+  rotatePeriodsIfNeeded(Date.now());
+  const num = Number(deltaMoney) || 0;
+  stealLedger.dailyNet = Math.max(0, stealLedger.dailyNet + num);
+  stealLedger.monthlyNet = Math.max(0, stealLedger.monthlyNet + num);
+  stealLedger.yearlyNet = Math.max(0, stealLedger.yearlyNet + num);
+}
+
+function renderLedgerSummaryInModal() {
+  updateStealLedgerTick();
+  const dEl = document.getElementById('ledgerDailyMoney');
+  const mEl = document.getElementById('ledgerMonthlyMoney');
+  const yEl = document.getElementById('ledgerYearlyMoney');
+  const lblEl = document.getElementById('ledgerDateLabel');
+  if (dEl) dEl.textContent = `NT$ ${Math.round(stealLedger.dailyNet).toLocaleString()}`;
+  if (mEl) mEl.textContent = `NT$ ${Math.round(stealLedger.monthlyNet).toLocaleString()}`;
+  if (yEl) yEl.textContent = `NT$ ${Math.round(stealLedger.yearlyNet).toLocaleString()}`;
+  if (lblEl) lblEl.textContent = `${stealLedger.dayKey} / ${stealLedger.monthKey} / ${stealLedger.yearKey}`;
+}
+
+// ==================== 手機本機自動存檔系統（localStorage） ====================
+const GAME_SAVE_STORAGE_KEY = 'office_escape_save_v1';
+let lastSaveSyncMs = 0;
+
+function saveGameProgressToDevice() {
+  try {
+    if (typeof userMonthlySalary === 'undefined' || typeof thiefStats === 'undefined' || typeof hero === 'undefined') return;
+    const payload = {
+      v: 1,
+      savedAt: Date.now(),
+      userMonthlySalary: userMonthlySalary,
+      userHourlyRate: userHourlyRate,
+      levelIndex: typeof levelIndex === 'number' ? levelIndex : 0,
+      hero: {
+        hp: hero.hp,
+        maxHp: hero.maxHp,
+        coffeeAmmo: hero.coffeeAmmo,
+        materials: hero.materials
+      },
+      thiefStats: {
+        activeStealMs: thiefStats.activeStealMs,
+        chestsOpened: thiefStats.chestsOpened,
+        blocksBuilt: thiefStats.blocksBuilt,
+        bonusMoney: thiefStats.bonusMoney,
+        spentMoney: thiefStats.spentMoney
+      },
+      coffeeRegenAccumMs: typeof coffeeRegenAccumMs === 'number' ? coffeeRegenAccumMs : 0,
+      stealLedger: {
+        dayKey: stealLedger.dayKey,
+        monthKey: stealLedger.monthKey,
+        yearKey: stealLedger.yearKey,
+        dailyNet: stealLedger.dailyNet,
+        monthlyNet: stealLedger.monthlyNet,
+        yearlyNet: stealLedger.yearlyNet,
+        historyByDay: stealLedger.historyByDay
+      },
+      bgmVol: document.getElementById('bgmVolSlider') ? Number(document.getElementById('bgmVolSlider').value) : 12,
+      sfxVol: document.getElementById('sfxVolSlider') ? Number(document.getElementById('sfxVolSlider').value) : 60,
+      soundEnabled: typeof soundEnabled === 'boolean' ? soundEnabled : true
+    };
+    localStorage.setItem(GAME_SAVE_STORAGE_KEY, JSON.stringify(payload));
+  } catch (e) {}
+}
+
+function loadGameProgressFromDevice() {
+  try {
+    const raw = localStorage.getItem(GAME_SAVE_STORAGE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== 'object') return false;
+
+    if (typeof data.userMonthlySalary === 'number' && data.userMonthlySalary >= 10000) {
+      userMonthlySalary = data.userMonthlySalary;
+      userHourlyRate = Math.round(userMonthlySalary / 240);
+      const inputEl = document.getElementById('monthlySalaryInput');
+      if (inputEl) inputEl.value = userMonthlySalary;
+      updateSalaryPreview();
+    }
+
+    if (data.thiefStats && typeof data.thiefStats === 'object') {
+      if (typeof data.thiefStats.activeStealMs === 'number') thiefStats.activeStealMs = data.thiefStats.activeStealMs;
+      if (typeof data.thiefStats.chestsOpened === 'number') thiefStats.chestsOpened = data.thiefStats.chestsOpened;
+      if (typeof data.thiefStats.blocksBuilt === 'number') thiefStats.blocksBuilt = data.thiefStats.blocksBuilt;
+      if (typeof data.thiefStats.bonusMoney === 'number') thiefStats.bonusMoney = data.thiefStats.bonusMoney;
+      if (typeof data.thiefStats.spentMoney === 'number') thiefStats.spentMoney = data.thiefStats.spentMoney;
+    }
+
+    if (typeof data.coffeeRegenAccumMs === 'number') {
+      coffeeRegenAccumMs = data.coffeeRegenAccumMs;
+    }
+
+    if (data.stealLedger && typeof data.stealLedger === 'object') {
+      if (typeof data.stealLedger.dayKey === 'string') stealLedger.dayKey = data.stealLedger.dayKey;
+      if (typeof data.stealLedger.monthKey === 'string') stealLedger.monthKey = data.stealLedger.monthKey;
+      if (typeof data.stealLedger.yearKey === 'string') stealLedger.yearKey = data.stealLedger.yearKey;
+      if (typeof data.stealLedger.dailyNet === 'number') stealLedger.dailyNet = data.stealLedger.dailyNet;
+      if (typeof data.stealLedger.monthlyNet === 'number') stealLedger.monthlyNet = data.stealLedger.monthlyNet;
+      if (typeof data.stealLedger.yearlyNet === 'number') stealLedger.yearlyNet = data.stealLedger.yearlyNet;
+      if (data.stealLedger.historyByDay && typeof data.stealLedger.historyByDay === 'object') {
+        stealLedger.historyByDay = data.stealLedger.historyByDay;
+      }
+      stealLedger.lastSyncMs = Date.now();
+      rotatePeriodsIfNeeded(stealLedger.lastSyncMs);
+    } else {
+      rotatePeriodsIfNeeded(Date.now());
+    }
+
+    if (typeof data.bgmVol === 'number') {
+      const bgmSlider = document.getElementById('bgmVolSlider');
+      if (bgmSlider) {
+        bgmSlider.value = data.bgmVol;
+        setBgmVolumePercent(data.bgmVol);
+      }
+    }
+
+    if (typeof data.sfxVol === 'number') {
+      const sfxSlider = document.getElementById('sfxVolSlider');
+      if (sfxSlider) {
+        sfxSlider.value = data.sfxVol;
+        setSfxVolumePercent(data.sfxVol);
+      }
+    }
+
+    if (typeof data.soundEnabled === 'boolean') {
+      soundEnabled = data.soundEnabled;
+      bgmWanted = soundEnabled;
+    }
+
+    if (typeof data.levelIndex === 'number' && data.levelIndex >= 0) {
+      loadLevel(data.levelIndex);
+    }
+
+    if (data.hero && typeof data.hero === 'object') {
+      if (typeof data.hero.maxHp === 'number') hero.maxHp = data.hero.maxHp;
+      if (typeof data.hero.hp === 'number') hero.hp = Math.max(1, Math.min(hero.maxHp, data.hero.hp));
+      if (typeof data.hero.coffeeAmmo === 'number') hero.coffeeAmmo = Math.max(0, data.hero.coffeeAmmo);
+      if (typeof data.hero.materials === 'number') hero.materials = Math.max(0, data.hero.materials);
+      updateHeartsHUD();
+      updateCoffeeHUD();
+      updateMatHUD();
+    }
+
+    lastCoffeeRegenTick = Date.now();
+    thiefStats.lastTick = Date.now();
+    updateThiefHUD();
+    updateQuestHUD();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function periodicAutoSaveTick() {
+  const now = Date.now();
+  if (now - lastSaveSyncMs >= 2000) {
+    lastSaveSyncMs = now;
+    saveGameProgressToDevice();
+  }
+}
+
+window.addEventListener('pagehide', saveGameProgressToDevice);
+window.addEventListener('beforeunload', saveGameProgressToDevice);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) saveGameProgressToDevice();
+});
+
 // 初始化啟動（先顯示月薪輸入框，背景已載入 LV.1 關卡）
 updateSalaryPreview();
 resizeCanvas();
 loadLevel(0);
+loadGameProgressFromDevice();
 requestAnimationFrame(loop);
 </script>
 </body>
