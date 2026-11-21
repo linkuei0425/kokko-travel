@@ -1,1 +1,912 @@
 
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>社畜大逃生（月薪換算時薪＋憤怒鳥彈弓打老闆＋挖寶蓋房）</title>
+<style>
+  * {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #0b1120;
+    color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ==================== 開場月薪換算時薪彈窗 ==================== */
+  .salary-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at top, #1e293b 0%, #060913 100%);
+    z-index: 120;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    overflow-y: auto;
+    touch-action: pan-y;
+  }
+  .salary-overlay.hidden { display: none; }
+
+  .salary-box {
+    width: 100%;
+    max-width: 390px;
+    background: #141c2e;
+    border: 2px solid #10b981;
+    border-radius: 20px;
+    padding: 20px 18px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85);
+    text-align: center;
+  }
+  .game-brand-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #fde047;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    text-shadow: 0 2px 10px rgba(253, 224, 71, 0.25);
+  }
+  .salary-tag {
+    display: inline-block;
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid #10b981;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-bottom: 8px;
+  }
+  .salary-box h2 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    color: #f8fafc;
+  }
+  .salary-box p {
+    margin: 0 0 14px;
+    font-size: 12.5px;
+    color: #94a3b8;
+    line-height: 1.45;
+  }
+  .salary-input-wrap {
+    background: #0b1120;
+    border: 2px solid #334155;
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .salary-input-wrap span {
+    font-size: 16px;
+    font-weight: 900;
+    color: #fde047;
+  }
+  .salary-input {
+    width: 150px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #34d399;
+    color: #34d399;
+    font-size: 24px;
+    font-weight: 900;
+    text-align: center;
+    outline: none;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  .quick-salary-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .quick-chip {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 99px;
+    cursor: pointer;
+  }
+  .quick-chip:active {
+    border-color: #34d399;
+    color: #34d399;
+  }
+  .hourly-preview {
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 12px;
+    padding: 9px;
+    font-size: 12.5px;
+    color: #bae6fd;
+    font-weight: 800;
+    margin-bottom: 14px;
+  }
+  .start-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #34d399, #059669);
+    color: #022c22;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+  }
+
+  /* ==================== 頂部手機專屬狀態列 ==================== */
+  .top-hud {
+    background: #111827;
+    padding: 6px 8px;
+    border-bottom: 2px solid #1f2937;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .hud-row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .hud-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .brand-hud-title {
+    font-size: 12px;
+    font-weight: 900;
+    color: #fde047;
+    white-space: nowrap;
+  }
+  .lv-badge {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid #fca5a5;
+  }
+  .stage-pill {
+    background: #0284c7;
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+  .thief-money-badge {
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid #10b981;
+    border-radius: 99px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 900;
+    color: #6ee7b7;
+    font-variant-numeric: tabular-nums;
+  }
+  .coffee-pill {
+    background: rgba(217, 119, 6, 0.25);
+    border: 1px solid #f59e0b;
+    border-radius: 99px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 900;
+    color: #fde047;
+  }
+  .mat-pill {
+    background: rgba(56, 189, 248, 0.18);
+    border: 1px solid #38bdf8;
+    border-radius: 99px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 900;
+    color: #7dd3fc;
+  }
+  .life-pill {
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .hud-btns {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .mini-btn {
+    background: #1f2937;
+    border: 1px solid #374151;
+    color: #e5e7eb;
+    padding: 4px 6px;
+    border-radius: 7px;
+    font-size: 10.5px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .mini-btn.shop {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #111827;
+    border: none;
+  }
+  .mini-btn.gold {
+    background: linear-gradient(135deg, #34d399, #059669);
+    color: #022c22;
+    border: none;
+    font-weight: 900;
+  }
+
+  .quest-strip {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 7px;
+    padding: 3px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    gap: 6px;
+  }
+  .quest-tag {
+    background: #d97706;
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 900;
+    padding: 1px 5px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .quest-desc {
+    flex: 1;
+    color: #f1f5f9;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .quest-prog {
+    color: #38bdf8;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* ==================== 手機滿版遊戲畫布 ==================== */
+  .canvas-wrap {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #0f172a;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ==================== 手機拇指黃金比例虛擬手把 ==================== */
+  .gamepad-dock {
+    background: #111827;
+    border-top: 2px solid #1f2937;
+    padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+    flex-shrink: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }
+  .dpad-group {
+    display: flex;
+    gap: 8px;
+  }
+  .action-group {
+    display: flex;
+    gap: 6px;
+  }
+  .pad-btn {
+    width: 52px;
+    height: 58px;
+    border-radius: 16px;
+    background: #1e293b;
+    border: 2px solid #334155;
+    color: #f8fafc;
+    font-size: 21px;
+    font-weight: 900;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #090d16;
+  }
+  .pad-btn:active, .pad-btn.pressed {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #090d16;
+    border-color: #34d399;
+    background: #273549;
+  }
+  .pad-btn .lbl {
+    font-size: 9.5px;
+    color: #cbd5e1;
+    margin-top: 2px;
+    font-weight: 800;
+  }
+  .pad-btn.coffee {
+    width: 58px;
+    background: linear-gradient(180deg, #78350f 0%, #451a03 100%);
+    border-color: #fbbf24;
+  }
+  .pad-btn.dig {
+    width: 56px;
+    background: linear-gradient(180deg, #92400e 0%, #451a03 100%);
+    border-color: #f59e0b;
+  }
+  .pad-btn.build {
+    width: 56px;
+    background: linear-gradient(180deg, #065f46 0%, #022c22 100%);
+    border-color: #34d399;
+  }
+  .pad-btn.jump {
+    width: 58px;
+    background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 100%);
+    border-color: #60a5fa;
+  }
+
+  /* ==================== 彈窗系統 ==================== */
+  .modal-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 9, 19, 0.92);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    z-index: 40;
+    text-align: center;
+    overflow-y: auto;
+  }
+  .modal-mask.open { display: flex; }
+  .modal-card {
+    background: #141c2e;
+    border: 2px solid #f59e0b;
+    border-radius: 18px;
+    padding: 14px 12px;
+    width: 100%;
+    max-width: 390px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+  }
+  .modal-card h2 { margin: 0 0 5px; color: #fbbf24; font-size: 17.5px; }
+  .chest-badge {
+    display: inline-block;
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid #f59e0b;
+    color: #fcd34d;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-bottom: 8px;
+  }
+  .chest-question {
+    font-size: 13.5px;
+    font-weight: 900;
+    color: #f8fafc;
+    line-height: 1.45;
+    background: #0b1120;
+    padding: 11px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    text-align: left;
+    border-left: 3px solid #38bdf8;
+  }
+  .chest-opt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chest-opt-btn {
+    background: #1e293b;
+    border: 1.5px solid #334155;
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: #e2e8f0;
+    font-size: 12.5px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    line-height: 1.35;
+  }
+  .chest-opt-btn:active {
+    transform: scale(0.97);
+    border-color: #fbbf24;
+  }
+
+  /* 商店商品列表 */
+  .shop-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 10px 0 12px;
+  }
+  .shop-item {
+    background: #0b1120;
+    border: 1.5px solid #334155;
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+  }
+  .shop-item-info .t { font-size: 13.5px; font-weight: 900; color: #f8fafc; }
+  .shop-item-info .d { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+  .buy-btn {
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+    border: none;
+    border-radius: 9px;
+    padding: 8px 11px;
+    color: #111827;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .buy-btn:active { transform: scale(0.95); }
+
+  /* ==================== 寶箱小遊戲 1：憤怒鳥式彈弓打老闆 ==================== */
+  .slingshot-arena {
+    background: #0b1120;
+    border: 1.5px solid #ef4444;
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 6px 0 8px;
+    position: relative;
+    touch-action: none;
+  }
+  #miniSlingshotCanvas {
+    display: block;
+    width: 100%;
+    height: 235px;
+  }
+  .sling-wpn-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+  .sling-wpn-btn {
+    background: #1e293b;
+    border: 1.5px solid #334155;
+    border-radius: 8px;
+    padding: 5px 4px;
+    color: #cbd5e1;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .sling-wpn-btn.active {
+    border-color: #fbbf24;
+    color: #fbbf24;
+    background: #273549;
+  }
+
+  /* 寶箱小遊戲 2：限時捏爆加班泡泡 */
+  .bubble-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    background: #0b1120;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1.5px solid #38bdf8;
+    margin: 8px 0 12px;
+  }
+  .mini-bubble {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #bae6fd, #0284c7);
+    border: 2px solid #7dd3fc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(56, 189, 248, 0.35);
+  }
+  .mini-bubble.popped {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: none;
+    transform: scale(0.88);
+    opacity: 0.45;
+  }
+
+  /* ==================== 寶箱小遊戲：與慣老闆 PK 21 點 ==================== */
+  .bj-table {
+    background: radial-gradient(circle at top, #064e3b 0%, #022c22 100%);
+    border: 2px solid #10b981;
+    border-radius: 14px;
+    padding: 10px;
+    margin: 6px 0 10px;
+    text-align: left;
+  }
+  .bj-zone-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #a7f3d0;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .bj-cards-row {
+    display: flex;
+    gap: 6px;
+    min-height: 54px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .bj-card {
+    background: #f8fafc;
+    color: #0f172a;
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-weight: 900;
+    font-size: 13.5px;
+    min-width: 42px;
+    text-align: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.45);
+    border: 1.5px solid #cbd5e1;
+  }
+  .bj-card.red { color: #dc2626; }
+  .bj-card.hidden-card {
+    background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+    color: #93c5fd;
+    border-color: #60a5fa;
+  }
+  .bj-bet-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    background: #0b1120;
+    padding: 7px 9px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .bj-bet-btns {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .bj-chip-btn {
+    background: #1e293b;
+    border: 1px solid #475569;
+    color: #fde047;
+    border-radius: 7px;
+    padding: 4px 7px;
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+  .bj-chip-btn.selected {
+    background: #d97706;
+    color: #111827;
+    border-color: #fef08a;
+  }
+  .bj-act-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .bj-hit-btn {
+    padding: 11px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #38bdf8, #0284c7);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+  .bj-stand-btn {
+    padding: 11px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+    color: #111827;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  /* ==================== 寶箱小遊戲：職場消消樂（隨機任務） ==================== */
+  .m3-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    background: #0b1120;
+    padding: 8px;
+    border-radius: 12px;
+    border: 1.5px solid #38bdf8;
+    margin: 6px 0 10px;
+  }
+  .m3-tile {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: #1e293b;
+    border: 2px solid #334155;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s, border-color 0.1s;
+  }
+  .m3-tile.selected {
+    border-color: #fde047;
+    background: #334155;
+    transform: scale(1.08);
+    box-shadow: 0 0 10px rgba(253, 224, 71, 0.5);
+  }
+
+  /* 結算彈窗樣式 */
+  .thief-highlight-box {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(56, 189, 248, 0.16));
+    border: 1.5px solid #34d399;
+    border-radius: 12px;
+    padding: 10px;
+    margin: 10px 0 12px;
+  }
+  .thief-big-num { font-size: 24px; font-weight: 900; color: #fde047; }
+  .thief-perk { font-size: 12px; color: #a7f3d0; font-weight: 700; margin-top: 3px; }
+  .thief-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-bottom: 12px;
+  }
+  .t-stat {
+    background: #0b1120;
+    border: 1px solid #1e293b;
+    border-radius: 9px;
+    padding: 7px;
+  }
+  .t-stat .v { font-size: 15px; font-weight: 900; color: #38bdf8; }
+  .t-stat .l { font-size: 10.5px; color: #94a3b8; }
+  .modal-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #34d399, #059669);
+    color: #022c22;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ==================== 開場輸入月薪自動換算時薪 ==================== -->
+  <div class="salary-overlay" id="salaryOverlay">
+    <div class="salary-box">
+      <div class="game-brand-title">🏃‍♂️ 社畜大逃生</div>
+      <div class="salary-tag">💰 薪水小偷價值計算機</div>
+      <h2>請輸入你的月薪（台幣）</h2>
+      <p>系統將依台灣標準<strong>每月 240 小時（30 天 × 8 小時）</strong>自動換算你的專屬時薪，即時計算帶薪摸魚價值！</p>
+
+      <div class="salary-input-wrap">
+        <span>NT$</span>
+        <input type="number" class="salary-input" id="monthlySalaryInput" value="72000" min="27470" max="1000000" oninput="updateSalaryPreview()">
+        <span>/ 月</span>
+      </div>
+
+      <div class="quick-salary-row">
+        <button class="quick-chip" onclick="setMonthlySalary(35000)">3.5 萬</button>
+        <button class="quick-chip" onclick="setMonthlySalary(45000)">4.5 萬</button>
+        <button class="quick-chip" onclick="setMonthlySalary(60000)">6 萬</button>
+        <button class="quick-chip" onclick="setMonthlySalary(80000)">8 萬</button>
+        <button class="quick-chip" onclick="setMonthlySalary(100000)">10 萬</button>
+      </div>
+
+      <div class="hourly-preview" id="hourlyPreviewText">
+        換算時薪：約 <strong>NT$ 300 / 小時</strong>（每秒偷薪 NT$ 0.08）
+      </div>
+
+      <button class="start-btn" onclick="confirmSalaryAndStart()">確認月薪，開始帶薪闖關！➔</button>
+    </div>
+  </div>
+
+  <!-- ==================== 頂部手機專屬狀態列 ==================== -->
+  <div class="top-hud">
+    <div class="hud-row1">
+      <div class="hud-left">
+        <span class="brand-hud-title">🏃‍♂️ 社畜大逃生</span>
+        <span class="lv-badge" id="levelBadge">LV.1 菜鳥期</span>
+        <span class="stage-pill" id="stagePill">B1 檔案室</span>
+        <div class="thief-money-badge">💰 <span id="liveStealMoney">NT$ 90</span></div>
+        <div class="coffee-pill">☕ <span id="coffeeAmmoText">10</span></div>
+        <div class="mat-pill">🧱 <span id="matCountText">8</span></div>
+        <span class="life-pill" id="lifeHearts">❤️❤️❤️</span>
+      </div>
+      <div class="hud-btns">
+        <button class="mini-btn" onclick="reopenSalaryModal()">💵 月薪</button>
+        <button class="mini-btn shop" onclick="openShopModal()">🏪 商店</button>
+        <button class="mini-btn gold" onclick="openStealModal(false, false)">🏁 結算</button>
+      </div>
+    </div>
+
+    <div class="quest-strip">
+      <span class="quest-tag" id="questTag">時薪 $300</span>
+      <span class="quest-desc" id="questDesc">挖寶箱可觸發【21點賭局】【彈弓打老闆】【消消樂】【心理測驗】！</span>
+      <span class="quest-prog" id="questProg">寶箱 0 / 5</span>
+    </div>
+  </div>
+
+  <!-- ==================== 手機滿版橫向挖掘＋蓋房主畫布 ==================== -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- 辦公室茶水間商店彈窗 -->
+    <div class="modal-mask" id="shopModal">
+      <div class="modal-card" style="border-color:#fbbf24;">
+        <h2>🏪 茶水間自動販賣機商店</h2>
+        <div class="chest-badge">目前偷薪餘額：<span id="shopBalanceText">NT$ 90</span></div>
+        <div class="shop-list">
+          <div class="shop-item">
+            <div class="shop-item-info">
+              <div class="t">☕ 超商大杯冰美式（單杯現買）</div>
+              <div class="d">台灣超商真實物價 $45，補充 1 杯潑咖啡彈藥</div>
+            </div>
+            <button class="buy-btn" onclick="buyShopItem('coffee1', 45)">NT$ 45</button>
+          </div>
+          <div class="shop-item">
+            <div class="shop-item-info">
+              <div class="t">🔥 超商寄杯 3 杯特惠組（+3 杯）</div>
+              <div class="d">寄杯優惠價每杯 $40，遠程消滅主管更划算</div>
+            </div>
+            <button class="buy-btn" onclick="buyShopItem('coffee3', 120)">NT$ 120</button>
+          </div>
+          <div class="shop-item">
+            <div class="shop-item-info">
+              <div class="t">🧱 總務部加厚紙箱組（+5 塊建材）</div>
+              <div class="d">搬家五金行市價 $99，蓋梯子翻高牆必備</div>
+            </div>
+            <button class="buy-btn" onclick="buyShopItem('mat5', 99)">NT$ 99</button>
+          </div>
+          <div class="shop-item">
+            <div class="shop-item-info">
+              <div class="t">🧋 手搖飲全糖黑糖珍奶（恢復 +2 ❤️）</div>
+              <div class="d">台灣手搖飲現況均價 $75，喝一口理智回血</div>
+            </div>
+            <button class="buy-btn" onclick="buyShopItem('heal2', 75)">NT$ 75</button>
+          </div>
+        </div>
+        <button class="modal-btn" style="background:#334155;color:#f8fafc;" onclick="closeShopModal()">離開商店，繼續逃班 ➔</button>
+      </div>
+    </div>
+
+    <!-- 寶箱奇遇彈窗 -->
+    <div class="modal-mask" id="chestEventModal">
+      <div class="modal-card" id="chestEventContent"></div>
+    </div>
+
+    <!-- 過關 / 薪水小偷結算彈窗 -->
+    <div class="modal-mask" id="resultModal">
+      <div class="modal-card" style="border-color:#34d399;">
+        <h2 id="modalTitle" style="color:#34d399;">🚇 成功搭上末班捷運逃離公司！</h2>
+        <div class="chest-badge" id="nextLevelPreviewBadge" style="border-color:#ef4444;color:#fca5a5;">下一關：LV.2 進階地獄（難度全面提升！）</div>
+        <div class="thief-highlight-box">
+          <div style="font-size:11px;color:#cbd5e1;font-weight:700;" id="modalSalaryInfo">依月薪 NT$72,000（時薪 NT$300）計算</div>
+          <div class="thief-big-num" id="modalStealMoney">NT$ 0</div>
+          <div class="thief-perk" id="modalStealPerk">淨賺約可換購 0 杯全糖珍奶！</div>
+        </div>
+
+        <div class="thief-stats">
+          <div class="t-stat">
+            <div class="v" id="modalClearedLv">LV.1</div>
+            <div class="l">目前挑戰等級</div>
+          </div>
+          <div class="t-stat">
+            <div class="v" id="modalChests">0 個</div>
+            <div class="l">解開神秘寶箱</div>
+          </div>
+          <div class="t-stat">
+            <div class="v" id="modalCoffeeSpent">NT$ 0</div>
+            <div class="l">潑咖啡與商店花費</div>
+          </div>
+          <div class="t-stat">
+            <div class="v" id="modalThiefRank">見習摸魚員</div>
+            <div class="l">薪水小偷稱號</div>
+          </div>
+        </div>
+
+        <button class="modal-btn" id="modalActionBtn" onclick="handleModalContinue()">挑戰 LV.2 更高難度關卡 ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 手機大按鈕虛擬控制器 ==================== -->
+  <div class="gamepad-dock">
+    <div class="dpad-group">
+      <button class="pad-btn" id="btnLeft"
+        onpointerdown="setKey('left', true, this)"
+        onpointerup="setKey('left', false, this)"
+        onpointerleave="setKey('left', false, this)"
+        onpointercancel="setKey('left', false, this)">
+        <span>◀</span>
+        <span class="lbl">左走</span>
+      </button>
+      <button class="pad-btn" id="btnRight"
+        onpointerdown="setKey('right', true, this)"
+        onpointerup="setKey('right', false, this)"
+        onpointerleave="setKey('right', false, this)"
+        onpointercancel="setKey('right', false, this)">
+        <span>▶</span>
+        <span class="lbl">右走</span>
+      </button>
+    </div>
+
+    <div class="action-group">
+      <button class="pad-btn coffee" id="btnCoffee"
+        onpointerdown="triggerCoffeeAttack(this)"
+        onpointerup="releaseBtn(this)"
+        onpointerleave="releaseBtn(this)">
+        <span>☕</span>
+        <span class="lbl">潑咖啡-$45</span>
+      </button>
+      <button class="pad-btn dig" id="btnDig"
+        onpointerdown="triggerDig(this)"
+        onpointerup="releaseBtn(this)"
+        onpointerleave="releaseBtn(this)">
+        <span>⛏️</span>
+        <span class="lbl">挖鏟/開箱</span>
+      </button>
+      <button class="pad-btn build" id="btnBuild"
+        onpointerdown="triggerBuild(this)"
+        onpointerup="releaseBtn(this)"
+        onpointerleave="releaseBtn(this)">
+        <span>🧱</span>
+        <span class="lbl">蓋方塊</span>
+      </button>
+      <button class="pad-btn jump" id="btnJump"
+        onpointerdown="triggerJump(this)"
+        onpointerup="releaseBtn(this)"
+        onpointerleave="releaseBtn(this)">
+        <span>🦘</span>
+        <span class="lbl">二段跳</span>
+      </button>
+    </div>
+  </div>
