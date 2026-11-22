@@ -1237,9 +1237,10 @@
             <li><strong>LV.4 起</strong>：🚨 <strong>盯梢光束</strong> — 紅線預警時按 <strong>🧱 蓋方塊</strong>立逃生箱即可擋住光束（或二段跳躲開）！</li>
             <li><strong>LV.5 起</strong>：💣 <strong>倒數加班炸彈</strong> — 落地倒數引爆，快拉開距離或對炸彈<strong>☕ 潑咖啡拆彈</strong>（拆彈賺 NT$15），且會隨機混入火球、電腦與光束！</li>
           </ul>
-          <div class="guide-sec-title">🧰 寶箱奇遇與過關猜謎</div>
+          <div class="guide-sec-title">🧰 寶箱奇遇、補血站與過關猜謎</div>
           <ul class="guide-list">
-            <li>挖開寶箱或頂開檔案櫃，隨機觸發 21 點、彈弓打老闆、職場消消樂、捏泡泡或心理測驗。</li>
+            <li>每關中段設有 <strong>🏥 茶水間補血站</strong>，受傷時經過即可免費<strong>補滿 5 格血</strong>！</li>
+            <li>挖開寶箱或頂開檔案櫃，隨機觸發 21 點、彈弓打老闆、職場消消樂、捏泡泡、心理測驗，或抽中 <strong>🧥 隱形斗篷（限時 2 秒不受任何攻擊）</strong>！</li>
             <li>衝進 <strong>🚇 捷運出口</strong>後回答 3 題猜謎：答對 1 題 +1 杯咖啡，3 題全對額外 +1 條命 ❤️！</li>
           </ul>
         </div>
@@ -2241,9 +2242,9 @@ function triggerChestEvent(block) {
   const box = document.getElementById('chestEventContent');
   const modal = document.getElementById('chestEventModal');
 
-  let eventType = Math.floor(Math.random() * 5);
+  let eventType = Math.floor(Math.random() * 6);
   if (typeof lastChestEventType === 'number' && eventType === lastChestEventType) {
-    eventType = (eventType + 1 + Math.floor(Math.random() * 4)) % 5;
+    eventType = (eventType + 1 + Math.floor(Math.random() * 5)) % 6;
   }
   lastChestEventType = eventType;
   chestEventCounter++;
@@ -2269,8 +2270,10 @@ function triggerChestEvent(block) {
     modal.classList.add('open');
   } else if (eventType === 3) {
     startMiniBubbleGame(box, modal);
-  } else {
+  } else if (eventType === 4) {
     startMatchThreeMiniGame(box, modal);
+  } else {
+    grantInvisibilityCloakFromChest(box, modal);
   }
 }
 
@@ -2328,6 +2331,31 @@ function closeChestModalAndReturn() {
   if (hero.hp <= 0 && !gameOver) {
     handleHeroDeath(400);
   }
+}
+
+function grantInvisibilityCloakFromChest(box, modal) {
+  playSound('win');
+  vibrate([25, 20, 45]);
+  box.innerHTML = `
+    <h2 style="color:#a78bfa;">🧥 寶箱奇蹟：獲得【隱形斗篷】！</h2>
+    <div class="chest-badge" style="border-color:#a78bfa;color:#ddd6fe;">✨ 限時 2 秒不受任何攻擊！</div>
+    <div class="chest-question" style="border-left-color:#a78bfa;">
+      你在寶箱裡翻出傳說中的<strong>「社畜隱形斗篷」</strong>！披上後回到關卡立即啟動 <strong>2 秒完全隱形無敵</strong>，任何主管、報告、火球、電腦、光束與炸彈都傷不了你！
+    </div>
+    <button class="modal-btn" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#ffffff;" onclick="activateInvisibilityCloakAndReturn()">披上隱形斗篷，衝啊！（2秒無敵）➔</button>
+  `;
+  modal.classList.add('open');
+}
+
+function activateInvisibilityCloakAndReturn() {
+  initAudio();
+  playSound('chest');
+  vibrate([20, 15, 30]);
+  hero.cloakMs = 2000;
+  hero.lastCloakTick = Date.now();
+  closeChestModalAndReturn();
+  spawnParticles(hero.x + hero.w / 2, hero.y + hero.h / 2, ['#a78bfa', '#38bdf8', '#ffffff'], 22, 6);
+  spawnFloatText(hero.x, hero.y - 26, '🧥 隱形斗篷啟動！2 秒不受任何攻擊！', '#c4b5fd');
 }
 
 // ==================== 寶箱小遊戲：職場消消樂（完成後保留目前關卡進度） ====================
@@ -3254,6 +3282,8 @@ const hero = {
   coffeeAmmo: 10,
   materials: 8,
   invulnTimer: 0,
+  cloakMs: 0,
+  lastCloakTick: 0,
   swingAnim: 0,
   walkFrame: 0
 };
@@ -3275,6 +3305,7 @@ let globalHazardCooldown = 0;
 let screenShake = 0;
 let particles = [];
 let floatTexts = [];
+let healStation = null;
 let exitSubway = { x: 2250, y: 260, w: 92, h: 120 };
 let levelChestsOpened = 0;
 let levelChestsTotal = 5;
@@ -3373,6 +3404,23 @@ function buildStageGrid(idx) {
     );
   }
 
+  // 每關中間設置 1 座補血站（避開可挖區與深淵，確保站在安全實心路面上）
+  let midCol = Math.floor(cols / 2);
+  while (
+    midCol < cols - 10 &&
+    !blocks.some(b => b.type === 'floor' && b.x === midCol * TILE && b.y === gRow * TILE)
+  ) {
+    midCol++;
+  }
+  healStation = {
+    x: midCol * TILE,
+    y: (gRow - 2) * TILE,
+    w: TILE * 1.45,
+    h: TILE * 2,
+    used: false,
+    fullHintShown: false
+  };
+
   exitSubway = {
     x: (cols - 4) * TILE,
     y: (gRow - 3) * TILE,
@@ -3415,6 +3463,8 @@ function loadLevel(idx) {
   hero.coffeeAmmo = Math.max(hero.coffeeAmmo, 10);
   hero.materials = Math.max(hero.materials, 8);
   hero.invulnTimer = 0;
+  hero.cloakMs = 0;
+  hero.lastCloakTick = 0;
   hero.swingAnim = 0;
 
   cameraX = 0;
@@ -3487,7 +3537,7 @@ function handleHeroDeath(delayMs = 550) {
 }
 
 function applyHeroDamage(msg, knockVy = -8.5, textColor = '#f43f5e') {
-  if (hero.invulnTimer > 0 || gameOver) return false;
+  if (hero.cloakMs > 0 || hero.invulnTimer > 0 || gameOver) return false;
   if (hero.shield && hero.shield > 0) {
     hero.shield--;
     hero.invulnTimer = 75;
@@ -3766,9 +3816,23 @@ function update() {
                       document.getElementById('shopModal').classList.contains('open') ||
                       document.getElementById('settingsModal').classList.contains('open') ||
                       document.getElementById('guideModal').classList.contains('open');
-  if (gameOver || isModalOpen || isSalaryOpen) return;
+  if (gameOver || isModalOpen || isSalaryOpen) {
+    if (hero.cloakMs > 0) hero.lastCloakTick = Date.now();
+    return;
+  }
 
   if (hero.invulnTimer > 0) hero.invulnTimer--;
+  if (hero.cloakMs > 0) {
+    const nowMs = Date.now();
+    const cloakDt = hero.lastCloakTick ? Math.min(100, Math.max(0, nowMs - hero.lastCloakTick)) : 16;
+    hero.lastCloakTick = nowMs;
+    hero.cloakMs = Math.max(0, hero.cloakMs - cloakDt);
+    if (hero.cloakMs === 0) {
+      spawnFloatText(hero.x, hero.y - 20, '🧥 隱形斗篷效果結束！', '#94a3b8');
+    }
+  } else {
+    hero.lastCloakTick = 0;
+  }
   if (hero.swingAnim > 0) hero.swingAnim = Math.max(0, hero.swingAnim - 0.14);
   if (coffeeCooldown > 0) coffeeCooldown--;
   if (globalHazardCooldown > 0) globalHazardCooldown--;
@@ -3893,7 +3957,7 @@ function update() {
     }
 
     const fbBox = { x: fb.x - fb.r * 0.78, y: fb.y - fb.r * 0.78, w: fb.r * 1.56, h: fb.r * 1.56 };
-    if (rectIntersect(hero, fbBox) && hero.invulnTimer === 0) {
+    if (rectIntersect(hero, fbBox) && hero.invulnTimer === 0 && hero.cloakMs <= 0) {
       spawnParticles(fb.x, fb.y, ['#fb923c', '#ef4444', '#fde047'], 16, 6);
       rollingFireballs.splice(i, 1);
       if (applyHeroDamage('🔥 沒跳過火球被燙到 -1 ❤️！', -8.5, '#fb923c')) return;
@@ -3927,7 +3991,7 @@ function update() {
     }
 
     const compBox = { x: comp.x - comp.w * 0.42, y: comp.y - comp.h * 0.42, w: comp.w * 0.84, h: comp.h * 0.84 };
-    if (rectIntersect(hero, compBox) && hero.invulnTimer === 0) {
+    if (rectIntersect(hero, compBox) && hero.invulnTimer === 0 && hero.cloakMs <= 0) {
       spawnParticles(comp.x, comp.y, ['#38bdf8', '#f43f5e', '#ffffff'], 16, 6);
       fallingComputers.splice(i, 1);
       if (applyHeroDamage('💻 被掉落電腦砸中 -1 ❤️！快閃避！', -8, '#f43f5e')) return;
@@ -3973,7 +4037,7 @@ function update() {
       }
 
       const beamRect = { x: endX, y: bm.y - 8, w: Math.max(0, startX - endX), h: 16 };
-      if (rectIntersect(hero, beamRect) && hero.invulnTimer === 0) {
+      if (rectIntersect(hero, beamRect) && hero.invulnTimer === 0 && hero.cloakMs <= 0) {
         spawnParticles(hero.x + hero.w / 2, bm.y, ['#ef4444', '#fca5a5', '#ffffff'], 16, 6);
         if (applyHeroDamage('🚨 被盯梢光束掃到 -1 ❤️！記得蓋箱擋住！', -8, '#f43f5e')) return;
       }
@@ -4016,7 +4080,7 @@ function update() {
 
       const heroCx = hero.x + hero.w / 2;
       const heroCy = hero.y + hero.h / 2;
-      if (Math.hypot(heroCx - bm.x, heroCy - bm.y) < bm.blastRadius + 14 && hero.invulnTimer === 0) {
+      if (Math.hypot(heroCx - bm.x, heroCy - bm.y) < bm.blastRadius + 14 && hero.invulnTimer === 0 && hero.cloakMs <= 0) {
         overtimeBombs.splice(i, 1);
         if (applyHeroDamage('💣 加班炸彈引爆被炸飛 -1 ❤️！', -10, '#f97316')) return;
         continue;
@@ -4205,7 +4269,7 @@ function update() {
       });
     }
 
-    if (rectIntersect(hero, p) && hero.invulnTimer === 0) {
+    if (rectIntersect(hero, p) && hero.invulnTimer === 0 && hero.cloakMs <= 0) {
       if (applyHeroDamage(`😵 被【${p.name}】抓到 -1 ❤️！`, -8.5, '#f43f5e')) return;
     }
   }
@@ -4239,7 +4303,7 @@ function update() {
       continue;
     }
 
-    if (rectIntersect(hero, { x: br.x - 14, y: br.y - 14, w: 28, h: 28 })) {
+    if (hero.cloakMs <= 0 && rectIntersect(hero, { x: br.x - 14, y: br.y - 14, w: 28, h: 28 })) {
       bossReports.splice(i, 1);
       if (hero.invulnTimer === 0) {
         if (applyHeroDamage(`📄 被【${br.fromName}】的${br.label}砸中 -1 ❤️！`, -8, '#f43f5e')) return;
@@ -4249,6 +4313,22 @@ function update() {
 
     if (br.life <= 0 || br.y > baseFloorY + TILE * 4) {
       bossReports.splice(i, 1);
+    }
+  }
+
+  if (healStation && !healStation.used && rectIntersect(hero, healStation)) {
+    if (hero.hp < hero.maxHp) {
+      healStation.used = true;
+      hero.hp = hero.maxHp;
+      updateHeartsHUD();
+      saveGameProgressToDevice();
+      playSound('win');
+      vibrate([25, 15, 35]);
+      spawnParticles(healStation.x + healStation.w / 2, healStation.y + healStation.h / 2, ['#34d399', '#f43f5e', '#fde047', '#ffffff'], 28, 7);
+      spawnFloatText(hero.x, hero.y - 26, '🏥 補血站！血量已補滿 ❤️❤️❤️❤️❤️', '#34d399');
+    } else if (!healStation.fullHintShown) {
+      healStation.fullHintShown = true;
+      spawnFloatText(healStation.x + healStation.w / 2, healStation.y - 14, '🏥 補血站（目前滿血，受傷再來補！）', '#6ee7b7');
     }
   }
 
@@ -4389,6 +4469,33 @@ function render() {
       ctx.textBaseline = 'middle';
       ctx.fillText('逃生箱', b.x + b.w / 2, b.y + b.h / 2);
     }
+  }
+
+  // 繪製每關中段補血站
+  if (healStation && healStation.x + healStation.w >= cameraX - 50 && healStation.x <= cameraX + viewW + 50) {
+    ctx.save();
+    ctx.fillStyle = healStation.used ? '#1e293b' : '#064e3b';
+    drawRoundedRect(healStation.x, healStation.y, healStation.w, healStation.h, 10);
+    ctx.fill();
+    ctx.strokeStyle = healStation.used ? '#64748b' : '#34d399';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.fillStyle = healStation.used ? '#475569' : '#10b981';
+    drawRoundedRect(healStation.x + 5, healStation.y + 5, healStation.w - 10, 19, 5);
+    ctx.fill();
+    ctx.fillStyle = healStation.used ? '#cbd5e1' : '#022c22';
+    ctx.font = '900 10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(healStation.used ? '已補血' : '補血站', healStation.x + healStation.w / 2, healStation.y + 14.5);
+
+    ctx.font = '25px sans-serif';
+    ctx.fillText(healStation.used ? '✅' : '🏥', healStation.x + healStation.w / 2, healStation.y + 44);
+    ctx.fillStyle = healStation.used ? '#94a3b8' : '#a7f3d0';
+    ctx.font = 'bold 9.5px sans-serif';
+    ctx.fillText(healStation.used ? '已使用' : '補滿血!', healStation.x + healStation.w / 2, healStation.y + 68);
+    ctx.restore();
   }
 
   ctx.fillStyle = '#0f172a';
@@ -4589,10 +4696,13 @@ function render() {
     ctx.fillText(br.label, br.x, br.y + 1);
   }
 
-  if (hero.invulnTimer === 0 || Math.floor(hero.invulnTimer / 4) % 2 === 0) {
+  if (hero.cloakMs > 0 || hero.invulnTimer === 0 || Math.floor(hero.invulnTimer / 4) % 2 === 0) {
     const bob = hero.onGround ? Math.abs(Math.sin(hero.walkFrame)) * 3 : 0;
     ctx.save();
     ctx.translate(hero.x + hero.w / 2, hero.y + hero.h / 2 - bob);
+    if (hero.cloakMs > 0) {
+      ctx.globalAlpha = 0.42;
+    }
     ctx.scale(hero.facing, 1);
 
     ctx.fillStyle = '#0284c7';
@@ -4624,7 +4734,28 @@ function render() {
       ctx.stroke();
     }
 
+    if (hero.cloakMs > 0) {
+      ctx.beginPath();
+      ctx.arc(0, 0, 30, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(167, 139, 250, 0.22)';
+      ctx.fill();
+      ctx.strokeStyle = '#c4b5fd';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([5, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
     ctx.restore();
+
+    if (hero.cloakMs > 0) {
+      ctx.save();
+      ctx.fillStyle = '#ddd6fe';
+      ctx.font = '900 11.5px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`🧥 隱形 ${(hero.cloakMs / 1000).toFixed(1)}s`, hero.x + hero.w / 2, hero.y - 16);
+      ctx.restore();
+    }
   }
 
   for (let i = particles.length - 1; i >= 0; i--) {
