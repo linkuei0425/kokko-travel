@@ -1589,57 +1589,33 @@
     </div>
   </div>
 
-  <!-- ==================== 手機大按鈕虛擬控制器 ==================== -->
-  <div class="gamepad-dock">
+  <!-- ==================== 手機大按鈕虛擬控制器（支援原生多點觸控） ==================== -->
+  <div class="gamepad-dock" id="gamepadDock">
     <div class="dpad-group">
-      <button class="pad-btn" id="btnLeft"
-        onpointerdown="event.preventDefault();setKey('left', true, this)"
-        onpointerup="setKey('left', false, this)"
-        onpointerleave="setKey('left', false, this)"
-        onpointercancel="setKey('left', false, this)">
+      <button type="button" class="pad-btn" id="btnLeft" data-pad="left">
         <span>◀</span>
         <span class="lbl">左走</span>
       </button>
-      <button class="pad-btn" id="btnRight"
-        onpointerdown="event.preventDefault();setKey('right', true, this)"
-        onpointerup="setKey('right', false, this)"
-        onpointerleave="setKey('right', false, this)"
-        onpointercancel="setKey('right', false, this)">
+      <button type="button" class="pad-btn" id="btnRight" data-pad="right">
         <span>▶</span>
         <span class="lbl">右走</span>
       </button>
     </div>
 
     <div class="action-group">
-      <button class="pad-btn coffee" id="btnCoffee"
-        onpointerdown="event.preventDefault();triggerCoffeeAttack(this)"
-        onpointerup="releaseBtn(this)"
-        onpointerleave="releaseBtn(this)"
-        onpointercancel="releaseBtn(this)">
+      <button type="button" class="pad-btn coffee" id="btnCoffee" data-pad="coffee">
         <span>☕</span>
         <span class="lbl">潑咖啡</span>
       </button>
-      <button class="pad-btn dig" id="btnDig"
-        onpointerdown="event.preventDefault();triggerDig(this)"
-        onpointerup="releaseBtn(this)"
-        onpointerleave="releaseBtn(this)"
-        onpointercancel="releaseBtn(this)">
+      <button type="button" class="pad-btn dig" id="btnDig" data-pad="dig">
         <span>⛏️</span>
         <span class="lbl">挖/開箱</span>
       </button>
-      <button class="pad-btn build" id="btnBuild"
-        onpointerdown="event.preventDefault();triggerBuild(this)"
-        onpointerup="releaseBtn(this)"
-        onpointerleave="releaseBtn(this)"
-        onpointercancel="releaseBtn(this)">
+      <button type="button" class="pad-btn build" id="btnBuild" data-pad="build">
         <span>🧱</span>
         <span class="lbl">蓋方塊</span>
       </button>
-      <button class="pad-btn jump" id="btnJump"
-        onpointerdown="event.preventDefault();triggerJump(this)"
-        onpointerup="releaseBtn(this)"
-        onpointerleave="releaseBtn(this)"
-        onpointercancel="releaseBtn(this)">
+      <button type="button" class="pad-btn jump" id="btnJump" data-pad="jump">
         <span>🦘</span>
         <span class="lbl">二段跳</span>
       </button>
@@ -5844,6 +5820,133 @@ async function refreshLeaderboard(uploadFirst = false) {
   }
 }
 
+// ==================== 原生多點觸控虛擬手把（左手移動與右手動作完全獨立） ====================
+function initMultiTouchGamepad() {
+  const dock = document.getElementById('gamepadDock');
+  const btnLeft = document.getElementById('btnLeft');
+  const btnRight = document.getElementById('btnRight');
+  const btnCoffee = document.getElementById('btnCoffee');
+  const btnDig = document.getElementById('btnDig');
+  const btnBuild = document.getElementById('btnBuild');
+  const btnJump = document.getElementById('btnJump');
+  if (!dock) return;
+
+  // 追蹤每根手指的 identifier -> 對應按鍵名稱 ('left' | 'right' | 'coffee' | 'dig' | 'build' | 'jump')
+  const activeTouches = new Map();
+  let lastTouchTs = 0;
+
+  function getPadAtPoint(x, y) {
+    const el = document.elementFromPoint(x, y);
+    if (!el) return null;
+    const btn = el.closest ? el.closest('.pad-btn') : null;
+    return btn ? btn.dataset.pad : null;
+  }
+
+  function syncDpadFromTouches() {
+    let leftPressed = false;
+    let rightPressed = false;
+    for (const pad of activeTouches.values()) {
+      if (pad === 'left') leftPressed = true;
+      if (pad === 'right') rightPressed = true;
+    }
+    keys.left = leftPressed;
+    keys.right = rightPressed;
+    if (btnLeft) btnLeft.classList.toggle('pressed', leftPressed);
+    if (btnRight) btnRight.classList.toggle('pressed', rightPressed);
+  }
+
+  function fireAction(pad) {
+    if (pad === 'coffee') triggerCoffeeAttack(btnCoffee);
+    else if (pad === 'dig') triggerDig(btnDig);
+    else if (pad === 'build') triggerBuild(btnBuild);
+    else if (pad === 'jump') triggerJump(btnJump);
+  }
+
+  function releaseActionVisual(pad) {
+    if (pad === 'coffee') releaseBtn(btnCoffee);
+    else if (pad === 'dig') releaseBtn(btnDig);
+    else if (pad === 'build') releaseBtn(btnBuild);
+    else if (pad === 'jump') releaseBtn(btnJump);
+  }
+
+  dock.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    lastTouchTs = Date.now();
+    initAudio();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const t = e.changedTouches[i];
+      const pad = getPadAtPoint(t.clientX, t.clientY);
+      if (!pad) continue;
+      activeTouches.set(t.identifier, pad);
+      if (pad !== 'left' && pad !== 'right') {
+        fireAction(pad);
+      }
+    }
+    syncDpadFromTouches();
+  }, { passive: false });
+
+  dock.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const t = e.changedTouches[i];
+      const prevPad = activeTouches.get(t.identifier);
+      // 僅對方向鍵支援拇指滑動切換左/右，不干擾右手動作鍵
+      if (prevPad === 'left' || prevPad === 'right') {
+        const curPad = getPadAtPoint(t.clientX, t.clientY);
+        if (curPad === 'left' || curPad === 'right') {
+          activeTouches.set(t.identifier, curPad);
+        }
+      }
+    }
+    syncDpadFromTouches();
+  }, { passive: false });
+
+  function handleTouchEnd(e) {
+    e.preventDefault();
+    lastTouchTs = Date.now();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const t = e.changedTouches[i];
+      const pad = activeTouches.get(t.identifier);
+      if (pad) {
+        activeTouches.delete(t.identifier);
+        if (pad !== 'left' && pad !== 'right') {
+          releaseActionVisual(pad);
+        }
+      }
+    }
+    syncDpadFromTouches();
+  }
+
+  dock.addEventListener('touchend', handleTouchEnd, { passive: false });
+  dock.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+
+  // 電腦滑鼠相容支援（自動忽略觸控後的模擬滑鼠事件）
+  const padBtns = dock.querySelectorAll('.pad-btn');
+  padBtns.forEach((btn) => {
+    const pad = btn.dataset.pad;
+    btn.addEventListener('mousedown', (e) => {
+      if (Date.now() - lastTouchTs < 600) return;
+      e.preventDefault();
+      initAudio();
+      if (pad === 'left' || pad === 'right') setKey(pad, true, btn);
+      else fireAction(pad);
+    });
+    const endMouse = () => {
+      if (Date.now() - lastTouchTs < 600) return;
+      if (pad === 'left' || pad === 'right') setKey(pad, false, btn);
+      else releaseBtn(btn);
+    };
+    btn.addEventListener('mouseup', endMouse);
+    btn.addEventListener('mouseleave', endMouse);
+  });
+
+  // 切換視窗或跳出 LINE 時自動清空按鍵避免卡鍵
+  window.addEventListener('blur', () => {
+    activeTouches.clear();
+    syncDpadFromTouches();
+  });
+}
+
 updateSalaryPreview();
 resizeCanvas();
 loadLevel(0);
@@ -5851,6 +5954,7 @@ loadGameProgressFromDevice();
 requestAnimationFrame(loop);
 initLineLiff();
 initPkChallengeFromUrl();
+initMultiTouchGamepad();
 </script>
 </body>
 </html>
