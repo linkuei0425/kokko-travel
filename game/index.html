@@ -2077,7 +2077,7 @@
           <div class="guide-sec-title">🤝 多人即時同場共跑與 2 倍加倍模式</div>
           <ul class="guide-list">
             <li><strong>組隊同場</strong>：同 LINE 群組點開自動同房；不同群組可在 <strong>🏆 排行 ➔ 好友/公司榜</strong>輸入相同自訂房號按組隊，就能同場奔跑與 PK！</li>
-            <li><strong>合打壞人＆互助蓋箱</strong>：同場隊友<strong>共享壞人血量</strong>（可一起圍毆主管），畫面上看得到隊友潑出的咖啡與紫色 <strong>「隊友箱」</strong>，可直接踩隊友的箱子一起翻牆或擋光束！</li>
+            <li><strong>合打壞人＆互助蓋箱</strong>：同場隊友<strong>共享壞人血量</strong>（可一起圍毆主管），頭頂即時顯示隊友的<strong>血條、餘命與咖啡庫存</strong>，畫面上也看得到隊友潑出的咖啡與紫色 <strong>「隊友箱」</strong>，可直接踩隊友的箱子一起翻牆或擋光束！</li>
             <li><strong>快捷表情泡泡</strong>：畫布右上角 4 顆快捷鈕（🔥衝／💪讚／🆘救／😂哈），點擊即可在頭頂冒出泡泡同步給隊友看。</li>
             <li><strong>🔥 多人 2 倍長度＋2 倍難度</strong>：可在 <strong>🏆 排行</strong>或 <strong>⚙️ 設定</strong>一鍵開啟（全房即時同步），關卡長度變 2 倍、主管血量 ×2 且速度加快，最適合揪團挑戰！</li>
           </ul>
@@ -7914,6 +7914,11 @@ function connectMultiplayerRoom() {
         prev.meeting = !!p.meeting;
         prev.toilet = !!p.toilet;
         prev.emote = String(p.emote || '').slice(0, 12);
+        prev.hp = typeof p.hp === 'number' ? Math.max(0, p.hp) : MAX_HP_PER_LIFE;
+        prev.maxHp = typeof p.maxHp === 'number' && p.maxHp > 0 ? p.maxHp : MAX_HP_PER_LIFE;
+        prev.lives = typeof p.lives === 'number' ? Math.max(0, p.lives) : MAX_DAILY_LIVES;
+        prev.coffee = typeof p.coffee === 'number' ? Math.max(0, p.coffee) : 0;
+        prev.shield = typeof p.shield === 'number' ? Math.max(0, p.shield) : 0;
         prev.ts = Number(p.ts) || now;
       } else {
         mpState.remotePlayers.set(pid, {
@@ -7932,6 +7937,11 @@ function connectMultiplayerRoom() {
           meeting: !!p.meeting,
           toilet: !!p.toilet,
           emote: String(p.emote || '').slice(0, 12),
+          hp: typeof p.hp === 'number' ? Math.max(0, p.hp) : MAX_HP_PER_LIFE,
+          maxHp: typeof p.maxHp === 'number' && p.maxHp > 0 ? p.maxHp : MAX_HP_PER_LIFE,
+          lives: typeof p.lives === 'number' ? Math.max(0, p.lives) : MAX_DAILY_LIVES,
+          coffee: typeof p.coffee === 'number' ? Math.max(0, p.coffee) : 0,
+          shield: typeof p.shield === 'number' ? Math.max(0, p.shield) : 0,
           ts: Number(p.ts) || now
         });
       }
@@ -7995,7 +8005,7 @@ function syncMultiplayerTick() {
   const myName = getHeroDisplayName();
   const activeEmote = (hero.emoteText && hero.emoteUntil > now) ? hero.emoteText : '';
   const coffeeSig = mpState.lastCoffeeEvent ? mpState.lastCoffeeEvent.id : '';
-  const sig = `${myName}|${myStyle.color}|${myStyle.avatar}|${activeEmote}|${coffeeSig}|${rx}|${ry}|${hero.facing}|${curLv}|${hero.cloakMs > 0 ? 1 : 0}|${hero.meetingMs > 0 ? 1 : 0}|${hero.toiletMs > 0 ? 1 : 0}`;
+  const sig = `${myName}|${myStyle.color}|${myStyle.avatar}|${activeEmote}|${coffeeSig}|${rx}|${ry}|${hero.facing}|${curLv}|${hero.hp}|${hero.dailyLives}|${hero.coffeeAmmo}|${hero.shield || 0}|${hero.cloakMs > 0 ? 1 : 0}|${hero.meetingMs > 0 ? 1 : 0}|${hero.toiletMs > 0 ? 1 : 0}`;
   const moved = sig !== mpState.lastSig;
   const interval = moved ? 120 : 2500;
   if (now - mpState.lastSendAt < interval) return;
@@ -8010,6 +8020,11 @@ function syncMultiplayerTick() {
       avatar: myStyle.avatar,
       emote: activeEmote,
       lastCoffee: (mpState.lastCoffeeEvent && now - mpState.lastCoffeeEvent.ts < 3000) ? mpState.lastCoffeeEvent : null,
+      hp: hero.hp,
+      maxHp: hero.maxHp,
+      lives: hero.dailyLives,
+      coffee: hero.coffeeAmmo,
+      shield: hero.shield || 0,
       x: rx,
       y: ry,
       facing: hero.facing,
@@ -8051,13 +8066,54 @@ function renderRemotePlayers() {
     ctx.fillText(rp.avatar || '👷', 0, -hero.h / 2 + 5);
     ctx.restore();
 
-    // 隊友頭頂名字標籤
+    // 隊友頭頂：迷你血條 + 餘命/血量/咖啡數值 + 名字標籤 + 表情泡泡
+    const rCx = rp.drawX + hero.w / 2;
+    const rpMaxHp = Math.max(1, Number(rp.maxHp) || MAX_HP_PER_LIFE);
+    const rpHp = Math.max(0, Math.min(rpMaxHp, typeof rp.hp === 'number' ? rp.hp : rpMaxHp));
+    const rpLives = Math.max(0, typeof rp.lives === 'number' ? rp.lives : MAX_DAILY_LIVES);
+    const rpCoffee = Math.max(0, typeof rp.coffee === 'number' ? rp.coffee : 0);
+    const rpShield = Math.max(0, typeof rp.shield === 'number' ? rp.shield : 0);
+    const hpRatio = rpHp / rpMaxHp;
+
     ctx.save();
+    // 1. 迷你血條
+    const barW = 46;
+    const barH = 4.5;
+    const barY = rp.drawY - 13;
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+    drawRoundedRect(rCx - barW / 2, barY, barW, barH, 2.5);
+    ctx.fill();
+    ctx.fillStyle = hpRatio > 0.5 ? '#34d399' : (hpRatio > 0.25 ? '#fbbf24' : '#f43f5e');
+    if (hpRatio > 0) {
+      drawRoundedRect(rCx - barW / 2, barY, Math.max(4, barW * hpRatio), barH, 2.5);
+      ctx.fill();
+    }
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.65)';
+    ctx.lineWidth = 0.8;
+    drawRoundedRect(rCx - barW / 2, barY, barW, barH, 2.5);
+    ctx.stroke();
+
+    // 2. 餘命 / 血量 / 咖啡狀態膠囊
+    const statText = `👤${rpLives} ❤️${rpHp}/${rpMaxHp} ☕${rpCoffee}` + (rpShield > 0 ? ` 🛡️${rpShield}` : '');
+    ctx.font = '800 9px sans-serif';
+    const sw = Math.min(136, Math.max(66, ctx.measureText(statText).width + 10));
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+    drawRoundedRect(rCx - sw / 2, rp.drawY - 28, sw, 13, 5);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#fde047';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(statText, rCx, rp.drawY - 21.5, sw - 6);
+
+    // 3. 名字標籤
     const label = `🟢 ${rp.name}`;
     ctx.font = '900 10px sans-serif';
     const tw = Math.min(110, Math.max(46, ctx.measureText(label).width + 10));
     ctx.fillStyle = 'rgba(46, 16, 101, 0.86)';
-    drawRoundedRect(rp.drawX + hero.w / 2 - tw / 2, rp.drawY - 22, tw, 15, 6);
+    drawRoundedRect(rCx - tw / 2, rp.drawY - 44, tw, 14, 6);
     ctx.fill();
     ctx.strokeStyle = '#a78bfa';
     ctx.lineWidth = 1.2;
@@ -8065,11 +8121,11 @@ function renderRemotePlayers() {
     ctx.fillStyle = '#e9d5ff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(label, rp.drawX + hero.w / 2, rp.drawY - 14.5, tw - 6);
+    ctx.fillText(label, rCx, rp.drawY - 37, tw - 6);
     ctx.restore();
 
     if (rp.emote && typeof drawEmoteBubble === 'function') {
-      drawEmoteBubble(rp.drawX + hero.w / 2, rp.drawY - 35, rp.emote);
+      drawEmoteBubble(rCx, rp.drawY - 57, rp.emote);
     }
   }
 }
