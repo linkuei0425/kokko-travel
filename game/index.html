@@ -19,6 +19,8 @@
 <link rel="image_src" href="./work.jpg">
 <title>社畜大逃生</title>
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 * {
     box-sizing: border-box;
@@ -1274,6 +1276,326 @@
     border-color: #34d399;
     background: rgba(6, 78, 59, 0.45);
   }
+
+  /* ==================== 平板與電腦版滿版自適應排版 ==================== */
+  @media (min-width: 768px) {
+    .top-hud {
+      padding: 8px 18px;
+    }
+    .hud-brand-text {
+      font-size: 15px !important;
+    }
+    .lv-badge, .stage-pill, .thief-money-badge, .coffee-pill, .mat-pill, .life-pill {
+      font-size: 13px;
+      padding: 3px 10px;
+    }
+    .mini-btn {
+      font-size: 12.5px;
+      padding: 6px 10px;
+    }
+    .quest-strip {
+      font-size: 13px;
+      padding: 5px 12px;
+    }
+    .gamepad-dock {
+      padding: 10px 24px calc(12px + env(safe-area-inset-bottom));
+    }
+    .dpad-group { gap: 12px; }
+    .action-group { gap: 10px; }
+    .pad-btn {
+      width: 72px;
+      height: 64px;
+      font-size: 22px;
+      border-radius: 16px;
+    }
+    .pad-btn.coffee, .pad-btn.dig, .pad-btn.build, .pad-btn.jump {
+      width: 78px;
+    }
+    .pad-btn .lbl {
+      font-size: 11px;
+    }
+    .modal-card, .salary-box {
+      max-width: 460px;
+      padding: 18px 18px;
+    }
+  }
+
+  /* ==================== 職場微劇情開場橫幅 ==================== */
+  .nightmare-banner {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 18;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1.5px solid #fbbf24;
+    color: #fef08a;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 7px 14px;
+    border-radius: 14px;
+    max-width: 92%;
+    text-align: center;
+    line-height: 1.4;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  /* ==================== 每日上班運勢籤樣式 ==================== */
+  .mini-btn.fortune {
+    background: linear-gradient(135deg, #ec4899, #be185d);
+    color: #ffffff;
+    border: none;
+  }
+  .fortune-card-box {
+    background: radial-gradient(circle at top, #1e1b4b 0%, #0b1120 100%);
+    border: 2px solid #f472b6;
+    border-radius: 14px;
+    padding: 14px 12px;
+    margin: 8px 0 12px;
+    text-align: center;
+  }
+  .fortune-rank-pill {
+    display: inline-block;
+    font-size: 18px;
+    font-weight: 900;
+    padding: 4px 16px;
+    border-radius: 99px;
+    margin-bottom: 6px;
+  }
+  .fortune-desc {
+    font-size: 12.5px;
+    color: #e2e8f0;
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+
+  /* ==================== 偷薪搞笑結局卡 ==================== */
+  .ending-card-box {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(236, 72, 153, 0.14));
+    border: 1.5px solid #c084fc;
+    border-radius: 12px;
+    padding: 8px 10px;
+    margin: 0 0 10px;
+    text-align: left;
+  }
+  .ending-card-title {
+    font-size: 12.5px;
+    font-weight: 900;
+    color: #e9d5ff;
+    margin-bottom: 2px;
+  }
+  .ending-card-desc {
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.4;
+  }
+
+  /* ==================== 排行榜：全群討伐慣老闆 + 好友送暖/陷害 ==================== */
+  .lb-boss-box {
+    background: linear-gradient(135deg, rgba(127, 29, 29, 0.45), rgba(30, 41, 59, 0.85));
+    border: 1.5px solid #ef4444;
+    border-radius: 12px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    text-align: left;
+  }
+  .lb-boss-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
+    font-weight: 900;
+    color: #fecaca;
+    margin-bottom: 5px;
+    gap: 6px;
+  }
+  .lb-boss-bar-bg {
+    width: 100%;
+    height: 10px;
+    background: #0f172a;
+    border-radius: 99px;
+    overflow: hidden;
+    border: 1px solid #450a0a;
+  }
+  .lb-boss-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ef4444, #f97316, #fbbf24);
+    transition: width 0.3s ease;
+  }
+  .lb-boss-sub {
+    font-size: 10.5px;
+    color: #cbd5e1;
+    margin-top: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }
+  .lb-boss-claim-btn {
+    background: linear-gradient(135deg, #fde047, #f59e0b);
+    color: #111827;
+    border: none;
+    border-radius: 7px;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .lb-interact-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .lb-mini-act {
+    background: #1e293b;
+    border: 1px solid #475569;
+    color: #e2e8f0;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .lb-mini-act.warm {
+    border-color: #f59e0b;
+    color: #fde047;
+  }
+  .lb-mini-act.prank {
+    border-color: #f43f5e;
+    color: #fda4af;
+  }
+  .lb-mini-act:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* ==================== 多人同場在線標記 & 自訂壞人名單設定 ==================== */
+  .online-pill {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid #34d399;
+    border-radius: 99px;
+    padding: 2px 7px;
+    font-size: 10.5px;
+    font-weight: 900;
+    color: #a7f3d0;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .settings-villain-input {
+    width: 100%;
+    background: #141c2e;
+    border: 1.5px solid #f43f5e;
+    border-radius: 9px;
+    padding: 7px 9px;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 700;
+    outline: none;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  .settings-villain-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .settings-villain-save-btn {
+    padding: 7px 10px;
+    border-radius: 9px;
+    border: none;
+    background: linear-gradient(135deg, #f43f5e, #be123c);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+  .settings-villain-clear-btn {
+    padding: 7px 10px;
+    border-radius: 9px;
+    border: 1px solid #475569;
+    background: #1e293b;
+    color: #cbd5e1;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .custom-profile-box {
+    background: #0b1120;
+    border: 1.5px solid #334155;
+    border-radius: 12px;
+    padding: 9px 10px;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+  .custom-profile-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #bae6fd;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .custom-nick-input {
+    width: 100%;
+    background: #141c2e;
+    border: 1.5px solid #38bdf8;
+    border-radius: 8px;
+    padding: 6px 9px;
+    color: #f8fafc;
+    font-size: 13px;
+    font-weight: 800;
+    outline: none;
+    margin-bottom: 7px;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  .swatch-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 7px;
+  }
+  .color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #334155;
+    cursor: pointer;
+    padding: 0;
+  }
+  .color-swatch.active {
+    border-color: #fde047;
+    transform: scale(1.15);
+    box-shadow: 0 0 8px rgba(253, 224, 71, 0.7);
+  }
+  .avatar-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .avatar-chip {
+    background: #1e293b;
+    border: 1.5px solid #334155;
+    border-radius: 8px;
+    width: 32px;
+    height: 30px;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+  }
+  .avatar-chip.active {
+    border-color: #34d399;
+    background: #064e3b;
+    transform: scale(1.08);
+  }
 </style>
 </head>
 <body>
@@ -1304,6 +1626,19 @@
         換算時薪：約 <strong>NT$ 273 / 小時</strong>（每秒偷薪 NT$ 0.08）
       </div>
 
+      <div class="custom-profile-box">
+        <div class="custom-profile-label">
+          <span>🪪 玩家暱稱（非 LINE 環境可自訂）</span>
+          <span style="color:#94a3b8;font-size:10px;">同場與排行同步</span>
+        </div>
+        <input type="text" class="custom-nick-input" id="startNicknameInput" maxlength="12" placeholder="輸入你的社畜暱稱（留空用 LINE 名稱）" oninput="setCustomNickname(this.value, 'start')">
+        <div class="custom-profile-label">
+          <span>👕 衣服顏色 & 🧢 角色帽子（同場區分用）</span>
+        </div>
+        <div class="swatch-row" id="startColorSwatches"></div>
+        <div class="avatar-row" id="startAvatarChips"></div>
+      </div>
+
       <button class="start-btn" type="button" onclick="confirmSalaryAndStart()">確認月薪，開始帶薪闖關！➔</button>
       <div class="below-start-img-wrap"><img src="./work.jpg" alt="社畜大逃生導覽圖"></div>
     </div>
@@ -1318,6 +1653,7 @@
         <span class="stage-pill" id="stagePill">B1 檔案室</span>
       </div>
       <div class="hud-btns">
+        <button class="mini-btn fortune" onclick="openFortuneModal(false)">🎋 運勢</button>
         <button class="mini-btn" onclick="reopenSalaryModal()">💵 月薪</button>
         <button class="mini-btn rank" onclick="openLeaderboardModal()">🏆 排行</button>
         <button class="mini-btn" onclick="openGameSettingsModal()">⚙️ 設定</button>
@@ -1331,6 +1667,7 @@
         <div class="thief-money-badge">💰 <span id="liveStealMoney">NT$ 90</span></div>
         <div class="coffee-pill">☕ <span id="coffeeAmmoText">10</span></div>
         <div class="mat-pill">🧱 <span id="matCountText">8</span></div>
+        <div class="online-pill" id="onlineCountPill" style="display:none;">🟢 同場 <span id="onlineCountText">1</span>人</div>
       </div>
       <span class="life-pill" id="lifeHearts">👤5命 ❤️❤️❤️❤️❤️</span>
     </div>
@@ -1346,6 +1683,17 @@
   <div class="canvas-wrap" id="canvasWrap">
     <canvas id="gameCanvas"></canvas>
     <div class="pk-banner" id="pkChallengeBanner" style="display:none;"></div>
+    <div class="nightmare-banner" id="nightmareBanner" style="display:none;"></div>
+
+    <!-- 每日上班運勢籤彈窗 -->
+    <div class="modal-mask" id="fortuneModal">
+      <div class="modal-card" style="border-color:#f472b6;">
+        <h2 style="color:#f472b6;">🎋 每日上班運勢籤</h2>
+        <div class="chest-badge" id="fortuneDateBadge">每天抽一張職場專屬 Buff 卡！</div>
+        <div class="fortune-card-box" id="fortuneCardBody"></div>
+        <button type="button" class="modal-btn" id="fortuneActionBtn" onclick="closeFortuneModal()">收下今日運勢，出發逃班！➔</button>
+      </div>
+    </div>
 
     <!-- 摸魚排行榜彈窗（全體 / 本群 × 日排行 / 月排行） -->
     <div class="modal-mask" id="leaderboardModal">
@@ -1367,6 +1715,20 @@
           <input type="text" class="lb-room-input" id="lbRoomInput" maxlength="16" placeholder="輸入自訂房號或公司名（如：摸魚888）">
           <button type="button" class="lb-room-btn" onclick="applyCustomRoomCode()">組隊</button>
           <button type="button" class="lb-room-btn clear" id="lbRoomClearBtn" style="display:none;" onclick="clearCustomRoomCode()">清除</button>
+        </div>
+
+        <div class="lb-boss-box" id="lbBossBox">
+          <div class="lb-boss-top">
+            <span id="lbBossTitle">👹 全群討伐：終極慣老闆（第 1 輪）</span>
+            <span id="lbBossHpText">100 / 100 HP</span>
+          </div>
+          <div class="lb-boss-bar-bg">
+            <div class="lb-boss-bar-fill" id="lbBossBarFill" style="width:100%;"></div>
+          </div>
+          <div class="lb-boss-sub">
+            <span id="lbBossSubText">潑咖啡打主管、反彈報告與過關都會扣老闆血量！</span>
+            <button type="button" class="lb-boss-claim-btn" id="lbBossClaimBtn" style="display:none;" onclick="claimRaidBossReward()">🎁 領慶功金</button>
+          </div>
         </div>
 
         <div class="lb-list-box" id="lbListBox">
@@ -1412,6 +1774,28 @@
 
           <div class="settings-row-item">
             <div class="settings-row-top">
+              <span>🪪 玩家暱稱 & 👕 角色外觀</span>
+              <span style="color:#34d399;font-size:11px;">即時同步給同場隊友</span>
+            </div>
+            <input type="text" class="custom-nick-input" id="settingsNicknameInput" maxlength="12" placeholder="輸入自訂暱稱（留空用 LINE 名稱）" oninput="setCustomNickname(this.value, 'settings')">
+            <div class="swatch-row" id="settingsColorSwatches"></div>
+            <div class="avatar-row" id="settingsAvatarChips"></div>
+          </div>
+
+          <div class="settings-row-item">
+            <div class="settings-row-top">
+              <span>😈 自訂壞人／主管名單</span>
+              <span style="color:#fda4af;font-size:11px;">用逗號分隔</span>
+            </div>
+            <input type="text" class="settings-villain-input" id="customVillainsInput" maxlength="120" placeholder="例：王經理, 陳組長, 慣老闆">
+            <div class="settings-villain-actions">
+              <button type="button" class="settings-villain-save-btn" onclick="saveCustomVillainsFromSettings()">😈 套用壞人名單</button>
+              <button type="button" class="settings-villain-clear-btn" onclick="clearCustomVillains()">恢復預設</button>
+            </div>
+          </div>
+
+          <div class="settings-row-item">
+            <div class="settings-row-top">
               <span>📖 遊戲說明</span>
               <span style="color:#fde047;">操作、道具與關卡危機</span>
             </div>
@@ -1439,7 +1823,7 @@
           <div class="guide-sec-title">💰 薪水小偷與茶水間商店</div>
           <ul class="guide-list">
             <li>依設定月薪自動換算時薪，闖關期間即時累計偷薪與日／月／年帳本。</li>
-            <li>每天擁有 <strong>5 條命</strong>（跨日自動補滿），<strong>每條命有 5 格血 ❤️❤️❤️❤️❤️</strong>（可承受 5 次傷害）。</li>
+            <li>最多擁有 <strong>5 條命</strong>（<strong>每 1 小時自動補 1 條命</strong>），<strong>每條命有 5 格血 ❤️❤️❤️❤️❤️</strong>（可承受 5 次傷害）。</li>
             <li>咖啡不足 10 杯時每 1 小時自動補 1 杯；也可到 <strong>🏪 商店</strong>購買咖啡、紙箱、珍奶回血與 <strong>🛡️ 防窺護盾</strong>（自動抵擋 1 次傷害）。</li>
           </ul>
           <div class="guide-sec-title">⚠️ 各關職場危機應對</div>
@@ -1452,8 +1836,9 @@
           </ul>
           <div class="guide-sec-title">🧰 寶箱奇遇、補血站與過關猜謎</div>
           <ul class="guide-list">
-            <li>每關中段設有 <strong>🏥 茶水間補血站</strong>，受傷時經過即可免費<strong>補滿 5 格血</strong>！</li>
-            <li>挖開寶箱或頂開檔案櫃，隨機觸發 21 點、彈弓打老闆、職場消消樂、捏泡泡、心理測驗，或抽中 <strong>🧥 隱形斗篷（限時 2 秒不受任何攻擊）</strong>！</li>
+            <li>每關設有 <strong>🏥 茶水間補血站</strong>（補滿 5 格血）、<strong>🚽 神秘廁所</strong>（帶薪拉屎 3 秒無敵＋偷薪 2 倍）與 <strong>🎧 藍牙耳機</strong>（假裝開會 5 秒巡邏主管無視你）！</li>
+            <li>抓準時機按 <strong>⛏️ 挖鏟</strong>可發動 <strong>🍳 甩鍋反彈</strong>，把主管丟來的報告打回去砸暈主管！</li>
+            <li>每天可抽 <strong>🎋 上班運勢籤</strong> 獲得專屬 Buff；挖開寶箱隨機觸發 21 點、彈弓打老闆、職場消消樂、捏泡泡、心理測驗或 <strong>🧥 隱形斗篷</strong>！</li>
             <li>衝進 <strong>🚇 捷運出口</strong>後回答 3 題猜謎：答對 1 題 +1 杯咖啡，3 題全對額外 +1 條命 ❤️！</li>
           </ul>
         </div>
@@ -1535,6 +1920,11 @@
           <div class="aff-revive-title">⚡ 今日命數已用完！點選好康立即領命復活</div>
           <div class="aff-revive-sub" id="affReviveSubText">每次 0 命可任選 1 個未領過的連結獲得 <strong>+2 條命</strong>（3 個全領完需等 8 小時後重置）</div>
           <div class="aff-btn-list" id="affiliateBtnList"></div>
+        </div>
+
+        <div class="ending-card-box" id="endingCardBox">
+          <div class="ending-card-title" id="endingCardTitle">🎬 解鎖結局：見習摸魚生</div>
+          <div class="ending-card-desc" id="endingCardDesc">繼續逃班累積偷薪，解鎖更多傳說級職場結局！</div>
         </div>
 
         <div class="thief-highlight-box">
@@ -1954,6 +2344,10 @@ function confirmSalaryAndStart() {
     if (hero.dailyLives <= 0 && hero.hp <= 0) {
       gameOver = true;
       openStealModal(false, true);
+    } else if (!hasDrawnFortuneToday()) {
+      openFortuneModal(true);
+    } else {
+      showLevelNightmareBanner(levelIndex);
     }
   } catch (e) {}
 }
@@ -2043,6 +2437,11 @@ function openGameSettingsModal() {
   if (sumEl) {
     sumEl.textContent = `NT$ ${Number(userMonthlySalary || 72000).toLocaleString()}（時薪 $${userHourlyRate}）`;
   }
+  const vInput = document.getElementById('customVillainsInput');
+  if (vInput && typeof customVillainNames !== 'undefined') {
+    vInput.value = customVillainNames.join(', ');
+  }
+  if (typeof renderAppearancePickers === 'function') renderAppearancePickers();
   document.getElementById('settingsModal').classList.add('open');
 }
 
@@ -2154,9 +2553,21 @@ const thiefStats = {
   lastTick: Date.now(),
   chestsOpened: 0,
   blocksBuilt: 0,
+  toiletsUsed: 0,
+  deflectedCount: 0,
   bonusMoney: 90,
   spentMoney: 0
 };
+
+function getCurrentStealMultiplier() {
+  let mult = 1;
+  if (typeof hero !== 'undefined' && hero.toiletMs > 0) mult *= 2;
+  if (typeof getTodayFortuneObj === 'function') {
+    const f = getTodayFortuneObj();
+    if (f && f.stealMult) mult *= f.stealMult;
+  }
+  return mult;
+}
 
 function getCurrentMoney() {
   const timeMoney = (thiefStats.activeStealMs / 3600000) * userHourlyRate;
@@ -2176,8 +2587,9 @@ function updateThiefHUD() {
   const isGuideOpen = document.getElementById('guideModal').classList.contains('open');
   const isLbOpen = document.getElementById('leaderboardModal').classList.contains('open');
   const isQuizOpen = document.getElementById('levelQuizModal').classList.contains('open');
-  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen && !isSettingsOpen && !isGuideOpen && !isLbOpen && !isQuizOpen) {
-    thiefStats.activeStealMs += dt;
+  const isFortuneOpen = document.getElementById('fortuneModal') && document.getElementById('fortuneModal').classList.contains('open');
+  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen && !isSettingsOpen && !isGuideOpen && !isLbOpen && !isQuizOpen && !isFortuneOpen) {
+    thiefStats.activeStealMs += dt * getCurrentStealMultiplier();
   }
 
   const totalMoney = getCurrentMoney();
@@ -2251,10 +2663,11 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
     syncDailyLivesIfNewDay();
     if (hero.dailyLives > 0) {
       document.getElementById('modalTitle').textContent = `😵‍💫 LV.${currentLvNum} 挑戰失敗，失去 1 條命！`;
-      document.getElementById('nextLevelPreviewBadge').textContent = `今日剩餘 ${hero.dailyLives} / ${MAX_DAILY_LIVES} 條命（每條命 5 格血，重試將自動滿血！）`;
+      document.getElementById('nextLevelPreviewBadge').textContent = `目前剩餘 ${hero.dailyLives} / ${MAX_DAILY_LIVES} 條命（每 1 小時補 1 條命，重試自動滿血！）`;
     } else {
-      document.getElementById('modalTitle').textContent = `😵‍💫 今日命數已用完！`;
-      document.getElementById('nextLevelPreviewBadge').textContent = '點下方推薦連結立即免費領 +2 條命，或等明天 00:00 自動恢復！';
+      const nextMin = getNextLifeRegenMinutes();
+      document.getElementById('modalTitle').textContent = `😵‍💫 目前命數已用完！`;
+      document.getElementById('nextLevelPreviewBadge').textContent = `點下方推薦連結立即免費領 +2 條命，或等 ${nextMin} 分鐘後自動補 1 條命！`;
     }
     document.getElementById('nextLevelPreviewBadge').style.display = 'inline-block';
   } else {
@@ -2276,6 +2689,12 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
   else if (thiefStats.chestsOpened >= 2) rank = '摸魚工兵戰士';
   document.getElementById('modalThiefRank').textContent = rank;
 
+  const endingObj = getUnlockedEnding(totalMoney, currentLvNum, thiefStats.chestsOpened, thiefStats.toiletsUsed || 0);
+  const endTitleEl = document.getElementById('endingCardTitle');
+  const endDescEl = document.getElementById('endingCardDesc');
+  if (endTitleEl) endTitleEl.textContent = `🎬 解鎖結局：${endingObj.title}`;
+  if (endDescEl) endDescEl.textContent = endingObj.desc;
+
   const btn = document.getElementById('modalActionBtn');
   if (isClear) {
     btn.textContent = `進入 LV.${currentLvNum + 1} 更高難度關卡 ➔`;
@@ -2285,7 +2704,8 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
       btn.textContent = `🔄 滿血重新挑戰 LV.${currentLvNum}（剩 ${hero.dailyLives} 條命）！`;
       btn.dataset.action = 'retryLevel';
     } else {
-      btn.textContent = `⏳ 今日 5 條命已用完（明天自動恢復）`;
+      const nextMin = getNextLifeRegenMinutes();
+      btn.textContent = `⏳ 命數已用完（約 ${nextMin} 分鐘後補 1 條命）`;
       btn.dataset.action = 'outOfLives';
     }
   } else {
@@ -2320,7 +2740,7 @@ function handleModalContinue() {
       loadLevel(levelIndex);
       saveGameProgressToDevice();
     } else {
-      alert('今日 5 條命已全部用完囉！明天 00:00 會自動恢復 5 條命，先休息一下吧！');
+      alert(`目前命數已用完囉！每 1 小時會自動補 1 條命（距離下一條命約 ${getNextLifeRegenMinutes()} 分鐘），或點上方推薦連結立刻免費領 +2 條命！`);
       document.getElementById('resultModal').classList.add('open');
     }
   } else {
@@ -3470,12 +3890,17 @@ const hero = {
   maxHp: MAX_HP_PER_LIFE,
   dailyLives: MAX_DAILY_LIVES,
   dailyLivesDate: '',
+  lastLifeRegenAt: Date.now(),
   shield: 0,
   coffeeAmmo: 10,
   materials: 8,
   invulnTimer: 0,
   cloakMs: 0,
   lastCloakTick: 0,
+  toiletMs: 0,
+  lastToiletTick: 0,
+  meetingMs: 0,
+  lastMeetingTick: 0,
   swingAnim: 0,
   walkFrame: 0
 };
@@ -3497,7 +3922,9 @@ let globalHazardCooldown = 0;
 let screenShake = 0;
 let particles = [];
 let floatTexts = [];
-let healStation = null;
+let healStations = [];
+let toilets = [];
+let earbuds = [];
 let exitSubway = { x: 2250, y: 260, w: 92, h: 120 };
 let levelChestsOpened = 0;
 let levelChestsTotal = 5;
@@ -3510,6 +3937,9 @@ function buildStageGrid(idx) {
   surveillanceBeams = [];
   overtimeBombs = [];
   bombExplosions = [];
+  healStations = [];
+  toilets = [];
+  earbuds = [];
   fireballSpawnTimer = 95;
   computerSpawnTimer = 115;
   beamSpawnTimer = 120;
@@ -3518,7 +3948,8 @@ function buildStageGrid(idx) {
   screenShake = 0;
   levelChestsOpened = 0;
 
-  const cols = 114 + idx * 16;
+  // 遊戲關卡長度增加一倍（原 114+16*idx -> 現 228+32*idx）
+  const cols = (114 + idx * 16) * 2;
   levelWidth = cols * TILE;
   const gRow = Math.floor(baseFloorY / TILE);
 
@@ -3526,10 +3957,18 @@ function buildStageGrid(idx) {
   if (idx >= 1) {
     pitCols.add(11); pitCols.add(12);
     pitCols.add(28); pitCols.add(29);
+    pitCols.add(125); pitCols.add(126);
+    pitCols.add(158); pitCols.add(159);
   }
   if (idx >= 2) {
     pitCols.add(42); pitCols.add(43); pitCols.add(44);
+    pitCols.add(185); pitCols.add(186); pitCols.add(187);
   }
+
+  const dirtRanges = [
+    [5, 9, 7], [21, 25, 23], [38, 41, 40], [55, 59, 57], [72, 76, 74], [88, 92, 90],
+    [115, 119, 117], [136, 140, 138], [164, 168, 166], [192, 196, 194], [210, 214, 212]
+  ];
 
   for (let c = 0; c < cols; c++) {
     const x = c * TILE;
@@ -3537,9 +3976,10 @@ function buildStageGrid(idx) {
 
     if (pitCols.has(c)) continue;
 
-    if ((c >= 5 && c <= 9) || (c >= 21 && c <= 25) || (c >= 38 && c <= 41) || (c >= 55 && c <= 59) || (c >= 72 && c <= 76) || (c >= 88 && c <= 92)) {
+    const matchedDirt = dirtRanges.find(r => c >= r[0] && c <= r[1]);
+    if (matchedDirt) {
       blocks.push({ x, y: gRow * TILE, w: TILE, h: TILE, type: 'dirt' });
-      if (c === 7 || c === 23 || c === 40 || c === 57 || c === 74 || c === 90) {
+      if (c === matchedDirt[2]) {
         blocks.push({ x, y: (gRow + 1) * TILE, w: TILE, h: TILE, type: 'chest_buried', opened: false });
       } else {
         blocks.push({ x, y: (gRow + 1) * TILE, w: TILE, h: TILE, type: 'dirt' });
@@ -3553,23 +3993,32 @@ function buildStageGrid(idx) {
   const wall1H = Math.min(4, 2 + idx);
   for (let h = 1; h <= wall1H; h++) {
     blocks.push({ x: 15 * TILE, y: (gRow - h) * TILE, w: TILE, h: TILE, type: 'wall', label: h === 2 ? '加班牆' : '' });
+    blocks.push({ x: 130 * TILE, y: (gRow - h) * TILE, w: TILE, h: TILE, type: 'wall', label: h === 2 ? '責任牆' : '' });
   }
 
   blocks.push({ x: 10 * TILE, y: (gRow - 2.4) * TILE, w: TILE, h: TILE, type: 'cabinet', opened: false });
   blocks.push({ x: 31 * TILE, y: (gRow - 2.4) * TILE, w: TILE, h: TILE, type: 'cabinet', opened: false });
+  blocks.push({ x: 122 * TILE, y: (gRow - 2.4) * TILE, w: TILE, h: TILE, type: 'cabinet', opened: false });
+  blocks.push({ x: 175 * TILE, y: (gRow - 2.4) * TILE, w: TILE, h: TILE, type: 'cabinet', opened: false });
 
   const wall2H = Math.min(5, 3 + idx);
   for (let h = 1; h <= wall2H; h++) {
     blocks.push({ x: 35 * TILE, y: (gRow - h) * TILE, w: TILE, h: TILE, type: 'wall', label: h === 2 ? 'KPI牆' : '' });
+    blocks.push({ x: 170 * TILE, y: (gRow - h) * TILE, w: TILE, h: TILE, type: 'wall', label: h === 2 ? '畫餅牆' : '' });
   }
-  blocks = blocks.filter(b => !(b.y === gRow * TILE && b.x >= 34 * TILE && b.x <= 36 * TILE));
+  blocks = blocks.filter(b => !(b.y === gRow * TILE && ((b.x >= 34 * TILE && b.x <= 36 * TILE) || (b.x >= 169 * TILE && b.x <= 171 * TILE))));
   for (let c = 34; c <= 36; c++) {
+    blocks.push({ x: c * TILE, y: gRow * TILE, w: TILE, h: TILE, type: 'dirt' });
+  }
+  for (let c = 169; c <= 171; c++) {
     blocks.push({ x: c * TILE, y: gRow * TILE, w: TILE, h: TILE, type: 'dirt' });
   }
 
   levelChestsTotal = blocks.filter(b => b.type === 'chest_buried' || b.type === 'cabinet').length;
 
-  const speedMult = 1 + idx * 0.28;
+  const fortuneObj = (typeof getTodayFortuneObj === 'function') ? getTodayFortuneObj() : null;
+  const fortuneSpdMult = (fortuneObj && fortuneObj.enemySpeedMult) ? fortuneObj.enemySpeedMult : 1;
+  const speedMult = (1 + idx * 0.28) * fortuneSpdMult;
   const bonusHp = Math.floor(idx / 1);
 
   patrollers.push(
@@ -3579,39 +4028,97 @@ function buildStageGrid(idx) {
     { x: 50 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -1.8 * speedMult, minX: 36 * TILE + 6, maxX: 54 * TILE, emoji: '😤', name: '畫大餅總監', hp: 2 + bonusHp, attackPool: ['🍰 明年加薪餅!', '🔄 改回初版!'] },
     { x: 64 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 1.9 * speedMult, minX: 55 * TILE, maxX: 72 * TILE, emoji: '👀', name: '長舌小主管', hp: 1 + bonusHp, attackPool: ['👀 盯梢中!', '🗣️ 辦公室八卦!'] },
     { x: 80 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.0 * speedMult, minX: 72 * TILE, maxX: 88 * TILE, emoji: '💣', name: '甩鍋特助', hp: 2 + bonusHp, attackPool: ['💣 甩鍋給你!', '📌 緊急交辦!'] },
-    { x: 94 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 2.1 * speedMult, minX: 88 * TILE, maxX: 100 * TILE, emoji: '📉', name: '砍預算專員', hp: 2 + bonusHp, attackPool: ['📉 預算砍半!', '💸 獎金縮水!'] },
-    { x: 104 * TILE, y: (gRow - 1) * TILE, w: 36, h: 42, vx: -2.2 * speedMult, minX: 100 * TILE, maxX: (cols - 5) * TILE, emoji: '🤬', name: '守門執行長', hp: 2 + bonusHp, attackPool: ['🔥 週末加班!', '📋 急件重做!'] }
+    { x: 94 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 2.1 * speedMult, minX: 88 * TILE, maxX: 108 * TILE, emoji: '📉', name: '砍預算專員', hp: 2 + bonusHp, attackPool: ['📉 預算砍半!', '💸 獎金縮水!'] },
+    { x: 112 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -1.8 * speedMult, minX: 102 * TILE, maxX: 129 * TILE, emoji: '🗣️', name: '茶水間眼線', hp: 1 + bonusHp, attackPool: ['🗣️ 打小報告!', '☕ 偷看你在幹嘛!'] },
+    { x: 142 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 1.9 * speedMult, minX: 132 * TILE, maxX: 156 * TILE, emoji: '🧐', name: '突襲稽核長', hp: 2 + bonusHp, attackPool: ['📄 重做報表!', '📊 KPI在哪?'] },
+    { x: 162 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.0 * speedMult, minX: 150 * TILE, maxX: 168 * TILE, emoji: '🐍', name: '搶功老鳥', hp: 2 + bonusHp, attackPool: ['🐍 功勞我的!', '📌 雜事給你!'] },
+    { x: 180 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 2.1 * speedMult, minX: 172 * TILE, maxX: 196 * TILE, emoji: '😤', name: '會議狂魔協理', hp: 2 + bonusHp, attackPool: ['🗓️ 加開3小時會!', '🔄 全部重改!'] },
+    { x: 204 * TILE, y: (gRow - 1) * TILE, w: 36, h: 42, vx: -2.2 * speedMult, minX: 196 * TILE, maxX: (cols - 6) * TILE, emoji: '🤬', name: '守門執行長', hp: 2 + bonusHp, attackPool: ['🔥 週末加班!', '📋 急件重做!'] }
   );
 
   if (idx >= 1) {
     patrollers.push(
       { x: 31 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.0 * speedMult, minX: 16 * TILE + 6, maxX: 34 * TILE, emoji: '🤡', name: '甩鍋副理', hp: 1 + bonusHp, attackPool: ['🤡 甩鍋給你!', '💣 黑鍋砸臉!'] },
-      { x: 58 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.1 * speedMult, minX: 55 * TILE, maxX: 72 * TILE, emoji: '📢', name: '大嘴巴經理', hp: 2 + bonusHp, attackPool: ['📢 全公司都知!', '🗣️ 添油加醋!'] }
+      { x: 58 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: -2.1 * speedMult, minX: 55 * TILE, maxX: 72 * TILE, emoji: '📢', name: '大嘴巴經理', hp: 2 + bonusHp, attackPool: ['📢 全公司都知!', '🗣️ 添油加醋!'] },
+      { x: 150 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 2.1 * speedMult, minX: 132 * TILE, maxX: 168 * TILE, emoji: '🤡', name: '假笑人資長', hp: 2 + bonusHp, attackPool: ['🤡 共體時艱!', '💸 凍結調薪!'] }
     );
   }
   if (idx >= 2) {
     patrollers.push(
       { x: 74 * TILE, y: (gRow - 1) * TILE, w: 34, h: 40, vx: 2.2 * speedMult, minX: 72 * TILE, maxX: 88 * TILE, emoji: '🦇', name: '吸血加班怪', hp: 2 + bonusHp, attackPool: ['🦇 熬夜改稿!', '💀 責任制!'] },
-      { x: (cols - 8) * TILE, y: (gRow - 1) * TILE, w: 38, h: 44, vx: -2.3 * speedMult, minX: 100 * TILE, maxX: (cols - 5) * TILE, emoji: '👹', name: '終極慣老闆', hp: 3 + bonusHp, attackPool: ['👹 年終歸零!', '🔥 永不準時!'] }
+      { x: (cols - 12) * TILE, y: (gRow - 1) * TILE, w: 38, h: 44, vx: -2.3 * speedMult, minX: (cols - 30) * TILE, maxX: (cols - 5) * TILE, emoji: '👹', name: '終極慣老闆', hp: 3 + bonusHp, attackPool: ['👹 年終歸零!', '🔥 永不準時!'] }
     );
   }
 
-  // 每關中間設置 1 座補血站（避開可挖區與深淵，確保站在安全實心路面上）
-  let midCol = Math.floor(cols / 2);
-  while (
-    midCol < cols - 10 &&
-    !blocks.some(b => b.type === 'floor' && b.x === midCol * TILE && b.y === gRow * TILE)
-  ) {
-    midCol++;
+  if (typeof applyCustomNamesToPatrollers === 'function') {
+    applyCustomNamesToPatrollers();
   }
-  healStation = {
-    x: midCol * TILE,
-    y: (gRow - 2) * TILE,
-    w: TILE * 1.45,
-    h: TILE * 2,
-    used: false,
-    fullHintShown: false
-  };
+
+  // 若有朋友透過連結丟急件陷害，多派 1 隻查勤組長！
+  if (typeof socialPrankState !== 'undefined' && socialPrankState.pendingSabotageFrom) {
+    patrollers.push({
+      x: 22 * TILE,
+      y: (gRow - 1) * TILE,
+      w: 36,
+      h: 42,
+      vx: -1.9 * speedMult,
+      minX: 16 * TILE + 6,
+      maxX: 34 * TILE,
+      emoji: '📄',
+      name: `${socialPrankState.pendingSabotageFrom}的急件組長`,
+      hp: 2 + bonusHp,
+      attackPool: ['📄 朋友塞的急件!', '🔥 馬上要!']
+    });
+    socialPrankState.pendingSabotageFrom = '';
+  }
+
+  function findSafeFloorCol(startCol) {
+    let c = Math.max(8, Math.min(cols - 12, Math.floor(startCol)));
+    while (
+      c < cols - 10 &&
+      !blocks.some(b => b.type === 'floor' && b.x === c * TILE && b.y === gRow * TILE)
+    ) {
+      c++;
+    }
+    return c;
+  }
+
+  // 雙倍關卡：1/3 與 2/3 各設 1 座補血站
+  [Math.floor(cols * 0.34), Math.floor(cols * 0.68)].forEach(rawCol => {
+    const safeC = findSafeFloorCol(rawCol);
+    healStations.push({
+      x: safeC * TILE,
+      y: (gRow - 2) * TILE,
+      w: TILE * 1.45,
+      h: TILE * 2,
+      used: false,
+      fullHintShown: false
+    });
+  });
+
+  // 雙倍關卡：2 間「🚽 帶薪拉屎」神秘廁所（躲進去 3 秒無敵＋偷薪 2 倍）
+  [Math.floor(cols * 0.24), Math.floor(cols * 0.78)].forEach(rawCol => {
+    const safeC = findSafeFloorCol(rawCol);
+    toilets.push({
+      x: safeC * TILE,
+      y: (gRow - 2) * TILE,
+      w: TILE * 1.4,
+      h: TILE * 2,
+      used: false
+    });
+  });
+
+  // 雙倍關卡：2 副「🎧 藍牙耳機」（撿到 5 秒假裝開會，巡邏主管無視你）
+  [Math.floor(cols * 0.44), Math.floor(cols * 0.85)].forEach(rawCol => {
+    const safeC = findSafeFloorCol(rawCol);
+    earbuds.push({
+      x: safeC * TILE + 4,
+      y: (gRow - 1.35) * TILE,
+      w: 32,
+      h: 32,
+      picked: false
+    });
+  });
 
   exitSubway = {
     x: (cols - 4) * TILE,
@@ -3629,13 +4136,17 @@ function resizeCanvas() {
   canvas.width = W * dpr;
   canvas.height = H * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  // 橫向螢幕較矮時自動微幅縮放視野，確保上方電腦、跳躍高度與地底寶箱都能一覽無遺
-  const isLandscapeShort = (W > H && H < 360);
-  viewScale = isLandscapeShort ? Math.max(0.72, Math.min(1, H / 330)) : 1;
+
+  // 全裝置滿版自適應縮放（電腦 / 平板 / 手機直橫屏皆依視窗高度等比滿版）
+  const isLandscape = W > H;
+  const targetWorldH = isLandscape ? 390 : 450;
+  const scaleByH = H / targetWorldH;
+  const scaleByW = W / 340;
+  viewScale = Math.max(0.72, Math.min(2.2, Math.min(scaleByH, scaleByW)));
   viewW = W / viewScale;
   viewH = H / viewScale;
   const floorTopY = Math.floor(baseFloorY / TILE) * TILE;
-  const bottomReserve = isLandscapeShort ? 92 : 96;
+  const bottomReserve = isLandscape ? 112 : 118;
   cameraY = floorTopY - (viewH - bottomReserve);
 }
 
@@ -3657,6 +4168,10 @@ function loadLevel(idx) {
   hero.invulnTimer = 0;
   hero.cloakMs = 0;
   hero.lastCloakTick = 0;
+  hero.toiletMs = 0;
+  hero.lastToiletTick = 0;
+  hero.meetingMs = 0;
+  hero.lastMeetingTick = 0;
   hero.swingAnim = 0;
 
   cameraX = 0;
@@ -3684,23 +4199,55 @@ function loadLevel(idx) {
   document.getElementById('shopModal').classList.remove('open');
   const gMod = document.getElementById('guideModal');
   if (gMod) gMod.classList.remove('open');
+  if (document.getElementById('salaryOverlay') && document.getElementById('salaryOverlay').classList.contains('hidden')) {
+    showLevelNightmareBanner(levelIndex);
+  }
+}
+
+const LIFE_REGEN_INTERVAL_MS = 3600 * 1000; // 每 1 小時補 1 條命
+
+function getNextLifeRegenMinutes() {
+  if (hero.dailyLives >= MAX_DAILY_LIVES) return 0;
+  const now = Date.now();
+  const base = Number(hero.lastLifeRegenAt) || now;
+  const elapsed = Math.max(0, now - base);
+  const remainMs = Math.max(0, LIFE_REGEN_INTERVAL_MS - (elapsed % LIFE_REGEN_INTERVAL_MS));
+  return Math.max(1, Math.ceil(remainMs / 60000));
 }
 
 function syncDailyLivesIfNewDay() {
-  const todayKey = getPeriodKeys(Date.now()).dayKey;
-  if (!hero.dailyLivesDate) {
-    hero.dailyLivesDate = todayKey;
-    if (typeof hero.dailyLives !== 'number') hero.dailyLives = MAX_DAILY_LIVES;
+  const now = Date.now();
+  if (typeof hero.dailyLives !== 'number' || Number.isNaN(hero.dailyLives)) {
+    hero.dailyLives = MAX_DAILY_LIVES;
+  }
+  if (!hero.lastLifeRegenAt || Number.isNaN(Number(hero.lastLifeRegenAt))) {
+    hero.lastLifeRegenAt = now;
+  }
+  syncAffiliateReviveCooldown();
+
+  if (hero.dailyLives >= MAX_DAILY_LIVES) {
+    hero.lastLifeRegenAt = now;
     return;
   }
-  if (hero.dailyLivesDate !== todayKey) {
-    hero.dailyLivesDate = todayKey;
-    hero.dailyLives = MAX_DAILY_LIVES;
-    hero.maxHp = MAX_HP_PER_LIFE;
-    syncAffiliateReviveCooldown();
-    if (hero.hp <= 0) hero.hp = hero.maxHp;
-    updateHeartsHUD();
-    saveGameProgressToDevice();
+
+  const elapsed = Math.max(0, now - Number(hero.lastLifeRegenAt));
+  if (elapsed >= LIFE_REGEN_INTERVAL_MS) {
+    const recovered = Math.floor(elapsed / LIFE_REGEN_INTERVAL_MS);
+    const prevLives = hero.dailyLives;
+    hero.dailyLives = Math.min(MAX_DAILY_LIVES, hero.dailyLives + recovered);
+    if (hero.dailyLives >= MAX_DAILY_LIVES) {
+      hero.lastLifeRegenAt = now;
+    } else {
+      hero.lastLifeRegenAt = Number(hero.lastLifeRegenAt) + recovered * LIFE_REGEN_INTERVAL_MS;
+    }
+    if (hero.hp <= 0 && hero.dailyLives > 0) {
+      hero.hp = hero.maxHp;
+    }
+    if (hero.dailyLives > prevLives) {
+      updateHeartsHUD();
+      saveGameProgressToDevice();
+      spawnFloatText(hero.x, hero.y - 30, `❤️ 滿 1 小時自動補 +${hero.dailyLives - prevLives} 條命！`, '#34d399');
+    }
   }
 }
 
@@ -3722,6 +4269,9 @@ function handleHeroDeath(delayMs = 550) {
   syncDailyLivesIfNewDay();
   gameOver = true;
   hero.hp = 0;
+  if (hero.dailyLives >= MAX_DAILY_LIVES) {
+    hero.lastLifeRegenAt = Date.now();
+  }
   hero.dailyLives = Math.max(0, hero.dailyLives - 1);
   updateHeartsHUD();
   saveGameProgressToDevice();
@@ -3729,7 +4279,7 @@ function handleHeroDeath(delayMs = 550) {
 }
 
 function applyHeroDamage(msg, knockVy = -8.5, textColor = '#f43f5e') {
-  if (hero.cloakMs > 0 || hero.invulnTimer > 0 || gameOver) return false;
+  if (hero.cloakMs > 0 || hero.toiletMs > 0 || hero.invulnTimer > 0 || gameOver) return false;
   if (hero.shield && hero.shield > 0) {
     hero.shield--;
     hero.invulnTimer = 75;
@@ -3865,6 +4415,25 @@ function triggerDig(btn) {
   const reachX = hero.x + hero.w / 2 + hero.facing * 34;
   const reachY = hero.y + hero.h * 0.65;
   const footY = hero.y + hero.h + 14;
+
+  // 🍳 甩鍋反彈：抓準時機敲擊主管丟來的報告，直接打回去砸暈主管！
+  for (let i = bossReports.length - 1; i >= 0; i--) {
+    const br = bossReports[i];
+    if (!br.reflected && Math.hypot(br.x - reachX, br.y - reachY) < 58) {
+      br.reflected = true;
+      br.vx = hero.facing * Math.max(7.8, Math.abs(br.vx) * 1.65);
+      br.vy = -1.6;
+      br.life = 95;
+      br.label = '🍳 反彈回去!';
+      thiefStats.deflectedCount = (thiefStats.deflectedCount || 0) + 1;
+      dealRaidBossDamage(3);
+      playSound('chest');
+      vibrate([20, 15, 25]);
+      spawnParticles(br.x, br.y, ['#fde047', '#34d399', '#ffffff'], 16, 6);
+      spawnFloatText(br.x, br.y - 16, '🍳 完美甩鍋反彈！', '#fde047');
+      return;
+    }
+  }
 
   for (let i = patrollers.length - 1; i >= 0; i--) {
     const p = patrollers[i];
@@ -4002,6 +4571,7 @@ function update() {
   updateStealLedgerTick();
   updateCoffeeAutoRegen();
   periodicAutoSaveTick();
+  if (typeof syncMultiplayerTick === 'function') syncMultiplayerTick();
   const isSalaryOpen = !document.getElementById('salaryOverlay').classList.contains('hidden');
   const isModalOpen = document.getElementById('resultModal').classList.contains('open') ||
                       document.getElementById('chestEventModal').classList.contains('open') ||
@@ -4009,9 +4579,13 @@ function update() {
                       document.getElementById('shopModal').classList.contains('open') ||
                       document.getElementById('settingsModal').classList.contains('open') ||
                       document.getElementById('guideModal').classList.contains('open') ||
-                      document.getElementById('leaderboardModal').classList.contains('open');
+                      document.getElementById('leaderboardModal').classList.contains('open') ||
+                      (document.getElementById('fortuneModal') && document.getElementById('fortuneModal').classList.contains('open'));
   if (gameOver || isModalOpen || isSalaryOpen) {
-    if (hero.cloakMs > 0) hero.lastCloakTick = Date.now();
+    const pauseNow = Date.now();
+    if (hero.cloakMs > 0) hero.lastCloakTick = pauseNow;
+    if (hero.toiletMs > 0) hero.lastToiletTick = pauseNow;
+    if (hero.meetingMs > 0) hero.lastMeetingTick = pauseNow;
     return;
   }
 
@@ -4026,6 +4600,33 @@ function update() {
     }
   } else {
     hero.lastCloakTick = 0;
+  }
+  if (hero.toiletMs > 0) {
+    const nowMs = Date.now();
+    const tDt = hero.lastToiletTick ? Math.min(100, Math.max(0, nowMs - hero.lastToiletTick)) : 16;
+    hero.lastToiletTick = nowMs;
+    hero.toiletMs = Math.max(0, hero.toiletMs - tDt);
+    if (hero.toiletMs === 0) {
+      thiefStats.bonusMoney += 35;
+      recordLedgerDelta(35);
+      updateThiefHUD();
+      playSound('win');
+      spawnParticles(hero.x + hero.w / 2, hero.y + hero.h / 2, ['#34d399', '#fde047', '#38bdf8'], 20, 6);
+      spawnFloatText(hero.x, hero.y - 26, '🚽 舒暢！帶薪排毒成功 +NT$35！', '#34d399');
+    }
+  } else {
+    hero.lastToiletTick = 0;
+  }
+  if (hero.meetingMs > 0) {
+    const nowMs = Date.now();
+    const mDt = hero.lastMeetingTick ? Math.min(100, Math.max(0, nowMs - hero.lastMeetingTick)) : 16;
+    hero.lastMeetingTick = nowMs;
+    hero.meetingMs = Math.max(0, hero.meetingMs - mDt);
+    if (hero.meetingMs === 0) {
+      spawnFloatText(hero.x, hero.y - 20, '🎧 假裝開會結束！', '#94a3b8');
+    }
+  } else {
+    hero.lastMeetingTick = 0;
   }
   if (hero.swingAnim > 0) hero.swingAnim = Math.max(0, hero.swingAnim - 0.14);
   if (coffeeCooldown > 0) coffeeCooldown--;
@@ -4333,6 +4934,7 @@ function update() {
       if (cf.x + 18 > p.x && cf.x - 6 < p.x + p.w && cf.y + 18 > p.y && cf.y - 6 < p.y + p.h) {
         hitBoss = true;
         p.hp--;
+        dealRaidBossDamage(2);
         playSound('chest');
         vibrate(25);
         spawnParticles(p.x + p.w / 2, p.y + p.h / 2, ['#78350f', '#bae6fd', '#fbbf24', '#ffffff'], 18, 6);
@@ -4356,12 +4958,12 @@ function update() {
     }
   }
 
-  const speed = 4.3;
-  if (keys.left) {
+  const speed = hero.toiletMs > 0 ? 0 : 4.3;
+  if (keys.left && speed > 0) {
     hero.vx = -speed;
     hero.facing = -1;
     hero.walkFrame += 0.22;
-  } else if (keys.right) {
+  } else if (keys.right && speed > 0) {
     hero.vx = speed;
     hero.facing = 1;
     hero.walkFrame += 0.22;
@@ -4447,8 +5049,10 @@ function update() {
     }
 
     p.throwCd = (p.throwCd || (65 + Math.floor(Math.random() * 55))) - 1;
-    if (p.throwCd <= 0 && Math.abs(p.x - hero.x) < W * 0.72) {
-      p.throwCd = Math.max(42, 95 - levelIndex * 10);
+    if (p.throwCd <= 0 && Math.abs(p.x - hero.x) < viewW * 0.78) {
+      const fObj = (typeof getTodayFortuneObj === 'function') ? getTodayFortuneObj() : null;
+      const throwMult = (fObj && fObj.throwCdMult) ? fObj.throwCdMult : 1;
+      p.throwCd = Math.max(34, Math.round((95 - levelIndex * 10) * throwMult));
       const dir = hero.x < p.x ? -1 : 1;
       const projSpeed = (4.2 + levelIndex * 0.65) * dir;
       const pool = p.attackPool || ['📄 改報告!', '🗣️ 亂傳八卦!', '🔄 重做!'];
@@ -4463,9 +5067,17 @@ function update() {
       });
     }
 
-    if (rectIntersect(hero, p) && hero.invulnTimer === 0 && hero.cloakMs <= 0) {
-      if (applyHeroDamage(`😵 被【${p.name}】抓到 -1 ❤️！`, -8.5, '#f43f5e')) return;
+    if (rectIntersect(hero, p) && hero.invulnTimer === 0 && hero.cloakMs <= 0 && hero.toiletMs <= 0) {
+      if (hero.meetingMs > 0) {
+        if (!p.meetingIgnoredCd) {
+          p.meetingIgnoredCd = 60;
+          spawnFloatText(p.x, p.y - 22, '🎧 喔他在開跨國會議，別吵他！', '#7dd3fc');
+        }
+      } else {
+        if (applyHeroDamage(`😵 被【${p.name}】抓到 -1 ❤️！`, -8.5, '#f43f5e')) return;
+      }
     }
+    if (p.meetingIgnoredCd > 0) p.meetingIgnoredCd--;
   }
 
 
@@ -4497,7 +5109,33 @@ function update() {
       continue;
     }
 
-    if (hero.cloakMs <= 0 && rectIntersect(hero, { x: br.x - 14, y: br.y - 14, w: 28, h: 28 })) {
+    if (br.reflected) {
+      let hitEnemy = false;
+      for (let j = patrollers.length - 1; j >= 0; j--) {
+        const p = patrollers[j];
+        if (rectIntersect({ x: br.x - 18, y: br.y - 14, w: 36, h: 28 }, p)) {
+          hitEnemy = true;
+          p.hp -= 2;
+          playSound('win');
+          vibrate(28);
+          spawnParticles(p.x + p.w / 2, p.y + p.h / 2, ['#fde047', '#34d399', '#ef4444'], 20, 6);
+          if (p.hp <= 0) {
+            patrollers.splice(j, 1);
+            thiefStats.bonusMoney += 35;
+            recordLedgerDelta(35);
+            updateThiefHUD();
+            spawnFloatText(p.x, p.y - 20, `🍳 甩鍋反彈砸暈【${p.name}】+NT$35！`, '#fde047');
+          } else {
+            spawnFloatText(p.x, p.y - 20, `🍳 反彈重創【${p.name}】剩 ${p.hp} 血！`, '#fde047');
+          }
+          break;
+        }
+      }
+      if (hitEnemy) {
+        bossReports.splice(i, 1);
+        continue;
+      }
+    } else if (hero.cloakMs <= 0 && hero.toiletMs <= 0 && rectIntersect(hero, { x: br.x - 14, y: br.y - 14, w: 28, h: 28 })) {
       bossReports.splice(i, 1);
       if (hero.invulnTimer === 0) {
         if (applyHeroDamage(`📄 被【${br.fromName}】的${br.label}砸中 -1 ❤️！`, -8, '#f43f5e')) return;
@@ -4510,19 +5148,48 @@ function update() {
     }
   }
 
-  if (healStation && !healStation.used && rectIntersect(hero, healStation)) {
-    if (hero.hp < hero.maxHp) {
-      healStation.used = true;
-      hero.hp = hero.maxHp;
-      updateHeartsHUD();
-      saveGameProgressToDevice();
-      playSound('win');
-      vibrate([25, 15, 35]);
-      spawnParticles(healStation.x + healStation.w / 2, healStation.y + healStation.h / 2, ['#34d399', '#f43f5e', '#fde047', '#ffffff'], 28, 7);
-      spawnFloatText(hero.x, hero.y - 26, '🏥 補血站！血量已補滿 ❤️❤️❤️❤️❤️', '#34d399');
-    } else if (!healStation.fullHintShown) {
-      healStation.fullHintShown = true;
-      spawnFloatText(healStation.x + healStation.w / 2, healStation.y - 14, '🏥 補血站（目前滿血，受傷再來補！）', '#6ee7b7');
+  for (const hs of healStations) {
+    if (!hs.used && rectIntersect(hero, hs)) {
+      if (hero.hp < hero.maxHp) {
+        hs.used = true;
+        hero.hp = hero.maxHp;
+        updateHeartsHUD();
+        saveGameProgressToDevice();
+        playSound('win');
+        vibrate([25, 15, 35]);
+        spawnParticles(hs.x + hs.w / 2, hs.y + hs.h / 2, ['#34d399', '#f43f5e', '#fde047', '#ffffff'], 28, 7);
+        spawnFloatText(hero.x, hero.y - 26, '🏥 補血站！血量已補滿 ❤️❤️❤️❤️❤️', '#34d399');
+      } else if (!hs.fullHintShown) {
+        hs.fullHintShown = true;
+        spawnFloatText(hs.x + hs.w / 2, hs.y - 14, '🏥 補血站（目前滿血，受傷再來補！）', '#6ee7b7');
+      }
+    }
+  }
+
+  for (const tl of toilets) {
+    if (!tl.used && rectIntersect(hero, tl)) {
+      tl.used = true;
+      thiefStats.toiletsUsed = (thiefStats.toiletsUsed || 0) + 1;
+      hero.toiletMs = 3000;
+      hero.lastToiletTick = Date.now();
+      hero.x = tl.x + (tl.w - hero.w) / 2;
+      hero.vx = 0;
+      playSound('chest');
+      vibrate([20, 15, 25]);
+      spawnParticles(tl.x + tl.w / 2, tl.y + tl.h / 2, ['#38bdf8', '#fde047', '#ffffff'], 18, 5);
+      spawnFloatText(tl.x + tl.w / 2, tl.y - 14, '🚽 帶薪拉屎！3 秒無敵＋偷薪 2 倍！', '#fde047');
+    }
+  }
+
+  for (const eb of earbuds) {
+    if (!eb.picked && rectIntersect(hero, eb)) {
+      eb.picked = true;
+      hero.meetingMs = 5000;
+      hero.lastMeetingTick = Date.now();
+      playSound('chest');
+      vibrate([20, 15, 30]);
+      spawnParticles(eb.x + eb.w / 2, eb.y + eb.h / 2, ['#38bdf8', '#a7f3d0', '#ffffff'], 18, 5);
+      spawnFloatText(hero.x, hero.y - 26, '🎧 假裝開跨國會議 5 秒！巡邏主管無視你！', '#7dd3fc');
     }
   }
 
@@ -4531,6 +5198,7 @@ function update() {
     const clearBonus = 80 + levelIndex * 30;
     thiefStats.bonusMoney += clearBonus;
     recordLedgerDelta(clearBonus);
+    dealRaidBossDamage(10);
     updateThiefHUD();
     saveGameProgressToDevice();
     playSound('win');
@@ -4665,30 +5333,83 @@ function render() {
     }
   }
 
-  // 繪製每關中段補血站
-  if (healStation && healStation.x + healStation.w >= cameraX - 50 && healStation.x <= cameraX + viewW + 50) {
+  // 繪製補血站（2 座）
+  for (const hs of healStations) {
+    if (hs.x + hs.w < cameraX - 50 || hs.x > cameraX + viewW + 50) continue;
     ctx.save();
-    ctx.fillStyle = healStation.used ? '#1e293b' : '#064e3b';
-    drawRoundedRect(healStation.x, healStation.y, healStation.w, healStation.h, 10);
+    ctx.fillStyle = hs.used ? '#1e293b' : '#064e3b';
+    drawRoundedRect(hs.x, hs.y, hs.w, hs.h, 10);
     ctx.fill();
-    ctx.strokeStyle = healStation.used ? '#64748b' : '#34d399';
+    ctx.strokeStyle = hs.used ? '#64748b' : '#34d399';
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    ctx.fillStyle = healStation.used ? '#475569' : '#10b981';
-    drawRoundedRect(healStation.x + 5, healStation.y + 5, healStation.w - 10, 19, 5);
+    ctx.fillStyle = hs.used ? '#475569' : '#10b981';
+    drawRoundedRect(hs.x + 5, hs.y + 5, hs.w - 10, 19, 5);
     ctx.fill();
-    ctx.fillStyle = healStation.used ? '#cbd5e1' : '#022c22';
+    ctx.fillStyle = hs.used ? '#cbd5e1' : '#022c22';
     ctx.font = '900 10px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(healStation.used ? '已補血' : '補血站', healStation.x + healStation.w / 2, healStation.y + 14.5);
+    ctx.fillText(hs.used ? '已補血' : '補血站', hs.x + hs.w / 2, hs.y + 14.5);
 
     ctx.font = '25px sans-serif';
-    ctx.fillText(healStation.used ? '✅' : '🏥', healStation.x + healStation.w / 2, healStation.y + 44);
-    ctx.fillStyle = healStation.used ? '#94a3b8' : '#a7f3d0';
+    ctx.fillText(hs.used ? '✅' : '🏥', hs.x + hs.w / 2, hs.y + 44);
+    ctx.fillStyle = hs.used ? '#94a3b8' : '#a7f3d0';
     ctx.font = 'bold 9.5px sans-serif';
-    ctx.fillText(healStation.used ? '已使用' : '補滿血!', healStation.x + healStation.w / 2, healStation.y + 68);
+    ctx.fillText(hs.used ? '已使用' : '補滿血!', hs.x + hs.w / 2, hs.y + 68);
+    ctx.restore();
+  }
+
+  // 繪製 🚽 神秘廁所（帶薪拉屎 3 秒無敵＋偷薪 2 倍）
+  for (const tl of toilets) {
+    if (tl.x + tl.w < cameraX - 50 || tl.x > cameraX + viewW + 50) continue;
+    ctx.save();
+    const occupied = tl.used && hero.toiletMs > 0 && Math.abs((hero.x + hero.w / 2) - (tl.x + tl.w / 2)) < tl.w;
+    ctx.fillStyle = occupied ? '#1e3a8a' : (tl.used ? '#1e293b' : '#312e81');
+    drawRoundedRect(tl.x, tl.y, tl.w, tl.h, 10);
+    ctx.fill();
+    ctx.strokeStyle = occupied ? '#fde047' : (tl.used ? '#64748b' : '#38bdf8');
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.fillStyle = occupied ? '#f59e0b' : (tl.used ? '#475569' : '#0284c7');
+    drawRoundedRect(tl.x + 5, tl.y + 5, tl.w - 10, 19, 5);
+    ctx.fill();
+    ctx.fillStyle = occupied ? '#111827' : '#ffffff';
+    ctx.font = '900 9.5px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(occupied ? `排毒 ${(hero.toiletMs / 1000).toFixed(1)}s` : (tl.used ? '已排毒' : '神秘廁所'), tl.x + tl.w / 2, tl.y + 14.5);
+
+    ctx.font = '25px sans-serif';
+    ctx.fillText(occupied ? '🔒' : '🚽', tl.x + tl.w / 2, tl.y + 44);
+    ctx.fillStyle = occupied ? '#fde047' : (tl.used ? '#94a3b8' : '#bae6fd');
+    ctx.font = 'bold 9.5px sans-serif';
+    ctx.fillText(occupied ? '偷薪2x!' : (tl.used ? '已使用' : '帶薪拉屎'), tl.x + tl.w / 2, tl.y + 68);
+    ctx.restore();
+  }
+
+  // 繪製 🎧 藍牙耳機（假裝開會 5 秒）
+  const floatWave = Math.sin(Date.now() * 0.006) * 4;
+  for (const eb of earbuds) {
+    if (eb.picked || eb.x + eb.w < cameraX - 50 || eb.x > cameraX + viewW + 50) continue;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(eb.x + eb.w / 2, eb.y + eb.h / 2 + floatWave, 18, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
+    ctx.fill();
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.font = '22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🎧', eb.x + eb.w / 2, eb.y + eb.h / 2 + floatWave);
+    ctx.fillStyle = '#bae6fd';
+    ctx.font = 'bold 9px sans-serif';
+    ctx.fillText('假裝開會', eb.x + eb.w / 2, eb.y - 8 + floatWave);
     ctx.restore();
   }
 
@@ -4876,10 +5597,10 @@ function render() {
   }
 
   for (const br of bossReports) {
-    ctx.fillStyle = '#991b1b';
+    ctx.fillStyle = br.reflected ? '#b45309' : '#991b1b';
     drawRoundedRect(br.x - 24, br.y - 12, 48, 24, 6);
     ctx.fill();
-    ctx.strokeStyle = '#fca5a5';
+    ctx.strokeStyle = br.reflected ? '#fde047' : '#fca5a5';
     ctx.lineWidth = 1.8;
     ctx.stroke();
 
@@ -4890,7 +5611,11 @@ function render() {
     ctx.fillText(br.label, br.x, br.y + 1);
   }
 
-  if (hero.cloakMs > 0 || hero.invulnTimer === 0 || Math.floor(hero.invulnTimer / 4) % 2 === 0) {
+  if (typeof renderRemotePlayers === 'function') {
+    renderRemotePlayers();
+  }
+
+  if (hero.toiletMs <= 0 && (hero.cloakMs > 0 || hero.invulnTimer === 0 || Math.floor(hero.invulnTimer / 4) % 2 === 0)) {
     const bob = hero.onGround ? Math.abs(Math.sin(hero.walkFrame)) * 3 : 0;
     ctx.save();
     ctx.translate(hero.x + hero.w / 2, hero.y + hero.h / 2 - bob);
@@ -4899,17 +5624,18 @@ function render() {
     }
     ctx.scale(hero.facing, 1);
 
-    ctx.fillStyle = '#0284c7';
+    const myStyle = (typeof getHeroAppearance === 'function') ? getHeroAppearance() : { color: '#0284c7', border: '#7dd3fc', avatar: '👷' };
+    ctx.fillStyle = myStyle.color;
     drawRoundedRect(-hero.w / 2, -hero.h / 2 + 12, hero.w, hero.h - 12, 8);
     ctx.fill();
-    ctx.strokeStyle = '#7dd3fc';
+    ctx.strokeStyle = myStyle.border;
     ctx.lineWidth = 2;
     ctx.stroke();
 
     ctx.font = '24px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('👷', 0, -hero.h / 2 + 5);
+    ctx.fillText(myStyle.avatar, 0, -hero.h / 2 + 5);
 
     ctx.save();
     ctx.translate(15, 2);
@@ -4942,12 +5668,39 @@ function render() {
 
     ctx.restore();
 
+    // 主角頭頂顯示 LINE 名稱
+    if (typeof getHeroDisplayName === 'function') {
+      const heroLabel = getHeroDisplayName();
+      ctx.save();
+      ctx.font = '900 10.5px sans-serif';
+      const tw = Math.min(110, Math.max(44, ctx.measureText(heroLabel).width + 12));
+      ctx.fillStyle = 'rgba(6, 78, 59, 0.88)';
+      drawRoundedRect(hero.x + hero.w / 2 - tw / 2, hero.y - 23, tw, 15, 6);
+      ctx.fill();
+      ctx.strokeStyle = '#34d399';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.fillStyle = '#fef08a';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(heroLabel, hero.x + hero.w / 2, hero.y - 15.5, tw - 8);
+      ctx.restore();
+    }
+
     if (hero.cloakMs > 0) {
       ctx.save();
       ctx.fillStyle = '#ddd6fe';
       ctx.font = '900 11.5px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`🧥 隱形 ${(hero.cloakMs / 1000).toFixed(1)}s`, hero.x + hero.w / 2, hero.y - 16);
+      ctx.fillText(`🧥 隱形 ${(hero.cloakMs / 1000).toFixed(1)}s`, hero.x + hero.w / 2, hero.y - 31);
+      ctx.restore();
+    }
+    if (hero.meetingMs > 0) {
+      ctx.save();
+      ctx.fillStyle = '#7dd3fc';
+      ctx.font = '900 11.5px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`🎧 開跨國會議 ${(hero.meetingMs / 1000).toFixed(1)}s`, hero.x + hero.w / 2, hero.y - (hero.cloakMs > 0 ? 45 : 31));
       ctx.restore();
     }
   }
@@ -5080,8 +5833,9 @@ function updateStealLedgerTick() {
   const isGuideOpen = document.getElementById('guideModal').classList.contains('open');
   const isLbOpen = document.getElementById('leaderboardModal').classList.contains('open');
   const isQuizOpen = document.getElementById('levelQuizModal').classList.contains('open');
-  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen && !isSettingsOpen && !isGuideOpen && !isLbOpen && !isQuizOpen) {
-    const earnedInTick = (dt / 3600000) * userHourlyRate;
+  const isFortuneOpen = document.getElementById('fortuneModal') && document.getElementById('fortuneModal').classList.contains('open');
+  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen && !isSettingsOpen && !isGuideOpen && !isLbOpen && !isQuizOpen && !isFortuneOpen) {
+    const earnedInTick = (dt / 3600000) * userHourlyRate * getCurrentStealMultiplier();
     stealLedger.dailyNet += earnedInTick;
     stealLedger.monthlyNet += earnedInTick;
     stealLedger.yearlyNet += earnedInTick;
@@ -5126,6 +5880,7 @@ function saveGameProgressToDevice() {
         maxHp: hero.maxHp,
         dailyLives: hero.dailyLives,
         dailyLivesDate: hero.dailyLivesDate || getPeriodKeys(Date.now()).dayKey,
+        lastLifeRegenAt: hero.lastLifeRegenAt || Date.now(),
         shield: hero.shield || 0,
         coffeeAmmo: hero.coffeeAmmo,
         materials: hero.materials
@@ -5134,9 +5889,13 @@ function saveGameProgressToDevice() {
         activeStealMs: thiefStats.activeStealMs,
         chestsOpened: thiefStats.chestsOpened,
         blocksBuilt: thiefStats.blocksBuilt,
+        toiletsUsed: thiefStats.toiletsUsed || 0,
+        deflectedCount: thiefStats.deflectedCount || 0,
         bonusMoney: thiefStats.bonusMoney,
         spentMoney: thiefStats.spentMoney
       },
+      dailyFortuneState: dailyFortuneState,
+      raidBossState: raidBossState,
       coffeeRegenAccumMs: typeof coffeeRegenAccumMs === 'number' ? coffeeRegenAccumMs : 0,
       affiliateReviveState: {
         claimed: affiliateReviveState.claimed || {},
@@ -5178,12 +5937,23 @@ function loadGameProgressFromDevice() {
       if (typeof data.thiefStats.activeStealMs === 'number') thiefStats.activeStealMs = data.thiefStats.activeStealMs;
       if (typeof data.thiefStats.chestsOpened === 'number') thiefStats.chestsOpened = data.thiefStats.chestsOpened;
       if (typeof data.thiefStats.blocksBuilt === 'number') thiefStats.blocksBuilt = data.thiefStats.blocksBuilt;
+      if (typeof data.thiefStats.toiletsUsed === 'number') thiefStats.toiletsUsed = data.thiefStats.toiletsUsed;
+      if (typeof data.thiefStats.deflectedCount === 'number') thiefStats.deflectedCount = data.thiefStats.deflectedCount;
       if (typeof data.thiefStats.bonusMoney === 'number') thiefStats.bonusMoney = data.thiefStats.bonusMoney;
       if (typeof data.thiefStats.spentMoney === 'number') thiefStats.spentMoney = data.thiefStats.spentMoney;
     }
 
     if (typeof data.coffeeRegenAccumMs === 'number') {
       coffeeRegenAccumMs = data.coffeeRegenAccumMs;
+    }
+    if (data.dailyFortuneState && typeof data.dailyFortuneState === 'object') {
+      dailyFortuneState.dateKey = String(data.dailyFortuneState.dateKey || '');
+      dailyFortuneState.fortuneId = String(data.dailyFortuneState.fortuneId || '');
+    }
+    if (data.raidBossState && typeof data.raidBossState === 'object') {
+      raidBossState.round = Math.max(1, Number(data.raidBossState.round) || 1);
+      raidBossState.damageDealt = Math.max(0, Number(data.raidBossState.damageDealt) || 0);
+      raidBossState.claimedRound = Math.max(0, Number(data.raidBossState.claimedRound) || 0);
     }
 
     if (data.affiliateReviveState && typeof data.affiliateReviveState === 'object') {
@@ -5239,14 +6009,15 @@ function loadGameProgressFromDevice() {
 
     if (data.hero && typeof data.hero === 'object') {
       hero.maxHp = MAX_HP_PER_LIFE;
-      if (typeof data.hero.dailyLives === 'number' && typeof data.hero.dailyLivesDate === 'string') {
+      if (typeof data.hero.dailyLives === 'number') {
         hero.dailyLives = Math.max(0, data.hero.dailyLives);
-        hero.dailyLivesDate = data.hero.dailyLivesDate;
+        hero.dailyLivesDate = data.hero.dailyLivesDate || getPeriodKeys(Date.now()).dayKey;
+        hero.lastLifeRegenAt = Number(data.hero.lastLifeRegenAt) || Number(data.savedAt) || Date.now();
         hero.hp = typeof data.hero.hp === 'number' ? Math.max(0, Math.min(hero.maxHp, data.hero.hp)) : hero.maxHp;
       } else {
-        // 舊版存檔升級：直接給予今日滿 5 條命與滿 5 格血
         hero.dailyLives = MAX_DAILY_LIVES;
         hero.dailyLivesDate = getPeriodKeys(Date.now()).dayKey;
+        hero.lastLifeRegenAt = Date.now();
         hero.hp = hero.maxHp;
       }
       syncDailyLivesIfNewDay();
@@ -5486,6 +6257,7 @@ async function initLineLiff() {
       lineUserProfile.pictureUrl = profile.pictureUrl || '';
       renderLineProfileUI();
     }
+    if (typeof connectMultiplayerRoom === 'function') connectMultiplayerRoom();
   } catch (e) {
     // 非 LINE 環境或尚未設定 LIFF ID 時靜默降級，不影響遊戲本體
   }
@@ -5506,7 +6278,8 @@ async function shareStealRecordToLine() {
   const pkNameParam = encodeURIComponent(lineUserProfile.displayName || '神秘社畜');
   const roomParam = lbState.customRoomCode ? `&room=${encodeURIComponent(lbState.customRoomCode)}` : '';
   const shareUrl = `${baseShareUrl}?pkName=${pkNameParam}&pkMoney=${totalMoney}${roomParam}`;
-  const plainText = `🏃‍♂️ 社畜大逃生戰績回報！\n${playerLabel}在 LV.${lvNum} 帶薪偷了 NT$${totalMoney}（可換 ${bobaCount} 杯珍奶），今日累計 NT$${dailyMoney}，獲得稱號「${rankText}」！\n快來一起潑咖啡打慣老闆 👉 ${shareUrl}`;
+  const endingShare = getUnlockedEnding(totalMoney, lvNum, thiefStats.chestsOpened, thiefStats.toiletsUsed || 0);
+  const plainText = `🏃‍♂️ 社畜大逃生戰績回報！\n${playerLabel}在 LV.${lvNum} 帶薪偷了 NT$${totalMoney}（可換 ${bobaCount} 杯珍奶），解鎖結局「${endingShare.title}」！\n快來一起潑咖啡打慣老闆 👉 ${shareUrl}`;
 
   // 1. 若在 LINE LIFF 環境內且支援 shareTargetPicker，發送精緻 Flex 卡片
   if (isLiffReady && typeof liff !== 'undefined' && liff.isApiAvailable && liff.isApiAvailable('shareTargetPicker')) {
@@ -5609,6 +6382,7 @@ function applyCustomRoomCode() {
   lbState.customRoomCode = raw;
   try { localStorage.setItem(CUSTOM_ROOM_STORAGE_KEY, raw); } catch (e) {}
   playSound('chest');
+  if (typeof connectMultiplayerRoom === 'function') connectMultiplayerRoom();
   refreshLeaderboard(true);
 }
 
@@ -5619,6 +6393,7 @@ function clearCustomRoomCode() {
   const input = document.getElementById('lbRoomInput');
   if (input) input.value = '';
   playSound('build');
+  if (typeof connectMultiplayerRoom === 'function') connectMultiplayerRoom();
   refreshLeaderboard(false);
 }
 
@@ -5693,7 +6468,7 @@ async function syncScoreToLeaderboard(force = false) {
   updateStealLedgerTick();
   const payload = {
     userId: getOrCreatePlayerId(),
-    displayName: lineUserProfile.displayName || ('社畜#' + getOrCreatePlayerId().slice(-4)),
+    displayName: getHeroDisplayName(),
     pictureUrl: lineUserProfile.pictureUrl || '',
     groupId: getActiveGroupId(),
     dayKey: stealLedger.dayKey || getPeriodKeys(now).dayKey,
@@ -5793,6 +6568,7 @@ async function refreshLeaderboard(uploadFirst = false) {
       return;
     }
 
+    renderRaidBossUI(items);
     const myId = getOrCreatePlayerId();
     const medals = ['🥇', '🥈', '🥉'];
     listBox.innerHTML = items.map((item, idx) => {
@@ -5800,9 +6576,18 @@ async function refreshLeaderboard(uploadFirst = false) {
       const rankDisp = medals[idx] || `#${idx + 1}`;
       const scoreVal = lbState.period === 'daily' ? (Number(item.dailyNet) || 0) : (Number(item.monthlyNet) || 0);
       const safeName = String(item.displayName || '神秘社畜').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const jsSafeName = String(item.displayName || '神秘社畜').replace(/['"\\<>]/g, '');
+      const jsSafeId = String(item.userId || idx).replace(/['"\\<>]/g, '');
       const avatarHtml = item.pictureUrl
         ? `<img class="lb-avatar" src="${item.pictureUrl}" alt="頭貼">`
         : `<div class="lb-avatar-fallback">👷</div>`;
+      const interactedToday = hasInteractedWithFriendToday(jsSafeId);
+      const interactHtml = (!isMe) ? `
+        <div class="lb-interact-row">
+          <button type="button" class="lb-mini-act warm" ${interactedToday ? 'disabled' : ''} onclick="interactWithFriend('${jsSafeId}', '${jsSafeName}', 'coffee')">${interactedToday ? '✅已互動' : '☕請喝咖啡'}</button>
+          <button type="button" class="lb-mini-act prank" ${interactedToday ? 'disabled' : ''} onclick="interactWithFriend('${jsSafeId}', '${jsSafeName}', 'sabotage')">${interactedToday ? '✅已互動' : '📄丟急件'}</button>
+        </div>
+      ` : '';
       return `
         <div class="lb-row ${isMe ? 'me' : ''}">
           <div class="lb-rank">${rankDisp}</div>
@@ -5810,6 +6595,7 @@ async function refreshLeaderboard(uploadFirst = false) {
           <div class="lb-info">
             <div class="lb-name">${safeName}${isMe ? ' (你)' : ''}</div>
             <div class="lb-meta">最高闖到 LV.${Number(item.maxLevel) || 1}</div>
+            ${interactHtml}
           </div>
           <div class="lb-score">NT$ ${Math.round(scoreVal).toLocaleString()}</div>
         </div>
@@ -5947,6 +6733,748 @@ function initMultiTouchGamepad() {
   });
 }
 
+// ==================== 職場微劇情開場 + 多重搞笑結局 ====================
+const WORKPLACE_NIGHTMARES = [
+  '💬 週五 17:58，主管拍拍你：「這個明天一早要，應該很快吧？」',
+  '💬 客戶訊息：「可以改回第 1 版嗎？但保留第 8 版的感覺喔！」',
+  '💬 老闆群組公告：「公司就是大家庭，所以今天冷氣開 28 度共體時艱。」',
+  '💬 早上 09:01，查勤組長：「咦？你今天晚了一分鐘打卡喔？」',
+  '💬 專案經理：「這個需求很簡單，只要加一個按鈕就好（背後要重寫整個系統）。」',
+  '💬 總監開會 2 小時後結論：「大家今天很有共識，那我們明天再開一次！」',
+  '💬 尾牙抽獎你抽中安慰獎：老闆親筆簽名勵志書《狼性與奉獻》。',
+  '💬 剛倒好冰美式，電腦突然彈出：「Windows 正在更新 1%，請勿關機。」'
+];
+let nightmareHideTimer = null;
+
+function showLevelNightmareBanner(idx) {
+  const el = document.getElementById('nightmareBanner');
+  if (!el) return;
+  const line = WORKPLACE_NIGHTMARES[(idx + Math.floor(Math.random() * WORKPLACE_NIGHTMARES.length)) % WORKPLACE_NIGHTMARES.length];
+  el.textContent = line;
+  el.style.display = 'block';
+  el.style.opacity = '1';
+  clearTimeout(nightmareHideTimer);
+  nightmareHideTimer = setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => { el.style.display = 'none'; }, 420);
+  }, 4500);
+}
+
+function getUnlockedEnding(totalMoney, lvNum, chestsOpened, toiletsUsed) {
+  if (totalMoney >= 600 || lvNum >= 6) {
+    return {
+      title: '🚀 靠副業財富自由・直接提離職',
+      desc: '你已經偷出人生第一桶金，把辭職信折成紙飛機射進老闆辦公室！'
+    };
+  }
+  if (toiletsUsed >= 2) {
+    return {
+      title: '🚽 帶薪排毒哲學大師',
+      desc: '全公司都知道廁所第三間是你的專屬私人辦公室兼財務中心。'
+    };
+  }
+  if (lvNum >= 4 || totalMoney >= 300) {
+    return {
+      title: '☕ 把公司當免費咖啡廳的男人',
+      desc: '上班領薪水、喝咖啡、順便把主管全潑醒，根本職場大贏家！'
+    };
+  }
+  if (lvNum >= 2 || chestsOpened >= 3) {
+    return {
+      title: '🚇 準時下班傳說',
+      desc: '18:00:00 準時刷卡消失在電梯口，連監視器都拍不到你的殘影！'
+    };
+  }
+  return {
+    title: '🌱 菜鳥摸魚見習生',
+    desc: '剛學會怎麼在主管眼皮底下偷薪水，距離財富自由還有幾杯咖啡的距離！'
+  };
+}
+
+// ==================== 每日上班運勢籤系統 ====================
+const DAILY_FORTUNES = [
+  {
+    id: 'boss_trip',
+    rank: '🌸 大吉・主管出差日',
+    color: '#34d399',
+    desc: '今日主管搭高鐵出差去！關卡內所有巡邏同事與主管<strong>移動速度變慢 20%</strong>！',
+    enemySpeedMult: 0.8,
+    stealMult: 1,
+    throwCdMult: 1
+  },
+  {
+    id: 'free_coffee',
+    rank: '☕ 中吉・廠商請喝下午茶',
+    color: '#fbbf24',
+    desc: '廠商送來整箱冰美式！立即獲得 <strong>+3 杯免費冰美式咖啡</strong>！',
+    enemySpeedMult: 1,
+    stealMult: 1,
+    throwCdMult: 1,
+    bonusCoffee: 3
+  },
+  {
+    id: 'retrograde',
+    rank: '⚡ 凶・水逆改稿地獄',
+    color: '#f43f5e',
+    desc: '主管今天特別煩，丟報告速度變快 20%，但<strong>今日所有偷薪速度直接 1.5 倍</strong>！',
+    enemySpeedMult: 1,
+    stealMult: 1.5,
+    throwCdMult: 0.8
+  },
+  {
+    id: 'free_mats',
+    rank: '📦 小吉・總務部大採購',
+    color: '#38bdf8',
+    desc: '茶水間堆滿全新紙箱！立即獲得 <strong>+4 塊逃生箱建材</strong>！',
+    enemySpeedMult: 1,
+    stealMult: 1,
+    throwCdMult: 1,
+    bonusMats: 4
+  }
+];
+
+const dailyFortuneState = {
+  dateKey: '',
+  fortuneId: ''
+};
+
+function hasDrawnFortuneToday() {
+  const todayKey = getPeriodKeys(Date.now()).dayKey;
+  return dailyFortuneState.dateKey === todayKey && !!dailyFortuneState.fortuneId;
+}
+
+function getTodayFortuneObj() {
+  if (!hasDrawnFortuneToday()) return null;
+  return DAILY_FORTUNES.find(f => f.id === dailyFortuneState.fortuneId) || null;
+}
+
+function openFortuneModal(autoPrompt = false) {
+  initAudio();
+  playSound('build');
+  const todayKey = getPeriodKeys(Date.now()).dayKey;
+  const badge = document.getElementById('fortuneDateBadge');
+  const body = document.getElementById('fortuneCardBody');
+  const btn = document.getElementById('fortuneActionBtn');
+  if (badge) badge.textContent = `📅 ${todayKey} 專屬職場 Buff 運勢籤`;
+
+  const current = getTodayFortuneObj();
+  if (!current) {
+    body.innerHTML = `
+      <div style="font-size:36px;margin-bottom:6px;">🎋</div>
+      <div style="font-size:14px;font-weight:900;color:#fde047;margin-bottom:4px;">還沒抽今天的上班運勢籤！</div>
+      <div class="fortune-desc">點擊下方按鈕抽出今日專屬 Buff（主管出差變慢、免費咖啡、或 1.5 倍偷薪加成）！</div>
+    `;
+    btn.textContent = '🎲 立即抽今日上班運勢籤！';
+    btn.onclick = drawTodayFortune;
+  } else {
+    body.innerHTML = `
+      <div class="fortune-rank-pill" style="background:rgba(255,255,255,0.08);border:1.5px solid ${current.color};color:${current.color};">${current.rank}</div>
+      <div class="fortune-desc">${current.desc}</div>
+    `;
+    btn.textContent = '收下今日運勢，出發逃班！➔';
+    btn.onclick = closeFortuneModal;
+  }
+  document.getElementById('fortuneModal').classList.add('open');
+}
+
+function drawTodayFortune() {
+  initAudio();
+  playSound('win');
+  vibrate([25, 20, 45]);
+  const todayKey = getPeriodKeys(Date.now()).dayKey;
+  const picked = DAILY_FORTUNES[Math.floor(Math.random() * DAILY_FORTUNES.length)];
+  dailyFortuneState.dateKey = todayKey;
+  dailyFortuneState.fortuneId = picked.id;
+
+  if (picked.bonusCoffee) {
+    hero.coffeeAmmo += picked.bonusCoffee;
+    updateCoffeeHUD();
+  }
+  if (picked.bonusMats) {
+    hero.materials += picked.bonusMats;
+    updateMatHUD();
+  }
+  if (picked.enemySpeedMult && picked.enemySpeedMult !== 1) {
+    for (const p of patrollers) p.vx *= picked.enemySpeedMult;
+  }
+  saveGameProgressToDevice();
+  openFortuneModal(false);
+}
+
+function closeFortuneModal() {
+  document.getElementById('fortuneModal').classList.remove('open');
+  showLevelNightmareBanner(levelIndex);
+}
+
+// ==================== 全群討伐「終極慣老闆（100 血）」＋ 好友送暖/陷害 ====================
+const RAID_BOSS_MAX_HP = 100;
+const raidBossState = {
+  round: 1,
+  damageDealt: 0,
+  claimedRound: 0
+};
+
+function dealRaidBossDamage(dmg) {
+  raidBossState.damageDealt = Math.min(RAID_BOSS_MAX_HP * raidBossState.round + RAID_BOSS_MAX_HP, (raidBossState.damageDealt || 0) + dmg);
+}
+
+function renderRaidBossUI(lbItems = []) {
+  const titleEl = document.getElementById('lbBossTitle');
+  const hpEl = document.getElementById('lbBossHpText');
+  const barEl = document.getElementById('lbBossBarFill');
+  const subEl = document.getElementById('lbBossSubText');
+  const claimBtn = document.getElementById('lbBossClaimBtn');
+  if (!titleEl || !hpEl || !barEl) return;
+
+  // 結合排行榜全群最高關卡進度與個人累積傷害
+  const groupMomentum = Array.isArray(lbItems)
+    ? lbItems.reduce((acc, it) => acc + Math.max(0, (Number(it.maxLevel) || 1) - 1) * 4, 0)
+    : 0;
+  const totalDmg = (raidBossState.damageDealt || 0) + groupMomentum;
+  const dmgInCurrentRound = Math.max(0, totalDmg - (raidBossState.round - 1) * RAID_BOSS_MAX_HP);
+  const remainHp = Math.max(0, RAID_BOSS_MAX_HP - dmgInCurrentRound);
+  const pct = Math.max(0, Math.min(100, (remainHp / RAID_BOSS_MAX_HP) * 100));
+
+  titleEl.textContent = `👹 全群討伐：終極慣老闆（第 ${raidBossState.round} 輪）`;
+  hpEl.textContent = `${remainHp} / ${RAID_BOSS_MAX_HP} HP`;
+  barEl.style.width = `${pct}%`;
+
+  if (remainHp <= 0 && raidBossState.claimedRound < raidBossState.round) {
+    if (subEl) subEl.textContent = '🎉 慣老闆已被大家聯手打倒！快領慶功金！';
+    if (claimBtn) claimBtn.style.display = 'inline-block';
+  } else {
+    if (subEl) subEl.textContent = '潑咖啡命中、甩鍋反彈與全群通關都會合力扣血！';
+    if (claimBtn) claimBtn.style.display = 'none';
+  }
+}
+
+function claimRaidBossReward() {
+  initAudio();
+  playSound('win');
+  vibrate([35, 20, 55]);
+  raidBossState.claimedRound = raidBossState.round;
+  raidBossState.round += 1;
+  thiefStats.bonusMoney += 100;
+  recordLedgerDelta(100);
+  hero.coffeeAmmo += 2;
+  updateCoffeeHUD();
+  updateThiefHUD();
+  saveGameProgressToDevice();
+  renderRaidBossUI([]);
+  alert('🎉 討伐終極慣老闆成功！全群慶功獎金 +NT$100 ＆ 免費冰美式 +2 杯已發放！');
+}
+
+const FRIEND_INTERACT_STORAGE_KEY = 'office_escape_friend_interact';
+const socialPrankState = {
+  pendingSabotageFrom: ''
+};
+
+function hasInteractedWithFriendToday(targetUserId) {
+  try {
+    const todayKey = getPeriodKeys(Date.now()).dayKey;
+    const map = JSON.parse(localStorage.getItem(FRIEND_INTERACT_STORAGE_KEY) || '{}');
+    return map[targetUserId] === todayKey;
+  } catch (e) {
+    return false;
+  }
+}
+
+function markFriendInteractedToday(targetUserId) {
+  try {
+    const todayKey = getPeriodKeys(Date.now()).dayKey;
+    const map = JSON.parse(localStorage.getItem(FRIEND_INTERACT_STORAGE_KEY) || '{}');
+    map[targetUserId] = todayKey;
+    localStorage.setItem(FRIEND_INTERACT_STORAGE_KEY, JSON.stringify(map));
+  } catch (e) {}
+}
+
+async function interactWithFriend(targetUserId, targetName, actionType) {
+  initAudio();
+  if (hasInteractedWithFriendToday(targetUserId)) return;
+  markFriendInteractedToday(targetUserId);
+
+  const myName = lineUserProfile.displayName || '神秘社畜';
+  const baseShareUrl = LINE_LIFF_ID ? `https://liff.line.me/${LINE_LIFF_ID}` : (window.location.origin + window.location.pathname);
+  const roomParam = lbState.customRoomCode ? `&room=${encodeURIComponent(lbState.customRoomCode)}` : '';
+  let shareUrl = '';
+  let msgText = '';
+
+  if (actionType === 'coffee') {
+    playSound('chest');
+    thiefStats.bonusMoney += 10;
+    recordLedgerDelta(10);
+    updateThiefHUD();
+    shareUrl = `${baseShareUrl}?giftCoffeeFrom=${encodeURIComponent(myName)}${roomParam}`;
+    msgText = `☕ 【${myName}】在《社畜大逃生》請【${targetName}】喝 1 杯免費冰美式！快點領取 👉 ${shareUrl}`;
+  } else {
+    playSound('hurt');
+    shareUrl = `${baseShareUrl}?sabotageFrom=${encodeURIComponent(myName)}${roomParam}`;
+    msgText = `📄 【${myName}】丟了一疊急件給【${targetName}】！下次進《社畜大逃生》將多 1 隻查勤組長伺候 👉 ${shareUrl}`;
+  }
+
+  saveGameProgressToDevice();
+  refreshLeaderboard(false);
+
+  const lineShareUrl = `https://line.me/R/msg/text/?${encodeURIComponent(msgText)}`;
+  if (isLiffReady && typeof liff !== 'undefined' && liff.isApiAvailable && liff.isApiAvailable('shareTargetPicker')) {
+    try {
+      await liff.shareTargetPicker([{ type: 'text', text: msgText }]);
+      return;
+    } catch (e) {}
+  }
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: '社畜大逃生・好友互動', text: msgText, url: shareUrl });
+      return;
+    } catch (e) {}
+  }
+  window.open(lineShareUrl, '_blank');
+}
+
+function handleSocialUrlParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const giftFrom = (params.get('giftCoffeeFrom') || '').trim().slice(0, 16);
+    const sabFrom = (params.get('sabotageFrom') || '').trim().slice(0, 16);
+    const tokenKey = 'office_escape_social_token_' + window.location.search;
+    if ((giftFrom || sabFrom) && !sessionStorage.getItem(tokenKey)) {
+      sessionStorage.setItem(tokenKey, '1');
+      if (giftFrom) {
+        hero.coffeeAmmo += 1;
+        updateCoffeeHUD();
+        saveGameProgressToDevice();
+        setTimeout(() => {
+          spawnFloatText(hero.x, hero.y - 32, `☕ 【${giftFrom}】請你喝 1 杯冰美式！`, '#fde047');
+        }, 800);
+      }
+      if (sabFrom) {
+        socialPrankState.pendingSabotageFrom = sabFrom;
+        buildStageGrid(levelIndex);
+        setTimeout(() => {
+          spawnFloatText(hero.x, hero.y - 32, `📄 【${sabFrom}】丟急件陷害你！本關多 1 隻組長！`, '#f43f5e');
+        }, 900);
+      }
+    }
+  } catch (e) {}
+}
+
+// ==================== 主角 LINE 名字 + 自訂壞人名字 + Firebase 多人同場景連線 ====================
+// 請將免費 Firebase Realtime Database 網址貼到下方引號內（例：'https://你的專案-default-rtdb.asia-southeast1.firebasedatabase.app'）
+const FIREBASE_DB_URL = 'https://work-1f10a-default-rtdb.asia-southeast1.firebasedatabase.app';
+
+const PLAYER_STYLE_STORAGE_KEY = 'office_escape_player_style_v1';
+const OUTFIT_COLORS = [
+  { id: 'blue',   color: '#0284c7', border: '#7dd3fc' },
+  { id: 'purple', color: '#7c3aed', border: '#c4b5fd' },
+  { id: 'red',    color: '#dc2626', border: '#fca5a5' },
+  { id: 'green',  color: '#059669', border: '#6ee7b7' },
+  { id: 'orange', color: '#ea580c', border: '#fdba74' },
+  { id: 'pink',   color: '#db2777', border: '#f9a8d4' },
+  { id: 'gold',   color: '#ca8a04', border: '#fef08a' },
+  { id: 'slate',  color: '#334155', border: '#cbd5e1' }
+];
+const AVATAR_HATS = ['👷', '🧑‍💻', '🕵️', '🎩', '🧙', '🐱', '🦊', '🐼'];
+
+const playerCustomStyle = {
+  nickname: '',
+  colorId: '',
+  avatar: ''
+};
+
+function hashStrIdx(str, mod) {
+  let h = 0;
+  const s = String(str || '0');
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h % mod;
+}
+
+function loadPlayerCustomStyle() {
+  try {
+    const raw = localStorage.getItem(PLAYER_STYLE_STORAGE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d && typeof d === 'object') {
+        if (typeof d.nickname === 'string') playerCustomStyle.nickname = d.nickname.trim().slice(0, 12);
+        if (typeof d.colorId === 'string') playerCustomStyle.colorId = d.colorId;
+        if (typeof d.avatar === 'string') playerCustomStyle.avatar = d.avatar;
+      }
+    }
+  } catch (e) {}
+  const pid = getOrCreatePlayerId();
+  if (!playerCustomStyle.colorId || !OUTFIT_COLORS.some(c => c.id === playerCustomStyle.colorId)) {
+    playerCustomStyle.colorId = OUTFIT_COLORS[hashStrIdx(pid, OUTFIT_COLORS.length)].id;
+  }
+  if (!playerCustomStyle.avatar || !AVATAR_HATS.includes(playerCustomStyle.avatar)) {
+    playerCustomStyle.avatar = AVATAR_HATS[hashStrIdx(pid + '_hat', AVATAR_HATS.length)];
+  }
+  renderAppearancePickers();
+}
+
+function savePlayerCustomStyle() {
+  try {
+    localStorage.setItem(PLAYER_STYLE_STORAGE_KEY, JSON.stringify(playerCustomStyle));
+  } catch (e) {}
+}
+
+function getHeroAppearance() {
+  const cObj = OUTFIT_COLORS.find(c => c.id === playerCustomStyle.colorId) || OUTFIT_COLORS[0];
+  return {
+    color: cObj.color,
+    border: cObj.border,
+    avatar: playerCustomStyle.avatar || '👷'
+  };
+}
+
+function getHeroDisplayName() {
+  if (playerCustomStyle.nickname) {
+    return playerCustomStyle.nickname.slice(0, 12);
+  }
+  if (lineUserProfile && lineUserProfile.displayName) {
+    return lineUserProfile.displayName.slice(0, 12);
+  }
+  return '社畜#' + getOrCreatePlayerId().slice(-4);
+}
+
+function setCustomNickname(val, fromSource) {
+  playerCustomStyle.nickname = String(val || '').trim().slice(0, 12);
+  savePlayerCustomStyle();
+  const sIn = document.getElementById('startNicknameInput');
+  const mIn = document.getElementById('settingsNicknameInput');
+  if (fromSource !== 'start' && sIn) sIn.value = playerCustomStyle.nickname;
+  if (fromSource !== 'settings' && mIn) mIn.value = playerCustomStyle.nickname;
+  mpState.lastSig = '';
+}
+
+function selectOutfitColor(colorId) {
+  initAudio();
+  playSound('build');
+  playerCustomStyle.colorId = colorId;
+  savePlayerCustomStyle();
+  renderAppearancePickers();
+  mpState.lastSig = '';
+}
+
+function selectAvatarHat(av) {
+  initAudio();
+  playSound('build');
+  playerCustomStyle.avatar = av;
+  savePlayerCustomStyle();
+  renderAppearancePickers();
+  mpState.lastSig = '';
+}
+
+function renderAppearancePickers() {
+  const sIn = document.getElementById('startNicknameInput');
+  const mIn = document.getElementById('settingsNicknameInput');
+  if (sIn && document.activeElement !== sIn) sIn.value = playerCustomStyle.nickname || '';
+  if (mIn && document.activeElement !== mIn) mIn.value = playerCustomStyle.nickname || '';
+
+  const colorHtml = OUTFIT_COLORS.map(c =>
+    `<button type="button" class="color-swatch ${playerCustomStyle.colorId === c.id ? 'active' : ''}" style="background:${c.color};" onclick="selectOutfitColor('${c.id}')" title="${c.id}"></button>`
+  ).join('');
+  const avHtml = AVATAR_HATS.map(av =>
+    `<button type="button" class="avatar-chip ${playerCustomStyle.avatar === av ? 'active' : ''}" onclick="selectAvatarHat('${av}')">${av}</button>`
+  ).join('');
+
+  ['startColorSwatches', 'settingsColorSwatches'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = colorHtml;
+  });
+  ['startAvatarChips', 'settingsAvatarChips'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = avHtml;
+  });
+}
+
+// --- 自訂壞人／主管名單 ---
+const CUSTOM_VILLAINS_STORAGE_KEY = 'office_escape_custom_villains';
+let customVillainNames = [];
+
+function loadCustomVillains() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_VILLAINS_STORAGE_KEY);
+    if (!raw) return;
+    const arr = JSON.parse(raw);
+    if (Array.isArray(arr)) {
+      customVillainNames = arr.map(s => String(s || '').trim().slice(0, 12)).filter(Boolean);
+    }
+  } catch (e) {}
+}
+
+function applyCustomNamesToPatrollers() {
+  if (!Array.isArray(patrollers)) return;
+  patrollers.forEach((p, idx) => {
+    if (!p.defaultName) p.defaultName = p.name;
+    if (customVillainNames.length > 0) {
+      p.name = customVillainNames[idx % customVillainNames.length];
+    } else {
+      p.name = p.defaultName;
+    }
+  });
+}
+
+function saveCustomVillainsFromSettings() {
+  initAudio();
+  const input = document.getElementById('customVillainsInput');
+  const raw = input ? input.value : '';
+  const list = raw
+    .split(/[,，、\n]+/)
+    .map(s => s.trim().slice(0, 12))
+    .filter(Boolean);
+  customVillainNames = list;
+  try {
+    localStorage.setItem(CUSTOM_VILLAINS_STORAGE_KEY, JSON.stringify(customVillainNames));
+  } catch (e) {}
+  applyCustomNamesToPatrollers();
+  playSound('chest');
+  vibrate(20);
+  if (customVillainNames.length > 0) {
+    spawnFloatText(hero.x, hero.y - 28, `😈 已套用 ${customVillainNames.length} 位自訂壞人！`, '#fda4af');
+    alert(`已套用自訂壞人名單（共 ${customVillainNames.length} 位）：\n${customVillainNames.join('、')}`);
+  } else {
+    alert('已恢復預設主管與同事名單！');
+  }
+}
+
+function clearCustomVillains() {
+  initAudio();
+  customVillainNames = [];
+  try { localStorage.removeItem(CUSTOM_VILLAINS_STORAGE_KEY); } catch (e) {}
+  const input = document.getElementById('customVillainsInput');
+  if (input) input.value = '';
+  applyCustomNamesToPatrollers();
+  playSound('build');
+  spawnFloatText(hero.x, hero.y - 28, '🔄 已恢復預設壞人名單！', '#38bdf8');
+}
+
+// --- 多人即時同場景（Firebase Realtime Database） ---
+const mpState = {
+  enabled: false,
+  db: null,
+  roomKey: '',
+  roomRef: null,
+  myRef: null,
+  remotePlayers: new Map(),
+  lastSendAt: 0,
+  lastSig: ''
+};
+
+function sanitizeFirebaseKey(str) {
+  return String(str || 'public_lobby').replace(/[.#$\[\]\/]/g, '_').slice(0, 48) || 'public_lobby';
+}
+
+function getMultiplayerRoomKey() {
+  const active = (typeof getActiveGroupId === 'function') ? getActiveGroupId() : '';
+  return sanitizeFirebaseKey(active || 'public_lobby');
+}
+
+function updateOnlineCountHUD() {
+  const pill = document.getElementById('onlineCountPill');
+  const txt = document.getElementById('onlineCountText');
+  if (!pill || !txt) return;
+  if (!mpState.enabled) {
+    pill.style.display = 'none';
+    return;
+  }
+  const now = Date.now();
+  let sameStageCount = 1; // 包含自己
+  const curLv = levelIndex + 1;
+  for (const rp of mpState.remotePlayers.values()) {
+    if (now - (rp.ts || 0) < 15000 && rp.level === curLv) {
+      sameStageCount++;
+    }
+  }
+  txt.textContent = String(sameStageCount);
+  pill.style.display = 'inline-block';
+}
+
+function connectMultiplayerRoom() {
+  if (!mpState.enabled || !mpState.db) return;
+  const newRoomKey = getMultiplayerRoomKey();
+  if (mpState.roomKey === newRoomKey && mpState.roomRef) return;
+
+  try {
+    if (mpState.roomRef) mpState.roomRef.off('value');
+    if (mpState.myRef) mpState.myRef.remove().catch(() => {});
+  } catch (e) {}
+
+  mpState.roomKey = newRoomKey;
+  mpState.remotePlayers.clear();
+  const myId = sanitizeFirebaseKey(getOrCreatePlayerId());
+  mpState.roomRef = mpState.db.ref(`rooms/${newRoomKey}/players`);
+  mpState.myRef = mpState.db.ref(`rooms/${newRoomKey}/players/${myId}`);
+
+  try {
+    mpState.myRef.onDisconnect().remove();
+  } catch (e) {}
+
+  mpState.roomRef.on('value', (snap) => {
+    const val = snap.val() || {};
+    const now = Date.now();
+    const seen = new Set();
+    Object.keys(val).forEach((pid) => {
+      if (pid === myId) return;
+      const p = val[pid];
+      if (!p || typeof p.x !== 'number' || typeof p.y !== 'number') return;
+      if (now - (Number(p.ts) || 0) > 15000) return;
+      seen.add(pid);
+      const prev = mpState.remotePlayers.get(pid);
+      if (prev) {
+        prev.targetX = p.x;
+        prev.targetY = p.y;
+        prev.facing = p.facing || 1;
+        prev.level = Number(p.level) || 1;
+        prev.name = String(p.name || '神秘社畜').slice(0, 12);
+        prev.color = String(p.color || '#7c3aed');
+        prev.border = String(p.border || '#c4b5fd');
+        prev.avatar = String(p.avatar || '👷');
+        prev.walkFrame = Number(p.walkFrame) || 0;
+        prev.cloak = !!p.cloak;
+        prev.meeting = !!p.meeting;
+        prev.toilet = !!p.toilet;
+        prev.ts = Number(p.ts) || now;
+      } else {
+        mpState.remotePlayers.set(pid, {
+          drawX: p.x,
+          drawY: p.y,
+          targetX: p.x,
+          targetY: p.y,
+          facing: p.facing || 1,
+          level: Number(p.level) || 1,
+          name: String(p.name || '神秘社畜').slice(0, 12),
+          color: String(p.color || '#7c3aed'),
+          border: String(p.border || '#c4b5fd'),
+          avatar: String(p.avatar || '👷'),
+          walkFrame: Number(p.walkFrame) || 0,
+          cloak: !!p.cloak,
+          meeting: !!p.meeting,
+          toilet: !!p.toilet,
+          ts: Number(p.ts) || now
+        });
+      }
+    });
+    for (const oldId of Array.from(mpState.remotePlayers.keys())) {
+      if (!seen.has(oldId)) mpState.remotePlayers.delete(oldId);
+    }
+    updateOnlineCountHUD();
+  });
+
+  mpState.lastSendAt = 0;
+  updateOnlineCountHUD();
+}
+
+function initRealtimeMultiplayer() {
+  if (!FIREBASE_DB_URL || typeof firebase === 'undefined') return;
+  try {
+    if (!firebase.apps || firebase.apps.length === 0) {
+      firebase.initializeApp({ databaseURL: FIREBASE_DB_URL });
+    }
+    mpState.db = firebase.database();
+    mpState.enabled = true;
+    connectMultiplayerRoom();
+  } catch (e) {
+    mpState.enabled = false;
+  }
+}
+
+function syncMultiplayerTick() {
+  if (!mpState.enabled || !mpState.myRef) return;
+  const now = Date.now();
+
+  // 平滑插值其他線上玩家的位置
+  for (const [pid, rp] of mpState.remotePlayers.entries()) {
+    if (now - rp.ts > 15000) {
+      mpState.remotePlayers.delete(pid);
+      continue;
+    }
+    rp.drawX += (rp.targetX - rp.drawX) * 0.25;
+    rp.drawY += (rp.targetY - rp.drawY) * 0.25;
+  }
+
+  const rx = Math.round(hero.x);
+  const ry = Math.round(hero.y);
+  const curLv = levelIndex + 1;
+  const myStyle = getHeroAppearance();
+  const myName = getHeroDisplayName();
+  const sig = `${myName}|${myStyle.color}|${myStyle.avatar}|${rx}|${ry}|${hero.facing}|${curLv}|${hero.cloakMs > 0 ? 1 : 0}|${hero.meetingMs > 0 ? 1 : 0}|${hero.toiletMs > 0 ? 1 : 0}`;
+  const moved = sig !== mpState.lastSig;
+  const interval = moved ? 120 : 2500;
+  if (now - mpState.lastSendAt < interval) return;
+
+  mpState.lastSendAt = now;
+  mpState.lastSig = sig;
+  try {
+    mpState.myRef.set({
+      name: myName,
+      color: myStyle.color,
+      border: myStyle.border,
+      avatar: myStyle.avatar,
+      x: rx,
+      y: ry,
+      facing: hero.facing,
+      level: curLv,
+      walkFrame: Number((hero.walkFrame || 0).toFixed(1)),
+      cloak: hero.cloakMs > 0,
+      meeting: hero.meetingMs > 0,
+      toilet: hero.toiletMs > 0,
+      ts: now
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+function renderRemotePlayers() {
+  if (!mpState.enabled || mpState.remotePlayers.size === 0) return;
+  const now = Date.now();
+  const curLv = levelIndex + 1;
+
+  for (const rp of mpState.remotePlayers.values()) {
+    if (rp.level !== curLv || rp.toilet || now - rp.ts > 15000) continue;
+    if (rp.drawX + hero.w < cameraX - 60 || rp.drawX > cameraX + viewW + 60) continue;
+
+    ctx.save();
+    ctx.translate(rp.drawX + hero.w / 2, rp.drawY + hero.h / 2);
+    ctx.globalAlpha = rp.cloak ? 0.35 : 0.86;
+    ctx.scale(rp.facing || 1, 1);
+
+    // 線上隊友顯示各自專屬衣服顏色與帽子圖示
+    ctx.fillStyle = rp.color || '#7c3aed';
+    drawRoundedRect(-hero.w / 2, -hero.h / 2 + 12, hero.w, hero.h - 12, 8);
+    ctx.fill();
+    ctx.strokeStyle = rp.border || '#c4b5fd';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.font = '23px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(rp.avatar || '👷', 0, -hero.h / 2 + 5);
+    ctx.restore();
+
+    // 隊友頭頂名字標籤
+    ctx.save();
+    const label = `🟢 ${rp.name}`;
+    ctx.font = '900 10px sans-serif';
+    const tw = Math.min(110, Math.max(46, ctx.measureText(label).width + 10));
+    ctx.fillStyle = 'rgba(46, 16, 101, 0.86)';
+    drawRoundedRect(rp.drawX + hero.w / 2 - tw / 2, rp.drawY - 22, tw, 15, 6);
+    ctx.fill();
+    ctx.strokeStyle = '#a78bfa';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.fillStyle = '#e9d5ff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, rp.drawX + hero.w / 2, rp.drawY - 14.5, tw - 6);
+    ctx.restore();
+  }
+}
+
+window.addEventListener('beforeunload', () => {
+  try { if (mpState.myRef) mpState.myRef.remove(); } catch (e) {}
+});
+
+loadCustomVillains();
+loadPlayerCustomStyle();
 updateSalaryPreview();
 resizeCanvas();
 loadLevel(0);
@@ -5955,6 +7483,8 @@ requestAnimationFrame(loop);
 initLineLiff();
 initPkChallengeFromUrl();
 initMultiTouchGamepad();
+handleSocialUrlParams();
+initRealtimeMultiplayer();
 </script>
 </body>
 </html>
