@@ -992,6 +992,78 @@
   }
   .line-share-btn:active { transform: scale(0.98); }
 
+  /* ==================== 0 命聯盟行銷復活區塊 ==================== */
+  .aff-revive-box {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(239, 68, 68, 0.14));
+    border: 1.5px solid #f59e0b;
+    border-radius: 14px;
+    padding: 10px 10px 9px;
+    margin: 6px 0 10px;
+    text-align: left;
+  }
+  .aff-revive-title {
+    font-size: 12.5px;
+    font-weight: 900;
+    color: #fde047;
+    margin-bottom: 3px;
+    text-align: center;
+  }
+  .aff-revive-sub {
+    font-size: 11px;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .aff-btn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .aff-btn {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 11px;
+    color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  }
+  .aff-btn:active { transform: scale(0.98); }
+  .aff-btn.shopee { background: linear-gradient(135deg, #ee4d2d, #c2410c); }
+  .aff-btn.trip   { background: linear-gradient(135deg, #287dfa, #1d4ed8); }
+  .aff-btn.klook  { background: linear-gradient(135deg, #ff5b00, #ea580c); }
+  .aff-btn.claimed, .aff-btn:disabled {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    box-shadow: none;
+    opacity: 0.65;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .aff-pill {
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fef08a;
+    font-size: 10.5px;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .aff-btn.claimed .aff-pill {
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.4);
+  }
+
   /* ==================== 過關 3 題猜謎彈窗樣式 ==================== */
   .quiz-progress-row {
     display: flex;
@@ -1243,6 +1315,14 @@
           <span id="lineProfileName">LINE 社畜玩家</span>
         </div>
         <div class="chest-badge" id="nextLevelPreviewBadge" style="border-color:#ef4444;color:#fca5a5;">下一關：LV.2 進階地獄（難度全面提升！）</div>
+
+        <!-- 0 命提醒＋聯盟行銷復活區塊（點 1 個送 2 條命） -->
+        <div class="aff-revive-box" id="affiliateReviveBox" style="display:none;">
+          <div class="aff-revive-title">⚡ 今日命數已用完！點選好康立即領命復活</div>
+          <div class="aff-revive-sub" id="affReviveSubText">每次 0 命可任選 1 個未領過的連結獲得 <strong>+2 條命</strong>（3 個全領完需等 8 小時後重置）</div>
+          <div class="aff-btn-list" id="affiliateBtnList"></div>
+        </div>
+
         <div class="thief-highlight-box">
           <div style="font-size:11px;color:#cbd5e1;font-weight:700;" id="modalSalaryInfo">依月薪 NT$48,000（時薪 NT$273）計算</div>
           <div class="thief-big-num" id="modalStealMoney">NT$ 0</div>
@@ -1679,6 +1759,13 @@ function confirmSalaryAndStart() {
       loadLevel(0);
     }
   } catch (e) {}
+  try {
+    syncDailyLivesIfNewDay();
+    if (hero.dailyLives <= 0 && hero.hp <= 0) {
+      gameOver = true;
+      openStealModal(false, true);
+    }
+  } catch (e) {}
 }
 
 function reopenSalaryModal() {
@@ -1712,14 +1799,13 @@ function initBgm() {
       }
     });
     bgmAudio.addEventListener('error', () => {
+      const triedCount = Number(bgmAudio.getAttribute('data-err-count') || 0) + 1;
+      bgmAudio.setAttribute('data-err-count', String(triedCount));
+      if (triedCount >= BGM_TRACKS.length) return;
       bgmTrackIdx = (bgmTrackIdx + 1) % BGM_TRACKS.length;
-      const nextUrl = BGM_TRACKS[bgmTrackIdx];
-      if (bgmAudio.getAttribute('data-tried') !== nextUrl) {
-        bgmAudio.setAttribute('data-tried', nextUrl);
-        bgmAudio.src = nextUrl;
-        if (bgmWanted && (typeof soundEnabled === 'undefined' || soundEnabled)) {
-          bgmAudio.play().catch(() => {});
-        }
+      bgmAudio.src = BGM_TRACKS[bgmTrackIdx];
+      if (bgmWanted && (typeof soundEnabled === 'undefined' || soundEnabled)) {
+        bgmAudio.play().catch(() => {});
       }
     });
   }
@@ -1975,8 +2061,8 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
       document.getElementById('modalTitle').textContent = `😵‍💫 LV.${currentLvNum} 挑戰失敗，失去 1 條命！`;
       document.getElementById('nextLevelPreviewBadge').textContent = `今日剩餘 ${hero.dailyLives} / ${MAX_DAILY_LIVES} 條命（每條命 5 格血，重試將自動滿血！）`;
     } else {
-      document.getElementById('modalTitle').textContent = `😵‍💫 今日 ${MAX_DAILY_LIVES} 條命已用完！`;
-      document.getElementById('nextLevelPreviewBadge').textContent = '明天 00:00 自動恢復 5 條命，休息一下明天再逃班！';
+      document.getElementById('modalTitle').textContent = `😵‍💫 今日命數已用完！`;
+      document.getElementById('nextLevelPreviewBadge').textContent = '點下方推薦連結立即免費領 +2 條命，或等明天 00:00 自動恢復！';
     }
     document.getElementById('nextLevelPreviewBadge').style.display = 'inline-block';
   } else {
@@ -2014,6 +2100,7 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
     btn.textContent = '繼續挖寶蓋房逃班！➔';
     btn.dataset.action = 'closeOnly';
   }
+  renderAffiliateReviveUI(isDead && hero.dailyLives <= 0);
   renderLedgerSummaryInModal();
   document.getElementById('resultModal').classList.add('open');
 }
@@ -3368,6 +3455,7 @@ function syncDailyLivesIfNewDay() {
     hero.dailyLivesDate = todayKey;
     hero.dailyLives = MAX_DAILY_LIVES;
     hero.maxHp = MAX_HP_PER_LIFE;
+    syncAffiliateReviveCooldown();
     if (hero.hp <= 0) hero.hp = hero.maxHp;
     updateHeartsHUD();
     saveGameProgressToDevice();
@@ -4581,8 +4669,9 @@ window.addEventListener('orientationchange', () => {
 // 防止手機快速連點或雙指縮放畫面（保留輸入框正常點擊）
 let lastGlobalTouchEnd = 0;
 document.addEventListener('touchend', (e) => {
-  const tag = e.target && e.target.tagName ? e.target.tagName.toUpperCase() : '';
-  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  const target = e.target;
+  const tag = target && target.tagName ? target.tagName.toUpperCase() : '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON' || (target && target.closest && target.closest('button'))) return;
   const now = Date.now();
   if (now - lastGlobalTouchEnd <= 320) {
     e.preventDefault();
@@ -4723,6 +4812,10 @@ function saveGameProgressToDevice() {
         spentMoney: thiefStats.spentMoney
       },
       coffeeRegenAccumMs: typeof coffeeRegenAccumMs === 'number' ? coffeeRegenAccumMs : 0,
+      affiliateReviveState: {
+        claimed: affiliateReviveState.claimed || {},
+        cooldownUntil: Number(affiliateReviveState.cooldownUntil) || 0
+      },
       stealLedger: {
         dayKey: stealLedger.dayKey,
         monthKey: stealLedger.monthKey,
@@ -4765,6 +4858,16 @@ function loadGameProgressFromDevice() {
 
     if (typeof data.coffeeRegenAccumMs === 'number') {
       coffeeRegenAccumMs = data.coffeeRegenAccumMs;
+    }
+
+    if (data.affiliateReviveState && typeof data.affiliateReviveState === 'object') {
+      if (data.affiliateReviveState.claimed && typeof data.affiliateReviveState.claimed === 'object') {
+        affiliateReviveState.claimed = { ...data.affiliateReviveState.claimed };
+      } else {
+        affiliateReviveState.claimed = {};
+      }
+      affiliateReviveState.cooldownUntil = Number(data.affiliateReviveState.cooldownUntil) || 0;
+      syncAffiliateReviveCooldown();
     }
 
     if (data.stealLedger && typeof data.stealLedger === 'object') {
@@ -4858,6 +4961,160 @@ window.addEventListener('beforeunload', saveGameProgressToDevice);
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) saveGameProgressToDevice();
 });
+
+// ==================== 0 命聯盟行銷復活系統（防呆：領過鎖定、3個領完冷卻 8 小時） ====================
+const AFFILIATE_REVIVE_LINKS = [
+  {
+    key: 'shopee',
+    cls: 'shopee',
+    label: '🛒 蝦皮限時特價購物｜超優惠限時特價',
+    url: 'https://s.shopee.tw/gRpd3bN15'
+  },
+  {
+    key: 'trip',
+    cls: 'trip',
+    label: '✈️ Trip.com｜逃班機票飯店優惠',
+    url: 'https://www.trip.com/t/C3rBEnjQGX2'
+  },
+  {
+    key: 'klook',
+    cls: 'klook',
+    label: '🎡 Klook｜探索你的玩樂世界',
+    url: 'https://affiliate.klook.com/sl/gxNFPqO'
+  }
+];
+const AFFILIATE_REVIVE_LIVES = 2;
+const AFFILIATE_COOLDOWN_MS = 8 * 60 * 60 * 1000; // 8 小時
+
+const affiliateReviveState = {
+  claimed: {},
+  cooldownUntil: 0
+};
+
+function syncAffiliateReviveCooldown() {
+  const now = Date.now();
+  if (affiliateReviveState.cooldownUntil > 0 && now >= affiliateReviveState.cooldownUntil) {
+    affiliateReviveState.claimed = {};
+    affiliateReviveState.cooldownUntil = 0;
+    saveGameProgressToDevice();
+  }
+}
+
+function formatAffiliateCooldownLeft(msLeft) {
+  const totalMin = Math.max(1, Math.ceil(msLeft / 60000));
+  const hrs = Math.floor(totalMin / 60);
+  const mins = totalMin % 60;
+  if (hrs > 0 && mins > 0) return `${hrs} 小時 ${mins} 分鐘`;
+  if (hrs > 0) return `${hrs} 小時`;
+  return `${mins} 分鐘`;
+}
+
+function renderAffiliateReviveUI(showBox) {
+  const box = document.getElementById('affiliateReviveBox');
+  const listEl = document.getElementById('affiliateBtnList');
+  const subEl = document.getElementById('affReviveSubText');
+  if (!box || !listEl) return;
+
+  if (!showBox) {
+    box.style.display = 'none';
+    return;
+  }
+
+  syncAffiliateReviveCooldown();
+  const now = Date.now();
+  const inCooldown = affiliateReviveState.cooldownUntil > now;
+  const msLeft = Math.max(0, affiliateReviveState.cooldownUntil - now);
+
+  if (subEl) {
+    if (inCooldown) {
+      subEl.innerHTML = `⏳ 本輪 3 個好康皆已領完，請於 <strong>${formatAffiliateCooldownLeft(msLeft)}</strong> 後再領取！`;
+    } else {
+      const remainNames = AFFILIATE_REVIVE_LINKS.filter(x => !affiliateReviveState.claimed[x.key]).map(x => x.key === 'shopee' ? '蝦皮' : (x.key === 'trip' ? 'Trip.com' : 'Klook'));
+      subEl.innerHTML = `點選未領過的平台（<strong>${remainNames.join(' / ')}</strong>）立即領 <strong>+${AFFILIATE_REVIVE_LIVES} 條命</strong>；3 個領完需冷卻 8 小時`;
+    }
+  }
+
+  listEl.innerHTML = AFFILIATE_REVIVE_LINKS.map(item => {
+    const isClaimed = !!affiliateReviveState.claimed[item.key];
+    const isDisabled = inCooldown || isClaimed;
+    const pillText = inCooldown
+      ? `⏳ ${formatAffiliateCooldownLeft(msLeft)}`
+      : (isClaimed ? '✅ 本輪已領' : `+${AFFILIATE_REVIVE_LIVES} 條命`);
+    return `
+      <button type="button" class="aff-btn ${item.cls} ${isDisabled ? 'claimed' : ''}" ${isDisabled ? 'disabled' : ''} onclick="claimAffiliateRevive('${item.key}')">
+        <span>${item.label}</span>
+        <span class="aff-pill">${pillText}</span>
+      </button>
+    `;
+  }).join('');
+  box.style.display = 'block';
+}
+
+function claimAffiliateRevive(platformKey) {
+  initAudio();
+  syncAffiliateReviveCooldown();
+
+  const now = Date.now();
+  // 防呆 1：若正在 8 小時冷卻中，禁止領取
+  if (affiliateReviveState.cooldownUntil > now) {
+    playSound('hurt');
+    renderAffiliateReviveUI(true);
+    return;
+  }
+  // 防呆 2：若該平台本輪已領過（例如領過蝦皮就只能點 Trip 或 Klook），禁止重複領取
+  if (affiliateReviveState.claimed[platformKey]) {
+    playSound('hurt');
+    renderAffiliateReviveUI(true);
+    return;
+  }
+  // 防呆 3：若已經有命（剛領過復活），防止同一畫面連點 3 顆一次刷命
+  if (hero.dailyLives > 0) {
+    renderAffiliateReviveUI(false);
+    return;
+  }
+
+  const item = AFFILIATE_REVIVE_LINKS.find(x => x.key === platformKey);
+  if (!item) return;
+
+  // 開啟聯盟行銷連結（LINE 內優先以外部瀏覽器開啟，保留原本遊戲頁不被蓋掉）
+  try {
+    if (isLiffReady && typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
+      liff.openWindow({ url: item.url, external: true });
+    } else {
+      window.open(item.url, '_blank', 'noopener');
+    }
+  } catch (e) {
+    window.open(item.url, '_blank', 'noopener');
+  }
+
+  affiliateReviveState.claimed[platformKey] = true;
+
+  // 若 3 個平台皆已領完，啟動 8 小時冷卻鎖定
+  const allClaimed = AFFILIATE_REVIVE_LINKS.every(x => !!affiliateReviveState.claimed[x.key]);
+  if (allClaimed) {
+    affiliateReviveState.cooldownUntil = now + AFFILIATE_COOLDOWN_MS;
+  }
+
+  hero.dailyLives = Math.max(0, hero.dailyLives) + AFFILIATE_REVIVE_LIVES;
+  hero.hp = hero.maxHp;
+  updateHeartsHUD();
+  saveGameProgressToDevice();
+  playSound('win');
+  vibrate([30, 20, 45]);
+
+  // 即時更新彈窗狀態並隱藏復活清單（避免同一畫面重複連點），切回來即可直接滿血重戰
+  const currentLvNum = levelIndex + 1;
+  document.getElementById('modalTitle').textContent = `🎉 復活成功！獲得 +${AFFILIATE_REVIVE_LIVES} 條命！`;
+  document.getElementById('nextLevelPreviewBadge').textContent = allClaimed
+    ? `已補滿 5 格血！本輪 3 個好康皆已領完（8 小時後重置）`
+    : `目前剩餘 ${hero.dailyLives} 條命（已補滿 5 格血 ❤️❤️❤️❤️❤️），快回去繼續逃班！`;
+  const btn = document.getElementById('modalActionBtn');
+  if (btn) {
+    btn.textContent = `🔄 滿血重新挑戰 LV.${currentLvNum}（剩 ${hero.dailyLives} 條命）！`;
+    btn.dataset.action = 'retryLevel';
+  }
+  renderAffiliateReviveUI(false);
+}
 
 // ==================== LINE LIFF 整合系統（免改架構，填入 LIFF ID 即啟用） ====================
 // 請將 LINE Developers Console 建立好的 LIFF ID 填入下方引號內（例如：'2006123456-AbCdEfGh'）
