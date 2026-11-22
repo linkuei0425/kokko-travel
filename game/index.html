@@ -1756,6 +1756,51 @@
     transform: scale(1.08);
   }
   /* ==================== SEO / AEO / GEO 語意化爬蟲與無障礙隱藏區塊（不影響遊戲滿版畫面） ==================== */
+  /* ==================== 同場快捷表情泡泡列 ==================== */
+  .coop-double-btn {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1.5px solid #f97316;
+    background: rgba(249, 115, 22, 0.14);
+    color: #fdba74;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    margin-bottom: 7px;
+  }
+  .coop-double-btn.active {
+    background: linear-gradient(135deg, #ef4444, #ea580c);
+    border-color: #fde047;
+    color: #ffffff;
+    box-shadow: 0 3px 12px rgba(239, 68, 68, 0.45);
+  }
+  .mp-emote-bar {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    z-index: 16;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .mp-emote-btn {
+    background: rgba(15, 23, 42, 0.82);
+    border: 1.5px solid #475569;
+    color: #f8fafc;
+    border-radius: 99px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    white-space: nowrap;
+  }
+  .mp-emote-btn:active {
+    transform: scale(0.92);
+    border-color: #fde047;
+    background: rgba(30, 41, 59, 0.95);
+  }
   .sr-only-geo {
     position: absolute !important;
     width: 1px !important;
@@ -1856,6 +1901,12 @@
     <canvas id="gameCanvas"></canvas>
     <div class="pk-banner" id="pkChallengeBanner" style="display:none;"></div>
     <div class="nightmare-banner" id="nightmareBanner" style="display:none;"></div>
+    <div class="mp-emote-bar" id="mpEmoteBar">
+      <button type="button" class="mp-emote-btn" onclick="triggerHeroEmote('🔥 衝啊!')">🔥 衝</button>
+      <button type="button" class="mp-emote-btn" onclick="triggerHeroEmote('💪 加油!')">💪 讚</button>
+      <button type="button" class="mp-emote-btn" onclick="triggerHeroEmote('🆘 救命!')">🆘 救</button>
+      <button type="button" class="mp-emote-btn" onclick="triggerHeroEmote('😂 哈哈!')">😂 哈</button>
+    </div>
 
     <!-- 每日上班運勢籤彈窗 -->
     <div class="modal-mask" id="fortuneModal">
@@ -1888,6 +1939,8 @@
           <button type="button" class="lb-room-btn" onclick="applyCustomRoomCode()">組隊</button>
           <button type="button" class="lb-room-btn clear" id="lbRoomClearBtn" style="display:none;" onclick="clearCustomRoomCode()">清除</button>
         </div>
+
+        <button type="button" class="coop-double-btn" id="lbCoopDoubleBtn" onclick="toggleCoopDoubleMode()">🔥 多人 2 倍長度＋2 倍難度：關閉（點擊全房同步開啟）</button>
 
         <div class="lb-boss-box" id="lbBossBox">
           <div class="lb-boss-top">
@@ -1968,6 +2021,14 @@
 
           <div class="settings-row-item">
             <div class="settings-row-top">
+              <span>🔥 多人 2 倍長度＋2 倍難度</span>
+              <span id="settingsCoopDoubleStatus" style="color:#94a3b8;font-size:11px;">目前關閉</span>
+            </div>
+            <button type="button" class="coop-double-btn" id="settingsCoopDoubleBtn" style="margin-bottom:0;" onclick="toggleCoopDoubleMode()">🔥 開啟多人 2 倍長度＋2 倍難度（全房同步）</button>
+          </div>
+
+          <div class="settings-row-item">
+            <div class="settings-row-top">
               <span>📖 遊戲說明</span>
               <span style="color:#fde047;">操作、道具與關卡危機</span>
             </div>
@@ -2012,6 +2073,18 @@
             <li>抓準時機按 <strong>⛏️ 挖鏟</strong>可發動 <strong>🍳 甩鍋反彈</strong>，把主管丟來的報告打回去砸暈主管！</li>
             <li>每天可抽 <strong>🎋 上班運勢籤</strong> 獲得專屬 Buff；挖開寶箱隨機觸發 21 點、彈弓打老闆、職場消消樂、捏泡泡、心理測驗或 <strong>🧥 隱形斗篷</strong>！</li>
             <li>衝進 <strong>🚇 捷運出口</strong>後回答 3 題猜謎：答對 1 題 +1 杯咖啡，3 題全對額外 +1 條命 ❤️！</li>
+          </ul>
+          <div class="guide-sec-title">🤝 多人即時同場共跑與 2 倍加倍模式</div>
+          <ul class="guide-list">
+            <li><strong>組隊同場</strong>：同 LINE 群組點開自動同房；不同群組可在 <strong>🏆 排行 ➔ 好友/公司榜</strong>輸入相同自訂房號按組隊，就能同場奔跑與 PK！</li>
+            <li><strong>合打壞人＆互助蓋箱</strong>：同場隊友<strong>共享壞人血量</strong>（可一起圍毆主管），畫面上看得到隊友潑出的咖啡與紫色 <strong>「隊友箱」</strong>，可直接踩隊友的箱子一起翻牆或擋光束！</li>
+            <li><strong>快捷表情泡泡</strong>：畫布右上角 4 顆快捷鈕（🔥衝／💪讚／🆘救／😂哈），點擊即可在頭頂冒出泡泡同步給隊友看。</li>
+            <li><strong>🔥 多人 2 倍長度＋2 倍難度</strong>：可在 <strong>🏆 排行</strong>或 <strong>⚙️ 設定</strong>一鍵開啟（全房即時同步），關卡長度變 2 倍、主管血量 ×2 且速度加快，最適合揪團挑戰！</li>
+          </ul>
+          <div class="guide-sec-title">🪪 個人外觀與自訂壞人名單</div>
+          <ul class="guide-list">
+            <li><strong>非 LINE 自訂暱稱＆外觀</strong>：開場畫面與 <strong>⚙️ 設定</strong>可自由修改暱稱、挑選 8 種衣服顏色與 8 款帽子頭像，同場與排行榜同步顯示。</li>
+            <li><strong>😈 自訂壞人／主管名單</strong>：在 <strong>⚙️ 設定</strong>輸入討厭的主管或同事名字（用逗號分隔），即可把關卡敵人全部換成你想潑咖啡的對象！</li>
           </ul>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -4074,12 +4147,15 @@ const hero = {
   meetingMs: 0,
   lastMeetingTick: 0,
   swingAnim: 0,
-  walkFrame: 0
+  walkFrame: 0,
+  emoteText: '',
+  emoteUntil: 0
 };
 
 let blocks = [];
 let patrollers = [];
 let coffees = [];
+let remoteCoffees = [];
 let bossReports = [];
 let rollingFireballs = [];
 let fallingComputers = [];
@@ -4120,8 +4196,10 @@ function buildStageGrid(idx) {
   screenShake = 0;
   levelChestsOpened = 0;
 
-  // 遊戲關卡長度增加一倍（原 114+16*idx -> 現 228+32*idx）
-  const cols = (114 + idx * 16) * 2;
+  // 遊戲關卡長度（單人基準 228+32*idx；開啟多人 2 倍模式時再加倍為 2 倍超長關卡！）
+  const isDoubleCoop = (typeof isCoopDoubleModeActive === 'function') && isCoopDoubleModeActive();
+  const baseCols = (114 + idx * 16) * 2;
+  const cols = isDoubleCoop ? baseCols * 2 : baseCols;
   levelWidth = cols * TILE;
   const gRow = Math.floor(baseFloorY / TILE);
 
@@ -4222,6 +4300,46 @@ function buildStageGrid(idx) {
     );
   }
 
+  // 多人 2 倍長度＋2 倍難度：後半段追加高難度障礙、寶箱、補血站、廁所、耳機與雙倍血量主管！
+  if (isDoubleCoop) {
+    const halfCols = baseCols;
+    const extraWallH = Math.min(5, 3 + idx);
+    [halfCols + 22, halfCols + 88, halfCols + 155].forEach((wc, wi) => {
+      if (wc < cols - 12) {
+        for (let h = 1; h <= extraWallH; h++) {
+          blocks.push({ x: wc * TILE, y: (gRow - h) * TILE, w: TILE, h: TILE, type: 'wall', label: h === 2 ? (wi === 1 ? '地獄牆' : '加班牆') : '' });
+        }
+      }
+    });
+    [halfCols + 14, halfCols + 54, halfCols + 118, halfCols + 178].forEach((cc) => {
+      if (cc < cols - 10) {
+        blocks.push({ x: cc * TILE, y: (gRow - 2.4) * TILE, w: TILE, h: TILE, type: 'cabinet', opened: false });
+      }
+    });
+    const extraCount = patrollers.length;
+    for (let i = 0; i < extraCount; i++) {
+      const src = patrollers[i];
+      const shiftX = halfCols * TILE;
+      if (src.x + shiftX < (cols - 6) * TILE) {
+        patrollers.push({
+          ...src,
+          x: src.x + shiftX,
+          minX: src.minX + shiftX,
+          maxX: Math.min((cols - 5) * TILE, src.maxX + shiftX),
+          attackPool: src.attackPool ? [...src.attackPool] : ['📄 加倍改稿!', '🔥 雙倍加班!']
+        });
+      }
+    }
+    patrollers.forEach((p) => {
+      p.hp = Math.max(2, p.hp * 2);
+      p.vx = p.vx * 1.22;
+    });
+    levelChestsTotal = blocks.filter(b => b.type === 'chest_buried' || b.type === 'cabinet').length;
+  }
+
+  patrollers.forEach((p, pIdx) => {
+    p.eid = `e_${idx}_${isDoubleCoop ? 'x2_' : ''}${pIdx}`;
+  });
   if (typeof applyCustomNamesToPatrollers === 'function') {
     applyCustomNamesToPatrollers();
   }
@@ -4325,7 +4443,8 @@ function resizeCanvas() {
 function loadLevel(idx) {
   levelIndex = Math.max(0, idx);
   const theme = LEVEL_THEMES[levelIndex % LEVEL_THEMES.length];
-  document.getElementById('levelBadge').textContent = `LV.${levelIndex + 1} ${theme.rankTitle}`;
+  const dblTag = (typeof isCoopDoubleModeActive === 'function' && isCoopDoubleModeActive()) ? ' 🔥2倍地獄' : '';
+  document.getElementById('levelBadge').textContent = `LV.${levelIndex + 1} ${theme.rankTitle}${dblTag}`;
   document.getElementById('stagePill').textContent = theme.name;
 
   hero.x = 2 * TILE;
@@ -4349,6 +4468,7 @@ function loadLevel(idx) {
   cameraX = 0;
   gameOver = false;
   coffees = [];
+  remoteCoffees = [];
   bossReports = [];
   rollingFireballs = [];
   fallingComputers = [];
@@ -4361,6 +4481,7 @@ function loadLevel(idx) {
   floatTexts = [];
 
   buildStageGrid(levelIndex);
+  if (typeof connectMultiplayerStageNodes === 'function') connectMultiplayerStageNodes();
   updateHeartsHUD();
   updateMatHUD();
   updateCoffeeHUD();
@@ -4551,13 +4672,15 @@ function triggerCoffeeAttack(btn) {
   playSound('build');
   vibrate(16);
 
-  coffees.push({
+  const cObj = {
     x: hero.facing === 1 ? hero.x + hero.w : hero.x - 16,
     y: hero.y + hero.h * 0.38,
     vx: hero.facing * 8.2,
     vy: -2.4,
     life: 65
-  });
+  };
+  coffees.push(cObj);
+  if (typeof broadcastCoffeeThrow === 'function') broadcastCoffeeThrow(cObj);
 }
 
 function triggerJump(btn) {
@@ -4610,6 +4733,8 @@ function triggerDig(btn) {
   for (let i = patrollers.length - 1; i >= 0; i--) {
     const p = patrollers[i];
     if (Math.abs((p.x + p.w / 2) - reachX) < 44 && Math.abs((p.y + p.h / 2) - reachY) < 45) {
+      p.hp = 0;
+      if (typeof syncEnemyDamageToRoom === 'function') syncEnemyDamageToRoom(p);
       patrollers.splice(i, 1);
       thiefStats.bonusMoney += 20;
       recordLedgerDelta(20);
@@ -4647,6 +4772,7 @@ function triggerDig(btn) {
       triggerChestEvent(targetBlock);
     } else if (targetBlock.type === 'player_block') {
       targetBlock.broken = true;
+      if (typeof removeSharedBlockFromRoom === 'function') removeSharedBlockFromRoom(targetBlock);
       hero.materials++;
       updateMatHUD();
       spawnFloatText(targetBlock.x + 20, targetBlock.y, '♻️ 回收建材 +1', '#38bdf8');
@@ -4697,7 +4823,9 @@ function triggerBuild(btn) {
 
   const bx = targetCol * TILE;
   const by = targetRow * TILE;
-  blocks.push({ x: bx, y: by, w: TILE, h: TILE, type: 'player_block', label: '逃生箱' });
+  const newBlock = { x: bx, y: by, w: TILE, h: TILE, type: 'player_block', label: '逃生箱', bKey: `${targetCol}_${targetRow}` };
+  blocks.push(newBlock);
+  if (typeof syncBlockBuiltToRoom === 'function') syncBlockBuiltToRoom(targetCol, targetRow, bx, by);
 
   if (!hero.onGround && hero.y + hero.h > by) {
     hero.y = by - hero.h;
@@ -5013,6 +5141,7 @@ function update() {
         for (const b of blocks) {
           if (!b.broken && b.type === 'player_block' && b.charredByBeam) {
             b.broken = true;
+            if (typeof removeSharedBlockFromRoom === 'function') removeSharedBlockFromRoom(b);
             spawnParticles(b.x + b.w / 2, b.y + b.h / 2, ['#34d399', '#94a3b8', '#fbbf24'], 14, 5);
             spawnFloatText(b.x + 20, b.y - 8, '🧱 逃生箱擋下光束功成身退！', '#34d399');
           }
@@ -5063,6 +5192,23 @@ function update() {
     if (ex.life <= 0) bombExplosions.splice(i, 1);
   }
 
+  for (let i = remoteCoffees.length - 1; i >= 0; i--) {
+    const rcf = remoteCoffees[i];
+    rcf.life--;
+    rcf.x += rcf.vx;
+    rcf.y += rcf.vy;
+    rcf.vy += 0.22;
+    let rHit = false;
+    for (const b of blocks) {
+      if (!b.broken && rcf.x + 14 > b.x && rcf.x < b.x + b.w && rcf.y + 14 > b.y && rcf.y < b.y + b.h) {
+        rHit = true;
+        spawnParticles(rcf.x, rcf.y, ['#a78bfa', '#bae6fd', '#ffffff'], 6, 3.5);
+        break;
+      }
+    }
+    if (rHit || rcf.life <= 0) remoteCoffees.splice(i, 1);
+  }
+
   for (let i = coffees.length - 1; i >= 0; i--) {
     const cf = coffees[i];
     cf.life--;
@@ -5106,6 +5252,7 @@ function update() {
       if (cf.x + 18 > p.x && cf.x - 6 < p.x + p.w && cf.y + 18 > p.y && cf.y - 6 < p.y + p.h) {
         hitBoss = true;
         p.hp--;
+        if (typeof syncEnemyDamageToRoom === 'function') syncEnemyDamageToRoom(p);
         dealRaidBossDamage(2);
         playSound('chest');
         vibrate(25);
@@ -5224,7 +5371,8 @@ function update() {
     if (p.throwCd <= 0 && Math.abs(p.x - hero.x) < viewW * 0.78) {
       const fObj = (typeof getTodayFortuneObj === 'function') ? getTodayFortuneObj() : null;
       const throwMult = (fObj && fObj.throwCdMult) ? fObj.throwCdMult : 1;
-      p.throwCd = Math.max(34, Math.round((95 - levelIndex * 10) * throwMult));
+      const dblThrowMult = (typeof isCoopDoubleModeActive === 'function' && isCoopDoubleModeActive()) ? 0.8 : 1;
+      p.throwCd = Math.max(28, Math.round((95 - levelIndex * 10) * throwMult * dblThrowMult));
       const dir = hero.x < p.x ? -1 : 1;
       const projSpeed = (4.2 + levelIndex * 0.65) * dir;
       const pool = p.attackPool || ['📄 改報告!', '🗣️ 亂傳八卦!', '🔄 重做!'];
@@ -5288,6 +5436,7 @@ function update() {
         if (rectIntersect({ x: br.x - 18, y: br.y - 14, w: 36, h: 28 }, p)) {
           hitEnemy = true;
           p.hp -= 2;
+          if (typeof syncEnemyDamageToRoom === 'function') syncEnemyDamageToRoom(p);
           playSound('win');
           vibrate(28);
           spawnParticles(p.x + p.w / 2, p.y + p.h / 2, ['#fde047', '#34d399', '#ef4444'], 20, 6);
@@ -5490,18 +5639,18 @@ function render() {
         ctx.restore();
       }
     } else if (b.type === 'player_block') {
-      ctx.fillStyle = '#065f46';
+      ctx.fillStyle = b.isRemoteBlock ? '#3b0764' : '#065f46';
       drawRoundedRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2, 6);
       ctx.fill();
-      ctx.strokeStyle = '#34d399';
+      ctx.strokeStyle = b.isRemoteBlock ? '#c084fc' : '#34d399';
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      ctx.fillStyle = '#a7f3d0';
+      ctx.fillStyle = b.isRemoteBlock ? '#e9d5ff' : '#a7f3d0';
       ctx.font = '900 9.5px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('逃生箱', b.x + b.w / 2, b.y + b.h / 2);
+      ctx.fillText(b.isRemoteBlock ? '隊友箱' : '逃生箱', b.x + b.w / 2, b.y + b.h / 2);
     }
   }
 
@@ -5767,6 +5916,19 @@ function render() {
     ctx.textBaseline = 'middle';
     ctx.fillText('☕', cf.x, cf.y);
   }
+  for (const rcf of remoteCoffees) {
+    ctx.save();
+    ctx.globalAlpha = 0.88;
+    ctx.beginPath();
+    ctx.arc(rcf.x, rcf.y, 13, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(167, 139, 250, 0.28)';
+    ctx.fill();
+    ctx.font = '22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('☕', rcf.x, rcf.y);
+    ctx.restore();
+  }
 
   for (const br of bossReports) {
     ctx.fillStyle = br.reflected ? '#b45309' : '#991b1b';
@@ -5857,6 +6019,9 @@ function render() {
       ctx.textBaseline = 'middle';
       ctx.fillText(heroLabel, hero.x + hero.w / 2, hero.y - 15.5, tw - 8);
       ctx.restore();
+    }
+    if (hero.emoteText && hero.emoteUntil > Date.now() && typeof drawEmoteBubble === 'function') {
+      drawEmoteBubble(hero.x + hero.w / 2, hero.y - 36, hero.emoteText);
     }
 
     if (hero.cloakMs > 0) {
@@ -7419,17 +7584,253 @@ function clearCustomVillains() {
   spawnFloatText(hero.x, hero.y - 28, '🔄 已恢復預設壞人名單！', '#38bdf8');
 }
 
-// --- 多人即時同場景（Firebase Realtime Database） ---
+// --- 多人即時同場景（Firebase Realtime Database：共跑＋共打壞人＋共享逃生箱＋看隊友潑咖啡＋快捷表情） ---
 const mpState = {
   enabled: false,
   db: null,
   roomKey: '',
   roomRef: null,
   myRef: null,
+  stageLvKey: '',
+  enemiesRef: null,
+  blocksRef: null,
+  modeRef: null,
+  coopDoubleMode: false,
   remotePlayers: new Map(),
+  seenCoffeeIds: new Map(),
+  lastCoffeeEvent: null,
   lastSendAt: 0,
   lastSig: ''
 };
+
+const COOP_DOUBLE_STORAGE_KEY = 'office_escape_coop_double_v1';
+
+function isCoopDoubleModeActive() {
+  return !!mpState.coopDoubleMode;
+}
+
+function loadCoopDoubleModeLocal() {
+  try {
+    mpState.coopDoubleMode = localStorage.getItem(COOP_DOUBLE_STORAGE_KEY) === '1';
+  } catch (e) {}
+  updateCoopDoubleModeUI();
+}
+
+function updateCoopDoubleModeUI() {
+  const on = isCoopDoubleModeActive();
+  const lbBtn = document.getElementById('lbCoopDoubleBtn');
+  const setBtn = document.getElementById('settingsCoopDoubleBtn');
+  const setStat = document.getElementById('settingsCoopDoubleStatus');
+  if (lbBtn) {
+    lbBtn.classList.toggle('active', on);
+    lbBtn.textContent = on
+      ? '🔥 多人 2 倍長度＋2 倍難度：已開啟（全房同步・點此關閉）'
+      : '🔥 多人 2 倍長度＋2 倍難度：關閉（點擊全房同步開啟）';
+  }
+  if (setBtn) {
+    setBtn.classList.toggle('active', on);
+    setBtn.textContent = on
+      ? '🔥 已開啟 2 倍長度＋2 倍難度（點此切回標準）'
+      : '🔥 開啟多人 2 倍長度＋2 倍難度（全房同步）';
+  }
+  if (setStat) {
+    setStat.textContent = on ? '🔥 已開啟（全房同步）' : '目前關閉';
+    setStat.style.color = on ? '#fde047' : '#94a3b8';
+  }
+}
+
+function applyCoopDoubleModeValue(newVal, announce = true) {
+  const next = !!newVal;
+  if (mpState.coopDoubleMode === next) {
+    updateCoopDoubleModeUI();
+    return;
+  }
+  mpState.coopDoubleMode = next;
+  try { localStorage.setItem(COOP_DOUBLE_STORAGE_KEY, next ? '1' : '0'); } catch (e) {}
+  updateCoopDoubleModeUI();
+  mpState.stageLvKey = '';
+  loadLevel(levelIndex);
+  if (announce) {
+    spawnFloatText(
+      hero.x,
+      hero.y - 30,
+      next ? '🔥 全房切換：2 倍長度＋2 倍難度地獄模式！' : '✅ 已切回標準長度與難度！',
+      next ? '#fb923c' : '#34d399'
+    );
+  }
+}
+
+function toggleCoopDoubleMode() {
+  initAudio();
+  playSound('chest');
+  vibrate(22);
+  const next = !mpState.coopDoubleMode;
+  applyCoopDoubleModeValue(next, true);
+  if (mpState.enabled && mpState.modeRef) {
+    try {
+      mpState.modeRef.set({
+        doubleMode: next,
+        by: getHeroDisplayName(),
+        ts: Date.now()
+      }).catch(() => {});
+    } catch (e) {}
+  }
+}
+
+function triggerHeroEmote(text) {
+  initAudio();
+  playSound('build');
+  vibrate(14);
+  hero.emoteText = String(text || '').slice(0, 12);
+  hero.emoteUntil = Date.now() + 2600;
+  mpState.lastSig = '';
+}
+
+function drawEmoteBubble(cx, cy, text) {
+  ctx.save();
+  ctx.font = '900 11px sans-serif';
+  const padW = Math.min(110, Math.max(46, ctx.measureText(text).width + 14));
+  ctx.fillStyle = '#fef08a';
+  drawRoundedRect(cx - padW / 2, cy - 12, padW, 20, 9);
+  ctx.fill();
+  ctx.strokeStyle = '#d97706';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+  ctx.fillStyle = '#111827';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, cx, cy - 2, padW - 8);
+  ctx.restore();
+}
+
+function broadcastCoffeeThrow(cObj) {
+  if (!mpState.enabled) return;
+  mpState.lastCoffeeEvent = {
+    id: Date.now() + '_' + Math.floor(Math.random() * 1000),
+    x: Math.round(cObj.x),
+    y: Math.round(cObj.y),
+    vx: Number(cObj.vx.toFixed(1)),
+    vy: Number(cObj.vy.toFixed(1)),
+    ts: Date.now()
+  };
+  mpState.lastSig = '';
+}
+
+function syncEnemyDamageToRoom(p) {
+  if (!mpState.enabled || !mpState.enemiesRef || !p || !p.eid) return;
+  try {
+    mpState.enemiesRef.child(p.eid).set({
+      hp: Math.max(0, p.hp),
+      by: getHeroDisplayName(),
+      byId: sanitizeFirebaseKey(getOrCreatePlayerId()),
+      ts: Date.now()
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+function syncBlockBuiltToRoom(col, row, bx, by) {
+  if (!mpState.enabled || !mpState.blocksRef) return;
+  const key = `${col}_${row}`;
+  try {
+    mpState.blocksRef.child(key).set({
+      x: bx,
+      y: by,
+      owner: getHeroDisplayName(),
+      ownerId: sanitizeFirebaseKey(getOrCreatePlayerId()),
+      ts: Date.now()
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+function removeSharedBlockFromRoom(b) {
+  if (!mpState.enabled || !mpState.blocksRef || !b) return;
+  const key = b.bKey || `${Math.round(b.x / TILE)}_${Math.round(b.y / TILE)}`;
+  try {
+    mpState.blocksRef.child(key).remove().catch(() => {});
+  } catch (e) {}
+}
+
+function connectMultiplayerStageNodes() {
+  if (!mpState.enabled || !mpState.db || !mpState.roomKey) return;
+  const curLv = levelIndex + 1;
+  const modeSuffix = isCoopDoubleModeActive() ? '_x2' : '';
+  const stageKey = `${mpState.roomKey}_lv_${curLv}${modeSuffix}`;
+  if (mpState.stageLvKey === stageKey && mpState.enemiesRef && mpState.blocksRef) return;
+
+  try {
+    if (mpState.enemiesRef) mpState.enemiesRef.off('value');
+    if (mpState.blocksRef) mpState.blocksRef.off('value');
+  } catch (e) {}
+
+  mpState.stageLvKey = stageKey;
+  const myId = sanitizeFirebaseKey(getOrCreatePlayerId());
+  mpState.enemiesRef = mpState.db.ref(`rooms/${mpState.roomKey}/stage_lv_${curLv}${modeSuffix}/enemies`);
+  mpState.blocksRef = mpState.db.ref(`rooms/${mpState.roomKey}/stage_lv_${curLv}${modeSuffix}/blocks`);
+
+  // 監聽同場共同打怪血量與擊殺
+  mpState.enemiesRef.on('value', (snap) => {
+    const val = snap.val() || {};
+    const now = Date.now();
+    Object.keys(val).forEach((eid) => {
+      const info = val[eid];
+      if (!info || now - (Number(info.ts) || 0) > 600000) return; // 超過 10 分鐘視為舊場次忽略
+      const idx = patrollers.findIndex(p => p.eid === eid);
+      if (idx === -1) return;
+      const p = patrollers[idx];
+      const remoteHp = Number(info.hp);
+      if (Number.isNaN(remoteHp)) return;
+      if (remoteHp <= 0) {
+        patrollers.splice(idx, 1);
+        if (info.byId !== myId) {
+          spawnParticles(p.x + p.w / 2, p.y + p.h / 2, ['#a78bfa', '#fde047', '#ffffff'], 16, 5);
+          spawnFloatText(p.x, p.y - 20, `🤝 【${info.by || '隊友'}】消滅了【${p.name}】！`, '#c4b5fd');
+        }
+      } else if (remoteHp < p.hp) {
+        p.hp = remoteHp;
+        if (info.byId !== myId) {
+          spawnParticles(p.x + p.w / 2, p.y + p.h / 2, ['#a78bfa', '#38bdf8'], 10, 4);
+          spawnFloatText(p.x, p.y - 18, `🤝 【${info.by || '隊友'}】命中！剩 ${p.hp} 血`, '#c4b5fd');
+        }
+      }
+    });
+  });
+
+  // 監聽隊友蓋的逃生箱
+  mpState.blocksRef.on('value', (snap) => {
+    const val = snap.val() || {};
+    const now = Date.now();
+    const activeKeys = new Set();
+    Object.keys(val).forEach((bKey) => {
+      const info = val[bKey];
+      if (!info || typeof info.x !== 'number' || typeof info.y !== 'number') return;
+      if (now - (Number(info.ts) || 0) > 600000) return;
+      activeKeys.add(bKey);
+      const exists = blocks.some(b => !b.broken && (b.bKey === bKey || (Math.abs(b.x - info.x) < 8 && Math.abs(b.y - info.y) < 8)));
+      if (!exists) {
+        blocks.push({
+          x: info.x,
+          y: info.y,
+          w: TILE,
+          h: TILE,
+          type: 'player_block',
+          label: '隊友箱',
+          bKey: bKey,
+          isRemoteBlock: info.ownerId !== myId
+        });
+        if (info.ownerId !== myId) {
+          spawnParticles(info.x + TILE / 2, info.y + TILE / 2, ['#c084fc', '#e9d5ff'], 8, 3.5);
+        }
+      }
+    });
+    // 若隊友回收或光束燒毀了遠端箱子，同步移除
+    for (const b of blocks) {
+      if (!b.broken && b.isRemoteBlock && b.bKey && !activeKeys.has(b.bKey)) {
+        b.broken = true;
+      }
+    }
+    blocks = blocks.filter(b => !b.broken);
+  });
+}
 
 function sanitizeFirebaseKey(str) {
   return String(str || 'public_lobby').replace(/[.#$\[\]\/]/g, '_').slice(0, 48) || 'public_lobby';
@@ -7467,6 +7868,7 @@ function connectMultiplayerRoom() {
 
   try {
     if (mpState.roomRef) mpState.roomRef.off('value');
+    if (mpState.modeRef) mpState.modeRef.off('value');
     if (mpState.myRef) mpState.myRef.remove().catch(() => {});
   } catch (e) {}
 
@@ -7475,6 +7877,13 @@ function connectMultiplayerRoom() {
   const myId = sanitizeFirebaseKey(getOrCreatePlayerId());
   mpState.roomRef = mpState.db.ref(`rooms/${newRoomKey}/players`);
   mpState.myRef = mpState.db.ref(`rooms/${newRoomKey}/players/${myId}`);
+  mpState.modeRef = mpState.db.ref(`rooms/${newRoomKey}/settings`);
+  mpState.modeRef.on('value', (snap) => {
+    const val = snap.val();
+    if (val && typeof val.doubleMode === 'boolean' && val.doubleMode !== mpState.coopDoubleMode) {
+      applyCoopDoubleModeValue(val.doubleMode, true);
+    }
+  });
 
   try {
     mpState.myRef.onDisconnect().remove();
@@ -7504,6 +7913,7 @@ function connectMultiplayerRoom() {
         prev.cloak = !!p.cloak;
         prev.meeting = !!p.meeting;
         prev.toilet = !!p.toilet;
+        prev.emote = String(p.emote || '').slice(0, 12);
         prev.ts = Number(p.ts) || now;
       } else {
         mpState.remotePlayers.set(pid, {
@@ -7521,8 +7931,22 @@ function connectMultiplayerRoom() {
           cloak: !!p.cloak,
           meeting: !!p.meeting,
           toilet: !!p.toilet,
+          emote: String(p.emote || '').slice(0, 12),
           ts: Number(p.ts) || now
         });
+      }
+      if (p.lastCoffee && p.lastCoffee.id && (Number(p.level) || 1) === (levelIndex + 1)) {
+        const prevCid = mpState.seenCoffeeIds.get(pid);
+        if (prevCid !== p.lastCoffee.id && now - (Number(p.lastCoffee.ts) || 0) < 3000) {
+          mpState.seenCoffeeIds.set(pid, p.lastCoffee.id);
+          remoteCoffees.push({
+            x: Number(p.lastCoffee.x) || p.x,
+            y: Number(p.lastCoffee.y) || p.y,
+            vx: Number(p.lastCoffee.vx) || 7.5,
+            vy: Number(p.lastCoffee.vy) || -2.4,
+            life: 60
+          });
+        }
       }
     });
     for (const oldId of Array.from(mpState.remotePlayers.keys())) {
@@ -7532,6 +7956,7 @@ function connectMultiplayerRoom() {
   });
 
   mpState.lastSendAt = 0;
+  connectMultiplayerStageNodes();
   updateOnlineCountHUD();
 }
 
@@ -7568,7 +7993,9 @@ function syncMultiplayerTick() {
   const curLv = levelIndex + 1;
   const myStyle = getHeroAppearance();
   const myName = getHeroDisplayName();
-  const sig = `${myName}|${myStyle.color}|${myStyle.avatar}|${rx}|${ry}|${hero.facing}|${curLv}|${hero.cloakMs > 0 ? 1 : 0}|${hero.meetingMs > 0 ? 1 : 0}|${hero.toiletMs > 0 ? 1 : 0}`;
+  const activeEmote = (hero.emoteText && hero.emoteUntil > now) ? hero.emoteText : '';
+  const coffeeSig = mpState.lastCoffeeEvent ? mpState.lastCoffeeEvent.id : '';
+  const sig = `${myName}|${myStyle.color}|${myStyle.avatar}|${activeEmote}|${coffeeSig}|${rx}|${ry}|${hero.facing}|${curLv}|${hero.cloakMs > 0 ? 1 : 0}|${hero.meetingMs > 0 ? 1 : 0}|${hero.toiletMs > 0 ? 1 : 0}`;
   const moved = sig !== mpState.lastSig;
   const interval = moved ? 120 : 2500;
   if (now - mpState.lastSendAt < interval) return;
@@ -7581,6 +8008,8 @@ function syncMultiplayerTick() {
       color: myStyle.color,
       border: myStyle.border,
       avatar: myStyle.avatar,
+      emote: activeEmote,
+      lastCoffee: (mpState.lastCoffeeEvent && now - mpState.lastCoffeeEvent.ts < 3000) ? mpState.lastCoffeeEvent : null,
       x: rx,
       y: ry,
       facing: hero.facing,
@@ -7638,6 +8067,10 @@ function renderRemotePlayers() {
     ctx.textBaseline = 'middle';
     ctx.fillText(label, rp.drawX + hero.w / 2, rp.drawY - 14.5, tw - 6);
     ctx.restore();
+
+    if (rp.emote && typeof drawEmoteBubble === 'function') {
+      drawEmoteBubble(rp.drawX + hero.w / 2, rp.drawY - 35, rp.emote);
+    }
   }
 }
 
@@ -7647,6 +8080,7 @@ window.addEventListener('beforeunload', () => {
 
 loadCustomVillains();
 loadPlayerCustomStyle();
+loadCoopDoubleModeLocal();
 updateSalaryPreview();
 resizeCanvas();
 loadLevel(0);
