@@ -1181,6 +1181,42 @@
     padding: 18px 8px;
     line-height: 1.55;
   }
+  .lb-room-bar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 7px;
+  }
+  .lb-room-input {
+    flex: 1;
+    min-width: 0;
+    background: #0b1120;
+    border: 1.5px solid #38bdf8;
+    border-radius: 8px;
+    padding: 6px 8px;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 700;
+    outline: none;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  .lb-room-btn {
+    background: linear-gradient(135deg, #34d399, #059669);
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: #022c22;
+    font-size: 11.5px;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .lb-room-btn.clear {
+    background: #334155;
+    color: #cbd5e1;
+  }
   .pk-banner {
     position: absolute;
     top: 8px;
@@ -1319,12 +1355,18 @@
 
         <div class="lb-tabs-row">
           <button type="button" class="lb-tab-btn active" id="lbScopeGlobal" onclick="setLeaderboardScope('global')">🌍 全體社畜榜</button>
-          <button type="button" class="lb-tab-btn" id="lbScopeGroup" onclick="setLeaderboardScope('group')">👥 本群朋友榜</button>
+          <button type="button" class="lb-tab-btn" id="lbScopeGroup" onclick="setLeaderboardScope('group')">👥 好友/公司榜</button>
         </div>
 
         <div class="lb-tabs-row">
           <button type="button" class="lb-tab-btn period active" id="lbPeriodDaily" onclick="setLeaderboardPeriod('daily')">📅 日排行</button>
           <button type="button" class="lb-tab-btn period" id="lbPeriodMonthly" onclick="setLeaderboardPeriod('monthly')">🗓️ 月排行</button>
+        </div>
+
+        <div class="lb-room-bar" id="lbRoomBar" style="display:none;">
+          <input type="text" class="lb-room-input" id="lbRoomInput" maxlength="16" placeholder="輸入自訂房號或公司名（如：摸魚888）">
+          <button type="button" class="lb-room-btn" onclick="applyCustomRoomCode()">組隊</button>
+          <button type="button" class="lb-room-btn clear" id="lbRoomClearBtn" style="display:none;" onclick="clearCustomRoomCode()">清除</button>
         </div>
 
         <div class="lb-list-box" id="lbListBox">
@@ -5486,7 +5528,8 @@ async function shareStealRecordToLine() {
   const playerLabel = lineUserProfile.displayName ? `【${lineUserProfile.displayName}】` : '我';
   const baseShareUrl = LINE_LIFF_ID ? `https://liff.line.me/${LINE_LIFF_ID}` : (window.location.origin + window.location.pathname);
   const pkNameParam = encodeURIComponent(lineUserProfile.displayName || '神秘社畜');
-  const shareUrl = `${baseShareUrl}?pkName=${pkNameParam}&pkMoney=${totalMoney}`;
+  const roomParam = lbState.customRoomCode ? `&room=${encodeURIComponent(lbState.customRoomCode)}` : '';
+  const shareUrl = `${baseShareUrl}?pkName=${pkNameParam}&pkMoney=${totalMoney}${roomParam}`;
   const plainText = `🏃‍♂️ 社畜大逃生戰績回報！\n${playerLabel}在 LV.${lvNum} 帶薪偷了 NT$${totalMoney}（可換 ${bobaCount} 杯珍奶），今日累計 NT$${dailyMoney}，獲得稱號「${rankText}」！\n快來一起潑咖啡打慣老闆 👉 ${shareUrl}`;
 
   // 1. 若在 LINE LIFF 環境內且支援 shareTargetPicker，發送精緻 Flex 卡片
@@ -5558,11 +5601,50 @@ async function shareStealRecordToLine() {
 // 請將部署好的 Google Apps Script 網頁應用程式網址貼進下方引號內
 const LEADERBOARD_API_URL = 'https://square-snowflake-db53.yklin0425.workers.dev';
 
+const CUSTOM_ROOM_STORAGE_KEY = 'office_escape_custom_room';
 const lbState = {
   scope: 'global',   // 'global' | 'group'
   period: 'daily',   // 'daily' | 'monthly'
+  customRoomCode: '',
   lastSyncAt: 0
 };
+
+function loadCustomRoomCode() {
+  try {
+    const saved = localStorage.getItem(CUSTOM_ROOM_STORAGE_KEY);
+    if (saved) lbState.customRoomCode = saved.trim().slice(0, 16);
+  } catch (e) {}
+}
+
+function getActiveGroupId() {
+  if (lbState.customRoomCode) return 'room:' + lbState.customRoomCode;
+  return lineUserProfile.groupId || '';
+}
+
+function applyCustomRoomCode() {
+  initAudio();
+  const input = document.getElementById('lbRoomInput');
+  const raw = input ? input.value.trim().slice(0, 16) : '';
+  if (!raw) {
+    playSound('hurt');
+    alert('請輸入房號或公司名稱（例如：摸魚888）！');
+    return;
+  }
+  lbState.customRoomCode = raw;
+  try { localStorage.setItem(CUSTOM_ROOM_STORAGE_KEY, raw); } catch (e) {}
+  playSound('chest');
+  refreshLeaderboard(true);
+}
+
+function clearCustomRoomCode() {
+  initAudio();
+  lbState.customRoomCode = '';
+  try { localStorage.removeItem(CUSTOM_ROOM_STORAGE_KEY); } catch (e) {}
+  const input = document.getElementById('lbRoomInput');
+  if (input) input.value = '';
+  playSound('build');
+  refreshLeaderboard(false);
+}
 
 const pkChallenge = {
   active: false,
@@ -5586,8 +5668,14 @@ function getOrCreatePlayerId() {
 }
 
 function initPkChallengeFromUrl() {
+  loadCustomRoomCode();
   try {
     const params = new URLSearchParams(window.location.search);
+    const roomFromUrl = (params.get('room') || '').trim().slice(0, 16);
+    if (roomFromUrl) {
+      lbState.customRoomCode = roomFromUrl;
+      try { localStorage.setItem(CUSTOM_ROOM_STORAGE_KEY, roomFromUrl); } catch (e) {}
+    }
     const name = params.get('pkName');
     const money = Number(params.get('pkMoney'));
     if (name && money > 0) {
@@ -5631,7 +5719,7 @@ async function syncScoreToLeaderboard(force = false) {
     userId: getOrCreatePlayerId(),
     displayName: lineUserProfile.displayName || ('社畜#' + getOrCreatePlayerId().slice(-4)),
     pictureUrl: lineUserProfile.pictureUrl || '',
-    groupId: lineUserProfile.groupId || '',
+    groupId: getActiveGroupId(),
     dayKey: stealLedger.dayKey || getPeriodKeys(now).dayKey,
     dailyNet: Math.round(stealLedger.dailyNet || 0),
     monthKey: stealLedger.monthKey || getPeriodKeys(now).monthKey,
@@ -5684,16 +5772,27 @@ async function refreshLeaderboard(uploadFirst = false) {
 
   const keysNow = getPeriodKeys(Date.now());
   const periodLabel = lbState.period === 'daily' ? `📅 今日（${keysNow.dayKey}）` : `🗓️ 本月（${keysNow.monthKey}）`;
-  const scopeLabel = lbState.scope === 'global' ? '🌍 全體社畜' : '👥 本群朋友';
+  const activeGroupId = getActiveGroupId();
+
+  const roomBar = document.getElementById('lbRoomBar');
+  const roomInput = document.getElementById('lbRoomInput');
+  const roomClearBtn = document.getElementById('lbRoomClearBtn');
+  if (roomBar) roomBar.style.display = (lbState.scope === 'group') ? 'flex' : 'none';
+  if (roomInput && document.activeElement !== roomInput) roomInput.value = lbState.customRoomCode || '';
+  if (roomClearBtn) roomClearBtn.style.display = lbState.customRoomCode ? 'inline-block' : 'none';
+
+  const scopeLabel = lbState.scope === 'global'
+    ? '🌍 全體社畜'
+    : (lbState.customRoomCode ? `🏢 ${lbState.customRoomCode}` : '👥 本群朋友');
   if (badge) badge.textContent = `${scopeLabel}・${periodLabel}偷薪排行`;
 
   if (!LEADERBOARD_API_URL) {
-    listBox.innerHTML = `<div class="lb-empty">⚙️ 尚未設定排行榜後端網址。<br>請先部署 Google Apps Script 並將網址貼到程式碼的 <strong>LEADERBOARD_API_URL</strong> 即可啟用！</div>`;
+    listBox.innerHTML = `<div class="lb-empty">⚙️ 尚未設定排行榜後端網址。<br>請先部署 Cloudflare Worker 並將網址貼到程式碼的 <strong>LEADERBOARD_API_URL</strong> 即可啟用！</div>`;
     return;
   }
 
-  if (lbState.scope === 'group' && !lineUserProfile.groupId) {
-    listBox.innerHTML = `<div class="lb-empty">👥 請從 <strong>LINE 群組聊天室</strong>點開遊戲連結，系統就會自動辨識該群組並顯示你們的專屬摸魚排行！</div>`;
+  if (lbState.scope === 'group' && !activeGroupId) {
+    listBox.innerHTML = `<div class="lb-empty">👥 請從 <strong>LINE 群組聊天室</strong>點開遊戲，或在上方輸入<strong>「自訂房號／公司名稱」</strong>（例如：摸魚888）按組隊，就能跟朋友一起 PK 排行！</div>`;
     return;
   }
 
@@ -5706,7 +5805,7 @@ async function refreshLeaderboard(uploadFirst = false) {
     const qs = new URLSearchParams({
       scope: lbState.scope,
       period: lbState.period,
-      groupId: lineUserProfile.groupId || '',
+      groupId: activeGroupId,
       dayKey: keysNow.dayKey,
       monthKey: keysNow.monthKey
     });
