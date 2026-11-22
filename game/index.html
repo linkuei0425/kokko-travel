@@ -1064,6 +1064,148 @@
     border-color: rgba(52, 211, 153, 0.4);
   }
 
+  /* ==================== 排行榜彈窗與下戰帖 PK 樣式 ==================== */
+  .mini-btn.rank {
+    background: linear-gradient(135deg, #38bdf8, #0284c7);
+    color: #ffffff;
+    border: none;
+  }
+  .lb-tabs-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 7px;
+  }
+  .lb-tab-btn {
+    background: #1e293b;
+    border: 1.5px solid #334155;
+    color: #cbd5e1;
+    border-radius: 9px;
+    padding: 7px 6px;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+  .lb-tab-btn.active {
+    background: linear-gradient(135deg, #38bdf8, #0284c7);
+    border-color: #7dd3fc;
+    color: #ffffff;
+  }
+  .lb-tab-btn.period.active {
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+    border-color: #fef08a;
+    color: #111827;
+  }
+  .lb-list-box {
+    background: #0b1120;
+    border: 1.5px solid #334155;
+    border-radius: 12px;
+    padding: 8px;
+    margin: 6px 0 10px;
+    max-height: 44vh;
+    overflow-y: auto;
+    text-align: left;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 9px;
+    background: #141c2e;
+    border: 1px solid #1e293b;
+    margin-bottom: 6px;
+  }
+  .lb-row:last-child { margin-bottom: 0; }
+  .lb-row.me {
+    border-color: #34d399;
+    background: rgba(16, 185, 129, 0.14);
+  }
+  .lb-rank {
+    width: 26px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 900;
+    color: #fde047;
+    flex-shrink: 0;
+  }
+  .lb-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #38bdf8;
+    background: #1e293b;
+    flex-shrink: 0;
+  }
+  .lb-avatar-fallback {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #1e293b;
+    border: 1.5px solid #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .lb-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .lb-name {
+    font-size: 12.5px;
+    font-weight: 900;
+    color: #f8fafc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lb-meta {
+    font-size: 10.5px;
+    color: #94a3b8;
+  }
+  .lb-score {
+    font-size: 13px;
+    font-weight: 900;
+    color: #34d399;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .lb-empty {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 12px;
+    padding: 18px 8px;
+    line-height: 1.55;
+  }
+  .pk-banner {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.92), rgba(185, 28, 28, 0.92));
+    border: 1.5px solid #fde047;
+    color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 900;
+    padding: 5px 12px;
+    border-radius: 99px;
+    white-space: nowrap;
+    max-width: 92%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+  }
+  .pk-banner.beaten {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.94), rgba(5, 150, 105, 0.94));
+    border-color: #a7f3d0;
+  }
+
   /* ==================== 過關 3 題猜謎彈窗樣式 ==================== */
   .quiz-progress-row {
     display: flex;
@@ -1141,6 +1283,7 @@
       </div>
       <div class="hud-btns">
         <button class="mini-btn" onclick="reopenSalaryModal()">💵 月薪</button>
+        <button class="mini-btn rank" onclick="openLeaderboardModal()">🏆 排行</button>
         <button class="mini-btn" onclick="openGameSettingsModal()">⚙️ 設定</button>
         <button class="mini-btn shop" onclick="openShopModal()">🏪 商店</button>
         <button class="mini-btn gold" onclick="openStealModal(false, false)">🏁 結算</button>
@@ -1166,6 +1309,34 @@
   <!-- ==================== 手機滿版橫向挖掘＋蓋房主畫布 ==================== -->
   <div class="canvas-wrap" id="canvasWrap">
     <canvas id="gameCanvas"></canvas>
+    <div class="pk-banner" id="pkChallengeBanner" style="display:none;"></div>
+
+    <!-- 摸魚排行榜彈窗（全體 / 本群 × 日排行 / 月排行） -->
+    <div class="modal-mask" id="leaderboardModal">
+      <div class="modal-card" style="border-color:#38bdf8;">
+        <h2 style="color:#38bdf8;">🏆 社畜摸魚排行榜</h2>
+        <div class="chest-badge" id="lbStatusBadge">看看誰才是真正的薪水小偷之王！</div>
+
+        <div class="lb-tabs-row">
+          <button type="button" class="lb-tab-btn active" id="lbScopeGlobal" onclick="setLeaderboardScope('global')">🌍 全體社畜榜</button>
+          <button type="button" class="lb-tab-btn" id="lbScopeGroup" onclick="setLeaderboardScope('group')">👥 本群朋友榜</button>
+        </div>
+
+        <div class="lb-tabs-row">
+          <button type="button" class="lb-tab-btn period active" id="lbPeriodDaily" onclick="setLeaderboardPeriod('daily')">📅 日排行</button>
+          <button type="button" class="lb-tab-btn period" id="lbPeriodMonthly" onclick="setLeaderboardPeriod('monthly')">🗓️ 月排行</button>
+        </div>
+
+        <div class="lb-list-box" id="lbListBox">
+          <div class="lb-empty">載入中...</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button type="button" class="modal-btn" style="background:#1e293b;color:#38bdf8;border:1.5px solid #38bdf8;" onclick="refreshLeaderboard(true)">🔄 重新整理</button>
+          <button type="button" class="modal-btn" onclick="closeLeaderboardModal()">返回遊戲 ➔</button>
+        </div>
+      </div>
+    </div>
 
     <!-- 右上角設定彈窗（音樂 / 音效 / 月薪設定） -->
     <div class="modal-mask" id="settingsModal">
@@ -1985,13 +2156,15 @@ function updateThiefHUD() {
   const isChestOpen = document.getElementById('chestEventModal').classList.contains('open');
   const isSettingsOpen = document.getElementById('settingsModal').classList.contains('open');
   const isGuideOpen = document.getElementById('guideModal').classList.contains('open');
+  const isLbOpen = document.getElementById('leaderboardModal').classList.contains('open');
   const isQuizOpen = document.getElementById('levelQuizModal').classList.contains('open');
-  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen && !isSettingsOpen && !isGuideOpen && !isQuizOpen) {
+  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen && !isSettingsOpen && !isGuideOpen && !isLbOpen && !isQuizOpen) {
     thiefStats.activeStealMs += dt;
   }
 
   const totalMoney = getCurrentMoney();
   document.getElementById('liveStealMoney').textContent = `NT$ ${totalMoney}`;
+  checkPkChallengeProgress(totalMoney);
   const shopBal = document.getElementById('shopBalanceText');
   if (shopBal) shopBal.textContent = `NT$ ${totalMoney}`;
 }
@@ -2103,6 +2276,7 @@ function openStealModal(isClear = false, isDead = false, extraClearNote = '') {
   }
   renderAffiliateReviveUI(isDead && hero.dailyLives <= 0);
   renderLedgerSummaryInModal();
+  syncScoreToLeaderboard();
   document.getElementById('resultModal').classList.add('open');
 }
 
@@ -3592,8 +3766,9 @@ function updateCoffeeAutoRegen() {
   const isModalOpen = document.getElementById('resultModal').classList.contains('open');
   const isChestOpen = document.getElementById('chestEventModal').classList.contains('open');
   const isGuideOpen = document.getElementById('guideModal').classList.contains('open');
+  const isLbOpen = document.getElementById('leaderboardModal').classList.contains('open');
   const isQuizOpen = document.getElementById('levelQuizModal').classList.contains('open');
-  if (isSalaryOpen || isShopOpen || isModalOpen || isChestOpen || isGuideOpen || isQuizOpen || gameOver) return;
+  if (isSalaryOpen || isShopOpen || isModalOpen || isChestOpen || isGuideOpen || isLbOpen || isQuizOpen || gameOver) return;
 
   if (hero.coffeeAmmo < COFFEE_MAX_CAP) {
     coffeeRegenAccumMs += dt;
@@ -3815,7 +3990,8 @@ function update() {
                       document.getElementById('levelQuizModal').classList.contains('open') ||
                       document.getElementById('shopModal').classList.contains('open') ||
                       document.getElementById('settingsModal').classList.contains('open') ||
-                      document.getElementById('guideModal').classList.contains('open');
+                      document.getElementById('guideModal').classList.contains('open') ||
+                      document.getElementById('leaderboardModal').classList.contains('open');
   if (gameOver || isModalOpen || isSalaryOpen) {
     if (hero.cloakMs > 0) hero.lastCloakTick = Date.now();
     return;
@@ -4884,8 +5060,9 @@ function updateStealLedgerTick() {
   const isChestOpen = document.getElementById('chestEventModal').classList.contains('open');
   const isSettingsOpen = document.getElementById('settingsModal').classList.contains('open');
   const isGuideOpen = document.getElementById('guideModal').classList.contains('open');
+  const isLbOpen = document.getElementById('leaderboardModal').classList.contains('open');
   const isQuizOpen = document.getElementById('levelQuizModal').classList.contains('open');
-  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen && !isSettingsOpen && !isGuideOpen && !isQuizOpen) {
+  if (!isSalaryOpen && !isShopOpen && !isModalOpen && !isChestOpen && !isSettingsOpen && !isGuideOpen && !isLbOpen && !isQuizOpen) {
     const earnedInTick = (dt / 3600000) * userHourlyRate;
     stealLedger.dailyNet += earnedInTick;
     stealLedger.monthlyNet += earnedInTick;
@@ -5254,7 +5431,8 @@ let isLiffReady = false;
 const lineUserProfile = {
   userId: '',
   displayName: '',
-  pictureUrl: ''
+  pictureUrl: '',
+  groupId: ''
 };
 
 function renderLineProfileUI() {
@@ -5277,6 +5455,12 @@ async function initLineLiff() {
   try {
     await liff.init({ liffId: LINE_LIFF_ID });
     isLiffReady = true;
+    if (liff.getContext) {
+      const ctxInfo = liff.getContext();
+      if (ctxInfo) {
+        lineUserProfile.groupId = ctxInfo.groupId || ctxInfo.roomId || '';
+      }
+    }
     if (liff.isLoggedIn()) {
       const profile = await liff.getProfile();
       lineUserProfile.userId = profile.userId || '';
@@ -5300,7 +5484,9 @@ async function shareStealRecordToLine() {
   const rankEl = document.getElementById('modalThiefRank');
   const rankText = rankEl ? rankEl.textContent : '見習摸魚員';
   const playerLabel = lineUserProfile.displayName ? `【${lineUserProfile.displayName}】` : '我';
-  const shareUrl = LINE_LIFF_ID ? `https://liff.line.me/${LINE_LIFF_ID}` : window.location.href;
+  const baseShareUrl = LINE_LIFF_ID ? `https://liff.line.me/${LINE_LIFF_ID}` : (window.location.origin + window.location.pathname);
+  const pkNameParam = encodeURIComponent(lineUserProfile.displayName || '神秘社畜');
+  const shareUrl = `${baseShareUrl}?pkName=${pkNameParam}&pkMoney=${totalMoney}`;
   const plainText = `🏃‍♂️ 社畜大逃生戰績回報！\n${playerLabel}在 LV.${lvNum} 帶薪偷了 NT$${totalMoney}（可換 ${bobaCount} 杯珍奶），今日累計 NT$${dailyMoney}，獲得稱號「${rankText}」！\n快來一起潑咖啡打慣老闆 👉 ${shareUrl}`;
 
   // 1. 若在 LINE LIFF 環境內且支援 shareTargetPicker，發送精緻 Flex 卡片
@@ -5368,12 +5554,204 @@ async function shareStealRecordToLine() {
   window.open(lineShareUrl, '_blank');
 }
 
+// ==================== 雙排行榜（全體 / 本群 × 日排行 / 月排行）＋ 1對1 下戰帖 ====================
+// 請將部署好的 Google Apps Script 網頁應用程式網址貼進下方引號內
+const LEADERBOARD_API_URL = 'https://square-snowflake-db53.yklin0425.workers.dev';
+
+const lbState = {
+  scope: 'global',   // 'global' | 'group'
+  period: 'daily',   // 'daily' | 'monthly'
+  lastSyncAt: 0
+};
+
+const pkChallenge = {
+  active: false,
+  challengerName: '',
+  targetMoney: 0,
+  beaten: false
+};
+
+function getOrCreatePlayerId() {
+  if (lineUserProfile.userId) return lineUserProfile.userId;
+  try {
+    let gid = localStorage.getItem('office_escape_guest_id');
+    if (!gid) {
+      gid = 'guest_' + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem('office_escape_guest_id', gid);
+    }
+    return gid;
+  } catch (e) {
+    return 'guest_local';
+  }
+}
+
+function initPkChallengeFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('pkName');
+    const money = Number(params.get('pkMoney'));
+    if (name && money > 0) {
+      pkChallenge.active = true;
+      pkChallenge.challengerName = name.slice(0, 16);
+      pkChallenge.targetMoney = Math.round(money);
+      pkChallenge.beaten = false;
+      const banner = document.getElementById('pkChallengeBanner');
+      if (banner) {
+        banner.textContent = `🔥 【${pkChallenge.challengerName}】下戰帖！目標偷超過 NT$${pkChallenge.targetMoney}`;
+        banner.style.display = 'block';
+      }
+    }
+  } catch (e) {}
+}
+
+function checkPkChallengeProgress(currentMoney) {
+  if (!pkChallenge.active || pkChallenge.beaten) return;
+  if (currentMoney > pkChallenge.targetMoney) {
+    pkChallenge.beaten = true;
+    const banner = document.getElementById('pkChallengeBanner');
+    if (banner) {
+      banner.classList.add('beaten');
+      banner.textContent = `👑 已打敗【${pkChallenge.challengerName}】的 NT$${pkChallenge.targetMoney}！摸魚王是你！`;
+    }
+    playSound('win');
+    vibrate([30, 20, 50]);
+    spawnParticles(hero.x + hero.w / 2, hero.y, ['#fde047', '#34d399', '#38bdf8'], 28, 7);
+    spawnFloatText(hero.x, hero.y - 30, `👑 成功超越【${pkChallenge.challengerName}】！`, '#fde047');
+  }
+}
+
+async function syncScoreToLeaderboard(force = false) {
+  if (!LEADERBOARD_API_URL) return;
+  const now = Date.now();
+  if (!force && now - lbState.lastSyncAt < 8000) return;
+  lbState.lastSyncAt = now;
+
+  updateStealLedgerTick();
+  const payload = {
+    userId: getOrCreatePlayerId(),
+    displayName: lineUserProfile.displayName || ('社畜#' + getOrCreatePlayerId().slice(-4)),
+    pictureUrl: lineUserProfile.pictureUrl || '',
+    groupId: lineUserProfile.groupId || '',
+    dayKey: stealLedger.dayKey || getPeriodKeys(now).dayKey,
+    dailyNet: Math.round(stealLedger.dailyNet || 0),
+    monthKey: stealLedger.monthKey || getPeriodKeys(now).monthKey,
+    monthlyNet: Math.round(stealLedger.monthlyNet || 0),
+    maxLevel: levelIndex + 1
+  };
+
+  try {
+    await fetch(LEADERBOARD_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {}
+}
+
+function openLeaderboardModal() {
+  initAudio();
+  playSound('build');
+  document.getElementById('leaderboardModal').classList.add('open');
+  refreshLeaderboard(true);
+}
+
+function closeLeaderboardModal() {
+  document.getElementById('leaderboardModal').classList.remove('open');
+}
+
+function setLeaderboardScope(scope) {
+  initAudio();
+  playSound('build');
+  lbState.scope = scope;
+  document.getElementById('lbScopeGlobal').classList.toggle('active', scope === 'global');
+  document.getElementById('lbScopeGroup').classList.toggle('active', scope === 'group');
+  refreshLeaderboard(false);
+}
+
+function setLeaderboardPeriod(period) {
+  initAudio();
+  playSound('build');
+  lbState.period = period;
+  document.getElementById('lbPeriodDaily').classList.toggle('active', period === 'daily');
+  document.getElementById('lbPeriodMonthly').classList.toggle('active', period === 'monthly');
+  refreshLeaderboard(false);
+}
+
+async function refreshLeaderboard(uploadFirst = false) {
+  const listBox = document.getElementById('lbListBox');
+  const badge = document.getElementById('lbStatusBadge');
+  if (!listBox) return;
+
+  const keysNow = getPeriodKeys(Date.now());
+  const periodLabel = lbState.period === 'daily' ? `📅 今日（${keysNow.dayKey}）` : `🗓️ 本月（${keysNow.monthKey}）`;
+  const scopeLabel = lbState.scope === 'global' ? '🌍 全體社畜' : '👥 本群朋友';
+  if (badge) badge.textContent = `${scopeLabel}・${periodLabel}偷薪排行`;
+
+  if (!LEADERBOARD_API_URL) {
+    listBox.innerHTML = `<div class="lb-empty">⚙️ 尚未設定排行榜後端網址。<br>請先部署 Google Apps Script 並將網址貼到程式碼的 <strong>LEADERBOARD_API_URL</strong> 即可啟用！</div>`;
+    return;
+  }
+
+  if (lbState.scope === 'group' && !lineUserProfile.groupId) {
+    listBox.innerHTML = `<div class="lb-empty">👥 請從 <strong>LINE 群組聊天室</strong>點開遊戲連結，系統就會自動辨識該群組並顯示你們的專屬摸魚排行！</div>`;
+    return;
+  }
+
+  listBox.innerHTML = `<div class="lb-empty">⏳ 正在讀取 ${scopeLabel} ${lbState.period === 'daily' ? '日' : '月'}排行...</div>`;
+
+  try {
+    if (uploadFirst) {
+      await syncScoreToLeaderboard(true);
+    }
+    const qs = new URLSearchParams({
+      scope: lbState.scope,
+      period: lbState.period,
+      groupId: lineUserProfile.groupId || '',
+      dayKey: keysNow.dayKey,
+      monthKey: keysNow.monthKey
+    });
+    const res = await fetch(`${LEADERBOARD_API_URL}?${qs.toString()}`, { cache: 'no-store' });
+    const data = await res.json();
+    const items = (data && Array.isArray(data.items)) ? data.items : [];
+    if (items.length === 0) {
+      listBox.innerHTML = `<div class="lb-empty">目前還沒有人上榜，快去摸魚偷薪搶下第 1 名！</div>`;
+      return;
+    }
+
+    const myId = getOrCreatePlayerId();
+    const medals = ['🥇', '🥈', '🥉'];
+    listBox.innerHTML = items.map((item, idx) => {
+      const isMe = item.userId === myId;
+      const rankDisp = medals[idx] || `#${idx + 1}`;
+      const scoreVal = lbState.period === 'daily' ? (Number(item.dailyNet) || 0) : (Number(item.monthlyNet) || 0);
+      const safeName = String(item.displayName || '神秘社畜').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const avatarHtml = item.pictureUrl
+        ? `<img class="lb-avatar" src="${item.pictureUrl}" alt="頭貼">`
+        : `<div class="lb-avatar-fallback">👷</div>`;
+      return `
+        <div class="lb-row ${isMe ? 'me' : ''}">
+          <div class="lb-rank">${rankDisp}</div>
+          ${avatarHtml}
+          <div class="lb-info">
+            <div class="lb-name">${safeName}${isMe ? ' (你)' : ''}</div>
+            <div class="lb-meta">最高闖到 LV.${Number(item.maxLevel) || 1}</div>
+          </div>
+          <div class="lb-score">NT$ ${Math.round(scoreVal).toLocaleString()}</div>
+        </div>
+      `;
+    }).join('');
+  } catch (e) {
+    listBox.innerHTML = `<div class="lb-empty">⚠️ 讀取排行榜失敗，請稍後再按「重新整理」試試看。</div>`;
+  }
+}
+
 updateSalaryPreview();
 resizeCanvas();
 loadLevel(0);
 loadGameProgressFromDevice();
 requestAnimationFrame(loop);
 initLineLiff();
+initPkChallengeFromUrl();
 </script>
 </body>
 </html>
